@@ -46,7 +46,7 @@ class Labeled extends Action {
 		const url = this.issueUrl(content.number);
 		const title = titlePreix + content.title;
 		let workItem: WorkItemTrackingInterfaces.WorkItem;
-		safeLog(`issue labeled with ${bugLabel}. Bug work item will be created.`);
+		safeLog(`issue labeled with ${bugLabel}. Bug work item will be created. ${sprintPath}`);
 		workItem = await client.createBugItem(title, asignee, undefined, url, sprintPath);
 		safeLog(`finished to create work item.`);
 		const workItemUrl = workItem._links?.html?.href;

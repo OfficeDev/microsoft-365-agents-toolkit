@@ -100,7 +100,7 @@ export class DevopsClient {
 			tagsValue,
 			url,
 			'Bug',
-			sprintPath??this.bugIteration,
+			this.bugIteration,
 		);
 	}
 

@@ -11,7 +11,7 @@ on:
 
 jobs:
   main:
-    if: ${{contains(github.event.issue.labels.*.name, 'cherry-pick-hotfix')}}
+    if: ${{contains(github.event.issue.labels.*.name, 'cherry-pick-hotfix') || github.event_name == 'workflow_dispatch'}}
     runs-on: ubuntu-latest
     environment: engineering
     permissions:
