@@ -88,6 +88,161 @@ describe("invokeTeamsAgent", async () => {
     );
   });
 
+  it("install Github Copilot and invoke Teams Agent - WalkThrough - 1", async () => {
+    sandbox.stub(globalState, "globalStateGet").resolves(true);
+    clock = sandbox.useFakeTimers();
+    sandbox.stub(versionUtils, "isVSCodeInsiderVersion").returns(true);
+    sandbox
+      .stub(vscode.extensions, "getExtension")
+      .onFirstCall()
+      .returns(undefined)
+      .onSecondCall()
+      .returns({ name: "github.copilot" } as any);
+    const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+    sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(
+        localize("teamstoolkit.handlers.askInstallCopilot.install") as unknown as vscode.MessageItem
+      );
+
+    const job = handlers.invokeTeamsAgent([
+      extTelemetryEvents.TelemetryTriggerFrom.WalkThroughIntroduction,
+    ]);
+    await clock.tickAsync(6000);
+    const res = await job;
+    chai.assert.isTrue(res.isOk());
+    chai.assert.equal(commandStub.callCount, 3);
+    chai.assert.isTrue(
+      (commandStub.getCall(2).args[1].query as string).startsWith(
+        "@teamsapp What is notification bot in Teams"
+      )
+    );
+  });
+
+  it("install Github Copilot and invoke Teams Agent - WalkThrough - 2", async () => {
+    sandbox.stub(globalState, "globalStateGet").resolves(true);
+    clock = sandbox.useFakeTimers();
+    sandbox.stub(versionUtils, "isVSCodeInsiderVersion").returns(true);
+    sandbox
+      .stub(vscode.extensions, "getExtension")
+      .onFirstCall()
+      .returns(undefined)
+      .onSecondCall()
+      .returns({ name: "github.copilot" } as any);
+    const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+    sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(
+        localize("teamstoolkit.handlers.askInstallCopilot.install") as unknown as vscode.MessageItem
+      );
+
+    const job = handlers.invokeTeamsAgent([
+      extTelemetryEvents.TelemetryTriggerFrom.WalkThroughCreate,
+    ]);
+    await clock.tickAsync(6000);
+    const res = await job;
+    chai.assert.isTrue(res.isOk());
+    chai.assert.equal(commandStub.callCount, 3);
+    chai.assert.isTrue(
+      (commandStub.getCall(2).args[1].query as string).startsWith(
+        "@teamsapp How to create notification bot with Teams Toolkit?"
+      )
+    );
+  });
+
+  it("install Github Copilot and invoke Teams Agent - WalkThrough - 3", async () => {
+    sandbox.stub(globalState, "globalStateGet").resolves(true);
+    clock = sandbox.useFakeTimers();
+    sandbox.stub(versionUtils, "isVSCodeInsiderVersion").returns(true);
+    sandbox
+      .stub(vscode.extensions, "getExtension")
+      .onFirstCall()
+      .returns(undefined)
+      .onSecondCall()
+      .returns({ name: "github.copilot" } as any);
+    const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+    sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(
+        localize("teamstoolkit.handlers.askInstallCopilot.install") as unknown as vscode.MessageItem
+      );
+
+    const job = handlers.invokeTeamsAgent([
+      extTelemetryEvents.TelemetryTriggerFrom.WalkThroughWhatIsNext,
+    ]);
+    await clock.tickAsync(6000);
+    const res = await job;
+    chai.assert.isTrue(res.isOk());
+    chai.assert.equal(commandStub.callCount, 3);
+    chai.assert.isTrue(
+      (commandStub.getCall(2).args[1].query as string).startsWith(
+        "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?"
+      )
+    );
+  });
+
+  it("install Github Copilot and invoke Teams Agent - WalkThrough - 4", async () => {
+    sandbox.stub(globalState, "globalStateGet").resolves(true);
+    clock = sandbox.useFakeTimers();
+    sandbox.stub(versionUtils, "isVSCodeInsiderVersion").returns(true);
+    sandbox
+      .stub(vscode.extensions, "getExtension")
+      .onFirstCall()
+      .returns(undefined)
+      .onSecondCall()
+      .returns({ name: "github.copilot" } as any);
+    const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+    sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(
+        localize("teamstoolkit.handlers.askInstallCopilot.install") as unknown as vscode.MessageItem
+      );
+
+    const job = handlers.invokeTeamsAgent([
+      extTelemetryEvents.TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction,
+    ]);
+    await clock.tickAsync(6000);
+    const res = await job;
+    chai.assert.isTrue(res.isOk());
+    chai.assert.equal(commandStub.callCount, 3);
+    chai.assert.isTrue(
+      (commandStub.getCall(2).args[1].query as string).startsWith(
+        "@teamsapp What is declarative agent for Microsoft 365 Copilot?"
+      )
+    );
+  });
+
+  it("install Github Copilot and invoke Teams Agent - WalkThrough - 5", async () => {
+    sandbox.stub(globalState, "globalStateGet").resolves(true);
+    clock = sandbox.useFakeTimers();
+    sandbox.stub(versionUtils, "isVSCodeInsiderVersion").returns(true);
+    sandbox
+      .stub(vscode.extensions, "getExtension")
+      .onFirstCall()
+      .returns(undefined)
+      .onSecondCall()
+      .returns({ name: "github.copilot" } as any);
+    const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+    sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(
+        localize("teamstoolkit.handlers.askInstallCopilot.install") as unknown as vscode.MessageItem
+      );
+
+    const job = handlers.invokeTeamsAgent([
+      extTelemetryEvents.TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate,
+    ]);
+    await clock.tickAsync(6000);
+    const res = await job;
+    chai.assert.isTrue(res.isOk());
+    chai.assert.equal(commandStub.callCount, 3);
+    chai.assert.isTrue(
+      (commandStub.getCall(2).args[1].query as string).startsWith(
+        "@teamsapp How to create declarative agent with Teams Toolkit?"
+      )
+    );
+  });
+
   it("install Github Copilot, wait and invoke Teams Agent", async () => {
     sandbox.stub(globalState, "globalStateGet").resolves(true);
     clock = sandbox.useFakeTimers();
