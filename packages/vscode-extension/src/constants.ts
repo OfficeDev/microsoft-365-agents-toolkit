@@ -60,7 +60,6 @@ export enum CommandKey {
   publishToAppSource = "fx-extension.publishToAppSource",
   openDeployLink = "fx-extension.officeDevDeploy",
   openOfficeDevDocument = "fx-extension.openOfficeDevDocument",
-  SelectWalkthrough = "fx-extension.selectWalkthrough",
 }
 
 export const environmentVariableRegex = /\${{[a-zA-Z-_]+}}/g;

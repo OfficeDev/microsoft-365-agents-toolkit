@@ -98,7 +98,6 @@ import {
   openSamplesHandler,
   openWelcomeHandler,
   saveTextDocumentHandler,
-  selectWalkthroughHandler,
 } from "./handlers/controlHandlers";
 import * as copilotChatHandlers from "./handlers/copilotChatHandlers";
 import {
@@ -410,7 +409,6 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
 
   // Quick start
   registerInCommandController(context, CommandKeys.OpenWelcome, openWelcomeHandler);
-  registerInCommandController(context, CommandKeys.SelectWalkthrough, selectWalkthroughHandler);
   registerInCommandController(
     context,
     CommandKeys.BuildIntelligentAppsWalkthrough,

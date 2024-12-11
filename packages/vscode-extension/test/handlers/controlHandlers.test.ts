@@ -14,7 +14,7 @@ import {
   openSamplesHandler,
   openWelcomeHandler,
   saveTextDocumentHandler,
-  selectWalkthroughHandler,
+  selectWalkthrough,
 } from "../../src/handlers/controlHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
@@ -40,7 +40,9 @@ describe("Control Handlers", () => {
       sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -56,7 +58,9 @@ describe("Control Handlers", () => {
       sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -136,7 +140,9 @@ describe("Control Handlers", () => {
       sandbox.stub(fs, "readFile").resolves(Buffer.from(""));
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -157,7 +163,9 @@ describe("Control Handlers", () => {
       sandbox.stub(fs, "readFile").resolves(Buffer.from(""));
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -326,7 +334,7 @@ describe("Control Handlers", () => {
     });
   });
 
-  describe("selectWalkthroughHandler", () => {
+  describe("selectWalkthrough", () => {
     let quickPickStub: sinon.SinonStub;
     let executeCommandStub: sinon.SinonStub;
 
@@ -352,7 +360,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -380,7 +388,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -399,7 +407,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -417,7 +425,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);

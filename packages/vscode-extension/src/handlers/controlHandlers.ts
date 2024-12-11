@@ -73,18 +73,13 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
       "workbench.action.openWalkthrough",
       "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
     );
+    return Promise.resolve(ok(data));
   } else {
-    data = await vscode.commands.executeCommand(
-      "workbench.action.openWalkthrough",
-      getWalkThroughId()
-    );
+    return await selectWalkthrough(args);
   }
-  return Promise.resolve(ok(data));
 }
 
-export async function selectWalkthroughHandler(
-  ...args: unknown[]
-): Promise<Result<unknown, FxError>> {
+export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
   const TeamsToolkitOptionLabel = getDefaultString("teamstoolkit.walkthroughs.title");
   const BuildingIntelligentAppsLabel = getDefaultString(
     "teamstoolkit.walkthroughs.buildIntelligentApps.title"

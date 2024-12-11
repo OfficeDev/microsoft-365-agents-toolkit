@@ -353,7 +353,7 @@ class TreeViewManager {
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.getStartedTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.getStarted"),
-        "fx-extension.selectWalkthrough",
+        "fx-extension.openWelcome",
         undefined,
         { name: "symbol-event", custom: false },
         TreeCategory.GettingStarted
