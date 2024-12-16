@@ -575,10 +575,12 @@ export async function createNewProject(
     : "React";
   const lang = option?.lang ? option.lang : "JavaScript";
   const dataOption = option?.dataOption ? option.dataOption : "Customize";
-  await execCommandIfExist(
-    CommandPaletteCommands.CreateProjectCommand,
-    Timeout.webView
-  );
+  await RetryHandler.retry(async () => {
+    await execCommandIfExist(
+      CommandPaletteCommands.CreateProjectCommand,
+      Timeout.webView
+    );
+  });
   console.log("Create new project: ", appName);
   const input = await InputBox.create();
   // if exist click it
