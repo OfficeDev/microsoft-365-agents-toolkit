@@ -96,7 +96,7 @@
             "name": "Launch Remote in Copilot (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "https://www.office.com/chat?auth=2&${account-hint}",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "3-M365",
@@ -108,7 +108,7 @@
             "name": "Launch Remote in Copilot (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "https://www.office.com/chat?auth=2&${account-hint}",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "3-M365",
