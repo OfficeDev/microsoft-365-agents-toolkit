@@ -6,10 +6,16 @@ import * as chai from "chai";
 import { AadManifestHelper } from "../../../../src/component/driver/aad/utility/aadManifestHelper";
 import { AadManifestErrorMessage } from "../../../../src/component/driver/aad/error/aadManifestError";
 import { AADManifest } from "../../../../src/component/driver/aad/interface/AADManifest";
+import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 
 describe("Microsoft Entra manifest helper Test", () => {
   it("manifestToApplication", async () => {
     const aadApp = AadManifestHelper.manifestToApplication(fakeAadManifest);
+    chai.expect(aadApp).to.deep.equal(fakeAadApp);
+  });
+
+  it("manifestToApplication should return original manifest if it already using new schema", async () => {
+    const aadApp = AadManifestHelper.manifestToApplication(fakeAadApp);
     chai.expect(aadApp).to.deep.equal(fakeAadApp);
   });
 
@@ -42,6 +48,22 @@ describe("Microsoft Entra manifest helper Test", () => {
     const warning = AadManifestHelper.validateManifest(invalidAadManifest);
     chai.expect(warning).contain(AadManifestErrorMessage.NameIsMissing);
     chai.expect(warning).contain(AadManifestErrorMessage.SignInAudienceIsMissing);
+    chai.expect(warning).contain(AadManifestErrorMessage.PreAuthorizedApplicationsIsMissing);
+    chai.expect(warning).contain(AadManifestErrorMessage.Oauth2PermissionsIsMissing);
+    chai.expect(warning).contain(AadManifestErrorMessage.AccessTokenAcceptedVersionIs1);
+    chai.expect(warning).contain(AadManifestErrorMessage.OptionalClaimsMissingIdtypClaim.trimEnd());
+  });
+
+  it("validateManifest with no warning with new schema", async () => {
+    const warning = AadManifestHelper.validateManifest(fakeAadApp);
+    chai.expect(warning).to.be.empty;
+  });
+
+  it("validasteManifest invalid manifest with new schema", async () => {
+    const warning = AadManifestHelper.validateManifest(invalidAadManifestWithNewSChema as any);
+    chai.expect(warning).contain(AadManifestErrorMessage.NameIsMissing);
+    chai.expect(warning).contain(AadManifestErrorMessage.SignInAudienceIsMissing);
+    chai.expect(warning).contain(AadManifestErrorMessage.RequiredResourceAccessIsMissing);
     chai.expect(warning).contain(AadManifestErrorMessage.PreAuthorizedApplicationsIsMissing);
     chai.expect(warning).contain(AadManifestErrorMessage.Oauth2PermissionsIsMissing);
     chai.expect(warning).contain(AadManifestErrorMessage.AccessTokenAcceptedVersionIs1);
@@ -331,6 +353,48 @@ const invalidAadManifest: AADManifest = {
   oauth2AllowIdTokenImplicitFlow: false,
   oauth2AllowImplicitFlow: false,
   tags: [],
+};
+
+const invalidAadManifestWithNewSChema = {
+  id: "",
+  appId: "",
+  displayName: "",
+  api: {
+    requestedAccessTokenVersion: 1,
+    knownClientApplications: [],
+    oauth2PermissionScopes: [],
+    preAuthorizedApplications: [],
+  },
+  signInAudience: "",
+  optionalClaims: {
+    idToken: [],
+    accessToken: [],
+    saml2Token: [],
+  },
+  identifierUris: [],
+  web: {
+    redirectUris: [],
+    implicitGrantSettings: {
+      enableAccessTokenIssuance: false,
+      enableIdTokenIssuance: false,
+    },
+  },
+  addIns: [],
+  appRoles: [],
+  info: {
+    marketingUrl: "",
+    privacyStatementUrl: "",
+    supportUrl: "",
+    termsOfServiceUrl: "",
+  },
+  keyCredentials: [],
+  tags: [],
+  publicClient: {
+    redirectUris: [],
+  },
+  spa: {
+    redirectUris: [],
+  },
 };
 
 const fakeAadApp = {

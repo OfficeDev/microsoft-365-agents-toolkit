@@ -19,7 +19,13 @@ import {
 const componentName = "AadManifestHelper";
 
 export class AadManifestHelper {
-  public static manifestToApplication(manifest: AADManifest): AADApplication {
+  public static manifestToApplication(manifest: AADManifest | AADApplication): AADApplication {
+    if (this.isNewAADManifestSchema(manifest)) {
+      return manifest as AADApplication;
+    }
+
+    manifest = manifest as AADManifest;
+
     const result: AADApplication = {
       id: manifest.id,
       appId: manifest.appId,
@@ -170,13 +176,8 @@ export class AadManifestHelper {
     return result;
   }
 
-  public static validateManifest(manifest: AADManifest): string {
+  public static validateManifest(manifest: AADManifest | AADApplication): string {
     let warningMsg = "";
-
-    // if manifest doesn't contain name property or name is empty
-    if (!manifest.name || manifest.name === "") {
-      warningMsg += AadManifestErrorMessage.NameIsMissing;
-    }
 
     // if manifest doesn't contain signInAudience property
     if (!manifest.signInAudience) {
@@ -188,19 +189,54 @@ export class AadManifestHelper {
       warningMsg += AadManifestErrorMessage.RequiredResourceAccessIsMissing;
     }
 
-    // if manifest doesn't contain oauth2Permissions or oauth2Permissions length is 0
-    if (!manifest.oauth2Permissions || manifest.oauth2Permissions.length === 0) {
-      warningMsg += AadManifestErrorMessage.Oauth2PermissionsIsMissing;
-    }
+    if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
+      manifest = manifest as AADApplication;
+      // if manifest doesn't contain name property or name is empty
+      if (!manifest.displayName || manifest.displayName === "") {
+        warningMsg += AadManifestErrorMessage.NameIsMissing;
+      }
 
-    // if manifest doesn't contain preAuthorizedApplications
-    if (!manifest.preAuthorizedApplications || manifest.preAuthorizedApplications.length === 0) {
-      warningMsg += AadManifestErrorMessage.PreAuthorizedApplicationsIsMissing;
-    }
+      // if manifest doesn't contain oauth2Permissions or oauth2Permissions length is 0
+      if (
+        !manifest.api?.oauth2PermissionScopes ||
+        manifest.api?.oauth2PermissionScopes.length === 0
+      ) {
+        warningMsg += AadManifestErrorMessage.Oauth2PermissionsIsMissing;
+      }
 
-    // if accessTokenAcceptedVersion in manifest is not 2
-    if (manifest.accessTokenAcceptedVersion !== 2) {
-      warningMsg += AadManifestErrorMessage.AccessTokenAcceptedVersionIs1;
+      // if manifest doesn't contain preAuthorizedApplications
+      if (
+        !manifest.api?.preAuthorizedApplications ||
+        manifest.api?.preAuthorizedApplications.length === 0
+      ) {
+        warningMsg += AadManifestErrorMessage.PreAuthorizedApplicationsIsMissing;
+      }
+
+      // if accessTokenAcceptedVersion in manifest is not 2
+      if (manifest.api?.requestedAccessTokenVersion !== 2) {
+        warningMsg += AadManifestErrorMessage.AccessTokenAcceptedVersionIs1;
+      }
+    } else {
+      manifest = manifest as AADManifest;
+      // if manifest doesn't contain name property or name is empty
+      if (!manifest.name || manifest.name === "") {
+        warningMsg += AadManifestErrorMessage.NameIsMissing;
+      }
+
+      // if manifest doesn't contain oauth2Permissions or oauth2Permissions length is 0
+      if (!manifest.oauth2Permissions || manifest.oauth2Permissions.length === 0) {
+        warningMsg += AadManifestErrorMessage.Oauth2PermissionsIsMissing;
+      }
+
+      // if manifest doesn't contain preAuthorizedApplications
+      if (!manifest.preAuthorizedApplications || manifest.preAuthorizedApplications.length === 0) {
+        warningMsg += AadManifestErrorMessage.PreAuthorizedApplicationsIsMissing;
+      }
+
+      // if accessTokenAcceptedVersion in manifest is not 2
+      if (manifest.accessTokenAcceptedVersion !== 2) {
+        warningMsg += AadManifestErrorMessage.AccessTokenAcceptedVersionIs1;
+      }
     }
 
     // if manifest doesn't contain optionalClaims or access token doesn't contain idtyp clams
@@ -216,7 +252,9 @@ export class AadManifestHelper {
     return warningMsg.trimEnd();
   }
 
-  public static processRequiredResourceAccessInManifest(manifest: AADManifest): void {
+  public static processRequiredResourceAccessInManifest(
+    manifest: AADManifest | AADApplication
+  ): void {
     const map = getPermissionMap();
 
     if (manifest.requiredResourceAccess && !Array.isArray(manifest.requiredResourceAccess)) {
@@ -266,5 +304,9 @@ export class AadManifestHelper {
         }
       });
     });
+  }
+
+  public static isNewAADManifestSchema(manifest: AADManifest | AADApplication): boolean {
+    return "displayName" in manifest;
   }
 }

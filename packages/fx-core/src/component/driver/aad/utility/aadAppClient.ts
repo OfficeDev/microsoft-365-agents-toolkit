@@ -147,7 +147,7 @@ export class AadAppClient {
   }
 
   @hooks([ErrorContextMW({ source: "Graph", component: "AadAppClient" })])
-  public async updateAadApp(manifest: AADManifest): Promise<void> {
+  public async updateAadApp(manifest: AADManifest | AADApplication): Promise<void> {
     const objectId = manifest.id!; // You need to ensure the object id exists in manifest
     const requestBody = AadManifestHelper.manifestToApplication(manifest);
     try {

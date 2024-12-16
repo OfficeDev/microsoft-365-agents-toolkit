@@ -19,6 +19,9 @@ import { UpdateAadAppOutput } from "./interface/updateAadAppOutput";
 import { AadAppClient } from "./utility/aadAppClient";
 import { buildAadManifest } from "./utility/buildAadManifest";
 import { descriptionMessageKeys, logMessageKeys } from "./utility/constants";
+import { AadManifestHelper } from "./utility/aadManifestHelper";
+import { AADApplication } from "./interface/AADApplication";
+import { AADManifest } from "./interface/AADManifest";
 
 export const actionName = "aadApp/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-update";
@@ -39,22 +42,33 @@ export class UpdateAadAppDriver implements StepDriver {
       this.validateArgs(args);
       const aadAppClient = new AadAppClient(context.m365TokenProvider, context.logProvider);
 
-      const manifest = await buildAadManifest(
-        context,
-        args.manifestPath,
-        args.outputFilePath,
-        state
-      );
+      let manifest = await buildAadManifest(context, args.manifestPath, args.outputFilePath, state);
 
       // MS Graph API does not allow adding new OAuth permissions and pre authorize it within one request
       // So split update Microsoft Entra app to two requests:
       // 1. If there's preAuthorizedApplications, remove it temporary and update Microsoft Entra app to create possible new permission
-      if (manifest.preAuthorizedApplications && manifest.preAuthorizedApplications.length > 0) {
-        const preAuthorizedApplications = manifest.preAuthorizedApplications;
-        manifest.preAuthorizedApplications = [];
-        await aadAppClient.updateAadApp(manifest);
-        manifest.preAuthorizedApplications = preAuthorizedApplications;
+
+      if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
+        manifest = manifest as AADApplication;
+        if (
+          manifest.api?.preAuthorizedApplications &&
+          manifest.api.preAuthorizedApplications?.length > 0
+        ) {
+          const preAuthorizedApplications = manifest.api.preAuthorizedApplications;
+          manifest.api.preAuthorizedApplications = [];
+          await aadAppClient.updateAadApp(manifest);
+          manifest.api.preAuthorizedApplications = preAuthorizedApplications;
+        }
+      } else {
+        manifest = manifest as AADManifest;
+        if (manifest.preAuthorizedApplications && manifest.preAuthorizedApplications.length > 0) {
+          const preAuthorizedApplications = manifest.preAuthorizedApplications;
+          manifest.preAuthorizedApplications = [];
+          await aadAppClient.updateAadApp(manifest);
+          manifest.preAuthorizedApplications = preAuthorizedApplications;
+        }
       }
+
       // 2. Update Microsoft Entra app again with full manifest to set preAuthorizedApplications
       await aadAppClient.updateAadApp(manifest);
       const summary = getLocalizedString(
