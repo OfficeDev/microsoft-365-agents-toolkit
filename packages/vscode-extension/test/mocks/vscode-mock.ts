@@ -28,6 +28,9 @@ class MockClipboard {
 
 export function initialize() {
   generateMock("debug");
+  (mockedVSCode as any).debug.activeDebugConsole = {
+    appendLine: () => {},
+  };
   generateMock("scm");
   generateNotebookMocks();
 

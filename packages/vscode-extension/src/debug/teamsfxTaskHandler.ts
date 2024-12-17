@@ -9,6 +9,8 @@ import * as vscode from "vscode";
 import { ProductName, UserError } from "@microsoft/teamsfx-api";
 import {
   Correlator,
+  featureFlagManager,
+  FeatureFlags,
   getHashedEnv,
   Hub,
   isValidProject,
@@ -17,15 +19,16 @@ import {
 
 import VsCodeLogInstance from "../commonlib/log";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
-import { VS_CODE_UI } from "../qm/vsc_ui";
 import * as globalVariables from "../globalVariables";
+import { VS_CODE_UI } from "../qm/vsc_ui";
 import {
   TelemetryEvent,
   TelemetryMeasurements,
   TelemetryProperty,
 } from "../telemetry/extTelemetryEvents";
-import { localize } from "../utils/localizeUtils";
 import { getNpmInstallLogInfo, getTestToolLogInfo } from "../utils/localEnvManagerUtils";
+import { localize } from "../utils/localizeUtils";
+import { processUtil } from "../utils/processUtil";
 import {
   clearAADAfterLocalDebugHelpLink,
   DebugNoSessionId,
@@ -35,18 +38,18 @@ import {
   issueTemplate,
   m365AppsPrerequisitesHelpLink,
 } from "./common/debugConstants";
-import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
-import { BaseTunnelTaskTerminal } from "./taskTerminal/baseTunnelTaskTerminal";
-import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
 import { allRunningTeamsfxTasks } from "./common/globalVariables";
 import {
-  getLocalDebugSession,
   endLocalDebugSession,
+  getLocalDebugSession,
   getLocalDebugSessionId,
 } from "./common/localDebugSession";
-import { allRunningDebugSessions } from "./officeTaskHandler";
+import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
 import { deleteAad } from "./deleteAadHelper";
-import { processUtil } from "../utils/processUtil";
+import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
+import { allRunningDebugSessions } from "./officeTaskHandler";
+import { BaseTunnelTaskTerminal } from "./taskTerminal/baseTunnelTaskTerminal";
+import { cdpClientManager, isM365CopilotChatDebugConfiguration } from "../pluginDebugger/cdpClient";
 
 class NpmInstallTaskInfo {
   private startTime: number;
@@ -453,6 +456,14 @@ async function onDidEndTaskProcessHandler(event: vscode.TaskProcessEndEvent): Pr
 }
 
 async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
+  if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginDebug)) {
+    const port = isM365CopilotChatDebugConfiguration(event.configuration);
+    if (port) {
+      const url = event.configuration.url;
+      const name = event.configuration.name;
+      cdpClientManager.start(url, port, name);
+    }
+  }
   if (globalVariables.workspaceUri && isValidProject(globalVariables.workspaceUri.fsPath)) {
     const debugConfig = event.configuration as TeamsfxDebugConfiguration;
     if (
@@ -540,11 +551,17 @@ export async function terminateAllRunningTeamsfxTasks(): Promise<void> {
     }
   }
   allRunningTeamsfxTasks.clear();
-  BaseTunnelTaskTerminal.stopAll();
   void deleteAad();
+  BaseTunnelTaskTerminal.stopAll();
 }
 
 async function onDidTerminateDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
+  if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginDebug)) {
+    const port = isM365CopilotChatDebugConfiguration(event.configuration);
+    if (port) {
+      await cdpClientManager.stop(port);
+    }
+  }
   if (allRunningDebugSessions.has(event.id)) {
     // a valid debug session
     // send stop-debug event telemetry
