@@ -439,12 +439,12 @@ jobs:
           value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}
 
       - name: Setup OpenAI key(macos)
-        if: ${{ matrix.os == 'macos-latest' && github.event_name != 'schedule' }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
 
       - name: Setup OpenAI key(win)
-        if: ${{ matrix.os == 'windows-latest' && github.event_name != 'schedule' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
 

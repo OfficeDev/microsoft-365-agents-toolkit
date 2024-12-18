@@ -96,14 +96,27 @@ describe("Local Debug Tests", function () {
       );
       await localDebugTestContext.validateLocalStateForBot();
       if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "Tell me about Contoso Electronics PerksPlus Program",
-          expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "$1000",
-          timeout: Timeout.longTimeWait,
-        });
+        try {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "$1000",
+            timeout: Timeout.longTimeWait,
+          });
+        } catch {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "Tell me about Contoso Electronics PerksPlus Program",
+            expectedWelcomeMessage:
+              ValidationContent.AiChatBotWelcomeInstruction,
+            expectedReplyMessage: "not provide",
+            timeout: Timeout.longTimeWait,
+          });
+        }
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,

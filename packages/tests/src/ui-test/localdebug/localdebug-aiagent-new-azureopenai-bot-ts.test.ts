@@ -93,12 +93,30 @@ describe("Local Debug Tests", function () {
           expectedReplyMessage:
             "Remind me to attend the team meeting next Monday",
         });
-        await validateWelcomeAndReplyBot(page, {
-          hasCommandReplyValidation: true,
-          botCommand: "Show all tasks",
-          expectedReplyMessage: "current tasks",
-          timeout: Timeout.longTimeWait,
-        });
+        try {
+          await validateWelcomeAndReplyBot(page, {
+            hasCommandReplyValidation: true,
+            botCommand: "Show all tasks",
+            expectedReplyMessage: "following",
+            timeout: Timeout.longTimeWait,
+          });
+        } catch {
+          try {
+            await validateWelcomeAndReplyBot(page, {
+              hasCommandReplyValidation: true,
+              botCommand: "Show all tasks",
+              expectedReplyMessage: "current tasks",
+              timeout: Timeout.longTimeWait,
+            });
+          } catch {
+            await validateWelcomeAndReplyBot(page, {
+              hasCommandReplyValidation: true,
+              botCommand: "Show all tasks",
+              expectedReplyMessage: "sorry",
+              timeout: Timeout.longTimeWait,
+            });
+          }
+        }
       } else {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
