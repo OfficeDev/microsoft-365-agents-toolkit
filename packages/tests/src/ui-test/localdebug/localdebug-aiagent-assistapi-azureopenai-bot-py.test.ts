@@ -26,6 +26,7 @@ import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
 import { editDotEnvFile, validateFileExist } from "../../utils/commonUtils";
 import { Executor } from "../../utils/executor";
+import os from "os";
 
 describe("Local Debug Tests", function () {
   this.timeout(Timeout.testCase);
@@ -84,7 +85,13 @@ describe("Local Debug Tests", function () {
       if (isRealKey) {
         console.log("Start to create azure assistant id");
 
-        const insertDataCmd = `python src/utils/creator.py --api-key ${azureOpenAiKey}`;
+        let insertDataCmd = "";
+        if (os.type() === "Windows_NT") {
+          insertDataCmd = `python src/utils/creator.py --api-key ${azureOpenAiKey}`;
+        } else {
+          insertDataCmd = `python src/utils/creator.py --api-key '${azureOpenAiKey}'`;
+        }
+
         const { success: insertDataSuccess, stdout: log } =
           await Executor.execute(insertDataCmd, projectPath);
         // get assistant id from log string
