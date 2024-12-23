@@ -231,9 +231,7 @@ export async function initPage(
       console.log("clicked open app");
       await openApp.click();
     } catch {
-      const openApp = await page?.waitForSelector("button:has-text('Open')");
-      console.log("retry clicked open app");
-      await openApp.click();
+      console.log("No Open App button");
     }
     console.log("[success] app loaded");
   });
