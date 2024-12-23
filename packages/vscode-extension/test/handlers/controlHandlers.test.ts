@@ -52,6 +52,20 @@ describe("Control Handlers", () => {
       );
     });
 
+    it("opens normal walkthrough -SideBar", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
+      sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
+      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
+      const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      await openWelcomeHandler("SideBar");
+      sandbox.assert.calledOnceWithExactly(
+        executeCommands,
+        "workbench.action.openWalkthrough",
+        "TeamsDevApp.ms-teams-vscode-extension#teamsToolkitGetStarted"
+      );
+    });
+
     it("opens walkthrough with chat", async () => {
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
@@ -78,7 +92,7 @@ describe("Control Handlers", () => {
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 
-      await openWelcomeHandler();
+      await openWelcomeHandler("invalidArgs");
 
       sandbox.assert.calledOnceWithExactly(
         executeCommands,
