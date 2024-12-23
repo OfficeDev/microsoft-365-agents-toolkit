@@ -114,7 +114,7 @@ Here's a sample action with type `Action.Execute`:
 }
 ```
 
-Specifying the `type` as `Action.Execute` to define an universal action in the base card. User can click the button to perform some business task in Teams chat. Learn more about [Adaptive Card Universal Actions in the documentation](https://learn.microsoft.com/microsoftteams/platform/task-modules-and-cards/cards/universal-actions-for-adaptive-cards/overview?tabs=mobile#universal-actions).
+Specifying the `type` as `Action.Execute` to define a universal action in the base card. User can click the button to perform some business task in Teams chat. Learn more about [Adaptive Card Universal Actions in the documentation](https://learn.microsoft.com/microsoftteams/platform/task-modules-and-cards/cards/universal-actions-for-adaptive-cards/overview?tabs=mobile#universal-actions).
 
 > **_NOTE:_** the `verb` property is required here so that the TeamsFx conversation SDK can invoke the corresponding action handler when the action is invoked in Teams. You should provide a global unique string for the `verb` property, otherwise you may experience unexpected behavior if you're using a general string that might cause a collision with other bot actions.
 
@@ -204,11 +204,11 @@ Workflow bot is compatible with other bot scenarios like notification bot and co
 
 ### Add notifications to your workflow bot
 
-The notification feature adds the ability for your application to send Adaptive Cards in response to external events. Follow the [steps here](https://aka.ms/teamsfx-workflow-new#how-to-extend-workflow-bot-with-notification-feature) to add the notification feature to your workflow bot. Refer [the notification document](https://aka.ms/teamsfx-notification-new) for more information.
+The notification feature adds the ability for your application to send Adaptive Cards in response to external events. Follow the [steps here](https://aka.ms/teamsfx-workflow-new#how-to-extend-workflow-bot-with-notification-feature) to add the notification feature to your workflow bot. Refer to [the notification document](https://aka.ms/teamsfx-notification-new) for more information.
 
 ### Add command and responses to your workflow bot
 
-The command and response feature adds the ability for your application to "listen" to commands sent to it via a Teams message and respond to commands with Adaptive Cards. Follow the [steps here](https://aka.ms/teamsfx-command-new#How-to-add-more-command-and-response) to add the command response feature to your workflow bot. Refer [the command bot document](https://aka.ms/teamsfx-command-new) for more information.
+The command and response feature adds the ability for your application to "listen" to commands sent to it via a Teams message and respond to commands with Adaptive Cards. Follow the [steps here](https://aka.ms/teamsfx-command-new#How-to-add-more-command-and-response) to add the command response feature to your workflow bot. Refer to [the command bot document](https://aka.ms/teamsfx-command-new) for more information.
 
 ## Additional information and references
 
@@ -216,5 +216,5 @@ The command and response feature adds the ability for your application to "liste
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
