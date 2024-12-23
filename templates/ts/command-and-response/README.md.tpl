@@ -2,7 +2,7 @@
 
 This template showcases an app that responds to chat commands by displaying UI using an Adaptive Card. This enables your users to type in simple messages in Teams and your application can provide an appropriate response based on the contents of the message.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built using the Teams AI SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 ## Get Started with the Command bot
 
@@ -12,7 +12,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20
 {{^enableTestToolByDefault}}
-> - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
+> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
@@ -64,7 +64,6 @@ The following files can be customized and demonstrate an example implementation 
 | `src/teamsBot.ts`  | An empty teams activity handler for bot customization |
 | `src/adaptiveCards/helloworldCommand.json` | A generated Adaptive Card that is sent to Teams |
 | `src/helloworldCommandHandler.ts` | The business logic to handle a command |
-| `src/cardModels.ts` | The default Adaptive Card data model |
 
 ## Extend the command bot template with more commands and responses
 
@@ -137,7 +136,6 @@ import { Activity, CardFactory, MessageFactory, TurnContext } from "botbuilder";
 import { Selector } from "@microsoft/teams-ai";
 import doSomethingCard from "./adaptiveCards/doSomethingCommandResponse.json";
 import * as ACData from "adaptivecards-templating";
-import { CardData } from "./cardModels";
 
 export class DoSomethingCommandHandler implements TeamsFxBotCommandHandler {
   triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "doSomething";
@@ -206,5 +204,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
+- [Teams AI SDK](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

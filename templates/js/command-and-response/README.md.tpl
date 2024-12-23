@@ -2,7 +2,7 @@
 
 This template showcases an app that responds to chat commands by displaying UI using an Adaptive Card. This enables your users to type in simple messages in Teams and your application can provide an appropriate response based on the contents of the message.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built using the Teams AI SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 ## Get Started with the Command bot
 
@@ -12,7 +12,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20
 {{^enableTestToolByDefault}}
-> - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
+> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
@@ -144,7 +144,7 @@ class DoSomethingCommandHandler {
     console.log(`App received message: ${context.activity.text}`);
 
     // do something to process your command and return message activity as the response
-    const cardJson = new ACData.Template(helloWorldCard).expand({
+    const cardJson = new ACData.Template(doSomethingCard).expand({
       $root: {
         title: "doSomething command is added",
       body: "Congratulations! You have responded to doSomething command",
@@ -166,6 +166,8 @@ You can customize what the command does here, including calling an API, process 
 Each new command needs to be configured in the `ConversationBot`, which powers the conversational flow of the command bot template. Navigate to the `src/index.js` file and register the trigger pattern to `app.message()`:
 
 ```javascript
+const { DoSomethingCommandHandler } = require("./doSomethingCommandHandler");
+// ...existing code...
 const doSomethingCommandHandler = new DoSomethingCommandHandler();
 app.message(
   doSomethingCommandHandler.triggerPatterns,
@@ -177,6 +179,7 @@ app.message(
     }
   }
 );
+// ...existing code...
 ```
 
 Congratulations, you've just created your own command! To learn more about the command bot template, [visit the documentation on GitHub](https://aka.ms/teamsfx-command-new). You can find more scenarios like:
@@ -205,5 +208,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
