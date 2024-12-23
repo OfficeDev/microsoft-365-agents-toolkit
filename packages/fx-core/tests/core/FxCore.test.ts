@@ -2139,7 +2139,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);
@@ -2181,7 +2180,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);
@@ -2221,7 +2219,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);

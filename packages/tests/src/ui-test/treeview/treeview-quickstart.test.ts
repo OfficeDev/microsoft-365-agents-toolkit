@@ -1,12 +1,25 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 /**
  * @author Helly Zhang <v-helzha@microsoft.com>
  */
-import { By, EditorView, VSBrowser, WebView } from "vscode-extension-tester";
+import {
+  By,
+  EditorView,
+  InputBox,
+  VSBrowser,
+  WebView,
+} from "vscode-extension-tester";
 import { expect } from "chai";
 import { execCommandIfExist } from "../../utils/vscodeOperation";
 import { TreeViewTestContext } from "./treeviewContext";
-import { CommandPaletteCommands, Timeout } from "../../utils/constants";
-import { delay } from "../../utils/retryHandler";
+import {
+  CommandPaletteCommands,
+  CreateProjectQuestion,
+  Timeout,
+} from "../../utils/constants";
+import { delay, RetryHandler } from "../../utils/retryHandler";
 import { it } from "../../utils/it";
 
 describe("Openning Quick Start Tests", function () {
@@ -35,39 +48,95 @@ describe("Openning Quick Start Tests", function () {
       const driver = VSBrowser.instance.driver;
       await driver.sleep(Timeout.reloadWindow);
       await new EditorView().closeAllEditors();
+
+      // get started page for "Build a Notification Bot"
+      await RetryHandler.retry(async () => {
+        await execCommandIfExist("View: Toggle Full Screen");
+      });
       await execCommandIfExist(
         CommandPaletteCommands.QuickStartCommand,
         Timeout.webView
       );
+      const input = await InputBox.create();
+      await input.selectQuickPick(CreateProjectQuestion.BuildNotificationBot);
+
       const webView = new WebView();
 
       const element = await webView.findWebElement(
         By.className("category-description-container")
       );
-      const text = await element.getText();
-      expect(text).has.string("Get Started with Teams Toolkit");
+      const type1Title = await element.getText();
+      expect(type1Title).has.string(CreateProjectQuestion.BuildNotificationBot);
 
-      let button = await getExpandedButton(
+      // Check item "Get your environment ready"
+      const type1Item1 = await getExpandedButton(
         webView,
         false,
         "Get your environment ready"
       );
-      const item = await button.findElement(By.css("h3"));
-      const itemContext = await item.getText();
-      expect(itemContext).has.string("Get your environment ready");
-      const button1 = await button?.findElement(
+      const type1Item1Button = await type1Item1?.findElement(
         By.css(".button-container .monaco-button")
       );
-      const text1 = await button1.getText();
-      expect(text1).has.string("Run Prerequisite Checker");
+      const type1Item1ButtonValue = await type1Item1Button.getText();
+      expect(type1Item1ButtonValue).has.string("Run Prerequisite Checker");
       console.log('Found the button "Run Prerequisite Checker"');
-      button = await getExpandedButton(webView, false, "Build your first app");
-      const button2 = await button?.findElement(
+
+      // Check item "Create a notification bot"
+      const type1Item2 = await getExpandedButton(
+        webView,
+        false,
+        "Create a notification bot"
+      );
+      const type1Item2Button = await type1Item2?.findElement(
         By.css(".button-container .monaco-button")
       );
-      const text2 = await button2.getText();
-      expect(text2).has.string("Create a New App");
-      console.log('Found the button "Create a new app"');
+      const type1Item2ButtonValue = await type1Item2Button.getText();
+      expect(type1Item2ButtonValue).has.string("Build a notification bot");
+      console.log('Found the button "Build a notification bot"');
+
+      // get started page for "Build a Declarative Agent"
+      await execCommandIfExist(
+        CommandPaletteCommands.QuickStartCommand,
+        Timeout.webView
+      );
+      const input2 = await InputBox.create();
+      await input2.selectQuickPick(CreateProjectQuestion.BuildDeclarativeAgent);
+
+      const webView2 = new WebView();
+
+      const element2 = await webView2.findWebElement(
+        By.className("category-description-container")
+      );
+      const type2Title = await element2.getText();
+      expect(type2Title).has.string(
+        CreateProjectQuestion.BuildDeclarativeAgent
+      );
+
+      // Check item "Get your environment ready"
+      const type2Item1 = await getExpandedButton(
+        webView,
+        false,
+        "Get your environment ready"
+      );
+      const type2Item1Button = await type2Item1?.findElement(
+        By.css(".button-container .monaco-button")
+      );
+      const type2Item1ButtonValue = await type2Item1Button.getText();
+      expect(type2Item1ButtonValue).has.string("Check Copilot License");
+      console.log('Found the button "Check Copilot License"');
+
+      // Check item "Build a declarative agent"
+      const type2Item2 = await getExpandedButton(
+        webView,
+        false,
+        "Build a declarative agent"
+      );
+      const type2Item2Button = await type2Item2?.findElement(
+        By.css(".button-container .monaco-button")
+      );
+      const type2Item2ButtonValue = await type2Item2Button.getText();
+      expect(type2Item2ButtonValue).has.string("Build a declarative agent");
+      console.log('Found the button "Build a declarative agent"');
     }
   );
 });

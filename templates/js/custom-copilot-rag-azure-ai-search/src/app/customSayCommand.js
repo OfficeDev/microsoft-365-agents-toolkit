@@ -37,7 +37,7 @@ function sayCommand(feedbackLoopEnabled = false) {
         if (contentItem.citationTitle && contentItem.citationTitle.length > 0) {
           const clientCitation = {
             "@type": "Claim",
-            position: `${position}`,
+            position: position,
             appearance: {
               "@type": "DigitalDocument",
               name: contentItem.citationTitle || `Document #${position}`,

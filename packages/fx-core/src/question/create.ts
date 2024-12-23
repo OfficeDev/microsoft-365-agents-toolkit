@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
   CLIPlatforms,
@@ -30,8 +31,14 @@ import { createContext } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { sampleProvider } from "../common/samples";
 import { convertToAlphanumericOnly, isValidHttpUrl } from "../common/stringUtils";
+import {
+  ApiSpecTelemetryPropertis,
+  getQuestionValidationErrorEventName,
+  sendTelemetryErrorEvent,
+} from "../common/telemetry";
 import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { StaticTab } from "../component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import {
   isBot,
   isBotAndBotBasedMessageExtension,
@@ -42,10 +49,7 @@ import {
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
 import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
-import {
-  IOfficeAddinHostConfig,
-  OfficeAddinProjectConfig,
-} from "../component/generator/officeXMLAddin/projectConfig";
+import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
@@ -75,21 +79,12 @@ import {
   capabilitiesHavePythonOption,
   getRuntime,
 } from "./constants";
-import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
-import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
-import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
-import {
-  ApiSpecTelemetryPropertis,
-  getQuestionValidationErrorEventName,
-  sendTelemetryErrorEvent,
-} from "../common/telemetry";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
     ProjectTypeOptions.bot(Platform.CLI),
     ProjectTypeOptions.tab(Platform.CLI),
     ProjectTypeOptions.me(Platform.CLI),
-    ProjectTypeOptions.officeAddin(Platform.CLI),
     ProjectTypeOptions.outlookAddin(Platform.CLI),
   ];
   return {
@@ -119,8 +114,6 @@ export function projectTypeQuestion(): SingleSelectQuestion {
       } else if (getRuntime(inputs) === RuntimeOptions.NodeJS().id) {
         if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
           staticOptions.push(ProjectTypeOptions.officeMetaOS(inputs.platform));
-        } else if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeAddin)) {
-          staticOptions.push(ProjectTypeOptions.officeAddin(inputs.platform));
         } else {
           staticOptions.push(ProjectTypeOptions.outlookAddin(inputs.platform));
         }
@@ -192,8 +185,6 @@ export function capabilityQuestion(): SingleSelectQuestion {
         case ProjectTypeOptions.outlookAddin().id:
           return getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.title");
         case ProjectTypeOptions.officeMetaOS().id:
-        case ProjectTypeOptions.officeAddin().id:
-          return getLocalizedString("core.createProjectQuestion.projectType.officeAddin.title");
         case ProjectTypeOptions.Agent().id:
           return getLocalizedString(
             "core.createProjectQuestion.projectType.copilotExtension.title"
@@ -237,10 +228,7 @@ export function capabilityQuestion(): SingleSelectQuestion {
       } else if (projectType === ProjectTypeOptions.me().id) {
         return CapabilityOptions.mes();
       } else if (ProjectTypeOptions.officeAddinAllIds().includes(projectType)) {
-        return CapabilityOptions.officeAddinDynamicCapabilities(
-          projectType,
-          inputs[QuestionNames.OfficeAddinHost]
-        );
+        return CapabilityOptions.officeAddinCapabilities(projectType);
       } else if (projectType === ProjectTypeOptions.Agent().id) {
         return CapabilityOptions.agents();
       } else if (projectType === ProjectTypeOptions.customCopilot().id) {
@@ -491,67 +479,6 @@ export function SPFxImportFolderQuestion(hasDefaultFunc = false): FolderQuestion
   };
 }
 
-export function officeAddinFrameworkQuestion(): SingleSelectQuestion {
-  return {
-    type: "singleSelect",
-    name: QuestionNames.OfficeAddinFramework,
-    cliShortName: "f",
-    cliDescription: "Framework for WXP extension.",
-    title: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.framework.title"),
-    dynamicOptions: getAddinFrameworkOptions,
-    staticOptions: [
-      { id: "default", label: "Default" },
-      { id: "react", label: "React" },
-    ],
-    placeholder: getLocalizedString(
-      "core.createProjectQuestion.projectType.officeAddin.framework.placeholder"
-    ),
-    skipSingleOption: true,
-  };
-}
-
-export function getAddinFrameworkOptions(inputs: Inputs): OptionItem[] {
-  const projectType = inputs[QuestionNames.ProjectType];
-  const capabilities = inputs[QuestionNames.Capabilities];
-  if (projectType === ProjectTypeOptions.outlookAddin().id) {
-    return [{ id: "default", label: "Default" }];
-  } else if (
-    (projectType === ProjectTypeOptions.officeAddin().id &&
-      capabilities === CapabilityOptions.officeContentAddin().id) ||
-    capabilities === CapabilityOptions.officeAddinImport().id
-  ) {
-    return [{ id: "default", label: "Default" }];
-  } else {
-    return [
-      { id: "default", label: "Default" },
-      { id: "react", label: "React" },
-    ];
-  }
-}
-
-/**
- * when project-type=office-addin-type(office-addin-framework-type=default or react), use selected value;
- * when project-type=outlook-addin-type, no framework to select, office-addin-framework-type=default_old
- * when project-type=office-xml-addin-type, no framework to select, office-addin-framework-type=default_old
- */
-export function getOfficeAddinFramework(inputs: Inputs): string {
-  const projectType = inputs[QuestionNames.ProjectType];
-  if (
-    projectType === ProjectTypeOptions.officeAddin().id &&
-    inputs[QuestionNames.OfficeAddinFramework]
-  ) {
-    return inputs[QuestionNames.OfficeAddinFramework];
-  } else if (projectType === ProjectTypeOptions.outlookAddin().id) {
-    return "default_old";
-  } else {
-    return "default";
-  }
-}
-
-export function getOfficeAddinTemplateConfig(): IOfficeAddinHostConfig {
-  return OfficeAddinProjectConfig["json"];
-}
-
 export function getLanguageOptions(inputs: Inputs): OptionItem[] {
   const runtime = getRuntime(inputs);
   // dotnet runtime only supports C#
@@ -559,27 +486,6 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
     return [{ id: ProgrammingLanguage.CSharp, label: "C#" }];
   }
   const capabilities = inputs[QuestionNames.Capabilities] as string;
-
-  // office addin supports language defined in officeAddinJsonData
-  const projectType = inputs[QuestionNames.ProjectType];
-  if (ProjectTypeOptions.officeAddinAllIds().includes(projectType)) {
-    if (projectType === ProjectTypeOptions.officeMetaOS().id) {
-      return [{ id: ProgrammingLanguage.JS, label: "JavaScript" }];
-    }
-    if (capabilities.endsWith("-manifest")) {
-      return [{ id: ProgrammingLanguage.JS, label: "JavaScript" }];
-    }
-    if (projectType === ProjectTypeOptions.outlookAddin().id) {
-      return [{ id: ProgrammingLanguage.TS, label: "TypeScript" }];
-    }
-    const officeAddinLangConfig = getOfficeAddinTemplateConfig()[capabilities].framework["default"];
-    const officeXMLAddinLangOptions = [];
-    if (!!officeAddinLangConfig.typescript)
-      officeXMLAddinLangOptions.push({ id: ProgrammingLanguage.TS, label: "TypeScript" });
-    if (!!officeAddinLangConfig.javascript)
-      officeXMLAddinLangOptions.push({ id: ProgrammingLanguage.JS, label: "JavaScript" });
-    return officeXMLAddinLangOptions;
-  }
 
   if (capabilities === CapabilityOptions.SPFxTab().id) {
     // SPFx only supports typescript
@@ -632,14 +538,6 @@ export function programmingLanguageQuestion(): SingleSelectQuestion {
       }
 
       const capabilities = inputs[QuestionNames.Capabilities] as string;
-
-      // // office addin
-      // const projectType = inputs[QuestionNames.ProjectType];
-      // if (projectType === ProjectTypeOptions.outlookAddin().id) {
-      //   const template = getTemplate(inputs);
-      //   const options = officeAddinJsonData.getSupportedScriptTypesNew(template);
-      //   return options[0] || "No Options";
-      // }
 
       // SPFx
       if (capabilities === CapabilityOptions.SPFxTab().id) {
@@ -1602,8 +1500,8 @@ export function capabilitySubTree(): IQTreeNode {
               inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.apiSpec().id &&
               inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.existingPlugin().id &&
               inputs[QuestionNames.MeArchitectureType] !== MeArchitectureOptions.apiSpec().id &&
-              inputs[QuestionNames.Capabilities] !== CapabilityOptions.officeAddinImport().id &&
-              inputs[QuestionNames.Capabilities] !== CapabilityOptions.outlookAddinImport().id) ||
+              inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.officeMetaOS().id &&
+              inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.outlookAddin().id) ||
             getRuntime(inputs) === RuntimeOptions.DotNet().id
           );
         },
@@ -1643,16 +1541,6 @@ export function capabilitySubTree(): IQTreeNode {
             data: openAIKeyQuestion(),
           },
         ],
-      },
-      {
-        // Office addin framework for json manifest
-        data: officeAddinFrameworkQuestion(),
-        condition: (inputs: Inputs) => {
-          return (
-            inputs[QuestionNames.ProjectType] === ProjectTypeOptions.officeAddin().id &&
-            inputs[QuestionNames.Capabilities] !== CapabilityOptions.officeAddinImport().id
-          );
-        },
       },
       {
         // root folder

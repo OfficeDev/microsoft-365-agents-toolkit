@@ -27,7 +27,7 @@
     "dependencies": {
         "adaptivecards-templating": "^2.3.1",
         "adaptive-expressions": "^4.23.1",
-        "@microsoft/teamsfx": "^3.0.0-alpha",
+        "@microsoft/teamsfx": "^3.0.0",
         "botbuilder": "^4.23.1"
     },
     "devDependencies": {

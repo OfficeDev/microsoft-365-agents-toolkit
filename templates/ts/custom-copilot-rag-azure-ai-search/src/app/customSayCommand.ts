@@ -41,7 +41,7 @@ export function sayCommand<TState extends TurnState = TurnState>(feedbackLoopEna
         if (contentItem.citationTitle && contentItem.citationTitle.length > 0) {
           const clientCitation: ClientCitation = {
             "@type": "Claim",
-            position: `${position}`,
+            position: position,
             appearance: {
               "@type": "DigitalDocument",
               name: contentItem.citationTitle || `Document #${position}`,

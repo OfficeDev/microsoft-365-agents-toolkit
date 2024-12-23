@@ -801,7 +801,7 @@ export async function createNewProject(
     }
     case "addin": {
       await input.selectQuickPick(CreateProjectQuestion.OfficeAddin);
-      await input.selectQuickPick("Taskpane");
+      await input.selectQuickPick("Task pane");
       await driver.sleep(Timeout.input);
       break;
     }
@@ -809,7 +809,7 @@ export async function createNewProject(
       const importPath: string =
         testRootFolder + "\\..\\src\\ui-test\\treeview\\office-xml-addin";
       await input.selectQuickPick(CreateProjectQuestion.OfficeAddin);
-      await input.selectQuickPick("Import an Existing Outlook Add-in");
+      await input.selectQuickPick("Import an Existing Outlook Add-ins");
 
       console.log("choose import path: ", importPath);
       await input.selectQuickPick("Browse...");
