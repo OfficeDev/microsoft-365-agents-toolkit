@@ -489,6 +489,8 @@ export class CreateProjectQuestion {
   static readonly NewAddinApp = "Start with an Outlook add-in";
   static readonly CreateNewSpfxSolution = "Create New SPFx Solution";
   static readonly ImportExistingSpfxSolution = "Import Existing SPFx Solution";
+  static readonly BuildNotificationBot = "Build a Notification Bot";
+  static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
 }
 
 export class ValidationContent {

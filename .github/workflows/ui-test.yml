@@ -421,7 +421,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         working-directory: packages/tests
         run: |
-          vsix=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          vsix=`find . -maxdepth 1 -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
       - name: Install vsix(win)

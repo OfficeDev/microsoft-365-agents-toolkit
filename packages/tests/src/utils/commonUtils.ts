@@ -498,3 +498,36 @@ export async function generateYoSpfxProject(option: {
     throw new Error(`Failed to generate SPFx project: ${error}`);
   }
 }
+
+/**
+ * modifyFileContext
+ * @param {string} filePath - file path
+ * @param {string} line - which line to be replaced
+ * @param {string} newLine - replace line
+ */
+export function modifyFileContext(
+  filePath: string,
+  line: string,
+  newLine: string
+) {
+  let data = "";
+  if (!fs.existsSync(filePath)) {
+    console.error("file not exist: ", filePath);
+    return;
+  }
+
+  try {
+    data = fs.readFileSync(filePath, "utf8");
+  } catch (error) {
+    console.error("readfile error: ", error);
+    return;
+  }
+  const modifiedData = data.replace(line, newLine);
+
+  try {
+    fs.writeFileSync(filePath, modifiedData, "utf8");
+    console.log("file content replaced!");
+  } catch (error) {
+    console.error("write file error: ", error);
+  }
+}

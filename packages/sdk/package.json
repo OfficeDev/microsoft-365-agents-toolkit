@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx",
-  "version": "3.0.0-alpha",
+  "version": "3.0.0",
   "description": "Microsoft Teams Framework for Node.js and browser.",
   "main": "dist/index.node.cjs.js",
   "browser": "dist/index.esm2017.js",

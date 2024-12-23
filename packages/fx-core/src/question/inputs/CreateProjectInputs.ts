@@ -14,7 +14,7 @@ export interface CreateProjectInputs extends Inputs {
   /** @description Teams Toolkit: select runtime for your app */
   runtime?: "node" | "dotnet";
   /** @description New Project */
-  "project-type"?: "bot-type" | "tab-type" | "me-type" | "office-addin-type" | "outlook-addin-type";
+  "project-type"?: "bot-type" | "tab-type" | "me-type" | "outlook-addin-type";
   /** @description Capabilities */
   capabilities?:
     | "empty"
@@ -92,8 +92,6 @@ export interface CreateProjectInputs extends Inputs {
   "azure-openai-deployment-name"?: string;
   /** @description OpenAI Key */
   "openai-key"?: string;
-  /** @description Framework */
-  "office-addin-framework-type"?: "default" | "react";
   /** @description Application Name */
   "app-name"?: string;
 }

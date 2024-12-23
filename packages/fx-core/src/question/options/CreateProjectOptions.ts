@@ -206,13 +206,6 @@ export const CreateProjectOptions: CLICommandOption[] = [
     description: "OpenAI Key",
   },
   {
-    name: "office-addin-framework-type",
-    type: "string",
-    shortName: "f",
-    description: "Framework for WXP extension.",
-    choices: ["default", "react"],
-  },
-  {
     name: "folder",
     type: "string",
     shortName: "f",
