@@ -15,6 +15,7 @@ import {
 import {
   execCommandIfExist,
   createNewProject,
+  createEnvironmentWithPython,
 } from "../../utils/vscodeOperation";
 import {
   initPage,
@@ -74,6 +75,7 @@ describe("Remote debug Tests", function () {
         aiType: "Azure OpenAI",
       });
       validateFileExist(projectPath, "src/app.py");
+      await createEnvironmentWithPython();
       const envPath = path.resolve(projectPath, "env", ".env.dev.user");
       const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
       const azureOpenAiKey = OpenAiKey.azureOpenAiKey
