@@ -224,6 +224,7 @@ export async function initPage(
       );
     }
     await page.waitForTimeout(Timeout.shortTimeLoading);
+    // click Open button to add to Team, Chat or Meeting
     try {
       const openApp = await page?.waitForSelector(
         "button[data-testid='open-app'][data-tid='open-app']"
@@ -233,6 +234,29 @@ export async function initPage(
     } catch {
       console.log("No Open App button");
     }
+
+    // Check if having Open button, if yes, try again to click it
+    try {
+      await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']",
+        {
+          state: "detached",
+        }
+      );
+    } catch {
+      const openApp = await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']"
+      );
+      console.log("clicked open app");
+      await openApp.click();
+      await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']",
+        {
+          state: "detached",
+        }
+      );
+    }
+
     console.log("[success] app loaded");
   });
 
