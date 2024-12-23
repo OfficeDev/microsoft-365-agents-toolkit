@@ -81,6 +81,14 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
 
 export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
   const TeamsToolkitOptionLabel = getDefaultString("teamstoolkit.walkthroughs.title");
+  const BuildNotificationBotWalkthroughArgs = "SideBar";
+  if (args && args.length > 0 && args[0] == BuildNotificationBotWalkthroughArgs) {
+    const data = await vscode.commands.executeCommand(
+      "workbench.action.openWalkthrough",
+      getWalkThroughId()
+    );
+    return Promise.resolve(ok(data));
+  }
   const BuildingIntelligentAppsLabel = getDefaultString(
     "teamstoolkit.walkthroughs.buildIntelligentApps.title"
   );
