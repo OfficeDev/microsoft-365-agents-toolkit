@@ -1,4 +1,5 @@
 using {{SafeProjectName}};
+using {{SafeProjectName}}.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector.Authentication;
@@ -86,7 +87,7 @@ builder.Services.AddTransient<IBot>(sp =>
     prompts.AddDataSource("azure-ai-search", dataSource);
 
     // Create ActionPlanner
-    ActionPlanner<TurnState> planner = new(
+    ActionPlanner<AppState> planner = new(
         options: new(
             model: sp.GetService<OpenAIModel>(),
             prompts: prompts,
@@ -100,10 +101,10 @@ builder.Services.AddTransient<IBot>(sp =>
         loggerFactory: loggerFactory
     );
 
-    AIOptions<TurnState> options = new(planner);
+    AIOptions<AppState> options = new(planner);
     options.EnableFeedbackLoop = true;
 
-    Application<TurnState> app = new ApplicationBuilder<TurnState>()
+    Application<AppState> app = new ApplicationBuilder<AppState>()
         .WithAIOptions(options)
         .WithStorage(sp.GetService<IStorage>())
         .Build();
