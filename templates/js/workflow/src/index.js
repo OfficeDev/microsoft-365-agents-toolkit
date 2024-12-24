@@ -1,7 +1,9 @@
-const { GenericCommandHandler } = require("./genericCommandHandler");
-const { HelloWorldCommandHandler } = require("./helloworldCommandHandler");
+const { GenericCommandHandler } = require("./commands/genericCommandHandler");
+const { HelloWorldCommandHandler } = require("./commands/helloworldCommandHandler");
 const { adapter } = require("./internal/initialize");
 const { app } = require("./teamsBot");
+const { DoStuffActionHandler } = require("./cardActions/doStuffActionHandler");
+const express = require("express");
 
 // This template uses `express` to serve HTTP responses.
 // Create express application.
