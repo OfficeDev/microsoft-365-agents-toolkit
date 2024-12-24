@@ -42,7 +42,7 @@ describe("Local Debug Tests", function () {
   it(
     "[Typescript] Local Debug for Message Extension project",
     {
-      testPlanCaseId: 9729546,
+      testPlanCaseId: 24739646,
       author: "v-annefu@microsoft.com",
     },
     async function () {
