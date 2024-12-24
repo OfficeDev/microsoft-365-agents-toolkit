@@ -97,6 +97,40 @@ describe("Remote debug Tests", function () {
         azureOpenAiModelDeploymentName
       );
 
+      {
+        // create azure assistant need to use local env
+        const localEnvPath = path.resolve(
+          projectPath,
+          "env",
+          ".env.local.user"
+        );
+        const azureOpenAiKey = OpenAiKey.azureOpenAiKey
+          ? OpenAiKey.azureOpenAiKey
+          : "fake";
+        const azureOpenAiEndpoint = OpenAiKey.azureOpenAiEndpoint
+          ? OpenAiKey.azureOpenAiEndpoint
+          : "https://test.com";
+        const azureOpenAiModelDeploymentName =
+          OpenAiKey.azureOpenAiModelDeploymentName
+            ? OpenAiKey.azureOpenAiModelDeploymentName
+            : "fake";
+        editDotEnvFile(
+          localEnvPath,
+          "SECRET_AZURE_OPENAI_API_KEY",
+          azureOpenAiKey
+        );
+        editDotEnvFile(
+          localEnvPath,
+          "AZURE_OPENAI_ENDPOINT",
+          azureOpenAiEndpoint
+        );
+        editDotEnvFile(
+          localEnvPath,
+          "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
+          azureOpenAiModelDeploymentName
+        );
+      }
+
       if (isRealKey) {
         console.log("Start to create azure assistant id");
 
