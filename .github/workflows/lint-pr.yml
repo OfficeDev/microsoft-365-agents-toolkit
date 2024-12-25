@@ -191,9 +191,9 @@ jobs:
         run: |
           # 找出版本号最大的 release 分支，分为两类：
           # 1. release/NUM 或 release/NUM.NUM 格式
-          LATEST_NUM_RELEASE=$(git branch -r | grep -E '^  origin/release/[0-9]+(\.[0-9]+)?$' | sed 's/origin\///' | sort -t'/' -k2 -V | tail -n1)
+          LATEST_NUM_RELEASE=$(git branch -r | grep -Eo 'release/[0-9]+\.[0-9]+(\.[0-9]+)?' | sort -t/ -k2 -V | tail -n1)
           # 2. release/VSNUMPNUM 格式
-          LATEST_VS_RELEASE=$(git branch -r | grep -E '^  origin/release/VS[0-9]+P[0-9]+$' | sed 's/origin\///' | sort -t'/' -k2 -V | tail -n1)
+          LATEST_VS_RELEASE=$(git branch -r | grep -E '^  origin/release/[Vv][Ss][0-9]+[Pp][0-9]+$' | tr '[:upper:]' '[:lower:]'  | sed 's/origin\///' | sort -t'/' -k2 -V | tail -n1)
           echo "latest_vsc_release=$LATEST_NUM_RELEASE" >> $GITHUB_OUTPUT
           echo "latest_vs_release=$LATEST_VS_RELEASE" >> $GITHUB_OUTPUT
 
