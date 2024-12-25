@@ -26,7 +26,6 @@ import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEven
 import { getLocalDebugSessionId, endLocalDebugSession } from "./common/localDebugSession";
 import {
   accountHintPlaceholder,
-  agentHintPlaceholder,
   Host,
   m365AppIdEnv,
   sideloadingDisplayMessages,
@@ -165,10 +164,11 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
             );
           }
 
-          if (url.includes(agentHintPlaceholder)) {
+          const agentHintMatch = /\${([^:]+):agent-hint}|\${agent-hint}/.exec(url);
+          if (agentHintMatch) {
             url = url.replace(
-              agentHintPlaceholder,
-              await generateAgentHint(folder.uri.fsPath, env)
+              agentHintMatch[0],
+              await generateAgentHint(folder.uri.fsPath, agentHintMatch[1])
             );
           }
 
