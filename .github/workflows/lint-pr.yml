@@ -285,9 +285,11 @@ jobs:
           ref: ${{ github.event.inputs.target-branch }}
 
       - name: update changelog
+        id: update-changelog
         working-directory: ./
         run: |
           git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }}
+          tempfile=$(mktemp)
           history_cli_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/cli | grep "^feat")
           history_toolkit_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/vscode-extension | grep "^feat")
           history_core_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/fx-core | grep "^feat")
@@ -305,6 +307,12 @@ jobs:
           cat packages/vscode-extension/PRERELEASE.md >> "$tempfile"
           mv "$tempfile" packages/vscode-extension/PRERELEASE.md
           git checkout -b changelog/${{ github.event.inputs.source-branch }}
+
+          body="change log file: <a href=\\\"https:\/\/github.com\/OfficeDev\/teams-toolkit\/blob\/changelog\/${{ github.event.inputs.source-branch }}\/packages\/vscode-extension\/PRERELEASE.md\\\">Click Here to Open file</a>"
+          subject="changelog for release"
+
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
       
       - name: setup user info
         working-directory: ./packages/vscode-extension
@@ -329,3 +337,13 @@ jobs:
               body: 'Changelog update'
             })
             core.setOutput('pull-request-url', pullRequest.html_url)
+
+      - name: Send E-mail to the whole team
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: "v-ivanchen@microsoft.com"
+          BODY: '"${{ steps.update-changelog.outputs.body }}"'
+          SUBJECT: ${{ steps.update-changelog.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
