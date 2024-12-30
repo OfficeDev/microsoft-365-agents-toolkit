@@ -13,13 +13,13 @@ on:
   workflow_dispatch:
     inputs:
       target-branch:
-        description: "The target branch of the PR"
+        description: "The target branch of the PR (newly)"
         required: true
-        default: "release/5.12"
+        default: "origin/dev"
       source-branch:
         description: "The source branch of the PR"
         required: true
-        default: "release/5.13.1"
+        default: "origin/dev"
 
 
 permissions:
