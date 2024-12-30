@@ -303,8 +303,8 @@ jobs:
           history_toolkit_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/vscode-extension | grep "^fix" || true)
           history_core_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/fx-core | grep "^fix" || true)
           history_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk | grep "^fix" || true)
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^fix" || true)
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^fix" || true)
+          history_sdk_react_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^fix" || true)
+          history_dotnet_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^fix" || true)
           echo -e '\nFx-core fix commits:\n' "$history_core_fix" '\n\nCLI fix commits:\n' "$history_cli_fix" '\n\nExtension-toolkit fix commits:\n' "$history_toolkit_fix" '\n\nSDK fix commits:\n' "$history_sdk_fix"  '\n\nSDK React fix commits:\n' "$history_sdk_react_fix" '\n\n.Net SDK fix commits:\n' "$history_dotnet_sdk_fix" '\n'>> "$tempfile"
           cat "$tempfile"
           cat ./packages/vscode-extension/PRERELEASE.md >> "$tempfile"
