@@ -15,11 +15,11 @@ on:
       target-branch:
         description: "The target branch of the PR"
         required: true
-        default: "origin/dev"
+        default: "release/5.12"
       source-branch:
         description: "The source branch of the PR"
         required: true
-        default: "origin/dev"
+        default: "release/5.13.1"
 
 
 permissions:
@@ -288,62 +288,40 @@ jobs:
         id: update-changelog
         working-directory: ./
         run: |
-          git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }}
+          git fetch origin ${{ github.event.inputs.source-branch }}:${{ github.event.inputs.source-branch }}
+          head=$(git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }})
           tempfile=$(mktemp)
-          history_cli_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/cli | grep "^feat")
-          history_toolkit_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/vscode-extension | grep "^feat")
-          history_core_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/fx-core | grep "^feat")
-          history_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk | grep "^feat")
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk-react | grep "^feat")
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/dotnet-sdk | grep "^feat")
+          history_cli_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/cli)
+          echo "1"
+          history_cli_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/cli | grep "^feat" || true)
+          echo "2"
+          echo "$history_cli_feat"
+          history_toolkit_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/vscode-extension | grep "^feat" || true)
+          history_core_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/fx-core | grep "^feat" || true)
+          history_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk | grep "^feat" || true)
+          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^feat" || true)
+          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^feat" || true)
           echo -e '\nFx-core feat commits:\n' "$history_core_feat" '\n\nCLI feat commits:\n' "$history_cli_feat" '\n\nExtension-toolkit feat commits:\n' "$history_toolkit_feat" '\n\nSDK feat commits:\n' "$history_sdk_feat" '\n\nSDK React feat commits:\n' "$history_sdk_react_feat" '\n\n.Net SDK feat commits:\n' "$history_dotnet_sdk_feat" '\n'> "$tempfile"
-          history_cli_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/cli | grep "^fix")
-          history_toolkit_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/vscode-extension | grep "^fix")
-          history_core_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/fx-core | grep "^fix")
-          history_sdk_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk | grep "^fix")
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk-react | grep "^fix")
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/dotnet-sdk | grep "^fix")
+          history_cli_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/cli | grep "^fix" || true)
+          history_toolkit_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/vscode-extension | grep "^fix" || true)
+          history_core_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/fx-core | grep "^fix" || true)
+          history_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk | grep "^fix" || true)
+          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^fix" || true)
+          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^fix" || true)
           echo -e '\nFx-core fix commits:\n' "$history_core_fix" '\n\nCLI fix commits:\n' "$history_cli_fix" '\n\nExtension-toolkit fix commits:\n' "$history_toolkit_fix" '\n\nSDK fix commits:\n' "$history_sdk_fix"  '\n\nSDK React fix commits:\n' "$history_sdk_react_fix" '\n\n.Net SDK fix commits:\n' "$history_dotnet_sdk_fix" '\n'>> "$tempfile"
-          cat packages/vscode-extension/PRERELEASE.md >> "$tempfile"
-          mv "$tempfile" packages/vscode-extension/PRERELEASE.md
+          cat ./packages/vscode-extension/PRERELEASE.md >> "$tempfile"
+          mv "$tempfile" ./packages/vscode-extension/PRERELEASE.md
+          cat ./packages/vscode-extension/PRERELEASE.md
           git checkout -b changelog/${{ github.event.inputs.source-branch }}
-
-          body="change log file: <a href=\\\"https:\/\/github.com\/OfficeDev\/teams-toolkit\/blob\/changelog\/${{ github.event.inputs.source-branch }}\/packages\/vscode-extension\/PRERELEASE.md\\\">Click Here to Open file</a>"
-          subject="changelog for release"
-
-          echo "body=$body" >> $GITHUB_OUTPUT
-          echo "subject=$subject" >> $GITHUB_OUTPUT
       
       - name: setup user info
-        working-directory: ./packages/vscode-extension
+        working-directory: ./
         run: |
-          user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/$GITHUB_ACTOR)
+          user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/${{ github.actor }})
           git config --global user.email $(echo $user_info | jq -r '.name')
           git config --global user.name $(echo $user_info | jq -r '.name')
-          git add PRERELEASE.md
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/OfficeDev/teams-toolkit.git
+          git add ./packages/vscode-extension/PRERELEASE.md
           git commit -m "dosc: update changelog for release"
-          git push origin changelog/${{ github.event.inputs.source-branch }}
-        
-      - name: Create Pull Request
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data: pullRequest } = await github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'docs: changelog for release',
-              head: 'changelog/${{ github.event.inputs.source-branch }}',
-              base: '${{ github.event.inputs.source-branch }}',
-              body: 'Changelog update'
-            })
-            core.setOutput('pull-request-url', pullRequest.html_url)
-
-      - name: Send E-mail to the whole team
-        uses: ./.github/actions/send-email-report
-        env:
-          TO: "v-ivanchen@microsoft.com"
-          BODY: '"${{ steps.update-changelog.outputs.body }}"'
-          SUBJECT: ${{ steps.update-changelog.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+          git push -u origin changelog/${{ github.event.inputs.source-branch }}
+      
