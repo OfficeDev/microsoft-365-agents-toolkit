@@ -285,26 +285,25 @@ jobs:
           ref: ${{ github.event.inputs.target-branch }}
 
       - name: update changelog
-        working-directory: ./packages/vscode-extension/PRERELEASE.md
+        working-directory: ./
         run: |
-          HEAD=git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }}
-          tempfile=$(mktemp)
-          history_cli_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/cli | grep "^feat")
-          history_toolkit_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/vscode-extension | grep "^feat")
-          history_core_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/fx-core | grep "^feat")
-          history_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/sdk | grep "^feat")
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/sdk-react | grep "^feat")
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/dotnet-sdk | grep "^feat")
+          git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }}
+          history_cli_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/cli | grep "^feat")
+          history_toolkit_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/vscode-extension | grep "^feat")
+          history_core_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/fx-core | grep "^feat")
+          history_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk | grep "^feat")
+          history_sdk_react_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk-react | grep "^feat")
+          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/dotnet-sdk | grep "^feat")
           echo -e '\nFx-core feat commits:\n' "$history_core_feat" '\n\nCLI feat commits:\n' "$history_cli_feat" '\n\nExtension-toolkit feat commits:\n' "$history_toolkit_feat" '\n\nSDK feat commits:\n' "$history_sdk_feat" '\n\nSDK React feat commits:\n' "$history_sdk_react_feat" '\n\n.Net SDK feat commits:\n' "$history_dotnet_sdk_feat" '\n'> "$tempfile"
-          history_cli_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/cli | grep "^fix")
-          history_toolkit_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/vscode-extension | grep "^fix")
-          history_core_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/fx-core | grep "^fix")
-          history_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/sdk | grep "^fix")
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/sdk-react | grep "^fix")
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- packages/dotnet-sdk | grep "^fix")
+          history_cli_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/cli | grep "^fix")
+          history_toolkit_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/vscode-extension | grep "^fix")
+          history_core_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/fx-core | grep "^fix")
+          history_sdk_fix=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk | grep "^fix")
+          history_sdk_react_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/sdk-react | grep "^fix")
+          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" ${{ github.event.inputs.target-branch }}...${{ github.event.inputs.source-branch }} -- packages/dotnet-sdk | grep "^fix")
           echo -e '\nFx-core fix commits:\n' "$history_core_fix" '\n\nCLI fix commits:\n' "$history_cli_fix" '\n\nExtension-toolkit fix commits:\n' "$history_toolkit_fix" '\n\nSDK fix commits:\n' "$history_sdk_fix"  '\n\nSDK React fix commits:\n' "$history_sdk_react_fix" '\n\n.Net SDK fix commits:\n' "$history_dotnet_sdk_fix" '\n'>> "$tempfile"
-          cat PRERELEASE.md >> "$tempfile"
-          mv "$tempfile" PRERELEASE.md
+          cat packages/vscode-extension/PRERELEASE.md >> "$tempfile"
+          mv "$tempfile" packages/vscode-extension/PRERELEASE.md
           git checkout -b changelog/${{ github.event.inputs.source-branch }}
       
       - name: setup user info
