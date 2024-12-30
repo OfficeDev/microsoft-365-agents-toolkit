@@ -185,6 +185,11 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         const msg = operationsResult.error.map((e) => e.content).join("\n");
         return err(new UserError("generator", "ListOperationsFailed", msg));
       }
+      const operations = operationsResult.value;
+      const authApi = operations.filter((api) => !!api.data.authName);
+      if (authApi.length > 0) {
+        authData = authApi.map((api) => api.data);
+      }
     }
 
     const appName = inputs[QuestionNames.AppName];
