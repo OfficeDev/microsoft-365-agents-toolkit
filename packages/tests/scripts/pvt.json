@@ -172,7 +172,8 @@
       "localdebug-chatdata-customapi-ts-openai",
       "localdebug-chatdata-customapi-py-azureopenai",
       "localdebug-chatdata-customapi-py-openai",
-      "testtooldebug-command-and-response"
+      "testtooldebug-command-and-response",
+      "testtooldebug-msgsa"
     ],
     "node-20": ["localdebug-obo-tab"]
   },
