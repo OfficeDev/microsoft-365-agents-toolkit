@@ -951,7 +951,7 @@ export function apiAuthQuestion(): SingleSelectQuestion {
     dynamicOptions: (inputs: Inputs) => {
       const options: OptionItem[] = [ApiAuthOptions.none()];
       if (inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.newApi().id) {
-        options.push(ApiAuthOptions.apiKey(), ApiAuthOptions.microsoftEntra());
+        options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
       } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {
         options.push(ApiAuthOptions.apiKey());
         if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)) {

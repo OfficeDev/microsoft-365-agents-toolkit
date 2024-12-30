@@ -110,7 +110,7 @@ export const Feature2TemplateName = {
     ApiAuthOptions.none().id
   }`]: TemplateNames.CopilotPluginFromScratch,
   [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.newApi().id}:${
-    ApiAuthOptions.apiKey().id
+    ApiAuthOptions.bearerToken().id
   }`]: TemplateNames.CopilotPluginFromScratchApiKey,
   [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.newApi().id}:${
     ApiAuthOptions.microsoftEntra().id
@@ -286,7 +286,7 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
     {
       [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
       [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
-      [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
+      [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
     },
     TemplateNames.CopilotPluginFromScratchApiKey,
   ],

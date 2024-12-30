@@ -67,7 +67,7 @@ export interface CreateProjectInputs extends Inputs {
   /** @description Import OpenAPI Description Document */
   "plugin-opeanapi-spec-path"?: string;
   /** @description Authentication Type */
-  "api-auth"?: "none" | "api-key" | "microsoft-entra" | "oauth";
+  "api-auth"?: "none" | "api-key" | "bearer-token" | "microsoft-entra" | "oauth";
   /** @description Chat With Your Data */
   "custom-copilot-rag"?:
     | "custom-copilot-rag-customize"
