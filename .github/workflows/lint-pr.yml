@@ -23,9 +23,10 @@ on:
 
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pull-requests: write
+  id-token: write
 
 jobs: 
   pr-title:
@@ -291,34 +292,83 @@ jobs:
           git fetch origin ${{ github.event.inputs.source-branch }}:${{ github.event.inputs.source-branch }}
           head=$(git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }})
           tempfile=$(mktemp)
-          history_cli_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/cli | grep "^feat" || true)
-          echo "$history_cli_feat"
-          history_toolkit_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/vscode-extension | grep "^feat" || true)
-          history_core_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/fx-core | grep "^feat" || true)
-          history_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk | grep "^feat" || true)
-          history_sdk_react_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^feat" || true)
-          history_dotnet_sdk_feat=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^feat" || true)
-          echo -e '\nFx-core feat commits:\n' "$history_core_feat" '\n\nCLI feat commits:\n' "$history_cli_feat" '\n\nExtension-toolkit feat commits:\n' "$history_toolkit_feat" '\n\nSDK feat commits:\n' "$history_sdk_feat" '\n\nSDK React feat commits:\n' "$history_sdk_react_feat" '\n\n.Net SDK feat commits:\n' "$history_dotnet_sdk_feat" '\n'>> "$tempfile"
-          history_cli_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/cli | grep "^fix" || true)
-          history_toolkit_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/vscode-extension | grep "^fix" || true)
-          history_core_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/fx-core | grep "^fix" || true)
-          history_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk | grep "^fix" || true)
-          history_sdk_react_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/sdk-react | grep "^fix" || true)
-          history_dotnet_sdk_fix=$(git log --pretty=format:"%s %h" $head...HEAD -- ./packages/dotnet-sdk | grep "^fix" || true)
-          echo -e '\nFx-core fix commits:\n' "$history_core_fix" '\n\nCLI fix commits:\n' "$history_cli_fix" '\n\nExtension-toolkit fix commits:\n' "$history_toolkit_fix" '\n\nSDK fix commits:\n' "$history_sdk_fix"  '\n\nSDK React fix commits:\n' "$history_sdk_react_fix" '\n\n.Net SDK fix commits:\n' "$history_dotnet_sdk_fix" '\n'>> "$tempfile"
+          REPO_URL="https://github.com/OfficeDev/Teams-toolkit"
+
+          history_cli_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/cli | grep "feat:" || true)
+          history_toolkit_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/vscode-extension | grep "feat:" || true)
+          history_core_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/fx-core | grep "feat:" || true)
+          echo $history_core_feat
+          history_sdk_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk | grep "feat:" || true)
+          history_sdk_react_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk-react | grep "feat:" || true)
+          history_dotnet_sdk_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/dotnet-sdk | grep "feat:" || true)
+
+          cat <<EOF > "$tempfile"
+          ### RELEASE ${{ github.event.inputs.source-branch }}...${{ github.event.inputs.target-branch }}
+          ### Feature Commits
+
+          #### Fx-core
+          $history_core_feat
+
+          #### CLI
+          $history_cli_feat
+
+          #### Extension Toolkit
+          $history_toolkit_feat
+
+          #### SDK
+          $history_sdk_feat
+
+          #### SDK React
+          $history_sdk_react_feat
+
+          #### .Net SDK
+          $history_dotnet_sdk_feat
+          EOF
+
+          history_cli_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/cli | grep "fix:" || true)
+          history_toolkit_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/vscode-extension | grep "fix:" || true)
+          history_core_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/fx-core | grep "fix:" || true)
+          history_sdk_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk | grep "fix:" || true)
+          history_sdk_react_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk-react | grep "fix:" || true)
+          history_dotnet_sdk_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/dotnet-sdk | grep "fix:" || true)
+
+          cat <<EOF >> "$tempfile"
+
+          ### Fix Commits
+
+          #### Fx-core
+          $history_core_fix
+
+          #### CLI
+          $history_cli_fix
+
+          #### Extension Toolkit
+          $history_toolkit_fix
+
+          #### SDK
+          $history_sdk_fix
+
+          #### SDK React
+          $history_sdk_react_fix
+
+          #### .Net SDK
+          $history_dotnet_sdk_fix
+          EOF
+
           cat "$tempfile"
           cat ./packages/vscode-extension/PRERELEASE.md >> "$tempfile"
           mv "$tempfile" ./packages/vscode-extension/PRERELEASE.md
-          git checkout -b changelog/${{ github.event.inputs.source-branch }}
-      
+          git checkout -b changelog/${{ github.event.inputs.target-branch }}
+          echo "=== changelog file path ==="
+          echo "https://github.com/OfficeDev/teams-toolkit/blob/changelog/${{ github.event.inputs.source-branch }}/packages/vscode-extension/PRERELEASE.md"
+        
       - name: setup user info
         working-directory: ./
         run: |
           user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/${{ github.actor }})
           git config --global user.email $(echo $user_info | jq -r '.name')
           git config --global user.name $(echo $user_info | jq -r '.name')
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/OfficeDev/teams-toolkit.git
           git add ./packages/vscode-extension/PRERELEASE.md
           git commit -m "dosc: update changelog for release"
-          git push -u origin changelog/${{ github.event.inputs.source-branch }}
+          git push --force origin changelog/${{ github.event.inputs.target-branch }}
       
