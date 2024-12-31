@@ -20,6 +20,10 @@ on:
         description: "The source branch of the PR"
         required: true
         default: "origin/dev"
+      send-to:
+        description: "Send the report to Email address"
+        required: true
+        default: ""
 
 
 permissions:
@@ -361,14 +365,29 @@ jobs:
           git checkout -b changelog/${{ github.event.inputs.target-branch }}
           echo "=== changelog file path ==="
           echo "https://github.com/OfficeDev/teams-toolkit/blob/changelog/${{ github.event.inputs.source-branch }}/packages/vscode-extension/PRERELEASE.md"
-        
-      - name: setup user info
-        working-directory: ./
-        run: |
+
+          body="<h2>CHANGELOG ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}</h2><h3><a href='https:\/\/github.com\/OfficeDev\/teams-toolkit\/blob\/changelog\/${{ github.event.inputs.target-branch }}\/packages\/vscode-extension\/PRERELEASE.md'>Click Here to Open Changelog File</a></h3>"
+          subject="[Changelog] ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}"
+
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
+
+          - name: setup user info
+          working-directory: ./
+          run: |
           user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/${{ github.actor }})
           git config --global user.email $(echo $user_info | jq -r '.name')
           git config --global user.name $(echo $user_info | jq -r '.name')
           git add ./packages/vscode-extension/PRERELEASE.md
           git commit -m "dosc: update changelog for release"
           git push --force origin changelog/${{ github.event.inputs.target-branch }}
-      
+          
+      - name: Send E-mail
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: "${{ github.event.inputs.send-to }}"
+          BODY: '"${{ steps.update-changelog.outputs.body }}"'
+          SUBJECT: ${{ steps.update-changelog.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
