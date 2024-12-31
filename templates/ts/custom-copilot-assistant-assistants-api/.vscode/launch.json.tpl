@@ -96,25 +96,35 @@
             "name": "Launch Remote in Copilot (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}&developerMode=Basic",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "3-M365",
                 "order": 3
             },
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "runtimeArgs": [
+                "--remote-debugging-port=9222",
+                "--no-first-run",
+                "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
+            ]
           },
           {
             "name": "Launch Remote in Copilot (Chrome)",
             "type": "chrome",
             "request": "launch",
-            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}",
+            "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}&developerMode=Basic",
             "cascadeTerminateToConfigurations": ["Attach to Local Service"],
             "presentation": {
                 "group": "3-M365",
                 "order": 4
             },
-            "internalConsoleOptions": "neverOpen"
+            "internalConsoleOptions": "neverOpen",
+            "runtimeArgs": [
+                "--remote-debugging-port=9223",
+                "--no-first-run",
+                "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
+            ]
         {{/CEAEnabled}}
         }
     ],

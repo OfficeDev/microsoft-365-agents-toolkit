@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import path from "path";
-import { performance } from "perf_hooks";
-import * as util from "util";
-import * as vscode from "vscode";
-
 import { ProductName, UserError } from "@microsoft/teamsfx-api";
 import {
   Correlator,
-  featureFlagManager,
-  FeatureFlags,
   getHashedEnv,
   Hub,
   isValidProject,
   TaskCommand,
 } from "@microsoft/teamsfx-core";
-
+import path from "path";
+import { performance } from "perf_hooks";
+import * as util from "util";
+import * as vscode from "vscode";
 import VsCodeLogInstance from "../commonlib/log";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import * as globalVariables from "../globalVariables";
+import { cdpClientManager, isM365CopilotChatDebugConfiguration } from "../pluginDebugger/cdpClient";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import {
   TelemetryEvent,
@@ -49,7 +46,6 @@ import { deleteAad } from "./deleteAadHelper";
 import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
 import { allRunningDebugSessions } from "./officeTaskHandler";
 import { BaseTunnelTaskTerminal } from "./taskTerminal/baseTunnelTaskTerminal";
-import { cdpClientManager, isM365CopilotChatDebugConfiguration } from "../pluginDebugger/cdpClient";
 
 class NpmInstallTaskInfo {
   private startTime: number;
@@ -456,13 +452,11 @@ async function onDidEndTaskProcessHandler(event: vscode.TaskProcessEndEvent): Pr
 }
 
 async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
-  if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginDebug)) {
-    const port = isM365CopilotChatDebugConfiguration(event.configuration);
-    if (port) {
-      const url = event.configuration.url;
-      const name = event.configuration.name;
-      cdpClientManager.start(url, port, name);
-    }
+  const port = isM365CopilotChatDebugConfiguration(event.configuration);
+  if (port) {
+    const url = event.configuration.url;
+    const name = event.configuration.name;
+    cdpClientManager.start(url, port, name);
   }
   if (globalVariables.workspaceUri && isValidProject(globalVariables.workspaceUri.fsPath)) {
     const debugConfig = event.configuration as TeamsfxDebugConfiguration;
@@ -556,11 +550,9 @@ export async function terminateAllRunningTeamsfxTasks(): Promise<void> {
 }
 
 async function onDidTerminateDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
-  if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginDebug)) {
-    const port = isM365CopilotChatDebugConfiguration(event.configuration);
-    if (port) {
-      await cdpClientManager.stop(port);
-    }
+  const port = isM365CopilotChatDebugConfiguration(event.configuration);
+  if (port) {
+    await cdpClientManager.stop(port);
   }
   if (allRunningDebugSessions.has(event.id)) {
     // a valid debug session

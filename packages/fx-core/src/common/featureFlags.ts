@@ -31,7 +31,6 @@ export class FeatureFlagName {
   static readonly ApiPluginAAD = "TEAMSFX_API_PLUGIN_AAD";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly MultiTenant = "TEAMSFX_MULTI_TENANT";
-  static readonly ApiPluginDebug = "TEAMSFX_API_PLUGIN_DEBUG";
 }
 
 export interface FeatureFlag {
@@ -96,10 +95,6 @@ export class FeatureFlags {
   };
   static readonly MultiTenant = {
     name: FeatureFlagName.MultiTenant,
-    defaultValue: "false",
-  };
-  static readonly ApiPluginDebug = {
-    name: FeatureFlagName.ApiPluginDebug,
     defaultValue: "false",
   };
 }

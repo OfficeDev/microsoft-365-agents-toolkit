@@ -37,7 +37,7 @@
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9223",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
             ],
@@ -128,7 +128,7 @@
             },
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9224",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-edge-user-data-dir"
             ],
@@ -144,7 +144,7 @@
             },
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9225",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
             ],
@@ -257,7 +257,7 @@
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9223",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
             ]
@@ -273,7 +273,7 @@
             },
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9224",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
             ]
@@ -289,7 +289,7 @@
             },
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
-                "--remote-debugging-port=9222",
+                "--remote-debugging-port=9225",
                 "--no-first-run",
                 "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
             ]
