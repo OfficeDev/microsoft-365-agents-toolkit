@@ -9,12 +9,12 @@ echo '-----------------' $VERSION
 MINOR_VER=$(echo $VERSION | awk -F. '{print $2}')
 DATE_WITH_TIME=`date "+%Y%m%d%H"`
 # prerelease version should set minor version to odd number, and set patch version as timestamp.
-if [ "$PREID" == "beta" ]; then
+if [ "$PREID" == "preview" ]; then
     if [ $((MINOR_VER%2)) -eq 0 ]; then
-        echo "Need to bump up version with even minor version for beta"
+        echo "Need to bump up version with even minor version for preview"
         VERSION=$(echo ${VERSION%-*} | awk -v val=$DATE_WITH_TIME -F. '/[0-9]+\./{$2++;$3=val;print}' OFS=.)
     else
-        echo "Need to set patch version as timestamp for beta"
+        echo "Need to set patch version as timestamp for preview"
         VERSION=$(echo ${VERSION%-*} | awk -v val=$DATE_WITH_TIME -F. '/[0-9]+\./{$3=val;print}' OFS=.)
     fi
     echo '=====================' $VERSION

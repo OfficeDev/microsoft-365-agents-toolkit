@@ -4,17 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       preid:
-        description: "preid name(alpha, beta, rc, stable)"
+        description: "preid name(alpha, preview, rc, stable)"
         required: true
-        default: "rc"
+        default: "preview"
       series:
         description: "release sprint series name"
         required: false
         default: ""
-      skip-version-rc:
-        description: "release RC version just with lerna publish, skip run lerna version(yes or no)"
-        required: false
-        default: "no"
       pkgs:
         type: string
         required: false
@@ -97,13 +93,13 @@ jobs:
         run: |
           npx lerna version prerelease --preid=alpha.$(git rev-parse --short HEAD) --exact --no-push --allow-branch dev --yes
 
-      - name: release beta packages to npmjs.org
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'beta' }}
+      - name: release preview packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
           npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: version rc npm packages to npmjs.org
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' && github.event.inputs.skip-version-rc == 'no'}}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         run: |
           npx lerna version prerelease --conventional-prerelease --preid=rc --no-changelog --allow-branch ${GITHUB_REF#refs/*/} --yes
 
@@ -176,7 +172,7 @@ jobs:
           git commit -m "build: replace sideloading placeholders"
       
       - name: enable prerelease only features
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'beta')) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |
           bash .github/scripts/prerelease-feature-control.sh
           git add ./packages/vscode-extension/src/releaseBasedFeatureSettings.ts
@@ -237,8 +233,8 @@ jobs:
         run: |
           npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev
 
-      - name: publish beta release to npm org
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'beta' }}
+      - name: publish preview release to npm org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
           npx lerna publish from-package --dist-tag=beta --yes
 
@@ -277,7 +273,7 @@ jobs:
             sleep 20
             npm run build
             cd ./packages/vscode-extension
-            if [ "$PREID" == "beta" ]; then
+            if [ "$PREID" == "preview" ]; then
               pnpm dlx vsce package --no-dependencies --pre-release
             else
               pnpm dlx vsce package --no-dependencies
