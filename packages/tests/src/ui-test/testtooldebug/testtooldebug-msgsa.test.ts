@@ -23,7 +23,7 @@ import { expect } from "chai";
 import { getScreenshotName } from "../../utils/nameUtil";
 import { validateNpm } from "../../utils/testToolValidations";
 
-describe("Command And Response Bot Local Debug Tests", function () {
+describe("Test Tool Debug Tests", function () {
   this.timeout(Timeout.testAzureCase);
   let localDebugTestContext: LocalDebugTestContext;
   let successFlag = true;
