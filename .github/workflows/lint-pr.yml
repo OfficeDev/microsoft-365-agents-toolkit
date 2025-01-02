@@ -372,9 +372,9 @@ jobs:
           echo "body=$body" >> $GITHUB_OUTPUT
           echo "subject=$subject" >> $GITHUB_OUTPUT
 
-          - name: setup user info
-          working-directory: ./
-          run: |
+      - name: setup user info
+        working-directory: ./
+        run: |
           user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/${{ github.actor }})
           git config --global user.email $(echo $user_info | jq -r '.name')
           git config --global user.name $(echo $user_info | jq -r '.name')
