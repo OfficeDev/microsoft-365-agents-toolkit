@@ -20,11 +20,6 @@ on:
         description: "The source branch of the PR"
         required: true
         default: "origin/dev"
-      send-to:
-        description: "Send the report to Email address"
-        required: true
-        default: ""
-
 
 permissions:
   contents: write
@@ -369,8 +364,16 @@ jobs:
           body="<h2>CHANGELOG ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}</h2><h3><a href='https:\/\/github.com\/OfficeDev\/teams-toolkit\/blob\/changelog\/${{ github.event.inputs.target-branch }}\/packages\/vscode-extension\/PRERELEASE.md'>Click Here to Open Changelog File</a></h3>"
           subject="[Changelog] ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}"
 
+          github_user=${{ github.actor }}
+          echo "github_user=$github_user"
+          accounts_file="./.github/accounts.json"
+          email=$(jq -r --arg user "$github_user" '.[$user]' "$accounts_file")
+          echo "email=$email"
           echo "body=$body" >> $GITHUB_OUTPUT
           echo "subject=$subject" >> $GITHUB_OUTPUT
+          sendTo=$email@microsoft.com
+          echo "sendTo=$sendTo" >> $GITHUB_OUTPUT
+          echo "send report to $sendTo"
 
       - name: setup user info
         working-directory: ./
@@ -385,7 +388,7 @@ jobs:
       - name: Send E-mail
         uses: ./.github/actions/send-email-report
         env:
-          TO: "${{ github.event.inputs.send-to }}"
+          TO: "${{ steps.update-changelog.outputs.sendTo }}"
           BODY: '"${{ steps.update-changelog.outputs.body }}"'
           SUBJECT: ${{ steps.update-changelog.outputs.subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
