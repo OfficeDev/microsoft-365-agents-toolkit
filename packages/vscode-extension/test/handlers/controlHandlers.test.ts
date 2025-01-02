@@ -101,6 +101,23 @@ describe("Control Handlers", () => {
       );
     });
 
+    it("opens intelligent app walkthrough with chat for API plugin apps", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
+      sandbox.stub(manifestUtils, "getCapabilities").returns(["plugin"]);
+      sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/test" });
+      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
+      const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+
+      await openWelcomeHandler("invalidArgs");
+
+      sandbox.assert.calledOnceWithExactly(
+        executeCommands,
+        "workbench.action.openWalkthrough",
+        "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat"
+      );
+    });
+
     it("opens intelligent app walkthrough for JS/TS custom engine copilot apps", async () => {
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));

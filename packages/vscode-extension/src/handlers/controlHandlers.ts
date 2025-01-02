@@ -25,6 +25,7 @@ import { openFolderInExplorer } from "../utils/commonUtils";
 import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
+import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
 
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
@@ -71,7 +72,7 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
   if (isCopilotApp) {
     data = await vscode.commands.executeCommand(
       "workbench.action.openWalkthrough",
-      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+      getBuildIntelligentAppsWalkthroughID()
     );
     return Promise.resolve(ok(data));
   } else {
@@ -112,7 +113,7 @@ export async function selectWalkthrough(...args: unknown[]): Promise<Result<unkn
   if (walkthroughChoice?.label === TeamsToolkitOptionLabel) {
     walkthroughId = getWalkThroughId();
   } else {
-    walkthroughId = "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
+    walkthroughId = getBuildIntelligentAppsWalkthroughID();
   }
   const data = await vscode.commands.executeCommand(
     "workbench.action.openWalkthrough",
