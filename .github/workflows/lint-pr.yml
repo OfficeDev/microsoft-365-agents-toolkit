@@ -10,10 +10,22 @@ on:
   schedule:
     - cron: "0 8 * * *"
 
+  workflow_dispatch:
+    inputs:
+      target-branch:
+        description: "The target branch of the PR (newly)"
+        required: true
+        default: "origin/dev"
+      source-branch:
+        description: "The source branch of the PR"
+        required: true
+        default: "origin/dev"
+
 permissions:
-  contents: read
+  contents: write
   actions: read
   pull-requests: write
+  id-token: write
 
 jobs: 
   pr-title:
@@ -261,3 +273,124 @@ jobs:
               core.setFailed(error.message);
             }
 
+  generate-changelog:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.inputs.target-branch }}
+
+      - name: update changelog
+        id: update-changelog
+        working-directory: ./
+        run: |
+          git fetch origin ${{ github.event.inputs.source-branch }}:${{ github.event.inputs.source-branch }}
+          head=$(git merge-base ${{ github.event.inputs.target-branch }} ${{ github.event.inputs.source-branch }})
+          tempfile=$(mktemp)
+          REPO_URL="https://github.com/OfficeDev/Teams-toolkit"
+
+          history_cli_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/cli | grep "feat:" || true)
+          history_toolkit_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/vscode-extension | grep "feat:" || true)
+          history_core_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/fx-core | grep "feat:" || true)
+          echo $history_core_feat
+          history_sdk_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk | grep "feat:" || true)
+          history_sdk_react_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk-react | grep "feat:" || true)
+          history_dotnet_sdk_feat=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/dotnet-sdk | grep "feat:" || true)
+
+          cat <<EOF > "$tempfile"
+          ### RELEASE ${{ github.event.inputs.source-branch }}...${{ github.event.inputs.target-branch }}
+          ### Feature Commits
+
+          #### Fx-core
+          $history_core_feat
+
+          #### CLI
+          $history_cli_feat
+
+          #### Extension Toolkit
+          $history_toolkit_feat
+
+          #### SDK
+          $history_sdk_feat
+
+          #### SDK React
+          $history_sdk_react_feat
+
+          #### .Net SDK
+          $history_dotnet_sdk_feat
+          EOF
+
+          history_cli_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/cli | grep "fix:" || true)
+          history_toolkit_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/vscode-extension | grep "fix:" || true)
+          history_core_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/fx-core | grep "fix:" || true)
+          history_sdk_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk | grep "fix:" || true)
+          history_sdk_react_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/sdk-react | grep "fix:" || true)
+          history_dotnet_sdk_fix=$(git log --pretty=format:"- [%s]($REPO_URL/commit/%h)" $head...HEAD -- ./packages/dotnet-sdk | grep "fix:" || true)
+
+          cat <<EOF >> "$tempfile"
+
+          ### Fix Commits
+
+          #### Fx-core
+          $history_core_fix
+
+          #### CLI
+          $history_cli_fix
+
+          #### Extension Toolkit
+          $history_toolkit_fix
+
+          #### SDK
+          $history_sdk_fix
+
+          #### SDK React
+          $history_sdk_react_fix
+
+          #### .Net SDK
+          $history_dotnet_sdk_fix
+          EOF
+
+          cat "$tempfile"
+          cat ./packages/vscode-extension/PRERELEASE.md >> "$tempfile"
+          mv "$tempfile" ./packages/vscode-extension/PRERELEASE.md
+          git checkout -b changelog/${{ github.event.inputs.target-branch }}
+          echo "=== changelog file path ==="
+          echo "https://github.com/OfficeDev/teams-toolkit/blob/changelog/${{ github.event.inputs.source-branch }}/packages/vscode-extension/PRERELEASE.md"
+
+          body="<h2>CHANGELOG ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}</h2><h3><a href='https:\/\/github.com\/OfficeDev\/teams-toolkit\/blob\/changelog\/${{ github.event.inputs.target-branch }}\/packages\/vscode-extension\/PRERELEASE.md'>Click Here to Open Changelog File</a></h3>"
+          subject="[Changelog] ${{ github.event.inputs.source-branch }} ... ${{ github.event.inputs.target-branch }}"
+
+          github_user=${{ github.actor }}
+          echo "github_user=$github_user"
+          accounts_file="./.github/accounts.json"
+          email=$(jq -r --arg user "$github_user" '.[$user]' "$accounts_file")
+          echo "email=$email"
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
+          sendTo=$email@microsoft.com
+          echo "sendTo=$sendTo" >> $GITHUB_OUTPUT
+          echo "send report to $sendTo"
+
+      - name: setup user info
+        working-directory: ./
+        run: |
+          user_info=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/users/${{ github.actor }})
+          git config --global user.email $(echo $user_info | jq -r '.name')
+          git config --global user.name $(echo $user_info | jq -r '.name')
+          git add ./packages/vscode-extension/PRERELEASE.md
+          git commit -m "dosc: update changelog for release"
+          git push --force origin changelog/${{ github.event.inputs.target-branch }}
+          
+      - name: Send E-mail
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: "${{ steps.update-changelog.outputs.sendTo }}"
+          BODY: '"${{ steps.update-changelog.outputs.body }}"'
+          SUBJECT: ${{ steps.update-changelog.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
