@@ -4085,7 +4085,7 @@ describe("scaffold question", () => {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];
         assert.deepEqual(options, [
           ApiAuthOptions.none(),
-          ApiAuthOptions.apiKey(),
+          ApiAuthOptions.bearerToken(),
           ApiAuthOptions.microsoftEntra(),
         ]);
       }

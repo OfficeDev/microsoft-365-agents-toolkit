@@ -475,7 +475,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
         [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
+        [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
       };
