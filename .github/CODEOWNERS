@@ -58,7 +58,7 @@
 /packages/cli/tests/unit/cmds/preview @swatDong @kuojianlu @qinezh @a1exwang
 /packages/cli/tests/unit/commonlib @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya @HuihuiWu-Microsoft @jayzhang
 
-/packages/dotnet-sdk @tecton @JerryYangKai @yiqing-zhao
+/packages/dotnet-sdk @tecton @JerryYangKai @HuihuiWu-Microsoft
 /packages/dotnet-sdk/src/TeamsFx.Test/Conversation @swatDong @dooriya @kimizhu
 /packages/dotnet-sdk/src/TeamsFx/Conversation @swatDong @dooriya @kimizhu
 
@@ -237,9 +237,9 @@
 
 /packages/manifest/ @jayzhang @nliu-ms @anchenyi
 
-/packages/sdk @tecton @blackchoey @SLdragon @wenytang-ms @yiqing-zhao
+/packages/sdk @tecton @blackchoey @SLdragon @wenytang-ms @HuihuiWu-Microsoft
 
-/packages/sdk-react @tecton @yiqing-zhao
+/packages/sdk-react @tecton @HuihuiWu-Microsoft
 /packages/sdk/src/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya @SLdragon
 /packages/sdk/test/unit/node/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya
 
@@ -272,11 +272,11 @@
 /packages/vscode-extension/package.nls.json @timngmsft @sffamily @therealjohn @supkasar
 /packages/vscode-extension/src/chat @tecton @Alive-Fish @lijie-lee @1openwindow
 /packages/vscode-extension/src/commonlib @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya @HuihuiWu-Microsoft @jayzhang
-/packages/vscode-extension/src/controls @tecton @yiqing-zhao
+/packages/vscode-extension/src/controls @tecton @HuihuiWu-Microsoft
 /packages/vscode-extension/src/debug @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
 /packages/vscode-extension/src/debug/officeTaskHandler.ts @swatDong @jayzhang @tecton
 /packages/vscode-extension/src/debug/taskTerminal/officeDevTerminal.ts @tecton @swatDong
-/packages/vscode-extension/src/handlers @tecton @jayzhang @yiqing-zhao
+/packages/vscode-extension/src/handlers @tecton @jayzhang @HuihuiWu-Microsoft
 /packages/vscode-extension/src/handlers/accounts @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya @HuihuiWu-Microsoft @jayzhang
 /packages/vscode-extension/src/handlers/aadManifestHandlers.ts @blackchoey @wenytang-ms @KennethBWSong
 /packages/vscode-extension/src/handlers/collaboratorHandlers.ts @KennethBWSong @SLdragon
@@ -285,9 +285,9 @@
 /packages/vscode-extension/src/migration @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
 /packages/vscode-extension/src/officeChat @1openwindow @MSFT-yiz
 /packages/vscode-extension/src/qm @jayzhang
-/packages/vscode-extension/src/telemetry @chagong @tecton @yiqing-zhao
-/packages/vscode-extension/src/treeview @tecton @yiqing-zhao
-/packages/vscode-extension/test @tecton @yiqing-zhao @HuihuiWu-Microsoft
+/packages/vscode-extension/src/telemetry @chagong @tecton @HuihuiWu-Microsoft
+/packages/vscode-extension/src/treeview @tecton @HuihuiWu-Microsoft
+/packages/vscode-extension/test @tecton @HuihuiWu-Microsoft @jayzhang
 /packages/vscode-extension/test/localdebug @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
 /packages/vscode-extension/test/migration @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
 

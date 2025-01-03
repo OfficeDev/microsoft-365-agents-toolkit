@@ -25,6 +25,9 @@ import { openFolderInExplorer } from "../utils/commonUtils";
 import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
+import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
+
+export const defaultWelcomePageKey = "defaultWelcomePage";
 
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
@@ -38,6 +41,8 @@ export async function openLifecycleTreeview(args?: any[]) {
   }
 }
 
+// args[0] is telemetry trigger from
+// args[1] is whether to open default welcome page. Pass const var defaultWelcomePageKey to open default welcome page.
 export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.GetStarted, getTriggerFromProperty(args));
   // Open different walkthrough depending on the project type
@@ -71,20 +76,28 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
   if (isCopilotApp) {
     data = await vscode.commands.executeCommand(
       "workbench.action.openWalkthrough",
-      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+      getBuildIntelligentAppsWalkthroughID()
     );
-  } else {
-    data = await vscode.commands.executeCommand(
+    return Promise.resolve(ok(data));
+  }
+  if (args.length > 0 && args[0] == (TelemetryTriggerFrom.SideBar as string)) {
+    const data = await vscode.commands.executeCommand(
       "workbench.action.openWalkthrough",
       getWalkThroughId()
     );
+    return Promise.resolve(ok(data));
   }
-  return Promise.resolve(ok(data));
+  if (args.length > 1 && args[1] == defaultWelcomePageKey) {
+    const data = await vscode.commands.executeCommand(
+      "workbench.action.openWalkthrough",
+      getWalkThroughId()
+    );
+    return Promise.resolve(ok(data));
+  }
+  return await selectWalkthrough(args);
 }
 
-export async function selectWalkthroughHandler(
-  ...args: unknown[]
-): Promise<Result<unknown, FxError>> {
+export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
   const TeamsToolkitOptionLabel = getDefaultString("teamstoolkit.walkthroughs.title");
   const BuildingIntelligentAppsLabel = getDefaultString(
     "teamstoolkit.walkthroughs.buildIntelligentApps.title"
@@ -109,7 +122,7 @@ export async function selectWalkthroughHandler(
   if (walkthroughChoice?.label === TeamsToolkitOptionLabel) {
     walkthroughId = getWalkThroughId();
   } else {
-    walkthroughId = "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
+    walkthroughId = getBuildIntelligentAppsWalkthroughID();
   }
   const data = await vscode.commands.executeCommand(
     "workbench.action.openWalkthrough",

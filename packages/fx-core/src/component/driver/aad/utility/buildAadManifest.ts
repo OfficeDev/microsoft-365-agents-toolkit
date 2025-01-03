@@ -18,6 +18,7 @@ import { AADManifest } from "../interface/AADManifest";
 import { UpdateAadAppOutput } from "../interface/updateAadAppOutput";
 import { logMessageKeys } from "../utility/constants";
 import { AadManifestHelper } from "./aadManifestHelper";
+import { AADApplication } from "../interface/AADApplication";
 
 const actionName = "aadApp/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-update";
@@ -27,7 +28,7 @@ export async function buildAadManifest(
   manifestPath: string,
   outputFilePath: string,
   state?: UpdateAadAppOutput
-): Promise<AADManifest> {
+): Promise<AADManifest | AADApplication> {
   const manifestAbsolutePath = getAbsolutePath(manifestPath, context.projectPath);
   if (!(await fs.pathExists(manifestAbsolutePath))) {
     throw new FileNotFoundError(actionName, manifestAbsolutePath, helpLink);
@@ -64,7 +65,7 @@ function getAbsolutePath(relativeOrAbsolutePath: string, projectPath: string) {
 async function loadManifest(
   manifestPath: string,
   state?: UpdateAadAppOutput
-): Promise<AADManifest> {
+): Promise<AADManifest | AADApplication> {
   let generatedNewPermissionId = false;
   try {
     const manifestTemplate = await fs.readFile(manifestPath, "utf8");
@@ -94,7 +95,7 @@ async function loadManifest(
       );
       throw error;
     }
-    let manifest: AADManifest;
+    let manifest: AADManifest | AADApplication;
     try {
       manifest = JSON.parse(manifestString);
     } catch (error) {

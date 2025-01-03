@@ -1,0 +1,37 @@
+name: Issue ADO Create
+description: Generate a work item for labeled issue
+inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    required: true
+  devops-org:
+    description: 'the org to create work item'
+    required: true
+  devops-projectId:
+    description: 'the project to create work item'
+    required: true
+  title-prefix:
+    description: 'the title prefix'
+    default: '[Github]'
+  bug-label: 
+    description: the label to create bug item.  
+    required: true
+  bug-area-path: 
+    description: the area path to create bug item.  
+    required: true
+  bug-iteration-path: 
+    description: the iteration path to create bug item.  
+    required: true
+  feature-label: 
+    description: the label to create feature item.  Input empty string to ignore feature
+    default: ''
+  feature-area-path: 
+    description: the area path to create feature item.  
+    default: ''
+  feature-iteration-path: 
+    description: the iteration path to create feature item.  
+    default: ''
+    
+runs:
+  using: 'node16'
+  main: 'index.js'

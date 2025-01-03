@@ -27,7 +27,7 @@
       {
           "entityId": "64f41b18-9e9b-453f-a004-cdafe3b4a5e9",
           "name": "helloworld",
-          "contentUrl": "{{^config.isLocalDebug}}https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/teamshostedapp.aspx%3Fteams%26personal%26componentId=64f41b18-9e9b-453f-a004-cdafe3b4a5e9%26forceLocale={locale}{{/config.isLocalDebug}}{{#config.isLocalDebug}}https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest={teamSitePath}/_layouts/15/TeamsWorkBench.aspx%3FcomponentId=64f41b18-9e9b-453f-a004-cdafe3b4a5e9%26teams%26personal%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fmanifests.js{{/config.isLocalDebug}}",
+          "contentUrl": "{{^config.isLocalDebug}}https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/teamshostedapp.aspx%3Fteams%26personal%26componentId=64f41b18-9e9b-453f-a004-cdafe3b4a5e9%26forceLocale={locale}{{/config.isLocalDebug}}{{#config.isLocalDebug}}https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/TeamsWorkBench.aspx%3Fteams%26personal%26componentId=64f41b18-9e9b-453f-a004-cdafe3b4a5e9%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fmanifests.js{{/config.isLocalDebug}}",
           "websiteUrl": "https://products.office.com/en-us/sharepoint/collaboration",
           "scopes": [
               "personal"

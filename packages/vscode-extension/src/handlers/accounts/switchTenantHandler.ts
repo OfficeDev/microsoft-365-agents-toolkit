@@ -52,6 +52,7 @@ export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
       if (switchRes.isOk()) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
           [TelemetryProperty.AccountType]: AccountType.M365,
+          [TelemetryProperty.TenantId]: result.value.result as string,
           ...getTriggerFromProperty(args),
         });
         return;
@@ -118,6 +119,7 @@ export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
     if (switchRes.isOk()) {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
         [TelemetryProperty.AccountType]: AccountType.Azure,
+        [TelemetryProperty.TenantId]: result.value.result as string,
         ...getTriggerFromProperty(args),
       });
       return;

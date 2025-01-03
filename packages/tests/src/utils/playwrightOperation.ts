@@ -188,10 +188,14 @@ export async function initPage(
     console.log("click add button");
     let addBtn;
     try {
-      addBtn = await page?.waitForSelector("button>span:has-text('Add')");
+      addBtn = await page?.waitForSelector(
+        "button[id='install-app-btn']:has-text('Add')"
+      );
     } catch {
       try {
-        addBtn = await page?.waitForSelector("button>span:has-text('Open')");
+        addBtn = await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Open')"
+        );
       } catch {
         await page.screenshot({
           path: getPlaywrightScreenshotPath("add_page"),
@@ -202,17 +206,25 @@ export async function initPage(
     }
 
     await addBtn?.click();
-    await page.waitForTimeout(Timeout.shortTimeLoading);
+    await page.waitForTimeout(Timeout.longTimeWait);
     // verify add page is closed
     try {
-      await page?.waitForSelector("button>span:has-text('Add')", {
-        state: "detached",
-      });
+      await page?.waitForSelector(
+        "button[id='install-app-btn']:has-text('Add')",
+        {
+          state: "detached",
+        }
+      );
     } catch {
-      await page?.waitForSelector("button>span:has-text('Open')", {
-        state: "detached",
-      });
+      await page?.waitForSelector(
+        "button[id='install-app-btn']:has-text('Open')",
+        {
+          state: "detached",
+        }
+      );
     }
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    // click Open button to add to Team, Chat or Meeting
     try {
       const openApp = await page?.waitForSelector(
         "button[data-testid='open-app'][data-tid='open-app']"
@@ -222,6 +234,29 @@ export async function initPage(
     } catch {
       console.log("No Open App button");
     }
+
+    // Check if having Open button, if yes, try again to click it
+    try {
+      await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']",
+        {
+          state: "detached",
+        }
+      );
+    } catch {
+      const openApp = await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']"
+      );
+      console.log("clicked open app");
+      await openApp.click();
+      await page?.waitForSelector(
+        "button[data-testid='open-app'][data-tid='open-app']",
+        {
+          state: "detached",
+        }
+      );
+    }
+
     console.log("[success] app loaded");
   });
 
@@ -297,10 +332,14 @@ export async function reopenPage(
       console.log("click add button");
       let addBtn;
       try {
-        addBtn = await page?.waitForSelector("button>span:has-text('Add')");
+        addBtn = await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Add')"
+        );
       } catch {
         try {
-          addBtn = await page?.waitForSelector("button>span:has-text('Open')");
+          addBtn = await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Open')"
+          );
         } catch {
           await page.screenshot({
             path: getPlaywrightScreenshotPath("add_page"),
@@ -311,17 +350,23 @@ export async function reopenPage(
       }
 
       await addBtn?.click();
-      await page.waitForTimeout(Timeout.shortTimeLoading);
+      await page.waitForTimeout(Timeout.longTimeWait);
       console.log("[success] app loaded");
       // verify add page is closed
       try {
-        await page?.waitForSelector("button>span:has-text('Add')", {
-          state: "detached",
-        });
+        await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Add')",
+          {
+            state: "detached",
+          }
+        );
       } catch {
-        await page?.waitForSelector("button>span:has-text('Open')", {
-          state: "detached",
-        });
+        await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Open')",
+          {
+            state: "detached",
+          }
+        );
       }
       try {
         const openApp = await page?.waitForSelector(
@@ -419,10 +464,14 @@ export async function initTeamsPage(
       console.log("click add button");
       let addBtn;
       try {
-        addBtn = await page?.waitForSelector("button>span:has-text('Add')");
+        addBtn = await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Add')"
+        );
       } catch {
         try {
-          addBtn = await page?.waitForSelector("button>span:has-text('Open')");
+          addBtn = await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Open')"
+          );
         } catch {
           await page.screenshot({
             path: getPlaywrightScreenshotPath("add_page"),
@@ -432,6 +481,8 @@ export async function initTeamsPage(
         }
       }
       await addBtn?.click();
+
+      await page.waitForTimeout(Timeout.longTimeWait);
 
       if (options?.type === "meeting") {
         // select meeting tab in dialog box
@@ -582,11 +633,13 @@ export async function reopenTeamsPage(
         console.log("click add button");
         let addBtn;
         try {
-          addBtn = await page?.waitForSelector("button>span:has-text('Add')");
+          addBtn = await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Add')"
+          );
         } catch {
           try {
             addBtn = await page?.waitForSelector(
-              "button>span:has-text('Open')"
+              "button[id='install-app-btn']:has-text('Open')"
             );
           } catch {
             await page.screenshot({
@@ -2367,6 +2420,7 @@ export async function validateDashboardTab(page: Page) {
         }
       }
     });
+
     console.log("start to verify dashboard tab");
     await page.waitForTimeout(Timeout.longTimeWait);
     const frameElementHandle = await page.waitForSelector(
@@ -2728,7 +2782,7 @@ export async function validateLargeNotificationBot(
         console.log(e);
       }
       try {
-        await frame?.waitForSelector('p:has-text("Hello World")');
+        await frame?.waitForSelector('p:has-text("New Event Occurred!")');
       } catch (e) {
         throw e;
       }

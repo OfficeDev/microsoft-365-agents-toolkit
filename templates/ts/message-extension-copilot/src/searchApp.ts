@@ -21,6 +21,18 @@ export class SearchApp extends TeamsActivityHandler {
     query: MessagingExtensionQuery
   ): Promise<MessagingExtensionResponse> {
     const searchQuery = query.parameters[0].value;
+
+    // Due to npmjs search limitations, do not search if input length < 2
+    if (searchQuery.length < 2) {
+      return {
+        composeExtension: {
+          type: "result",
+          attachmentLayout: "list",
+          attachments: [],
+        },
+      };
+    }
+
     const response = await axios.get(
       `http://registry.npmjs.com/-/v1/search?${querystring.stringify({
         text: searchQuery,

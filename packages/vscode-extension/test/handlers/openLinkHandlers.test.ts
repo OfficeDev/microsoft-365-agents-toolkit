@@ -7,6 +7,7 @@ import M365TokenInstance from "../../src/commonlib/m365Login";
 import { signedIn, signedOut } from "../../src/commonlib/common/constant";
 import { DeveloperPortalHomeLink } from "../../src/constants";
 import {
+  findGitHubSimilarIssue,
   openAccountLinkHandler,
   openAppManagement,
   openAzureAccountHandler,
@@ -341,6 +342,31 @@ describe("Open link handlers", () => {
           `https://portal.azure.com/#@tenantId/resource/subscriptions/subscriptionId/resourceGroups/resourceGroupName`
         )
       );
+    });
+  });
+
+  describe("findGitHubSimilarIssue", () => {
+    it("open issues", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      await findGitHubSimilarIssue(["firsterror"]);
+
+      chai.assert.isTrue(commandStub.calledOnce);
+    });
+
+    it("do nothing if invalid args", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      const res = await findGitHubSimilarIssue([]);
+
+      chai.assert.isFalse(commandStub.calledOnce);
+      chai.assert.isTrue(res.isOk());
+    });
+
+    it("do nothing if no args", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      const res = await findGitHubSimilarIssue();
+
+      chai.assert.isFalse(commandStub.calledOnce);
+      chai.assert.isTrue(res.isOk());
     });
   });
 });

@@ -8,7 +8,7 @@ import { CreateOauthArgs } from "../interface/createOauthArgs";
 import { FeatureFlags, featureFlagManager } from "../../../../common/featureFlags";
 import { OpenAPIV3 } from "openapi-types";
 import { isEqual } from "lodash";
-import { maxDomainPerOauth } from "./constants";
+import { maxDomainPerOauth, maxSecretLength, minSecretLength } from "./constants";
 import { OauthDomainInvalidError } from "../error/oauthDomainInvalid";
 import { OauthFailedToGetDomainError } from "../error/oauthFailedToGetDomain";
 import { OauthAuthInfoInvalid } from "../error/oauthAuthInfoInvalid";
@@ -21,6 +21,7 @@ export interface OauthInfo {
   tokenExchangeEndpoint?: string;
   tokenRefreshEndpoint?: string;
   scopes?: string[];
+  clientId?: string;
 }
 
 interface AuthInfo {
@@ -101,6 +102,18 @@ export async function getandValidateOauthInfoFromSpec(
     tokenRefreshEndpoint: authInfo.refreshUrl,
     scopes: authInfo.scopes,
   };
+}
+
+export function validateSecret(clientSecret: string): boolean {
+  if (typeof clientSecret !== "string") {
+    return false;
+  }
+
+  if (clientSecret.length > maxSecretLength || clientSecret.length < minSecretLength) {
+    return false;
+  }
+
+  return true;
 }
 
 function validateDomain(domain: string[], actionName: string): void {

@@ -30,6 +30,7 @@ import { InvalidYamlSchemaError } from "../../src/error/yml";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import {
   CopilotDisabledError,
+  FindProcessError,
   NodejsNotLtsError,
   PortsConflictError,
   SideloadingDisabledError,
@@ -330,5 +331,16 @@ describe("DeveloperPortalAPIFailed error", function () {
     assert.isTrue(error instanceof UserError);
     assert.isTrue(!!error.displayMessage);
     assert.isFalse(!!error.helpLink);
+  });
+
+  describe("FindProcessError", function () {
+    it("happy", () => {
+      const err = new FindProcessError(new Error(), "test");
+      assert.deepEqual(err.source, "test");
+    });
+    it("happy no source", () => {
+      const err = new FindProcessError(new Error());
+      assert.deepEqual(err.source, "core");
+    });
   });
 });

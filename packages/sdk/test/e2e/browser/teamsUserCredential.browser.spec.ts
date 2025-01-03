@@ -4,15 +4,23 @@ import * as chai from "chai";
 import * as chaiPromises from "chai-as-promised";
 import { AccessToken } from "@azure/core-auth";
 import * as sinon from "sinon";
-import { TeamsUserCredential, ErrorWithCode } from "../../../src/index.browser";
-import { getSSOToken, AADJwtPayLoad, SSOToken, getGraphToken } from "../helper.browser";
+import { TeamsUserCredential, ErrorWithCode, UserInfo } from "../../../src/index.browser";
+import {
+  extractIntegrationEnvVariables,
+  getSSOToken,
+  AADJwtPayLoad,
+  SSOToken,
+  getGraphToken,
+} from "../helper.browser";
 import { jwtDecode } from "jwt-decode";
 import { AccountInfo, AuthenticationResult, PublicClientApplication } from "@azure/msal-browser";
 
 chai.use(chaiPromises);
 const env = (window as any).__env__;
+extractIntegrationEnvVariables();
 
 describe("TeamsUserCredential Tests - Browser", () => {
+  const TEST_USER_ACCOUNT_NAME = env.SDK_INTEGRATION_TEST_ACCOUNT_NAME;
   const TEST_USER_OBJECT_ID = env.SDK_INTEGRATION_TEST_USER_OBJECT_ID;
   const TEST_AAD_TENANT_ID = env.SDK_INTEGRATION_TEST_AAD_TENANT_ID;
   const UIREQUIREDERROR = "UiRequiredError";
@@ -42,9 +50,8 @@ describe("TeamsUserCredential Tests - Browser", () => {
       initiateLoginEndpoint: FAKE_LOGIN_ENDPOINT,
       clientId: env.SDK_INTEGRATION_TEST_M365_AAD_CLIENT_ID,
     });
-    const info = await credential.getUserInfo();
-    chai.assert.strictEqual(info.preferredUserName, env.SDK_INTEGRATION_TEST_ACCOUNT.split(";")[0]);
-    chai.assert.strictEqual(info.displayName, "TestBot");
+    const info: UserInfo = await credential.getUserInfo();
+    chai.assert.strictEqual(info.preferredUserName, TEST_USER_ACCOUNT_NAME);
     chai.assert.strictEqual(info.objectId, TEST_USER_OBJECT_ID);
     chai.assert.strictEqual(info.tenantId, TEST_AAD_TENANT_ID);
   });

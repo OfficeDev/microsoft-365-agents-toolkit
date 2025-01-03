@@ -93,12 +93,10 @@ export class CodeFlowLogin {
         this.status = loggedIn;
       }
 
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-        const tenantCache = await loadTenantId(this.accountName);
-        if (tenantCache) {
-          const allAccounts = await this.msalTokenCache.getAllAccounts();
-          this.account = allAccounts.find((account) => account.tenantId == tenantCache);
-        }
+      const tenantCache = await loadTenantId(this.accountName);
+      if (tenantCache) {
+        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else if (this.status !== loggingIn) {
       this.account = undefined;
@@ -125,10 +123,7 @@ export class CodeFlowLogin {
     const app = express();
     const server = app.listen(serverPort);
     serverPort = (server.address() as AddressInfo).port;
-    const authority =
-      featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && tenantId
-        ? BASE_AUTHORITY + tenantId
-        : undefined;
+    const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
 
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
@@ -272,10 +267,7 @@ export class CodeFlowLogin {
     const codeChallenge = CodeFlowLogin.toBase64UrlEncoding(
       await CodeFlowLogin.sha256(codeVerifier)
     );
-    const authority =
-      featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && tenantId
-        ? BASE_AUTHORITY + tenantId
-        : undefined;
+    const authority = tenantId ? BASE_AUTHORITY + tenantId : undefined;
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
       codeChallenge: codeChallenge,
@@ -346,51 +338,12 @@ export class CodeFlowLogin {
     loginHint?: string,
     tenantId?: string
   ): Promise<Result<string, FxError>> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      if (!tenantId) {
-        tenantId = await loadTenantId(this.accountName);
-      }
-      return await this.getToken(scopes, refresh, tenantId, loginHint);
+    if (!tenantId) {
+      tenantId = await loadTenantId(this.accountName);
     }
-
-    if (!this.account) {
-      const accessToken = await this.login(scopes, loginHint);
-      return ok(accessToken);
-    } else {
-      try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: scopes,
-          forceRefresh: false,
-        });
-        if (res) {
-          return ok(res.accessToken);
-        } else {
-          return err(LoginCodeFlowError(new Error("No token response.")));
-        }
-      } catch (error) {
-        VsCodeLogInstance.debug(
-          "[Login] " +
-            stringUtil.format(
-              localize("teamstoolkit.codeFlowLogin.silentAcquireToken"),
-              path.join(os.homedir(), ".fx", "account"),
-              error.message
-            )
-        );
-        if (!(await checkIsOnline())) {
-          return err(CheckOnlineError());
-        }
-        await this.logout();
-        if (refresh) {
-          const accessToken = await this.login(scopes, loginHint);
-          return ok(accessToken);
-        }
-        return err(LoginCodeFlowError(error));
-      }
-    }
+    return await this.getToken(scopes, refresh, tenantId, loginHint);
   }
 
-  // For multi-tenant support, the legacy function wil be removed later
   async getToken(
     scopes: Array<string>,
     refresh = true,

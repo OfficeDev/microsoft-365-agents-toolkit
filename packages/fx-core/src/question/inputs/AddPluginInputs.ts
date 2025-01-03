@@ -11,7 +11,7 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddPluginInputs extends Inputs {
-  /** @description Add API Plugin */
+  /** @description Add an Action */
   "api-plugin-type"?: "api-spec" | "existing-plugin";
   /** @description Import Manifest File */
   "plugin-manifest-path"?: string;

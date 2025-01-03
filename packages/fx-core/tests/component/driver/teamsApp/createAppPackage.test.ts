@@ -12,7 +12,14 @@ import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { ok, Platform, PluginManifestSchema, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import {
+  err,
+  ok,
+  Platform,
+  PluginManifestSchema,
+  SystemError,
+  TeamsAppManifest,
+} from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
@@ -1469,6 +1476,86 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
+    it("resolve additional localization file error", async () => {
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+      };
+
+      const manifest = new TeamsAppManifest();
+      manifest.localizationInfo = {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
+          {
+            languageTag: "de",
+            file: "migrate.manifest.json",
+          },
+        ],
+        defaultLanguageFile: "de.json",
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon
+        .stub(manifestUtils, "resolveLocFile")
+        .resolves(err(new FileNotFoundError("teamsapp", "faked_loc_path")));
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      if (result.isErr()) {
+        chai.assert.isTrue(result.error instanceof FileNotFoundError);
+      }
+    });
+
+    it("resolve default localization file error", async () => {
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+        outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+      };
+
+      const manifest = new TeamsAppManifest();
+      manifest.localizationInfo = {
+        defaultLanguageTag: "en",
+        additionalLanguages: [
+          {
+            languageTag: "de",
+            file: "migrate.manifest.json",
+          },
+        ],
+        defaultLanguageFile: "de.json",
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(manifestUtils, "resolveLocFile").callsFake(async (path) => {
+        if (path.includes("migrate.manifest.json")) {
+          return ok("{}");
+        } else {
+          return err(new FileNotFoundError("teamsapp", "faked_loc_path"));
+        }
+      });
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      if (result.isErr()) {
+        chai.assert.isTrue(result.error instanceof FileNotFoundError);
+      }
+    });
+
     it("relative path error 2", async () => {
       const args: CreateAppPackageArgs = {
         manifestPath:
@@ -1546,6 +1633,7 @@ describe("teamsApp/createAppPackage", async () => {
 
       sinon.stub(fs, "chmod").callsFake(async () => {});
       const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(manifestUtils, "resolveLocFile").resolves(ok("{}"));
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert(result.isOk());

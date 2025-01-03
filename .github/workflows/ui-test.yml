@@ -145,7 +145,7 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Upload TTK to artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ttk
           path: |
@@ -336,7 +336,7 @@ jobs:
           npx playwright install
 
       - name: Download TTK
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ttk
           path: ./packages/tests
@@ -421,7 +421,7 @@ jobs:
         if: matrix.os != 'windows-latest'
         working-directory: packages/tests
         run: |
-          vsix=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          vsix=`find . -maxdepth 1 -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
       - name: Install vsix(win)
@@ -439,12 +439,12 @@ jobs:
           value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}
 
       - name: Setup OpenAI key(macos)
-        if: ${{ matrix.os == 'macos-latest' && github.event_name != 'schedule' }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
 
       - name: Setup OpenAI key(win)
-        if: ${{ matrix.os == 'windows-latest' && github.event_name != 'schedule' }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
 
@@ -464,21 +464,21 @@ jobs:
           npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
       
       - name: Upload test result json file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'schedule' || success() || (failure() && github.run_attempt >= 5) }}
         with:
           name: test-result-${{ matrix.test-case }}-${{ matrix.os }}
           path: ./packages/tests/mochawesome-report/mochawesome.json
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
           path: ./packages/tests/.test-resources/screenshots/
 
       - name: Upload source code
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: source code ${{ matrix.test-case }} ${{ matrix.os }}
@@ -487,7 +487,7 @@ jobs:
             !./packages/tests/**/node_modules/*
 
       - name: Upload telemetry
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always() && startsWith(matrix.test-case, 'telemetry')
         with:
           name: telemetry ${{ matrix.test-case }} ${{ matrix.os }}
@@ -528,7 +528,7 @@ jobs:
           npx ts-node src/scripts/testPlan.ts archive $testplanid
       
       - name: Download TestPlan
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./packages/tests/mocha-results
 

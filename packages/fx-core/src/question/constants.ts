@@ -110,6 +110,11 @@ export enum QuestionNames {
   TemplateName = "template-name",
 }
 
+export enum ProjectTypeGroup {
+  AIAgent = "AI Agent",
+  M365Apps = "Apps for Microsoft 365",
+}
+
 export const AppNamePattern =
   '^(?=(.*[\\da-zA-Z]){2})[a-zA-Z][^"<>:\\?/*&|\u0000-\u001F]*[^"\\s.<>:\\?/*&|\u0000-\u001F]$';
 
@@ -184,10 +189,13 @@ export class ScratchOptions {
 }
 
 export class ProjectTypeOptions {
-  static getCreateGroupName(): string | undefined {
-    return featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-      ? getLocalizedString("core.createProjectQuestion.projectType.createGroup.title")
-      : undefined;
+  static getCreateGroupName(group: ProjectTypeGroup): string | undefined {
+    switch (group) {
+      case ProjectTypeGroup.AIAgent:
+        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.aiAgent");
+      case ProjectTypeGroup.M365Apps:
+        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.m365Apps");
+    }
   }
   static tab(platform?: Platform): OptionItem {
     return {
@@ -196,7 +204,7 @@ export class ProjectTypeOptions {
         "core.TabOption.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.tab.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -207,7 +215,7 @@ export class ProjectTypeOptions {
         "core.createProjectQuestion.projectType.bot.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.bot.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -220,7 +228,7 @@ export class ProjectTypeOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"
       ),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -231,7 +239,7 @@ export class ProjectTypeOptions {
         "core.createProjectQuestion.projectType.outlookAddin.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -242,25 +250,13 @@ export class ProjectTypeOptions {
         "core.createProjectQuestion.projectType.officeAddin.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
-    };
-  }
-
-  static officeAddin(platform?: Platform): OptionItem {
-    return {
-      id: "office-addin-type",
-      label: `${platform === Platform.VSCode ? "$(extensions) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.officeAddin.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
     };
   }
 
   static officeAddinAllIds(platform?: Platform): string[] {
     return [
       ProjectTypeOptions.officeMetaOS(platform).id,
-      ProjectTypeOptions.officeAddin(platform).id,
       ProjectTypeOptions.outlookAddin(platform).id,
     ];
   }
@@ -272,7 +268,7 @@ export class ProjectTypeOptions {
         "core.createProjectQuestion.projectType.declarativeAgent.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.AIAgent),
     };
   }
 
@@ -283,7 +279,7 @@ export class ProjectTypeOptions {
         platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
       }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(),
+      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.AIAgent),
     };
   }
 
@@ -573,43 +569,14 @@ export class CapabilityOptions {
     return items;
   }
 
-  static officeAddinDynamicCapabilities(projectType: string, host?: string): OptionItem[] {
-    const items: OptionItem[] = [];
+  static officeAddinCapabilities(projectType: string): OptionItem[] {
+    const items: OptionItem[] = [CapabilityOptions.officeAddinTaskpane()];
     const isOutlookAddin = projectType === ProjectTypeOptions.outlookAddin().id;
     const isMetaOSAddin = projectType === ProjectTypeOptions.officeMetaOS().id;
-    const isOfficeAddin = projectType === ProjectTypeOptions.officeAddin().id;
-
-    const pushToItems = (option: any) => {
-      const capabilityValue = OfficeAddinProjectConfig.json[option];
-      items.push({
-        id: option,
-        label: getLocalizedString(capabilityValue.title),
-        detail: getLocalizedString(capabilityValue.detail),
-      });
-    };
-
-    if (isOutlookAddin || isMetaOSAddin || isOfficeAddin) {
-      pushToItems("json-taskpane");
-      if (isOutlookAddin) {
-        items.push(CapabilityOptions.outlookAddinImport());
-      } else if (isMetaOSAddin) {
-        items.push(CapabilityOptions.officeAddinImport());
-      } else {
-        items.push(CapabilityOptions.officeContentAddin());
-        items.push(CapabilityOptions.officeAddinImport());
-      }
-    } else {
-      if (host) {
-        const hostValue = OfficeAddinProjectConfig[host];
-        for (const capability of Object.keys(hostValue)) {
-          const capabilityValue = hostValue[capability];
-          items.push({
-            id: capability,
-            label: getLocalizedString(capabilityValue.title),
-            detail: getLocalizedString(capabilityValue.detail),
-          });
-        }
-      }
+    if (isOutlookAddin) {
+      items.push(CapabilityOptions.outlookAddinImport());
+    } else if (isMetaOSAddin) {
+      items.push(CapabilityOptions.officeAddinImport());
     }
     return items;
   }
@@ -670,10 +637,16 @@ export class CapabilityOptions {
       // test templates that are used by TDP integration only
       capabilityOptions.push(...CapabilityOptions.tdpIntegrationCapabilities());
     }
-    capabilityOptions.push(
-      ...CapabilityOptions.officeAddinDynamicCapabilities(inputs?.projectType, inputs?.host)
-    );
+    capabilityOptions.push(...CapabilityOptions.officeAddinCapabilities(inputs?.projectType));
     return capabilityOptions;
+  }
+
+  static officeAddinTaskpane(): OptionItem {
+    return {
+      id: "office-addin-taskpane",
+      label: getLocalizedString("core.newTaskpaneAddin.label"),
+      detail: getLocalizedString("core.newTaskpaneAddin.detail"),
+    };
   }
 
   static outlookAddinImport(): OptionItem {
@@ -812,6 +785,13 @@ export class ApiAuthOptions {
   static apiKey(): OptionItem {
     return {
       id: "api-key",
+      label: "API Key",
+    };
+  }
+
+  static bearerToken(): OptionItem {
+    return {
+      id: "bearer-token",
       label: "API Key (Bearer Token Auth)",
     };
   }
@@ -834,6 +814,7 @@ export class ApiAuthOptions {
     return [
       ApiAuthOptions.none(),
       ApiAuthOptions.apiKey(),
+      ApiAuthOptions.bearerToken(),
       ApiAuthOptions.microsoftEntra(),
       ApiAuthOptions.oauth(),
     ];

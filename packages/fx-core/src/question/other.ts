@@ -106,6 +106,32 @@ export function grantPermissionQuestionNode(): IQTreeNode {
   };
 }
 
+export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
+  return {
+    data: { type: "group" },
+    children: [
+      {
+        condition: (inputs: Inputs) =>
+          DynamicPlatforms.includes(inputs.platform) &&
+          !inputs[QuestionNames.AadAppManifestFilePath],
+        data: selectAadManifestQuestion(),
+        children: [
+          {
+            condition: (inputs: Inputs) =>
+              inputs.platform === Platform.VSCode && // confirm question only works for VSC
+              inputs.projectPath !== undefined &&
+              path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
+                path.join(inputs.projectPath, "aad.manifest.json"),
+            data: confirmManifestQuestion(false, false),
+            cliOptionDisabled: "self",
+            inputsDisabled: "self",
+          },
+        ],
+      },
+    ],
+  };
+}
+
 export function deployAadManifestQuestionNode(): IQTreeNode {
   return {
     data: { type: "group" },

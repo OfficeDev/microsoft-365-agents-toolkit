@@ -169,8 +169,12 @@ export interface M365TokenProvider {
    * - unique_name : user name
    * - ...
    * @param tokenRequest permission scopes or show user interactive UX
+   * @param tenantId id of tenant that user wants to login in to
    */
-  getJsonObject(tokenRequest: TokenRequest): Promise<Result<Record<string, unknown>, FxError>>;
+  getJsonObject(
+    tokenRequest: TokenRequest,
+    tenantId?: string
+  ): Promise<Result<Record<string, unknown>, FxError>>;
   /**
    * Get user login status
    * @param tokenRequest permission scopes or show user interactive UX

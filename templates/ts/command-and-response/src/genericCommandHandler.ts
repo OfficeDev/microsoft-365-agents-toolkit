@@ -1,21 +1,22 @@
+import { Selector } from "@microsoft/teams-ai";
 import { Activity, TurnContext } from "botbuilder";
-import { CommandMessage, TeamsFxBotCommandHandler, TriggerPatterns } from "@microsoft/teamsfx";
+import { ApplicationTurnState } from "./internal/interface";
 
 /**
- * The `GenericCommandHandler` registers patterns with the `TeamsFxBotCommandHandler` and responds
+ * The `GenericCommandHandler` registers patterns and responds
  * with appropriate messages if the user types general command inputs, such as "hi", "hello", and "help".
  */
-export class GenericCommandHandler implements TeamsFxBotCommandHandler {
-  triggerPatterns: TriggerPatterns = new RegExp(/^.+$/);
+export class GenericCommandHandler {
+  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = new RegExp(/^.+$/);
 
   async handleCommandReceived(
     context: TurnContext,
-    message: CommandMessage
+    state: ApplicationTurnState
   ): Promise<string | Partial<Activity> | void> {
-    console.log(`App received message: ${message.text}`);
+    console.log(`App received message: ${context.activity.text}`);
 
     let response = "";
-    switch (message.text) {
+    switch (context.activity.text) {
       case "hi":
         response =
           "Hi there! I'm your Command Bot, here to assist you with your tasks. Type 'help' for a list of available commands.";
@@ -29,7 +30,7 @@ export class GenericCommandHandler implements TeamsFxBotCommandHandler {
           "Here's a list of commands I can help you with:\n" +
           "- 'hi' or 'hello': Say hi or hello to me, and I'll greet you back.\n" +
           "- 'help': Get a list of available commands.\n" +
-          "- 'helloworld': See a sample response from me.\n" +
+          "- 'helloWorld': See a sample response from me.\n" +
           "\nFeel free to ask for help anytime you need it!";
         break;
       default:

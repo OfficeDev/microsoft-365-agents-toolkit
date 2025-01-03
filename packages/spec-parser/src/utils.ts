@@ -37,6 +37,10 @@ export class Utils {
     return authScheme.type === "apiKey";
   }
 
+  static isAPIKeyAuthButNotInCookie(authScheme: AuthType): boolean {
+    return authScheme.type === "apiKey" && authScheme.in !== "cookie";
+  }
+
   static isOAuthWithAuthCodeFlow(authScheme: AuthType): boolean {
     return !!(
       authScheme.type === "oauth2" &&
@@ -58,7 +62,8 @@ export class Utils {
       if (auths.length === 1) {
         if (
           Utils.isOAuthWithAuthCodeFlow(auths[0].authScheme) ||
-          Utils.isBearerTokenAuth(auths[0].authScheme)
+          Utils.isBearerTokenAuth(auths[0].authScheme) ||
+          Utils.isAPIKeyAuthButNotInCookie(auths[0].authScheme)
         ) {
           return false;
         }

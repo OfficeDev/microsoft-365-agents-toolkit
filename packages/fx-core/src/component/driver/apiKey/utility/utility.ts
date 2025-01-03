@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { SpecParser } from "@microsoft/m365-spec-parser";
+import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import { getAbsolutePath } from "../../../utils/common";
 import { DriverContext } from "../../interface/commonArgs";
 import { CreateApiKeyArgs } from "../interface/createApiKeyArgs";
@@ -32,6 +32,7 @@ export async function getDomain(
   const parser = new SpecParser(absolutePath, {
     allowBearerTokenAuth: true, // Currently, API key auth support is actually bearer token auth
     allowMultipleParameters: true,
+    projectType: ProjectType.Copilot,
   });
   const listResult = await parser.list();
   const operations = listResult.APIs;
@@ -40,9 +41,9 @@ export async function getDomain(
     const auth = value.auth;
     return (
       auth &&
-      auth.authScheme.type === "http" &&
-      auth.authScheme.scheme === "bearer" &&
-      auth.name === args.name
+      auth.name === args.name &&
+      ((auth.authScheme.type === "http" && auth.authScheme.scheme === "bearer") ||
+        (auth.authScheme.type === "apiKey" && auth.authScheme.in !== "cookie"))
     );
   });
 

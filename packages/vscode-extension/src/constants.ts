@@ -60,7 +60,6 @@ export enum CommandKey {
   publishToAppSource = "fx-extension.publishToAppSource",
   openDeployLink = "fx-extension.officeDevDeploy",
   openOfficeDevDocument = "fx-extension.openOfficeDevDocument",
-  SelectWalkthrough = "fx-extension.selectWalkthrough",
 }
 
 export const environmentVariableRegex = /\${{[a-zA-Z-_]+}}/g;
@@ -76,3 +75,5 @@ export const InstallCopilotChatLink = "https://aka.ms/install-github-copilot-cha
 
 export const KiotaExtensionId = "ms-graph.kiota";
 export const KiotaMinVersion = "1.18.100000002";
+
+export const MaximumNotificationOutputTroubleshootCount = 3;

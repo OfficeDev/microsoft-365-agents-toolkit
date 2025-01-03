@@ -1,0 +1,73 @@
+name: Issue-Labled
+
+on: 
+  issues:
+    types: [labeled]
+  workflow_dispatch: # allows to run manually for testing
+    inputs:
+      issueNumber:
+        description: 'specific issue number to test issue-labeled action'
+        required: false  
+
+jobs:
+  main:
+    if: ${{contains(github.event.issue.labels.*.name, 'cherry-pick-hotfix') || github.event_name == 'workflow_dispatch'}}
+    runs-on: ubuntu-latest
+    environment: engineering
+    permissions:
+      issues: write
+      id-token: write
+      contents: read
+    steps:
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Checkout github action repository
+        uses: actions/checkout@v3
+        with:
+         repository: "microsoft/vscode-github-triage-actions"
+         ref: stable 
+         path: ./action-base
+      
+      - name: Copy action
+        run: |
+          cp -r .github/actions/issue-labeled ./action-base/issue-labeled
+          cp -r .github/actions/teamsfx-utils ./action-base/teamsfx-utils
+
+      - name: Npm install dependencies
+        run: npm install azure-devops-node-api --prefix ./action-base
+      - name: Npm install
+        run: npm install --production --prefix ./action-base
+      - name: Build action
+        continue-on-error: true
+        run: npm run build --prefix ./action-base
+      
+      - name: Create AZDO Item 
+        id: create
+        uses: ./action-base/issue-labeled
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          devops-org: "msazure"
+          devops-projectId: "Microsoft Teams Extensibility"
+          title-prefix: "[Github]"
+          bug-label: "bug"
+          bug-area-path: "Microsoft Teams Extensibility"
+          bug-iteration-path: "Microsoft Teams Extensibility"
+        env:
+          ISSUE_NUMBER: ${{github.event.inputs.issueNumber}}
+
+      - name: Send Alert Email
+        uses: ./.github/actions/send-email-report
+        if: ${{ steps.create.outputs.alert_to != '' }}
+        env:
+          TO: ${{ steps.create.outputs.alert_to }}
+          BODY: '"${{ steps.create.outputs.alert_body }}"'
+          SUBJECT: ${{ steps.create.outputs.alert_subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}        

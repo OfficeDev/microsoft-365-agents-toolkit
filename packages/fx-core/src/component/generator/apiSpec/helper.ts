@@ -9,6 +9,7 @@ import {
   AdaptiveCardGenerator,
   ErrorResult as ApiSpecErrorResult,
   ErrorType as ApiSpecErrorType,
+  ConstantString,
   ErrorType,
   InvalidAPIInfo,
   ListAPIResult,
@@ -334,6 +335,8 @@ function sortOperations(operations: ListAPIInfo[]): ApiOperation[] {
         ? getLocalizedString("core.copilotPlugin.api.apiKeyAuth")
         : Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)
         ? getLocalizedString("core.copilotPlugin.api.oauth")
+        : Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme)
+        ? getLocalizedString("core.copilotPlugin.api.apiKeyWithHeaderOrQuery")
         : getLocalizedString("core.copilotPlugin.api.notSupportedAuth"),
       data: {
         serverUrl: operation.server,
@@ -341,7 +344,10 @@ function sortOperations(operations: ListAPIInfo[]): ApiOperation[] {
     };
 
     if (operation.auth) {
-      if (Utils.isBearerTokenAuth(operation.auth.authScheme)) {
+      if (
+        Utils.isBearerTokenAuth(operation.auth.authScheme) ||
+        Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme)
+      ) {
         result.data.authType = "apiKey";
         result.data.authName = operation.auth.name;
       } else if (Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)) {
@@ -1519,13 +1525,42 @@ export async function updateForCustomApi(
   // 4. update code
   await updateCodeForCustomApi(specItems, language, destinationPath, openapiSpecFileName, needAuth);
 
+  // 5. add prompt suggestions
+  const manifestPath = path.join(destinationPath, AppPackageFolderName, ManifestTemplateFileName);
+  await updatePromptSuggestions(specItems, manifestPath);
+
   return warnings;
 }
 
-const EnvNamePostfix = "REGISTRATION_ID";
+async function updatePromptSuggestions(specItems: SpecObject[], manifestPath: string) {
+  const descriptions: string[] = specItems
+    .map((item) => item.item.summary ?? item.item.description)
+    .filter((item): item is string => item !== undefined)
+    .slice(0, 10);
+
+  const manifestRes = await manifestUtils._readAppManifest(manifestPath);
+  if (manifestRes.isOk()) {
+    const manifest = manifestRes.value;
+    manifest.bots![0].commandLists = [
+      {
+        scopes: ["personal"],
+        commands: descriptions.map((des) => {
+          return {
+            title: des.slice(0, 32),
+            description: des.slice(0, 128),
+          };
+        }),
+      },
+    ];
+
+    await manifestUtils._writeAppManifest(manifest, manifestPath);
+  } else {
+    throw manifestRes.error;
+  }
+}
 
 export function getEnvName(authName: string): string {
-  return Utils.getSafeRegistrationIdEnvName(`${authName}_${EnvNamePostfix}`);
+  return Utils.getSafeRegistrationIdEnvName(`${authName}_${ConstantString.RegistrationIdPostfix}`);
 }
 
 export async function copyKiotaFolder(specPath: string, projectPath: string): Promise<void> {

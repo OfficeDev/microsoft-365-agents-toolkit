@@ -27,6 +27,7 @@ import {
 } from "../../../../src/component/driver/teamsApp/constants";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../src/error";
+import mockedEnv, { RestoreFn } from "mocked-env";
 
 const latestManifestVersion = "1.17";
 const oldManifestVersion = "1.16";
@@ -518,5 +519,62 @@ describe("trimManifestShortName", () => {
     assert.isTrue(res.isOk());
     assert.isTrue(readJsonStub.notCalled);
     assert.isTrue(writeFileStub.notCalled);
+  });
+});
+
+describe("resolveLocFile", () => {
+  const sandbox = sinon.createSandbox();
+  let mockedEnvRestore: RestoreFn;
+
+  afterEach(() => {
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+    sandbox.restore();
+  });
+
+  it("returns error when loc file doesn't exist", async () => {
+    sandbox.stub(fs, "pathExists").resolves(false);
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path");
+
+    assert.isTrue(locFile.isErr());
+    if (locFile.isErr()) {
+      assert.equal(locFile.error.name, "FileNotFoundError");
+    }
+  });
+
+  it("returns error when there're unresolved env variables", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    const fakedLocManifest = new TeamsAppManifest();
+    fakedLocManifest.name.short = "shortname ${{APP_NAME_SUFFIX}}";
+    sandbox.stub(fs, "readFile").resolves(JSON.stringify(fakedLocManifest) as any);
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path");
+
+    assert.isTrue(locFile.isErr());
+    if (locFile.isErr()) {
+      assert.equal(locFile.error.name, "MissingEnvironmentVariablesError");
+    }
+  });
+
+  it("happy pass", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    const fakedLocManifest = new TeamsAppManifest();
+    fakedLocManifest.name.short = "shortname ${{APP_NAME_SUFFIX}}";
+    mockedEnvRestore = mockedEnv({
+      ["APP_NAME_SUFFIX"]: "- hello world",
+    });
+    sandbox.stub(fs, "readFile").resolves(JSON.stringify(fakedLocManifest) as any);
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path");
+
+    assert.isTrue(locFile.isOk());
+    if (locFile.isOk()) {
+      assert.equal(
+        (JSON.parse(locFile.value) as TeamsAppManifest).name.short,
+        "shortname - hello world"
+      );
+    }
   });
 });

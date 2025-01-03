@@ -22,11 +22,16 @@ import { v4 } from "uuid";
 import isUUID from "validator/lib/isUUID";
 import { ErrorContextMW } from "../../../../common/globalVars";
 import { getCapabilities as checkManifestCapabilities } from "../../../../common/projectTypeChecker";
-import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../error/common";
+import {
+  FileNotFoundError,
+  JSONSyntaxError,
+  MissingEnvironmentVariablesError,
+  ReadFileError,
+} from "../../../../error/common";
 import { CapabilityOptions } from "../../../../question/constants";
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
-import { expandEnvironmentVariable } from "../../../utils/common";
+import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import {
@@ -431,6 +436,27 @@ export class ManifestUtils {
       await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
     }
     return ok(undefined);
+  }
+
+  async resolveLocFile(locFilePath: string): Promise<Result<string, FxError>> {
+    if (!(await fs.pathExists(locFilePath))) {
+      return err(new FileNotFoundError("teamsApp", locFilePath));
+    }
+
+    const locFileString = await fs.readFile(locFilePath, "utf8");
+    const resolvedLocFileString = expandEnvironmentVariable(locFileString);
+    const unresolvedEnvVariables = getEnvironmentVariables(resolvedLocFileString);
+    if (unresolvedEnvVariables && unresolvedEnvVariables.length > 0) {
+      return err(
+        new MissingEnvironmentVariablesError(
+          "teamsApp",
+          unresolvedEnvVariables.join(","),
+          locFilePath
+        )
+      );
+    }
+
+    return ok(resolvedLocFileString);
   }
 }
 

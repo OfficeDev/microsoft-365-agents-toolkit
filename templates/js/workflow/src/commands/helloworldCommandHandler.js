@@ -5,8 +5,8 @@ const { CardFactory, MessageFactory } = require("botbuilder");
 class HelloWorldCommandHandler {
   triggerPatterns = "helloWorld";
 
-  async handleCommandReceived(context, message) {
-    console.log(`Bot received message: ${message.text}`);
+  async handleCommandReceived(context, state) {
+    console.log(`Bot received message: ${context.activity.text}`);
 
     const cardJson = new ACData.Template(helloWorldCard).expand({
       $root: {

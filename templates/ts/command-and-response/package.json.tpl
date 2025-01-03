@@ -23,9 +23,9 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "adaptivecards-templating": "^2.3.1",
+        "@microsoft/teams-ai": "^1.7.0",
         "adaptive-expressions": "^4.23.1",
-        "@microsoft/teamsfx": "^3.0.0-rc",
+        "adaptivecards-templating": "^2.3.1",
         "botbuilder": "^4.23.1",
         "express": "^5.0.1"
     },
@@ -35,8 +35,8 @@
         "@types/node": "^18.0.0",
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.7",
+        "shx": "^0.3.4",
         "ts-node": "^10.4.0",
-        "typescript": "^4.4.4",
-        "shx": "^0.3.4"
+        "typescript": "^4.4.4"
     }
 }

@@ -1,5 +1,4 @@
 const ACData = require("adaptivecards-templating");
-const { InvokeResponseFactory } = require("@microsoft/teamsfx");
 const responseCard = require("../adaptiveCards/doStuffActionResponse.json");
 
 class DoStuffActionHandler {
@@ -9,7 +8,7 @@ class DoStuffActionHandler {
    */
   triggerVerb = "doStuff";
 
-  async handleActionInvoked(context, message) {
+  async handleActionInvoked(context, actionData) {
     /**
      * You can send an adaptive card to respond to the card action invoke.
      */
@@ -19,18 +18,12 @@ class DoStuffActionHandler {
         body: "Congratulations! Your task is processed successfully.",
       },
     });
-    return InvokeResponseFactory.adaptiveCard(cardJson);
+    return cardJson;
 
     /**
      * If you want to send invoke response with text message, you can:
      * 
-     return InvokeResponseFactory.textMessage("[ACK] Successfully!");
-     */
-
-    /**
-     * If you want to send invoke response with error message, you can:
-     *
-     * return InvokeResponseFactory.errorResponse(InvokeResponseErrorCode.BadRequest, "The incoming request is invalid.");
+     return "[ACK] Successfully!";
      */
   }
 }

@@ -1,21 +1,8 @@
-// Import required bot services.
-// See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const {
-  CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
-} = require("botbuilder");
+const { TeamsAdapter } = require("@microsoft/teams-ai");
 
 const config = require("./config");
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  new ConfigurationServiceClientCredentialFactory(config)
-);
-
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about how bots work.
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+const adapter = new TeamsAdapter(config);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context, error) => {
@@ -35,11 +22,12 @@ const onTurnErrorHandler = async (context, error) => {
     );
 
     // Send a message to the user
-    await context.sendActivity(`The bot encountered an error or bug: ${error.message}`);
+    await context.sendActivity("The bot encountered an error or bug.");
+    await context.sendActivity("To continue to run this bot, please fix the bot source code.");
   }
 };
 
-// Set the onTurnError for the singleton CloudAdapter.
+// Set the onTurnError for the singleton TeamsAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
 module.exports = adapter;

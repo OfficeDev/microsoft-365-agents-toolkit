@@ -33,23 +33,7 @@ describe("expandVariableWithFunction", async () => {
     }
   });
 
-  it("return if feature is disabled", async () => {
-    mockedEnvRestore = mockedEnv({ [FeatureFlagName.EnvFileFunc]: "false" });
-    const content = "description:\"$[file('testfile1.txt')]\"C://test";
-    const res = await expandVariableWithFunction(
-      content,
-      context as any,
-      undefined,
-      true,
-      ManifestType.DeclarativeCopilotManifest,
-      "C://test"
-    );
-
-    assert.isTrue(res.isOk() && res.value === content);
-  });
-
   it("happy path with no placeholder", async () => {
-    mockedEnvRestore = mockedEnv({ [FeatureFlagName.EnvFileFunc]: "true" });
     const content = 'description:"description of the app"';
     const res = await expandVariableWithFunction(
       content,
@@ -67,7 +51,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content =
       "description:\"$[file('testfile1.md')]\",description2:\"$[file( file( 'C://testfile2.txt' ))] $[file(${{FILE_PATH}})]\"";
@@ -107,7 +90,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = "description:\"$[ unknown('testfile1.txt')]\"C://test";
     const res = await expandVariableWithFunction(
@@ -125,7 +107,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = "description:\"$[ file('testfile1.png')]\"C://test";
     const res = await expandVariableWithFunction(
@@ -143,7 +124,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = 'description:"$[ file(testfile1.md)]"';
 
@@ -176,7 +156,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = "description:\"$[ file('testfile1.txt')]\"C://test";
 
@@ -214,7 +193,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = "description:\"$[ file(file('testfile1.txt'))]\"C://test";
 
@@ -253,7 +231,6 @@ describe("expandVariableWithFunction", async () => {
     mockedEnvRestore = mockedEnv({
       TEST_ENV: "test",
       FILE_PATH: "testfile1.txt",
-      [FeatureFlagName.EnvFileFunc]: "true",
     });
     const content = "description:\"$[ file('testfile1.txt')]\"C://test";
 

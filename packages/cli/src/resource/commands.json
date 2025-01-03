@@ -32,7 +32,10 @@
     }
   },
   "auth.login.m365": {
-    "description": "Log in to Microsoft 365 account."
+    "description": "Log in to Microsoft 365 account.",
+    "options": {
+      "tenant": "Authenticate with a specific Microsoft Entra tenant."
+    }
   },
   "auth.logout": {
     "description": "Log out of Microsoft 365 or Azure account.",

@@ -58,19 +58,9 @@ E2E tests need environment variables that are configured in GitHub Action. To ru
 
 All the environment variables are extracted by the function `extractIntegrationEnvVariables()` defined in `helper.browser.ts` and `helper.ts` under `test/` folder.
 
-### SDK_INTEGRATION_TEST_SQL
-
-1. [Create an Azure SQL database](https://docs.microsoft.com/en-us/azure/azure-sql/database/single-database-create-quickstart?tabs=azure-portal&view=azuresql).
-2. Set the environment variable `SDK_INTEGRATION_TEST_SQL` with the Azure SQL Database you just created, and the configs are separated by semicolons.
-
-```
-# SQL related (NodeJS)
-SDK_INTEGRATION_TEST_SQL = {SQL_ENDPOINT};{SQL_DATABASE_NAME};{SQL_USER_NAME};{SQL_PASSWORD}
-```
-
 ### SDK_INTEGRATION_TEST_ACCOUNT
 
-1. Open Teams Toolkit, and sign into M365 by clicking the `Sign in to M365` under the `ACCOUNTS` section from sidebar with your test account. After you signed in, create a new Teams `SSO-enabled tab` app. Start debugging the project by hitting the `F5` key in the Visual Studio Code.
+1. Open Teams Toolkit, and sign into M365 by clicking the `Sign in to M365` under the `ACCOUNTS` section from sidebar with your test account. After you signed in, create a new Teams `React with Fluent UI template` app. Start debugging the project by hitting the `F5` key in the Visual Studio Code.
 
 2. Set the environment variable `SDK_INTEGRATION_TEST_ACCOUNT` with the test account name and password, separated by semicolons.
 
@@ -101,7 +91,7 @@ SDK_INTEGRATION_TEST_SQL = {SQL_ENDPOINT};{SQL_DATABASE_NAME};{SQL_USER_NAME};{S
 
    ```shell
    # Skip the Export Password with ENTER
-   openssl req -x509 -newkey rsa:4096 -keyout PrivateKey.pem -out Cert.pem -days 365 -nodes -subj "//CN=SdkIntegrationTest"
+   openssl req -x509 -newkey rsa:4096 -keyout PrivateKey.pem -out Cert.pem -sha256 -days 365 -nodes -subj "//CN=SdkIntegrationTest"
 
    openssl pkcs12 -export -out keyStore.pfx -inkey PrivateKey.pem -in Cert.pem
 
@@ -132,10 +122,10 @@ SDK_INTEGRATION_TEST_SQL = {SQL_ENDPOINT};{SQL_DATABASE_NAME};{SQL_USER_NAME};{S
 
    ```shell
    # Generate certs to for test server that supports certificate auth
-   openssl req -x509 -newkey rsa:4096 -nodes -days 365 -keyout server_key.pem -out server_cert.pem  -subj "//CN=localhost"
+   openssl req -x509 -newkey rsa:4096 -nodes -sha256 -days 365 -keyout server_key.pem -out server_cert.pem  -subj "//CN=localhost"
 
    # Generate client cert (both PEM and PFX) to test certificate auth support. Press "ENTER" when asked for "Export Password".
-   openssl req -newkey rsa:4096 -keyout client_key.pem -out client_csr.pem -nodes -days 365 -subj "//CN=test client"
+   openssl req -newkey rsa:4096 -sha256 -keyout client_key.pem -out client_csr.pem -nodes -days 365 -subj "//CN=test client"
 
    openssl x509 -req -in client_csr.pem -CA server_cert.pem -CAkey server_key.pem -out client_cert.pem -set_serial 01 -days 365
 

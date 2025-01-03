@@ -8,6 +8,7 @@ import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import { CreateProjectResult, FxError, Result, Stage, ok } from "@microsoft/teamsfx-api";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export async function createProjectFromWalkthroughHandler(
   args?: any[]
@@ -26,6 +27,12 @@ export async function createProjectFromWalkthroughHandler(
   return result;
 }
 
+export function getBuildIntelligentAppsWalkthroughID() {
+  return featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
+    ? "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat"
+    : "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
+}
+
 export async function openBuildIntelligentAppsWalkthroughHandler(
   ...args: unknown[]
 ): Promise<Result<unknown, FxError>> {
@@ -35,7 +42,7 @@ export async function openBuildIntelligentAppsWalkthroughHandler(
   );
   const data = await vscode.commands.executeCommand(
     "workbench.action.openWalkthrough",
-    "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+    getBuildIntelligentAppsWalkthroughID()
   );
   return Promise.resolve(ok(data));
 }

@@ -97,6 +97,20 @@ async function main() {
     }
   }
 
+  console.log(`clean api key registration`);
+  const apiKeyRegistrationList =
+    await addStudioCleanService.getApiKeyRegistration();
+  if (apiKeyRegistrationList) {
+    for (const apiKey of apiKeyRegistrationList) {
+      try {
+        await addStudioCleanService.deleteApiKeyRegistration(apiKey?.id);
+        console.log(apiKey?.id, " is deleted");
+      } catch {
+        console.log(`Failed to delete api key ${apiKey?.id}`);
+      }
+    }
+  }
+
   console.log(
     `clean up the Azure resource group with name start with ${Project.namePrefix} (exclude ${excludePrefix})`
   );

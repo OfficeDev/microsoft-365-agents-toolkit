@@ -1,20 +1,20 @@
+import { AdaptiveCard } from "@microsoft/teams-ai";
 import * as ACData from "adaptivecards-templating";
-import { TurnContext, InvokeResponse } from "botbuilder";
-import { TeamsFxAdaptiveCardActionHandler, InvokeResponseFactory } from "@microsoft/teamsfx";
+import { TurnContext } from "botbuilder";
 import responseCard from "../adaptiveCards/doStuffActionResponse.json";
 
 /**
- * The `DoStuffActionHandler` registers an action with the `TeamsFxBotActionHandler` and responds
+ * The `DoStuffActionHandler` responds
  * with an Adaptive Card if the user clicks the Adaptive Card action with `triggerVerb`.
  */
-export class DoStuffActionHandler implements TeamsFxAdaptiveCardActionHandler {
+export class DoStuffActionHandler {
   /**
    * A global unique string associated with the `Action.Execute` action.
    * The value should be the same as the `verb` property which you define in your adaptive card JSON.
    */
   triggerVerb = "doStuff";
 
-  async handleActionInvoked(context: TurnContext, actionData: any): Promise<InvokeResponse> {
+  async handleActionInvoked(context: TurnContext, actionData: any): Promise<string | AdaptiveCard> {
     /**
      * You can send an adaptive card to respond to the card action invoke.
      */
@@ -24,18 +24,12 @@ export class DoStuffActionHandler implements TeamsFxAdaptiveCardActionHandler {
         body: "Congratulations! Your task is processed successfully.",
       },
     });
-    return InvokeResponseFactory.adaptiveCard(cardJson);
+    return cardJson as AdaptiveCard;
 
     /**
      * If you want to send invoke response with text message, you can:
      * 
-     return InvokeResponseFactory.textMessage("[ACK] Successfully!");
+     return "[ACK] Successfully!";
     */
-
-    /**
-     * If you want to send invoke response with error message, you can:
-     *
-     * return InvokeResponseFactory.errorResponse(InvokeResponseErrorCode.BadRequest, "The incoming request is invalid.");
-     */
   }
 }

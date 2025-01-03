@@ -252,7 +252,10 @@ export class ManifestUpdater {
                 if (Utils.isOAuthWithAuthCodeFlow(authInfo.authScheme)) {
                   key = "OAuthPluginVault";
                   authName = authInfo.name;
-                } else if (Utils.isBearerTokenAuth(authInfo.authScheme)) {
+                } else if (
+                  Utils.isBearerTokenAuth(authInfo.authScheme) ||
+                  Utils.isAPIKeyAuthButNotInCookie(authInfo.authScheme)
+                ) {
                   key = "ApiKeyPluginVault";
                   authName = authInfo.name;
                 }

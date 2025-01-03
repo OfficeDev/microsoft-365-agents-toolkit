@@ -2,6 +2,43 @@
 
 > Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 5.12.0 - Dec 17, 2024
+
+This update represents a minor version increment of the Teams Toolkit, introducing new features and addressing user-reported bugs. These incremental enhancements were previously documented in the prerelease version and a blog post: [Teams Toolkit for Visual Studio Code update – November 2024](https://devblogs.microsoft.com/microsoft365dev/teams-toolkit-for-visual-studio-code-update-november-2024/)
+
+Below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.
+
+### New Features
+
+- **Added Local Authentication Support for API ME and API Plugin**: We have introduced local authentication support for application templates of API-ME and API Plugin application with Microsoft Entra and OAuth. which eliminates the anonymous setup for APIs on local environment end to end and also helps developers verify the behavior when Teams and Microsoft 365 Copilot invokes an API without proper authorization. This feature includes built-in middleware that implements the token validation and a guided code tour explains how it works.
+![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
+
+- **Process Termination For Port Conflict**: Port conflict is a common pain point for developers when debugging bot applications. It happens when the processes are not fully terminated when debug session stops. Now Teams Toolkit has added additional support to help terminate those unkilled processes to release ports.
+![Port Conflicts](https://github.com/user-attachments/assets/208a21d5-0232-470b-a102-620e542a20cb)
+
+- **Integrated with Microsoft Kiota for API Plugin Generation**: Now Teams Toolkit has integrated with [Microsoft Kiota](https://learn.microsoft.com/openapi/kiota/overview) when adding API Plugins into Declarative Agent. With this integration, developers are enabled to create API Plugins by browsing public API catalogs and Microsoft Kiota is capable of handling large OpenAPI Description Document. This is an experimental feature, for early access make sure to turn on [VSCode Settings](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings) with `Enable Microsoft Kiota`.
+
+- **Using Assistant API on Azure OpenAI Service**: We have previously announced the support for Assistant API on Azure OpenAI Services in Teams Toolkit for Python language, and now it has expanded to TypeScript and JavaScript.
+
+- **Manifest Schema Validation Enhancement**: Added support for manifest schema validation to cover localization files and default language files.
+
+#### Enhancements
+
+- Updated Bot application templates from `restify` to `express` server for better support of Node.js 20.
+- Updated Tab application templates from `react-scripts` to `vite` for better performance and developer experience.
+- Updated application templates and pre-requisite checker for Node.js 20 support.
+- Updated application templates to the latest stable [App Manifest](https://learn.microsoft.com/microsoftteams/platform/resources/schema/manifest-schema#sample-app-manifest) version v1.19.
+
+#### Bug Fixes
+
+- Resolved a build error caused by changes to the `clientCitation` interface. [#12884](https://github.com/OfficeDev/teams-toolkit/pull/12884)
+- Addressed persistent port conflict issues encountered by some users when stopping a debug session. [#12881](https://github.com/OfficeDev/teams-toolkit/pull/12881)
+- Improved default instructions for Declarative Agent to ensure better compliance. [#12880](https://github.com/OfficeDev/teams-toolkit/pull/12880)
+- Resolved an issue where Teams Toolkit could fail to generate authentication actions when creating a declarative agent with an API plugin using Microsoft Kiota. [#12764](https://github.com/OfficeDev/teams-toolkit/pull/12764)
+- Update `@azure/storage-blob` to avoid AbortSignal error when deploying with `azureStorage/enableStaticWebsite`. [#12583](https://github.com/OfficeDev/teams-toolkit/pull/12583)
+- Upgraded `path-to-regexp` and `body-parser` to fix vulnerability issues. [#12610](https://github.com/OfficeDev/teams-toolkit/pull/12610)
+- Fixed an issue where `teamsapp.yml` when adding an API Plugin to the declarative agent. [#12656](https://github.com/OfficeDev/teams-toolkit/pull/12656)
+
 ## 5.10.1 - Nov 19, 2024
 
 This patch version update of Teams Toolkit introduces several incremental enhancements:

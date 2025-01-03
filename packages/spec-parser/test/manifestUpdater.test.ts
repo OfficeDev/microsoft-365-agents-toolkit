@@ -1494,7 +1494,7 @@ describe("updateManifestWithAiPlugin", () => {
         name: "apiKeyAuth",
         authScheme: {
           type: "apiKey",
-          in: "header",
+          in: "cookie",
           name: "Authorization",
         },
       };

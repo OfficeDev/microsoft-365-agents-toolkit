@@ -18,6 +18,7 @@ import {
 } from "../../utils/vscodeOperation";
 import { it } from "../../utils/it";
 import * as os from "os";
+import { RetryHandler } from "../../utils/retryHandler";
 
 describe("New project Tests", function () {
   this.timeout(Timeout.testCase);
@@ -47,10 +48,12 @@ describe("New project Tests", function () {
     },
     async function () {
       const driver = VSBrowser.instance.driver;
-      await execCommandIfExist(
-        CommandPaletteCommands.CreateProjectCommand,
-        Timeout.webView
-      );
+      await RetryHandler.retry(async () => {
+        await execCommandIfExist(
+          CommandPaletteCommands.CreateProjectCommand,
+          Timeout.webView
+        );
+      });
       const input = await InputBox.create();
       // if exist click it
       await input.selectQuickPick(CreateProjectQuestion.Tab);

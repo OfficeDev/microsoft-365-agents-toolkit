@@ -209,6 +209,9 @@ export class CopilotGptManifestUtils {
             gptManifest.conversation_starters.push(starter);
           }
         }
+
+        delete actionManifest.capabilities.conversation_starters;
+        await fs.writeJson(actionPath, actionManifest, { spaces: 4 });
       }
 
       const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(

@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 import * as util from "util";
 
+import { ProductName } from "@microsoft/teamsfx-api";
 import { Hub, TaskLabel } from "@microsoft/teamsfx-core";
 import { ExtensionErrors } from "../../error/error";
 import { getDefaultString, localize } from "../../utils/localizeUtils";
-import { ProductName } from "@microsoft/teamsfx-api";
 
 export const issueChooseLink = "https://github.com/OfficeDev/TeamsFx/issues/new/choose";
 export const issueLink = "https://github.com/OfficeDev/TeamsFx/issues/new?";
@@ -46,7 +46,18 @@ export enum Host {
   office = "www.office.com",
 }
 
+export enum ANSIColors {
+  RED = "\u001b[31m",
+  GREEN = "\u001b[32m",
+  YELLOW = "\u001b[33m",
+  BLUE = "\u001b[34m",
+  MAGENTA = "\u001b[35m",
+  WHITE = "\u001b[37m",
+  GRAY = "\u001b[38;5;244m",
+}
+
 export const accountHintPlaceholder = "${account-hint}";
+export const m365AppIdEnv = "M365_APP_ID";
 
 export const openOutputMessage = () =>
   util.format(
@@ -250,6 +261,14 @@ export const launchingTeamsClientDisplayMessages = Object.freeze({
     `Teams web client is being launched for you to debug the Teams app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
+});
+
+export const connectToExistingBrowserDebugSessionForCopilot = Object.freeze({
+  title: "Connecting to Existing Browser Debug Session for Copilot.",
+  successfulConnectionMessage: (port: number) =>
+    `Connected to DevTools Protocol in existing debug session on port: ${port}.`,
+  unsuccessfulConnectionMessage: (error: string) =>
+    `Failed to connect to Chrome DevTools Protocol: ${error}.`,
 });
 
 export const DebugSessionExists = "Debug session exists";

@@ -24,12 +24,18 @@ import { showError } from "../error/common";
 import { core } from "../globalVariables";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
 import { getLocalDebugSessionId, endLocalDebugSession } from "./common/localDebugSession";
-import { accountHintPlaceholder, Host, sideloadingDisplayMessages } from "./common/debugConstants";
+import {
+  accountHintPlaceholder,
+  Host,
+  m365AppIdEnv,
+  sideloadingDisplayMessages,
+} from "./common/debugConstants";
 import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
 import { terminateAllRunningTeamsfxTasks } from "./teamsfxTaskHandler";
 import { triggerV3Migration } from "../utils/migrationUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
+import { AgentHintData } from "./common/types";
 
 export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
   public async resolveDebugConfiguration?(
@@ -158,6 +164,14 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
             );
           }
 
+          const agentHintMatch = /\${([^:]+):agent-hint}|\${agent-hint}/.exec(url);
+          if (agentHintMatch) {
+            url = url.replace(
+              agentHintMatch[0],
+              await generateAgentHint(folder.uri.fsPath, agentHintMatch[1])
+            );
+          }
+
           return url;
         }
       );
@@ -225,14 +239,36 @@ async function generateAccountHint(includeTenantId = true): Promise<string> {
     }
   }
   if (includeTenantId && tenantId) {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      return loginHint
-        ? `tenantId=${tenantId}&appTenantId=${tenantId}&login_hint=${loginHint}`
-        : "";
-    } else {
-      return loginHint ? `appTenantId=${tenantId}&login_hint=${loginHint}` : "";
-    }
+    return loginHint ? `tenantId=${tenantId}&appTenantId=${tenantId}&login_hint=${loginHint}` : "";
   } else {
     return loginHint ? `login_hint=${loginHint}` : "";
   }
+}
+
+async function generateAgentHint(projectPath: string, env: string | undefined): Promise<string> {
+  if (!env) {
+    env = environmentNameManager.getDefaultEnvName();
+  }
+  const envRes = await envUtil.readEnv(projectPath, env, false, true);
+  if (envRes.isErr()) {
+    throw envRes.error;
+  }
+  if (!envRes.value[m365AppIdEnv]) {
+    throw new MissingEnvironmentVariablesError(
+      ExtensionSource,
+      m365AppIdEnv,
+      path.normalize(path.join(projectPath, ".vscode", "launch.json")),
+      "https://aka.ms/teamsfx-tasks"
+    );
+  }
+  const id = envRes.value[m365AppIdEnv];
+  const clickTimestamp = new Date().toLocaleString();
+  const agentHintJson: AgentHintData = {
+    id,
+    scenario: "launchcopilotextension",
+    properties: { clickTimestamp },
+    version: 1,
+  };
+  const base64 = Buffer.from(JSON.stringify(agentHintJson)).toString("base64");
+  return base64;
 }

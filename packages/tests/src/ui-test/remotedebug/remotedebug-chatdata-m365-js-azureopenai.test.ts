@@ -111,7 +111,7 @@ describe("Remote debug Tests", function () {
       if (isRealKey) {
         await validateBot(page, {
           botCommand: "Tell me about Contoso Electronics history",
-          expected: "fictional company",
+          expected: "1985",
           consentPrompt: false,
         });
       } else {

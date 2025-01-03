@@ -48,6 +48,5 @@ new DashboardTestCase(
   ],
   {
     dashboardFlag: true,
-    debug: "cli",
   }
 ).test();

@@ -5,6 +5,7 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+// this test case diposed due to cancel local debug
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
@@ -41,6 +42,10 @@ class LargeNotiTestCase extends CaseFactory {
       "env",
       `.env.${env}.user`
     );
+    // create envuserfile
+    if (!fs.existsSync(envUserFile)) {
+      fs.writeFileSync(envUserFile, "");
+    }
     let envUserFileString = fs.readFileSync(envUserFile, "utf-8");
     envUserFileString += `\nSECRET_STORAGE_ACCOUNT_KEY=${process.env["STORAGE_ACCOUNT_KEY"]}`;
     fs.writeFileSync(envUserFile, envUserFileString);
@@ -92,4 +97,4 @@ new LargeNotiTestCase(
   {
     debug: "ttk",
   }
-).test();
+);

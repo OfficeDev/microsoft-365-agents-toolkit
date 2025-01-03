@@ -9,8 +9,9 @@ servers:
 components:
   securitySchemes:
     apiKey:
-      type: http
-      scheme: bearer
+      type: apiKey
+      in: header
+      name: X-API-Key
 paths:
   /repairs:
     get:

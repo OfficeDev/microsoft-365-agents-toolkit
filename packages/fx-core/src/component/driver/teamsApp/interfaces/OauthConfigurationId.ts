@@ -3,6 +3,7 @@
 
 export interface OauthConfigurationId {
   configurationRegistrationId: ConfigurationRegistrationId;
+  resourceIdentifierUri: string;
 }
 
 export interface ConfigurationRegistrationId {

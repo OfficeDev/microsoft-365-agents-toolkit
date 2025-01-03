@@ -18,11 +18,12 @@ import {
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import * as utiltiy from "../../../../src/component/driver/oauth/utility/utility";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-describe("CreateOauthDriver", () => {
+describe("UpdateOauthDriver", () => {
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     ui: new MockedUserInteraction(),
@@ -149,6 +150,106 @@ describe("CreateOauthDriver", () => {
       applicableToApps: "SpecificApp",
       configurationId: "mockedRegistrationId",
       isPKCEEnabled: true,
+    };
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.size).to.equal(0);
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
+  it("happy path: update all fields for Entra SSO", async () => {
+    sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test2"],
+      applicableToApps: OauthRegistrationAppType.SpecificApp,
+      targetAudience: OauthRegistrationTargetAudience.HomeTenant,
+      m365AppId: "mockedAppId",
+      clientId: "mockedClientId2",
+      identityProvider: "MicrosoftEntra",
+      isPKCEEnabled: false,
+    } as any);
+    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
+      oAuthConfigId: "mockedRegistrationId",
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test"],
+      applicableToApps: OauthRegistrationAppType.AnyApp,
+      targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+      clientId: "mockedClientId",
+      identityProvider: "MicrosoftEntra",
+      isPKCEEnabled: false,
+    } as any);
+    sinon.stub(SpecParser.prototype, "list").resolves({
+      APIs: [
+        {
+          api: "api",
+          server: "https://test",
+          operationId: "get",
+          auth: {
+            name: "test",
+            authScheme: {
+              type: "oauth2",
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: "https://test",
+                  tokenUrl: "https://test",
+                  scopes: {
+                    mockedScopes: "mockedScopes",
+                  },
+                },
+              },
+            },
+          },
+          isValid: true,
+          reason: [],
+        },
+        {
+          api: "api2",
+          server: "https://test",
+          operationId: "get",
+          auth: {
+            name: "test2",
+            authScheme: {
+              type: "oauth2",
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: "https://test",
+                  tokenUrl: "https://test",
+                  refreshUrl: "https://test",
+                  scopes: {
+                    mockedScopes: "mockedScopes",
+                  },
+                },
+              },
+            },
+          },
+          isValid: true,
+          reason: [],
+        },
+      ],
+      allAPICount: 1,
+      validAPICount: 1,
+    });
+    sinon.stub(mockedDriverContext.ui, "confirm").callsFake(async (config) => {
+      expect((config as ConfirmConfig).title.includes("description")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("applicableToApps")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("m365AppId")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("targetAudience")).to.be.true;
+
+      expect((config as ConfirmConfig).title.includes("clientId")).to.be.true;
+      return ok({ type: "success", value: true });
+    });
+
+    const args: UpdateOauthArgs = {
+      name: "test2",
+      appId: "mockedAppId",
+      clientId: "mockedClientId2",
+      apiSpecPath: "mockedPath",
+      targetAudience: "HomeTenant",
+      applicableToApps: "SpecificApp",
+      configurationId: "mockedRegistrationId",
     };
 
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
@@ -526,12 +627,50 @@ describe("CreateOauthDriver", () => {
       flow: "authorizationCode",
       refreshUrl: "mockedRefreshUrl",
       isPKCEEnabled: "invalid",
+      identityProvider: "Custom",
+      configurationId: "mockedRegistrationId",
     };
+    sinon.stub(utiltiy, "getandValidateOauthInfoFromSpec").resolves({} as any);
+    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves(
+      ok({
+        identityProvider: "Custom",
+      }) as any
+    );
+
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
     expect(result.result.isErr()).to.be.true;
     if (result.result.isErr()) {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
       expect(result.result.error.message).to.include("isPKCEEnabled");
+    }
+  });
+
+  it("should throw error if secret is not string", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      apiSpecPath: "mockedPath",
+      clientId: "mockedClientId",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      isPKCEEnabled: false,
+      identityProvider: "Custom",
+      clientSecret: 123,
+      configurationId: "mockedRegistrationId",
+    };
+    sinon.stub(utiltiy, "getandValidateOauthInfoFromSpec").resolves({} as any);
+    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves(
+      ok({
+        identityProvider: "Custom",
+      }) as any
+    );
+    sinon.stub(MockedM365Provider.prototype, "getAccessToken").resolves(ok({}) as any);
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("clientSecret");
     }
   });
 

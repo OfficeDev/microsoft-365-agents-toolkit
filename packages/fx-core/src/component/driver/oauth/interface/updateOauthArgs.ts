@@ -9,4 +9,7 @@ export interface UpdateOauthArgs {
   applicableToApps?: string; // What app can access the api key. Values can be "SpecificApp" or "AnyApp". Default is "AnyApp".
   targetAudience?: string; // What tenant can access the api key. Values can be "HomeTenant" or "AnyTenant". Default is "HomeTenant".
   isPKCEEnabled?: boolean;
+  clientId?: string;
+  clientSecret?: string;
+  identityProvider?: string;
 }

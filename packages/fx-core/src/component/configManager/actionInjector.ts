@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Utils } from "@microsoft/m365-spec-parser";
+import { ConstantString, Utils } from "@microsoft/m365-spec-parser";
 import fs from "fs-extra";
 import { parseDocument } from "yaml";
 import { InjectAPIKeyActionFailedError, InjectOAuthActionFailedError } from "../../error/common";
@@ -105,7 +105,9 @@ export class ActionInjector {
           .filter((item: string | undefined) => {
             return !!item;
           });
-        const defaultEnvName = Utils.getSafeRegistrationIdEnvName(`${authName}_CONFIGURATION_ID`);
+        const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
+          `${authName}_${ConstantString.RegistrationIdPostfix}`
+        );
         const registrationIdEnvName = this.findNextAvailableEnvName(
           defaultEnvName,
           existingConfigurationIdEnvNames
@@ -187,7 +189,9 @@ export class ActionInjector {
             return !!item;
           });
         const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
-        const defaultEnvName = Utils.getSafeRegistrationIdEnvName(`${authName}_REGISTRATION_ID`);
+        const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
+          `${authName}_${ConstantString.RegistrationIdPostfix}`
+        );
         const registrationIdEnvName = this.findNextAvailableEnvName(
           defaultEnvName,
           existingRegistrationIdEnvNames

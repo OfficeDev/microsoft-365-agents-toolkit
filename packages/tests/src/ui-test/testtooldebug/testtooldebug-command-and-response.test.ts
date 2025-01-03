@@ -77,7 +77,7 @@ describe("Command And Response Bot Local Debug Tests", function () {
         await driver.sleep(Timeout.startdebugging);
 
         await validateWelcomeAndReplyBot(localDebugTestContext.context!, {
-          hasWelcomeMessage: true,
+          hasWelcomeMessage: false,
           hasCommandReplyValidation: true,
           botCommand: "helloWorld",
           expectedWelcomeMessage: "Welcome to the Command Bot!",

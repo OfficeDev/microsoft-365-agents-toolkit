@@ -12,7 +12,6 @@ export function isFeatureFlagEnabled(featureFlagName: string, defaultValue = fal
 }
 export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
-  static readonly OfficeAddin = "TEAMSFX_OFFICE_ADDIN";
   static readonly OfficeMetaOS = "TEAMSFX_OFFICE_METAOS";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
   static readonly TestTool = "TEAMSFX_TEST_TOOL";
@@ -28,11 +27,9 @@ export class FeatureFlagName {
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
-  static readonly EnvFileFunc = "TEAMSFX_ENV_FILE_FUNC";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly ApiPluginAAD = "TEAMSFX_API_PLUGIN_AAD";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
-  static readonly MultiTenant = "TEAMSFX_MULTI_TENANT";
 }
 
 export interface FeatureFlag {
@@ -45,7 +42,6 @@ export class FeatureFlags {
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
   static readonly TestTool = { name: FeatureFlagName.TestTool, defaultValue: "true" };
   static readonly METestTool = { name: FeatureFlagName.METestTool, defaultValue: "true" };
-  static readonly OfficeAddin = { name: FeatureFlagName.OfficeAddin, defaultValue: "false" };
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
     defaultValue: "false",
@@ -84,10 +80,6 @@ export class FeatureFlags {
     name: FeatureFlagName.SyncManifest,
     defaultValue: "false",
   };
-  static readonly EnvFileFunc = {
-    name: FeatureFlagName.EnvFileFunc,
-    defaultValue: "true", // Set it to true for dogfooding.
-  };
   static readonly KiotaIntegration = {
     name: FeatureFlagName.KiotaIntegration,
     defaultValue: "false",
@@ -98,10 +90,6 @@ export class FeatureFlags {
   };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
-    defaultValue: "false",
-  };
-  static readonly MultiTenant = {
-    name: FeatureFlagName.MultiTenant,
     defaultValue: "false",
   };
 }

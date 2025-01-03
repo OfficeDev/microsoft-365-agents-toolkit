@@ -9,17 +9,19 @@ import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
 import {
+  defaultWelcomePageKey,
   openFolderHandler,
   openLifecycleTreeview,
   openSamplesHandler,
   openWelcomeHandler,
   saveTextDocumentHandler,
-  selectWalkthroughHandler,
+  selectWalkthrough,
 } from "../../src/handlers/controlHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
   TelemetryEvent,
   TelemetryProperty,
+  TelemetryTriggerFrom,
   TelemetryUpdateAppReason,
 } from "../../src/telemetry/extTelemetryEvents";
 import * as commonUtils from "../../src/utils/commonUtils";
@@ -40,9 +42,40 @@ describe("Control Handlers", () => {
       sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
+      sandbox.assert.calledOnceWithExactly(
+        executeCommands,
+        "workbench.action.openWalkthrough",
+        "TeamsDevApp.ms-teams-vscode-extension#teamsToolkitGetStarted"
+      );
+    });
+
+    it("opens default walkthrough", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
+      sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
+      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
+      const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      await openWelcomeHandler(TelemetryTriggerFrom.Auto, defaultWelcomePageKey);
+
+      sandbox.assert.calledOnceWithExactly(
+        executeCommands,
+        "workbench.action.openWalkthrough",
+        "TeamsDevApp.ms-teams-vscode-extension#teamsToolkitGetStarted"
+      );
+    });
+
+    it("opens normal walkthrough -SideBar", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
+      sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
+      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
+      const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      await openWelcomeHandler("SideBar");
       sandbox.assert.calledOnceWithExactly(
         executeCommands,
         "workbench.action.openWalkthrough",
@@ -56,7 +89,9 @@ describe("Control Handlers", () => {
       sandbox.stub(manifestUtils, "getCapabilities").returns(["bot"]);
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -74,12 +109,29 @@ describe("Control Handlers", () => {
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 
-      await openWelcomeHandler();
+      await openWelcomeHandler("invalidArgs");
 
       sandbox.assert.calledOnceWithExactly(
         executeCommands,
         "workbench.action.openWalkthrough",
         "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+      );
+    });
+
+    it("opens intelligent app walkthrough with chat for API plugin apps", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
+      sandbox.stub(manifestUtils, "getCapabilities").returns(["plugin"]);
+      sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/test" });
+      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
+      const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+
+      await openWelcomeHandler("invalidArgs");
+
+      sandbox.assert.calledOnceWithExactly(
+        executeCommands,
+        "workbench.action.openWalkthrough",
+        "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentAppsWithChat"
       );
     });
 
@@ -136,7 +188,9 @@ describe("Control Handlers", () => {
       sandbox.stub(fs, "readFile").resolves(Buffer.from(""));
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -157,7 +211,9 @@ describe("Control Handlers", () => {
       sandbox.stub(fs, "readFile").resolves(Buffer.from(""));
       const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
       const sendTelemetryEvent = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-
+      sandbox
+        .stub(vscode.window, "showQuickPick")
+        .resolves({ label: getDefaultString("teamstoolkit.walkthroughs.title") });
       await openWelcomeHandler();
 
       sandbox.assert.calledOnceWithExactly(
@@ -326,7 +382,7 @@ describe("Control Handlers", () => {
     });
   });
 
-  describe("selectWalkthroughHandler", () => {
+  describe("selectWalkthrough", () => {
     let quickPickStub: sinon.SinonStub;
     let executeCommandStub: sinon.SinonStub;
 
@@ -352,7 +408,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -380,7 +436,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -399,7 +455,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);
@@ -417,7 +473,7 @@ describe("Control Handlers", () => {
         return "Success";
       });
 
-      const result = await selectWalkthroughHandler();
+      const result = await selectWalkthrough();
 
       chai.assert.isTrue(quickPickStub.calledOnce);
       chai.assert.isTrue(executeCommandStub.calledOnce);

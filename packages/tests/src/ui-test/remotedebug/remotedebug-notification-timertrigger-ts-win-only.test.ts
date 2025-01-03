@@ -65,7 +65,7 @@ describe("Remote debug Tests", function () {
   it(
     "[auto] [Typescript] Remote debug Time-trigger Notification Bot App",
     {
-      testPlanCaseId: 15277353,
+      testPlanCaseId: 16551762,
       author: "v-annefu@microsoft.com",
     },
     async function () {

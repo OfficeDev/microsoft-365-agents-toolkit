@@ -4,11 +4,68 @@
 
 > Note: This changelog only includes the changes for the pre-release versions of Teams Toolkit. For the changelog of stable versions, please refer to the [Teams Toolkit Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/CHANGELOG.md).
 
+### January 07, 2025
+
+#### New Features
+
+- **Refreshed User Interface for Getting Started Experience**: We have enhanced the user interface based on customer feedback:
+  - A streamlined navigation layout in the left panel to improve ease of access.
+    ![Getting Started Left Pane](https://github.com/user-attachments/assets/900f8215-5b97-42aa-b78f-b0d3ea7362bb)
+  - An updated "Create New App" dialog with well-organized categories.
+    ![Getting Started -  Create New App](https://github.com/user-attachments/assets/2c86884a-88e1-44f9-9d20-848d9364e67b)
+  - Redesigned walkthrough guides for developing Teams bots and declarative agents, ensuring a seamless initiation process.
+    ![Getting Started Walkthrough](https://github.com/user-attachments/assets/86eaf25a-04be-4165-9d08-360d899d7262)
+
+- **Environment Variable Support for Localization Files**: Using the `{{your_env_var}}` syntax, developers can now incorporate environment variables into their localized JSON files. Teams Toolkit automatically resolves these variables during the local debug, provision, and publish phases, ensuring that your applications adapt dynamically to different deployment environments with ease.
+![5](https://github.com/user-attachments/assets/9945fad6-052c-47dd-be2f-b4313f814330)
+
+- **Integrated Debugging for Declarative Agents**: Developers can now leverage the robust debugging capabilities within Visual Studio Code for their declarative agents. This feature allows for in-depth visualization of responses and stack traces from Microsoft 365 Copilot without exiting the Integrated Development Environment (IDE), enhancing both efficiency and ease of troubleshooting.
+![Plugin Debugger](https://github.com/user-attachments/assets/cf6b9414-a420-46a6-9cc8-edad32a4b1e1)
+
+- **Regenerate Actions for Declarative Agent**: Teams Toolkit now offers the ability to regenerate actions for declarative agents by integrating with Microsoft Kiota, enabling developers to refresh the agent's capabilities and ensure that it remains up-to-date with the latest features and enhancements.
+  
+#### Enhancements
+
+- **Improved `script` Action Output Using Native TTY Terminal UX**: The output mechanism for the `script` action has been enhanced to leverage the native TTY terminal user experience. This update addresses the occasional rendering issues that were previously experienced in the Visual Studio Code output channel, providing a more stable and reliable interaction interface for developers.
+
+- **Enhanced `teams-js` SDK with Treeshaking Support**: Application templates are now equipped with the upgraded `teams-js` SDK that includes support for the latest treeshaking feature. This advanced capability empowers developers to optimize their bundled packages by removing any unused TeamsJS function code, thus enhancing application performance and efficiency.
+
+- **Enhanced Authentication Actions for Declarative Agents**: Several enhancements have been made to support creating actions that require authentication. Firstly, Teams Toolkit now supports generating actions that use API keys in headers or queries, in addition to bearer token authentication. Secondly, when registering OAuth configurations, Teams Toolkit supports updating identity URIs to `api://auth-{authGUID}`.
+
+- **Updated Validation Rules for Action Generation**: Following rules have been updated when generating actions:
+  - Removed nested object validation.
+  - Removed Post body is not JSON schema validation.
+  - Removed circular reference validation.
+  - Allowed http server url in OpenAPI description file.
+  - Allowed user to scaffold Declarative Agent project with unsupported Auth.
+  - Allowed user to select API with multiple Auth.
+ 
+#### Bug Fixes
+
+- Resolved an issue where bot may not respond during local debug. [#12777](https://github.com/OfficeDev/teams-toolkit/pull/12777)
+- Fixed an issue where sample details are not shown when open Teams Toolkit in GitHub Codespaces. [#12715](https://github.com/OfficeDev/teams-toolkit/pull/12715)
+
+### November 26, 2024
+
+#### New Features
+
+- **AI-Assisted Development**: We are excited to announce the latest AI-assisted development experience for Microsoft 365 developers: the GitHub Copilot extension for Teams Toolkit (`@teamsapp`). Leveraging AI capabilities, this extension significantly simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. It streamlines key development scenarios that previously required extensive documentation. With the GitHub Copilot extension `teamsapp`, you can:
+
+  - Explore Teams app or Microsoft 365 Copilot agent development by using prompts such as `What types of apps can I build for Teams?`, `How can I create a real-world Teams app?`, or `What’s the difference between declarative and custom agents?`.
+  - Provide details about your intended Teams app or Microsoft 365 Copilot agent to receive relevant samples or templates to get started, such as 'I want to create a ToDo Teams app.' or 'I want to build a Microsoft 365 Copilot agent.'.
+  - Resolve issues encountered during Teams app or Microsoft 365 agent development by seeking assistance with queries like `My Teams app doesn’t sideload when debugging with Teams Toolkit.` or `My tab app SSO is not working on mobile platform.`.
+
+![GHCP](https://github.com/user-attachments/assets/856df8ff-4878-42ab-942a-6c0d66d323ea)
+
+#### Bug Fixes
+
+- Resolved an issue where Teams Toolkit could fail to generate authentication actions when creating a declarative agent with an API plugin using Microsoft Kiota. [#12764](https://github.com/OfficeDev/teams-toolkit/pull/12764)
+
 ### November 19, 2024
 
 #### New Features
 
-- **Added Local Authentication Support for API ME and API Plugin**: We have introduced local authentication support for application templates of API-ME and API Plugin application with Microsoft Entra and OAuth. which eliminates the anonymous setup for APIs on local environment end to end and also helps developers verify the behavior when Teams and Microsoft 365 Copilot invokes an API without proper authorization. This feature includes built-in middleware that implements the token validation and a guided code tour explains how it works.
+- **Added Local Authentication Support for API ME and API Plugin**: We have introduced local authentication support for application templates of API-ME with Microsoft Entra auth and API Plugin application with OAuth. which eliminates the anonymous setup for APIs on local environment end to end and also helps developers verify the behavior when Teams and Microsoft 365 Copilot invokes an API without proper authorization. This feature includes built-in middleware that implements the token validation and a guided code tour explains how it works.
 ![Local Authentication](https://github.com/user-attachments/assets/dbf7173d-d11e-4a8d-b26d-fbfb6abfa976)
 
 - **Process Termination For Port Conflict**: Port conflict is a common pain point for developers when debugging bot applications. It happens when the processes are not fully terminated when debug session stops. Now Teams Toolkit has added additional support to help terminate those unkilled processes to release ports.

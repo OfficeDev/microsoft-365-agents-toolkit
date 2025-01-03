@@ -8,7 +8,9 @@
   "account.logout.m365": "Successfully signed out of Microsoft 365.",
   "account.logout.m365.fail": "Unable to sign out of Microsoft 365.",
   "account.show.azure": "Your Azure account is: %s. Your subscriptions are: %s",
+  "account.show.azure.tenant": "Your Azure account is: %s(%s). Your subscriptions are: %s",
   "account.show.m365": "Your Microsoft 365 account is: %s.",
+  "account.show.m365.tenant": "Your Microsoft 365 account is: %s(%s).",
   "account.show.info": "Your %s account is: %s.",
   "command": {
     "doctor": {

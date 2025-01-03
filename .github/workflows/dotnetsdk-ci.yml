@@ -4,11 +4,11 @@ on:
   push:
     paths:
       - "packages/dotnet-sdk/**"
-    branches: [main, dev, hotfix/**]
+    branches: [dev, release/**]
   pull_request:
     paths:
       - "packages/dotnet-sdk/**"
-    branches: [main, dev, hotfix/**]
+    branches: [dev, release/**]
   workflow_dispatch:
 
 defaults:

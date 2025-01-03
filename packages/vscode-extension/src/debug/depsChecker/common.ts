@@ -23,6 +23,7 @@ import {
   DepsManager,
   DepsType,
   ErrorCategory,
+  FindProcessError,
   LocalEnvManager,
   PackageService,
   PortsConflictError,
@@ -179,40 +180,44 @@ async function selectPortsToKill(
 
   if (selectButton === "Terminate Process") {
     const loadOptions = async () => {
-      const process2ports = new Map<number, number[]>();
-      for (const port of portsInUse) {
-        const processList = await find("port", port);
-        if (processList.length > 0) {
-          const process = processList[0];
-          const ports = process2ports.get(process.pid);
-          if (ports) {
-            ports.push(port);
-          } else {
-            process2ports.set(process.pid, [port]);
+      try {
+        const process2ports = new Map<number, number[]>();
+        for (const port of portsInUse) {
+          const processList = await find("port", port);
+          if (processList.length > 0) {
+            const process = processList[0];
+            const ports = process2ports.get(process.pid);
+            if (ports) {
+              ports.push(port);
+            } else {
+              process2ports.set(process.pid, [port]);
+            }
           }
         }
-      }
-      if (process2ports.size > 0) {
-        const options: OptionItem[] = [];
-        for (const processId of process2ports.keys()) {
-          const ports = process2ports.get(processId);
-          LocalDebugPorts.process2conflictPorts[processId] = ports!;
-          const findList = await find("pid", processId);
-          if (findList.length > 0) {
-            const processInfo = findList[0].cmd;
-            options.push({
-              id: `${processId}`,
-              label: `'${String(processInfo)}' (${processId}) occupies port(s): ${ports!.join(
-                ","
-              )}`,
-              data: processInfo,
-            });
+        if (process2ports.size > 0) {
+          const options: OptionItem[] = [];
+          for (const processId of process2ports.keys()) {
+            const ports = process2ports.get(processId);
+            LocalDebugPorts.process2conflictPorts[processId] = ports!;
+            const findList = await find("pid", processId);
+            if (findList.length > 0) {
+              const processInfo = findList[0].cmd;
+              options.push({
+                id: `${processId}`,
+                label: `'${String(processInfo)}' (${processId}) occupies port(s): ${ports!.join(
+                  ","
+                )}`,
+                data: processInfo,
+              });
+            }
           }
+          globalOptions = options;
+          return options;
         }
-        globalOptions = options;
-        return options;
+        return [];
+      } catch (e) {
+        throw new FindProcessError(e, ExtensionSource);
       }
-      return [];
     };
 
     let globalOptions: OptionItem[] = [];
@@ -220,8 +225,11 @@ async function selectPortsToKill(
       title: "Select process(es) to terminate",
       name: "select_processes",
       options: loadOptions,
-      default: ["all"],
+      default: "all",
     });
+    if (res.isErr()) {
+      return err(res.error);
+    }
     if (res.isOk() && res.value.type === "success") {
       const processIds = res.value.result as string[];
       LocalDebugPorts.terminateProcesses = processIds;
@@ -234,9 +242,9 @@ async function selectPortsToKill(
           .map((o) => `'${o.data as string}' (${o.id})`)
           .join(", ");
         void VS_CODE_UI.showMessage("info", `Process(es) ${processInfo} have been killed.`, false);
+        return ok(undefined);
       }
     }
-    return ok(undefined);
   } else if (selectButton === "Learn More") {
     void VS_CODE_UI.openUrl(
       "https://github.com/OfficeDev/teams-toolkit/wiki/%7BDebug%7D-FAQ#what-to-do-if-some-port-is-already-in-use"
@@ -261,7 +269,15 @@ async function checkPort(
       let portsInUse = await localEnvManager.getPortsInUse(ports);
       LocalDebugPorts.conflictPorts = portsInUse;
       if (portsInUse.length > 0) {
-        await selectPortsToKill(portsInUse);
+        const killRes = await selectPortsToKill(portsInUse);
+        if (killRes.isErr()) {
+          return {
+            checker: Checker.Ports,
+            result: ResultStatus.failed,
+            failureMsg: doctorConstant.Port,
+            error: killRes.error,
+          };
+        }
         // wait some time
         await new Promise((resolve) => setTimeout(resolve, 2000));
         // recheck

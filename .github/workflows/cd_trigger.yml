@@ -3,13 +3,13 @@ name: TeamsFx-CD Triggers
 on:
   workflow_run:
     workflows: ["CD"]
-    branches: ["main", "dev", "hotfix/**"]
+    branches: ["dev", "release/**"]
     types: ["completed"]
 
 jobs:
   TeamsFxCICDTestMainTriggers:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'release') }}
     steps:
       - name: Trigger TeamsFx-CICD-Test
         run: |

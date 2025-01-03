@@ -1,0 +1,99 @@
+{
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "default": {
+      "name": "default",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "lastUpdatedDate": "2024-08-29 05:42:18Z"
+    }
+  },
+  "results": {
+    "61142b533621f6acfb3c87354cc0476f366de2639233f99274c94ee9c8593dab": {
+      "signature": "61142b533621f6acfb3c87354cc0476f366de2639233f99274c94ee9c8593dab",
+      "alternativeSignatures": [],
+      "target": "packages/dotnet-sdk/src/TeamsFx.Test/TeamsBotSsoPromptTest.cs",
+      "line": 53,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0140",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    },
+    "731204299c9223488a918a10c21ab8867bc9e58ad226e5849c0973fdbedf6055": {
+      "signature": "731204299c9223488a918a10c21ab8867bc9e58ad226e5849c0973fdbedf6055",
+      "alternativeSignatures": [],
+      "target": "packages/dotnet-sdk/src/TeamsFx.Test/TeamsBotSsoPromptTest.cs",
+      "line": 67,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0140",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    },
+    "ec0e3d18b6c5e3bdc40ef8eefee9af7a97549d0374d20c6761917ce1cc23c347": {
+      "signature": "ec0e3d18b6c5e3bdc40ef8eefee9af7a97549d0374d20c6761917ce1cc23c347",
+      "alternativeSignatures": [],
+      "target": "packages/dotnet-sdk/src/TeamsFx.Test/TeamsUserCrendentialTest.cs",
+      "line": 37,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0140",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    },
+    "6ac5cbbc7f969d2878aeb839d950cde12292dd99d9ec6035cc630c974f2eff73": {
+      "signature": "6ac5cbbc7f969d2878aeb839d950cde12292dd99d9ec6035cc630c974f2eff73",
+      "alternativeSignatures": [],
+      "target": "packages/dotnet-sdk/src/TeamsFx.Test/TeamsUserCrendentialTest.cs",
+      "line": 56,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-AZURE0140",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    },
+    "3f38445fe098170adab6a5102726f9fedaff567d7c49275c42fea66ed5da7047": {
+      "signature": "3f38445fe098170adab6a5102726f9fedaff567d7c49275c42fea66ed5da7047",
+      "alternativeSignatures": [],
+      "target": "packages/tests/src/ui-test/samples/sample-remotedebug-share-now.test.ts",
+      "line": 41,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0030",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    },
+    "c7494c03b8db213a36b091c22c86ace1b1f54b18779db3a29160cb4131d8fda2": {
+      "signature": "c7494c03b8db213a36b091c22c86ace1b1f54b18779db3a29160cb4131d8fda2",
+      "alternativeSignatures": [],
+      "target": "packages/tests/src/ui-test/samples/sample-remotedebug-todo-list-sql.test.ts",
+      "line": 45,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0030",
+      "createdDate": "2024-08-29 05:42:18Z",
+      "expirationDate": "2025-02-15 05:44:34Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-08-29 05:44:34Z"
+    }
+  }
+}

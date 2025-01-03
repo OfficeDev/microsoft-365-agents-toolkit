@@ -839,6 +839,31 @@ describe("updateForCustomApi", async () => {
     },
   } as OpenAPIV3.Document;
 
+  const manifest: TeamsAppManifest = {
+    manifestVersion: "version",
+    id: "mock-app-id",
+    name: { short: "short-name" },
+    description: { short: "", full: "" },
+    version: "version",
+    icons: { outline: "outline.png", color: "color.png" },
+    accentColor: "#ffffff",
+    developer: {
+      privacyUrl: "",
+      websiteUrl: "",
+      termsOfUseUrl: "",
+      name: "developer-name",
+    },
+    bots: [
+      {
+        botId: "${{BOT_ID}}",
+        scopes: ["personal", "team", "groupChat"],
+        supportsFiles: false,
+        isNotificationOnly: false,
+      },
+    ],
+    validDomains: ["valid-domain"],
+  };
+
   afterEach(async () => {
     sandbox.restore();
   });
@@ -861,7 +886,50 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox
+      .stub(manifestUtils, "_writeAppManifest")
+      .callsFake(async (updatedManifest, manifestPath) => {
+        expect(manifestPath.replace(/\\/g, "/")).to.be.equal("path/appPackage/manifest.json");
+        expect(updatedManifest.bots![0].commandLists![0].commands[0].title).to.be.equal(
+          "Returns a greeting"
+        );
+        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
+          "Create a pet"
+        );
+        return ok(undefined);
+      });
     await CopilotPluginHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
+  });
+
+  it("read manifest failed", async () => {
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").callsFake((file, data) => {
+      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+        expect(data).to.contains("The following is a conversation with an AI assistant.");
+      } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "app", "app.ts")) {
+        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).not.to.contains("{{");
+        expect(data).not.to.contains("// Replace with action code");
+      }
+    });
+    sandbox
+      .stub(fs, "readFile")
+      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(err(new SystemError("test", "", "", "")));
+    try {
+      await CopilotPluginHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
+      assert.fail("should throw error");
+    } catch (e) {
+      expect(e.source).to.be.equal("test");
+    }
   });
 
   it("happy path: should contain warning if generate adaptive card failed", async () => {
@@ -885,6 +953,9 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(AdaptiveCardGenerator, "generateAdaptiveCard")
       .throws(new Error("generate adaptive card failed"));
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
 
     const result = await CopilotPluginHelper.updateForCustomApi(
       spec,
@@ -924,6 +995,8 @@ describe("updateForCustomApi", async () => {
         expect(data).not.to.contains("// Replace with action code");
       }
     });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
@@ -968,6 +1041,9 @@ describe("updateForCustomApi", async () => {
       [{ type: WarningType.GenerateJsonDataFailed, content: "generate json data failed" }],
     ]);
 
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
+
     const result = await CopilotPluginHelper.updateForCustomApi(
       spec,
       "typescript",
@@ -1009,6 +1085,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
   });
 
@@ -1030,6 +1108,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code # Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(spec, "python", "path", "openapi.yaml");
   });
 
@@ -1060,7 +1140,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     //sandbox fs.readdir(destinationPath)
     sandbox.stub(fs, "readdir").resolves(["MyApp.csproj"] as any);
     await CopilotPluginHelper.updateForCustomApi(spec, "csharp", "path", "openapi.yaml");
@@ -1086,6 +1167,8 @@ describe("updateForCustomApi", async () => {
       }
     });
 
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
@@ -1114,6 +1197,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
   });
 
@@ -1140,6 +1225,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
   });
 
@@ -1190,6 +1277,8 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
     expect(mockWriteFile.calledThrice).to.be.true;
   });
@@ -1282,6 +1371,9 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     await CopilotPluginHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
   });
 
@@ -1405,6 +1497,9 @@ describe("updateForCustomApi", async () => {
         expect(data).not.to.contains("// Replace with action code");
       }
     });
+
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
@@ -1496,6 +1591,8 @@ describe("updateForCustomApi", async () => {
         expect(data).not.to.contains("// Replace with action code");
       }
     });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
@@ -1566,6 +1663,8 @@ describe("updateForCustomApi", async () => {
         expect(data).not.to.contains("// Replace with action code");
       }
     });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
@@ -1860,7 +1959,6 @@ describe("SpecGenerator", async () => {
       }
     });
     it("happy path", async () => {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.EnvFileFunc]: "true" });
       const generator = new SpecGenerator();
       const context = createContext();
       const inputs: Inputs = {
@@ -1871,7 +1969,9 @@ describe("SpecGenerator", async () => {
         [QuestionNames.AppName]: "testapp",
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      inputs.apiAuthData = { serverUrl: "https://test.com", authName: "test", authType: "apiKey" };
+      inputs.apiAuthData = [
+        { serverUrl: "https://test.com", authName: "test", authType: "apiKey" },
+      ];
       let res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -1922,33 +2022,6 @@ describe("SpecGenerator", async () => {
       }
     });
 
-    it("happy path", async () => {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.EnvFileFunc]: "false" });
-      const generator = new SpecGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.AppName]: "testapp",
-      };
-      inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-
-      const res = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "api-plugin-existing-api");
-        assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "true");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
-      }
-    });
-
     it("succeed even get yaml file failed", async () => {
       const generator = new SpecGenerator();
       const context = createContext();
@@ -1961,7 +2034,9 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      inputs.apiAuthData = { serverUrl: "https://test.com", authName: "test", authType: "apiKey" };
+      inputs.apiAuthData = [
+        { serverUrl: "https://test.com", authName: "test", authType: "apiKey" },
+      ];
       sandbox.stub(commonUtils, "isJsonSpecFile").throws();
       const res = await generator.getTemplateInfos(context, inputs, ".", { telemetryProps: {} });
       assert.isTrue(res.isOk());
@@ -1974,7 +2049,6 @@ describe("SpecGenerator", async () => {
 
     it("happy path for kiota integration with auth", async () => {
       mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.EnvFileFunc]: "true",
         [FeatureFlagName.KiotaIntegration]: "true",
       });
       const generator = new SpecGenerator();
@@ -2020,7 +2094,6 @@ describe("SpecGenerator", async () => {
 
     it("happy path for kiota integration without auth", async () => {
       mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.EnvFileFunc]: "true",
         [FeatureFlagName.KiotaIntegration]: "true",
       });
       const generator = new SpecGenerator();
@@ -2064,7 +2137,6 @@ describe("SpecGenerator", async () => {
 
     it("parse failed for kiota integration", async () => {
       mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.EnvFileFunc]: "true",
         [FeatureFlagName.KiotaIntegration]: "true",
       });
       const generator = new SpecGenerator();
@@ -2172,10 +2244,12 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.json",
         [QuestionNames.ApiOperation]: ["operation2"],
         supportedApisFromApiSpec: apiOperations,
-        apiAuthData: {
-          authType: "apiKey",
-          serverUrl: "",
-        },
+        apiAuthData: [
+          {
+            authType: "apiKey",
+            serverUrl: "",
+          },
+        ],
         getTemplateInfosState: {
           templateName: "copilot-plugin-existing-api",
           isPlugin: false,

@@ -156,7 +156,7 @@ export async function sendDebugAllEvent(
   };
 
   const closedPorts: number[] = [];
-  for (const port of globalVariables.LocalDebugPorts.checkPorts) {
+  for (const port of globalVariables.LocalDebugPorts.conflictPorts) {
     const port2 = await detectPort(port);
     if (port2 === port) {
       closedPorts.push(port);

@@ -11,6 +11,7 @@ import {
   ConfigFolderName,
   FxError,
   LogLevel as LLevel,
+  ok,
   OptionItem,
   Result,
   SingleSelectConfig,
@@ -21,13 +22,14 @@ import {
   AzureScopes,
   isValidProjectV3,
   InvalidAzureSubscriptionError,
+  featureFlagManager,
+  FeatureFlags,
 } from "@microsoft/teamsfx-core";
 import * as fs from "fs-extra";
 import * as path from "path";
 import CLIUIInstance from "../userInteraction";
-import { AzureSpCrypto, CryptoCachePlugin } from "./cacheAccess";
+import { AzureSpCrypto, CryptoCachePlugin, loadTenantId, saveTenantId } from "./cacheAccess";
 import { CodeFlowLogin, ConvertTokenToJson, checkIsOnline } from "./codeFlowLogin";
-import { CodeFlowTenantLogin } from "./codeFlowTenantLogin";
 import {
   MFACode,
   changeLoginTenantMessage,
@@ -110,12 +112,12 @@ class TeamsFxTokenCredential implements TokenCredential {
     } else {
       myScopes = scopes;
     }
-    let tokenRes: Result<string, FxError>;
-    if (this.tenantId.length > 0) {
-      tokenRes = await this.codeFlowInstance.getTenantTokenByScopes(this.tenantId, myScopes);
-    } else {
-      tokenRes = await this.codeFlowInstance.getTokenByScopes(myScopes);
-    }
+    const tokenRes: Result<string, FxError> = await this.codeFlowInstance.getTokenByScopes(
+      myScopes,
+      true,
+      this.tenantId
+    );
+
     if (tokenRes.isOk()) {
       const tokenJson = ConvertTokenToJson(tokenRes.value);
       return {
@@ -131,7 +133,6 @@ class TeamsFxTokenCredential implements TokenCredential {
 export class AzureAccountManager extends login implements AzureAccountProvider {
   private static instance: AzureAccountManager;
   private static codeFlowInstance: CodeFlowLogin;
-  private static codeFlowTenantInstance: CodeFlowTenantLogin;
   // default tenantId
   private static domain: string | undefined;
   private static username: string | undefined;
@@ -180,18 +181,20 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     return Promise.resolve(AzureAccountManager.teamsFxTokenCredential);
   }
 
-  switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
-    throw new Error("Method not implemented.");
+  async switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
+    await saveTenantId(accountName, tenantId);
+    return Promise.resolve(ok(AzureAccountManager.teamsFxTokenCredential));
+  }
+
+  async getTenant(): Promise<string | undefined> {
+    return await loadTenantId(accountName);
   }
 
   private async updateLoginStatus(): Promise<void> {
     const checkCodeFlow =
       AzureAccountManager.codeFlowInstance !== undefined &&
       AzureAccountManager.codeFlowInstance.account;
-    const checkCodeFlowTenant =
-      AzureAccountManager.codeFlowTenantInstance !== undefined &&
-      AzureAccountManager.codeFlowTenantInstance.account;
-    if (AzureAccountManager.statusChange !== undefined && (checkCodeFlow || checkCodeFlowTenant)) {
+    if (AzureAccountManager.statusChange !== undefined && checkCodeFlow) {
       const credential = await this.getIdentityCredentialAsync();
       const accessToken = await credential?.getToken(AzureScopes);
       const accountJson = await this.getJsonObject();
@@ -201,14 +204,11 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async login(showDialog: boolean, tenantId?: string): Promise<void> {
-    let accessToken;
-    if (tenantId && tenantId.length > 0) {
-      accessToken = await AzureAccountManager.codeFlowTenantInstance.getToken(tenantId);
-    } else {
-      accessToken = await AzureAccountManager.codeFlowInstance.getToken();
+    const accessToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(AzureScopes);
+    const tokenJson = await this.getJsonObject(false, tenantId);
+    if (accessToken.isOk() && accessToken.value) {
+      this.setMemoryCache(accessToken.value, tokenJson);
     }
-    const tokenJson = await this.getJsonObject(false);
-    this.setMemoryCache(accessToken, tokenJson);
   }
 
   private setMemoryCache(accessToken: string | undefined, tokenJson: any) {
@@ -246,15 +246,18 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  async getJsonObject(showDialog = true): Promise<Record<string, unknown> | undefined> {
-    let token;
-    if (AzureAccountManager.codeFlowTenantInstance === undefined) {
-      token = await AzureAccountManager.codeFlowInstance.getToken();
-    } else {
-      token = await AzureAccountManager.codeFlowTenantInstance.getToken();
-    }
-    if (token) {
-      const array = token!.split(".");
+  async getJsonObject(
+    showDialog = true,
+    tenantId?: string
+  ): Promise<Record<string, unknown> | undefined> {
+    const token = await AzureAccountManager.codeFlowInstance.getTokenByScopes(
+      AzureScopes,
+      true,
+      tenantId
+    );
+
+    if (token.isOk() && token.value) {
+      const array = token.value!.split(".");
       const buff = Buffer.from(array[1], "base64");
       return Promise.resolve(JSON.parse(buff.toString("utf-8")));
     } else {
@@ -281,7 +284,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       await AzureAccountManager.codeFlowInstance.reloadCache();
     }
     if (AzureAccountManager.codeFlowInstance.account) {
-      const loginToken = await AzureAccountManager.codeFlowInstance.getToken(false);
+      const loginToken = await AzureAccountManager.codeFlowInstance.getTokenByScopes(scopes, false);
       if (!loginToken) {
         if (await checkIsOnline()) {
           return Promise.resolve({ status: signedOut, token: undefined, accountInfo: undefined });
@@ -329,11 +332,16 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         const tenantTokenCredential: TeamsFxTokenCredential = new TeamsFxTokenCredential(
           AzureAccountManager.codeFlowInstance
         );
+        const cachedTenantId = await loadTenantId(accountName);
         for await (const page of tenantClient.tenants.list().byPage({ maxPageSize: 100 })) {
           for (const tenant of page) {
-            if (tenant.tenantId) {
+            if (
+              cachedTenantId
+                ? tenant.tenantId && tenant.tenantId == cachedTenantId
+                : tenant.tenantId
+            ) {
               try {
-                tenantTokenCredential.setTenantId(tenant.tenantId);
+                tenantTokenCredential.setTenantId(tenant.tenantId as string);
                 const subscriptionClient = new SubscriptionClient(tenantTokenCredential);
                 for await (const subPage of subscriptionClient.subscriptions
                   .list()
@@ -342,7 +350,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
                     arr.push({
                       subscriptionId: item.subscriptionId!,
                       subscriptionName: item.displayName!,
-                      tenantId: tenant.tenantId,
+                      tenantId: tenant.tenantId as string,
                     });
                   }
                 }
@@ -352,7 +360,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
                     CLILogProvider.necessaryLog(LLevel.Info, changeLoginTenantMessage);
                     showMFA = false;
                   }
-                  CLILogProvider.necessaryLog(LLevel.Info, tenant.tenantId);
+                  CLILogProvider.necessaryLog(LLevel.Info, tenant.tenantId as string);
                 }
               }
             }
@@ -563,11 +571,10 @@ export default azureLogin;
 
 // todo merge with default export, this function fix bug when user already logins with service principal, and he logins interactively, default azureLogin will return azureLoginCIProvider
 export function getAzureProvider() {
-  return !ui.interactive
-    ? AzureSpCrypto.checkAzureSPFile()
-      ? AzureLoginCI
-      : AzureAccountProviderUserPassword
-    : AzureSpCrypto.checkAzureSPFile()
-    ? AzureLoginCI
+  if (AzureSpCrypto.checkAzureSPFile()) {
+    return AzureLoginCI;
+  }
+  return !ui.interactive && process.env.AZURE_ACCOUNT_NAME && process.env.AZURE_ACCOUNT_PASSWORD
+    ? AzureAccountProviderUserPassword
     : AzureAccountManager.getInstance();
 }

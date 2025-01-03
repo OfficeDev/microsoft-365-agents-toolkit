@@ -24,7 +24,7 @@ import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { CreateOauthArgs } from "./interface/createOauthArgs";
 import { CreateOauthOutputs, OutputKeys } from "./interface/createOauthOutputs";
 import { logMessageKeys, maxSecretLength, minSecretLength } from "./utility/constants";
-import { OauthInfo, getandValidateOauthInfoFromSpec } from "./utility/utility";
+import { OauthInfo, getandValidateOauthInfoFromSpec, validateSecret } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
 
 const actionName = "oauth/register"; // DO NOT MODIFY the name
@@ -116,6 +116,15 @@ export class CreateOauthDriver implements StepDriver {
           outputEnvVarNames.get(OutputKeys.configurationId)!,
           oauthRegistrationRes.configurationRegistrationId.oAuthConfigId
         );
+        if (
+          args.identityProvider === "MicrosoftEntra" &&
+          outputEnvVarNames.get(OutputKeys.applicationIdUri)
+        ) {
+          outputs.set(
+            outputEnvVarNames.get(OutputKeys.applicationIdUri)!,
+            oauthRegistrationRes.resourceIdentifierUri
+          );
+        }
 
         const summary = getLocalizedString(
           logMessageKeys.successCreateOauth,
@@ -207,8 +216,8 @@ export class CreateOauthDriver implements StepDriver {
 
     const isCustomIdentityProvider = !args.identityProvider || args.identityProvider === "Custom";
 
-    if (!args.isPKCEEnabled || isCustomIdentityProvider) {
-      if (args.clientSecret && !this.validateSecret(args.clientSecret)) {
+    if (!args.isPKCEEnabled && isCustomIdentityProvider) {
+      if (args.clientSecret && !validateSecret(args.clientSecret)) {
         invalidParameters.push("clientSecret");
       }
     }
@@ -220,18 +229,6 @@ export class CreateOauthDriver implements StepDriver {
     if (invalidParameters.length > 0) {
       throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
     }
-  }
-
-  private validateSecret(clientSecret: string): boolean {
-    if (typeof clientSecret !== "string") {
-      return false;
-    }
-
-    if (clientSecret.length > maxSecretLength || clientSecret.length < minSecretLength) {
-      return false;
-    }
-
-    return true;
   }
 
   private async mapArgsToOauthRegistration(

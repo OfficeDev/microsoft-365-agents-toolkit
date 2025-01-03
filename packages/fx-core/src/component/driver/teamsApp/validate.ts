@@ -431,11 +431,11 @@ export class ValidateManifestDriver implements StepDriver {
       );
       const localizationFilePath = getAbsolutePath(filePath, localizationFileDir);
 
-      const manifestRes = await manifestUtils._readAppManifest(localizationFilePath);
-      if (manifestRes.isErr()) {
-        return err(manifestRes.error);
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(localizationFilePath);
+      if (resolvedLocFileRes.isErr()) {
+        return err(resolvedLocFileRes.error);
       }
-      const localizationFile = manifestRes.value;
+      const localizationFile = JSON.parse(resolvedLocFileRes.value) as TeamsAppManifest;
       try {
         const schema = await ManifestUtil.fetchSchema(localizationFile);
         // the current localization schema has invalid regex sytax, we need to manually fix the properties temporarily

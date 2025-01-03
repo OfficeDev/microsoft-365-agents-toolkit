@@ -76,3 +76,44 @@ export async function validateWelcomeAndReplyBot(
     throw error;
   }
 }
+
+export async function validateNpm(
+  context: BrowserContext,
+  options?: { npmName?: string; appName?: string }
+) {
+  const page = await context.newPage();
+  page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
+  try {
+    await page.goto("http://localhost:56150/");
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+
+    const searchPack = options?.npmName || "axios";
+    console.log("start to verify npm search");
+    const messageButton = await page?.waitForSelector(
+      'button[aria-label="Trigger Message Extension App"]'
+    );
+    await messageButton?.click();
+
+    const menuItemSearch = page.getByText("Search Command");
+    await menuItemSearch?.click();
+
+    console.log("search npm ", searchPack);
+    const input = await page?.waitForSelector("span.fui-Input input");
+    await input?.fill(searchPack);
+    await page.waitForTimeout(Timeout.shortTimeWait);
+    const targetItem = await page?.waitForSelector(
+      `h1:has-text("${searchPack}")`
+    );
+    await targetItem?.click();
+    await page?.waitForSelector(
+      `div.ac-preview-panel:has-text("${searchPack}")`
+    );
+    console.log("verify npm search successfully!!!");
+  } catch (error) {
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("error"),
+      fullPage: true,
+    });
+    throw error;
+  }
+}

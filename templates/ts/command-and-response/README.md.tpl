@@ -2,7 +2,7 @@
 
 This template showcases an app that responds to chat commands by displaying UI using an Adaptive Card. This enables your users to type in simple messages in Teams and your application can provide an appropriate response based on the contents of the message.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built using the Teams AI SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
 
 ## Get Started with the Command bot
 
@@ -12,7 +12,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20
 {{^enableTestToolByDefault}}
-> - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
+> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
@@ -64,7 +64,6 @@ The following files can be customized and demonstrate an example implementation 
 | `src/teamsBot.ts`  | An empty teams activity handler for bot customization |
 | `src/adaptiveCards/helloworldCommand.json` | A generated Adaptive Card that is sent to Teams |
 | `src/helloworldCommandHandler.ts` | The business logic to handle a command |
-| `src/cardModels.ts` | The default Adaptive Card data model |
 
 ## Extend the command bot template with more commands and responses
 
@@ -130,36 +129,30 @@ You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to 
 
 ### Step 3: Handle the command
 
-The TeamsFx SDK provides a convenient class, `TeamsFxBotCommandHandler`, to handle when an command is triggered from Teams conversation message. Create a new file, `src/doSomethingCommandHandler.ts`:
+Create a new file, `src/doSomethingCommandHandler.ts`:
 
 ```typescript
 import { Activity, CardFactory, MessageFactory, TurnContext } from "botbuilder";
-import {
-  CommandMessage,
-  TeamsFxBotCommandHandler,
-  TriggerPatterns,
-  MessageBuilder,
-} from "@microsoft/teamsfx";
+import { Selector } from "@microsoft/teams-ai";
 import doSomethingCard from "./adaptiveCards/doSomethingCommandResponse.json";
-import { AdaptiveCards } from "@microsoft/adaptivecards-tools";
-import { CardData } from "./cardModels";
+import * as ACData from "adaptivecards-templating";
 
 export class DoSomethingCommandHandler implements TeamsFxBotCommandHandler {
-  triggerPatterns: TriggerPatterns = "doSomething";
+  triggerPatterns: string | RegExp | Selector | (string | RegExp | Selector)[] = "doSomething";
 
   async handleCommandReceived(
     context: TurnContext,
-    message: CommandMessage
+    state: ApplicationTurnState
   ): Promise<string | Partial<Activity>> {
     // verify the command arguments which are received from the client if needed.
-    console.log(`App received message: ${message.text}`);
+    console.log(`App received message: ${context.activity.text}`);
 
-    const cardData: CardData = {
-      title: "doSomething command is added",
-      body: "Congratulations! You have responded to doSomething command",
-    };
-
-    const cardJson = AdaptiveCards.declare(doSomethingCard).render(cardData);
+    const cardJson = new ACData.Template(helloWorldCard).expand({
+      $root: {
+        title: "doSomething command is added",
+        body: "Congratulations! You have responded to doSomething command",
+      },
+    });
     return MessageFactory.attachment(CardFactory.adaptiveCard(cardJson));
   }
 }
@@ -169,21 +162,20 @@ You can customize what the command does here, including calling an API, process 
 
 ### Step 4: Register the new command
 
-Each new command needs to be configured in the `ConversationBot`, which powers the conversational flow of the command bot template. Navigate to the `src/internal/initialize.ts` file and update the `commands` array of the `command` property:
+Each new command needs to be configured in the `ConversationBot`, which powers the conversational flow of the command bot template. Navigate to the `src/index.ts` file and register the trigger pattern to `app.message()`:
 
 ```typescript
-import { HelloWorldCommandHandler } from "../helloworldCommandHandler";
-import { DoSomethingCommandHandler } from "../doSomethingCommandHandler";
-import { BotBuilderCloudAdapter } from "@microsoft/teamsfx";
-import ConversationBot = BotBuilderCloudAdapter.ConversationBot;
+const doSomethingCommandHandler = new DoSomethingCommandHandler();
+app.message(
+  doSomethingCommandHandler.triggerPatterns,
+  async (context: TurnContext, state: ApplicationTurnState) => {
+    const reply = await doSomethingCommandHandler.handleCommandReceived(context, state);
 
-const commandApp = new ConversationBot({
-  //...
-  command: {
-    enabled: true,
-    commands: [new HelloWorldCommandHandler(), new DoSomethingCommandHandler()],
-  },
-});
+    if (reply) {
+      await context.sendActivity(reply);
+    }
+  }
+);
 ```
 
 Congratulations, you've just created your own command! To learn more about the command bot template, [visit the documentation on GitHub](https://aka.ms/teamsfx-command-new). You can find more scenarios like:
@@ -212,5 +204,5 @@ Adaptive cards can be updated on user action to allow user progress through a se
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
+- [Teams AI SDK](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

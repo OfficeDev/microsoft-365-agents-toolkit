@@ -175,6 +175,7 @@ import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
 import { generateDriverContext } from "../common/utils";
 import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
+import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -835,6 +836,53 @@ export class FxCore {
     await buildAadManifest(Context, manifestTemplatePath, manifestOutputPath);
     return ok(undefined);
   }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "convertAadToNewSchema", reset: true }),
+    ErrorHandlerMW,
+    QuestionMW("convertAadToNewSchema"),
+  ])
+  async convertAadToNewSchema(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const manifestTemplatePath: string = inputs[QuestionNames.AadAppManifestFilePath];
+    if (!(await fs.pathExists(manifestTemplatePath))) {
+      return err(new FileNotFoundError("convertAadToNewSchema", manifestTemplatePath));
+    }
+
+    const manifest = await fs.readJson(manifestTemplatePath);
+    const context = createContext();
+
+    if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
+      void (await context.userInteraction.showMessage(
+        "info",
+        getLocalizedString("core.convertAadToNewSchema.alreadyNewSchema"),
+        false
+      ));
+      return ok(undefined);
+    }
+
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      getLocalizedString("core.convertAadToNewSchema.warning"),
+      true,
+      getLocalizedString("core.convertAadToNewSchema.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.convertAadToNewSchema.continue")) {
+      return err(new UserCancelError());
+    }
+
+    const result = AadManifestHelper.manifestToApplication(manifest);
+    await fs.writeJson(manifestTemplatePath, result, { spaces: 2 });
+    void (await context.userInteraction.showMessage(
+      "info",
+      getLocalizedString("core.convertAadToNewSchema.success"),
+      false
+    ));
+    return ok(undefined);
+  }
+
   /**
    * v3 only none lifecycle command
    */
@@ -1678,7 +1726,7 @@ export class FxCore {
 
       const authNames: Set<string> = new Set();
       const serverUrls: Set<string> = new Set();
-      let authScheme: AuthType | undefined = undefined;
+      const authNamesDict: Record<string, AuthType> = {};
       for (const api of operations) {
         const operation = apiResultList.find((op) => op.api === api);
         if (
@@ -1689,26 +1737,24 @@ export class FxCore {
         ) {
           authNames.add(operation.auth.name);
           serverUrls.add(operation.server);
-          authScheme = operation.auth.authScheme;
+          authNamesDict[operation.auth.name] = operation.auth.authScheme;
         }
-      }
-
-      if (authNames.size > 1) {
-        throw new MultipleAuthError(authNames);
       }
 
       if (serverUrls.size > 1) {
         throw new MultipleServerError(serverUrls);
       }
 
-      if (authNames.size === 1 && authScheme) {
-        await injectAuthAction(
-          inputs.projectPath!,
-          [...authNames][0],
-          authScheme,
-          outputApiSpecPath,
-          false
-        );
+      if (authNames.size >= 1) {
+        for (const authName of authNames) {
+          await injectAuthAction(
+            inputs.projectPath!,
+            [...authNames][0],
+            authNamesDict[authName],
+            outputApiSpecPath,
+            false
+          );
+        }
       }
 
       let pluginPath: string | undefined;
@@ -1913,8 +1959,7 @@ export class FxCore {
 
     // Will be used if generating from API spec
     let specParser: SpecParser | undefined = undefined;
-    let authName: string | undefined = undefined;
-    let authScheme: AuthType | undefined = undefined;
+    let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
     if (isGenerateFromApiSpec) {
       specParser = new SpecParser(
@@ -1932,11 +1977,9 @@ export class FxCore {
           (value) => value.api
         );
       }
-      const authNameAndSchmea = this.parseAuthNameAndScheme(listResult, inputs);
-      authName = authNameAndSchmea.authName;
-      authScheme = authNameAndSchmea.authScheme;
+      authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
-      if (authName && authScheme) {
+      if (authNameAndSchemes.length > 0) {
         const doesLocalYamlPathExists = await fs.pathExists(
           path.join(inputs.projectPath, MetadataV3.localConfigFile)
         );
@@ -2034,14 +2077,15 @@ export class FxCore {
         return err(addActionRes.error);
       }
 
-      // update teamspp.local.yaml and teamsapp.yaml if auth action is needed
-      await this.updateAuthActionInYaml(
-        authName,
-        authScheme,
-        inputs.projectPath,
-        destinationApiSpecPath,
-        destinationPluginManifestPath
-      );
+      for (const authNameAndScheme of authNameAndSchemes) {
+        await this.updateAuthActionInYaml(
+          authNameAndScheme.authName,
+          authNameAndScheme.authScheme,
+          inputs.projectPath,
+          destinationApiSpecPath,
+          destinationPluginManifestPath
+        );
+      }
     } else {
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPath,
@@ -2180,15 +2224,17 @@ export class FxCore {
       (value) => value.api
     );
 
-    const authInfo = this.parseAuthNameAndScheme(listResult, inputs);
-    await this.updateAuthActionInYaml(
-      authInfo.authName,
-      authInfo.authScheme,
-      inputs.projectPath,
-      specPath,
-      pluginManifestFilePath,
-      false
-    );
+    const authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
+    for (const authInfo of authNameAndSchemes) {
+      await this.updateAuthActionInYaml(
+        authInfo.authName,
+        authInfo.authScheme,
+        inputs.projectPath,
+        specPath,
+        pluginManifestFilePath,
+        false
+      );
+    }
 
     // Add dc to plugin manifest
     const generateRes = await generateFromApiSpec(
@@ -2244,10 +2290,12 @@ export class FxCore {
   private parseAuthNameAndScheme(
     listResult: ListAPIResult,
     inputs: Inputs
-  ): { authName: string | undefined; authScheme: AuthType | undefined } {
+  ): { authName: string; authScheme: AuthType }[] {
     const authApis = listResult.APIs.filter((value) => value.isValid && !!value.auth);
-    let authName: string | undefined = undefined;
-    let authScheme: AuthType | undefined = undefined;
+    const result: {
+      authName: string;
+      authScheme: AuthType;
+    }[] = [];
     for (const api of inputs[QuestionNames.ApiOperation] as string[]) {
       const operation = authApis.find((op) => op.api === api);
       if (
@@ -2256,14 +2304,12 @@ export class FxCore {
         (Utils.isBearerTokenAuth(operation.auth.authScheme) ||
           Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme))
       ) {
-        authName = operation.auth.name;
-        authScheme = operation.auth.authScheme;
-        break; // Only one auth is supported for one plugin for now.
+        if (result.find((value) => value.authName === operation.auth!.name)) {
+          continue;
+        }
+        result.push({ authName: operation.auth.name, authScheme: operation.auth.authScheme });
       }
     }
-    return {
-      authName: authName,
-      authScheme: authScheme,
-    };
+    return result;
   }
 }

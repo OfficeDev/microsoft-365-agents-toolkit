@@ -49,7 +49,7 @@ export enum TemplateProject {
   Dashboard = "Team Central Dashboard",
   AssistDashboard = "Developer Assist Dashboard",
   DiceRoller = "Dice Roller in meeting",
-  OutlookTab = "Hello World Teams Tab Outlook add-in",
+  OutlookTab = "Hello World Teams Tab and Outlook add-in",
   OutlookSignature = "Set signature using Outlook add-in",
   ChefBot = "Teams Chef Bot",
   GraphConnectorBot = "Graph Connector Bot",
@@ -244,10 +244,10 @@ export class Timeout {
    */
   public static readonly chromiumLaunchTimeout: number = 1 * 60 * 1000;
   public static readonly playwrightDefaultTimeout: number = 2 * 60 * 1000;
-  public static readonly playwrightConsentPageReload: number = 500;
+  public static readonly playwrightConsentPageReload: number = 3000;
   public static readonly playwrightBotConsentContinueButton: number =
     2 * 60 * 1000;
-  public static readonly playwrightConsentPopupPage: number = 10 * 1000;
+  public static readonly playwrightConsentPopupPage: number = 30 * 1000;
   public static readonly playwrightAddAppButton: number = 180 * 1000;
 
   // mocha
@@ -441,6 +441,7 @@ export enum LocalDebugError {
   WarningError = "Warning",
   WarningCapError = "WARNING",
   DeprecatedError = "npm warn deprecated",
+  CompiledWithWarningError = "Compiled with warnings",
 }
 
 export class LocalDebugTaskInfo {
@@ -488,6 +489,8 @@ export class CreateProjectQuestion {
   static readonly NewAddinApp = "Start with an Outlook add-in";
   static readonly CreateNewSpfxSolution = "Create New SPFx Solution";
   static readonly ImportExistingSpfxSolution = "Import Existing SPFx Solution";
+  static readonly BuildNotificationBot = "Build a Notification Bot";
+  static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
 }
 
 export class ValidationContent {

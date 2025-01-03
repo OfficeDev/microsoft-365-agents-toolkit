@@ -31,29 +31,10 @@
             "remotedebug-chatdata-m365-js-openai",
             "remotedebug-chatdata-m365-ts-azureopenai",
             "remotedebug-chatdata-m365-ts-openai",
-            "sample-localdebug-food-catalog",
-            "sample-remotedebug-food-catalog",
             "sample-localdebug-outlook-signature",
             "sample-remotedebug-outlook-signature",
             "sample-localdebug-reddit-link",
             "sample-remotedebug-reddit-link",
-            "sample-localdebug-intelligent-data-chart",
-            "sample-remotedebug-intelligent-data-chart"
-        ]
-    },
-    {
-        "os": {
-            "windows-latest": {
-                "node-18": []
-            },
-            "ubuntu-latest": {
-                "node-18": []
-            },
-            "macos-latest": {
-                "node-18": []
-            }
-        },
-        "cases": [
             "sample-localdebug-chef-bot",
             "sample-remotedebug-chef-bot"
         ]
@@ -73,7 +54,11 @@
             "sample-localdebug-bot-sso",
             "sample-localdebug-dice-roller",
             "sample-localdebug-contact-exporter",
-            "sample-localdebug-hello-world-meeting"
+            "sample-localdebug-hello-world-meeting",
+            "sample-localdebug-food-catalog",
+            "sample-remotedebug-food-catalog",
+            "sample-localdebug-intelligent-data-chart",
+            "sample-remotedebug-intelligent-data-chart"
         ]
     },
     {
@@ -114,7 +99,6 @@
             "sample-localdebug-hello-world-tab-outlook",
             "sample-localdebug-one-productivity-hub",
             "sample-localdebug-assistant-dashboard",
-            "sample-localdebug-large-scale-notification",
             "sample-localdebug-todo-list-sql",
             "sample-remotedebug-share-now",
             "sample-remotedebug-todo-list-sql",

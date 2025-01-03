@@ -20,7 +20,14 @@ import {
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/cliTelemetryEvents";
-import { UTF8, clearCache, loadAccountId, saveAccountId } from "./cacheAccess";
+import {
+  UTF8,
+  clearCache,
+  loadAccountId,
+  loadTenantId,
+  saveAccountId,
+  saveTenantId,
+} from "./cacheAccess";
 import {
   MFACode,
   azureLoginMessage,
@@ -29,6 +36,7 @@ import {
   sendFileTimeout,
 } from "./common/constant";
 import CliCodeLogInstance from "./log";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -87,12 +95,18 @@ export class CodeFlowLogin {
       if (dataCache) {
         this.account = dataCache;
       }
+
+      const tenantCache = await loadTenantId(this.accountName);
+      if (tenantCache) {
+        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        this.account = allAccounts.find((account) => account.tenantId == tenantCache);
+      }
     } else {
       this.account = undefined;
     }
   }
 
-  async login(scopes: Array<string>): Promise<string> {
+  async login(scopes: Array<string>, tenantId?: string): Promise<string> {
     CliTelemetry.sendTelemetryEvent(TelemetryEvent.AccountLoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
     });
@@ -121,12 +135,14 @@ export class CodeFlowLogin {
       this.destroySockets();
     });
 
+    const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
     const authCodeUrlParameters = {
       scopes: scopes,
       codeChallenge: codeChallenge,
       codeChallengeMethod: "S256",
       redirectUri: `http://localhost:${serverPort}`,
       prompt: "select_account",
+      authority: authority,
     };
 
     let deferredRedirect: Deferred<string>;
@@ -239,81 +255,45 @@ export class CodeFlowLogin {
     (this.msalTokenCache as any).storage.setCache({});
     await clearCache(this.accountName);
     await saveAccountId(this.accountName, undefined);
+    await saveTenantId(this.accountName, undefined);
     this.account = undefined;
     return true;
   }
 
-  /**
-   * @deprecated will be removed after unify m365 login
-   */
-  async getToken(refresh = true): Promise<string | undefined> {
-    try {
-      if (!this.account) {
-        await this.reloadCache();
-      }
-      if (!this.account) {
-        const accessToken = await this.login(this.scopes);
-        return accessToken;
-      } else {
-        return this.pca
-          .acquireTokenSilent({
-            account: this.account,
-            scopes: this.scopes,
-            forceRefresh: false,
-          })
-          .then((response) => {
-            if (response) {
-              return response.accessToken;
-            } else {
-              return undefined;
-            }
-          })
-          .catch(async (error) => {
-            CliCodeLogInstance.necessaryLog(
-              LogLevel.Debug,
-              "[Login] Failed to retrieve token silently. If you encounter this problem multiple times, you can delete `" +
-                path.join(os.homedir(), ".fx", "account") +
-                "` and try again. " +
-                error.message
-            );
-            if (!(await checkIsOnline())) {
-              return undefined;
-            }
-            await this.logout();
-            if (refresh) {
-              const accessToken = await this.login(this.scopes);
-              return accessToken;
-            } else {
-              return undefined;
-            }
-          });
-      }
-    } catch (error: any) {
-      CliCodeLogInstance.necessaryLog(LogLevel.Error, "[Login] " + error.message);
-      if (
-        error.name !== ErrorMessage.loginTimeoutTitle &&
-        error.name !== ErrorMessage.loginPortConflictTitle
-      ) {
-        throw LoginCodeFlowError(error);
-      } else {
-        throw error;
-      }
-    }
+  async switchTenant(tenantId: string): Promise<void> {
+    return await saveTenantId(this.accountName, tenantId);
   }
 
-  async getTokenByScopes(scopes: Array<string>, refresh = true): Promise<Result<string, FxError>> {
+  async getTokenByScopes(
+    scopes: Array<string>,
+    refresh = true,
+    tenantId?: string
+  ): Promise<Result<string, FxError>> {
     if (!this.account) {
       await this.reloadCache();
     }
+
+    if (!tenantId) {
+      tenantId = await loadTenantId(this.accountName);
+    }
     if (!this.account) {
-      const accessToken = await this.login(scopes);
+      const accessToken = await this.login(scopes, tenantId);
       return ok(accessToken);
     } else {
+      let tenantedAccount: AccountInfo | undefined = undefined;
+      if (tenantId) {
+        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
+        this.account = tenantedAccount ?? this.account;
+      }
       try {
         const res = await this.pca.acquireTokenSilent({
           account: this.account,
           scopes: scopes,
-          forceRefresh: false,
+          forceRefresh: tenantedAccount ? false : true,
+          authority: tenantId
+            ? env.activeDirectoryEndpointUrl + tenantId
+            : this.config.auth.authority,
         });
         if (res) {
           return ok(res.accessToken);
@@ -333,113 +313,11 @@ export class CodeFlowLogin {
         }
         await this.logout();
         if (refresh) {
-          const accessToken = await this.login(scopes);
+          const accessToken = await this.login(scopes, tenantId);
           return ok(accessToken);
         }
         return err(LoginCodeFlowError(error));
       }
-    }
-  }
-
-  async getTenantTokenByScopes(
-    tenantId: string,
-    scopes: Array<string>
-  ): Promise<Result<string, FxError>> {
-    if (!this.account) {
-      await this.reloadCache();
-    }
-    if (this.account) {
-      try {
-        const res = await this.pca.acquireTokenSilent({
-          authority: env.activeDirectoryEndpointUrl + tenantId,
-          account: this.account,
-          scopes: scopes,
-          forceRefresh: true,
-        });
-        if (res) {
-          return ok(res.accessToken);
-        } else {
-          return err(LoginCodeFlowError(new Error("No token response")));
-        }
-      } catch (error: any) {
-        if (error.message.indexOf(MFACode) >= 0) {
-          throw error;
-        } else {
-          CliCodeLogInstance.necessaryLog(
-            LogLevel.Debug,
-            "[Login] Failed to retrieve tenant token silently. If you encounter this problem multiple times, you can delete `" +
-              path.join(os.homedir(), ".fx", "account") +
-              "` and try again. " +
-              error.message
-          );
-          if (!(await checkIsOnline())) {
-            return err(CheckOnlineError());
-          }
-          const accountList = await this.msalTokenCache?.getAllAccounts();
-          for (let i = 0; i < accountList!.length; ++i) {
-            this.msalTokenCache?.removeAccount(accountList![i]);
-          }
-          this.config.auth.authority = env.activeDirectoryEndpointUrl + tenantId;
-          this.pca = new PublicClientApplication(this.config);
-          const accessToken = await this.login(scopes);
-          return ok(accessToken);
-        }
-      }
-    } else {
-      return err(LoginCodeFlowError(new Error("No account login")));
-    }
-  }
-
-  async getTenantToken(tenantId: string): Promise<string | undefined> {
-    try {
-      if (!this.account) {
-        await this.reloadCache();
-      }
-      if (this.account) {
-        return this.pca
-          .acquireTokenSilent({
-            authority: env.activeDirectoryEndpointUrl + tenantId,
-            account: this.account,
-            scopes: this.scopes,
-            forceRefresh: true,
-          })
-          .then((response) => {
-            if (response) {
-              return response.accessToken;
-            } else {
-              return undefined;
-            }
-          })
-          .catch(async (error) => {
-            if (error.message.indexOf(MFACode) >= 0) {
-              throw error;
-            } else {
-              CliCodeLogInstance.necessaryLog(
-                LogLevel.Debug,
-                "[Login] Failed to retrieve tenant token silently. If you encounter this problem multiple times, you can delete `" +
-                  path.join(os.homedir(), ".fx", "account") +
-                  "` and try again. " +
-                  error.message
-              );
-              if (!(await checkIsOnline())) {
-                return undefined;
-              }
-              const accountList = await this.msalTokenCache?.getAllAccounts();
-              for (let i = 0; i < accountList!.length; ++i) {
-                this.msalTokenCache?.removeAccount(accountList![i]);
-              }
-              this.config.auth.authority = env.activeDirectoryEndpointUrl + tenantId;
-              this.pca = new PublicClientApplication(this.config);
-              const accessToken = await this.login(this.scopes);
-              return accessToken;
-            }
-          });
-      } else {
-        return undefined;
-      }
-    } catch (error: any) {
-      CliCodeLogInstance.necessaryLog(LogLevel.Error, "[Login] getTenantToken : " + error.message);
-      throw LoginFailureError(error);
     }
   }
 

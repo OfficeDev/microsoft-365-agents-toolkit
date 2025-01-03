@@ -7,6 +7,7 @@ import {
   addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
+  convertAadToNewSchemaQuestionNode,
   copilotPluginAddAPIQuestionNode,
   createNewEnvQuestionNode,
   deployAadManifestQuestionNode,
@@ -57,6 +58,9 @@ export class QuestionNodes {
   }
   deployAadManifest(): IQTreeNode {
     return deployAadManifestQuestionNode();
+  }
+  convertAadToNewSchema(): IQTreeNode {
+    return convertAadToNewSchemaQuestionNode();
   }
   createNewEnv(): IQTreeNode {
     return createNewEnvQuestionNode();

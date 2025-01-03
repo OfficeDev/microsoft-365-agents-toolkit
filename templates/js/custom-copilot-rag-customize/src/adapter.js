@@ -1,22 +1,8 @@
-// Import required bot services.
-// See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const {
-  CloudAdapter,
-  ConfigurationBotFrameworkAuthentication,
-  ConfigurationServiceClientCredentialFactory,
-} = require("botbuilder");
+const { TeamsAdapter } = require("@microsoft/teams-ai");
 
-// This bot's main dialog.
 const config = require("./config");
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  new ConfigurationServiceClientCredentialFactory(config)
-);
-
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about how bots work.
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+const adapter = new TeamsAdapter(config);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context, error) => {
@@ -41,7 +27,7 @@ const onTurnErrorHandler = async (context, error) => {
   }
 };
 
-// Set the onTurnError for the singleton CloudAdapter.
+// Set the onTurnError for the singleton TeamsAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
 module.exports = adapter;

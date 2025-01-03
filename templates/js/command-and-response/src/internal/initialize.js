@@ -1,22 +1,37 @@
-const { BotBuilderCloudAdapter } = require("@microsoft/teamsfx");
-const ConversationBot = BotBuilderCloudAdapter.ConversationBot;
-const { HelloWorldCommandHandler } = require("../helloworldCommandHandler");
-const { GenericCommandHandler } = require("../genericCommandHandler");
+const { TeamsAdapter } = require("@microsoft/teams-ai");
+// Import required bot services.
+// See https://aka.ms/bot-services to learn more about the different parts of a bot.
+const { ConfigurationServiceClientCredentialFactory } = require("botbuilder");
 const config = require("./config");
 
-// Create the command bot and register the command handlers for your app.
-// You can also use the commandApp.command.registerCommands to register other commands
-// if you don't want to register all of them in the constructor
-const commandApp = new ConversationBot({
-  // The bot id and password to create CloudAdapter.
-  // See https://aka.ms/about-bot-adapter to learn more about adapters.
-  adapterConfig: config,
-  command: {
-    enabled: true,
-    commands: [new HelloWorldCommandHandler(), new GenericCommandHandler()],
-  },
-});
+// Create adapter.
+// See https://aka.ms/about-bot-adapter to learn more about how bots work.
+const adapter = new TeamsAdapter({}, new ConfigurationServiceClientCredentialFactory(config));
+
+// Catch-all for errors.
+const onTurnErrorHandler = async (context, error) => {
+  // This check writes out errors to console log .vs. app insights.
+  // NOTE: In production environment, you should consider logging this to Azure
+  //       application insights.
+  console.error(`\n [onTurnError] unhandled error: ${error}`);
+  console.log(error);
+
+  // Send a trace activity, which will be displayed in Bot Framework Emulator
+  await context.sendTraceActivity(
+    "OnTurnError Trace",
+    `${error}`,
+    "https://www.botframework.com/schemas/error",
+    "TurnError"
+  );
+
+  // Send a message to the user
+  await context.sendActivity("The bot encountered an error or bug.");
+  await context.sendActivity("To continue to run this bot, please fix the bot source code.");
+};
+
+// Set the onTurnError for the singleton CloudAdapter.
+adapter.onTurnError = onTurnErrorHandler;
 
 module.exports = {
-  commandApp,
+  adapter,
 };

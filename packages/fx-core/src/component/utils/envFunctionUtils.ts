@@ -15,7 +15,6 @@ import stripBom from "strip-bom";
 import { FileNotFoundError } from "../../error";
 import { expandEnvironmentVariable } from "./common";
 import { getLocalizedString } from "../../common/localizeUtils";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { DriverContext } from "../driver/interface/commonArgs";
 
 const source = "ResolveManifestFunction";
@@ -42,9 +41,6 @@ export async function expandVariableWithFunction(
   manifestType: ManifestType,
   fromPath: string
 ): Promise<Result<string, FxError>> {
-  if (!featureFlagManager.getBooleanValue(FeatureFlags.EnvFileFunc)) {
-    return ok(content);
-  }
   const regex = /\$\[ *[a-zA-Z][a-zA-Z]*\([^\]]*\) *\]/g;
   const matches = content.match(regex);
 

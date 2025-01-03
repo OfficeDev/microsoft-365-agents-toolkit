@@ -18,7 +18,7 @@ import {
 
 import * as cfg from "./common/userPasswordConfig";
 import { AzureScopes } from "@microsoft/teamsfx-core";
-import { ConvertTokenToJson } from "./codeFlowTenantLogin";
+import { ConvertTokenToJson } from "./codeFlowLogin";
 
 dotenv.config();
 
@@ -73,6 +73,10 @@ export class AzureAccountProviderUserPassword implements AzureAccountProvider {
 
   public switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
     throw new Error("Method not implemented.");
+  }
+
+  async getTenant(): Promise<string | undefined> {
+    return Promise.resolve(cfg.AZURE_TENANT_ID);
   }
 
   public async getStatus(): Promise<LoginStatus> {

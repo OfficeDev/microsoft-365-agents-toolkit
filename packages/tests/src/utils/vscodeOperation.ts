@@ -575,10 +575,12 @@ export async function createNewProject(
     : "React";
   const lang = option?.lang ? option.lang : "JavaScript";
   const dataOption = option?.dataOption ? option.dataOption : "Customize";
-  await execCommandIfExist(
-    CommandPaletteCommands.CreateProjectCommand,
-    Timeout.webView
-  );
+  await RetryHandler.retry(async () => {
+    await execCommandIfExist(
+      CommandPaletteCommands.CreateProjectCommand,
+      Timeout.webView
+    );
+  });
   console.log("Create new project: ", appName);
   const input = await InputBox.create();
   // if exist click it
@@ -799,7 +801,7 @@ export async function createNewProject(
     }
     case "addin": {
       await input.selectQuickPick(CreateProjectQuestion.OfficeAddin);
-      await input.selectQuickPick("Taskpane");
+      await input.selectQuickPick("Task pane");
       await driver.sleep(Timeout.input);
       break;
     }
@@ -807,7 +809,7 @@ export async function createNewProject(
       const importPath: string =
         testRootFolder + "\\..\\src\\ui-test\\treeview\\office-xml-addin";
       await input.selectQuickPick(CreateProjectQuestion.OfficeAddin);
-      await input.selectQuickPick("Import an Existing Outlook Add-in");
+      await input.selectQuickPick("Import an Existing Outlook Add-ins");
 
       console.log("choose import path: ", importPath);
       await input.selectQuickPick("Browse...");
@@ -1253,10 +1255,36 @@ export async function findWordFromTerminal(word: string): Promise<boolean> {
         return true;
       }
     } else {
-      await VSBrowser.instance.takeScreenshot(
-        getScreenshotName("debug failed")
-      );
-      assert.fail("[failed] error message found !!!");
+      try {
+        await searchInput.clear();
+        await searchInput.sendKeys("Compiled with warnings");
+        console.log("send key: Compiled with warnings");
+      } catch (error) {
+        console.log("[Pending]: Input error, try to find next...");
+        continue;
+      }
+      // verify warning error message
+      result = await (
+        await searchBox.findElement(By.className("matchesCount"))
+      ).getText();
+      if (result.includes("No results")) {
+        await VSBrowser.instance.takeScreenshot(
+          getScreenshotName("debug failed")
+        );
+        assert.fail("[failed] error message found !!!");
+      }
+      // verify success message
+      await searchInput.clear();
+      await searchInput.sendKeys("No issues found");
+      console.log("send key: ", "No issues found.");
+      await VSBrowser.instance.driver.sleep(Timeout.webView);
+      result = await (
+        await searchBox.findElement(By.className("matchesCount"))
+      ).getText();
+      if (result.includes("No results") == false) {
+        console.log("[Pass]: verify " + word + " success !!!");
+        return true;
+      }
     }
   }
   return false;

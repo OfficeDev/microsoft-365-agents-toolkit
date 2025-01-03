@@ -15,14 +15,43 @@ describe("account command", function () {
   const testFolder = getTestFolder();
 
   it(
+    `auth login help support tenant parameter`,
+    { testPlanCaseId: 30431027, author: "huihuiwu@microsoft.com" },
+    async function () {
+      stdlog = await execAsync(`teamsapp auth login m365 -h`, {
+        env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
+        timeout: 0,
+      });
+
+      expect(stdlog.stdout).include("--tenant");
+      expect(stdlog.stderr).to.be.empty;
+    }
+  );
+
+  it(
+    `auth login to specified tenant`,
+    { testPlanCaseId: 30430995, author: "huihuiwu@microsoft.com" },
+    async function () {
+      stdlog = await execAsync(`teamsapp auth login m365`, {
+        env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
+        timeout: 0,
+      });
+
+      expect(stdlog.stdout).include("xxbdw");
+      expect(stdlog.stderr).to.be.empty;
+    }
+  );
+
+  it(
     `auth list`,
     { testPlanCaseId: 15232246, author: "zhiyou@microsoft.com" },
     async function () {
       stdlog = await execAsync(`teamsapp auth list`, {
-        env: process.env,
+        env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
         timeout: 0,
       });
 
+      expect(stdlog.stdout).include("xxbdw");
       expect(stdlog.stderr).to.be.empty;
     }
   );

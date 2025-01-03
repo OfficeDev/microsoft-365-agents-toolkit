@@ -175,8 +175,13 @@ export class CreateAppPackageDriver implements StepDriver {
         if (relativePath.startsWith("..")) {
           return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
         }
-        const dir = path.dirname(file);
-        zip.addLocalFile(fileName, dir === "." ? "" : dir);
+        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+        if (resolvedLocFileRes.isErr()) {
+          return err(resolvedLocFileRes.error);
+        }
+        if (resolvedLocFileRes.value) {
+          zip.addFile(relativePath, Buffer.from(resolvedLocFileRes.value));
+        }
       }
     }
     if (manifest.localizationInfo && manifest.localizationInfo.defaultLanguageFile) {
@@ -186,8 +191,14 @@ export class CreateAppPackageDriver implements StepDriver {
       if (relativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
       }
-      const dir = path.dirname(file);
-      zip.addLocalFile(fileName, dir === "." ? "" : dir);
+
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+      if (resolvedLocFileRes.isErr()) {
+        return err(resolvedLocFileRes.error);
+      }
+      if (resolvedLocFileRes.value) {
+        zip.addFile(relativePath, Buffer.from(resolvedLocFileRes.value));
+      }
     }
 
     // API ME, API specification and Adaptive card templates

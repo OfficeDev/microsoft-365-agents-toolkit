@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Teams.AI;
 
 namespace {{SafeProjectName}}.Controllers
 {
@@ -8,10 +8,10 @@ namespace {{SafeProjectName}}.Controllers
     [ApiController]
     public class BotController : ControllerBase
     {
-        private readonly CloudAdapter Adapter;
+        private readonly TeamsAdapter Adapter;
         private readonly IBot Bot;
 
-        public BotController(CloudAdapter adapter, IBot bot)
+        public BotController(TeamsAdapter adapter, IBot bot)
         {
             Adapter = adapter;
             Bot = bot;

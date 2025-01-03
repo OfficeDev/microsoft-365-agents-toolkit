@@ -23,9 +23,9 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "@microsoft/teams-ai": "^1.7.0",
         "adaptivecards-templating": "^2.3.1",
         "adaptive-expressions": "^4.23.1",
-        "@microsoft/teamsfx": "^3.0.0-rc",
         "botbuilder": "^4.23.1",
         "express": "^5.0.1"
     },

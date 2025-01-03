@@ -43,7 +43,19 @@ export const CreateProjectOptions: CLICommandOption[] = [
     type: "string",
     description: "Authentication Type",
     default: "none",
-    choices: ["none", "api-key", "oauth"],
+    choices: ["none", "api-key", "bearer-token", "microsoft-entra", "oauth"],
+  },
+  {
+    name: "custom-copilot-rag",
+    type: "string",
+    description: "Chat With Your Data",
+    default: "custom-copilot-rag-customize",
+    choices: [
+      "custom-copilot-rag-customize",
+      "custom-copilot-rag-azureAISearch",
+      "custom-copilot-rag-customApi",
+      "custom-copilot-rag-microsoft365",
+    ],
   },
   {
     name: "openapi-spec-location",
@@ -67,6 +79,33 @@ export const CreateProjectOptions: CLICommandOption[] = [
     type: "string",
     description: "Programming Language",
     choices: ["javascript", "typescript", "csharp", "python"],
+  },
+  {
+    name: "llm-service",
+    type: "string",
+    description: "Service for Large Language Model (LLM)",
+    default: "llm-service-azure-openai",
+    choices: ["llm-service-azure-openai", "llm-service-openai"],
+  },
+  {
+    name: "azure-openai-key",
+    type: "string",
+    description: "Azure OpenAI Key",
+  },
+  {
+    name: "azure-openai-endpoint",
+    type: "string",
+    description: "Azure OpenAI Endpoint",
+  },
+  {
+    name: "azure-openai-deployment-name",
+    type: "string",
+    description: "Azure OpenAI Deployment Name",
+  },
+  {
+    name: "openai-key",
+    type: "string",
+    description: "OpenAI Key",
   },
   {
     name: "folder",

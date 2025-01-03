@@ -24,8 +24,8 @@ import {
   TelemetryProperty,
   TelemetryTriggerFrom,
 } from "../telemetry/extTelemetryEvents";
-import { getTriggerFromProperty, isTriggerFromWalkThrough } from "../utils/telemetryUtils";
 import { localize } from "../utils/localizeUtils";
+import { getTriggerFromProperty, isTriggerFromWalkThrough } from "../utils/telemetryUtils";
 import { compare } from "../utils/versionUtil";
 import { Commands } from "./Commands";
 import { PanelType } from "./PanelType";
@@ -265,6 +265,7 @@ export class WebviewPanel {
     }
     if (this.panel && this.panel.webview) {
       let readme = this.replaceRelativeImagePaths(htmlContent, sample);
+      readme = this.replaceRelativeMarkdownPaths(htmlContent, sample);
       readme = this.replaceMermaidRelatedContent(readme);
       readme = this.addTabIndex(readme);
       await this.panel.webview.postMessage({
@@ -294,6 +295,14 @@ export class WebviewPanel {
     const loaderRegex = /<span(.*)>\s.*\s*<circle(.*)<\/circle>\s.*<\/path>\s.*\s*<\/span>/gm;
     const loaderRemovedHtmlContent = htmlContent.replace(loaderRegex, "");
     return loaderRemovedHtmlContent.replace(mermaidRegex, `<pre class="mermaid"`);
+  }
+
+  private replaceRelativeMarkdownPaths(htmlContent: string, sample: SampleConfig) {
+    const markdownRegex = /a\shref="([\.\-_/\\\w]*\.md)"/g;
+    const urlInfo = sample.downloadUrlInfo;
+    const markdownUrl = `https://github.com/${urlInfo.owner}/${urlInfo.repository}/tree/${urlInfo.ref}/${urlInfo.dir}`;
+    const result = htmlContent.replace(markdownRegex, `a href="${markdownUrl}/$1"`);
+    return result;
   }
 
   private addTabIndex(htmlContent: string): string {

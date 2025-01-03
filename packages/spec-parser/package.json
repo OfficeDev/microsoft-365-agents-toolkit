@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/m365-spec-parser",
-  "version": "0.2.4-rc-hotfix.0",
+  "version": "0.2.4",
   "description": "OpenAPI specification files Parser for M365 Apps",
   "main": "dist/index.node.cjs.js",
   "browser": "dist/index.esm2017.js",
@@ -40,6 +40,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@microsoft/teams-manifest": "workspace:*",
+    "@apidevtools/json-schema-ref-parser": "^11.7.2",
     "fs-extra": "^11.2.0",
     "js-yaml": "^4.1.0",
     "openapi-types": "^7.2.3",
@@ -49,7 +50,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@apidevtools/openapi-schemas": "2.1.0",
     "@apidevtools/swagger-methods": "3.0.2",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",

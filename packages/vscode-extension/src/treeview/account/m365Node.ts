@@ -33,17 +33,15 @@ export class M365AccountNode extends DynamicNode {
     this.status = AccountItemStatus.SignedIn;
 
     this.label = displayName;
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: AzureScopes,
-      });
-      if (tokenRes.isOk() && tokenRes.value) {
-        const tenants = await listAllTenants(tokenRes.value);
-        for (const tenant of tenants) {
-          if (tenant.tenantId === tid && tenant.displayName) {
-            this.label = `${displayName} (${tenant.displayName as string})`;
-            this.tid = tid;
-          }
+    const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
+      scopes: AzureScopes,
+    });
+    if (tokenRes.isOk() && tokenRes.value) {
+      const tenants = await listAllTenants(tokenRes.value);
+      for (const tenant of tenants) {
+        if (tenant.tenantId === tid && tenant.displayName) {
+          this.label = `${displayName} (${tenant.displayName as string})`;
+          this.tid = tid;
         }
       }
     }

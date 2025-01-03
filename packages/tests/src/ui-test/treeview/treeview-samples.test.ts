@@ -26,6 +26,7 @@ import { cleanUpLocalProject } from "../../utils/cleanHelper";
 import { it } from "../../utils/it";
 import { assert } from "chai";
 import { join } from "path";
+import { RetryHandler } from "../../utils/retryHandler";
 
 describe("Create sample project and open sample view to download sample Tests", function () {
   this.timeout(Timeout.testCase);
@@ -55,14 +56,23 @@ describe("Create sample project and open sample view to download sample Tests", 
       try {
         //open sample view from command palette
         const driver = VSBrowser.instance.driver;
+        await driver.sleep(Timeout.reloadWindow);
+
+        await RetryHandler.retry(async () => {
+          await execCommandIfExist("View: Toggle Full Screen");
+        });
+
         {
-          console.log("close editor tab");
           await new EditorView().closeAllEditors();
+          console.log("Closed all opened editor view.");
+
           console.log("open new sample tab from tree view");
-          await execCommandIfExist(
-            CommandPaletteCommands.SamplesCommand,
-            Timeout.webView
-          );
+          await RetryHandler.retry(async () => {
+            await execCommandIfExist(
+              CommandPaletteCommands.SamplesCommand,
+              Timeout.webView
+            );
+          });
           const webView = new WebView();
           console.log("find title");
           await driver.sleep(Timeout.webView);

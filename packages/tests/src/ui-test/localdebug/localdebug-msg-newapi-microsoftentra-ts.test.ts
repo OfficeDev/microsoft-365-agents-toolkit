@@ -35,9 +35,9 @@ describe("Local Debug Tests", function () {
   });
 
   it(
-    "[Typescript] Local debug for API Message Extension with none auth",
+    "[Typescript] Local debug for API Message Extension with Microsoft Entra auth",
     {
-      testPlanCaseId: 28665898,
+      testPlanCaseId: 28665881,
       author: "v-annefu@microsoft.com",
     },
     async function () {

@@ -12,6 +12,7 @@ import {
   AzureAccountProvider,
   ConfigFolderName,
   FxError,
+  ok,
   Result,
   SubscriptionInfo,
 } from "@microsoft/teamsfx-api";
@@ -23,7 +24,7 @@ import * as os from "os";
 import { AzureSpCrypto } from "./cacheAccess";
 import { signedIn, signedOut, subscriptionInfoFile } from "./common/constant";
 import CLILogProvider from "./log";
-import { ConvertTokenToJson } from "./codeFlowTenantLogin";
+import { ConvertTokenToJson } from "./codeFlowLogin";
 
 /**
  * Prepare for service principal login, not fully implemented
@@ -123,7 +124,12 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   switchTenant(tenantId: string): Promise<Result<TokenCredential, FxError>> {
-    throw new Error("Method not implemented.");
+    return Promise.resolve(ok(AzureAccountManager.tokenCredential));
+  }
+
+  async getTenant(): Promise<string | undefined> {
+    await this.load();
+    return AzureAccountManager.tenantId;
   }
 
   async getStatus(): Promise<LoginStatus> {

@@ -5,6 +5,9 @@ import fs from "fs";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    global: "globalThis",
+  },
   server: {
     port: 53000,
     https: {

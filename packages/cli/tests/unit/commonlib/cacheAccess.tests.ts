@@ -8,10 +8,13 @@ import {
   clearCache,
   CryptoCachePlugin,
   loadAccountId,
+  loadTenantId,
+  saveTenantId,
 } from "../../../src/commonlib/cacheAccess";
 import { expect } from "../utils";
 import fs, { WriteFileOptions } from "fs-extra";
-import sinon from "sinon";
+import sinon, { SinonStub } from "sinon";
+import VsCodeLogInstance from "../../../src/commonlib/log";
 
 class MockKeytar {
   public async getPassword(service: string, account: string): Promise<string | null> {
@@ -115,5 +118,74 @@ describe("AccountCrypto Service principal Tests", function () {
     await AzureSpCrypto.clearAzureSP();
     await loadAccountId("abc");
     await clearCache("abc");
+  });
+});
+
+describe("tenant id save/load", () => {
+  let tenantId: string | undefined = undefined;
+  const sandbox = sinon.createSandbox();
+
+  context("Files read/write successfully", () => {
+    beforeEach(() => {
+      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "writeFile").callsFake((dir, id) => {
+        tenantId = id;
+      });
+      sandbox.stub(fs, "readFile").callsFake(async () => {
+        return Promise.resolve(tenantId! as any);
+      });
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("save and load tenant id", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      await saveTenantId("m365", "faked_tenant_id");
+      const tid = await loadTenantId("m365");
+      expect(tid).to.equal("faked_tenant_id");
+    });
+
+    it("save and load empty tenant id", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      await saveTenantId("m365", "");
+      const tid = await loadTenantId("m365");
+      expect(tid).to.equal("");
+    });
+
+    it("should return undefined tenant id when cache path not exist", async () => {
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const tid = await loadTenantId("m365");
+      expect(tid).to.equal(undefined);
+    });
+  });
+
+  context("Error throws", () => {
+    let logStub: SinonStub;
+    beforeEach(() => {
+      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "writeFile").throws();
+      sandbox.stub(fs, "readFile").throws();
+      sandbox.stub(fs, "pathExists").resolves(true);
+      logStub = sandbox.stub(VsCodeLogInstance, "warning");
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("load tenant fail", async () => {
+      const tid = await loadTenantId("m365");
+
+      expect(tid).equal(undefined);
+      expect(logStub.calledOnce).to.true;
+    });
+
+    it("save tenant fail", async () => {
+      await saveTenantId("m365", "faked_tenant_id");
+
+      expect(logStub.calledOnce).to.true;
+    });
   });
 });

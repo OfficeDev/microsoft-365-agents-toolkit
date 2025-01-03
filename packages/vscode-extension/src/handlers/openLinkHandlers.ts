@@ -34,6 +34,7 @@ import { ExtensionSource, ExtensionErrors } from "../error/error";
 import { getSubscriptionInfoFromEnv, getResourceGroupNameFromEnv } from "../utils/envTreeUtils";
 import { localize } from "../utils/localizeUtils";
 import { getWalkThroughId } from "../utils/projectStatusUtils";
+import { commands, Uri } from "vscode";
 
 export async function openEnvLinkHandler(args: any[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Documentation, {
@@ -267,4 +268,18 @@ export async function openResourceGroupInPortal(env: string): Promise<Result<Voi
 
     return err(resourceInfoNotFoundError);
   }
+}
+
+export async function findGitHubSimilarIssue(args?: any[]): Promise<Result<Void, FxError>> {
+  if (args && args.length > 0) {
+    const errorCode = args[0] as string;
+    const similarIssueLink = Uri.parse(
+      `https://github.com/OfficeDev/TeamsFx/issues?q=is:issue+in:title+${errorCode}`
+    );
+
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.FindSimilarIssues);
+    await commands.executeCommand("vscode.open", similarIssueLink);
+    return ok(Void);
+  }
+  return ok(Void);
 }

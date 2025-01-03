@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { UserError, UserErrorOptions } from "@microsoft/teamsfx-api";
+import { SystemError, UserError, UserErrorOptions } from "@microsoft/teamsfx-api";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { ErrorCategory } from "./types";
 
@@ -144,6 +144,21 @@ export class DepsCheckerError extends UserError {
       displayMessage: message,
       categories: [ErrorCategory.External],
       helpLink: NodejsNotRecommendedHelpLink,
+    };
+    super(errorOptions);
+  }
+}
+
+export class FindProcessError extends SystemError {
+  constructor(error: Error, source?: string) {
+    const key = "error.dep.FindProcessError";
+    const errorOptions: UserErrorOptions = {
+      source: source || "core",
+      name: "FindProcessError",
+      error: error,
+      message: getDefaultString(key, error.message),
+      displayMessage: getLocalizedString(key, error.message),
+      categories: [ErrorCategory.Internal],
     };
     super(errorOptions);
   }

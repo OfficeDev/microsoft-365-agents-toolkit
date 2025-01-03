@@ -63,7 +63,7 @@ describe("Local Debug Tests", function () {
       validateFileExist(projectPath, "src/app.py");
       const envPath = path.resolve(projectPath, "env", ".env.local.user");
 
-      const isRealKey = false; // TODO: currently disable real key
+      const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
       // create azure search
       if (isRealKey) {
         const rgName = `${localDebugTestContext.appName}-local-rg`;
@@ -115,7 +115,7 @@ describe("Local Debug Tests", function () {
       // create azure search data
       if (isRealKey) {
         console.log("Start to create azure search data");
-        const installCmd = `python src/indexers/setup.py`;
+        const installCmd = `python src/indexers/setup.py --api-key ${azureOpenAiKey} --ai-search-key ${searchKey}`;
         const { success } = await Executor.execute(
           installCmd,
           projectPath,

@@ -337,6 +337,26 @@ export class AppStudioCleanHelper extends CleanHelper {
     return response?.data?.access_token;
   }
 
+  public async getApiKeyRegistration() {
+    const response = await this.execute(
+      "get",
+      `/api/v1.0/apiSecretRegistrations`
+    );
+    const results = response?.data?.value as any[];
+    // if (!results || results.length < 1) {
+    //   throw new Error("Could not found apps in AppStudio.");
+    // }
+    return results;
+  }
+
+  public async deleteApiKeyRegistration(apiKeyId: string) {
+    await this.execute(
+      "delete",
+      `/api/v1.0/apiSecretRegistrations/${apiKeyId}`,
+      undefined
+    );
+  }
+
   public async getAppsInAppStudio() {
     const response = await this.execute("get", `/api/identityapps`);
     const results = response?.data?.apps as any[];

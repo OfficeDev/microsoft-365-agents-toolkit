@@ -87,7 +87,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
         inputs.placeProjectFileInSolutionDir === "true"
       ),
       DeclarativeCopilot: isDeclarativeCopilot ? "true" : "",
-      FileFunction: featureFlagManager.getBooleanValue(FeatureFlags.EnvFileFunc) ? "true" : "",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
     };
 
@@ -95,7 +94,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
       if (fileName.toLowerCase().includes("declarativeagent.json")) {
         return isDeclarativeCopilot;
       } else if (fileName.includes(declarativeCopilotInstructionFileName)) {
-        return isDeclarativeCopilot && featureFlagManager.getBooleanValue(FeatureFlags.EnvFileFunc);
+        return isDeclarativeCopilot;
       } else {
         return true;
       }

@@ -1782,6 +1782,10 @@
             "configurationId": {
               "description": "Required. The configuration id of created OAuth registration.",
               "$ref": "#/definitions/envVarName"
+            },
+            "applicationIdUri": {
+              "description": "The Application ID URI of created OAuth registration.",
+              "$ref": "#/definitions/envVarName"
             }
           }
         }
@@ -1833,6 +1837,14 @@
             "isPKCEEnabled": {
               "type": "boolean",
               "description": "Whether PKCE is enabled for OAuth registration. Default is false."
+            },
+            "clientId": {
+              "type": "string",
+              "description": "The client id of OAuth registration."
+            },
+            "clientSecret": {
+              "type": "string",
+              "description": "The client secret of OAuth registration."
             }
           }
         }

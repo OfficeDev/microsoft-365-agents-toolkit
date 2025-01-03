@@ -25,7 +25,7 @@
     // Launch project within M365 Copilot
     "Microsoft 365 Copilot (browser)": {
       "commandName": "Project",
-      "launchUrl": "https://www.office.com/chat?auth=2&&login_hint=${{TEAMSFX_M365_USER_NAME}}"
+      "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
     },
 {{/CEAEnabled}}
   }

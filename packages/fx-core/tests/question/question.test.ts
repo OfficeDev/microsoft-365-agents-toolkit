@@ -453,6 +453,48 @@ describe("grantPermission", async () => {
     ]);
   });
 });
+
+describe("convertAadToNewSchemaQuestionNode", async () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(async () => {
+    sandbox.restore();
+  });
+
+  it("happy path", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+    };
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readFile").resolves(Buffer.from("${{fake_placeHolder}}"));
+    const questions: string[] = [];
+    const visitor: QuestionTreeVisitor = async (
+      question: Question,
+      ui: UserInteraction,
+      inputs: Inputs,
+      step?: number,
+      totalSteps?: number
+    ) => {
+      questions.push(question.name);
+      await callFuncs(question, inputs);
+      if (question.name === QuestionNames.AadAppManifestFilePath) {
+        return ok({ type: "success", result: "aadAppManifest" });
+      } else if (question.name === QuestionNames.ConfirmManifest) {
+        return ok({ type: "success", result: "manifest" });
+      }
+      return ok({ type: "success", result: undefined });
+    };
+    const res = questionNodes.convertAadToNewSchema();
+    await traverse(res, inputs, ui, undefined, visitor);
+    assert.deepEqual(questions, [
+      QuestionNames.AadAppManifestFilePath,
+      QuestionNames.ConfirmAadManifest,
+    ]);
+  });
+});
+
 describe("deployAadManifest", async () => {
   const sandbox = sinon.createSandbox();
 

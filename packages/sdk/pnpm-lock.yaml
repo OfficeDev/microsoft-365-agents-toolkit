@@ -14,9 +14,6 @@ dependencies:
   '@azure/msal-node':
     specifier: ^2.14.0
     version: 2.14.0
-  '@microsoft/microsoft-graph-client':
-    specifier: ^3.0.7
-    version: 3.0.7(@azure/identity@4.4.1)(@azure/msal-browser@3.24.0)
   '@microsoft/teams-js':
     specifier: ^2.31.1
     version: 2.31.1(supports-color@9.4.0)
@@ -584,13 +581,6 @@ packages:
       '@babel/types': 7.23.6
     dev: true
 
-  /@babel/runtime@7.25.7:
-    resolution: {integrity: sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      regenerator-runtime: 0.14.1
-    dev: false
-
   /@babel/template@7.22.15:
     resolution: {integrity: sha512-QPErUVm4uyJa60rkI73qneDacvdvzxshT3kksGqlGWYdOTIUOwJ7RDUL8sGqslY1uXWSL6xMFKEXDS3ox2uF0w==}
     engines: {node: '>=6.9.0'}
@@ -808,30 +798,6 @@ packages:
     transitivePeerDependencies:
       - '@types/node'
     dev: true
-
-  /@microsoft/microsoft-graph-client@3.0.7(@azure/identity@4.4.1)(@azure/msal-browser@3.24.0):
-    resolution: {integrity: sha512-/AazAV/F+HK4LIywF9C+NYHcJo038zEnWkteilcxC1FM/uK/4NVGDKGrxx7nNq1ybspAroRKT4I1FHfxQzxkUw==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@azure/identity': '*'
-      '@azure/msal-browser': '*'
-      buffer: '*'
-      stream-browserify: '*'
-    peerDependenciesMeta:
-      '@azure/identity':
-        optional: true
-      '@azure/msal-browser':
-        optional: true
-      buffer:
-        optional: true
-      stream-browserify:
-        optional: true
-    dependencies:
-      '@azure/identity': 4.4.1(supports-color@9.4.0)
-      '@azure/msal-browser': 3.24.0
-      '@babel/runtime': 7.25.7
-      tslib: 2.7.0
-    dev: false
 
   /@microsoft/recognizers-text-choice@1.1.4:
     resolution: {integrity: sha512-4CddwFe4RVhZeJgW65ocBrEdeukBMghK8pgI0K0Qy2eA5ysPZQpeZ7BGSDz5QMQei5LPY+QaAQ3CHU+ORHoO7A==}
@@ -6057,10 +6023,6 @@ packages:
     dependencies:
       picomatch: 2.3.1
     dev: true
-
-  /regenerator-runtime@0.14.1:
-    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
-    dev: false
 
   /regexp.prototype.flags@1.5.1:
     resolution: {integrity: sha512-sy6TXMN+hnP/wMy+ISxg3krXx7BAtWVO4UouuCN/ziM9UEne0euamVNafDfvC83bRNr95y0V5iijeDQFUNpvrg==}

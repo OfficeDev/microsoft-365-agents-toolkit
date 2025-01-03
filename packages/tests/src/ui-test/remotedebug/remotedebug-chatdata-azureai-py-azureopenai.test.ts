@@ -82,7 +82,7 @@ describe("Remote debug Tests", function () {
       validateFileExist(projectPath, "src/app.py");
       const envPath = path.resolve(projectPath, "env", ".env.dev.user");
 
-      const isRealKey = false; // TODO: currently disable real key
+      const isRealKey = OpenAiKey.azureOpenAiKey ? true : false;
       // create azure search
       if (isRealKey) {
         const rgName = `${remoteDebugTestContext.appName}-dev-rg`;
@@ -156,7 +156,7 @@ describe("Remote debug Tests", function () {
         );
         editDotEnvFile(localEnvPath, "SECRET_AZURE_SEARCH_KEY", searchKey);
         editDotEnvFile(localEnvPath, "AZURE_SEARCH_ENDPOINT", searchEndpoint);
-        const installCmd = `python src/indexers/setup.py`;
+        const installCmd = `python src/indexers/setup.py --api-key ${azureOpenAiKey} --ai-search-key ${searchKey}`;
         const { success } = await Executor.execute(installCmd, projectPath);
         if (!success) {
           throw new Error("Failed to install packages");

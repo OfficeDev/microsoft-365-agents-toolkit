@@ -11,8 +11,8 @@ export interface OauthRegistration {
   clientId: string;
   clientSecret: string;
 
-  authorizationEndpoint: string;
-  tokenExchangeEndpoint: string;
+  authorizationEndpoint?: string;
+  tokenExchangeEndpoint?: string;
   tokenRefreshEndpoint?: string;
   scopes: string[];
 

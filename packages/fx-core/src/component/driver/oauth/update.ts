@@ -19,7 +19,7 @@ import {
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { UpdateOauthArgs } from "./interface/updateOauthArgs";
 import { logMessageKeys } from "./utility/constants";
-import { getandValidateOauthInfoFromSpec, OauthInfo } from "./utility/utility";
+import { getandValidateOauthInfoFromSpec, OauthInfo, validateSecret } from "./utility/utility";
 import { OauthDisablePKCEError } from "./error/oauthDisablePKCEError";
 
 const actionName = "oauth/update"; // DO NOT MODIFY the name
@@ -41,7 +41,12 @@ export class UpdateOauthDriver implements StepDriver {
 
     try {
       context.logProvider?.info(getLocalizedString(logMessageKeys.startExecuteDriver, actionName));
-      this.validateArgs(args);
+
+      const invalidParameters = this.validateArgs(args);
+
+      if (invalidParameters.length > 0) {
+        throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
+      }
 
       const authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
@@ -55,6 +60,25 @@ export class UpdateOauthDriver implements StepDriver {
         appStudioToken,
         args.configurationId
       );
+
+      const isCustomIdentityProvider =
+        !getOauthRes.identityProvider || getOauthRes.identityProvider === "Custom";
+
+      if (isCustomIdentityProvider) {
+        if (args.isPKCEEnabled && typeof args.isPKCEEnabled !== "boolean") {
+          invalidParameters.push("isPKCEEnabled");
+        }
+
+        if (!args.isPKCEEnabled) {
+          if (args.clientSecret && !validateSecret(args.clientSecret)) {
+            invalidParameters.push("clientSecret");
+          }
+        }
+
+        if (invalidParameters.length > 0) {
+          throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
+        }
+      }
 
       if (getOauthRes.isPKCEEnabled && !args.isPKCEEnabled) {
         throw new OauthDisablePKCEError(actionName);
@@ -76,7 +100,12 @@ export class UpdateOauthDriver implements StepDriver {
       // If there is difference, ask user to confirm the update
       // Skip confirm if only targetUrlsShouldStartWith is different when the url contains devtunnel
       if (
-        !this.shouldSkipConfirm(diffMsgs, getOauthRes.targetUrlsShouldStartWith, authInfo.domain)
+        !this.shouldSkipConfirm(
+          diffMsgs,
+          getOauthRes.targetUrlsShouldStartWith,
+          authInfo.domain,
+          isCustomIdentityProvider
+        )
       ) {
         const userConfirm = await context.ui!.confirm!({
           name: "confirm-update-oauth",
@@ -88,7 +117,7 @@ export class UpdateOauthDriver implements StepDriver {
         }
       }
 
-      const oauth = this.mapArgsToOauthRegistration(args, authInfo);
+      const oauth = this.mapArgsToOauthRegistration(args, authInfo, isCustomIdentityProvider);
       await teamsDevPortalClient.updateOauthRegistration(
         appStudioToken,
         oauth,
@@ -130,7 +159,7 @@ export class UpdateOauthDriver implements StepDriver {
     }
   }
 
-  private validateArgs(args: UpdateOauthArgs): void {
+  private validateArgs(args: UpdateOauthArgs): string[] {
     const invalidParameters: string[] = [];
     if (typeof args.configurationId !== "string" || !args.configurationId) {
       invalidParameters.push("registrationId");
@@ -168,13 +197,7 @@ export class UpdateOauthDriver implements StepDriver {
       invalidParameters.push("targetAudience");
     }
 
-    if (args.isPKCEEnabled && typeof args.isPKCEEnabled !== "boolean") {
-      invalidParameters.push("isPKCEEnabled");
-    }
-
-    if (invalidParameters.length > 0) {
-      throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
-    }
+    return invalidParameters;
   }
 
   private compareOauthRegistration(
@@ -216,6 +239,10 @@ export class UpdateOauthDriver implements StepDriver {
       );
     }
 
+    if (input.clientId && current.clientId !== input.clientId) {
+      diffMsgs.push(`clientId: ${current.clientId} => ${input.clientId}`);
+    }
+
     // TODO: Need to separate the logic for different flows
     // Compare authorizationEndpoint
     if (
@@ -224,7 +251,9 @@ export class UpdateOauthDriver implements StepDriver {
       current.authorizationEndpoint !== authInfo.authorizationEndpoint
     ) {
       diffMsgs.push(
-        `authorizationEndpoint: ${current.authorizationEndpoint} => ${authInfo.authorizationEndpoint}`
+        `authorizationEndpoint: ${current.authorizationEndpoint ?? ""} => ${
+          authInfo.authorizationEndpoint
+        }`
       );
     }
 
@@ -235,14 +264,16 @@ export class UpdateOauthDriver implements StepDriver {
       current.tokenExchangeEndpoint !== authInfo.tokenExchangeEndpoint
     ) {
       diffMsgs.push(
-        `tokenExchangeEndpoint: ${current.tokenExchangeEndpoint} => ${authInfo.tokenExchangeEndpoint}`
+        `tokenExchangeEndpoint: ${current.tokenExchangeEndpoint!} => ${
+          authInfo.tokenExchangeEndpoint
+        }`
       );
     }
 
     // Compare tokenRefreshEndpoint
     if (!isMicrosoftEntra && current.tokenRefreshEndpoint !== authInfo.tokenRefreshEndpoint) {
       diffMsgs.push(
-        `tokenRefreshEndpoint: ${current.tokenRefreshEndpoint ?? "Undefined"} => ${
+        `tokenRefreshEndpoint: ${current.tokenRefreshEndpoint!} => ${
           authInfo.tokenRefreshEndpoint ?? "Undefined"
         }`
       );
@@ -266,20 +297,32 @@ export class UpdateOauthDriver implements StepDriver {
     return diffMsgs;
   }
 
-  // Should skip confirm box if only targetUrlsShouldStartWith is different and the url contains devtunnel
-  private shouldSkipConfirm(diffMsgs: string[], getDomain: string[], domain: string[]): boolean {
-    return (
-      diffMsgs.length === 1 &&
-      diffMsgs[0].includes("targetUrlsShouldStartWith") &&
+  // Should skip confirm box if only targetUrlsShouldStartWith/client id is different and the url contains devtunnel
+  private shouldSkipConfirm(
+    diffMsgs: string[],
+    getDomain: string[],
+    domain: string[],
+    isCustomIdentityProvider: boolean
+  ): boolean {
+    const targetUrlChangesWithDevTunnel =
       getDomain.length === domain.length &&
       getDomain.every((value) => value.includes("devtunnel")) &&
-      domain.every((value) => value.includes("devtunnel"))
-    );
+      domain.every((value) => value.includes("devtunnel")) &&
+      diffMsgs[0].includes("targetUrlsShouldStartWith");
+
+    if (isCustomIdentityProvider) {
+      return diffMsgs.length === 1 && targetUrlChangesWithDevTunnel;
+    } else {
+      return (
+        diffMsgs.length === 2 && targetUrlChangesWithDevTunnel && diffMsgs[1].includes("clientId")
+      );
+    }
   }
 
   private mapArgsToOauthRegistration(
     args: UpdateOauthArgs,
-    authInfo: OauthInfo
+    authInfo: OauthInfo,
+    isCustomIdentityProvider: boolean
   ): OauthRegistration {
     const targetAudience = args.targetAudience
       ? (args.targetAudience as OauthRegistrationTargetAudience)
@@ -288,18 +331,30 @@ export class UpdateOauthDriver implements StepDriver {
       ? (args.applicableToApps as OauthRegistrationAppType)
       : undefined;
 
-    return {
+    const result = {
       description: args.name,
       targetUrlsShouldStartWith: authInfo.domain,
       applicableToApps: applicableToApps,
       m365AppId: applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
       targetAudience: targetAudience,
       isPKCEEnabled: !!args.isPKCEEnabled,
-      authorizationEndpoint: authInfo.authorizationEndpoint,
-      tokenExchangeEndpoint: authInfo.tokenExchangeEndpoint,
-      tokenRefreshEndpoint: authInfo.tokenRefreshEndpoint,
       scopes: authInfo.scopes ?? [],
     } as OauthRegistration;
+
+    if (isCustomIdentityProvider) {
+      result.authorizationEndpoint = authInfo.authorizationEndpoint;
+      result.tokenExchangeEndpoint = authInfo.tokenExchangeEndpoint;
+      result.tokenRefreshEndpoint = authInfo.tokenRefreshEndpoint;
+      if (args.clientSecret && !result.isPKCEEnabled) {
+        result.clientSecret = args.clientSecret;
+      }
+    }
+
+    if (args.clientId) {
+      result.clientId = args.clientId;
+    }
+
+    return result;
   }
 
   private compareScopes(current: string[], input: string[] | undefined): boolean {

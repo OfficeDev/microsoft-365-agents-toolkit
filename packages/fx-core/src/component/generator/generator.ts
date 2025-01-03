@@ -49,7 +49,7 @@ export class Generator {
       openapiSpecPath: string;
       registrationIdEnvName: string;
       authType?: string;
-    },
+    }[],
     llmServiceData?: {
       llmService?: string;
       openAIKey?: string;
@@ -57,12 +57,27 @@ export class Generator {
       azureOpenAIEndpoint?: string;
       azureOpenAIDeploymentName?: string;
     }
-  ): { [key: string]: string } {
+  ): { [key: string]: any } {
     const safeProjectName = safeProjectNameFromVS ?? convertToAlphanumericOnly(appName);
+    const apiKeyActionData = [];
+    const oauthActionData = [];
+    for (const auth of authData ?? []) {
+      const safeRegistrationIdEnvName = Utils.getSafeRegistrationIdEnvName(
+        auth.registrationIdEnvName
+      );
 
-    const safeRegistrationIdEnvName = Utils.getSafeRegistrationIdEnvName(
-      authData?.registrationIdEnvName ?? ""
-    );
+      const actionData = {
+        ApiSpecAuthName: auth.authName,
+        ApiSpecPath: auth.openapiSpecPath,
+        ApiSpecAuthRegistrationIdEnvName: safeRegistrationIdEnvName,
+      };
+
+      if (auth.authType === "apiKey") {
+        apiKeyActionData.push(actionData);
+      } else if (auth.authType === "oauth2") {
+        oauthActionData.push(actionData);
+      }
+    }
 
     return {
       appName: appName,
@@ -71,11 +86,8 @@ export class Generator {
       PlaceProjectFileInSolutionDir: placeProjectFileInSolutionDir ? "true" : "",
       SafeProjectName: safeProjectName,
       SafeProjectNameLowerCase: safeProjectName.toLocaleLowerCase(),
-      ApiSpecAuthName: authData?.authName ?? "",
-      ApiSpecAuthRegistrationIdEnvName: safeRegistrationIdEnvName,
-      ApiSpecPath: authData?.openapiSpecPath ?? "",
-      ApiKey: authData?.authType === "apiKey" ? "true" : "",
-      OAuth: authData?.authType === "oauth2" ? "true" : "",
+      ApiKey: apiKeyActionData,
+      OAuth: oauthActionData,
       enableTestToolByDefault: featureFlagManager.getBooleanValue(FeatureFlags.TestTool)
         ? "true"
         : "",

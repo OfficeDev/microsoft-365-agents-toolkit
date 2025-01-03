@@ -12,7 +12,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20
 {{^enableTestToolByDefault}}
-> - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
+> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
@@ -144,19 +144,23 @@ You can use the [Adaptive Card Designer](https://adaptivecards.io/designer/) to 
 
 ### Step 3: Handle the new action
 
-The TeamsFx SDK provides a convenient class, `TeamsFxAdaptiveCardActionHandler`, to handle when an action from an Adaptive Card is invoked. Create a new file, `src/cardActions/doSomethingActionHandler.js`:
+Create a new file, `src/cardActions/doSomethingActionHandler.js`:
 
 ```javascript
-const { AdaptiveCards } = require("@microsoft/adaptivecards-tools");
-const { AdaptiveCardResponse, InvokeResponseFactory } = require("@microsoft/teamsfx");
+const ACData = require("adaptivecards-templating");
 const responseCard = require("../adaptiveCards/doSomethingResponse.json");
 
 class DoSomethingActionHandler {
   triggerVerb = "doSomething";
 
   async handleActionInvoked(context, message) {
-    const responseCardJson = AdaptiveCards.declare(responseCard).render(actionData);
-    return InvokeResponseFactory.adaptiveCard(responseCardJson);
+    const cardJson = new ACData.Template(responseCard).expand({
+      $root: {
+        title: "doSomething command is added",
+        body: "Congratulations! You have responded to doSomething command",
+      },
+    });
+    return cardJson;
   }
 }
 
@@ -177,24 +181,12 @@ You can customize what the action does here, including calling an API, processin
 
 ### Step 4: Register the new handler
 
-Each new card action needs to be configured in the `ConversationBot`, which powers the conversational flow of the workflow bot template. Navigate to the `src/internal/initialize.js` file and update the `actions` array of the `cardAction` property.
-
-1. Go to `src/internal/initialize.js`;
-2. Update your `conversationBot` initialization to enable cardAction feature and add the handler to `actions` array:
+Navigate to the `src/index.js` file and register the trigger pattern to `app.adaptiveCards.actionExecute()`:
 
 ```javascript
-const { BotBuilderCloudAdapter } = require("@microsoft/teamsfx");
-const ConversationBot = BotBuilderCloudAdapter.ConversationBot;
-
-const conversationBot = new ConversationBot({
-  ...
-  cardAction: {
-    enabled: true,
-    actions: [
-      new DoStuffActionHandler(),
-      new DoSomethingActionHandler()
-    ],
-  }
+const doSomethingActionHandler = new DoSomethingActionHandler();
+app.adaptiveCards.actionExecute(doSomethingActionHandler.triggerVerb, async (context, state, data) => {
+  return await doSomethingActionHandler.handleActionInvoked(context, data);
 });
 ```
 
@@ -225,5 +217,5 @@ The command and response feature adds the ability for your application to "liste
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
+- [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

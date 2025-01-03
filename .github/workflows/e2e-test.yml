@@ -125,7 +125,7 @@ jobs:
   
       - name: Upload testplan to artifact
         if: ${{ github.event.inputs.target-testplan-name != '' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: testplan
           path: |
@@ -300,7 +300,7 @@ jobs:
           echo "name=$name" >> $GITHUB_OUTPUT
 
       - name: Upload test report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'schedule' || success() || (failure() && github.run_attempt >= 5) }}
         with:
           name: test-result-${{ steps.get-report-name.outputs.name }}
@@ -309,7 +309,7 @@ jobs:
       
       - name: Download TestPlan
         if: ${{ always() && github.event.inputs.target-testplan-name != '' }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: testplan
           path: ./packages/tests
@@ -376,7 +376,7 @@ jobs:
         run: |
           sudo apt install dateutils
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: ~/artifacts
 
@@ -588,7 +588,7 @@ jobs:
           zip -r out1.zip .nyc_output/
           zip -r out2.zip coverage/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: coverage

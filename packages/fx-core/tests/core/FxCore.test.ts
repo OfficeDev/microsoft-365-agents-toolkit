@@ -117,6 +117,7 @@ import { ConstantString } from "../../src/common/constants";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
+import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
 
 const tools = new MockTools();
 
@@ -600,6 +601,114 @@ describe("Core basic APIs", () => {
       assert.isTrue(result.isOk());
     } finally {
       envUtil.readEnv = originFunc;
+      restore();
+    }
+  });
+
+  it("convertAadToNewSchema method should work fine", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
+      NODE_ENV: "development", // workaround test failure that when local template not released to GitHub
+    });
+
+    try {
+      const core = new FxCore(tools);
+      const appName = await mockV3Project();
+      const projectPath = path.join(os.tmpdir(), appName);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: projectPath,
+        [QuestionNames.AadAppManifestFilePath]: `${projectPath}/aad.manifest.json`,
+      };
+
+      sandbox.stub(tools.ui, "showMessage").resolves(ok("Continue"));
+      const result = await core.convertAadToNewSchema(inputs);
+      assert.isTrue(result.isOk());
+    } finally {
+      restore();
+    }
+  });
+
+  it("convertAadToNewSchema should throw file not exist error if aad.manifest.json does not exist", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
+      NODE_ENV: "development", // workaround test failure that when local template not released to GitHub
+    });
+
+    try {
+      const core = new FxCore(tools);
+      const appName = await mockV3Project();
+      const projectPath = path.join(os.tmpdir(), appName);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: projectPath,
+        [QuestionNames.AadAppManifestFilePath]: `/not-exist-path/aad.manifest.json`,
+      };
+
+      const result = await core.convertAadToNewSchema(inputs);
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.isTrue(result.error instanceof FileNotFoundError);
+      }
+    } finally {
+      restore();
+    }
+  });
+
+  it("convertAadToNewSchema throw user cancel error if not confirmed", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
+      NODE_ENV: "development", // workaround test failure that when local template not released to GitHub
+    });
+
+    try {
+      const core = new FxCore(tools);
+      const appName = await mockV3Project();
+      const projectPath = path.join(os.tmpdir(), appName);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: projectPath,
+        [QuestionNames.AadAppManifestFilePath]: `${projectPath}/aad.manifest.json`,
+      };
+
+      const result = await core.convertAadToNewSchema(inputs);
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.isTrue(result.error instanceof UserCancelError);
+      }
+    } finally {
+      restore();
+    }
+  });
+
+  it("convertAadToNewSchema show message when manifest is in new schema", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
+      NODE_ENV: "development", // workaround test failure that when local template not released to GitHub
+    });
+
+    try {
+      const core = new FxCore(tools);
+      const appName = await mockV3Project();
+      const projectPath = path.join(os.tmpdir(), appName);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: projectPath,
+        [QuestionNames.AadAppManifestFilePath]: `${projectPath}/aad.manifest.json`,
+      };
+
+      sandbox.stub(fs, "readJson").resolves({ displayName: "displayName" });
+      const showMessageStub = sandbox.stub(tools.ui, "showMessage");
+
+      const result = await core.convertAadToNewSchema(inputs);
+      sandbox.assert.calledOnceWithExactly(
+        showMessageStub,
+        "info",
+        getLocalizedString("core.convertAadToNewSchema.alreadyNewSchema") as any,
+        false
+      );
+      assert.isTrue(result.isOk());
+    } finally {
       restore();
     }
   });
@@ -2030,7 +2139,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);
@@ -2072,7 +2180,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);
@@ -2112,7 +2219,6 @@ describe("getQuestions", async () => {
         "azure-openai-endpoint",
         "azure-openai-deployment-name",
         "openai-key",
-        "office-addin-framework-type",
         "folder",
         "app-name",
       ]);
@@ -2440,7 +2546,7 @@ describe("copilotPlugin", async () => {
       assert.equal(result.error.name, "testError");
     }
   });
-  it("add API - return multiple auth error", async () => {
+  it("add API - return multiple auth", async () => {
     const appName = await mockV3Project();
     mockedEnvRestore = mockedEnv({
       TEAMSFX_CLI_DOTNET: "false",
@@ -2479,6 +2585,20 @@ describe("copilotPlugin", async () => {
           reason: [],
         },
         {
+          operationId: "getUserById2",
+          server: "https://server2",
+          api: "GET /user/{userId2}",
+          auth: {
+            name: "bearerAuth1",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+          isValid: true,
+          reason: [],
+        },
+        {
           operationId: "getStoreOrder",
           server: "https://server",
           api: "GET /store/order",
@@ -2501,8 +2621,8 @@ describe("copilotPlugin", async () => {
           reason: [],
         },
       ],
-      validAPICount: 2,
-      allAPICount: 2,
+      validAPICount: 3,
+      allAPICount: 3,
     };
 
     const core = new FxCore(tools);
@@ -2519,11 +2639,9 @@ describe("copilotPlugin", async () => {
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
+    sinon.stub(pluginGeneratorHelper, "injectAuthAction").resolves(undefined as any);
     const result = await core.copilotPluginAddAPI(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal((result.error as FxError).name, "MultipleAuthError");
-    }
+    assert.isTrue(result.isOk());
   });
 
   it("add API - return multiple server error", async () => {
@@ -4111,7 +4229,7 @@ describe("copilotPlugin", async () => {
               apiSpecPath: "./appPackage/apiSpecificationFiles/openapi.json",
             },
             writeToEnvironmentFile: {
-              configurationId: "OAUTHAUTH_CONFIGURATION_ID",
+              configurationId: "OAUTHAUTH_REGISTRATION_ID",
             },
           },
           {
