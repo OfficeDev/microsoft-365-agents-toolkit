@@ -29,8 +29,7 @@ class AccountUtils {
     return true;
   }
 
-  async outputM365Info(commandType: "login" | "show", tenantId?: string): Promise<boolean> {
-    const tid = featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) ? tenantId : undefined;
+  async outputM365Info(commandType: "login" | "show", tid?: string): Promise<boolean> {
     const tokenJsonRes = await M365TokenProvider.getJsonObject(
       {
         scopes: [...AppStudioScopes, ...CopilotStudioScopes],
@@ -47,9 +46,7 @@ class AccountUtils {
         logger.outputSuccess(strings["account.login.m365"]);
       }
 
-      const cachedTenantId = featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)
-        ? await M365TokenProvider.getTenant()
-        : undefined;
+      const cachedTenantId = await M365TokenProvider.getTenant();
       if (cachedTenantId) {
         const listTenantToken = await M365TokenProvider.getAccessToken({ scopes: AzureScopes });
         if (listTenantToken.isOk()) {
@@ -85,11 +82,10 @@ class AccountUtils {
       await AzureTokenCIProvider.init(userName, password, tenantId);
       azureProvider = AzureTokenCIProvider;
     }
-    const tid = featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) ? tenantId : undefined;
-    const result = await azureProvider.getJsonObject(true, tid);
+    const result = await azureProvider.getJsonObject(true, tenantId);
     if (result) {
-      if (tid) {
-        await azureProvider.switchTenant(tid);
+      if (tenantId) {
+        await azureProvider.switchTenant(tenantId);
       }
       const subscriptions = await azureProvider.listSubscriptions();
       const username = (result as any).upn ?? (result as any).unique_name;
@@ -97,9 +93,7 @@ class AccountUtils {
         logger.outputSuccess(strings["account.login.azure"]);
       }
 
-      const cachedTenantId = featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)
-        ? await azureProvider.getTenant()
-        : undefined;
+      const cachedTenantId = await azureProvider.getTenant();
       if (cachedTenantId) {
         const identityCredential = await azureProvider.getIdentityCredentialAsync(false);
         const listTenantToken = identityCredential

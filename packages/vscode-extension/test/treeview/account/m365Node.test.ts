@@ -19,7 +19,9 @@ describe("m365Node", () => {
   });
 
   it("setSignedIn", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    sandbox
+      .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(ok(""));
     const m365Node = new M365AccountNode(eventEmitter);
     await m365Node.setSignedIn("test upn", "");
     const treeItem = await m365Node.getTreeItem();

@@ -278,12 +278,12 @@
       "view/item/context": [
         {
           "command": "fx-extension.m365SwitchTenant",
-          "when": "fx-extension.isMultiTenantEnabled && view == teamsfx-accounts && viewItem == signedinM365",
+          "when": "view == teamsfx-accounts && viewItem == signedinM365",
           "group": "inline@1"
         },
         {
           "command": "fx-extension.azureSwitchTenant",
-          "when": "fx-extension.isMultiTenantEnabled && view == teamsfx-accounts && viewItem == signedinAzure",
+          "when": "view == teamsfx-accounts && viewItem == signedinAzure",
           "group": "inline@1"
         },
         {

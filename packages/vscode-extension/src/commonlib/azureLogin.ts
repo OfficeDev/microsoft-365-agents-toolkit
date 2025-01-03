@@ -89,29 +89,21 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
   async getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      const tenantId = await loadTenantId(azureCacheName);
-      if (await this.isUserLogin(tenantId)) {
-        const res = await this.getIdentityCredentialSilently(tenantId);
-        if (res.isOk()) {
-          return res.value;
-        } else {
-          return undefined;
-        }
+    const tenantId = await loadTenantId(azureCacheName);
+    if (await this.isUserLogin(tenantId)) {
+      const res = await this.getIdentityCredentialSilently(tenantId);
+      if (res.isOk()) {
+        return res.value;
       } else {
-        return await this.login(showDialog, tenantId);
+        return undefined;
       }
     } else {
-      if (await this.isUserLogin()) {
-        return this.doGetIdentityCredentialAsync();
-      }
-      await this.login(showDialog);
-      return this.doGetIdentityCredentialAsync();
+      return await this.login(showDialog, tenantId);
     }
   }
 
   private async isUserLogin(tenantId?: string): Promise<boolean> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && !tenantId) {
+    if (!tenantId) {
       tenantId = await loadTenantId(azureCacheName);
     }
     const session = await getSessionFromVSCode(AzureScopes, tenantId, {
@@ -162,9 +154,8 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             }
           });
       }
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-        await saveTenantId(azureCacheName, session.id.split("/")[0]);
-      }
+      await saveTenantId(azureCacheName, session.id.split("/")[0]);
+
       const credential: TokenCredential = {
         // eslint-disable-next-line @typescript-eslint/require-await
         getToken: async () => {

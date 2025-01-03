@@ -1017,12 +1017,6 @@ function registerAccountMenuCommands(context: vscode.ExtensionContext) {
 }
 
 async function initializeContextKey(context: vscode.ExtensionContext, isTeamsFxProject: boolean) {
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isMultiTenantEnabled",
-    featureFlagManager.getBooleanValue(CoreFeatureFlags.MultiTenant)
-  );
-
   await vscode.commands.executeCommand("setContext", "fx-extension.isSPFx", isSPFxProject);
 
   await vscode.commands.executeCommand(

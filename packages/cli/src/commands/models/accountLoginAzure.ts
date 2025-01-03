@@ -65,11 +65,7 @@ export const accountLoginAzureCommand: CLICommand = {
         return err(new UserError(loginComponent, usageError, servicePrincipalLoginFormat));
       }
     } else {
-      if (
-        args.username ||
-        args.password ||
-        (args.tenant && !featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant))
-      ) {
+      if (args.username || args.password) {
         return err(new UserError(loginComponent, usageError, codeFlowLoginFormat));
       }
     }

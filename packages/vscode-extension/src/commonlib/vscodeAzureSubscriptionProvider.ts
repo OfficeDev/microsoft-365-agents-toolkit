@@ -75,7 +75,7 @@ export class VSCodeAzureSubscriptionProvider {
   public async getSubscriptions(tenantId?: string): Promise<AzureSubscription[]> {
     const results: AzureSubscription[] = [];
 
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && tenantId) {
+    if (tenantId) {
       results.push(...(await this.getSubscriptionsForTenant(tenantId)));
     } else {
       for (const tenant of await this.getTenants()) {

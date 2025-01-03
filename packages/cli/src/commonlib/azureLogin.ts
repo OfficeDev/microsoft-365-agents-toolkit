@@ -333,11 +333,10 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           AzureAccountManager.codeFlowInstance
         );
         const cachedTenantId = await loadTenantId(accountName);
-        const multiTenantEnabled = featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant);
         for await (const page of tenantClient.tenants.list().byPage({ maxPageSize: 100 })) {
           for (const tenant of page) {
             if (
-              multiTenantEnabled && cachedTenantId
+              cachedTenantId
                 ? tenant.tenantId && tenant.tenantId == cachedTenantId
                 : tenant.tenantId
             ) {

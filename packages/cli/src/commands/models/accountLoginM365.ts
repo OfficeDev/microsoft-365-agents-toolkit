@@ -10,16 +10,14 @@ import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 export const accountLoginM365Command: CLICommand = {
   name: "m365",
   description: commands["auth.login.m365"].description,
-  options: featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)
-    ? [
-        {
-          name: "tenant",
-          description: commands["auth.login.m365"].options["tenant"],
-          type: "string",
-          default: "",
-        },
-      ]
-    : undefined,
+  options: [
+    {
+      name: "tenant",
+      description: commands["auth.login.m365"].options["tenant"],
+      type: "string",
+      default: "",
+    },
+  ],
   telemetry: {
     event: TelemetryEvent.AccountLoginM365,
   },

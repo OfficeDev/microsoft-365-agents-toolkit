@@ -96,12 +96,10 @@ export class CodeFlowLogin {
         this.account = dataCache;
       }
 
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-        const tenantCache = await loadTenantId(this.accountName);
-        if (tenantCache) {
-          const allAccounts = await this.msalTokenCache.getAllAccounts();
-          this.account = allAccounts.find((account) => account.tenantId == tenantCache);
-        }
+      const tenantCache = await loadTenantId(this.accountName);
+      if (tenantCache) {
+        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else {
       this.account = undefined;
@@ -137,10 +135,7 @@ export class CodeFlowLogin {
       this.destroySockets();
     });
 
-    const authority =
-      featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && tenantId
-        ? env.activeDirectoryEndpointUrl + tenantId
-        : undefined;
+    const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
     const authCodeUrlParameters = {
       scopes: scopes,
       codeChallenge: codeChallenge,
@@ -278,7 +273,7 @@ export class CodeFlowLogin {
       await this.reloadCache();
     }
 
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && !tenantId) {
+    if (!tenantId) {
       tenantId = await loadTenantId(this.accountName);
     }
     if (!this.account) {
