@@ -1321,9 +1321,21 @@ app.ai.action("{{operationId}}", async (context: TurnContext, state: Application
     }
     const cardName = "{{operationId}}".replace(/[^a-zA-Z0-9]/g, "_");
     const cardTemplatePath = path.join(__dirname, '../adaptiveCards', cardName + '.json');
+    const isTeamsChannel = context.activity.channelId === Channels.Msteams;
     if (await fs.exists(cardTemplatePath)){
       const card = generateAdaptiveCard(cardTemplatePath, result);
-      await context.sendActivity({ attachments: [card] });
+      await context.sendActivity({
+        attachments: [card],
+        ...(isTeamsChannel ? { channelData: true } : {}),
+        entities: [
+          {
+            type: "https://schema.org/Message",
+            "@type": "Message",
+            "@context": "https://schema.org",
+            additionalType: ["AIGeneratedContent"], // AI Generated label
+          },
+        ]
+      });
     }
     else {
       await context.sendActivity(JSON.stringify(result.data));
@@ -1363,7 +1375,19 @@ async def {{operationId}}(
       rendered_card_str = renderer.render(json_resoponse_str)
       rendered_card_json = json.loads(rendered_card_str)
       card = CardFactory.adaptive_card(rendered_card_json)
+      isTeamsChannel = context.activity.channel_id == "msteams"
       message = MessageFactory.attachment(card)
+      message.entities = [
+        {
+          "type": "https://schema.org/Message",
+          "@type": "Message",
+          "@context": "https://schema.org",
+          "additionalType": ["AIGeneratedContent"],
+        },
+      ]
+      message.channel_data = {
+        "feedbackLoopEnabled": isTeamsChannel
+      }
       
       await context.send_activity(message)
   return "success"
@@ -1544,12 +1568,22 @@ async function updatePromptSuggestions(specItems: SpecObject[], manifestPath: st
     manifest.bots![0].commandLists = [
       {
         scopes: ["personal"],
-        commands: descriptions.map((des) => {
-          return {
-            title: des.slice(0, 32),
-            description: des.slice(0, 128),
-          };
-        }),
+        commands: [
+          {
+            title: "Hello, how can you help me?",
+            description: "How can you help me?",
+          },
+          {
+            title: "How to build apps with TTK?",
+            description: "How can I develop apps with Teams Toolkit?",
+          },
+          ...descriptions.map((des) => {
+            return {
+              title: des.slice(0, 32),
+              description: des.slice(0, 128),
+            };
+          }),
+        ],
       },
     ];
 

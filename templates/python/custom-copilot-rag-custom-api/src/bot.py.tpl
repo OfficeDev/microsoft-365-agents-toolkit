@@ -58,7 +58,7 @@ bot_app = Application[TurnState](
         bot_app_id=config.APP_ID,
         storage=storage,
         adapter=TeamsAdapter(config),
-        ai=AIOptions(planner=planner),
+        ai=AIOptions(planner=planner, enable_feedback_loop=True),
     )
 )
 
