@@ -68,24 +68,24 @@ jobs:
 
       - name: Install wine64
         run: |
+          sudo dpkg --add-architecture i386
           sudo mkdir -pm755 /etc/apt/keyrings
-          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+          wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
           sudo apt update
-          sudo apt install --install-recommends wine-stable:amd64 -y
+          sudo apt install --install-recommends winehq-stable -y
           wine --version
 
-      # - name: Setup npm registry
-      #   run: |
-      #     echo "${{ secrets.NPMRC }}" > ~/.npmrc
+      - name: Setup npm registry
+        run: |
+          echo "${{ secrets.NPMRC }}" > ~/.npmrc
 
-      # - name: manage pkgs to release
-      #   if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.pkgs }}
-      #   run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
+      - name: manage pkgs to release
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.pkgs }}
+        run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
 
-      # - name: Setup project
-      #   run: |
-      #     npm run setup
+      - name: Setup project
+        run: |
+          npm run setup
 
       # - name: Setup git
       #   run: |
@@ -252,17 +252,16 @@ jobs:
       #   run: |
       #     npx lerna publish from-package --yes
 
-      # - name: pack server bits
-      #   if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') }}
-      #   uses: nick-invision/retry@v2
-      #   with:
-      #     timeout_minutes: 10
-      #     max_attempts: 10
-      #     retry_on: error
-      #     command: |
-      #       sleep 20
-      #       pnpm --filter @microsoft/teamsfx-server run package
-      #       [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
+      - name: pack server bits
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          retry_on: error
+          command: |
+            sleep 20
+            pnpm --filter @microsoft/teamsfx-server run package
+            [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
 
       # - name: pack vsix
       #   if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') }}
@@ -302,13 +301,13 @@ jobs:
       #     echo ${{ inputs.series }} > series.txt
       #     find ./packages/vscode-extension -type f -name '*.vsix' -exec mv {} . \;
 
-      # - name: upload release info to artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: release
-      #     path: |
-      #       changed.txt
-      #       series.txt
-      #       versions.json
-      #       *.vsix
-      #       *.exe
+      - name: upload release info to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            changed.txt
+            series.txt
+            versions.json
+            *.vsix
+            *.exe
