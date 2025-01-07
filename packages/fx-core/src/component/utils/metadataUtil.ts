@@ -82,6 +82,7 @@ class MetadataUtil {
     props[prefix + "webApplicationInfo.id"] = manifest.webApplicationInfo?.id ?? "";
     props[prefix + "extensions"] =
       "extensions" in manifest && manifest["extensions"]?.length != 0 ? "true" : "false";
+    props[prefix + "copilotAgents"] = "copilotAgents" in manifest ? "true" : "false";
 
     TOOLS.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.MetaData, props);
   }
