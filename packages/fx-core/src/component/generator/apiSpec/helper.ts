@@ -1114,10 +1114,14 @@ async function updatePromptForCustomApi(
   chatFolder: string
 ): Promise<void> {
   if (commonLanguages.includes(language as ProgrammingLanguage)) {
+    const object = `{ "path": null, "body": null, "query": null }`;
+    const cSharpObject = `{ "path": {}, "body": {}, "query": {} }`;
     const promptFilePath = path.join(chatFolder, "skprompt.txt");
     const prompt = `The following is a conversation with an AI assistant.\nThe assistant can help to call APIs for the open api spec file${
       spec.info.description ? ". " + spec.info.description : "."
-    }\nIf the API doesn't require parameters, invoke it with default JSON object { "path": null, "body": null, "query": null }.\n\ncontext:\nAvailable actions: {{getAction}}.`;
+    }\nIf the API doesn't require parameters, invoke it with default JSON object ${
+      (language as ProgrammingLanguage) === ProgrammingLanguage.CSharp ? cSharpObject : object
+    }.\n\ncontext:\nAvailable actions: {{getAction}}.`;
     await fs.writeFile(promptFilePath, prompt, { encoding: "utf-8", flag: "w" });
   }
 }
