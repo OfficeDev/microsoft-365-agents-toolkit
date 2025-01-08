@@ -22,7 +22,12 @@
 
 ## Get more info
 
+{{^DeclarativeCopilot}}
 - [Extend Microsoft 365 Copilot](https://aka.ms/teamsfx-copilot-plugin)
+{{/DeclarativeCopilot}}
+{{#DeclarativeCopilot}}
+- [Declarative agents for Microsoft 365](https://aka.ms/teams-toolkit-declarative-agent)
+{{/DeclarativeCopilot}}
 
 ## Report an issue
 
