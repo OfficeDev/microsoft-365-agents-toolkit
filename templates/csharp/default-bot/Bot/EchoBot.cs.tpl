@@ -1,10 +1,9 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Teams;
-using Microsoft.Bot.Schema;
+﻿using Microsoft.Agents.Protocols.Adapter;
+using Microsoft.Agents.Protocols.Primitives;
 
 namespace {{SafeProjectName}}.Bot;
 
-public class EchoBot : TeamsActivityHandler
+public class EchoBot : ActivityHandler
 { 
     protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
     {

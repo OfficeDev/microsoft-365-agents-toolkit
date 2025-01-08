@@ -19,9 +19,10 @@
 
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.33" />
-    <PackageReference Include="Microsoft.Bot.Builder" Version="4.22.7" />
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.7" />
+    <PackageReference Include="Microsoft.Agents.Authentication" Version="0.2.3-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.3-alpha" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.3-alpha" />
+    <PackageReference Include="Microsoft.Agents.Protocols" Version="0.2.3-alpha" />
   </ItemGroup>
 
 </Project>
