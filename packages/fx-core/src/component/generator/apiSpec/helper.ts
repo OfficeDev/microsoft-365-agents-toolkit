@@ -424,11 +424,7 @@ export async function generateFromApiSpec(
   projectType: ProjectType,
   outputFilePath: SpecParserOutputFilePath
 ): Promise<Result<SpecParserGenerateResult, FxError>> {
-  const operations =
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ApiPluginManifestPath]
-      ? (await specParser.list()).APIs.filter((value) => value.isValid).map((value) => value.api)
-      : (inputs[QuestionNames.ApiOperation] as string[]);
+  const operations = inputs[QuestionNames.ApiOperation] as string[];
   const validationRes = await specParser.validate();
   const warnings = validationRes.warnings;
   const operationIdWarning = warnings.find((w) => w.type === WarningType.OperationIdMissing);
@@ -479,8 +475,7 @@ export async function generateFromApiSpec(
             teamsManifestPath,
             operations,
             outputFilePath.destinationApiSpecFilePath,
-            outputFilePath.pluginManifestFilePath!,
-            inputs[QuestionNames.ApiPluginManifestPath]
+            outputFilePath.pluginManifestFilePath!
           )
         : await specParser.generate(
             teamsManifestPath,
