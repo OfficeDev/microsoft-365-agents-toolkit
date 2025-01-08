@@ -3693,4 +3693,246 @@ describe("SpecParser", () => {
       });
     });
   });
+
+  describe("generateAdaptiveCardInPlugin", () => {
+    it("should generate adaptive card in plugin", async () => {
+      const pluginManifest = {
+        schema_version: "1",
+        name_for_human: "test",
+        description_for_human: "test",
+        functions: [
+          {
+            name: "hello",
+          },
+        ],
+      };
+      const specParser = new SpecParser("path/to/spec.yaml", {
+        isGptPlugin: true,
+        allowAPIKeyAuth: false,
+        projectType: ProjectType.Copilot,
+        allowMethods: ["get"],
+        allowResponseSemantics: true,
+        allowConversationStarters: true,
+      });
+      const spec = {
+        openapi: "3.0.0",
+        paths: {
+          "/hello": {
+            get: {
+              operationId: "hello",
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
+        if (path === "pluginFilePath") {
+          expect(data.functions).to.not.be.undefined;
+          expect(data.functions[0].capabilities).to.not.be.undefined;
+          expect(data.functions[0].capabilities.response_semantics).to.not.be.undefined;
+        }
+      });
+      sinon.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const filter = ["get /hello"];
+      await specParser.generateAdaptiveCardInPlugin("pluginFilePath", filter, undefined);
+    });
+
+    it("should not add ac if no openeration id found in plugin manifest", async () => {
+      const pluginManifest = {
+        schema_version: "1",
+        name_for_human: "test",
+        description_for_human: "test",
+        functions: [
+          {
+            name: "hello2",
+          },
+        ],
+      };
+      const specParser = new SpecParser("path/to/spec.yaml", {
+        isGptPlugin: true,
+        allowAPIKeyAuth: false,
+        projectType: ProjectType.Copilot,
+        allowMethods: ["get"],
+        allowResponseSemantics: true,
+        allowConversationStarters: true,
+      });
+      const spec = {
+        openapi: "3.0.0",
+        paths: {
+          "/hello": {
+            get: {
+              operationId: "hello",
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
+        if (path === "pluginFilePath") {
+          expect(data.functions).to.not.be.undefined;
+          expect(data.functions[0].capabilities).to.be.undefined;
+        }
+      });
+      sinon.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const filter = ["get /hello"];
+      await specParser.generateAdaptiveCardInPlugin("pluginFilePath", filter, undefined);
+    });
+
+    it("should not generate ac if allowResponseSemantics is false", async () => {
+      const pluginManifest = {
+        schema_version: "1",
+        name_for_human: "test",
+        description_for_human: "test",
+        functions: [
+          {
+            name: "hello",
+          },
+        ],
+      };
+      const specParser = new SpecParser("path/to/spec.yaml", {
+        isGptPlugin: true,
+        allowAPIKeyAuth: false,
+        projectType: ProjectType.Copilot,
+        allowMethods: ["get"],
+        allowResponseSemantics: false,
+        allowConversationStarters: true,
+      });
+      const spec = {
+        openapi: "3.0.0",
+        paths: {
+          "/hello": {
+            get: {
+              operationId: "hello",
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
+        if (path === "pluginFilePath") {
+          expect(data.functions).to.not.be.undefined;
+          expect(data.functions[0].capabilities).to.be.undefined;
+        }
+      });
+      sinon.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const filter = ["get /hello"];
+      await specParser.generateAdaptiveCardInPlugin("pluginFilePath", filter, undefined);
+    });
+
+    it("should throw error if failed to generate ac", async () => {
+      const pluginManifest = {
+        schema_version: "1",
+        name_for_human: "test",
+        description_for_human: "test",
+        functions: [
+          {
+            name: "hello",
+          },
+        ],
+      };
+      const specParser = new SpecParser("path/to/spec.yaml", {
+        isGptPlugin: true,
+        allowAPIKeyAuth: false,
+        projectType: ProjectType.Copilot,
+        allowMethods: ["get"],
+        allowResponseSemantics: true,
+        allowConversationStarters: true,
+      });
+      const spec = {
+        openapi: "3.0.0",
+        paths: {
+          "/hello": {
+            get: {
+              operationId: "hello",
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      const generateAdaptiveCardStub = sinon
+        .stub(AdaptiveCardGenerator, "generateAdaptiveCard")
+        .throws(new Error("generate ac error"));
+      sinon.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const filter = ["get /hello"];
+      try {
+        await specParser.generateAdaptiveCardInPlugin("pluginFilePath", filter, undefined);
+      } catch (err: any) {
+        expect(err).to.be.instanceOf(SpecParserError);
+        expect(err.errorType).to.equal(ErrorType.GenerateAdaptiveCardFailed);
+        expect(err.message).to.equal("Error: generate ac error");
+      }
+    });
+  });
 });

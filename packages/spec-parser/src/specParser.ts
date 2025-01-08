@@ -29,11 +29,12 @@ import { SpecFilter } from "./specFilter";
 import { Utils } from "./utils";
 import { ManifestUpdater } from "./manifestUpdater";
 import { AdaptiveCardGenerator } from "./adaptiveCardGenerator";
-import { wrapAdaptiveCard } from "./adaptiveCardWrapper";
+import { wrapAdaptiveCard, wrapResponseSemantics } from "./adaptiveCardWrapper";
 import { ValidatorFactory } from "./validators/validatorFactory";
 import { Validator } from "./validators/validator";
 import { createHash } from "crypto";
 import { $RefParser } from "@apidevtools/json-schema-ref-parser";
+import { PluginManifestSchema } from "@microsoft/teams-manifest";
 
 /**
  * A class that parses an OpenAPI specification file and provides methods to validate, list, and generate artifacts.
@@ -477,6 +478,65 @@ export class SpecParser {
     }
 
     return result;
+  }
+
+  async generateAdaptiveCardInPlugin(
+    pluginFilePath: string,
+    filter: string[],
+    signal?: AbortSignal
+  ): Promise<void> {
+    const newSpecs = await this.getFilteredSpecs(filter, signal);
+    const newSpec = newSpecs[1];
+    const apiPlugin = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
+
+    const paths = newSpec.paths;
+    for (const pathUrl in paths) {
+      const pathItem = paths[pathUrl];
+      if (pathItem) {
+        const operations = pathItem;
+        for (const method in operations) {
+          if (this.options.allowMethods.includes(method)) {
+            const operationItem = (operations as any)[method] as OpenAPIV3.OperationObject;
+            if (operationItem) {
+              if (this.options.allowResponseSemantics) {
+                try {
+                  const operationId = operationItem.operationId!;
+                  const safeFunctionName = operationId.replace(/[^a-zA-Z0-9]/g, "_");
+                  if (
+                    apiPlugin.functions!.findIndex((func) => func.name === safeFunctionName) === -1
+                  ) {
+                    continue;
+                  }
+
+                  const { json } = Utils.getResponseJson(operationItem);
+                  if (json.schema) {
+                    const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
+                      operationItem,
+                      false,
+                      5
+                    );
+
+                    const responseSemantic = wrapResponseSemantics(card, jsonPath);
+                    apiPlugin.functions!.find(
+                      (func) => func.name === safeFunctionName
+                    )!.capabilities = {
+                      response_semantics: responseSemantic,
+                    };
+                  }
+                } catch (err) {
+                  throw new SpecParserError(
+                    (err as Error).toString(),
+                    ErrorType.GenerateAdaptiveCardFailed
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    await fs.outputJSON(pluginFilePath, apiPlugin, { spaces: 4 });
   }
 
   private async loadSpec(): Promise<void> {
