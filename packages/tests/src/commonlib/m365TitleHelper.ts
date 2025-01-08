@@ -124,7 +124,7 @@ export class M365TitleHelper {
         console.info("Sideloading done.");
         return [titleId, appId];
       } else {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await delay(2000);
       }
     } while (true);
   }
