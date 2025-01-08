@@ -60,7 +60,11 @@ import {
   isValidProjectV2,
   isValidProjectV3,
 } from "../common/projectSettingsHelper";
-import { ProjectTypeResult, projectTypeChecker } from "../common/projectTypeChecker";
+import {
+  IsDeclarativeAgentManifest,
+  ProjectTypeResult,
+  projectTypeChecker,
+} from "../common/projectTypeChecker";
 import { TelemetryEvent, telemetryUtils } from "../common/telemetry";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
 import { ActionInjector } from "../component/configManager/actionInjector";
@@ -2279,5 +2283,14 @@ export class FxCore {
       }
     }
     return result;
+  }
+
+  async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {
+    const projectPath = inputs[QuestionNames.ProjectPath] as string;
+    const manifestRes = await manifestUtils.readAppManifest(projectPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+    return ok(IsDeclarativeAgentManifest(manifestRes.value));
   }
 }
