@@ -21,6 +21,7 @@
     "@microsoft/dev-tunnels-ssh": "3.11.36",
     "@microsoft/extra-shot-mocha": "0.0.1",
     "@microsoft/teamsfx-core": "workspace:*",
+    "@types/adm-zip": "0.5.5",
     "@types/chai": "^4.2.19",
     "@types/fs-extra": "^7.0.0",
     "@types/glob": "^7.1.3",

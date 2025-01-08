@@ -85,6 +85,9 @@ importers:
       '@microsoft/teamsfx-core':
         specifier: workspace:*
         version: link:../fx-core
+      '@types/adm-zip':
+        specifier: 0.5.5
+        version: 0.5.5
       '@types/chai':
         specifier: ^4.2.19
         version: 4.2.19
@@ -552,6 +555,9 @@ packages:
 
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  '@types/adm-zip@0.5.5':
+    resolution: {integrity: sha512-YCGstVMjc4LTY5uK9/obvxBya93axZOVOyf2GSUulADzmLhYE45u2nAssCs/fWBs1Ifq5Vat75JTPwd5XZoPJw==}
 
   '@types/chai@4.2.19':
     resolution: {integrity: sha512-jRJgpRBuY+7izT7/WNXP/LsMO9YonsstuL+xuvycDyESpoDoIAsMd7suwpB4h9oEWB+ZlPTqJJ8EHomzNhwTPQ==}
@@ -3813,6 +3819,10 @@ snapshots:
   '@tsconfig/node14@1.0.3': {}
 
   '@tsconfig/node16@1.0.4': {}
+
+  '@types/adm-zip@0.5.5':
+    dependencies:
+      '@types/node': 14.17.4
 
   '@types/chai@4.2.19': {}
 
