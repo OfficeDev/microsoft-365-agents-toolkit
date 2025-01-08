@@ -480,11 +480,20 @@ export class SpecParser {
     return result;
   }
 
+  /**
+   * Generates and update artifacts from the OpenAPI specification file. Generate Adaptive Cards, update Teams app manifest, and generate a new OpenAPI specification file.
+   * @param pluginFilePath A file path of the plugin manifest file to update.
+   * @param filter An array of strings that represent the filters to apply when generating the artifacts. If filter is empty, it would process nothing.
+   */
   async generateAdaptiveCardInPlugin(
     pluginFilePath: string,
     filter: string[],
     signal?: AbortSignal
   ): Promise<void> {
+    if (!this.options.allowResponseSemantics) {
+      return;
+    }
+
     const newSpecs = await this.getFilteredSpecs(filter, signal);
     const newSpec = newSpecs[1];
     const apiPlugin = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
@@ -498,37 +507,35 @@ export class SpecParser {
           if (this.options.allowMethods.includes(method)) {
             const operationItem = (operations as any)[method] as OpenAPIV3.OperationObject;
             if (operationItem) {
-              if (this.options.allowResponseSemantics) {
-                try {
-                  const operationId = operationItem.operationId!;
-                  const safeFunctionName = operationId.replace(/[^a-zA-Z0-9]/g, "_");
-                  if (
-                    apiPlugin.functions!.findIndex((func) => func.name === safeFunctionName) === -1
-                  ) {
-                    continue;
-                  }
-
-                  const { json } = Utils.getResponseJson(operationItem);
-                  if (json.schema) {
-                    const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
-                      operationItem,
-                      false,
-                      5
-                    );
-
-                    const responseSemantic = wrapResponseSemantics(card, jsonPath);
-                    apiPlugin.functions!.find(
-                      (func) => func.name === safeFunctionName
-                    )!.capabilities = {
-                      response_semantics: responseSemantic,
-                    };
-                  }
-                } catch (err) {
-                  throw new SpecParserError(
-                    (err as Error).toString(),
-                    ErrorType.GenerateAdaptiveCardFailed
-                  );
+              try {
+                const operationId = operationItem.operationId!;
+                const safeFunctionName = operationId.replace(/[^a-zA-Z0-9]/g, "_");
+                if (
+                  apiPlugin.functions!.findIndex((func) => func.name === safeFunctionName) === -1
+                ) {
+                  continue;
                 }
+
+                const { json } = Utils.getResponseJson(operationItem);
+                if (json.schema) {
+                  const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
+                    operationItem,
+                    false,
+                    5
+                  );
+
+                  const responseSemantic = wrapResponseSemantics(card, jsonPath);
+                  apiPlugin.functions!.find(
+                    (func) => func.name === safeFunctionName
+                  )!.capabilities = {
+                    response_semantics: responseSemantic,
+                  };
+                }
+              } catch (err) {
+                throw new SpecParserError(
+                  (err as Error).toString(),
+                  ErrorType.GenerateAdaptiveCardFailed
+                );
               }
             }
           }
