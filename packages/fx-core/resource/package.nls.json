@@ -931,6 +931,6 @@
   "error.dep.VxTestAppInvalidInstallOptionsError": "Invalid argument for video extensibility test app prerequisites checker. Please review tasks.json file to ensure all arguments are correctly formatted and valid.",
   "error.dep.VxTestAppValidationError": "Unable to validate video extensibility test app after installation.",
   "error.dep.FindProcessError": "Unable to find process(es) by pid or port. %s",
-  "error.kiota.FailedToCreateAdaptiveCard": "Failed to generarate adaptive card in plugin manifest. Please mannually update the manifest file if needed.",
-  "error.kiota.FailedToGenerateAuthActions": "Failed to parse Open API spec and generate Auth actions in teamsapp.yml. Please mannually update the yml files if needed."
+  "error.kiota.FailedToCreateAdaptiveCard": "Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.",
+  "error.kiota.FailedToGenerateAuthActions": "Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required."
 }
