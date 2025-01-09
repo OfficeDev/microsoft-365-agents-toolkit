@@ -297,7 +297,7 @@ export function getCapabilities(manifest: any): string[] {
 }
 
 export function IsDeclarativeAgentManifest(manifest: any): boolean {
-  return (
+  return !!(
     manifest.copilotAgents?.declarativeAgents && manifest.copilotAgents.declarativeAgents.length > 0
   );
 }
