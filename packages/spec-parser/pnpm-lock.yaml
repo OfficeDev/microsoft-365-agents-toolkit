@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@apidevtools/json-schema-ref-parser':
-    specifier: ^11.7.2
-    version: 11.7.2
   '@apidevtools/swagger-parser':
     specifier: ^10.1.1
     version: 10.1.1(openapi-types@7.2.3)
