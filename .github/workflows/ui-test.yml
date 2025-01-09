@@ -112,14 +112,14 @@ jobs:
 
       - name: create pvt file (random platform/node)
         if: ${{ github.event.schedule == '0 18 * * *' }} || ${{ github.event.inputs.test-case }} == ''
-        working-directory: ./packages/tests
+        working-directory: packages/tests
         run: |
           pnpm --filter=@microsoft/teamsfx-test install
           npx ts-node ./scripts/createRandomPVT.ts
 
       - name: setup matrix
         id: setup-matrix
-        working-directory: ./packages/tests
+        working-directory: packages/tests
         run: |
           matrix=""
           if [ ! -z "${{ github.event.inputs.test-case }}" ]; then
@@ -339,7 +339,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ttk
-          path: ./packages/tests
+          path: packages/tests
 
       - name: Install teamsfx cli
         working-directory: packages/tests
@@ -352,7 +352,7 @@ jobs:
         with:
           repository: OfficeDev/TeamsFx-Samples
           ref: ${{ needs.setup.outputs.sample-ref }}
-          path: ./packages/tests/resource
+          path: packages/tests/resource
 
       - name: Download samples from another repo
         if: contains(matrix.test-case, 'proactive-message') || contains(matrix.test-case, 'reddit-link')
@@ -360,7 +360,7 @@ jobs:
         with:
           repository: OfficeDev/Microsoft-Teams-Samples
           ref: main
-          path: ./packages/tests/resource
+          path: packages/tests/resource
 
       - name: Download samples chef bot
         if: contains(matrix.test-case, 'chef-bot')
@@ -368,7 +368,7 @@ jobs:
         with:
           repository: microsoft/teams-ai
           ref: main
-          path: ./packages/tests/resource
+          path: packages/tests/resource
 
       - name: Download samples food catalog
         if: contains(matrix.test-case, 'food-catalog')
@@ -376,7 +376,7 @@ jobs:
         with:
           repository: pnp/graph-connectors-samples
           ref: main
-          path: ./packages/tests/resource
+          path: packages/tests/resource
 
       - name: Download samples outlook signature
         if: contains(matrix.test-case, 'outlook-signature')
@@ -384,7 +384,7 @@ jobs:
         with:
           repository: OfficeDev/Office-Add-in-samples
           ref: main
-          path: ./packages/tests/resource
+          path: packages/tests/resource
 
       - name: Get VSCode
         working-directory: packages/tests
@@ -468,14 +468,14 @@ jobs:
         if: ${{ github.event_name != 'schedule' || success() || (failure() && github.run_attempt >= 5) }}
         with:
           name: test-result-${{ matrix.test-case }}-${{ matrix.os }}
-          path: ./packages/tests/mochawesome-report/mochawesome.json
+          path: packages/tests/mochawesome-report/mochawesome.json
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
-          path: ./packages/tests/.test-resources/screenshots/
+          path: packages/tests/.test-resources/screenshots/
 
       - name: Upload source code
         uses: actions/upload-artifact@v4
@@ -483,8 +483,8 @@ jobs:
         with:
           name: source code ${{ matrix.test-case }} ${{ matrix.os }}
           path: |
-            ./packages/tests/**/teamsfxuitest*/*
-            !./packages/tests/**/node_modules/*
+            packages/tests/**/teamsfxuitest*/*
+            !packages/tests/**/node_modules/*
 
       - name: Upload telemetry
         uses: actions/upload-artifact@v4
@@ -530,7 +530,7 @@ jobs:
       - name: Download TestPlan
         uses: actions/download-artifact@v4
         with:
-          path: ./packages/tests/mocha-results
+          path: packages/tests/mocha-results
 
       - name: Sync to Azure DevOps Test Plan
         working-directory: packages/tests
