@@ -158,6 +158,44 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
               },
             ],
           },
+          {
+            // 2.3 Bot sub tree
+            condition: { equals: ProjectTypeOptions.botOptionId },
+            data: {
+              name: QuestionNames.Capabilities,
+              title: getLocalizedString("core.createProjectQuestion.projectType.bot.title"),
+              type: "singleSelect",
+              staticOptions: [
+                BotCapabilityOptions.basicBot(),
+                BotCapabilityOptions.notificationBot(),
+                BotCapabilityOptions.commandBot(),
+                BotCapabilityOptions.workflowBot(),
+              ],
+              placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+              onDidSelection: onDidSelectionCapability,
+            },
+            children: [
+              {
+                // 2.3.1 Notification bot trigger sub-tree
+                condition: { equals: BotCapabilityOptions.notificationBotId },
+                data: {
+                  name: QuestionNames.BotTrigger,
+                  title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
+                  type: "singleSelect",
+                  staticOptions: [
+                    NotificationBotOptions.appService(),
+                    NotificationBotOptions.functionsHttpAndTimerTrigger(),
+                    NotificationBotOptions.functionsHttpTrigger(),
+                    NotificationBotOptions.functionsTimerTrigger(),
+                  ],
+                  placeholder: getLocalizedString(
+                    "plugins.bot.questionHostTypeTrigger.placeholder"
+                  ),
+                  onDidSelection: onDidSelectionCapability,
+                },
+              },
+            ],
+          },
           // {
           //   // 2.2 customCopilots sub tree
           //   condition: { equals: ProjectTypeOptions.customCopilot().id },
@@ -313,44 +351,6 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           //     },
           //   ],
           // },
-          {
-            // 2.3 Bot sub tree
-            condition: { equals: ProjectTypeOptions.botOptionId },
-            data: {
-              name: QuestionNames.Capabilities,
-              title: getLocalizedString("core.createProjectQuestion.projectType.bot.title"),
-              type: "singleSelect",
-              staticOptions: [
-                BotCapabilityOptions.basicBot(),
-                BotCapabilityOptions.notificationBot(),
-                BotCapabilityOptions.commandBot(),
-                BotCapabilityOptions.workflowBot(),
-              ],
-              placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
-              onDidSelection: onDidSelectionCapability,
-            },
-            children: [
-              {
-                // 2.3.1 Notification bot trigger sub-tree
-                condition: { equals: BotCapabilityOptions.notificationBotId },
-                data: {
-                  name: QuestionNames.BotTrigger,
-                  title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
-                  type: "singleSelect",
-                  staticOptions: [
-                    NotificationBotOptions.appService(),
-                    NotificationBotOptions.functionsHttpAndTimerTrigger(),
-                    NotificationBotOptions.functionsHttpTrigger(),
-                    NotificationBotOptions.functionsTimerTrigger(),
-                  ],
-                  placeholder: getLocalizedString(
-                    "plugins.bot.questionHostTypeTrigger.placeholder"
-                  ),
-                  onDidSelection: onDidSelectionCapability,
-                },
-              },
-            ],
-          },
           // {
           //   // 2.4 Tab sub tree
           //   condition: { equals: ProjectTypeOptions.tab().id },
