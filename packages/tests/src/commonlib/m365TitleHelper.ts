@@ -4,6 +4,9 @@
 import { M365TokenProvider } from "@microsoft/teamsfx-api";
 import axios, { AxiosInstance } from "axios";
 import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import AdmZip from "adm-zip";
+import FormData from "form-data";
+import fs from "fs-extra";
 
 const sideloadingServiceEndpoint =
   process.env.SIDELOADING_SERVICE_ENDPOINT ??
@@ -79,5 +82,50 @@ export class M365TitleHelper {
       console.error(`[Failed] delete the M365 Title with id: ${id}`);
       return resolve(false);
     });
+  }
+
+  private checkZip(path: string) {
+    const zip = new AdmZip(path, {});
+    zip.getEntries();
+  }
+
+  public async acquire(packageFile: string): Promise<[string, string]> {
+    this.checkZip(packageFile);
+    const data = (await fs.readFile(packageFile)) as Buffer;
+    const content = new FormData();
+    content.append("package", data);
+    const uploadResponse = await this.axios!.post(
+      "/dev/v1/users/packages",
+      content.getBuffer()
+    );
+
+    const operationId = uploadResponse.data.operationId;
+    console.debug(`Package uploaded. OperationId: ${operationId as string}`);
+    console.debug("Acquiring package ...");
+    const acquireResponse = await this.axios!.post(
+      "/dev/v1/users/packages/acquisitions",
+      {
+        operationId: operationId,
+      }
+    );
+    const statusId = acquireResponse.data.statusId;
+    console.debug(`Acquiring package with statusId: ${statusId as string} ...`);
+    do {
+      const statusResponse = await this.axios!.get(
+        `/dev/v1/users/packages/status/${statusId as string}`
+      );
+      const resCode = statusResponse.status;
+      console.debug(`Package status: ${resCode} ...`);
+      if (resCode === 200) {
+        const titleId: string = statusResponse.data.titleId;
+        const appId: string = statusResponse.data.appId;
+        console.info(`TitleId: ${titleId}`);
+        console.info(`AppId: ${appId}`);
+        console.info("Sideloading done.");
+        return [titleId, appId];
+      } else {
+        await delay(2000);
+      }
+    } while (true);
   }
 }
