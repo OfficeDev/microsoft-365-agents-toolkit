@@ -403,8 +403,13 @@ export class AadManifestHelper {
         const version = document.get("version") as string;
         if (version <= "v1.7") {
           document.set("version", "v1.8");
+          const docContent = document.toString();
+          const updatedContent = docContent.replace(
+            /(yaml-language-server:\s*\$schema=https:\/\/aka\.ms\/teams-toolkit\/)v\d+\.\d+(\/yaml\.schema\.json)/,
+            "$1v1.8$2"
+          );
+          await fs.writeFile(ymlPath, updatedContent, "utf8");
         }
-        await fs.writeFile(ymlPath, document.toString(), "utf8");
       }
     }
   }
