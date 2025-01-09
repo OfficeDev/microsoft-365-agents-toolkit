@@ -2141,7 +2141,7 @@ describe("SpecGenerator", async () => {
       }
     });
 
-    it("parse failed for kiota integration", async () => {
+    it("should not throw error parse failed for kiota integration", async () => {
       mockedEnvRestore = mockedEnv({
         [FeatureFlagName.KiotaIntegration]: "true",
       });
@@ -2165,10 +2165,7 @@ describe("SpecGenerator", async () => {
         ])
       );
       const res = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res.isErr());
-      if (res.isErr()) {
-        assert.equal(res.error.name, "ListOperationsFailed");
-      }
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -2933,9 +2930,6 @@ describe("SpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [
           {
@@ -2959,23 +2953,20 @@ describe("SpecGenerator", async () => {
       sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
       sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
+      sandbox.stub(fs, "copyFile").resolves();
+      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
+      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
       const copyKiotaFolder = sandbox.stub(fs, "copy").callsFake((src, dest, options) => {
         assert.isTrue(src.endsWith(".kiota"));
         assert.isTrue(dest.endsWith(".kiota"));
       });
-      const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generateForCopilot")
-        .callsFake(async (manifestPath, filter, outputSpecPath, pluginFilePath) => {
-          assert.isTrue(outputSpecPath.includes("test.yaml"));
-          assert.isTrue(pluginFilePath.includes("test.json"));
-          return { allSuccess: true, warnings: [] };
-        });
       sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
 
       const generator = new SpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
       assert.isTrue(result.isOk());
-      assert.isTrue(generateBasedOnSpec.calledOnce);
       assert.isTrue(copyKiotaFolder.calledOnce);
     });
 
@@ -3001,9 +2992,6 @@ describe("SpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [
           {
@@ -3026,21 +3014,18 @@ describe("SpecGenerator", async () => {
       });
       sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
-      sandbox.stub(fs, "pathExists").onFirstCall().resolves(false);
+      sandbox.stub(fs, "pathExists").onFirstCall().resolves(false).onSecondCall().resolves(false);
+      sandbox.stub(fs, "copyFile").resolves();
+      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
+      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
       const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
-      const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generateForCopilot")
-        .callsFake(async (manifestPath, filter, outputSpecPath, pluginFilePath) => {
-          assert.isTrue(outputSpecPath.includes("test.yaml"));
-          assert.isTrue(pluginFilePath.includes("test.json"));
-          return { allSuccess: true, warnings: [] };
-        });
       sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
 
       const generator = new SpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
       assert.isTrue(result.isOk());
-      assert.isTrue(generateBasedOnSpec.calledOnce);
       assert.isTrue(copyKiotaFolder.notCalled);
     });
 
@@ -3066,9 +3051,6 @@ describe("SpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [
           {
@@ -3092,21 +3074,79 @@ describe("SpecGenerator", async () => {
       sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
       sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(true);
+      sandbox.stub(fs, "copyFile").resolves();
+      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
+      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
       const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
-      const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generateForCopilot")
-        .callsFake(async (manifestPath, filter, outputSpecPath, pluginFilePath) => {
-          assert.isTrue(outputSpecPath.includes("test.yaml"));
-          assert.isTrue(pluginFilePath.includes("test.json"));
-          return { allSuccess: true, warnings: [] };
-        });
       sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
 
       const generator = new SpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
       assert.isTrue(result.isOk());
-      assert.isTrue(generateBasedOnSpec.calledOnce);
       assert.isTrue(copyKiotaFolder.notCalled);
+    });
+
+    it("generate for kiota without adaptive card", async function () {
+      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "path",
+        [QuestionNames.AppName]: "test",
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
+        [QuestionNames.ApiSpecLocation]: "test.yaml",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ApiPluginManifestPath]: "test.json",
+        [QuestionNames.ProjectType]: "copilot-agent-type",
+        getTemplateInfosState: {
+          templateName: "api-plugin-existing-api",
+          isPlugin: true,
+          uri: "https://test.com",
+          isYaml: true,
+          type: ProjectType.Copilot,
+        },
+      };
+      const context = createContext();
+      sandbox.stub(SpecParser.prototype, "list").resolves({
+        APIs: [
+          {
+            api: "api1",
+            server: "https://test",
+            operationId: "get",
+            auth: {
+              name: "test",
+              authScheme: {
+                type: "http",
+                scheme: "bearer",
+              },
+            },
+            isValid: true,
+            reason: [],
+          },
+        ],
+        allAPICount: 1,
+        validAPICount: 1,
+      });
+      sandbox.stub(fs, "ensureDir").resolves();
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+      sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
+      sandbox.stub(fs, "copyFile").resolves();
+      sandbox.stub(fs, "readJSON").resolves({});
+      sandbox
+        .stub(SpecParser.prototype, "generateAdaptiveCardInPlugin")
+        .throws(new Error("generate ac failed"));
+      sandbox.stub(copilotGptManifestUtils, "addAction").resolves(ok({} as any));
+
+      const copyKiotaFolder = sandbox.stub(fs, "copy").resolves();
+      sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+
+      const generator = new SpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+      assert.isTrue(result.isOk());
+      assert.isTrue(copyKiotaFolder.calledOnce);
     });
   });
 });

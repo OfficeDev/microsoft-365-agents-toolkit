@@ -416,11 +416,18 @@ jobs:
 
           emails="teamsfxqa@microsoft.com;"
           while IFS= read -r case;
+
+          has_mos_api_failure=false
+          mos_api_failed_lists=""
+          
           do
             if [ -z "$case" ]; then
               continue
             fi
-
+            is_mos_api_case=false
+            if [[ $case == *"mosApi"* ]]; then
+              is_mos_api_case=true
+            fi
             file="src/e2e/$case"
             elegant_path="${file//.\//}"
 
@@ -480,6 +487,10 @@ jobs:
                   passed_lists="$passed_lists $row"
                 elif [[ ! -z `echo $test | jq 'select(.fail==true)'` ]]; then
                   failed_lists="$failed_lists $row"
+                  if [[ $is_mos_api_case == true ]]; then
+                    has_mos_api_failure=true
+                    mos_api_failed_lists="$mos_api_failed_lists $row"
+                  fi
                 elif [[ ! -z `echo $test | jq 'select(.skipped==true)'` || ! -z `echo $test | jq 'select(.pending==true)'` ]]; then
                   skipped_lists="$skipped_lists $row"
                 fi
@@ -500,10 +511,20 @@ jobs:
           else
             subject="[PASSED] $subject"
           fi
+   
+          mos_body=""
+          mos_subject="";
+          if [[ $has_mos_api_failure == true ]]; then
+            mos_body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>PATH</th> <th>CASE</th> <th>TARGET TYPE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $mos_api_failed_lists </table> <br />"
+            mos_subject="[FAILED] TTK E2E MOS API Alert"
+          fi
 
           echo "body=$body" >> $GITHUB_OUTPUT
           echo "to=$emails" >> $GITHUB_OUTPUT
           echo "subject=$subject" >> $GITHUB_OUTPUT
+          echo "has_mos_api_failure=$has_mos_api_failure" >> $GITHUB_OUTPUT
+          echo "mos_body=$mos_body" >> $GITHUB_OUTPUT
+          echo "mos_subject=$mos_subject" >> $GITHUB_OUTPUT
           
       - name: Send E-mail to the whole team
         uses: ./.github/actions/send-email-report
@@ -511,6 +532,17 @@ jobs:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      
+      - name: Send alert E-mail to MOS API monitor team
+        if: ${{ steps.list-jobs.outputs.has_mos_api_failure == 'true' }}
+        uses: ./.github/actions/send-email-report
+        env:
+          TO: "huajiezhang@microsoft.com;"
+          BODY: '"${{ steps.list-jobs.outputs.mos_body }}"'
+          SUBJECT: ${{ steps.list-jobs.outputs.mos_subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
           MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
           MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}

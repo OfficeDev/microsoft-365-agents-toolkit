@@ -365,6 +365,16 @@ class Coordinator {
     if (unresolvedPlaceholders.length > 0) {
       return err(new LifeCycleUndefinedError(unresolvedPlaceholders.join(",")));
     }
+
+    for (const action of projectModel.provision?.driverDefs ?? []) {
+      if (action.uses === "teamsApp/create") {
+        const teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
+        if (!process.env[teamsAppIdKeyName]) {
+          return err(new LifeCycleUndefinedError(unresolvedPlaceholders.join(",")));
+        }
+        break;
+      }
+    }
     return ok(undefined);
   }
 

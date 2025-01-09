@@ -65,6 +65,7 @@ import * as util from "util";
 import { SpecParserSource } from "../../../common/constants";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
+import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -423,11 +424,7 @@ export async function generateFromApiSpec(
   projectType: ProjectType,
   outputFilePath: SpecParserOutputFilePath
 ): Promise<Result<SpecParserGenerateResult, FxError>> {
-  const operations =
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ApiPluginManifestPath]
-      ? (await specParser.list()).APIs.filter((value) => value.isValid).map((value) => value.api)
-      : (inputs[QuestionNames.ApiOperation] as string[]);
+  const operations = inputs[QuestionNames.ApiOperation] as string[];
   const validationRes = await specParser.validate();
   const warnings = validationRes.warnings;
   const operationIdWarning = warnings.find((w) => w.type === WarningType.OperationIdMissing);
@@ -478,8 +475,7 @@ export async function generateFromApiSpec(
             teamsManifestPath,
             operations,
             outputFilePath.destinationApiSpecFilePath,
-            outputFilePath.pluginManifestFilePath!,
-            inputs[QuestionNames.ApiPluginManifestPath]
+            outputFilePath.pluginManifestFilePath!
           )
         : await specParser.generate(
             teamsManifestPath,
@@ -1114,10 +1110,14 @@ async function updatePromptForCustomApi(
   chatFolder: string
 ): Promise<void> {
   if (commonLanguages.includes(language as ProgrammingLanguage)) {
+    const object = `{ "path": null, "body": null, "query": null }`;
+    const cSharpObject = `{ "path": {}, "body": {}, "query": {} }`;
     const promptFilePath = path.join(chatFolder, "skprompt.txt");
     const prompt = `The following is a conversation with an AI assistant.\nThe assistant can help to call APIs for the open api spec file${
       spec.info.description ? ". " + spec.info.description : "."
-    }\nIf the API doesn't require parameters, invoke it with default JSON object { "path": null, "body": null, "query": null }.\n\ncontext:\nAvailable actions: {{getAction}}.`;
+    }\nIf the API doesn't require parameters, invoke it with default JSON object ${
+      (language as ProgrammingLanguage) === ProgrammingLanguage.CSharp ? cSharpObject : object
+    }.\n\ncontext:\nAvailable actions: {{getAction}}.`;
     await fs.writeFile(promptFilePath, prompt, { encoding: "utf-8", flag: "w" });
   }
 }
@@ -1611,4 +1611,23 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
   await fs.ensureDir(destinationKiotaFolder);
   await fs.copy(originKiotaFolder, destinationKiotaFolder, { recursive: true });
   return;
+}
+
+export async function updateDeclarativeAgentManifest(
+  manifestPath: string,
+  declarativeAgentManifestPath: string,
+  declarativeCopilotActionId: string,
+  pluginManifestPath: string
+): Promise<Result<any, FxError>> {
+  const gptManifestPath = path.join(path.dirname(manifestPath), declarativeAgentManifestPath);
+  const addAcionResult = await copilotGptManifestUtils.addAction(
+    gptManifestPath,
+    declarativeCopilotActionId,
+    path.basename(pluginManifestPath)
+  );
+  if (addAcionResult.isErr()) {
+    return err(addAcionResult.error);
+  }
+
+  return ok(undefined);
 }

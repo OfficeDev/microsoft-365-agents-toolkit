@@ -6,6 +6,7 @@
  */
 
 import {
+  AdaptiveCardGenerator,
   ProjectType,
   SpecParser,
   SpecParserError,
@@ -27,6 +28,7 @@ import {
   ResponseTemplatesFolderName,
   Result,
   SystemError,
+  TeamsAppManifest,
   UserError,
   Warning,
   err,
@@ -59,11 +61,13 @@ import {
   getEnvName,
   getParserOptions,
   listOperations,
+  updateDeclarativeAgentManifest,
   updateForCustomApi,
 } from "./helper";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { declarativeCopilotInstructionFileName } from "../constant";
 import { isJsonSpecFile } from "../../../common/utils";
+import { getLocalizedString } from "../../../common/localizeUtils";
 
 const defaultDeclarativeCopilotActionId = "action_1";
 // const fromApiSpecComponentName = "copilot-plugin-existing-api";
@@ -182,13 +186,15 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         inputs
       );
       if (operationsResult.isErr()) {
-        const msg = operationsResult.error.map((e) => e.content).join("\n");
-        return err(new UserError("generator", "ListOperationsFailed", msg));
-      }
-      const operations = operationsResult.value;
-      const authApi = operations.filter((api) => !!api.data.authName);
-      if (authApi.length > 0) {
-        authData = authApi.map((api) => api.data);
+        const errorMsg = getLocalizedString("error.kiota.FailedToGenerateAuthActions");
+        void context.userInteraction.showMessage("warn", errorMsg, false);
+        context.logProvider.warning(errorMsg);
+      } else {
+        const operations = operationsResult.value;
+        const authApi = operations.filter((api) => !!api.data.authName);
+        if (authApi.length > 0) {
+          authData = authApi.map((api) => api.data);
+        }
       }
     }
 
@@ -358,6 +364,60 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         getTemplateInfosState.type === ProjectType.SME
           ? path.join(destinationPath, AppPackageFolderName, ResponseTemplatesFolderName)
           : undefined;
+
+      if (isKiotaIntegration) {
+        // For Kiota integration scenario, we need to:
+        // 1. Copy openapi spec file
+        await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
+
+        // 2. Copy plugin manifest file
+        await fs.copyFile(inputs[QuestionNames.ApiPluginManifestPath], pluginManifestPath!);
+
+        // 3. Update teams app manifest
+        const manifest: TeamsAppManifest = await fs.readJSON(manifestPath);
+        const apiPluginRelativePath = path.relative(manifestPath, pluginManifestPath!);
+        manifest.copilotAgents = manifest.copilotAgents || {};
+        manifest.copilotAgents.plugins = [
+          {
+            file: apiPluginRelativePath,
+            id: "plugin_1",
+          },
+        ];
+
+        // 4. add action in da manifest
+        const addActionResult = await updateDeclarativeAgentManifest(
+          manifestPath,
+          defaultDeclarativeCopilotManifestFileName,
+          defaultDeclarativeCopilotActionId,
+          pluginManifestPath!
+        );
+        if (addActionResult.isErr()) {
+          return err(addActionResult.error);
+        }
+
+        // 5. Update plugin manifest to add auth info (optional)
+        try {
+          const specParser = new SpecParser(
+            openapiSpecPath,
+            getParserOptions(getTemplateInfosState.type, isDeclarativeCopilot)
+          );
+          const operation = (await specParser.list()).APIs.filter((value) => value.isValid).map(
+            (value) => value.api
+          );
+          await specParser.generateAdaptiveCardInPlugin(pluginManifestPath!, operation, undefined);
+        } catch (error) {
+          // create ac error, should not block the whole process
+          const errorMsg = getLocalizedString("error.kiota.FailedToCreateAdaptiveCard");
+          void context.userInteraction.showMessage("warn", errorMsg, false);
+          context.logProvider.warning(errorMsg);
+        }
+
+        // 5. Copy .kiota folder
+        await copyKiotaFolder(inputs[QuestionNames.ApiPluginManifestPath], destinationPath);
+
+        return ok({ warnings: undefined });
+      }
+
       const specParser = new SpecParser(
         getTemplateInfosState.url,
         getParserOptions(getTemplateInfosState.type, isDeclarativeCopilot)
@@ -381,17 +441,14 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         warnings = generateResult.value.warnings;
       }
       if (isDeclarativeCopilot) {
-        const gptManifestPath = path.join(
-          path.dirname(manifestPath),
-          defaultDeclarativeCopilotManifestFileName
-        );
-        const addAcionResult = await copilotGptManifestUtils.addAction(
-          gptManifestPath,
+        const addActionResult = await updateDeclarativeAgentManifest(
+          manifestPath,
+          defaultDeclarativeCopilotManifestFileName,
           defaultDeclarativeCopilotActionId,
-          path.basename(pluginManifestPath!)
+          pluginManifestPath!
         );
-        if (addAcionResult.isErr()) {
-          return err(addAcionResult.error);
+        if (addActionResult.isErr()) {
+          return err(addActionResult.error);
         }
       }
 
@@ -415,10 +472,6 @@ export class SpecGenerator extends DefaultTemplateGenerator {
             error.message
           );
         }
-      }
-
-      if (isKiotaIntegration) {
-        await copyKiotaFolder(inputs[QuestionNames.ApiPluginManifestPath], destinationPath);
       }
 
       const manifestRes = await manifestUtils._readAppManifest(manifestPath);

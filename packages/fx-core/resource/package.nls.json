@@ -930,5 +930,7 @@
   "error.dep.NodejsNotRecommendedError": "Node.js (%s) is not the officially supported version (%s). Your project may continue to work but we recommend to install the supported version. The supported node versions are specified in the package.json. Go to https://nodejs.org to install a supported Node.js.",
   "error.dep.VxTestAppInvalidInstallOptionsError": "Invalid argument for video extensibility test app prerequisites checker. Please review tasks.json file to ensure all arguments are correctly formatted and valid.",
   "error.dep.VxTestAppValidationError": "Unable to validate video extensibility test app after installation.",
-  "error.dep.FindProcessError": "Unable to find process(es) by pid or port. %s"
+  "error.dep.FindProcessError": "Unable to find process(es) by pid or port. %s",
+  "error.kiota.FailedToCreateAdaptiveCard": "Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.",
+  "error.kiota.FailedToGenerateAuthActions": "Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required."
 }

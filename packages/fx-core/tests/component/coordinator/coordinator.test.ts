@@ -201,6 +201,63 @@ describe("component coordinator test", () => {
     sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
     sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(process, "env").value({ TEAMS_APP_ID: "faked_id" });
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      env: "local",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.preCheckYmlAndEnvForVS(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("preCheckYmlAndEnvForVS - happy pass with empty provision actions", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      env: "local",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.preCheckYmlAndEnvForVS(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("preCheckYmlAndEnvForVS - happy pass without teamsApp/create action", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      provision: {
+        name: "configureApp",
+        driverDefs: [
+          {
+            uses: "botFramework/create",
+            with: undefined,
+          },
+        ],
+        resolvePlaceholders: () => {
+          return [];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(fs, "pathExistsSync").returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -244,6 +301,43 @@ describe("component coordinator test", () => {
         ],
         resolvePlaceholders: () => {
           return ["BotId"];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      env: "local",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.preCheckYmlAndEnvForVS(inputs);
+    assert.isTrue(res.isErr());
+  });
+
+  it("empty teams app id in preCheckYmlAndEnvForVS", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      provision: {
+        name: "configureApp",
+        driverDefs: [
+          {
+            uses: "teamsApp/create",
+            with: undefined,
+            writeToEnvironmentFile: { teamsAppId: "CUSTOMIZED_TEAMS_APP_ID" },
+          },
+        ],
+        resolvePlaceholders: () => {
+          return [];
         },
         execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
           return { result: ok(new Map()), summaries: [] };

@@ -39,6 +39,7 @@ module.exports = {
       buffer: require.resolve("buffer"),
       "process/browser": require.resolve("process/browser"),
       util: false,
+      path: require.resolve("path-browserify"),
     },
   },
   plugins: [
