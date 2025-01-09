@@ -45,7 +45,7 @@ describe("SpecParser", () => {
       const specParser = new SpecParser("/path/to/spec.yaml");
       const spec = { openapi: "3.0.0" };
       sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      sinon.stub((specParser as any).refParser, "dereference").resolves(spec as any);
+      sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const parseStub = sinon
         .stub(specParser.parser, "validate")
         .rejects(new Error("Invalid spec"));
@@ -127,7 +127,7 @@ describe("SpecParser", () => {
 
       const openapiSpecObj = await converter.convert(spec as any, {});
       const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
+        .stub(specParser.parser, "dereference")
         .resolves(openapiSpecObj.openapi);
       const validateStub = sinon
         .stub(specParser.parser, "validate")
@@ -214,7 +214,7 @@ describe("SpecParser", () => {
 
       const openapiSpecObj = await converter.convert(spec as any, {});
       const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
+        .stub(specParser.parser, "dereference")
         .resolves(openapiSpecObj.openapi);
       const validateStub = sinon
         .stub(specParser.parser, "validate")
@@ -238,9 +238,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -262,9 +260,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -290,9 +286,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -322,9 +316,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -439,9 +431,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -502,9 +492,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath, { allowMissingId: false });
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
 
@@ -571,9 +559,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
       expect(result.status).to.equal(ValidationStatus.Valid);
@@ -628,9 +614,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath, { projectType: ProjectType.Copilot });
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
       expect(result.status).to.equal(ValidationStatus.Valid);
@@ -787,9 +771,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath, { projectType: ProjectType.Copilot });
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const createValidatorSpy = sinon.spy(ValidatorFactory, "create");
       const result1 = await specParser.validate();
@@ -840,9 +822,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
       expect(result.errors[0].type).equal(ErrorType.SpecVersionNotSupported);
@@ -901,9 +881,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath, { projectType: ProjectType.TeamsAi });
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
       const result = await specParser.validate();
       expect(result.status).to.equal(ValidationStatus.Valid);
@@ -959,9 +937,7 @@ describe("SpecParser", () => {
       try {
         const specParser = new SpecParser(specPath);
         const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         const validateStub = sinon.stub(specParser.parser, "validate").resolves(spec as any);
         sinon.stub(SMEValidator.prototype, "validateSpec").throws(new Error("validateSpec error"));
 
@@ -1017,9 +993,7 @@ describe("SpecParser", () => {
           signal.aborted = true;
           return Promise.resolve();
         });
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         await specParser.generateForCopilot(
           manifestPath,
           filter,
@@ -1042,9 +1016,7 @@ describe("SpecParser", () => {
         const specParser = new SpecParser("path/to/spec.yaml");
         const spec = { openapi: "3.0.0", paths: {} };
         const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         const specFilterStub = sinon
           .stub(SpecFilter, "specFilter")
           .callsFake((filter: string[], unResolveSpec: any) => {
@@ -1083,9 +1055,7 @@ describe("SpecParser", () => {
         const specParser = new SpecParser("path/to/spec.yaml");
         const spec = { openapi: "3.0.0", paths: {} };
         const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         const specFilterStub = sinon.stub(SpecFilter, "specFilter").resolves();
         const outputFileStub = sinon.stub(fs, "outputFile").resolves();
         const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1144,9 +1114,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1218,9 +1186,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1300,9 +1266,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1338,9 +1302,7 @@ describe("SpecParser", () => {
       const specParser = new SpecParser("path/to/spec.yaml");
       const spec = { openapi: "3.0.0", paths: {} };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").resolves();
       const outputFileStub = sinon.stub(fs, "outputFile").throws(new Error("outputFile error"));
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1411,9 +1373,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
@@ -1484,9 +1444,7 @@ describe("SpecParser", () => {
           signal.aborted = true;
           return Promise.resolve();
         });
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         await specParser.generate(manifestPath, filter, specPath, adaptiveCardFolder, signal);
         expect.fail("Expected an error to be thrown");
       } catch (err) {
@@ -1502,9 +1460,7 @@ describe("SpecParser", () => {
         const specParser = new SpecParser("path/to/spec.yaml");
         const spec = { openapi: "3.0.0", paths: {} };
         const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         const specFilterStub = sinon
           .stub(SpecFilter, "specFilter")
           .callsFake((filter: string[], unResolveSpec: any) => {
@@ -1561,9 +1517,7 @@ describe("SpecParser", () => {
           },
         };
         const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-        const dereferenceStub = sinon
-          .stub((specParser as any).refParser, "dereference")
-          .resolves(spec as any);
+        const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
         const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
         const outputFileStub = sinon.stub(fs, "outputFile").resolves();
         const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1602,9 +1556,7 @@ describe("SpecParser", () => {
       const specParser = new SpecParser("path/to/spec.yaml");
       const spec = { openapi: "3.0.0", paths: {} };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1663,9 +1615,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1733,9 +1683,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1815,9 +1763,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -1894,9 +1840,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -2012,9 +1956,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -2127,9 +2069,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -2247,9 +2187,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -2324,7 +2262,7 @@ describe("SpecParser", () => {
       const cloneSpec = JSON.parse(JSON.stringify(spec));
       cloneSpec.paths["/hello"].get.operationId = "getHello";
       const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
+        .stub(specParser.parser, "dereference")
         .resolves(cloneSpec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns({} as any);
       const outputFileStub = sinon.stub(fs, "outputFile").resolves();
@@ -2368,9 +2306,7 @@ describe("SpecParser", () => {
       const specParser = new SpecParser("path/to/spec.yaml");
       const spec = { openapi: "3.0.0", paths: {} };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").resolves();
       const outputFileStub = sinon.stub(fs, "outputFile").throws(new Error("outputFile error"));
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
@@ -2404,9 +2340,7 @@ describe("SpecParser", () => {
       const specParser = new SpecParser("path/to/spec.yaml");
       const spec = { openapi: "3.0.0", paths: {} };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon
         .stub(SpecFilter, "specFilter")
         .throws(new SpecParserError("specFilter error", ErrorType.FilterSpecFailed));
@@ -2520,9 +2454,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -2620,9 +2552,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -2704,9 +2634,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -2779,9 +2707,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -2857,9 +2783,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
       expect(result).to.deep.equal({
@@ -2994,9 +2918,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -3142,9 +3064,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -3239,9 +3159,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -3303,9 +3221,7 @@ describe("SpecParser", () => {
       };
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
 
       const result = await specParser.list();
 
@@ -3384,9 +3300,7 @@ describe("SpecParser", () => {
 
       const specParser = new SpecParser(specPath);
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
-      const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
-        .resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const result = await specParser.list();
 
       expect(result).to.deep.equal({
@@ -3469,7 +3383,7 @@ describe("SpecParser", () => {
 
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
       const dereferenceStub = sinon
-        .stub((specParser as any).refParser, "dereference")
+        .stub(specParser.parser, "dereference")
         .callsFake(async (api: string | OpenAPI.Document) => {
           expect((api as OpenAPIV3.Document).servers![0].url == "https://server1");
           return api as any;
@@ -3741,6 +3655,7 @@ describe("SpecParser", () => {
         },
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
       const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
         if (path === "pluginFilePath") {
@@ -3802,6 +3717,7 @@ describe("SpecParser", () => {
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const outputJSONStub = sinon.stub(fs, "outputJSON").callsFake((path, data) => {
         if (path === "pluginFilePath") {
           expect(data.functions).to.not.be.undefined;
@@ -3920,6 +3836,7 @@ describe("SpecParser", () => {
       };
       const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
       const specFilterStub = sinon.stub(SpecFilter, "specFilter").returns(spec as any);
+      sinon.stub(specParser.parser, "dereference").resolves(spec as any);
       const generateAdaptiveCardStub = sinon
         .stub(AdaptiveCardGenerator, "generateAdaptiveCard")
         .throws(new Error("generate ac error"));
