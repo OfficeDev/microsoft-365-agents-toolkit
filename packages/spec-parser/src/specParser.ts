@@ -33,7 +33,6 @@ import { wrapAdaptiveCard, wrapResponseSemantics } from "./adaptiveCardWrapper";
 import { ValidatorFactory } from "./validators/validatorFactory";
 import { Validator } from "./validators/validator";
 import { createHash } from "crypto";
-import { $RefParser } from "@apidevtools/json-schema-ref-parser";
 import { PluginManifestSchema } from "@microsoft/teams-manifest";
 
 /**
@@ -48,8 +47,6 @@ export class SpecParser {
   private spec: OpenAPIV3.Document | undefined;
   private unResolveSpec: OpenAPIV3.Document | undefined;
   private isSwaggerFile: boolean | undefined;
-
-  private readonly refParser;
 
   private defaultOptions: ParseOptions = {
     allowMissingId: true,
@@ -74,7 +71,6 @@ export class SpecParser {
   constructor(pathOrDoc: string | OpenAPIV3.Document, options?: ParseOptions) {
     this.pathOrSpec = pathOrDoc;
     this.parser = new SwaggerParser();
-    this.refParser = new $RefParser();
     this.options = {
       ...this.defaultOptions,
       ...(options ?? {}),
@@ -92,10 +88,10 @@ export class SpecParser {
 
       try {
         await this.loadSpec();
-        if (!this.refParser.$refs.circular) {
+        if (!this.parser.$refs.circular) {
           await this.parser.validate(this.spec!);
         } else {
-          // The following code hangs for Graph API, support will be added when SwaggerParser is updated.
+          // The following code still hangs for Graph API, support will be added when SwaggerParser is updated.
           /*
           const clonedUnResolveSpec = JSON.parse(JSON.stringify(this.unResolveSpec));
           await this.parser.validate(clonedUnResolveSpec);
@@ -130,7 +126,7 @@ export class SpecParser {
       }
 
       // Remote reference not supported
-      const refPaths = this.refParser.$refs.paths();
+      const refPaths = this.parser.$refs.paths();
       // refPaths [0] is the current spec file path
       if (refPaths.length > 1) {
         errors.push({
@@ -292,7 +288,7 @@ export class SpecParser {
   }
 
   private async deReferenceSpec(spec: any): Promise<OpenAPIV3.Document> {
-    const result = await this.refParser.dereference(spec);
+    const result = await this.parser.dereference(spec);
     return result as OpenAPIV3.Document;
   }
 
