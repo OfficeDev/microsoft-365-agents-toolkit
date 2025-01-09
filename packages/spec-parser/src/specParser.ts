@@ -90,8 +90,11 @@ export class SpecParser {
         if (!this.parser.$refs.circular) {
           await this.parser.validate(this.spec!);
         } else {
+          // The following code still hangs for Graph API, support will be added when SwaggerParser is updated.
+          /*
           const clonedUnResolveSpec = JSON.parse(JSON.stringify(this.unResolveSpec));
           await this.parser.validate(clonedUnResolveSpec);
+          */
         }
       } catch (e) {
         return {
@@ -281,6 +284,11 @@ export class SpecParser {
       }
       throw new SpecParserError((err as Error).toString(), ErrorType.GetSpecFailed);
     }
+  }
+
+  private async deReferenceSpec(spec: any): Promise<OpenAPIV3.Document> {
+    const result = await this.parser.dereference(spec);
+    return result as OpenAPIV3.Document;
   }
 
   /**
