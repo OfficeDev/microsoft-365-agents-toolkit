@@ -77,6 +77,10 @@ export async function runCommand(
         result = await core.buildAadManifest(inputs);
         break;
       }
+      case Stage.ConvertAadToNewSchema: {
+        result = await core.convertAadToNewSchema(inputs);
+        break;
+      }
       case Stage.publish: {
         result = await core.publishApplication(inputs);
         break;

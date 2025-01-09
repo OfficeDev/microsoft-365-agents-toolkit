@@ -15,6 +15,14 @@ import {
   UnknownResourceAccessTypeUserError,
   UnknownResourceAppIdUserError,
 } from "../error/aadManifestError";
+import { TOOLS } from "../../../../common/globalVars";
+import { getLocalizedString } from "../../../../common/localizeUtils";
+import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
+import { FileNotFoundError, UserCancelError } from "../../../../error";
+import fs from "fs-extra";
+import { parseDocument } from "yaml";
+import { MetadataV3 } from "../../../../common/versionMetadata";
+import path from "path";
 
 const componentName = "AadManifestHelper";
 
@@ -308,5 +316,101 @@ export class AadManifestHelper {
 
   public static isNewAADManifestSchema(manifest: AADManifest | AADApplication): boolean {
     return "displayName" in manifest;
+  }
+
+  public static async showWarningIfManifestIsOutdated(
+    manifestTemplatePath: string,
+    projectPath: string
+  ): Promise<void> {
+    const manifest = await fs.readJson(manifestTemplatePath);
+    if (!AadManifestHelper.isNewAADManifestSchema(manifest)) {
+      void TOOLS.ui
+        .showMessage(
+          "warn",
+          getLocalizedString("core.convertAadToNewSchema.outdate"),
+          false,
+          getLocalizedString("core.convertAadToNewSchema.upgrade")
+        )
+        .then((result) => {
+          if (
+            result.isOk() &&
+            result.value === getLocalizedString("core.convertAadToNewSchema.upgrade")
+          ) {
+            void AadManifestHelper.convertManifestToNewSchemaAndOverride(
+              manifestTemplatePath,
+              projectPath
+            );
+          }
+        });
+    }
+  }
+
+  public static async convertManifestToNewSchemaAndOverride(
+    manifestTemplatePath: string,
+    projectPath: string
+  ): Promise<Result<undefined, FxError>> {
+    if (!(await fs.pathExists(manifestTemplatePath))) {
+      return err(new FileNotFoundError("convertAadToNewSchema", manifestTemplatePath));
+    }
+    const manifest = await fs.readJson(manifestTemplatePath);
+
+    if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
+      void TOOLS.ui.showMessage(
+        "info",
+        getLocalizedString("core.convertAadToNewSchema.alreadyNewSchema"),
+        false
+      );
+      return ok(undefined);
+    }
+
+    const confirmRes = await TOOLS.ui.showMessage(
+      "warn",
+      getLocalizedString("core.convertAadToNewSchema.warning"),
+      true,
+      getLocalizedString("core.convertAadToNewSchema.continue")
+    );
+
+    if (
+      confirmRes.isOk() &&
+      confirmRes.value !== getLocalizedString("core.convertAadToNewSchema.continue")
+    ) {
+      return err(new UserCancelError());
+    }
+
+    const result = AadManifestHelper.manifestToApplication(manifest);
+    await fs.writeJson(manifestTemplatePath, result, { spaces: 2 });
+    void TOOLS.ui.showMessage(
+      "info",
+      getLocalizedString("core.convertAadToNewSchema.success"),
+      false
+    );
+
+    await AadManifestHelper.updateVersionForTeamsAppYamlFile(projectPath);
+    return ok(undefined);
+  }
+
+  public static async updateVersionForTeamsAppYamlFile(projectPath: string): Promise<void> {
+    const allPossilbeYamlFileNames = [
+      MetadataV3.localConfigFile,
+      MetadataV3.configFile,
+      MetadataV3.testToolConfigFile,
+    ];
+    for (const yamlFileName of allPossilbeYamlFileNames) {
+      const ymlPath = path.join(projectPath, yamlFileName);
+      if (await fs.pathExists(ymlPath)) {
+        const ymlContent = await fs.readFile(ymlPath, "utf-8");
+        const document = parseDocument(ymlContent);
+        const version = document.get("version") as string;
+        if (version <= "v1.7") {
+          document.set("version", "v1.8");
+          const docContent = document.toString();
+          const updatedContent = docContent.replace(
+            /(yaml-language-server:\s*\$schema=https:\/\/aka\.ms\/teams-toolkit\/)v\d+\.\d+(\/yaml\.schema\.json)/,
+            "$1v1.8$2"
+          );
+          await fs.writeFile(ymlPath, updatedContent, "utf8");
+        }
+      }
+    }
   }
 }

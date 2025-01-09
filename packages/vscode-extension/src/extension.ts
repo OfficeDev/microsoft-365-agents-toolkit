@@ -75,6 +75,7 @@ import {
   workspaceUri,
 } from "./globalVariables";
 import {
+  convertAadToNewSchemaHandler,
   editAadManifestTemplateHandler,
   openPreviewAadFileHandler,
   updateAadAppManifestHandler,
@@ -834,6 +835,12 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(openPreviewAadFileHandler, args)
   );
   context.subscriptions.push(aadManifestTemplateCodeLensCmd);
+
+  const aadConvertToNewSchemaCmd = vscode.commands.registerCommand(
+    "fx-extension.convertAadToNewSchema",
+    (...args) => Correlator.run(convertAadToNewSchemaHandler, args)
+  );
+  context.subscriptions.push(aadConvertToNewSchemaCmd);
 
   const openResourceGroupInPortalCmd = vscode.commands.registerCommand(
     "fx-extension.openResourceGroupInPortal",

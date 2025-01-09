@@ -14,6 +14,7 @@ import { environmentManager } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
 import {
+  convertAadToNewSchemaHandler,
   editAadManifestTemplateHandler,
   openPreviewAadFileHandler,
   updateAadAppManifestHandler,
@@ -125,6 +126,33 @@ describe("aadManifestHandlers", () => {
       const deployAadManifest = sandbox.spy(globalVariables.core, "deployAadManifest");
       await updateAadAppManifestHandler([{ fsPath: "path/aad.dev.template" }]);
       sandbox.assert.calledOnce(deployAadManifest);
+    });
+  });
+
+  describe("convertAadToNewSchemaHandler", () => {
+    const sandbox = sinon.createSandbox();
+
+    beforeEach(() => {
+      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("convertAadToNewSchemaHandler", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const convertAadToNewSchema = sandbox.spy(globalVariables.core, "convertAadToNewSchema");
+      await convertAadToNewSchemaHandler([{ fsPath: "path/aad.manifest.json" }]);
+      sandbox.assert.calledOnce(convertAadToNewSchema);
+    });
+
+    it("convertAadToNewSchemaHandler no parameter", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const convertAadToNewSchema = sandbox.spy(globalVariables.core, "convertAadToNewSchema");
+      await convertAadToNewSchemaHandler([]);
+      sandbox.assert.calledOnce(convertAadToNewSchema);
     });
   });
 

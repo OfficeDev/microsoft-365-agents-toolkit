@@ -105,6 +105,10 @@ export class MockCore {
   async buildAadManifest(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
+  async convertAadToNewSchema(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+
   async getProjectId(projectPath: string): Promise<Result<string, FxError>> {
     return ok("");
   }

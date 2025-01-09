@@ -103,7 +103,7 @@ describe("CodeLens Provider", () => {
       const document = <vscode.TextDocument>{
         fileName: "./aad.manifest.json",
         getText: () => {
-          return "{name: 'test'}";
+          return '{"name": "test"}';
         },
       };
 
@@ -111,6 +111,27 @@ describe("CodeLens Provider", () => {
       const res = await aadProvider.provideCodeLenses(document);
       chai.assert.isTrue(
         res != null && res[0].command!.command === "fx-extension.openPreviewAadFile"
+      );
+
+      chai.assert.isTrue(
+        res != null && res[1].command!.command === "fx-extension.convertAadToNewSchema"
+      );
+    });
+
+    it("ComputeTemplateCodeLenses for AAD manifest template with new schema", async () => {
+      const document = <vscode.TextDocument>{
+        fileName: "./aad.manifest.json",
+        getText: () => {
+          return '{"displayName": "test"}';
+        },
+      };
+
+      const aadProvider = new AadAppTemplateCodeLensProvider();
+      const res = await aadProvider.provideCodeLenses(document);
+      chai.assert.isTrue(
+        res != null &&
+          res.length === 1 &&
+          res[0].command!.command === "fx-extension.openPreviewAadFile"
       );
     });
 
@@ -178,6 +199,30 @@ describe("CodeLens Provider", () => {
       chai.assert.isTrue(
         res != null && res[0].command!.command === "fx-extension.editAadManifestTemplate"
       );
+    });
+
+    it("ComputePreAuthAppCodeLenses for AAD manifest template", async () => {
+      const document = {
+        fileName: "./aad.manifest.json",
+        getText: () => {
+          return `{
+            "api": {
+              "preAuthorizedApplications": [
+                {
+                  "appId": "1fec8e78-bce4-4aaf-ab1b-5451cc387264"
+                }
+              ]
+            }
+          }`;
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+      } as any as vscode.TextDocument;
+
+      const aadProvider = new AadAppTemplateCodeLensProvider();
+      const res = await aadProvider.provideCodeLenses(document);
+      chai.assert.isTrue(res != null && res[0].command!.title.includes("resource name"));
     });
   });
 

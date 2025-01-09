@@ -30,6 +30,8 @@ import { Platform, ok, err } from "@microsoft/teamsfx-api";
 import { MockedM365Provider } from "../../../core/utils";
 import { AADManifest } from "../../../../src/component/driver/aad/interface/AADManifest";
 import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
+import { AadManifestHelper } from "../../../../src/component/driver/aad/utility/aadManifestHelper";
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -197,6 +199,28 @@ describe("aadAppUpdate", async () => {
       `Applied manifest ${args.manifestPath} to Microsoft Entra application with object id ${expectedObjectId}`
     );
   });
+
+  it("should call showWarningIfManifestIsOutdated", async () => {
+    sinon.stub(AadAppClient.prototype, "updateAadApp").resolves();
+    envRestore = mockedEnv({
+      AAD_APP_OBJECT_ID: expectedObjectId,
+      AAD_APP_CLIENT_ID: expectedClientId,
+    });
+
+    const outputPath = path.join(outputRoot, "manifest.output.json");
+    const args = {
+      manifestPath: path.join(testAssetsRoot, "manifest.json"),
+      outputFilePath: outputPath,
+    };
+
+    const AadManifestHelperStub = sinon
+      .stub(AadManifestHelper, "showWarningIfManifestIsOutdated")
+      .resolves();
+
+    await updateAadAppDriver.execute(args, mockedDriverContext);
+    chai.assert.isTrue(AadManifestHelperStub.calledOnce);
+  });
+
   it("should success with valid manifest on cli", async () => {
     sinon.stub(AadAppClient.prototype, "updateAadApp").resolves();
     envRestore = mockedEnv({

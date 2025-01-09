@@ -404,6 +404,11 @@
           "command": "fx-extension.openPreviewAadFile",
           "when": "resourceFilename == aad.template.json && fx-extension.isAadManifestEnabled",
           "group": "navigation"
+        },
+        {
+          "command": "fx-extension.convertAadToNewSchema",
+          "when": "resourceFilename == aad.template.json && fx-extension.isAadManifestEnabled",
+          "group": "navigation"
         }
       ],
       "commandPalette": [
@@ -478,6 +483,10 @@
         {
           "command": "fx-extension.openPreviewAadFile",
           "when": "false"
+        },
+        {
+          "command": "fx-extension.convertAadToNewSchema",
+          "when": "true"
         },
         {
           "command": "fx-extension.openResourceGroupInPortal",
@@ -666,7 +675,7 @@
       {
         "command": "fx-extension.updateAadAppManifest",
         "title": "%teamstoolkit.commands.updateAadAppManifest.title%",
-        "enablement": "fx-extension.isTeamsFx && fx-extension.isAadManifestEnabled && isWorkspaceTrusted",
+        "enablement": "fx-extension.isTeamsFx && fx-extension.isAadManifestEnabled && isWorkspaceTrusted && !fx-extension.isSPFx",
         "category": "Teams"
       },
       {
@@ -813,6 +822,12 @@
         "command": "fx-extension.openPreviewAadFile",
         "title": "%teamstoolkit.commands.previewAadManifest.title%",
         "icon": "$(file-code)"
+      },
+      {
+        "command": "fx-extension.convertAadToNewSchema",
+        "title": "%teamstoolkit.commands.convertAadToNewSchema.title%",
+        "icon": "$(file-code)",
+        "category": "Teams"
       },
       {
         "command": "fx-extension.openResourceGroupInPortal",

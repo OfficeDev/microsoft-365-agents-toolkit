@@ -297,24 +297,24 @@
 /templates/**/ai-assistant-bot @kimizhu @swatDong @kuojianlu
 /templates/**/ai-bot @kimizhu @swatDong @kuojianlu
 /templates/**/api-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
-/templates/**/api-plugin-from-scratch @hund030 @eriolchan @huimiu
-/templates/**/api-plugin-from-scratch-bearer @hund030 @eriolchan @huimiu @Yimin-Jin
-/templates/**/api-plugin-from-scratch-oauth @hund030 @eriolchan @huimiu @Yimin-Jin
-/templates/**/copilot-gpt-basic @hund030 @eriolchan @huimiu
-/templates/**/copilot-gpt-existing-api @hund030 @eriolchan @huimiu
-/templates/**/copilot-gpt-from-scratch-plugin @hund030 @eriolchan @huimiu
+/templates/**/api-plugin-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/api-plugin-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin
+/templates/**/api-plugin-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-basic @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin
 /templates/**/command-and-response @kimizhu @dooriya @swatDong
 /templates/**/copilot-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang
-/templates/**/copilot-plugin-from-scratch @hund030 @eriolchan @huimiu
-/templates/**/copilot-plugin-from-scratch-api-key @hund030 @eriolchan @huimiu
+/templates/**/copilot-plugin-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-plugin-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin
 /templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-rag-azure-ai-search @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
 /templates/**/custom-copilot-rag-customize @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
 /templates/**/custom-copilot-rag-microsoft365 @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
-/templates/**/dashboard-tab @hund030 @eriolchan @huimiu
+/templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin
 /templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong
@@ -322,7 +322,7 @@
 /templates/**/m365-message-extension @kimizhu @swatDong @kuojianlu
 /templates/**/message-extension @yuqizhou77 @Yukun-dong
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong
-/templates/**/message-extension-copilot @hund030 @eriolchan @huimiu
+/templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin
 /templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77

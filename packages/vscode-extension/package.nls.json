@@ -1,7 +1,7 @@
 {
   "teamstoolkit.accountTree.azureAccountTooltip": "AZURE ACCOUNT  \nThe Teams Toolkit requires Azure subscription to deploy the Azure resources for your project.",
-  "teamstoolkit.accountTree.copilotEnroll": "Enroll for Early Access",
-  "teamstoolkit.accountTree.copilotMessage": "Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program.",
+  "teamstoolkit.accountTree.copilotEnroll": "View Documentation",
+  "teamstoolkit.accountTree.copilotMessage": "Your account doesn't have access to Microsoft 365 Copilot. View documentation to set up your development environment.",
   "teamstoolkit.accountTree.copilotPass": "Copilot Access Enabled",
   "teamstoolkit.accountTree.copilotPassTooltip": "You already have Copilot access.",
   "teamstoolkit.accountTree.copilotStatusUnknown": "Copilot Access Check Failed",
@@ -92,6 +92,7 @@
   "teamstoolkit.commands.openInPortal.title": "Open in Portal",
   "teamstoolkit.commands.openManifestSchema.title": "Open Manifest Schema",
   "teamstoolkit.commands.previewAadManifest.title": "Preview Microsoft Entra Manifest File",
+  "teamstoolkit.commands.convertAadToNewSchema.title": "Upgrade Microsoft Entra Manifest to New Schema",
   "teamstoolkit.commands.previewApp.title": "Preview App",
   "teamstoolkit.commands.provision.title": "Provision",
   "teamstoolkit.commands.publish.title": "Publish",

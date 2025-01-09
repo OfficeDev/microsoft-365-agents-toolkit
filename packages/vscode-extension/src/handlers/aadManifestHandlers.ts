@@ -13,7 +13,12 @@ import {
   ok,
   SystemError,
 } from "@microsoft/teamsfx-api";
-import { isValidProject, InvalidProjectError, MetadataV3 } from "@microsoft/teamsfx-core";
+import {
+  isValidProject,
+  InvalidProjectError,
+  MetadataV3,
+  QuestionNames,
+} from "@microsoft/teamsfx-core";
 import { showError } from "../error/common";
 import { ExtensionSource } from "../error/error";
 import { workspaceUri } from "../globalVariables";
@@ -104,4 +109,13 @@ export async function updateAadAppManifestHandler(args: any[]): Promise<Result<n
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.DeployAadManifestStart);
   const inputs = getSystemInputs();
   return await runCommand(Stage.deployAad, inputs);
+}
+
+export async function convertAadToNewSchemaHandler(args: any[]): Promise<Result<null, FxError>> {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ConvertAadToNewSchemaStart);
+  const inputs = getSystemInputs();
+  if (args && args.length === 1) {
+    inputs[QuestionNames.AadAppManifestFilePath] = args[0].fsPath;
+  }
+  return await runCommand(Stage.ConvertAadToNewSchema, inputs);
 }

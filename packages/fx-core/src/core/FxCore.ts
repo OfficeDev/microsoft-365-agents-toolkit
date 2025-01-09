@@ -844,43 +844,11 @@ export class FxCore {
   ])
   async convertAadToNewSchema(inputs: Inputs): Promise<Result<undefined, FxError>> {
     const manifestTemplatePath: string = inputs[QuestionNames.AadAppManifestFilePath];
-    if (!(await fs.pathExists(manifestTemplatePath))) {
-      return err(new FileNotFoundError("convertAadToNewSchema", manifestTemplatePath));
-    }
-
-    const manifest = await fs.readJson(manifestTemplatePath);
-    const context = createContext();
-
-    if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
-      void (await context.userInteraction.showMessage(
-        "info",
-        getLocalizedString("core.convertAadToNewSchema.alreadyNewSchema"),
-        false
-      ));
-      return ok(undefined);
-    }
-
-    const confirmRes = await context.userInteraction.showMessage(
-      "warn",
-      getLocalizedString("core.convertAadToNewSchema.warning"),
-      true,
-      getLocalizedString("core.convertAadToNewSchema.continue")
+    const projectPath = inputs[QuestionNames.ProjectPath] as string;
+    return AadManifestHelper.convertManifestToNewSchemaAndOverride(
+      manifestTemplatePath,
+      projectPath
     );
-
-    if (confirmRes.isErr()) {
-      return err(confirmRes.error);
-    } else if (confirmRes.value !== getLocalizedString("core.convertAadToNewSchema.continue")) {
-      return err(new UserCancelError());
-    }
-
-    const result = AadManifestHelper.manifestToApplication(manifest);
-    await fs.writeJson(manifestTemplatePath, result, { spaces: 2 });
-    void (await context.userInteraction.showMessage(
-      "info",
-      getLocalizedString("core.convertAadToNewSchema.success"),
-      false
-    ));
-    return ok(undefined);
   }
 
   /**

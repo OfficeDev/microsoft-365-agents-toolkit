@@ -49,6 +49,9 @@ export enum TelemetryEvent {
   UpdatePreviewManifestStart = "update-preview-manifest-start",
   UpdatePreviewManifest = "update-preview-manifest",
 
+  ConvertAadToNewSchemaStart = "convert-aad-to-new-schema-start",
+  ConvertAadToNewSchema = "convert-aad-to-new-schema",
+
   EditManifestTemplate = "edit-manifest-template",
   EditAadManifestTemplate = "edit-aad-manifest-template",
 

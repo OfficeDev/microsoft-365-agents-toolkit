@@ -7,7 +7,17 @@ import path from "path";
 import { getResourceFolder } from "../../folder";
 
 type Version = string;
-const supportedVersions = ["1.0.0", "1.1.0", "v1.2", "v1.3", "v1.4", "v1.5", "v1.6", "v1.7"];
+const supportedVersions = [
+  "1.0.0",
+  "1.1.0",
+  "v1.2",
+  "v1.3",
+  "v1.4",
+  "v1.5",
+  "v1.6",
+  "v1.7",
+  "v1.8",
+];
 
 export class Validator {
   impl: Map<Version, { validator: ValidateFunction }>;

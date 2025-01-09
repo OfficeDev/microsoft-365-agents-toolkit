@@ -18,7 +18,9 @@ export async function checkCopilotCallback(args?: any[]): Promise<Result<null, F
   )
     .then(async (result) => {
       if (result.isOk() && result.value === localize("teamstoolkit.accountTree.copilotEnroll")) {
-        await VS_CODE_UI.openUrl("https://aka.ms/PluginsEarlyAccess");
+        await VS_CODE_UI.openUrl(
+          "https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites"
+        );
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenCopilotEnroll);
       }
     })

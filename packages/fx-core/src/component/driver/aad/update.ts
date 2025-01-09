@@ -22,6 +22,7 @@ import { descriptionMessageKeys, logMessageKeys } from "./utility/constants";
 import { AadManifestHelper } from "./utility/aadManifestHelper";
 import { AADApplication } from "./interface/AADApplication";
 import { AADManifest } from "./interface/AADManifest";
+import path from "path";
 
 export const actionName = "aadApp/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-update";
@@ -82,6 +83,11 @@ export class UpdateAadAppDriver implements StepDriver {
       context.logProvider?.info(
         getLocalizedString(logMessageKeys.successExecuteDriver, actionName)
       );
+
+      const manifestPath = path.isAbsolute(args.manifestPath)
+        ? args.manifestPath
+        : path.join(context.projectPath, args.manifestPath);
+      void AadManifestHelper.showWarningIfManifestIsOutdated(manifestPath, context.projectPath);
 
       return {
         result: ok(
