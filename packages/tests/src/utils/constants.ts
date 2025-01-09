@@ -304,10 +304,11 @@ export class TreeViewCommands {
   public static readonly OfficeDevLifeCycleSectionName: string = "LIFECYCLE";
   public static readonly OfficeDevLifeCycleSectionItems: string[] = [
     "Deploy",
-    "Publish",
+    "Publish to org",
   ];
 
-  public static readonly OfficeDevUtilitySectionName: string = "UTILITY";
+  public static readonly OfficeDevUtilitySectionName: string =
+    "Publish to store";
   public static readonly OfficeDevUtilitySectionItems: string[] = [
     "Validate Manifest File",
     "Script Lab",
