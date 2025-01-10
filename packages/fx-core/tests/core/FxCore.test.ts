@@ -4729,6 +4729,45 @@ describe("copilotPlugin", async () => {
     }
   });
 
+  it("isDeclarativeAgentApp - invalid project path", async () => {
+    const core = new FxCore(tools);
+    const inputs = { projectPath: "invalid" } as Inputs;
+    const res = await core.isDelcarativeAgentApp(inputs);
+    assert.isTrue(res.isErr());
+  });
+
+  it("isDeclarativeAgentApp - true", async () => {
+    const core = new FxCore(tools);
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "1",
+          file: "file",
+        },
+      ],
+    };
+    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    const inputs = { projectPath: "mock" } as Inputs;
+    const res = await core.isDelcarativeAgentApp(inputs);
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.isTrue(res.value);
+    }
+  });
+
+  it("isDeclarativeAgentApp - false", async () => {
+    const core = new FxCore(tools);
+    const manifest = new TeamsAppManifest();
+    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    const inputs = { projectPath: "mock" } as Inputs;
+    const res = await core.isDelcarativeAgentApp(inputs);
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.isFalse(res.value);
+    }
+  });
+
   describe("listPluginApiSpecs", async () => {
     it("success", async () => {
       const inputs = {
