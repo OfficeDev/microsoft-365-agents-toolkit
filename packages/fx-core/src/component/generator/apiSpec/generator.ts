@@ -6,7 +6,6 @@
  */
 
 import {
-  AdaptiveCardGenerator,
   ProjectType,
   SpecParser,
   SpecParserError,
@@ -28,7 +27,6 @@ import {
   Result,
   SystemError,
   TeamsAppManifest,
-  UserError,
   Warning,
   err,
   ok,
@@ -37,6 +35,7 @@ import * as fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
 import { FeatureFlags, featureFlagManager } from "../../../common/featureFlags";
+import { getLocalizedString } from "../../../common/localizeUtils";
 import { isValidHttpUrl } from "../../../common/stringUtils";
 import { isJsonSpecFile } from "../../../common/utils";
 import { assembleError } from "../../../error";
@@ -48,7 +47,6 @@ import {
   QuestionNames,
 } from "../../../question/constants";
 import { TemplateNames } from "../../../question/templates";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { declarativeCopilotInstructionFileName } from "../constant";
@@ -66,10 +64,6 @@ import {
   updateDeclarativeAgentManifest,
   updateForCustomApi,
 } from "./helper";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
-import { declarativeCopilotInstructionFileName } from "../constant";
-import { isJsonSpecFile } from "../../../common/utils";
-import { getLocalizedString } from "../../../common/localizeUtils";
 
 const defaultDeclarativeCopilotActionId = "action_1";
 // const fromApiSpecComponentName = "copilot-plugin-existing-api";
