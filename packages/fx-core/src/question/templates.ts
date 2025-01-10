@@ -54,6 +54,9 @@ export enum TemplateNames {
   BasicGpt = "copilot-gpt-basic",
   GptWithPluginFromScratch = "copilot-gpt-from-scratch-plugin",
   DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec",
+  OutlookTaskpane = "office-addin-outlook-taskpane",
+  WXPTaskpane = "office-addin-wxp-taskpane",
+  OfficeAddinCommon = "office-addin-common",
 }
 
 export const Templates: Template[] = [

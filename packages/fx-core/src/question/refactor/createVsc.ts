@@ -164,6 +164,7 @@ export function customEngineAgentProjectTypeNode(): IQTreeNode {
       placeholder: getLocalizedString(
         "core.createProjectQuestion.projectType.customCopilot.placeholder"
       ),
+      onDidSelection: setTemplateName,
     },
     children: [
       {
@@ -569,7 +570,7 @@ export function meProjectTypeNode(): IQTreeNode {
               ),
               staticOptions: [
                 ApiAuthOptions.none(),
-                ApiAuthOptions.apiKey(),
+                ApiAuthOptions.bearerToken(),
                 ApiAuthOptions.microsoftEntra(),
               ],
               default: ApiAuthOptions.none().id,
@@ -583,43 +584,65 @@ export function meProjectTypeNode(): IQTreeNode {
   };
 }
 
-export function officeAddinProjectTypeNode(): IQTreeNode {
+export function outlookAddinProjectTypeNode(): IQTreeNode {
   return {
-    // 2.6 Office Add-in
     condition: {
-      enum: [ProjectTypeOptions.officeMetaOSOptionId, ProjectTypeOptions.outlookAddinOptionId],
+      equals: ProjectTypeOptions.outlookAddinOptionId,
     },
     data: {
       name: QuestionNames.Capabilities,
-      title: (inputs: Inputs) => {
-        const projectType = inputs[QuestionNames.ProjectType];
-        switch (projectType) {
-          case ProjectTypeOptions.outlookAddin().id:
-            return getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.title");
-          case ProjectTypeOptions.officeMetaOS().id:
-            return getLocalizedString("core.createProjectQuestion.projectType.officeAddin.title");
-          default:
-            return getLocalizedString("core.createCapabilityQuestion.titleNew");
-        }
-      },
+      title: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.title"),
       type: "singleSelect",
-      staticOptions: [
-        CapabilityOptions.jsonTaskPane(),
-        ...(featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)
-          ? [CapabilityOptions.officeAddinImport()]
-          : [CapabilityOptions.outlookAddinImport()]),
-      ],
+      staticOptions: [CapabilityOptions.outlookTaskPane(), CapabilityOptions.outlookAddinImport()],
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
       forgetLastValue: true,
+      onDidSelection: setTemplateName,
     },
     children: [
       {
-        // office addin import
         condition: {
-          enum: [
-            CapabilityOptions.outlookAddinImport().id,
-            CapabilityOptions.officeAddinImport().id,
-          ],
+          equals: CapabilityOptions.outlookAddinImport().id,
+        },
+        data: { type: "group", name: QuestionNames.OfficeAddinImport },
+        children: [
+          {
+            data: {
+              type: "folder",
+              name: QuestionNames.OfficeAddinFolder,
+              title: "Existing add-in project folder",
+            },
+          },
+          {
+            data: {
+              type: "singleFile",
+              name: QuestionNames.OfficeAddinManifest,
+              title: "Select import project manifest file",
+            },
+          },
+        ],
+      },
+    ],
+  };
+}
+
+export function wxpAddinProjectTypeNode(): IQTreeNode {
+  return {
+    condition: {
+      equals: ProjectTypeOptions.officeMetaOSOptionId,
+    },
+    data: {
+      name: QuestionNames.Capabilities,
+      title: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.title"),
+      type: "singleSelect",
+      staticOptions: [CapabilityOptions.wxpTaskPane(), CapabilityOptions.officeAddinImport()],
+      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      forgetLastValue: true,
+      onDidSelection: setTemplateName,
+    },
+    children: [
+      {
+        condition: {
+          equals: CapabilityOptions.officeAddinImport().id,
         },
         data: { type: "group", name: QuestionNames.OfficeAddinImport },
         children: [
@@ -900,6 +923,7 @@ export class CapabilityOptions {
       id: "outlook-addin-import",
       label: getLocalizedString("core.importAddin.label"),
       detail: getLocalizedString("core.importAddin.detail"),
+      data: TemplateNames.OfficeAddinCommon,
     };
   }
   static officeContentAddin(): OptionItem {
@@ -917,16 +941,25 @@ export class CapabilityOptions {
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.previewOnWindow"
       ),
+      data: TemplateNames.OfficeAddinCommon,
     };
   }
-  static jsonTaskPane(): OptionItem {
+  static outlookTaskPane(): OptionItem {
     return {
-      id: "json-taskpane",
+      id: "outlook-json-taskpane",
       label: getLocalizedString("core.newTaskpaneAddin.label"),
       detail: getLocalizedString("core.newTaskpaneAddin.detail"),
+      data: TemplateNames.OutlookTaskpane,
     };
   }
-
+  static wxpTaskPane(): OptionItem {
+    return {
+      id: "wxp-json-taskpane",
+      label: getLocalizedString("core.newTaskpaneAddin.label"),
+      detail: getLocalizedString("core.newTaskpaneAddin.detail"),
+      data: TemplateNames.WXPTaskpane,
+    };
+  }
   static apiPlugin(): OptionItem {
     return {
       id: "api-plugin",
@@ -957,6 +990,7 @@ export class CapabilityOptions {
         "core.createProjectQuestion.capability.customCopilotBasicOption.detail"
       ),
       description: description,
+      data: TemplateNames.CustomCopilotBasic,
     };
   }
 
@@ -1150,11 +1184,18 @@ export class ApiAuthOptions {
       data: TemplateNames.ApiPluginFromScratchBearer,
     };
   }
-
+  static bearerToken(): OptionItem {
+    return {
+      id: "bearer-token",
+      label: "API Key (Bearer Token Auth)",
+      data: TemplateNames.CopilotPluginFromScratchApiKey,
+    };
+  }
   static microsoftEntra(): OptionItem {
     return {
       id: "microsoft-entra",
       label: "Microsoft Entra",
+      data: TemplateNames.ApiMessageExtensionSso,
     };
   }
 
@@ -1186,6 +1227,7 @@ export class CustomCopilotRagOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotRagCustomizeOption.detail"
       ),
+      data: TemplateNames.CustomCopilotRagCustomize,
     };
   }
 
@@ -1198,6 +1240,7 @@ export class CustomCopilotRagOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotRagAzureAISearchOption.detail"
       ),
+      data: TemplateNames.CustomCopilotRagAzureAISearch,
     };
   }
 
@@ -1211,6 +1254,7 @@ export class CustomCopilotRagOptions {
         "core.createProjectQuestion.capability.customCopilotRagCustomApiOption.detail"
       ),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.CustomCopilotRagCustomApi,
     };
   }
 
@@ -1223,6 +1267,7 @@ export class CustomCopilotRagOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotRagMicrosoft365Option.detail"
       ),
+      data: TemplateNames.CustomCopilotRagMicrosoft365,
     };
   }
 }
@@ -1237,6 +1282,7 @@ export class CustomCopilotAssistantOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotAssistantNewOption.detail"
       ),
+      data: TemplateNames.CustomCopilotAssistantNew,
     };
   }
 
@@ -1250,6 +1296,7 @@ export class CustomCopilotAssistantOptions {
         "core.createProjectQuestion.capability.customCopilotAssistantAssistantsApiOption.detail"
       ),
       description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.CustomCopilotAssistantAssistantsApi,
     };
   }
 }
@@ -1588,7 +1635,9 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),
-          officeAddinProjectTypeNode(),
+          featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)
+            ? wxpAddinProjectTypeNode()
+            : outlookAddinProjectTypeNode(),
         ],
       },
       {
