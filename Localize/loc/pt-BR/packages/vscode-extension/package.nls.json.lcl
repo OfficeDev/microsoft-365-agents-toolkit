@@ -33,19 +33,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotEnroll" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enroll for Early Access]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[View Documentation]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Registrar-se para Acesso Antecipado]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enroll for Early Access]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program.]]></Val>
+          <Val><![CDATA[Your account doesn't have access to Microsoft 365 Copilot. View documentation to set up your development environment.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 administrador da conta não habilitou o acesso do Copilot para esta conta. Entre em contato com o administrador do Teams resolve resolver esse problema registrando-se Microsoft 365 Copilot programa de Acesso Antecipado.]]></Val>
+            <Val><![CDATA[Sua conta não tem acesso a Microsoft 365 Copilot. Exiba a documentação para configurar seu ambiente de desenvolvimento.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1077,6 +1083,15 @@
           <Val><![CDATA[Check Copilot Access]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Verificar o Acesso do Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.commands.convertAadToNewSchema.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upgrade Microsoft Entra Manifest to New Schema]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Atualizar Microsoft Entra Manifesto para o Novo Esquema]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3850,6 +3865,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.handlers.similarIssues.message" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[ Or you could search for [similar issues]5D;(command:fx-extension.findSimilarIssue?%5B%22%s%22%5D) in GitHub.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ Ou você pode procurar [similar issues]5D;(command:fx-extension.findSimilarIssue?%5B%22%s%22%5D) no GitHub.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.handlers.stateFileNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[State file not found in environment %s. Firstly, run 'Provision' to generate related state file.]]></Val>
@@ -5367,21 +5391,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bem-vindo ao Kit de Ferramentas do Teams!]A;Introdução a um tutorial guiado]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsThroughthrough?%5B%22SideBar%22%5D)]A; Ou vá direto para o desenvolvimento de aplicativos com modelos de aplicativo ou amostras]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Crie seu novo aplicativo sem esforço com GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visite nossa documentação para criar aplicativos para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Bem-vindo ao Kit de Ferramentas do Teams!]A;Introdução a um tutorial guiado]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsThroughthrough?%5B%22SideBar%22%5D)]A; Ou vá direto para o desenvolvimento de aplicativos com modelos de aplicativo ou amostras]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Crie seu novo aplicativo sem esforço com GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visite nossa documentação para criar aplicativos para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou estenda [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project.content" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bem-vindo ao Kit de Ferramentas do Teams!]A;Introdução a um tutorial guiado]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsThroughthrough?%5B%22SideBar%22%5D)]A; Ou vá direto para o desenvolvimento de aplicativos com modelos de aplicativo ou amostras]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visite nossa documentação para criar aplicativos para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Bem-vindo ao Kit de Ferramentas do Teams!]A;Introdução a um tutorial guiado]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsThroughthrough?%5B%22SideBar%22%5D)]A; Ou vá direto para o desenvolvimento de aplicativos com modelos de aplicativo ou amostras]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visite nossa documentação para criar aplicativos para o [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) ou estenda [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Jump right into Teams Toolkit and get an overview of the fundamentals. For more information, visit [Get Started]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D).]A;Walk through the steps to build a real-world Teams app.]A;[Documentation]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%5D)]A;[How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22SideBar%22%5D)]A;Create a project or explore our samples.]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5472,10 +5499,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Jumpstart your agent development experience with Teams Toolkit]]></Val>
+          <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inicie rapidamente sua experiência de desenvolvimento de agente com o Kit de Ferramentas do Teams]]></Val>
+            <Val><![CDATA[Crie um agente declarativo com o Teams Toolkit para simplificar fluxos de trabalho e automatizar tarefas.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Jumpstart your agent development experience with Teams Toolkit]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5490,9 +5520,117 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Intelligent App Resources]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Resources]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Recursos Inteligentes do Aplicativo]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Intelligent App Resources]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Siga estas etapas para criar seu agente declarativo usando o Kit de Ferramentas do Teams.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a declarative agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Criar um agente declarativo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildAppWithChat.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;]A;Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThroughIntelligentAppsCreate%22%5D) to learn more.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Siga estas etapas para criar seu agente declarativo usando o Kit de Ferramentas do Teams.]A;]A;Precisa de mais ajuda? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughThroughIntelligentAppsCreate%22%5D) para saber mais.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsEnvironment.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set up your environment to build a declarative agent for Microsoft 365 Copilot. Ensure you have Node.js, NPM, and a valid Microsoft 365 Copilot license. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Configure seu ambiente para criar um agente declarativo para Microsoft 365 Copilot. Verifique se você tem Node.js, NPM e uma licença Microsoft 365 Copilot válida. [Learn how to get a developer environment.]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/prerequisites#prerequisites)]A;[Check Copilot License]5D;(command:fx-extension.checkCopilotAccess?%5B%22ThroughThrough%22%5D)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsEnvironment.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set up your environment]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Configurar seu ambiente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsExplore.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Improve your declarative agent's user experience by adding capabilities.]A;]A;The capabilities element in the manifest unlocks various features for your users.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Melhore a experiência do usuário do agente declarativo adicionando funcionalidades.]A;]A;O elemento de recursos no manifesto desbloqueia vários recursos para seus usuários.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsExplore.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Improve your declarative agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Melhore seu agente declarativo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide to get started.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crie um agente declarativo para personalizar Microsoft 365 Copilot com instruções, ações e conhecimento específicos. Siga este guia para começar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Introduction]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroductionWithChat.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a declarative agent to customize Microsoft 365 Copilot with specific instructions, actions, and knowledge. Follow this guide or [chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThroughIntelligentAppsIntroduction%22%5D) to get started.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crie um agente declarativo para personalizar Microsoft 365 Copilot com instruções, ações e conhecimento específicos. Siga este guia ou [chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughIntelligentAppsIntroduction%22%5D) para começar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsPreview.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[To preview your declarative agent, [Provision]5D;(command:fx-extension.provision) it for Microsoft 365 Copilot and Launch Microsoft 365 Copilot for [Preview]5D;(command:fx-extension.localdebug).]A;[Provision]5D;(command:fx-extension.provision)]A;[Preview]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to browse all debug options in Teams.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Para visualizar seu agente declarativo, [Provision]5D;(command:fx-extension.provision) para Microsoft 365 Copilot e Launch Microsoft 365 Copilot para [Preview]5D;(command:fx-extension.localdebug).]A;[Provision]5D;(command:fx-extension.provision)]A;[Preview]5D;(command:fx-extension.localdebug)]A;Dica: use [Run and Debug]5D;(command:workbench.view.debug) na barra de atividades para procurar todas as opções de depuração no Teams.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsPreview.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preview in Microsoft 365 Copilot]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Visualizar em Microsoft 365 Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5526,12 +5664,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit]]></Val>
+          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inicie rapidamente sua experiência de desenvolvimento de aplicativos do Teams com o Kit de Ferramentas do Teams]]></Val>
+            <Val><![CDATA[Crie um bot de notificação personalizado para o Microsoft Teams usando o Kit de Ferramentas do Teams.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Jumpstart your Teams app development experience]]></Val>
+            <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5556,34 +5694,37 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start building your first app with [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) or [Outlook add-in]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) capabilities. Create it from scratch or explore our samples for real-world examples and code structures.]A;[Create a New App]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]]></Val>
+          <Val><![CDATA[Follow these steps to create your notification bot.]A;[Build Notification Bot]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Comece a criar o seu primeiro aplicativo com os recursos do [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) ou [Suplemento do Outlook]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities). Crie-o do zero ou explore nossas amostras de exemplos e estruturas de código do mundo real.]A;[Criar um Novo Aplicativo]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[Exibir Exemplos]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Siga estas etapas para criar seu bot de notificação.]A;[Build Notification Bot]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Start with [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) or [Outlook add-in]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) capability to build your first app.]A;You can create it from the scratch or explore our samples to help you quickly get started with the real-world examples and code structures.]A;[Create a New App]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Start building your first app with [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) or [Outlook add-in]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) capabilities. Create it from scratch or explore our samples for real-world examples and code structures.]A;[Create a New App]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your first app]]></Val>
+          <Val><![CDATA[Build a notification bot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Criar seu primeiro aplicativo]]></Val>
+            <Val><![CDATA[Criar um bot de notificação]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build your first Teams app]]></Val>
+            <Val><![CDATA[Build your first app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitBuildAppWithChat.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start building your first app with [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) or [Outlook add-in]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) capabilities. Create it from scratch or explore our samples for real-world examples and code structures.]A;Enhance your Teams extension experiences wtih GitHub Copilot.]A;[Create a New App]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]A; [Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D)]A;__Tip: You need to have a GitHub Copilot subscription to use GitHub Copilot.__]]></Val>
+          <Val><![CDATA[Follow these steps to create your notification bot.]A;]A;Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThroughCreate%22%5D) to learn more.]A;[Build Notification Bot]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Comece a criar seu primeiro aplicativo com [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) ou [suplemento do Outlook]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) recursos. Crie-o do zero ou explore nossos exemplos de exemplos reais e estruturas de código.]A;Aprimora suas experiências de extensão do Teams com GitHub Copilot.]A;[Create a New App]5D;(command:fx-extension.createFromThroughthrough?%5B%22Throughthrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22Through%22%5D)]A; [Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughThrough%22%5D)]A;__Tip: você precisa ter uma assinatura GitHub Copilot para usar GitHub Copilot.__]]></Val>
+            <Val><![CDATA[Siga estas etapas para criar seu bot de notificação.]A;]A;Precisa de mais ajuda? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughCreate%22%5D) para saber mais.]A;[Build Notification Bot]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start building your first app with [Teams]5D;(https://aka.ms/teamsfx-capabilities-overview) or [Outlook add-in]5D;(https://aka.ms/teamsfx-outlook-add-in-capabilities) capabilities. Create it from scratch or explore our samples for real-world examples and code structures.]A;Enhance your Teams extension experiences wtih GitHub Copilot.]A;[Create a New App]5D;(command:fx-extension.createFromWalkthrough?%5B%22WalkThrough%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22WalkThrough%22%5D)]A; [Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D)]A;__Tip: You need to have a GitHub Copilot subscription to use GitHub Copilot.__]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5611,49 +5752,118 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitDeploy.description" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Set up cloud resources, deploy your app's code to these resources, and distribute your app to Teams.]A;[Open Lifecycle Commands]5D;(command:fx-extension.openLifecycleTreeview?%5B%22WalkThrough%22%5D)]A;__Tip: Get more info about [Lifecycle]5D;(https://aka.ms/teamsfx-provision).__]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Configure recursos de nuvem, implante o código do aplicativo para esses recursos e distribua seu aplicativo para o Teams.]A;[Open Lifecycle Commands]5D;(command:fx-extension.openLifecycleTreeview?%5B%22Through%22%5D)]A;__Tip: obter mais informações sobre [Lifecycle]5D;(https://aka.ms/teamsfx-provision).__]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[You can provision resources in the cloud and deploy your app's code to the provisioned resources. Finally, distribute your first app to Teams.]A;[Open Lifecycle Commands]5D;(command:fx-extension.openLifecycleTreeview?%5B%22WalkThrough%22%5D)]A;__Tip: Learn more about ['Lifecycle']5D;(https://aka.ms/teamsfx-provision).__]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitDeploy.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Deploy Teams apps]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Implantar aplicativos do Teams]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitEnvironment.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Developing Teams application with JavaScript or TypeScript requires NPM and Node.js. Check your environment and get ready for your first Teams app development.]A;[Run Prerequisite Checker]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+          <Val><![CDATA[To develop Teams app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first Teams app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O desenvolvimento do aplicativo Teams com JavaScript ou TypeScript requer NPM e Node.js. Verifique seu ambiente e prepare-se para o desenvolvimento do seu primeiro aplicativo Teams.]A;[Executar o verificador de pré-requisitos]5D;(comando:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Para desenvolver o aplicativo Teams com JavaScript ou TypeScript, você precisa de NPM e Node.js. Configure seu ambiente para começar a criar o primeiro aplicativo Teams.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22Throughthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Developing Teams application with JavaScript or TypeScript requires NPM and Node.js. Check your environment and get ready for your first Teams app development.]A;[Run prerequisite checker]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Developing Teams application with JavaScript or TypeScript requires NPM and Node.js. Check your environment and get ready for your first Teams app development.]A;[Run Prerequisite Checker]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitEnvironment.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Get your environment ready]]></Val>
+          <Val><![CDATA[Set up your environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Prepare seu ambiente]]></Val>
+            <Val><![CDATA[Configurar seu ambiente]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Get your environment ready]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[You can customize the notification by referring to [this doc.]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Você pode personalizar a notificação fazendo referência [this doc.]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5)]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Customize your notification]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
+            <Val><![CDATA[O que vem a seguir?]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[What's next?]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMoreWithChat.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[You can customize the notification by referring to [this doc]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5) or [chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThroughWhatIsNext%22%5D) to customize the notification bot template.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Você pode personalizar a notificação fazendo referência a [this doc]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5) ou [chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughThroughThrough DigitIsNext%22%5D) para personalizar o modelo de bot de notificação.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.altText" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crie um bot de notificação usando o Kit de Ferramentas do Teams para enviar mensagens interativas no Teams.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Introduction]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams. ]A;]A;Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThroughIntroduction%22%5D) to explore Teams app development.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crie um bot de notificação usando o Kit de Ferramentas do Teams para enviar mensagens interativas no Teams. ]A;]A;Precisa de mais ajuda? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22ThroughThroughIntroduction%22%5D) para explorar o desenvolvimento de aplicativos do Teams.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Introduction]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Run and debug your app in the emulated App Test Tool environment.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Execute e depure seu aplicativo no ambiente da Ferramenta de Teste de Aplicativo emulado.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Dica: use [Run and Debug]5D;(command:workbench.view.debug) na barra de atividades para depurar no Teams.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Press [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) or discover [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar, and click the play icon to locally preview your app in Teams context.]A;[Run Local Preview (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Tip: To run local preview, sign in to Microsoft 365 (organizational account) with custom app upload option.__]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Debug in App Test Tool]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Depurar na Ferramenta de Teste de Aplicativo]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Preview your Teams app locally]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[How-to guides, README.md and Documentation]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
@@ -5662,45 +5872,18 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitResources.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Aqui estão algumas recomendações para continuar sua jornada com o Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) e obtenha orientações mais práticas]A; • Abra [Readme.md]5D;(comando:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) para entender como desenvolver este aplicativo]A; • Leia nossa [Documentação]5D;(comando:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitResources.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[What's next?]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O que vem a seguir?]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.description" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Press [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) or discover [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar, and click the play icon to locally preview your app in Teams context.]A;[Run Local Preview (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Tip: To run local preview, sign in to Microsoft 365 (organizational account) with custom app upload option.__]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pressione [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) ou descubra o painel [Executar e Depurar]5D;(command:workbench.view.debug) na barra de atividades e clique no ícone de reprodução para visualizar localmente seu aplicativo no contexto do Teams.]A;[Executar visualização local (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Dica: para executar a visualização local, entre no Microsoft 365 (conta organizacional) com a opção de carregamento de aplicativo personalizado.__]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Press [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) or discover '[Run and Debug]5D;(command:workbench.view.debug)' panel on the activity bar, and click the play icon to locally preview your app in Teams context.]A;[Run Local Preview (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Tip: To run local preview, sign in to Microsoft 365 (organizational account) with sideloading option.__]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Preview your Teams app locally]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Visualizar seu aplicativo do Teams localmente]]></Val>
-          </Tgt>
+          <Val><![CDATA[Resources]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5718,10 +5901,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.withChat.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit or use @teams in GitHub Copilot Extension]]></Val>
+          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Inicie rapidamente sua experiência de desenvolvimento de aplicativos do Teams com o Kit de Ferramentas do Teams ou use @teams na GitHub Copilot Extension]]></Val>
+            <Val><![CDATA[Crie um bot de notificação personalizado para o Microsoft Teams usando o Kit de Ferramentas do Teams.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit or use @teams in GitHub Copilot Extension]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>

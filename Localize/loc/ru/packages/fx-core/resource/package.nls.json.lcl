@@ -729,19 +729,25 @@
       </Item>
       <Item ItemId=";core.addPlugin.success.viewPluginManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[View plugin manifest]]></Val>
+          <Val><![CDATA[View action manifest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Просмотреть манифест подключаемого модуля]]></Val>
+            <Val><![CDATA[Просмотреть манифест действия]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[View plugin manifest]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addPlugin.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[API plugin "%s" added to the project successfully.]]></Val>
+          <Val><![CDATA[Action "%s" added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Подключаемый модуль API "%s" успешно добавлен в проект.]]></Val>
+            <Val><![CDATA[Действие "%s" успешно добавлено в проект.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[API plugin "%s" added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1480,6 +1486,54 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.convertAadToNewSchema.alreadyNewSchema" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra app manifest file you selected is already in the new schema.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Entra файла манифеста приложения уже есть в новой схеме.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Continue]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.outdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Your Microsoft Entra app manifest is outdated. Click the upgrade button to update it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Манифест Microsoft Entra приложения устарел. Нажмите кнопку обновления, чтобы обновить ее.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra app manifest file successfully converted to new schema.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Entra манифеста приложения успешно преобразован в новую схему.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.upgrade" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upgrade]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.warning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Converting Microsoft Entra app manifest file to new schema will replace the original file. Do you still want to continue?]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Преобразование Microsoft Entra манифеста приложения в новую схему приведет к замене исходного файла. Продолжить?]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.copilot.addAPI.InjectAPIKeyActionFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Inject API key action to teamsapp.yaml file unsuccessful, make sure the file contains teamsApp/create action in provision section.]]></Val>
@@ -1809,19 +1863,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select how to add action]]></Val>
+          <Val><![CDATA[Select how to add an action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Выберите способ добавления действия]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select how to add action]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add API Plugin]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Add an Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Добавить подключаемый модуль API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1836,19 +1896,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addExistingPlugin.openApiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI description document used for your API plugin]]></Val>
+          <Val><![CDATA[Select OpenAPI description document used for your action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выберите документ описания OpenAPI, используемый для подключаемого модуля API]]></Val>
+            <Val><![CDATA[Выберите документ описания OpenAPI, используемый для вашего действия]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select OpenAPI description document used for your API plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addExistingPlugin.pluginManifest.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select your plugin manifest file]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Select your action manifest file]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Выберите файл манифеста подключаемого модуля]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select your plugin manifest file]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1872,19 +1938,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent with API plugin]]></Val>
+          <Val><![CDATA[Create a declarative agent with an action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создать декларативный агент с подключаемым модулем API]]></Val>
+            <Val><![CDATA[Создание декларативного агента с действием]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Add an Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Добавить действие]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add action]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1926,19 +1998,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.importPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Import from existing API plugin file]]></Val>
+          <Val><![CDATA[Import from an existing action file]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Импорт из существующего файла подключаемого модуля API]]></Val>
+            <Val><![CDATA[Импорт из существующего файла действий]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Import from existing API plugin file]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.importPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Import from existing plugin]]></Val>
+          <Val><![CDATA[Import from an Existing Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Импорт из существующего подключаемого модуля]]></Val>
+            <Val><![CDATA[Импорт из существующего действия]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Import from existing plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2097,10 +2175,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a plugin from your existing API]]></Val>
+          <Val><![CDATA[Create an action from your existing API]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создать плагин на основе существующего API]]></Val>
+            <Val><![CDATA[Создать действие на основе существующего API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a plugin from your existing API]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2118,19 +2199,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Создать плагин с новым API на основе функций Azure]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start with a new API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Start with a New API]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Начать с новым API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start with a new API]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2370,10 +2457,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
+          <Val><![CDATA[Add an action to your declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добавить подключаемый модуль API к декларативному агенту]]></Val>
+            <Val><![CDATA[Добавить действие к декларативному агенту]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2553,10 +2643,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[No plugin]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[No Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Нет подключаемого модуля]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2601,10 +2694,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.bot.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Conversational or informative chat experiences that can automate repetitive tasks]]></Val>
+          <Val><![CDATA[Create instant, engaging chat experiences that automate tasks seamlessly]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Разговорный или информативный чат, который может автоматизировать повторяющиеся задачи.]]></Val>
+            <Val><![CDATA[Создавайте мгновенные и интересные функции чата, которые легко автоматизируйте задачи]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Conversational or informative chat experiences that can automate repetitive tasks]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2655,10 +2751,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Общайтесь с GitHub Copilot, чтобы приступить к работе с приложением и агентом Teams]]></Val>
+            <Val><![CDATA[Общайтесь с GitHub Copilot и пошаговые инструкции по разработке приложения Teams]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2769,10 +2868,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search or initiate actions from the message input box in Teams, Outlook, and Copilot]]></Val>
+          <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Поиск или запуск действий из поля ввода сообщения в Teams, Outlook и Copilot]]></Val>
+            <Val><![CDATA[Поиск и выполнение действий из поля ввода текста в Teams и Outlook]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search or initiate actions from the message input box in Teams, Outlook, and Copilot]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2794,24 +2896,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.framework.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выберите платформу]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.framework.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Платформа]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Office Add-in]]></Val>
@@ -2821,23 +2905,14 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using an Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Функции приложения с использованием надстройки Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Для удобства работы пользователей настройте ленту и панель задач в соответствии с веб-контентом]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Customize the ribbon and Task Pane with your web content]]></Val>
+            <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2862,12 +2937,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 app]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Встраивайте собственное веб-содержимое в Teams, Outlook и приложение Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Micosoft 365 app]]></Val>
+            <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7801,6 +7876,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to unzip templates and write to disk.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось создать адаптивный карта манифесте подключаемого модуля. При необходимости вручную обновите файл манифеста.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.kiota.FailedToGenerateAuthActions" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Не удалось проанализировать спецификацию Open API и создать действия проверки подлинности в teamsapp.yml. При необходимости вручную обновите YML-файлы.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
