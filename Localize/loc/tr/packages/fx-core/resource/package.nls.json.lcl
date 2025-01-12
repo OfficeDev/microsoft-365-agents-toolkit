@@ -1498,6 +1498,9 @@
       <Item ItemId=";core.convertAadToNewSchema.continue" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Continue]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Devam et]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1522,6 +1525,9 @@
       <Item ItemId=";core.convertAadToNewSchema.upgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Upgrade]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Yükselt]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1876,8 +1882,8 @@
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[API eklentisi ekleyin]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Eylem Ekle]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Add API Plugin]]></Val>
@@ -1909,8 +1915,8 @@
       <Item ItemId=";core.createProjectQuestion.addExistingPlugin.pluginManifest.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select your action manifest file]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Eklenti manifest dosyanızı seçin]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Eylem bildirim dosyanızı seçin]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Select your plugin manifest file]]></Val>
@@ -1951,8 +1957,8 @@
       <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add an Action]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Eylem ekle]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Eylem Ekle]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Add action]]></Val>
@@ -2200,8 +2206,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Azure İşlevleri'dan yeni BIR API ile eklenti oluşturun]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Azure İşlevleri’nden yeni bir API ile bir eylem oluşturun]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
@@ -2212,8 +2218,8 @@
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Start with a New API]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Yeni bir API ile başlayın]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Yeni bir API ile başla]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Start with a new API]]></Val>
@@ -2644,8 +2650,8 @@
       <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[No Action]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Eklenti yok]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Eylem Yok]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[No plugin]]></Val>
@@ -2908,8 +2914,8 @@
       <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Sorunsuz bir kullanıcı deneyimi için şeridi ve görev bölmesini kendi web içeriklerinizle özelleştirin]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sorunsuz kullanıcı deneyimi için şeridi ve Görev Bölmesini kendi web içeriğinizle özelleştirin]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
@@ -2938,8 +2944,8 @@
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 app]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Kendi web içeriklerinizi Teams, Outlook ve Microsoft 365 uygulamasına ekleyin]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams, Outlook ve Microsoft 365 uygulamasına kendi web içeriğinizi ekleyin]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
