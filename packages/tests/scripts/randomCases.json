@@ -56,9 +56,7 @@
             "sample-localdebug-contact-exporter",
             "sample-localdebug-hello-world-meeting",
             "sample-localdebug-food-catalog",
-            "sample-remotedebug-food-catalog",
-            "sample-localdebug-intelligent-data-chart",
-            "sample-remotedebug-intelligent-data-chart"
+            "sample-remotedebug-food-catalog"
         ]
     },
     {
@@ -109,7 +107,9 @@
             "sample-remotedebug-hello-world-tab-docker",
             "sample-localdebug-todo-list-with-spfx",
             "sample-localdebug-todo-list-with-m365",
-            "sample-localdebug-react-retail-dashboard"
+            "sample-localdebug-react-retail-dashboard",
+            "sample-localdebug-intelligent-data-chart",
+            "sample-remotedebug-intelligent-data-chart"
         ]
     },
     {
