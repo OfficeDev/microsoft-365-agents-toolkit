@@ -9,6 +9,7 @@ import {
   IQTreeNode,
   MultiSelectQuestion,
   OptionItem,
+  Question,
   SingleFileOrInputQuestion,
   SingleFileQuestion,
   StringValidation,
@@ -1599,6 +1600,104 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
   };
 }
 
+export function languageNode(): IQTreeNode {
+  return {
+    condition: (inputs: Inputs) => {
+      const templateName = inputs[QuestionNames.TemplateName];
+      const languages = Templates.filter((t) => t.name === templateName)
+        .map((t) => t.language)
+        .filter((lang) => lang !== "none" && lang !== undefined);
+      return languages.length > 0;
+    },
+    data: {
+      type: "singleSelect",
+      title: getLocalizedString("core.ProgrammingLanguageQuestion.title"),
+      name: QuestionNames.ProgrammingLanguage,
+      staticOptions: [
+        { id: ProgrammingLanguage.JS, label: "JavaScript" },
+        { id: ProgrammingLanguage.TS, label: "TypeScript" },
+        { id: ProgrammingLanguage.CSharp, label: "C#" },
+        { id: ProgrammingLanguage.PY, label: "Python" },
+      ],
+      dynamicOptions: (inputs: Inputs) => {
+        const templateName = inputs[QuestionNames.TemplateName];
+        const languages = Templates.filter((t) => t.name === templateName)
+          .map((t) => t.language)
+          .filter((lang) => lang !== "none" && lang !== undefined);
+        return languages;
+      },
+      skipSingleOption: true,
+    },
+  };
+}
+
+export function folderNode(): IQTreeNode {
+  return {
+    data: {
+      type: "folder",
+      name: QuestionNames.Folder,
+      title: getLocalizedString("core.question.workspaceFolder.title"),
+      placeholder: getLocalizedString("core.question.workspaceFolder.placeholder"),
+      default: path.join(os.homedir(), ConstantString.RootFolder),
+    },
+  };
+}
+
+export function appNameNode(): IQTreeNode {
+  return {
+    data: {
+      type: "text",
+      name: QuestionNames.AppName,
+      title: getLocalizedString("core.question.appName.title"),
+      default: async (inputs: Inputs) => {
+        let defaultName = undefined;
+        if (inputs[QuestionNames.SPFxSolution] == "import") {
+          defaultName = await getSolutionName(inputs[QuestionNames.SPFxFolder]);
+        }
+        return defaultName;
+      },
+      validation: {
+        validFunc: async (input: string, previousInputs?: Inputs): Promise<string | undefined> => {
+          const schema = {
+            pattern: AppNamePattern,
+            maxLength: 30,
+          };
+          if (input.length === 25) {
+            // show warning notification because it may exceed the Teams app name max length after appending suffix
+            const context = createContext();
+            void context.userInteraction.showMessage(
+              "warn",
+              getLocalizedString("core.QuestionAppName.validation.lengthWarning"),
+              false
+            );
+          }
+          const appName = input;
+          const validateResult = jsonschema.validate(appName, schema);
+          if (validateResult.errors && validateResult.errors.length > 0) {
+            if (validateResult.errors[0].name === "pattern") {
+              return getLocalizedString("core.QuestionAppName.validation.pattern");
+            }
+            if (validateResult.errors[0].name === "maxLength") {
+              return getLocalizedString("core.QuestionAppName.validation.maxlength");
+            }
+          }
+          if (previousInputs && previousInputs.folder) {
+            const folder = previousInputs.folder as string;
+            if (folder) {
+              const projectPath = path.resolve(folder, appName);
+              const exists = await fs.pathExists(projectPath);
+              if (exists)
+                return getLocalizedString("core.QuestionAppName.validation.pathExist", projectPath);
+            }
+          }
+          return undefined;
+        },
+      },
+      placeholder: getLocalizedString("core.question.appName.placeholder"),
+    },
+  };
+}
+
 /**
  *
  * FxCore API for scaffold: scaffold(questionModel: IQTreeNode, generators: DefaultTemplateGenerator[]): Promise<Result<any, FxError>>
@@ -1609,7 +1708,6 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
   const node: IQTreeNode = {
     data: { type: "group" },
     children: [
-      // category tree
       {
         data: {
           name: QuestionNames.ProjectType,
@@ -1640,35 +1738,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
             : outlookAddinProjectTypeNode(),
         ],
       },
-      {
-        // language
-        condition: (inputs: Inputs) => {
-          const templateName = inputs[QuestionNames.TemplateName];
-          const languages = Templates.filter((t) => t.name === templateName)
-            .map((t) => t.language)
-            .filter((lang) => lang !== "none" && lang !== undefined);
-          return languages.length > 0;
-        },
-        data: {
-          type: "singleSelect",
-          title: getLocalizedString("core.ProgrammingLanguageQuestion.title"),
-          name: QuestionNames.ProgrammingLanguage,
-          staticOptions: [
-            { id: ProgrammingLanguage.JS, label: "JavaScript" },
-            { id: ProgrammingLanguage.TS, label: "TypeScript" },
-            { id: ProgrammingLanguage.CSharp, label: "C#" },
-            { id: ProgrammingLanguage.PY, label: "Python" },
-          ],
-          dynamicOptions: (inputs: Inputs) => {
-            const templateName = inputs[QuestionNames.TemplateName];
-            const languages = Templates.filter((t) => t.name === templateName)
-              .map((t) => t.language)
-              .filter((lang) => lang !== "none" && lang !== undefined);
-            return languages;
-          },
-          skipSingleOption: true,
-        },
-      },
+      languageNode(),
       {
         condition: (inputs: Inputs) => {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
@@ -1682,77 +1752,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
         data: {
           type: "group",
         },
-        children: [
-          {
-            //root folder
-            data: {
-              type: "folder",
-              name: QuestionNames.Folder,
-              title: getLocalizedString("core.question.workspaceFolder.title"),
-              placeholder: getLocalizedString("core.question.workspaceFolder.placeholder"),
-              default: path.join(os.homedir(), ConstantString.RootFolder),
-            },
-          },
-          {
-            //app name
-            data: {
-              type: "text",
-              name: QuestionNames.AppName,
-              title: getLocalizedString("core.question.appName.title"),
-              default: async (inputs: Inputs) => {
-                let defaultName = undefined;
-                if (inputs[QuestionNames.SPFxSolution] == "import") {
-                  defaultName = await getSolutionName(inputs[QuestionNames.SPFxFolder]);
-                }
-                return defaultName;
-              },
-              validation: {
-                validFunc: async (
-                  input: string,
-                  previousInputs?: Inputs
-                ): Promise<string | undefined> => {
-                  const schema = {
-                    pattern: AppNamePattern,
-                    maxLength: 30,
-                  };
-                  if (input.length === 25) {
-                    // show warning notification because it may exceed the Teams app name max length after appending suffix
-                    const context = createContext();
-                    void context.userInteraction.showMessage(
-                      "warn",
-                      getLocalizedString("core.QuestionAppName.validation.lengthWarning"),
-                      false
-                    );
-                  }
-                  const appName = input;
-                  const validateResult = jsonschema.validate(appName, schema);
-                  if (validateResult.errors && validateResult.errors.length > 0) {
-                    if (validateResult.errors[0].name === "pattern") {
-                      return getLocalizedString("core.QuestionAppName.validation.pattern");
-                    }
-                    if (validateResult.errors[0].name === "maxLength") {
-                      return getLocalizedString("core.QuestionAppName.validation.maxlength");
-                    }
-                  }
-                  if (previousInputs && previousInputs.folder) {
-                    const folder = previousInputs.folder as string;
-                    if (folder) {
-                      const projectPath = path.resolve(folder, appName);
-                      const exists = await fs.pathExists(projectPath);
-                      if (exists)
-                        return getLocalizedString(
-                          "core.QuestionAppName.validation.pathExist",
-                          projectPath
-                        );
-                    }
-                  }
-                  return undefined;
-                },
-              },
-              placeholder: getLocalizedString("core.question.appName.placeholder"),
-            },
-          },
-        ],
+        children: [folderNode(), appNameNode()],
       },
     ],
   };
