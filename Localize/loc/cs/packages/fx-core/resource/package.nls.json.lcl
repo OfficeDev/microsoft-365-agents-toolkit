@@ -729,19 +729,25 @@
       </Item>
       <Item ItemId=";core.addPlugin.success.viewPluginManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[View plugin manifest]]></Val>
+          <Val><![CDATA[View action manifest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zobrazit manifest modulu plug-in]]></Val>
+            <Val><![CDATA[Zobrazit manifest akce]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[View plugin manifest]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addPlugin.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[API plugin "%s" added to the project successfully.]]></Val>
+          <Val><![CDATA[Action "%s" added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Modul plug-in rozhraní API "%s" úspěšně přidán do projektu.]]></Val>
+            <Val><![CDATA[Akce "%s" úspěšně přidána do projektu.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[API plugin "%s" added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1480,6 +1486,54 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.convertAadToNewSchema.alreadyNewSchema" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra app manifest file you selected is already in the new schema.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Entra soubor manifestu aplikace, který jste vybrali, se už v novém schématu nachází.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Continue]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.outdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Your Microsoft Entra app manifest is outdated. Click the upgrade button to update it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Manifest vaší Microsoft Entra aplikace je zastaralý. Klikněte na tlačítko pro upgrade a aktualizujte ho.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra app manifest file successfully converted to new schema.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Entra soubor manifestu aplikace se úspěšně převedl na nové schéma.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.upgrade" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upgrade]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.convertAadToNewSchema.warning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Converting Microsoft Entra app manifest file to new schema will replace the original file. Do you still want to continue?]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Převodem souboru manifestu Microsoft Entra aplikace na nové schéma nahradíte původní soubor. Chcete přesto pokračovat?]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.copilot.addAPI.InjectAPIKeyActionFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Inject API key action to teamsapp.yaml file unsuccessful, make sure the file contains teamsApp/create action in provision section.]]></Val>
@@ -1809,19 +1863,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select how to add action]]></Val>
+          <Val><![CDATA[Select how to add an action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyberte způsob přidání akce.]]></Val>
+            <Val><![CDATA[Vyberte, jak přidat akci.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select how to add action]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add API Plugin]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Add an Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Přidat modul plug-in rozhraní API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1836,19 +1896,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addExistingPlugin.openApiSpec.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select OpenAPI description document used for your API plugin]]></Val>
+          <Val><![CDATA[Select OpenAPI description document used for your action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyberte dokument popisu OpenAPI, který se používá pro váš modul plug-in rozhraní API.]]></Val>
+            <Val><![CDATA[Vyberte dokument popisu OpenAPI, který se používá pro vaši akci.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select OpenAPI description document used for your API plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addExistingPlugin.pluginManifest.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select your plugin manifest file]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Select your action manifest file]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Vyberte soubor manifestu modulu plug-in]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select your plugin manifest file]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1872,19 +1938,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create declarative agent with API plugin]]></Val>
+          <Val><![CDATA[Create a declarative agent with an action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytvořit deklarativního agenta pomocí modulu plug-in rozhraní API]]></Val>
+            <Val><![CDATA[Vytvořit deklarativního agenta s akcí]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create declarative agent with API plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add action]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Add an Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Přidat akci]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add action]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1926,19 +1998,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.importPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Import from existing API plugin file]]></Val>
+          <Val><![CDATA[Import from an existing action file]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Importovat z existujícího souboru modulu plug-in rozhraní API]]></Val>
+            <Val><![CDATA[Importovat z existujícího souboru akce]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Import from existing API plugin file]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.importPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Import from existing plugin]]></Val>
+          <Val><![CDATA[Import from an Existing Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Importovat z existujícího modulu plug-in]]></Val>
+            <Val><![CDATA[Importovat z existující akce]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Import from existing plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2097,10 +2175,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a plugin from your existing API]]></Val>
+          <Val><![CDATA[Create an action from your existing API]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytvoření modulu plug-in z existujícího rozhraní API]]></Val>
+            <Val><![CDATA[Vytvořit akci z existujícího rozhraní API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a plugin from your existing API]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2118,19 +2199,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Create an action with a new API from Azure Functions]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Vytvoření modulu plug-inu s novým rozhraním API z Azure Functions]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a plugin with a new API from Azure Functions]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.copilotPluginNewApiOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start with a new API]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Start with a New API]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Začít s novým rozhraním API]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start with a new API]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2370,10 +2457,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.declarativeCopilot.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
+          <Val><![CDATA[Add an action to your declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Přidat modul plug-in rozhraní API do deklarativního agenta]]></Val>
+            <Val><![CDATA[Přidat akci k deklarativnímu agentovi]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add API plugin to your declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2553,10 +2643,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.noPlugin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[No plugin]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[No Action]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Žádný modul plug-in]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[No plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2601,10 +2694,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.bot.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Conversational or informative chat experiences that can automate repetitive tasks]]></Val>
+          <Val><![CDATA[Create instant, engaging chat experiences that automate tasks seamlessly]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Konverzační nebo informativní chatovací prostředí, které může automatizovat opakující se úkoly]]></Val>
+            <Val><![CDATA[Vytvářejte okamžité a poutavé možnosti chatu, které bezproblémově automatizují úkoly.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Conversational or informative chat experiences that can automate repetitive tasks]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2655,10 +2751,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pokud chcete začít pracovat s aplikací a agentem Teams, chatujte s GitHub Copilot]]></Val>
+            <Val><![CDATA[Chatujte s GitHub Copilot a získejte podrobné pokyny k vývoji aplikace Teams.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2769,10 +2868,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search or initiate actions from the message input box in Teams, Outlook, and Copilot]]></Val>
+          <Val><![CDATA[Search and take actions from the text input box in Teams and Outlook]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hledat nebo iniciovat akce z pole pro zadání zprávy v Teams, Outlooku a Copilotu]]></Val>
+            <Val><![CDATA[Hledat a provádět akce z textového vstupního pole v Teams a Outlooku]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search or initiate actions from the message input box in Teams, Outlook, and Copilot]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2794,24 +2896,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.framework.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyberte architekturu]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.framework.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Architektura]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Office Add-in]]></Val>
@@ -2821,23 +2905,14 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.officeAddin.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[App Features Using an Office Add-in]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Funkce aplikace využívající doplněk Office]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.outlookAddin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experiences]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Přizpůsobit pás karet a podokno úloh pomocí webového obsahu pro plynulé uživatelské prostředí]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Customize the ribbon and Task Pane with your web content]]></Val>
+            <Val><![CDATA[Customize the ribbon and Task Pane with your web content for seamless user experience]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2862,12 +2937,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 app]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Vložte svůj vlastní webový obsah do Teams, Outlooku a aplikace Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Micosoft 365 app]]></Val>
+            <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7801,6 +7876,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to unzip templates and write to disk.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V manifestu modulu plug-in se nepovedlo vygenerovat adaptivní kartu. V případě potřeby ručně aktualizujte soubor manifestu.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.kiota.FailedToGenerateAuthActions" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepovedlo se parsovat specifikaci Open API a vygenerovat akce ověřování v teamsapp.yml. V případě potřeby ručně aktualizujte soubory yml.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
