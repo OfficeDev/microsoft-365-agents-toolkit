@@ -34,7 +34,7 @@
                     "${{AAD_APP_ACCESS_AS_USER_PERMISSION_ID}}"
                 ]
             }
-        ],
+        ]
 {{/MicrosoftEntra}}
     },
     "info": {},
