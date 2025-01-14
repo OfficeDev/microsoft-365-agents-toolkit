@@ -25,7 +25,7 @@
                 "userConsentDisplayName": "Read repairs",
                 "value": "repairs_read"
             }
-        ],
+        ]
 {{#MicrosoftEntra}}
         "preAuthorizedApplications": [
             {
