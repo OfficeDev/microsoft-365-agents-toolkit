@@ -25,8 +25,11 @@
                 "userConsentDisplayName": "Read repairs",
                 "value": "repairs_read"
             }
+{{^MicrosoftEntra}}
         ]
+{{/MicrosoftEntra}}
 {{#MicrosoftEntra}}
+        ],
         "preAuthorizedApplications": [
             {
                 "appId": "ab3be6b7-f5df-413d-ac2d-abf1e3fd9c0b",
