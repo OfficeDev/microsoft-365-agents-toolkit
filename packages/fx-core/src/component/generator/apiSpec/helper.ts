@@ -601,16 +601,17 @@ export function logValidationResults(
 export async function injectAuthAction(
   projectPath: string,
   authName: string,
-  authScheme: AuthType,
+  authScheme: AuthType | undefined,
   outputApiSpecPath: string,
-  forceToAddNew: boolean
+  forceToAddNew: boolean,
+  authType?: string
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
 
   const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
 
-  if (Utils.isBearerTokenAuth(authScheme)) {
+  if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === "ApiKeyPluginVault") {
     const res = await ActionInjector.injectCreateAPIKeyAction(
       ymlPath,
       authName,
@@ -627,7 +628,10 @@ export async function injectAuthAction(
       );
     }
     return res;
-  } else if (Utils.isOAuthWithAuthCodeFlow(authScheme)) {
+  } else if (
+    (!!authScheme && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
+    authType === "OAuth2PluginVault"
+  ) {
     const res = await ActionInjector.injectCreateOAuthAction(
       ymlPath,
       authName,

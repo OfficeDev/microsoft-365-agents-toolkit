@@ -16,6 +16,7 @@ import {
   TextInputQuestion,
   FolderQuestion,
   CLIPlatforms,
+  PluginManifestSchema,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
@@ -37,6 +38,7 @@ import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
+  apiAuthQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
@@ -810,6 +812,112 @@ export function addPluginQuestionNode(): IQTreeNode {
 export function kiotaRegenerateQuestion(): IQTreeNode {
   return {
     data: selectTeamsAppManifestQuestion(),
+  };
+}
+
+export function addAuthActionQuestion(): IQTreeNode {
+  return {
+    data: pluginManifestQuestion(),
+    children: [
+      {
+        data: apiSpecFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          const specs = pluginManifest
+            .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+            .map((runtime) => runtime.spec.url);
+          if (specs.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = specs[0];
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: apiFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          const apis: string[] = [];
+          pluginManifest
+            .runtimes!.filter(
+              (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+            )
+            .forEach((runtime) => {
+              apis.push(...(runtime.run_for_functions as string[]));
+            });
+          if (apis.length === 1) {
+            inputs[QuestionNames.ApiOperation] = apis;
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: authNameQuestion(),
+      },
+      {
+        data: apiAuthQuestion(true),
+      },
+    ],
+  };
+}
+
+export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiSpecLocation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.title"),
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.placeholder"),
+    type: "singleSelect",
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const specs = pluginManifest
+        .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+        .map((runtime) => runtime.spec.url as string);
+      return specs;
+    },
+  };
+}
+
+export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.ApiOperation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiOperation.title"),
+    type: "multiSelect",
+    staticOptions: [],
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiOperation.placeholder"),
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const apis = pluginManifest
+        .runtimes!.filter(
+          (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+        )
+        .map((runtime) => runtime.spec.run_for_functions as string);
+      return apis;
+    },
+  };
+}
+
+export function authNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.AuthName,
+    title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
+    type: "text",
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+        return;
+      },
+    },
   };
 }
 

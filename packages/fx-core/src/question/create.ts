@@ -938,7 +938,7 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
   };
 }
 
-export function apiAuthQuestion(): SingleSelectQuestion {
+export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
@@ -949,7 +949,7 @@ export function apiAuthQuestion(): SingleSelectQuestion {
     cliDescription: "The authentication type for the API.",
     staticOptions: ApiAuthOptions.all(),
     dynamicOptions: (inputs: Inputs) => {
-      const options: OptionItem[] = [ApiAuthOptions.none()];
+      const options: OptionItem[] = excludeNone ? [] : [ApiAuthOptions.none()];
       if (inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.newApi().id) {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
       } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {

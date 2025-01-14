@@ -932,5 +932,10 @@
   "error.dep.VxTestAppValidationError": "Unable to validate video extensibility test app after installation.",
   "error.dep.FindProcessError": "Unable to find process(es) by pid or port. %s",
   "error.kiota.FailedToCreateAdaptiveCard": "Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.",
-  "error.kiota.FailedToGenerateAuthActions": "Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required."
+  "error.kiota.FailedToGenerateAuthActions": "Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required.",
+  "core.addAuthActionQuestion.ApiSpecLocation.title": "Select an OpenAPI Description Document",
+  "core.addAuthActionQuestion.ApiSpecLocation.placeholder": "Select an option",
+  "core.addAuthActionQuestion.ApiOperation.title": "Select an OpenAPI Description Document",
+  "core.addAuthActionQuestion.ApiOperation.placeholder": "Select an option",
+  "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration"
 }

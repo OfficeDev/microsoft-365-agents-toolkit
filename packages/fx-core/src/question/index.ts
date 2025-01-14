@@ -24,6 +24,7 @@ import {
   syncManifestQuestionNode,
   kiotaRegenerateQuestion,
   convertAadToNewSchemaQuestionNode,
+  addAuthActionQuestion,
 } from "./other";
 export * from "./constants";
 export * from "./create";
@@ -87,6 +88,9 @@ export class QuestionNodes {
   }
   kiotaRegenerate(): IQTreeNode {
     return kiotaRegenerateQuestion();
+  }
+  addAuthAction(): IQTreeNode {
+    return addAuthActionQuestion();
   }
 }
 

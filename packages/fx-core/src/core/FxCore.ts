@@ -28,6 +28,7 @@ import {
   InputsWithProjectPath,
   ManifestUtil,
   Platform,
+  PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
   Stage,
@@ -2223,6 +2224,61 @@ export class FxCore {
     );
     if (generateRes.isErr()) {
       return err(generateRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addAuthAction }),
+    ErrorHandlerMW,
+    QuestionMW("addAuthAction"),
+    ConcurrentLockerMW,
+  ])
+  async addAuthAction(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
+    const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
+    const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
+    const authName = inputs[QuestionNames.AuthName] as string;
+    const apiSpecPath = path.normalize(path.join(pluginManifestPath, apiSpecRelativePath));
+    let authType;
+    switch (inputs[QuestionNames.ApiAuth] as string) {
+      case "api-key":
+      default:
+        authType = "ApiKeyPluginVault";
+        break;
+      case "oauth":
+        authType = "OAuthPluginVault";
+        break;
+    }
+
+    const addAuthActionRes = await injectAuthAction(
+      inputs.projectPath,
+      authName,
+      undefined,
+      apiSpecPath,
+      true,
+      authType
+    );
+
+    if (addAuthActionRes?.registrationIdEnvName) {
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      pluginManifest.runtimes?.push({
+        type: "OpenApi",
+        auth: {
+          type: authType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
+          reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
+        },
+        spec: {
+          url: apiSpecRelativePath,
+          run_for_functions: apiOperation,
+        },
+      });
+      await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
     }
 
     return ok(undefined);

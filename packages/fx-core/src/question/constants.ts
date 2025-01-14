@@ -106,6 +106,8 @@ export enum QuestionNames {
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
+
+  AuthName = "auth-name",
 }
 
 export enum ProjectTypeGroup {
@@ -806,6 +808,15 @@ export class ApiAuthOptions {
       id: "oauth",
       label: "OAuth",
     };
+  }
+
+  static excludeNone(): OptionItem[] {
+    return [
+      ApiAuthOptions.apiKey(),
+      ApiAuthOptions.bearerToken(),
+      ApiAuthOptions.microsoftEntra(),
+      ApiAuthOptions.oauth(),
+    ];
   }
 
   static all(): OptionItem[] {

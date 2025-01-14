@@ -4108,6 +4108,23 @@ describe("scaffold question", () => {
         ]);
       }
     });
+
+    it("api plugin from add action with auth enabled", async () => {
+      const question = apiAuthQuestion(true);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+      };
+      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+      assert.isDefined(question.dynamicOptions);
+      if (question.dynamicOptions) {
+        const options = (await question.dynamicOptions(inputs)) as OptionItem[];
+        assert.deepEqual(options, [
+          ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
+          ApiAuthOptions.oauth(),
+        ]);
+      }
+    });
   });
   describe("api plugin auth question (AAD disabled)", () => {
     let mockedEnvRestore: RestoreFn;
