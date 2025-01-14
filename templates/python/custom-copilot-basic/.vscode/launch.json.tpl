@@ -148,12 +148,8 @@
         "name": "Debug in Test Tool",
         "configurations": [
             "Start Python",
-            "Start Test Tool"
         ],
-        "cascadeTerminateToConfigurations": [
-            "Start Test Tool"
-        ],
-        "preLaunchTask": "Deploy (Test Tool)",
+        "preLaunchTask": "Test Tool",
         "presentation": {
             "group": "2-local",
             "order": 1
