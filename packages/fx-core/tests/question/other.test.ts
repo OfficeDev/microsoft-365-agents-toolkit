@@ -1,6 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ConditionFunc, Inputs, Platform } from "@microsoft/teamsfx-api";
+import {
+  ConditionFunc,
+  FuncValidation,
+  Inputs,
+  Platform,
+  TextInputQuestion,
+} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import { environmentNameManager } from "../../src/core/environmentName";
@@ -298,5 +304,17 @@ describe("addAuthActionQuestion", () => {
       const res = await (condition as ConditionFunc)(inputs);
       assert.isFalse(res);
     }
+  });
+
+  it("authname: validate auth name", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const validation = (
+      (addAuthActionQuestion().children![2].data as TextInputQuestion)
+        .additionalValidationOnAccept as FuncValidation<string>
+    ).validFunc;
+    const res = await validation("input", inputs);
+    assert.equal(inputs[QuestionNames.ApiPluginType], "new-api");
   });
 });
