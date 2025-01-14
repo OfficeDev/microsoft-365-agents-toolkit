@@ -667,6 +667,14 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
   };
 }
 
+export function officeAddinProjectTypeNode(): IQTreeNode {
+  if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
+    return wxpAddinProjectTypeNode();
+  } else {
+    return outlookAddinProjectTypeNode();
+  }
+}
+
 export class ProjectTypeOptions {
   static tabOptionId = "tab-type";
   static botOptionId = "bot-type";
@@ -732,6 +740,14 @@ export class ProjectTypeOptions {
       detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
       groupName: ProjectTypeOptions.createGroupName,
     };
+  }
+
+  static officeAddin(): OptionItem {
+    if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
+      return this.officeMetaOS();
+    } else {
+      return this.outlookAddin();
+    }
   }
 
   static Agent(): OptionItem {
@@ -1719,9 +1735,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
             ProjectTypeOptions.bot(),
             ProjectTypeOptions.tab(),
             ProjectTypeOptions.me(),
-            featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)
-              ? ProjectTypeOptions.officeMetaOS()
-              : ProjectTypeOptions.outlookAddin(),
+            ProjectTypeOptions.officeAddin(),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
               : []),
@@ -1733,9 +1747,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),
-          featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)
-            ? wxpAddinProjectTypeNode()
-            : outlookAddinProjectTypeNode(),
+          officeAddinProjectTypeNode(),
         ],
       },
       languageNode(),
