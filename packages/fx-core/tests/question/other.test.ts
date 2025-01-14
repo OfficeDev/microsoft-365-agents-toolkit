@@ -317,4 +317,19 @@ describe("addAuthActionQuestion", () => {
     const res = await validation("input", inputs);
     assert.equal(inputs[QuestionNames.ApiPluginType], "new-api");
   });
+
+  it("authname: should fail if no inputs when validate auth name", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const validation = (
+      (addAuthActionQuestion().children![2].data as TextInputQuestion)
+        .additionalValidationOnAccept as FuncValidation<string>
+    ).validFunc;
+    try {
+      const res = await validation("input", undefined);
+    } catch (error) {
+      assert.equal(error.message, "inputs is undefined");
+    }
+  });
 });

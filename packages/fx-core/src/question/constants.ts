@@ -810,15 +810,6 @@ export class ApiAuthOptions {
     };
   }
 
-  static excludeNone(): OptionItem[] {
-    return [
-      ApiAuthOptions.apiKey(),
-      ApiAuthOptions.bearerToken(),
-      ApiAuthOptions.microsoftEntra(),
-      ApiAuthOptions.oauth(),
-    ];
-  }
-
   static all(): OptionItem[] {
     return [
       ApiAuthOptions.none(),
