@@ -26,6 +26,11 @@ import stripBom from "strip-bom";
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
 
+enum AppScope {
+  Personal = "Personal",
+  Shared = "Shared",
+}
+
 // Call m365 service for package CRUD
 export class PackageService {
   private static sharedInstance: PackageService;
@@ -141,21 +146,29 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async sideLoading(token: string, packagePath: string): Promise<[string, string]> {
+  public async sideLoading(
+    token: string,
+    packagePath: string,
+    appScope = AppScope.Personal
+  ): Promise<[string, string]> {
     const manifest = this.getManifestFromZip(packagePath);
     if (!manifest) {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
     if (isDelcarativeAgentApp) {
-      return await this.sideLoadingV2(token, packagePath);
+      return await this.sideLoadingV2(token, packagePath, appScope);
     } else {
       return await this.sideLoadingV1(token, packagePath);
     }
   }
   // Side loading using Builder API
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async sideLoadingV2(token: string, manifestPath: string): Promise<[string, string]> {
+  public async sideLoadingV2(
+    token: string,
+    manifestPath: string,
+    appScope: AppScope
+  ): Promise<[string, string]> {
     try {
       this.checkZip(manifestPath);
       const data = await fs.readFile(manifestPath);
@@ -172,7 +185,7 @@ export class PackageService {
           baseURL: serviceUrl,
           headers: uploadHeaders,
           params: {
-            scope: "Personal",
+            scope: appScope,
           },
         }
       );
