@@ -364,10 +364,7 @@ export class PackageService {
       });
       this.logger?.verbose("Unacquiring done.");
     } catch (error: any) {
-      if (error.response) {
-        error = this.traceError(error);
-      }
-      // try delete in the builder API
+      // try to delete in the builder API
       try {
         const serviceUrl = await this.getTitleServiceUrl(token);
         this.logger?.verbose(`Unacquiring package with TitleId ${titleId} in builder API...`);
@@ -377,7 +374,7 @@ export class PackageService {
             Authorization: `Bearer ${token}`,
           },
         });
-        this.logger?.verbose("Unacquiring done.");
+        this.logger?.verbose("Unacquiring using builder api done.");
         return;
       } catch (subError: any) {
         if (subError.response) {
