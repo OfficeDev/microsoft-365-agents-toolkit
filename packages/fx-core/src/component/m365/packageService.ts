@@ -294,6 +294,27 @@ export class PackageService {
     }
   }
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async getShareLink(token: string, titleId: string): Promise<string> {
+    const serviceUrl = await this.getTitleServiceUrl(token);
+    try {
+      const resp = await this.axiosInstance.get(
+        `/marketplace/v1/users/titles/${titleId}/sharingInfo`,
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return resp.data.unifiedStoreLink;
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      throw assembleError(error, M365ErrorSource);
+    }
+  }
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getLaunchInfoByManifestId(token: string, manifestId: string): Promise<any> {
     try {
       const serviceUrl = await this.getTitleServiceUrl(token);
