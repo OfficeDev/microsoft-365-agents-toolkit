@@ -20,6 +20,8 @@ import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
 import { NotExtendedToM365Error } from "./errors";
 import { MosServiceEndpoint } from "./serviceConstant";
+import { manifestUtils } from "../driver/teamsApp/utils/ManifestUtils";
+import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -140,6 +142,74 @@ export class PackageService {
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async sideLoading(token: string, manifestPath: string): Promise<[string, string]> {
+    const manifest = await manifestUtils.readAppManifest(manifestPath);
+    if (manifest.isErr()) {
+      throw manifest.error;
+    }
+    const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest.value);
+    if (isDelcarativeAgentApp) {
+      return await this.sideLoadingV2(token, manifestPath);
+    } else {
+      return await this.sideLoadingV1(token, manifestPath);
+    }
+  }
+  // Side loading using Builder API
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async sideLoadingV2(token: string, manifestPath: string): Promise<[string, string]> {
+    try {
+      this.checkZip(manifestPath);
+      const data = await fs.readFile(manifestPath);
+      const content = new FormData();
+      content.append("package", data);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      this.logger?.verbose("Uploading package ...");
+      const uploadHeaders = content.getHeaders();
+      uploadHeaders["Authorization"] = `Bearer ${token}`;
+      const uploadResponse = await this.axiosInstance.post(
+        "/builder/v1/users/packages",
+        content.getBuffer(),
+        {
+          baseURL: serviceUrl,
+          headers: uploadHeaders,
+          params: {
+            scope: "Personal",
+          },
+        }
+      );
+
+      const statusId = uploadResponse.data.statusId;
+      this.logger?.debug(`Acquiring package with statusId: ${statusId as string} ...`);
+
+      do {
+        const statusResponse = await this.axiosInstance.get(
+          `/builder/v1/users/packages/status/${statusId as string}`,
+          {
+            baseURL: serviceUrl,
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const resCode = statusResponse.status;
+        this.logger?.debug(`Package status: ${resCode} ...`);
+        if (resCode === 200) {
+          const titleId: string = statusResponse.data.titleId;
+          const appId: string = statusResponse.data.appId;
+          this.logger?.info(`TitleId: ${titleId}`);
+          this.logger?.info(`AppId: ${appId}`);
+          this.logger?.verbose("Sideloading done.");
+          return [titleId, appId];
+        } else {
+          await waitSeconds(2);
+        }
+      } while (true);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      throw assembleError(error, M365ErrorSource);
+    }
+  }
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async sideLoadingV1(token: string, manifestPath: string): Promise<[string, string]> {
     try {
       this.checkZip(manifestPath);
       const data = await fs.readFile(manifestPath);
