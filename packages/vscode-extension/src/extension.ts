@@ -205,6 +205,7 @@ import { manifestListener } from "./manifestListener";
 import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
 import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
+import { createPluginWithApiSpec } from "./handlers/createPluginWithApiSpec";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -477,6 +478,15 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
   );
   context.subscriptions.push(troubleshootError);
+
+  const testCmd = vscode.commands.registerCommand("fx-extension.test", async (...args) => {
+    void vscode.window.showInformationMessage("Test command is called");
+    await vscode.commands.executeCommand("fx-extension.createProjectWithApiSpec", [
+      "C:\\work\\test\\test-projects\\test-apis\\repairs-api.json",
+      "ss",
+    ]);
+  });
+  context.subscriptions.push(testCmd);
 }
 
 /**
@@ -552,6 +562,12 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(validatePrerequisitesCmd);
 
   registerInCommandController(context, CommandKeys.SigninAzure, signinAzureCallback);
+
+  const createPluginWithApiSpecCommand = vscode.commands.registerCommand(
+    "fx-extension.createProjectWithApiSpec",
+    (args) => Correlator.run(createPluginWithApiSpec, args)
+  );
+  context.subscriptions.push(createPluginWithApiSpecCommand);
 
   // Register createPluginWithManifest command
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {
