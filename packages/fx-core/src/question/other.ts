@@ -878,7 +878,7 @@ export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
       const specs = pluginManifest
         .runtimes!.filter((runtime) => runtime.type === "OpenApi")
         .map((runtime) => runtime.spec.url as string);
-      return specs;
+      return [...new Set(specs)];
     },
   };
 }
@@ -894,12 +894,15 @@ export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-      const apis = pluginManifest
+      const apis: string[] = [];
+      pluginManifest
         .runtimes!.filter(
           (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
         )
-        .map((runtime) => runtime.spec.run_for_functions as string);
-      return apis;
+        .forEach((runtime) => {
+          apis.push(...(runtime.run_for_functions as string[]));
+        });
+      return [...new Set(apis)];
     },
   };
 }

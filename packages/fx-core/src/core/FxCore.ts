@@ -2275,8 +2275,9 @@ export class FxCore {
         },
         spec: {
           url: apiSpecRelativePath,
-          run_for_functions: apiOperation,
+          progress_style: "ShowUsageWithInputAndOutput",
         },
+        run_for_functions: apiOperation,
       });
       await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
     }
