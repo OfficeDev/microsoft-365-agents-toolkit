@@ -252,6 +252,12 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
   return result;
 }
 
+export async function addAuthActionHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
+  const inputs = getSystemInputs();
+  return await runCommand(Stage.addAuthAction, inputs);
+}
+
 function handleTriggerKiotaCommand(
   args: any[],
   result: any,

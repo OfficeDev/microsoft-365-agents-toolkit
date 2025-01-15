@@ -317,6 +317,9 @@ export enum TelemetryEvent {
 
   KiotaRegenerateStart = "kiota-regenerate-start",
   KiotaRegenerate = "kiota-regenerate",
+
+  AddAuthActionStart = "add-auth-action-start",
+  AddAuthAction = "add-auth-action",
 }
 
 export enum TelemetryProperty {

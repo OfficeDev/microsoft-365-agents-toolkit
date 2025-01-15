@@ -958,6 +958,11 @@
         "command": "fx-extension.findSimilarIssue",
         "title": "%teamstoolkit.handlers.similarIssues%",
         "category": "Teams"
+      },
+      {
+        "command": "fx-extension.addAuthAction",
+        "title": "%teamstoolkit.commands.addAuthAction%",
+        "category": "Teams"
       }
     ],
     "taskDefinitions": [

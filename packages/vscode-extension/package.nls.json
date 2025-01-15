@@ -206,6 +206,7 @@
   "teamstoolkit.commandsTreeViewProvider.officeAddIn.stopDebugTitle": "Stop Previewing Your Office Add-in",
   "teamstoolkit.commandsTreeViewProvider.officeAddIn.stopDebugDescription": "Stop debugging the Office Add-in project",
   "teamstoolkit.commandsTreeViewProvider.syncManifest": "Sync Manifest",
+  "teamstoolkit.commands.addAuthAction": "Add Configurations to Support Actions with Authentication in Declarative Agent",
   "teamstoolkit.common.readMore": "Read more",
   "teamstoolkit.common.signin": "Sign in",
   "teamstoolkit.common.signout": "Sign out",
