@@ -413,13 +413,11 @@ jobs:
           passed_lists=""
           failed_lists=""
           skipped_lists=""
+          has_mos_api_failure=false
+          mos_api_failed_lists=""
 
           emails="teamsfxqa@microsoft.com;"
           while IFS= read -r case;
-
-          has_mos_api_failure=false
-          mos_api_failed_lists=""
-          
           do
             if [ -z "$case" ]; then
               continue
