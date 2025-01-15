@@ -358,6 +358,7 @@ describe("Package Service", () => {
     };
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: Error | undefined;
     try {
       const result = await packageService.sideLoading("test-token", "test-path");
@@ -368,8 +369,8 @@ describe("Package Service", () => {
     }
 
     chai.assert.isUndefined(actualError);
-
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     try {
       const result = await packageService.sideLoading("test-token", "test-path");
       chai.assert.equal(result[0], "test-title-id");
@@ -390,6 +391,7 @@ describe("Package Service", () => {
     axiosPostResponses["/dev/v1/users/packages"] = new Error("test-post");
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: Error | undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
@@ -401,6 +403,7 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError?.message.includes("test-post"));
 
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
@@ -469,6 +472,7 @@ describe("Package Service", () => {
     axiosPostResponses["/dev/v1/users/packages"] = expectedError;
 
     const packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: any;
     try {
       await packageService.sideLoading("test-token", "test-path");
