@@ -1298,9 +1298,21 @@ app.ai.action("{{operationId}}", async (context, state, parameter) => {
     }
     const cardName = "{{operationId}}".replace(/[^a-zA-Z0-9]/g, "_");
     const cardTemplatePath = path.join(__dirname, '../adaptiveCards', cardName + '.json');
+    const isTeamsChannel = context.activity.channelId === Channels.Msteams;
     if (await fs.exists(cardTemplatePath)){
       const card = generateAdaptiveCard(cardTemplatePath, result);
-      await context.sendActivity({ attachments: [card] });
+      await context.sendActivity({
+        attachments: [card],
+        ...(isTeamsChannel ? { channelData: { feedbackLoopEnabled: true }} : {}),
+        entities: [
+          {
+            type: "https://schema.org/Message",
+            "@type": "Message",
+            "@context": "https://schema.org",
+            additionalType: ["AIGeneratedContent"], // AI Generated label
+          },
+        ]
+      });
     }
     else {
       await context.sendActivity(JSON.stringify(result.data));
@@ -1330,7 +1342,7 @@ app.ai.action("{{operationId}}", async (context: TurnContext, state: Application
       const card = generateAdaptiveCard(cardTemplatePath, result);
       await context.sendActivity({
         attachments: [card],
-        ...(isTeamsChannel ? { channelData: true } : {}),
+        ...(isTeamsChannel ? { channelData: { feedbackLoopEnabled: true }} : {}),
         entities: [
           {
             type: "https://schema.org/Message",
