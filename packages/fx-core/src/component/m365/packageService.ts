@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { LogProvider, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { Err, LogProvider, SystemError, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
@@ -22,6 +22,7 @@ import { NotExtendedToM365Error } from "./errors";
 import { MosServiceEndpoint } from "./serviceConstant";
 import { manifestUtils } from "../driver/teamsApp/utils/ManifestUtils";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
+import stripBom from "strip-bom";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -141,16 +142,16 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async sideLoading(token: string, manifestPath: string): Promise<[string, string]> {
-    const manifest = await manifestUtils.readAppManifest(manifestPath);
-    if (manifest.isErr()) {
-      throw manifest.error;
+  public async sideLoading(token: string, packagePath: string): Promise<[string, string]> {
+    const manifest = this.getManifestFromZip(packagePath);
+    if (!manifest) {
+      throw new Error("Invalid app package zip. manifest.json is missing");
     }
-    const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest.value);
+    const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
     if (isDelcarativeAgentApp) {
-      return await this.sideLoadingV2(token, manifestPath);
+      return await this.sideLoadingV2(token, packagePath);
     } else {
-      return await this.sideLoadingV1(token, manifestPath);
+      return await this.sideLoadingV1(token, packagePath);
     }
   }
   // Side loading using Builder API
@@ -162,7 +163,7 @@ export class PackageService {
       const content = new FormData();
       content.append("package", data);
       const serviceUrl = await this.getTitleServiceUrl(token);
-      this.logger?.verbose("Uploading package ...");
+      this.logger?.debug("Uploading package with sideLoading V2 ...");
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
       const uploadResponse = await this.axiosInstance.post(
@@ -216,7 +217,7 @@ export class PackageService {
       const content = new FormData();
       content.append("package", data);
       const serviceUrl = await this.getTitleServiceUrl(token);
-      this.logger?.verbose("Uploading package ...");
+      this.logger?.debug("Uploading package with sideLoading V1 ...");
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
       const uploadResponse = await this.axiosInstance.post(
@@ -509,5 +510,16 @@ export class PackageService {
       this.logger?.debug(`Invalid input zip ${path}. ${error.message as string}`);
       this.logger?.warning(`Please make sure input path is a valid app package zip. ${path}`);
     }
+  }
+
+  private getManifestFromZip(path: string): TeamsAppManifest | undefined {
+    const zip = new AdmZip(path);
+    const manifestEntry = zip.getEntry("manifest.json");
+    if (!manifestEntry) {
+      return undefined;
+    }
+    let manifestContent = manifestEntry.getData().toString("utf8");
+    manifestContent = stripBom(manifestContent);
+    return JSON.parse(manifestContent) as TeamsAppManifest;
   }
 }
