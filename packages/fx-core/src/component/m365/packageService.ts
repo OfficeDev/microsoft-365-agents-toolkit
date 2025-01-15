@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { Err, LogProvider, SystemError, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
+import { LogProvider, SystemError, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
@@ -20,7 +20,6 @@ import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
 import { NotExtendedToM365Error } from "./errors";
 import { MosServiceEndpoint } from "./serviceConstant";
-import { manifestUtils } from "../driver/teamsApp/utils/ManifestUtils";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import stripBom from "strip-bom";
 
