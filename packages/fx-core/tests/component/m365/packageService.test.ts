@@ -432,6 +432,7 @@ describe("Package Service", () => {
     axiosPostResponses["/dev/v1/users/packages"] = expectedError;
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: any;
     try {
       await packageService.sideLoading("test-token", "test-path");
@@ -443,6 +444,7 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError.message.includes("test-post"));
 
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
