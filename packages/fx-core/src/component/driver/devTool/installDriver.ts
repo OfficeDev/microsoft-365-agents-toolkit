@@ -127,7 +127,9 @@ export class ToolsInstallDriverImpl {
 
     if (args.testTool) {
       await this.resolveTestTool(
-        args.testTool.releaseType as TestToolReleaseType,
+        args.testTool.releaseType == TestToolReleaseType.Binary
+          ? TestToolReleaseType.Binary
+          : TestToolReleaseType.Npm,
         `${args.testTool.version}`,
         args.testTool.symlinkDir
       );
