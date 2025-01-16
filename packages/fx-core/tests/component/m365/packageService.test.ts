@@ -344,6 +344,14 @@ describe("Package Service", () => {
         },
       },
     };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: {
+        statusId: "test-status-id-builder-api",
+        titlePreview: {
+          titleId: "test-title-id-preview-builder-api",
+        },
+      },
+    };
     axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
       data: {
         statusId: "test-status-id",
@@ -354,6 +362,13 @@ describe("Package Service", () => {
       data: {
         titleId: "test-title-id",
         appId: "test-app-id",
+      },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
+      status: 200,
+      data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
       },
     };
 
@@ -370,11 +385,59 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
     packageService = new PackageService("https://test-endpoint", logger);
-    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      $schema:
+        "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: "1.0.0",
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "test-manifest",
+        full: "test-manifest full name",
+      },
+      description: {
+        short: "Short description for test-manifest",
+        full: "Full description for test-manifest",
+      },
+      accentColor: "#FFFFFF",
+      composeExtensions: [],
+      permissions: ["identity", "messageTeamMembers"],
+    } as any);
     try {
       const result = await packageService.sideLoading("test-token", "test-path");
       chai.assert.equal(result[0], "test-title-id");
       chai.assert.equal(result[1], "test-app-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path");
+      chai.assert.equal(result[0], "test-title-id-builder-api");
+      chai.assert.equal(result[1], "test-app-id-builder-api");
     } catch (error: any) {
       actualError = error;
     }
@@ -661,6 +724,7 @@ describe("Package Service", () => {
       },
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
 
     let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
@@ -682,7 +746,23 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
   });
-
+  it("unacquire by builder api", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = new Error("test-delete");
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isUndefined(actualError);
+  });
   it("unacquire throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -1074,5 +1154,21 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
     chai.assert.isUndefined(result);
+  });
+
+  it("get share link happy path", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/sharingInfo"] = {
+      data: {
+        unifiedStoreLink: "https://test-share-link",
+      },
+    };
+    const packageService = new PackageService("https://test-endpoint");
+    const shareLink = await packageService.getShareLink("test-token", "test-title-id");
+    chai.assert.equal(shareLink, "https://test-share-link");
   });
 });
