@@ -26,7 +26,7 @@ import stripBom from "strip-bom";
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
 
-enum AppScope {
+export enum AppScope {
   Personal = "Personal",
   Shared = "Shared",
 }
@@ -150,16 +150,22 @@ export class PackageService {
     token: string,
     packagePath: string,
     appScope = AppScope.Personal
-  ): Promise<[string, string]> {
+  ): Promise<[string, string, string]> {
     const manifest = this.getManifestFromZip(packagePath);
     if (!manifest) {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
     if (isDelcarativeAgentApp) {
-      return await this.sideLoadingV2(token, packagePath, appScope);
+      const res = await this.sideLoadingV2(token, packagePath, appScope);
+      let shareLink = "";
+      if (appScope == AppScope.Shared) {
+        shareLink = await this.getShareLink(token, res[0]);
+      }
+      return [res[0], res[1], shareLink];
     } else {
-      return await this.sideLoadingV1(token, packagePath);
+      const res = await this.sideLoadingV1(token, packagePath);
+      return [res[0], res[1], ""];
     }
   }
   // Side loading using Builder API
