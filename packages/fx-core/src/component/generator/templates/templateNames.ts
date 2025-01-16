@@ -24,11 +24,8 @@ export enum TemplateNames {
   DashboardTab = "dashboard-tab",
   NotificationExpress = "notification-express",
   NotificationWebApi = "notification-webapi",
-  NotificationHttpTriggerIsolated = "notification-http-trigger-isolated",
   NotificationHttpTrigger = "notification-http-trigger",
-  NotificationTimerTriggerIsolated = "notification-timer-trigger-isolated",
   NotificationTimerTrigger = "notification-timer-trigger",
-  NotificationHttpTimerTriggerIsolated = "notification-http-timer-trigger-isolated",
   NotificationHttpTimerTrigger = "notification-http-timer-trigger",
   CommandAndResponse = "command-and-response",
   Workflow = "workflow",
@@ -77,20 +74,11 @@ export const Feature2TemplateName = {
     NotificationTriggerOptions.functionsHttpTrigger().id
   }`]: TemplateNames.NotificationHttpTrigger,
   [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpTriggerIsolated().id
-  }`]: TemplateNames.NotificationHttpTriggerIsolated,
-  [`${CapabilityOptions.notificationBot().id}:${
     NotificationTriggerOptions.functionsTimerTrigger().id
   }`]: TemplateNames.NotificationTimerTrigger,
   [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsTimerTriggerIsolated().id
-  }`]: TemplateNames.NotificationTimerTriggerIsolated,
-  [`${CapabilityOptions.notificationBot().id}:${
     NotificationTriggerOptions.functionsHttpAndTimerTrigger().id
   }`]: TemplateNames.NotificationHttpTimerTrigger,
-  [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpAndTimerTriggerIsolated().id
-  }`]: TemplateNames.NotificationHttpTimerTriggerIsolated,
   [`${CapabilityOptions.commandBot().id}:undefined`]: TemplateNames.CommandAndResponse,
   [`${CapabilityOptions.workflowBot().id}:undefined`]: TemplateNames.Workflow,
   [`${CapabilityOptions.basicBot().id}:undefined`]: TemplateNames.DefaultBot,
@@ -182,15 +170,6 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   ],
   [
     {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationHttpTriggerIsolated,
-  ],
-  [
-    {
       [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
       [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpTrigger().id,
     },
@@ -198,28 +177,10 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   ],
   [
     {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsTimerTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationTimerTriggerIsolated,
-  ],
-  [
-    {
       [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
       [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsTimerTrigger().id,
     },
     TemplateNames.NotificationTimerTrigger,
-  ],
-  [
-    {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpAndTimerTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationHttpTimerTriggerIsolated,
   ],
   [
     {
