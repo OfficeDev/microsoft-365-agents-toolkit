@@ -6,7 +6,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
 import repairRecords from "../repairsData.json";
-import { authMiddleware, EntraJwtPayload } from "./middleware/authMiddleware";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 /**
  * This function handles the HTTP request and returns the repair information.

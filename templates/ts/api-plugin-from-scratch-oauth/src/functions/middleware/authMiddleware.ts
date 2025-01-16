@@ -11,7 +11,11 @@ export { EntraJwtPayload } from "./tokenValidator";
  * Middleware function to handle authorization using JWT.
  *
  * @param {HttpRequest} req - The HTTP request.
- * @returns {Promise<EntraJwtPayload | false>} - A promise that resolves to an array of JWT claims or false if authentication failed
+ * @param {string | [string]} scope - The required scope(s) for the request.
+ * @param {string[]} allowedTenants - The allowed tenant IDs for the request.
+ * @param {CloudType} cloud - The Microsoft Entra cloud type.
+ * @param {string} issuer - The JWT issuer.
+ * @returns {Promise<EntraJwtPayload | false>} - A promise that resolves to an object containing JWT claims or false if authentication failed
  */
 export async function authMiddleware(req: HttpRequest,
                                      scope: string | [string],
