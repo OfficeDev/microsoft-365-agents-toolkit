@@ -565,7 +565,7 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 
   const createPluginWithApiSpecCommand = vscode.commands.registerCommand(
     "fx-extension.createProjectWithApiSpec",
-    (args) => Correlator.run(createPluginWithApiSpec, args)
+    (...args) => Correlator.run(createPluginWithApiSpec, args)
   );
   context.subscriptions.push(createPluginWithApiSpecCommand);
 
