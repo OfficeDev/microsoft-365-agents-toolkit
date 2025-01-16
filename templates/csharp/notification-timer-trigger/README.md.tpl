@@ -15,13 +15,14 @@ the notification(replace \<endpoint\> with real endpoint, for example localhost:
 2. Right-click your project and select Teams Toolkit > Prepare Teams App Dependencies
 3. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
 to install the app to
-4. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-5. In the launched browser, select the Add button to load the app in Teams
-6. [If you selected http trigger] Open Windows PowerShell and post a HTTP request to trigger 
+4. In Startup Item, select "Microsoft Teams (browser)"
+5. Press F5, or select the Debug > Start Debugging menu in Visual Studio
+6. In the launched browser, select the Add button to load the app in Teams
+7. [If you selected http trigger] Open Windows PowerShell and post a HTTP request to trigger 
 the notification(replace \<endpoint\> with real endpoint, for example localhost:5130):
 
    Invoke-WebRequest -Uri "http://\<endpoint\>/api/notification" -Method Post
-
+   
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 ## Learn more

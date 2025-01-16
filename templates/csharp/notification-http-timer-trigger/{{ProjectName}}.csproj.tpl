@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>{{SafeProjectName}}</RootNamespace>
   </PropertyGroup>
 
 {{^isNewProjectTypeEnabled}}
@@ -30,7 +32,10 @@
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.33" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.36.0" />
     <PackageReference Include="Microsoft.TeamsFx" Version="2.5.*">
