@@ -330,6 +330,13 @@ export class ToolsInstallDriverImpl {
       if (typeof args.testTool.symlinkDir !== "string") {
         throw new InvalidActionInputError(ACTION_NAME, ["testTool.symlinkDir"], helpLink);
       }
+      if (
+        args.testTool.releaseType &&
+        args.testTool.releaseType !== TestToolReleaseType.Binary &&
+        args.testTool.releaseType !== TestToolReleaseType.Npm
+      ) {
+        throw new InvalidActionInputError(ACTION_NAME, ["testTool.releaseType"], helpLink);
+      }
     }
   }
 
