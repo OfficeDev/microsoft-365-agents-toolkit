@@ -139,6 +139,34 @@ describe("addAuthActionQuestion", () => {
     }
   });
 
+  it("apiSpecFromPluginManifestQuestion condition: should skip when no plugin manifest file path", async () => {
+    const inputs = {
+      platform: Platform.VSCode,
+    };
+    sandbox.stub(fs, "readJson").resolves({
+      schema_version: "1.0",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "spec1.yaml",
+          },
+          run_for_functions: ["function1"],
+        },
+      ],
+    });
+    const condition = addAuthActionQuestion().children![0].condition;
+    if (condition) {
+      const res = await (condition as ConditionFunc)(inputs);
+      assert.isFalse(res);
+    }
+  });
+
   it("apiSpecFromPluginManifestQuestion condition: should ask question", async () => {
     const inputs = {
       platform: Platform.VSCode,
@@ -281,6 +309,34 @@ describe("addAuthActionQuestion", () => {
       platform: Platform.VSCode,
       [QuestionNames.PluginManifestFilePath]: "test",
       [QuestionNames.ApiSpecLocation]: "spec.yaml",
+    };
+    sandbox.stub(fs, "readJson").resolves({
+      schema_version: "1.0",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "spec.yaml",
+          },
+          run_for_functions: ["function1"],
+        },
+      ],
+    });
+    const condition = addAuthActionQuestion().children![1].condition;
+    if (condition) {
+      const res = await (condition as ConditionFunc)(inputs);
+      assert.isFalse(res);
+    }
+  });
+
+  it("apiFromPluginManifestQuestion condition: should skip when no plugin manifest file path", async () => {
+    const inputs = {
+      platform: Platform.VSCode,
     };
     sandbox.stub(fs, "readJson").resolves({
       schema_version: "1.0",

@@ -120,6 +120,7 @@ export enum TelemetryEvent {
   Doctor = "doctor",
 
   AddCopilotPlugin = "add-copilot-plugin",
+  AddAuthAction = "add-auth-action",
 }
 
 export enum TelemetryProperty {

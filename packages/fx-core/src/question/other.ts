@@ -823,7 +823,12 @@ export function addAuthActionQuestion(): IQTreeNode {
         data: apiSpecFromPluginManifestQuestion(),
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
-          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          if (!!!pluginManifestPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
           const specs = pluginManifest
             .runtimes!.filter((runtime) => runtime.type === "OpenApi")
             .map((runtime) => runtime.spec.url);
@@ -839,7 +844,12 @@ export function addAuthActionQuestion(): IQTreeNode {
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
           const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
-          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          if (!!!pluginManifestPath || !!!apiSpecPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
           const apis: string[] = [];
           pluginManifest
             .runtimes!.filter(
@@ -872,6 +882,7 @@ export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
     placeholder: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.placeholder"),
     type: "singleSelect",
     staticOptions: [],
+    cliDescription: "OpenAPI specification to add Auth configuration.",
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
@@ -890,6 +901,7 @@ export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
     type: "multiSelect",
     staticOptions: [],
     placeholder: getLocalizedString("core.addAuthActionQuestion.ApiOperation.placeholder"),
+    cliDescription: "API to add Auth configuration.",
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
@@ -909,6 +921,7 @@ export function authNameQuestion(): TextInputQuestion {
     name: QuestionNames.AuthName,
     title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
     type: "text",
+    cliDescription: "Name of Auth Configuration.",
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {
