@@ -27,6 +27,10 @@ export interface EntraJwtPayload extends JwtPayload {
   roles?: string[];
   scp?: string[];
   ver?: string;
+  name?: string;
+  oid?: string;
+  preferred_username?: string;
+  tid?: string;
 }
 
 export class TokenValidator {

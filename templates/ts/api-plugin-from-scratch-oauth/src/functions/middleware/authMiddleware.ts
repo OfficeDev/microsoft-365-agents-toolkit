@@ -1,15 +1,25 @@
 import { HttpRequest } from "@azure/functions";
-import { TokenValidator } from "./tokenValidator";
+import { TokenValidator, EntraJwtPayload } from "./tokenValidator";
 import config from "./config";
 import { getEntraJwksUri, CloudType } from "./utils";
+
+// Export symbols app devs will need to use
+export { CloudType } from "./utils";
+export { EntraJwtPayload } from "./tokenValidator";
 
 /**
  * Middleware function to handle authorization using JWT.
  *
  * @param {HttpRequest} req - The HTTP request.
- * @returns {Promise<boolean>} - A promise that resolves to a boolean value.
+ * @returns {Promise<EntraJwtPayload | false>} - A promise that resolves to an array of JWT claims or false if authentication failed
  */
-export async function authMiddleware(req?: HttpRequest): Promise<boolean> {
+export async function authMiddleware(req: HttpRequest,
+                                     scope: string | [string],
+                                     allowedTenants: [string] = [config.aadAppTenantId],
+                                     cloud: CloudType = CloudType.Public,
+                                     issuer: string = `https://login.microsoftonline.com/${config.aadAppTenantId}/v2.0`
+                                    ): Promise<EntraJwtPayload | false> {
+
   // Get the token from the request headers
   const token = req.headers.get("authorization")?.split(" ")[1];
   if (!token) {
@@ -17,8 +27,8 @@ export async function authMiddleware(req?: HttpRequest): Promise<boolean> {
   }
 
   try {
-    // Get the JWKS URL for the Microsoft Entra common tenant
-    const entraJwksUri = await getEntraJwksUri(config.aadAppTenantId, CloudType.Public);
+    // Get the JWKS URL for the specified Microsoft Entra cloud
+    const entraJwksUri = await getEntraJwksUri(config.aadAppTenantId, cloud);
 
     // Create a new token validator with the JWKS URL
     const validator = new TokenValidator({
@@ -26,18 +36,21 @@ export async function authMiddleware(req?: HttpRequest): Promise<boolean> {
     });
 
     const options = {
-      allowedTenants: [config.aadAppTenantId],
+      allowedTenants: allowedTenants,
       audience: config.aadAppClientId,
-      issuer: `https://login.microsoftonline.com/${config.aadAppTenantId}/v2.0`,
-      scp: ["repairs_read"],
+      issuer: issuer,
+      scp: typeof scope === 'string' ? [scope] : scope
     };
     // Validate the token
-    await validator.validateToken(token, options);
+    const claims = await validator.validateToken(token, options);
 
-    return true;
+    return claims;
+
   } catch (err) {
+
     // Handle JWT verification errors
     console.error("Token is invalid:", err);
     return false;
+
   }
 }
