@@ -3932,7 +3932,7 @@ describe("scaffold question", () => {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
           assert.isTrue(options.length === 3);
-          return ok({ type: "success", result: MeArchitectureOptions.botPlugin().id });
+          return ok({ type: "success", result: MeArchitectureOptions.botMe().id });
         } else if (question.name === QuestionNames.ProgrammingLanguage) {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
