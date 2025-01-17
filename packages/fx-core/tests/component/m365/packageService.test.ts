@@ -521,6 +521,26 @@ describe("Package Service", () => {
       actualError = error;
     }
     chai.assert.isDefined(actualError);
+
+    const expectedError = new Error("test-status") as any;
+    expectedError.response = {
+      data: {
+        foo: "bar",
+      },
+      headers: {
+        traceresponse: "tracing-id",
+      },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] =
+      expectedError;
+    actualError = undefined;
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("test-status"));
   });
   it("sideLoading throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
