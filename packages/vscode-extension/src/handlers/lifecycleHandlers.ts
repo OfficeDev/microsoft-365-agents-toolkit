@@ -44,6 +44,7 @@ import VsCodeLogInstance from "../commonlib/log";
 import * as versionUtil from "../utils/versionUtil";
 import { KiotaExtensionId, KiotaMinVersion } from "../constants";
 import * as stringUtil from "util";
+import { debugInTestToolHandler } from "./debugHandlers";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
@@ -255,7 +256,19 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
 export async function addAuthActionHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
   const inputs = getSystemInputs();
-  return await runCommand(Stage.addAuthAction, inputs);
+  const result = await runCommand(Stage.addAuthAction, inputs);
+  void vscode.window
+    .showInformationMessage(
+      localize("teamstoolkit.handeler.addAuthConfig.notification"),
+      "Provision"
+    )
+    .then((selection) => {
+      if (selection === "Provision") {
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ProvisionFromAddAuthConfig);
+        void runCommand(Stage.provision);
+      }
+    });
+  return result;
 }
 
 function handleTriggerKiotaCommand(

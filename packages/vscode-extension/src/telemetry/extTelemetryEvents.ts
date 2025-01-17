@@ -320,6 +320,7 @@ export enum TelemetryEvent {
 
   AddAuthActionStart = "add-auth-action-start",
   AddAuthAction = "add-auth-action",
+  ProvisionFromAddAuthConfig = "provision-from-add-auth-config",
 }
 
 export enum TelemetryProperty {
