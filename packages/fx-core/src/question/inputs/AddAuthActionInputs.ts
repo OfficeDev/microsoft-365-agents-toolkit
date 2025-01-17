@@ -15,7 +15,7 @@ export interface AddAuthActionInputs extends Inputs {
   "plugin-manifest-path"?: string;
   /** @description Select an OpenAPI Description Document */
   "openapi-spec-location"?: string;
-  /** @description Select an OpenAPI Description Document */
+  /** @description Select an API to Add Auth Configuration */
   "api-operation"?: string[];
   /** @description Input the Name of Auth Configuration */
   "auth-name"?: string;

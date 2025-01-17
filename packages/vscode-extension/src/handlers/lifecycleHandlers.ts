@@ -44,7 +44,6 @@ import VsCodeLogInstance from "../commonlib/log";
 import * as versionUtil from "../utils/versionUtil";
 import { KiotaExtensionId, KiotaMinVersion } from "../constants";
 import * as stringUtil from "util";
-import { debugInTestToolHandler } from "./debugHandlers";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
