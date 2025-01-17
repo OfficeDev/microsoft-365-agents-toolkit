@@ -837,8 +837,16 @@ describe("Package Service", () => {
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = new Error("test-delete");
     axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
-    const packageService = new PackageService("https://test-endpoint");
+    let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint", logger);
     try {
       await packageService.unacquire("test-token", "test-title-id");
     } catch (error: any) {
