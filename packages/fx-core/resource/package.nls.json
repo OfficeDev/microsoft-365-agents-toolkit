@@ -295,7 +295,6 @@
   "core.createProjectQuestion.option.description.preview": "Preview",
   "core.createProjectQuestion.option.description.worksInOutlook": "Works in Teams and Outlook",
   "core.createProjectQuestion.option.description.worksInOutlookM365": "Works in Teams, Outlook, and the Microsoft 365 application",
-  "core.createProjectQuestion.option.description.worksInOutlookCopilot": "Works in Teams, Outlook and Copilot",
   "core.createProjectQuestion.projectType.bot.detail": "Create instant, engaging chat experiences that automate tasks seamlessly",
   "core.createProjectQuestion.projectType.bot.label": "Bot",
   "core.createProjectQuestion.projectType.bot.title": "App Features Using a Bot",
