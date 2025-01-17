@@ -835,19 +835,6 @@ export class MeArchitectureOptions {
     };
   }
 
-  static botPlugin(): OptionItem {
-    return {
-      id: "bot-plugin",
-      label: getLocalizedString("core.createProjectQuestion.capability.botMessageExtension.label"),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.botMessageExtension.detail"
-      ),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookCopilot"
-      ),
-    };
-  }
-
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -876,7 +863,7 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
+      MeArchitectureOptions.botMe(),
     ];
   }
 
@@ -884,7 +871,6 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
       MeArchitectureOptions.botMe(),
     ];
   }

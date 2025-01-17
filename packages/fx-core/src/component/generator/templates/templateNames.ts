@@ -33,7 +33,6 @@ export enum TemplateNames {
   MessageExtension = "message-extension",
   MessageExtensionAction = "message-extension-action",
   MessageExtensionSearch = "message-extension-search",
-  MessageExtensionCopilot = "message-extension-copilot",
   M365MessageExtension = "m365-message-extension",
   TabAndDefaultBot = "non-sso-tab-default-bot",
   BotAndMessageExtension = "default-bot-message-extension",
@@ -85,8 +84,6 @@ export const Feature2TemplateName = {
   [`${CapabilityOptions.me().id}:undefined`]: TemplateNames.MessageExtension,
   [`${CapabilityOptions.collectFormMe().id}:undefined`]: TemplateNames.MessageExtensionAction,
   [`${CapabilityOptions.SearchMe().id}:undefined`]: TemplateNames.MessageExtensionSearch,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.botPlugin().id}`]:
-    TemplateNames.MessageExtensionCopilot,
   [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.botMe().id}`]:
     TemplateNames.M365MessageExtension,
   [`${CapabilityOptions.nonSsoTabAndBot().id}:undefined`]: TemplateNames.TabAndDefaultBot,
@@ -203,13 +200,6 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.SearchMe().id },
     TemplateNames.MessageExtensionSearch,
-  ],
-  [
-    {
-      [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
-      [QuestionNames.MeArchitectureType]: MeArchitectureOptions.botPlugin().id,
-    },
-    TemplateNames.MessageExtensionCopilot,
   ],
   [
     {
