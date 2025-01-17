@@ -21,7 +21,7 @@ import {
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
 } from "./other";
-import { scaffoldQuestionForVSCode } from "./refactor/createVsc";
+import { scaffoldQuestionForVSCode } from "./refactor/vsc/createRootNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
