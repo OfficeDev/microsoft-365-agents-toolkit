@@ -954,9 +954,7 @@ export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
       } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {
         options.push(ApiAuthOptions.apiKey());
-        if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)) {
-          options.push(ApiAuthOptions.microsoftEntra());
-        }
+        options.push(ApiAuthOptions.microsoftEntra());
         options.push(ApiAuthOptions.oauth());
       }
       return options;

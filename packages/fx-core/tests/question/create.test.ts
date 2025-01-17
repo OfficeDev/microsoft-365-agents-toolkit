@@ -1642,9 +1642,7 @@ describe("scaffold question", () => {
       const tools = new MockTools();
       setTools(tools);
       beforeEach(() => {
-        mockedEnvRestore = mockedEnv({
-          [FeatureFlagName.ApiPluginAAD]: "true",
-        });
+        mockedEnvRestore = mockedEnv({});
       });
 
       afterEach(() => {
@@ -1981,7 +1979,6 @@ describe("scaffold question", () => {
       it("traverse in cli", async () => {
         mockedEnvRestore = mockedEnv({
           TEAMSFX_CLI_DOTNET: "false",
-          [FeatureFlagName.ApiPluginAAD]: "true",
         });
 
         const inputs: Inputs = {
@@ -4064,9 +4061,7 @@ describe("scaffold question", () => {
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "true",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4131,9 +4126,7 @@ describe("scaffold question", () => {
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "false",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4154,6 +4147,7 @@ describe("scaffold question", () => {
         assert.deepEqual(options, [
           ApiAuthOptions.none(),
           ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
           ApiAuthOptions.oauth(),
         ]);
       }
