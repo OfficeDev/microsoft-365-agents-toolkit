@@ -488,6 +488,40 @@ describe("Package Service", () => {
     chai.assert.isUndefined(actualError);
   });
 
+  it("sideloading throws error in get status", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: {
+        statusId: "test-status-id-builder-api",
+        titlePreview: {
+          titleId: "test-title-id-preview-builder-api",
+        },
+      },
+    };
+    let actualError: Error | undefined;
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+  });
   it("sideLoading throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
