@@ -600,5 +600,6 @@
   "teamstoolkit.m365.needSignIn.message": "You need to sign in your Microsoft 365 account.",
   "teamstoolkit.handler.createPluginWithManifest.error.missingParameter": "Invalid parameter in the createPluginWithManifest command. Usage: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Valid values for LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.",
   "teamstoolkit.error.KiotaNotInstalled": "You need to install Microsoft Kiota extension with minimum version %s to use this feature.",
-  "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision."
+  "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision"
 }

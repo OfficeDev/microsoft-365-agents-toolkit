@@ -259,7 +259,7 @@ export async function addAuthActionHandler(...args: unknown[]) {
   void vscode.window
     .showInformationMessage(
       localize("teamstoolkit.handeler.addAuthConfig.notification"),
-      "Provision"
+      localize("teamstoolkit.handeler.addAuthConfig.notification.provision")
     )
     .then((selection) => {
       if (selection === "Provision") {
