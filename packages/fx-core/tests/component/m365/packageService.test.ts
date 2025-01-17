@@ -450,7 +450,8 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
 
-    packageService = new PackageService("https://test-endpoint", logger);
+    // without logger
+    packageService = new PackageService("https://test-endpoint");
     sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
       copilotAgents: {
         declarativeAgents: [
@@ -510,6 +511,7 @@ describe("Package Service", () => {
 
     packageService = new PackageService("https://test-endpoint", logger);
     sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    actualError = undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
@@ -530,6 +532,7 @@ describe("Package Service", () => {
         ],
       },
     } as any);
+    actualError = undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
@@ -538,6 +541,22 @@ describe("Package Service", () => {
 
     chai.assert.isDefined(actualError);
     chai.assert.isTrue(actualError?.message.includes("test-post-builder-api"));
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    sandbox
+      .stub(packageService, "getManifestFromZip" as keyof PackageService)
+      .returns(undefined as any);
+    actualError = undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(
+      actualError?.message.includes("Invalid app package zip. manifest.json is missing")
+    );
   });
 
   it("sideLoading throws expected reponse error", async () => {
@@ -571,6 +590,7 @@ describe("Package Service", () => {
 
     packageService = new PackageService("https://test-endpoint", logger);
     sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    actualError = undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
