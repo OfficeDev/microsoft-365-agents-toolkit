@@ -862,8 +862,19 @@ describe("Package Service", () => {
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = new Error("test-delete");
 
-    const packageService = new PackageService("https://test-endpoint");
+    let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("test-delete"));
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    actualError = undefined;
     try {
       await packageService.unacquire("test-token", "test-title-id");
     } catch (error: any) {
@@ -885,6 +896,7 @@ describe("Package Service", () => {
       data: {},
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = expectedError;
+    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = expectedError;
 
     const packageService = new PackageService("https://test-endpoint");
     let actualError: any;
@@ -1261,5 +1273,21 @@ describe("Package Service", () => {
     const packageService = new PackageService("https://test-endpoint");
     const shareLink = await packageService.getShareLink("test-token", "test-title-id");
     chai.assert.equal(shareLink, "https://test-share-link");
+  });
+
+  it("get share link - failure", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: boolean | undefined;
+    try {
+      const shareLink = await packageService.getShareLink("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
   });
 });
