@@ -24,7 +24,14 @@ export class TabCapabilityOptions {
       data: TemplateNames.Tab,
     };
   }
-
+  static tab(): OptionItem {
+    return {
+      id: "tab",
+      label: getLocalizedString("core.TabOption.label"),
+      description: getLocalizedString("core.TabOption.description"),
+      detail: getLocalizedString("core.TabOption.detail"),
+    };
+  }
   static m365SsoLaunchPage(): OptionItem {
     return {
       id: "sso-launch-page",
@@ -235,6 +242,14 @@ export class MeCapabilityOptions {
       data: TemplateNames.LinkUnfurling,
     };
   }
+
+  static SearchMeVS(): OptionItem {
+    return {
+      id: "search-message-extension",
+      label: `${getLocalizedString("core.M365SearchAppOptionItem.label")}`,
+      detail: getLocalizedString("core.SearchAppOptionItem.detail"),
+    };
+  }
 }
 
 export class MeArchitectureOptions {
@@ -334,6 +349,24 @@ export class BotCapabilityOptions {
       label: `${getLocalizedString("core.BotNewUIOption.label")}`,
       detail: getLocalizedString("core.BotNewUIOption.detail"),
       data: TemplateNames.DefaultBot,
+    };
+  }
+  static aiBot(): OptionItem {
+    return {
+      id: "ai-bot",
+      label: getLocalizedString("core.aiBotOption.label"),
+      detail: getLocalizedString("core.aiBotOption.detail"),
+      data: TemplateNames.AIBot,
+    };
+  }
+
+  static aiAssistantBot(): OptionItem {
+    return {
+      id: "ai-assistant-bot",
+      label: getLocalizedString("core.aiAssistantBotOption.label"),
+      detail: getLocalizedString("core.aiAssistantBotOption.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.AIAssistantBot,
     };
   }
 

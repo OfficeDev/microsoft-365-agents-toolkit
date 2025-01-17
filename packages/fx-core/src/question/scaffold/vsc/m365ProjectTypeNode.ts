@@ -8,6 +8,7 @@ import {
   IQTreeNode,
   MultiSelectQuestion,
   OptionItem,
+  Platform,
   SingleFileOrInputQuestion,
   StringValidation,
 } from "@microsoft/teamsfx-api";
@@ -222,6 +223,26 @@ export function apiSpecLocationQuestion(): SingleFileOrInputQuestion {
   };
 }
 
+export function botTriggerNode(): IQTreeNode {
+  return {
+    condition: { equals: BotCapabilityOptions.notificationBotId },
+    data: {
+      name: QuestionNames.BotTrigger,
+      title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
+      type: "singleSelect",
+      cliDescription: "Specifies the trigger for `Chat Notification Message` app template.",
+      staticOptions: [
+        NotificationBotOptions.appService(),
+        NotificationBotOptions.functionsHttpAndTimerTrigger(),
+        NotificationBotOptions.functionsHttpTrigger(),
+        NotificationBotOptions.functionsTimerTrigger(),
+      ],
+      placeholder: getLocalizedString("plugins.bot.questionHostTypeTrigger.placeholder"),
+      onDidSelection: setTemplateName,
+    },
+  };
+}
+
 export function botProjectTypeNode(): IQTreeNode {
   return {
     // project-type = Bot
@@ -239,29 +260,11 @@ export function botProjectTypeNode(): IQTreeNode {
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
-    children: [
-      {
-        // 2.3.1 Notification bot trigger sub-tree
-        condition: { equals: BotCapabilityOptions.notificationBotId },
-        data: {
-          name: QuestionNames.BotTrigger,
-          title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
-          type: "singleSelect",
-          staticOptions: [
-            NotificationBotOptions.appService(),
-            NotificationBotOptions.functionsHttpAndTimerTrigger(),
-            NotificationBotOptions.functionsHttpTrigger(),
-            NotificationBotOptions.functionsTimerTrigger(),
-          ],
-          placeholder: getLocalizedString("plugins.bot.questionHostTypeTrigger.placeholder"),
-          onDidSelection: setTemplateName,
-        },
-      },
-    ],
+    children: [botTriggerNode()],
   };
 }
 
-export function tabProjectTypeNode(): IQTreeNode {
+export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {
     // project-type = Tab
     condition: { equals: ProjectTypeOptions.tab().id },
@@ -285,7 +288,10 @@ export function tabProjectTypeNode(): IQTreeNode {
         data: {
           type: "singleSelect",
           name: QuestionNames.SPFxSolution,
-          title: getLocalizedString("plugins.spfx.questions.spfxSolution.title"),
+          title:
+            platform === Platform.CLI
+              ? "Create a new or import an existing SharePoint Framework solution."
+              : getLocalizedString("plugins.spfx.questions.spfxSolution.title"),
           staticOptions: [
             {
               id: "new",
@@ -311,7 +317,10 @@ export function tabProjectTypeNode(): IQTreeNode {
                 data: {
                   type: "singleSelect",
                   name: QuestionNames.SPFxInstallPackage,
-                  title: getLocalizedString("plugins.spfx.questions.packageSelect.title"),
+                  title:
+                    platform === Platform.CLI
+                      ? "Install the latest version of SharePoint Framework."
+                      : getLocalizedString("plugins.spfx.questions.packageSelect.title"),
                   staticOptions: [],
                   placeholder: getLocalizedString(
                     "plugins.spfx.questions.packageSelect.placeholder"
@@ -468,6 +477,7 @@ export function meProjectTypeNode(): IQTreeNode {
         data: {
           name: QuestionNames.MeArchitectureType,
           title: getLocalizedString("core.createProjectQuestion.meArchitecture.title"),
+          cliDescription: "The authentication type for the API.",
           type: "singleSelect",
           staticOptions: [
             MeArchitectureOptions.newApi(),

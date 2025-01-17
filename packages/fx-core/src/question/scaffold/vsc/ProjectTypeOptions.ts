@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { OptionItem } from "@microsoft/teamsfx-api";
+import { OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 
@@ -21,28 +21,34 @@ export class ProjectTypeOptions {
     ? getLocalizedString("core.createProjectQuestion.projectType.createGroup.title")
     : undefined;
 
-  static tab(): OptionItem {
+  static tab(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.tabOptionId,
-      label: `$(browser) ${getLocalizedString("core.TabOption.label")}`,
+      label: `${platform === Platform.VSCode ? "$(browser) " : ""}${getLocalizedString(
+        "core.TabOption.label"
+      )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.tab.detail"),
       groupName: ProjectTypeOptions.createGroupName,
     };
   }
 
-  static bot(): OptionItem {
+  static bot(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.botOptionId,
-      label: `$(hubot) ${getLocalizedString("core.createProjectQuestion.projectType.bot.label")}`,
+      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
+        "core.createProjectQuestion.projectType.bot.label"
+      )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.bot.detail"),
       groupName: ProjectTypeOptions.createGroupName,
     };
   }
 
-  static me(): OptionItem {
+  static me(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.meOptionId,
-      label: `$(symbol-keyword) ${getLocalizedString("core.MessageExtensionOption.label")}`,
+      label: `${platform === Platform.VSCode ? "$(symbol-keyword) " : ""}${getLocalizedString(
+        "core.MessageExtensionOption.label"
+      )}`,
       detail: getLocalizedString(
         "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"
       ),
@@ -50,10 +56,10 @@ export class ProjectTypeOptions {
     };
   }
 
-  static outlookAddin(): OptionItem {
+  static outlookAddin(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.outlookAddinOptionId,
-      label: `$(mail) ${getLocalizedString(
+      label: `${platform === Platform.VSCode ? "$(mail) " : ""}${getLocalizedString(
         "core.createProjectQuestion.projectType.outlookAddin.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.detail"),
@@ -61,10 +67,10 @@ export class ProjectTypeOptions {
     };
   }
 
-  static officeMetaOS(): OptionItem {
+  static officeMetaOS(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.officeMetaOSOptionId,
-      label: `$(teamsfx-m365) ${getLocalizedString(
+      label: `${platform === Platform.VSCode ? "$(teamsfx-m365) " : ""}${getLocalizedString(
         "core.createProjectQuestion.projectType.officeAddin.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
@@ -72,18 +78,18 @@ export class ProjectTypeOptions {
     };
   }
 
-  static officeAddin(): OptionItem {
+  static officeAddin(platform: Platform = Platform.VSCode): OptionItem {
     if (featureFlagManager.getBooleanValue(FeatureFlags.OfficeMetaOS)) {
-      return this.officeMetaOS();
+      return this.officeMetaOS(platform);
     } else {
-      return this.outlookAddin();
+      return this.outlookAddin(platform);
     }
   }
 
-  static Agent(): OptionItem {
+  static Agent(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.copilotAgentOptionId,
-      label: `$(teamsfx-agent) ${getLocalizedString(
+      label: `${platform === Platform.VSCode ? "$(teamsfx-agent) " : ""}${getLocalizedString(
         "core.createProjectQuestion.projectType.declarativeAgent.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
@@ -91,12 +97,12 @@ export class ProjectTypeOptions {
     };
   }
 
-  static customCopilot(): OptionItem {
+  static customCopilot(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.customCopilotOptionId,
-      label: `$(teamsfx-custom-copilot) ${getLocalizedString(
-        "core.createProjectQuestion.projectType.customCopilot.label"
-      )}`,
+      label: `${
+        platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
+      }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.detail"),
       groupName: ProjectTypeOptions.createGroupName,
     };

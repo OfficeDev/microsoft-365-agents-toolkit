@@ -2,7 +2,13 @@
 // Licensed under the MIT license.
 
 import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
-import { Inputs, IQTreeNode, SingleFileQuestion, UserError } from "@microsoft/teamsfx-api";
+import {
+  Inputs,
+  IQTreeNode,
+  Platform,
+  SingleFileQuestion,
+  UserError,
+} from "@microsoft/teamsfx-api";
 import * as os from "os";
 import * as path from "path";
 import { SpecParserSource } from "../../../common/constants";
@@ -34,6 +40,7 @@ export function pluginManifestQuestion(): SingleFileQuestion {
     type: "singleFile",
     name: QuestionNames.PluginManifestFilePath,
     title: getLocalizedString("core.createProjectQuestion.addExistingPlugin.pluginManifest.title"),
+    cliDescription: "Plugin manifest path.",
     placeholder: getLocalizedString(
       "core.createProjectQuestion.addExistingPlugin.pluginManifest.placeholder"
     ),
@@ -143,16 +150,20 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
   };
 }
 
-export function declarativeAgentProjectTypeNode(): IQTreeNode {
+export function declarativeAgentProjectTypeNode(
+  parentValue = ProjectTypeOptions.copilotAgentOptionId
+): IQTreeNode {
   return {
     // project-type = Declarative Agent
-    condition: { equals: ProjectTypeOptions.copilotAgentOptionId },
+    condition: { equals: parentValue },
     data: {
-      name: QuestionNames.Capabilities,
+      name: QuestionNames.WithPlugin,
       title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
+      cliDescription: "Whether to add API plugin for your declarative Copilot.",
       type: "singleSelect",
       staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
       placeholder: getLocalizedString("core.createProjectQuestion.declarativeCopilot.placeholder"),
+      onDidSelection: setTemplateName,
     },
     children: [
       {
@@ -161,6 +172,7 @@ export function declarativeAgentProjectTypeNode(): IQTreeNode {
           type: "singleSelect",
           name: QuestionNames.ApiPluginType,
           title: getLocalizedString("core.createProjectQuestion.createApiPlugin.title"),
+          cliDescription: "API plugin type.",
           placeholder: getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder"),
           staticOptions: [
             ApiPluginStartOptions.newApi(),
@@ -177,6 +189,7 @@ export function declarativeAgentProjectTypeNode(): IQTreeNode {
               type: "singleSelect",
               name: QuestionNames.ApiAuth,
               title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+              cliDescription: "The authentication type for the API.",
               placeholder: getLocalizedString(
                 "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
               ),
@@ -189,6 +202,7 @@ export function declarativeAgentProjectTypeNode(): IQTreeNode {
                 ApiAuthOptions.oauth(),
               ],
               default: ApiAuthOptions.none().id,
+              onDidSelection: setTemplateName,
             },
           },
           apiSpecNode(
