@@ -30,6 +30,7 @@ export class TabCapabilityOptions {
       label: getLocalizedString("core.TabOption.label"),
       description: getLocalizedString("core.TabOption.description"),
       detail: getLocalizedString("core.TabOption.detail"),
+      data: TemplateNames.SsoTab,
     };
   }
   static m365SsoLaunchPage(): OptionItem {
@@ -248,6 +249,7 @@ export class MeCapabilityOptions {
       id: "search-message-extension",
       label: `${getLocalizedString("core.M365SearchAppOptionItem.label")}`,
       detail: getLocalizedString("core.SearchAppOptionItem.detail"),
+      data: TemplateNames.MessageExtensionSearch,
     };
   }
 }
@@ -431,7 +433,16 @@ export class NotificationBotOptions {
       data: TemplateNames.NotificationExpress,
     };
   }
-
+  static appServiceForVS(): HostTypeTriggerOptionItem {
+    return {
+      id: "http-webapi",
+      hostType: HostType.AppService,
+      label: getLocalizedString("plugins.bot.triggers.http-webapi.label"),
+      description: getLocalizedString("plugins.bot.triggers.http-webapi.description"),
+      detail: getLocalizedString("plugins.bot.triggers.http-webapi.detail"),
+      data: TemplateNames.NotificationWebApi,
+    };
+  }
   static functionsTimerTrigger(): HostTypeTriggerOptionItem {
     return {
       id: "timer-functions",
@@ -523,11 +534,11 @@ export class ApiPluginStartOptions {
 }
 
 export class ApiAuthOptions {
-  static none(): OptionItem {
+  static none(isME = false): OptionItem {
     return {
       id: "none",
       label: "None",
-      data: TemplateNames.ApiPluginFromScratch,
+      data: isME ? TemplateNames.CopilotPluginFromScratch : TemplateNames.ApiPluginFromScratch,
     };
   }
   static apiKey(): OptionItem {
@@ -544,11 +555,11 @@ export class ApiAuthOptions {
       data: TemplateNames.CopilotPluginFromScratchApiKey,
     };
   }
-  static microsoftEntra(): OptionItem {
+  static microsoftEntra(isME = false): OptionItem {
     return {
       id: "microsoft-entra",
       label: "Microsoft Entra",
-      data: TemplateNames.ApiMessageExtensionSso,
+      data: isME ? TemplateNames.ApiMessageExtensionSso : TemplateNames.ApiPluginFromScratchOAuth,
     };
   }
 
@@ -558,15 +569,6 @@ export class ApiAuthOptions {
       label: "OAuth",
       data: TemplateNames.ApiPluginFromScratchOAuth,
     };
-  }
-
-  static all(): OptionItem[] {
-    return [
-      ApiAuthOptions.none(),
-      ApiAuthOptions.apiKey(),
-      ApiAuthOptions.microsoftEntra(),
-      ApiAuthOptions.oauth(),
-    ];
   }
 }
 

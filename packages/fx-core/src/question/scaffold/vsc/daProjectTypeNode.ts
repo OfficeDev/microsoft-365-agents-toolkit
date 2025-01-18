@@ -194,7 +194,7 @@ export function declarativeAgentProjectTypeNode(
                 "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
               ),
               staticOptions: [
-                ApiAuthOptions.none(),
+                ApiAuthOptions.none(false),
                 ApiAuthOptions.apiKey(),
                 ...(featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)
                   ? [ApiAuthOptions.microsoftEntra()]

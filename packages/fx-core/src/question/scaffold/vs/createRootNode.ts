@@ -13,7 +13,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { Constants } from "../../../component/generator/spfx/utils/constants";
 import { FileNotFoundError } from "../../../error/common";
 import { AppNamePattern, ProgrammingLanguage, QuestionNames } from "../../constants";
-import { Templates } from "../../templates";
+import { TemplateNames, Templates } from "../../templates";
 import {
   ApiPluginStartOptions,
   BotCapabilityOptions,
@@ -146,6 +146,7 @@ export class VSCapabilityOptions {
     return {
       id: "empty",
       label: "Empty",
+      data: TemplateNames.Empty,
     };
   }
 
@@ -203,7 +204,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
               CustomCopilotCapabilityOptions.customCopilotAssistant().id,
             ],
           }),
-          botTriggerNode(),
+          botTriggerNode(Platform.VS),
         ],
       },
       languageNode(),

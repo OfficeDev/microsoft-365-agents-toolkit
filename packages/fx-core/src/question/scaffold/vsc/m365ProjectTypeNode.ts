@@ -223,7 +223,7 @@ export function apiSpecLocationQuestion(): SingleFileOrInputQuestion {
   };
 }
 
-export function botTriggerNode(): IQTreeNode {
+export function botTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {
     condition: { equals: BotCapabilityOptions.notificationBotId },
     data: {
@@ -232,7 +232,9 @@ export function botTriggerNode(): IQTreeNode {
       type: "singleSelect",
       cliDescription: "Specifies the trigger for `Chat Notification Message` app template.",
       staticOptions: [
-        NotificationBotOptions.appService(),
+        platform === Platform.VS
+          ? NotificationBotOptions.appService()
+          : NotificationBotOptions.appServiceForVS(),
         NotificationBotOptions.functionsHttpAndTimerTrigger(),
         NotificationBotOptions.functionsHttpTrigger(),
         NotificationBotOptions.functionsTimerTrigger(),
@@ -503,11 +505,11 @@ export function meProjectTypeNode(): IQTreeNode {
                 "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
               ),
               staticOptions: [
-                ApiAuthOptions.none(),
+                ApiAuthOptions.none(true),
                 ApiAuthOptions.bearerToken(),
-                ApiAuthOptions.microsoftEntra(),
+                ApiAuthOptions.microsoftEntra(true),
               ],
-              default: ApiAuthOptions.none().id,
+              default: ApiAuthOptions.none(true).id,
               onDidSelection: setTemplateName,
             },
           },

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { IQTreeNode } from "@microsoft/teamsfx-api";
+import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
 import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
 import {
   addPluginQuestionNode,
@@ -22,14 +22,16 @@ import {
   validateTeamsAppQuestionNode,
 } from "./other";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
+import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
 export * from "./options";
 
 export class QuestionNodes {
-  createProject(): IQTreeNode {
+  createProject(platform: Platform): IQTreeNode {
     // return createProjectQuestionNode();
+    if (platform === Platform.VS) return scaffoldQuestionForVS();
     return scaffoldQuestionForVSCode();
   }
   createSampleProject(): IQTreeNode {
