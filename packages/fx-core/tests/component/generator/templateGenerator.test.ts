@@ -57,7 +57,7 @@ describe("TemplateGenerator", () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net9.0",
       },
-      TemplateNames.Tab,
+      TemplateNames.SsoTabSSR,
     ],
   ]);
 
