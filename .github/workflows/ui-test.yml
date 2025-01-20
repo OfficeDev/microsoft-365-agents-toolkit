@@ -192,6 +192,7 @@ jobs:
       M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
       M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
       M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "ttktest01@xxbdw.onmicrosoft.com"
       M365_DISPLAY_NAME: "ttktest"
       M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
       M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
@@ -232,6 +233,16 @@ jobs:
           $user=$users[$index]
           echo "account index: $index"
           echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
+
+      - name: Set m365 account for Outlook preview (unix)
+        if: matrix.os != 'windows-latest' && contains(matrix.test-case, 'localdebug-obo-tab') == true
+        run: |
+          echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $GITHUB_ENV
+
+      - name: Set m365 account for Outlook preview (win)
+        if: matrix.os == 'windows-latest' && contains(matrix.test-case, 'localdebug-obo-tab') == true
+        run: |          
+          echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $env:GITHUB_ENV
       
       - name: Checkout branch
         uses: actions/checkout@v3
