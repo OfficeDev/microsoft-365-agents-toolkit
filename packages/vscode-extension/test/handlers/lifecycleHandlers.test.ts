@@ -599,11 +599,16 @@ describe("Lifecycle handlers", () => {
 
     it("happy path", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addPluginHanlder = sandbox.spy(globalVariables.core, "addAuthAction");
-
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .callsFake((title: string, ...items: any[]) => {
+          return Promise.resolve(items[0]);
+        });
+      const addAuthAction = sandbox.spy(globalVariables.core, "addAuthAction");
+      const provisionction = sandbox.spy(globalVariables.core, "provisionResources");
       await addAuthActionHandler();
-
-      sinon.assert.calledOnce(addPluginHanlder);
+      sandbox.assert.calledOnce(addAuthAction);
+      sandbox.assert.calledOnce(provisionction);
     });
   });
 });
