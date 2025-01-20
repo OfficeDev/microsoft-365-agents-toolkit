@@ -155,3 +155,13 @@ jobs:
         if: always()
         run: |
           npx ts-node src/scripts/clean.ts
+
+      - name: Switch M365 account
+        run: |
+          username='${{ env.M365_USERNAME_5 }}'
+          echo "M365_ACCOUNT_NAME=$username" >> $GITHUB_ENV
+
+      - name: Clean resource 
+        if: always()
+        run: |
+          npx ts-node src/scripts/clean.ts
