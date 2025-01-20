@@ -23,9 +23,7 @@ the notification(replace \<endpoint\> with real endpoint, for example localhost:
 
    Invoke-WebRequest -Uri "http://\<endpoint\>/api/notification" -Method Post
    
-
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
-
 
 ## Learn more
 

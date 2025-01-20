@@ -115,6 +115,7 @@ import {
   refreshEnvironment,
 } from "./handlers/envHandlers";
 import {
+  addAuthActionHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -727,6 +728,12 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
   if (featureFlagManager.getBooleanValue(FeatureFlags.SyncManifest)) {
     registerInCommandController(context, "fx-extension.syncManifest", syncManifestHandler);
   }
+
+  const addAuthActionCmd = vscode.commands.registerCommand(
+    "fx-extension.addAuthAction",
+    (...args) => Correlator.run(addAuthActionHandler, args)
+  );
+  context.subscriptions.push(addAuthActionCmd);
 }
 
 /**

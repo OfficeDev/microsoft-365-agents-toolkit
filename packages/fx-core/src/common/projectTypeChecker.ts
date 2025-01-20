@@ -295,4 +295,10 @@ export function getCapabilities(manifest: any): string[] {
   }
   return capabilities;
 }
+
+export function IsDeclarativeAgentManifest(manifest: any): boolean {
+  return !!(
+    manifest.copilotAgents?.declarativeAgents && manifest.copilotAgents.declarativeAgents.length > 0
+  );
+}
 export const projectTypeChecker = new ProjectTypeChecker();

@@ -90,42 +90,65 @@ export class M365TitleHelper {
   }
 
   public async acquire(packageFile: string): Promise<[string, string]> {
-    this.checkZip(packageFile);
-    const data = (await fs.readFile(packageFile)) as Buffer;
-    const content = new FormData();
-    content.append("package", data);
-    const uploadResponse = await this.axios!.post(
-      "/dev/v1/users/packages",
-      content.getBuffer()
-    );
-
-    const operationId = uploadResponse.data.operationId;
-    console.debug(`Package uploaded. OperationId: ${operationId as string}`);
-    console.debug("Acquiring package ...");
-    const acquireResponse = await this.axios!.post(
-      "/dev/v1/users/packages/acquisitions",
-      {
-        operationId: operationId,
-      }
-    );
-    const statusId = acquireResponse.data.statusId;
-    console.debug(`Acquiring package with statusId: ${statusId as string} ...`);
-    do {
-      const statusResponse = await this.axios!.get(
-        `/dev/v1/users/packages/status/${statusId as string}`
+    try {
+      this.checkZip(packageFile);
+      const data = (await fs.readFile(packageFile)) as Buffer;
+      const content = new FormData();
+      content.append("package", data);
+      const uploadResponse = await this.axios!.post(
+        "/dev/v1/users/packages",
+        content.getBuffer()
       );
-      const resCode = statusResponse.status;
-      console.debug(`Package status: ${resCode} ...`);
-      if (resCode === 200) {
-        const titleId: string = statusResponse.data.titleId;
-        const appId: string = statusResponse.data.appId;
-        console.info(`TitleId: ${titleId}`);
-        console.info(`AppId: ${appId}`);
-        console.info("Sideloading done.");
-        return [titleId, appId];
-      } else {
-        await delay(2000);
+
+      const operationId = uploadResponse.data.operationId;
+      console.debug(`Package uploaded. OperationId: ${operationId as string}`);
+      console.debug("Acquiring package ...");
+      const acquireResponse = await this.axios!.post(
+        "/dev/v1/users/packages/acquisitions",
+        {
+          operationId: operationId,
+        }
+      );
+      const statusId = acquireResponse.data.statusId;
+      console.debug(
+        `Acquiring package with statusId: ${statusId as string} ...`
+      );
+      do {
+        const statusResponse = await this.axios!.get(
+          `/dev/v1/users/packages/status/${statusId as string}`
+        );
+        const resCode = statusResponse.status;
+        console.debug(`Package status: ${resCode} ...`);
+        if (resCode === 200) {
+          const titleId: string = statusResponse.data.titleId;
+          const appId: string = statusResponse.data.appId;
+          console.info(`TitleId: ${titleId}`);
+          console.info(`AppId: ${appId}`);
+          console.info("Sideloading done.");
+          return [titleId, appId];
+        } else {
+          await delay(2000);
+        }
+      } while (true);
+    } catch (error) {
+      if (error.response) {
+        throw this.convertError(error);
       }
-    } while (true);
+      throw error;
+    }
+  }
+  private convertError(error: any): any {
+    // add error details and trace to message
+    const tracingId = (error.response.headers?.traceresponse ?? "") as string;
+    const originalMessage = error.message as string;
+    const innerError = error.response.data?.error || { code: "", message: "" };
+    const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
+      innerError.code as string
+    }: ${innerError.message as string} `;
+    return {
+      status: error.response?.status,
+      tracingId,
+      message: finalMessage,
+    };
   }
 }

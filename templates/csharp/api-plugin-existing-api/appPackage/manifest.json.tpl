@@ -22,6 +22,16 @@
         "full": "Full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    {{#DeclarativeCopilot}}
+    "copilotAgents": {
+        "declarativeAgents": [            
+            {
+                "id": "declarativeAgent",
+                "file": "declarativeAgent.json"
+            }
+        ]
+    },
+    {{/DeclarativeCopilot}}
     "permissions": [
         "identity",
         "messageTeamMembers"

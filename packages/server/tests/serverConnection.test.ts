@@ -603,4 +603,38 @@ describe("serverConnections", () => {
     );
     assert.isTrue(res.isOk());
   });
+  it("isDeclarativeAgentRequest - success", async () => {
+    const connection = new ServerConnection(msgConn);
+    sandbox
+      .stub(connection["core"], "isDelcarativeAgentApp")
+      .callsFake((inputs: Inputs): Promise<Result<any, FxError>> => {
+        return Promise.resolve(ok(true));
+      });
+    const res = await connection.isDeclarativeAgentRequest(
+      {
+        correlationId: "123",
+      } as Inputs,
+      {} as CancellationToken
+    );
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value, true);
+    }
+  });
+
+  it("isDeclarativeAgentRequest - failed", async () => {
+    const connection = new ServerConnection(msgConn);
+    sandbox
+      .stub(connection["core"], "isDelcarativeAgentApp")
+      .callsFake((inputs: Inputs): Promise<Result<any, FxError>> => {
+        return Promise.resolve(err(new UserError("source", "name", "", "")));
+      });
+    const res = await connection.isDeclarativeAgentRequest(
+      {
+        correlationId: "123",
+      } as Inputs,
+      {} as CancellationToken
+    );
+    assert.isTrue(res.isErr());
+  });
 });

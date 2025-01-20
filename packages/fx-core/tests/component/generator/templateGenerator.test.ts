@@ -51,6 +51,14 @@ describe("TemplateGenerator", () => {
       },
       TemplateNames.Tab,
     ],
+    [
+      {
+        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+        targetFramework: "net9.0",
+      },
+      TemplateNames.SsoTabSSR,
+    ],
   ]);
 
   setTools(new MockTools());

@@ -106,7 +106,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     shortName: "m",
     description: "Architecture of Search Based Message Extension.",
     default: "new-api",
-    choices: ["new-api", "api-spec", "bot-plugin", "bot"],
+    choices: ["new-api", "api-spec", "bot"],
   },
   {
     name: "with-plugin",

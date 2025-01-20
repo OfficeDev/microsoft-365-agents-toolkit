@@ -95,6 +95,7 @@ export default class ServerConnection implements IServerConnection {
       this.checkAndInstallTestTool.bind(this),
       this.listPluginApiSpecs.bind(this),
       this.syncTeamsAppManifestRequest.bind(this),
+      this.isDeclarativeAgentRequest.bind(this),
     ].forEach((fn) => {
       /// fn.name = `bound ${functionName}`
       connection.onRequest(`${ServerConnection.namespace}/${fn.name.split(" ")[1]}`, fn);
@@ -521,6 +522,17 @@ export default class ServerConnection implements IServerConnection {
         }
       }
     );
+    return standardizeResult(res);
+  }
+
+  public async isDeclarativeAgentRequest(
+    inputs: Inputs,
+    token: CancellationToken
+  ): Promise<Result<undefined, FxError>> {
+    const res = await this.core.isDelcarativeAgentApp(inputs);
+    if (res.isErr()) {
+      return err(res.error);
+    }
     return standardizeResult(res);
   }
 }

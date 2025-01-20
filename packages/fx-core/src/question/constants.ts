@@ -106,6 +106,8 @@ export enum QuestionNames {
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
+
+  AuthName = "auth-name",
 }
 
 export enum ProjectTypeGroup {
@@ -833,19 +835,6 @@ export class MeArchitectureOptions {
     };
   }
 
-  static botPlugin(): OptionItem {
-    return {
-      id: "bot-plugin",
-      label: getLocalizedString("core.createProjectQuestion.capability.botMessageExtension.label"),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.botMessageExtension.detail"
-      ),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookCopilot"
-      ),
-    };
-  }
-
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -874,7 +863,7 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
+      MeArchitectureOptions.botMe(),
     ];
   }
 
@@ -882,7 +871,6 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
       MeArchitectureOptions.botMe(),
     ];
   }
@@ -936,17 +924,6 @@ export class NotificationTriggerOptions {
     };
   }
 
-  static functionsTimerTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "timer-functions-isolated",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.TIMER],
-      label: getLocalizedString("plugins.bot.triggers.timer-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.timer-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.timer-functions.detail"),
-    };
-  }
-
   static functionsHttpAndTimerTrigger(): HostTypeTriggerOptionItem {
     return {
       id: "http-and-timer-functions",
@@ -958,31 +935,9 @@ export class NotificationTriggerOptions {
     };
   }
 
-  static functionsHttpAndTimerTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "http-and-timer-functions-isolated",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.HTTP, NotificationTriggers.TIMER],
-      label: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.detail"),
-    };
-  }
-
   static functionsHttpTrigger(): HostTypeTriggerOptionItem {
     return {
       id: "http-functions",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.HTTP],
-      label: getLocalizedString("plugins.bot.triggers.http-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.http-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.http-functions.detail"),
-    };
-  }
-
-  static functionsHttpTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "http-functions-isolated",
       hostType: HostType.Functions,
       triggers: [NotificationTriggers.HTTP],
       label: getLocalizedString("plugins.bot.triggers.http-functions.label"),

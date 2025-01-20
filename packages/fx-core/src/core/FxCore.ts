@@ -28,6 +28,7 @@ import {
   InputsWithProjectPath,
   ManifestUtil,
   Platform,
+  PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
   Stage,
@@ -60,7 +61,11 @@ import {
   isValidProjectV2,
   isValidProjectV3,
 } from "../common/projectSettingsHelper";
-import { ProjectTypeResult, projectTypeChecker } from "../common/projectTypeChecker";
+import {
+  IsDeclarativeAgentManifest,
+  ProjectTypeResult,
+  projectTypeChecker,
+} from "../common/projectTypeChecker";
 import { TelemetryEvent, telemetryUtils } from "../common/telemetry";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
 import { ActionInjector } from "../component/configManager/actionInjector";
@@ -2224,6 +2229,62 @@ export class FxCore {
     return ok(undefined);
   }
 
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addAuthAction }),
+    ErrorHandlerMW,
+    QuestionMW("addAuthAction"),
+    ConcurrentLockerMW,
+  ])
+  async addAuthAction(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
+    const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
+    const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
+    const authName = inputs[QuestionNames.AuthName] as string;
+    const apiSpecPath = path.normalize(path.join(pluginManifestPath, apiSpecRelativePath));
+    let authType;
+    switch (inputs[QuestionNames.ApiAuth] as string) {
+      case "api-key":
+      default:
+        authType = "ApiKeyPluginVault";
+        break;
+      case "oauth":
+        authType = "OAuthPluginVault";
+        break;
+    }
+
+    const addAuthActionRes = await injectAuthAction(
+      inputs.projectPath,
+      authName,
+      undefined,
+      apiSpecPath,
+      true,
+      authType
+    );
+
+    if (addAuthActionRes?.registrationIdEnvName) {
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      pluginManifest.runtimes?.push({
+        type: "OpenApi",
+        auth: {
+          type: authType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
+          reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
+        },
+        spec: {
+          url: apiSpecRelativePath,
+          progress_style: "ShowUsageWithInputAndOutput",
+        },
+        run_for_functions: apiOperation,
+      });
+      await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+    }
+
+    return ok(undefined);
+  }
+
   private async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,
@@ -2279,5 +2340,14 @@ export class FxCore {
       }
     }
     return result;
+  }
+
+  async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {
+    const projectPath = inputs[QuestionNames.ProjectPath] as string;
+    const manifestRes = await manifestUtils.readAppManifest(projectPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+    return ok(IsDeclarativeAgentManifest(manifestRes.value));
   }
 }

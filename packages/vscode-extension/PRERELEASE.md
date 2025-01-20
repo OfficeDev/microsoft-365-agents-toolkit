@@ -4,6 +4,12 @@
 
 > Note: This changelog only includes the changes for the pre-release versions of Teams Toolkit. For the changelog of stable versions, please refer to the [Teams Toolkit Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/CHANGELOG.md).
 
+### January 21, 2025
+
+#### Bug Fix
+
+- Fixed an issue where creating a declartaive agent with an action using Microsoft Kiota might fail in some cases. [#13038](https://github.com/OfficeDev/teams-toolkit/pull/13038)
+
 ### January 07, 2025
 
 #### New Features

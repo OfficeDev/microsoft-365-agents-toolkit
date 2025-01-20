@@ -491,6 +491,7 @@ export class CreateProjectQuestion {
   static readonly ImportExistingSpfxSolution = "Import Existing SPFx Solution";
   static readonly BuildNotificationBot = "Build a Notification Bot";
   static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
+  static readonly StartWithNewApi = "Start with a New API";
 }
 
 export class ValidationContent {
