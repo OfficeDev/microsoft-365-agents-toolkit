@@ -6,6 +6,7 @@ import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../
 import { DefaultTemplateGenerator } from "./templateGenerator";
 import { TemplateInfo } from "./templateInfo";
 import { TemplateNames } from "./templateNames";
+import { Generator } from "../generator";
 
 // For the APS.NET server-side rendering tab
 export class SsrTabGenerator extends DefaultTemplateGenerator {
@@ -27,11 +28,27 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     inputs: Inputs,
     destinationPath: string
   ): Promise<Result<TemplateInfo[], FxError>> {
+    const appName = inputs[QuestionNames.AppName];
+    const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
+    const safeProjectNameFromVS =
+      language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
+    const isNet9 = inputs.targetFramework === "net9.0";
+    const replaceMap = {
+      ...Generator.getDefaultVariables(
+        appName,
+        safeProjectNameFromVS,
+        inputs.targetFramework,
+        inputs.placeProjectFileInSolutionDir === "true"
+      ),
+      Net9Framework: isNet9 ? "true" : "",
+    };
+
     return Promise.resolve(
       ok([
         {
           templateName: this.capabilities2TemplateNames[inputs.capabilities as string],
           language: ProgrammingLanguage.CSharp,
+          replaceMap,
         },
       ])
     );
