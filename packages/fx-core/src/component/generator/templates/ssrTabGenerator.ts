@@ -29,9 +29,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     destinationPath: string
   ): Promise<Result<TemplateInfo[], FxError>> {
     const appName = inputs[QuestionNames.AppName];
-    const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
-    const safeProjectNameFromVS =
-      language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
+    const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
     const isNet8 = inputs.targetFramework === "net8.0";
     const replaceMap = {
       ...Generator.getDefaultVariables(
