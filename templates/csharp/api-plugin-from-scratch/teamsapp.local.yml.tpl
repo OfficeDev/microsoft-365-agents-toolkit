@@ -60,6 +60,7 @@ provision:
       target: ./Properties/launchSettings.json
       content:
         profiles:
+        {{^DeclarativeCopilot}}
           Microsoft 365 app (browser):
             commandName: "Project"
             dotnetRunMessages: true
@@ -77,4 +78,11 @@ provision:
             environmentVariables:
               ASPNETCORE_ENVIRONMENT: "Development"
             hotReloadProfile: "aspnetcore"
+        {{/DeclarativeCopilot}}
+        {{#DeclarativeCopilot}}
+          "Copilot (browser)": {
+            "commandName": "Project",
+            "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
+          }
+        {{/DeclarativeCopilot}}
 {{/isNewProjectTypeEnabled}}
