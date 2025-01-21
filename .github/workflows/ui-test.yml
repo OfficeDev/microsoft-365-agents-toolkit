@@ -552,7 +552,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ github.event_name == 'schedule' && failure() && github.run_attempt < 5 }}
+    if: ${{ ((github.event_name == 'workflow_dispatch' && github.event.inputs.test-case == '') || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: trigger rerun workflow
