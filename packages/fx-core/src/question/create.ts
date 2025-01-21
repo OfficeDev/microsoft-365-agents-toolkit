@@ -4,7 +4,9 @@
 import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
+  AppPackageFolderName,
   CLIPlatforms,
+  DefaultPluginManifestFileName,
   FolderQuestion,
   IQTreeNode,
   Inputs,
@@ -1242,6 +1244,21 @@ export function pluginManifestQuestion(): SingleFileQuestion {
     },
     defaultFolder: (inputs: Inputs) =>
       CLIPlatforms.includes(inputs.platform) ? "./" : os.homedir(),
+    default: (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        return undefined;
+      } else {
+        const ttkPluginFilePath = path.join(
+          inputs.projectPath,
+          AppPackageFolderName,
+          DefaultPluginManifestFileName
+        );
+        if (fs.existsSync(ttkPluginFilePath)) {
+          return ttkPluginFilePath;
+        }
+        return undefined;
+      }
+    },
     validation: {
       validFunc: async (input: string) => {
         const manifestRes = await pluginManifestUtils.readPluginManifestFile(input.trim());

@@ -832,8 +832,9 @@ export function addAuthActionQuestion(): IQTreeNode {
           const specs = pluginManifest
             .runtimes!.filter((runtime) => runtime.type === "OpenApi")
             .map((runtime) => runtime.spec.url);
-          if (specs.length === 1) {
-            inputs[QuestionNames.ApiSpecLocation] = specs[0];
+          const spesDedup = [...new Set(specs)];
+          if (spesDedup.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = spesDedup[0];
             return false;
           }
           return true;
@@ -858,8 +859,9 @@ export function addAuthActionQuestion(): IQTreeNode {
             .forEach((runtime) => {
               apis.push(...(runtime.run_for_functions as string[]));
             });
-          if (apis.length === 1) {
-            inputs[QuestionNames.ApiOperation] = apis;
+          const apisDedup = [...new Set(apis)];
+          if (apisDedup.length === 1) {
+            inputs[QuestionNames.ApiOperation] = apisDedup;
             return false;
           }
           return true;
