@@ -381,7 +381,7 @@
         },
         {
           "command": "fx-extension.openDocumentLink",
-          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(build|publishInDeveloperPortal)$/",
+          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(validateManifest|publishInDeveloperPortal)$/",
           "group": "inline"
         }
       ],

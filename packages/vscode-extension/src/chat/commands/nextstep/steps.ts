@@ -288,7 +288,7 @@ export const allSteps: () => NextStep[] = () => [
     title: "Publish Your App",
     description:
       "After creating the app, you can distribute your app to different scopes, such as an individual, a team, or an organization. The distribution depends on multiple factors such as needs, business and technical requirements, and your goal for the app. Distribution to different scope may need different review processes. In general, the bigger the scope, the more review the app needs to go through for security and compliance concerns.",
-    docLink: "https://aka.ms/teamsfx-publish",
+    docLink: "https://aka.ms/publish-to-org",
     commands: [
       {
         title: "Publish Your App",
