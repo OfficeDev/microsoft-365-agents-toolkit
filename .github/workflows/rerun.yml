@@ -97,6 +97,7 @@ jobs:
       M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
       M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
       M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "ttktest01@xxbdw.onmicrosoft.com"
       CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
       CLEAN_CLIENT_SECRET: ${{ secrets.CLEAN_CLIENT_SECRET }}
       CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
