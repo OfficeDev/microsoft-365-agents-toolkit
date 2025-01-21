@@ -3465,6 +3465,41 @@ describe("scaffold question", () => {
         assert.isTrue(validationRes?.includes("OpenApi"));
       });
 
+      it("pluginManifestQuestion: default plugin manifest", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.exists(res);
+      });
+
+      it("pluginManifestQuestion: projectpath not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
+      });
+
+      it("pluginManifestQuestion: default file not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(false);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
+      });
+
       it("pluginApiSpecQuestion: invalid file format", async () => {
         const question = pluginApiSpecQuestion();
         const inputs: Inputs = {

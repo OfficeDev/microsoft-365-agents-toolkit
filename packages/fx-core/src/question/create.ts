@@ -1247,17 +1247,18 @@ export function pluginManifestQuestion(): SingleFileQuestion {
     default: (inputs: Inputs) => {
       if (!inputs.projectPath) {
         return undefined;
-      } else {
-        const ttkPluginFilePath = path.join(
-          inputs.projectPath,
-          AppPackageFolderName,
-          DefaultPluginManifestFileName
-        );
-        if (fs.existsSync(ttkPluginFilePath)) {
-          return ttkPluginFilePath;
-        }
-        return undefined;
       }
+
+      const ttkPluginFilePath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        DefaultPluginManifestFileName
+      );
+
+      if (fs.existsSync(ttkPluginFilePath)) {
+        return ttkPluginFilePath;
+      }
+      return undefined;
     },
     validation: {
       validFunc: async (input: string) => {
