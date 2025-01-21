@@ -229,6 +229,9 @@ devDependencies:
   object-inspect:
     specifier: 1.13.1
     version: 1.13.1
+  path-browserify:
+    specifier: ^1.0.1
+    version: 1.0.1
   pathval:
     specifier: ^2.0.0
     version: 2.0.0
@@ -4220,6 +4223,10 @@ packages:
   /parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
+    dev: true
+
+  /path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: true
 
   /path-exists@2.1.0:
