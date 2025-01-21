@@ -100,6 +100,8 @@ jobs:
         uses: richardsimko/update-tag@v1.0.7
         with:
           tag_name: "templates@8.8.8-beta"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
 
       - name: release templates' RC version to github
         uses: ncipollo/release-action@v1.10.0
