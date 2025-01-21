@@ -17,7 +17,6 @@ import {
 export enum TemplateNames {
   Empty = "empty",
   Tab = "non-sso-tab",
-  SsoTab = "sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
   TabSSR = "non-sso-tab-ssr",
   SsoTabSSR = "sso-tab-ssr",
@@ -60,7 +59,6 @@ export enum TemplateNames {
 export const Feature2TemplateName = {
   [`${CapabilityOptions.empty().id}:undefined`]: TemplateNames.Empty,
   [`${CapabilityOptions.nonSsoTab().id}:undefined`]: TemplateNames.Tab,
-  [`${CapabilityOptions.tab().id}:undefined`]: TemplateNames.SsoTab,
   [`${CapabilityOptions.m365SsoLaunchPage().id}:undefined`]: TemplateNames.SsoTabObo,
   [`${CapabilityOptions.nonSsoTab().id}:ssr`]: TemplateNames.TabSSR,
   [`${CapabilityOptions.tab().id}:ssr`]: TemplateNames.SsoTabSSR,
@@ -141,7 +139,6 @@ export function getTemplateName(inputs: Inputs): TemplateNames {
 export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = new Map([
   [{ [QuestionNames.Capabilities]: CapabilityOptions.empty().id }, TemplateNames.Empty],
   [{ [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id }, TemplateNames.Tab],
-  [{ [QuestionNames.Capabilities]: CapabilityOptions.tab().id }, TemplateNames.SsoTab],
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.m365SsoLaunchPage().id },
     TemplateNames.SsoTabObo,

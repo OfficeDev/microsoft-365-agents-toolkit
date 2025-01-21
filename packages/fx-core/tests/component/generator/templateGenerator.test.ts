@@ -29,27 +29,11 @@ describe("TemplateGenerator", () => {
     ],
     [
       {
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        targetFramework: "net6.0",
-      },
-      TemplateNames.SsoTab,
-    ],
-    [
-      {
         [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net8.0",
       },
       TemplateNames.TabSSR,
-    ],
-    [
-      {
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        targetFramework: "net6.0",
-      },
-      TemplateNames.Tab,
     ],
     [
       {

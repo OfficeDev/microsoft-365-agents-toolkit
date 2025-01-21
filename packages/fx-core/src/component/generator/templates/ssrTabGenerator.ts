@@ -18,9 +18,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     const capability = inputs.capabilities as string;
     return (
       this.capabilities2TemplateNames[capability] !== undefined &&
-      inputs[QuestionNames.ProgrammingLanguage] === ProgrammingLanguage.CSharp &&
-      inputs.targetFramework !== "net6.0" &&
-      inputs.targetFramework !== "net7.0"
+      inputs[QuestionNames.ProgrammingLanguage] === ProgrammingLanguage.CSharp
     );
   }
   override getTemplateInfos(
