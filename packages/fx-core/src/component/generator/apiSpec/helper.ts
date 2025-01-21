@@ -119,6 +119,25 @@ export function getParserOptions(
         allowConversationStarters: true,
         allowConfirmation: false, // confirmation is not stable for public preview in Sydney, so it's temporarily set to false
       }
+    : type === ProjectType.TeamsAi
+    ? {
+        allowAPIKeyAuth: true,
+        allowBearerTokenAuth: true,
+        allowMultipleParameters: true,
+        allowOauth2: true,
+        projectType: ProjectType.TeamsAi,
+        allowMethods: [
+          "get",
+          "post",
+          "put",
+          "delete",
+          "patch",
+          "head",
+          "connect",
+          "options",
+          "trace",
+        ],
+      }
     : {
         projectType: type,
         allowBearerTokenAuth: !!platform && platform === Platform.VS ? false : true, // Currently, API key auth support is actually bearer token auth
@@ -1077,7 +1096,7 @@ function parseSpec(spec: OpenAPIV3.Document): [SpecObject[], boolean] {
       if (pathItem) {
         const operations = pathItem;
         for (const method in operations) {
-          if (method === "get" || method === "post") {
+          if (ConstantString.AllOperationMethods.includes(method)) {
             const operationItem = (operations as any)[method] as OpenAPIV3.OperationObject;
             if (operationItem) {
               const authResult = Utils.getAuthArray(operationItem.security, spec);
