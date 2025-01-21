@@ -25,9 +25,6 @@ dependencies:
     version: 7.0.8
 
 devDependencies:
-  '@apidevtools/json-schema-ref-parser':
-    specifier: ^9.0.6
-    version: 9.0.6
   '@apidevtools/openapi-schemas':
     specifier: 2.1.0
     version: 2.1.0
@@ -232,6 +229,9 @@ devDependencies:
   object-inspect:
     specifier: 1.13.1
     version: 1.13.1
+  path-browserify:
+    specifier: ^1.0.1
+    version: 1.0.1
   pathval:
     specifier: ^2.0.0
     version: 2.0.0
@@ -323,6 +323,7 @@ packages:
       '@jsdevtools/ono': 7.1.3
       call-me-maybe: 1.0.2
       js-yaml: 3.14.1
+    dev: false
 
   /@apidevtools/openapi-schemas@2.1.0:
     resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}
@@ -4222,6 +4223,10 @@ packages:
   /parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
+    dev: true
+
+  /path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: true
 
   /path-exists@2.1.0:
