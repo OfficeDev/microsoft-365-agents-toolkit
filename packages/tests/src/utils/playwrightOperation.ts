@@ -3063,7 +3063,7 @@ export async function validateRetailDashboard(page: Page, tabName: string) {
     console.log("Dashboard tab loaded successfully");
 
     // cleanup
-    await cleanupInstalledApp(page, tabName); 
+    await cleanupInstalledApp(page, tabName);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
@@ -3075,22 +3075,34 @@ export async function validateRetailDashboard(page: Page, tabName: string) {
 
 export async function cleanupInstalledApp(page: Page, appName: string) {
   console.log("start to cleanupInstalledApp");
-  const tabCardContainer = await page?.waitForSelector("div[data-tid='app-layout-area--header']");
+  const tabCardContainer = await page?.waitForSelector(
+    "div[data-tid='app-layout-area--header']"
+  );
   try {
     // clean up
-    const homeTab = await tabCardContainer?.waitForSelector(`button:has-text('${appName}')`);
+    const homeTab = await tabCardContainer?.waitForSelector(
+      `button:has-text('${appName}')`
+    );
     // right click to open context menu
     await homeTab?.click({ button: "right" });
     await page.waitForTimeout(Timeout.shortTimeWait);
-    const deleteBtn = await page?.waitForSelector("div[data-tid='data-tid-removeTab']");
+    const deleteBtn = await page?.waitForSelector(
+      "div[data-tid='data-tid-removeTab']"
+    );
     await deleteBtn?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
-    const confirmBtn = await page?.waitForSelector("button[id='tab-remove-btn']");
+    const confirmBtn = await page?.waitForSelector(
+      "button[id='tab-remove-btn']"
+    );
     await confirmBtn?.click();
     await page.waitForTimeout(Timeout.shortTimeWait);
     try {
-      await page.waitForSelector("h3:has-text('There was a problem removing this tab')");
-      const dobuleConfirmBtn = await page.waitForSelector("button:has-text('Yes, remove tab')");
+      await page.waitForSelector(
+        "h3:has-text('There was a problem removing this tab')"
+      );
+      const dobuleConfirmBtn = await page.waitForSelector(
+        "button:has-text('Yes, remove tab')"
+      );
       await dobuleConfirmBtn?.click();
     } catch (error) {
       console.log("no error message");
@@ -3098,7 +3110,7 @@ export async function cleanupInstalledApp(page: Page, appName: string) {
     console.log("cleanupInstalledApp successfully");
   } catch (error) {
     console.log("[skip] cleanupInstalledApp error");
-    console.log(error)
+    console.log(error);
   }
   return tabCardContainer;
 }
@@ -3115,7 +3127,6 @@ export async function validateMeeting(page: Page, name: string) {
 
     // clean up
     await cleanupInstalledApp(page, "Home");
-
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
