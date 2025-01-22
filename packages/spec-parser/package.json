@@ -38,7 +38,7 @@
   "homepage": "https://github.com/OfficeDev/TeamsFx",
   "sideEffects": false,
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
+    "@apidevtools/swagger-parser": "^10.1.1",
     "@microsoft/teams-manifest": "workspace:*",
     "fs-extra": "^11.2.0",
     "js-yaml": "^4.1.0",
@@ -49,9 +49,9 @@
     "access": "public"
   },
   "devDependencies": {
+    "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@apidevtools/openapi-schemas": "2.1.0",
     "@apidevtools/swagger-methods": "3.0.2",
-    "@apidevtools/swagger-parser": "^10.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@jsdevtools/ono": "^7.1.3",
     "@rollup/plugin-json": "^6.1.0",
