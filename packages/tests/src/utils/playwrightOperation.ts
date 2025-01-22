@@ -3117,16 +3117,22 @@ export async function validateMeeting(page: Page, name: string) {
     const tabCardContainer = await cleanupInstalledApp(page, "Home");
 
     // send message
-    const chatTab = await tabCardContainer?.waitForSelector("button:has-text('Chat')"); 
-    await chatTab?.click();
-    await page.waitForTimeout(Timeout.shortTimeWait);
-    console.log("sending message: helloWorld");
-        const textbox = await frame?.waitForSelector(
-          'div.ck-content[role="textbox"]'
-        );
-        await textbox?.fill("helloWorld");
-        const sendButton = await frame?.waitForSelector('button[name="send"]');
-        await sendButton?.click();
+    {
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[name="embedded-page-container"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
+      const chatTab = await tabCardContainer?.waitForSelector("button:has-text('Chat')"); 
+      await chatTab?.click();
+      await page.waitForTimeout(Timeout.shortTimeWait);
+      console.log("sending message: helloWorld");
+          const textbox = await frame?.waitForSelector(
+            'div.ck-content[role="textbox"]'
+          );
+          await textbox?.fill("helloWorld");
+          const sendButton = await frame?.waitForSelector('button[name="send"]');
+          await sendButton?.click();
+    }
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
