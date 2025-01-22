@@ -90,7 +90,7 @@ class TreeViewManager {
       utilityTreeviewProvider.refresh();
     }
     if (await hasAdaptiveCardInWorkspace()) {
-      // after "Validate application" command, the adaptive card will be shown
+      // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
         "teamsfx-development"
       ) as CommandsTreeViewProvider;
