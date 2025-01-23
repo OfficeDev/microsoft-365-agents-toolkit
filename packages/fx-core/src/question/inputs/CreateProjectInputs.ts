@@ -18,9 +18,10 @@ export interface CreateProjectInputs extends Inputs {
     | "bot-type"
     | "tab-type"
     | "me-type"
-    | "outlook-addin-type";
+    | "outlook-addin-type"
+    | "start-with-github-copilot";
   /** @description Create Declarative Agent */
-  capabilities?: "no" | "yes";
+  "with-plugin"?: "da-without-plugin" | "da-with-plugin";
   /** @description Create API Plugin */
   "api-plugin-type"?: "new-api" | "api-spec" | "existing-plugin";
   /** @description Authentication Type */
@@ -33,6 +34,8 @@ export interface CreateProjectInputs extends Inputs {
   "plugin-manifest-path"?: string;
   /** @description Import OpenAPI Description Document */
   "plugin-opeanapi-spec-path"?: string;
+  /** @description App Features Using Teams AI Library */
+  capabilities?: "custom-copilot-basic" | "custom-copilot-rag" | "custom-copilot-agent";
   /** @description Chat With Your Data */
   "custom-copilot-rag"?:
     | "custom-copilot-rag-customize"

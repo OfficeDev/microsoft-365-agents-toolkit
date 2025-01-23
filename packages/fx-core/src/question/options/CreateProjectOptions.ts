@@ -23,25 +23,26 @@ export const CreateProjectOptions: CLICommandOption[] = [
       "tab-type",
       "me-type",
       "outlook-addin-type",
+      "start-with-github-copilot",
     ],
   },
   {
-    name: "capabilities",
+    name: "with-plugin",
     type: "string",
-    description: "Create Declarative Agent",
-    choices: ["no", "yes"],
+    description: "Whether to add API plugin for your declarative Copilot.",
+    choices: ["da-without-plugin", "da-with-plugin"],
   },
   {
     name: "api-plugin-type",
     type: "string",
-    description: "Create API Plugin",
+    description: "API plugin type.",
     default: "new-api",
     choices: ["new-api", "api-spec", "existing-plugin"],
   },
   {
     name: "api-auth",
     type: "string",
-    description: "Authentication Type",
+    description: "The authentication type for the API.",
     default: "none",
     choices: ["none", "api-key", "oauth"],
   },
@@ -59,12 +60,18 @@ export const CreateProjectOptions: CLICommandOption[] = [
   {
     name: "plugin-manifest-path",
     type: "string",
-    description: "Import Manifest File",
+    description: "Plugin manifest path.",
   },
   {
     name: "plugin-opeanapi-spec-path",
     type: "string",
     description: "OpenAPI description document used for your API plugin.",
+  },
+  {
+    name: "capabilities",
+    type: "string",
+    description: "App Features Using Teams AI Library",
+    choices: ["custom-copilot-basic", "custom-copilot-rag", "custom-copilot-agent"],
   },
   {
     name: "custom-copilot-rag",
@@ -115,7 +122,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
   {
     name: "bot-host-type-trigger",
     type: "string",
-    description: "Select triggers",
+    description: "Specifies the trigger for `Chat Notification Message` app template.",
     choices: ["http-express", "http-and-timer-functions", "http-functions", "timer-functions"],
   },
   {
@@ -152,7 +159,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
   {
     name: "me-architecture",
     type: "string",
-    description: "Architecture of Search Based Message Extension",
+    description: "The authentication type for the API.",
     default: "new-api",
     choices: ["new-api", "api-spec", "bot-plugin"],
   },
@@ -177,7 +184,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     type: "string",
     description: "Workspace Folder",
     required: true,
-    default: "C:\\Users\\huajiezhang\\TeamsApps",
+    default: "C:\\Users\\nintan\\TeamsApps",
   },
   {
     name: "app-name",
