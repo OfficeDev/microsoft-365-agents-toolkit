@@ -16,6 +16,7 @@ import {
   TextInputQuestion,
   FolderQuestion,
   CLIPlatforms,
+  PluginManifestSchema,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
@@ -37,6 +38,7 @@ import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
+  apiAuthQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
@@ -813,6 +815,130 @@ export function kiotaRegenerateQuestion(): IQTreeNode {
   };
 }
 
+export function addAuthActionQuestion(): IQTreeNode {
+  return {
+    data: pluginManifestQuestion(),
+    children: [
+      {
+        data: apiSpecFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          if (!!!pluginManifestPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
+          const specs = pluginManifest
+            .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+            .map((runtime) => runtime.spec.url);
+          const spesDedup = [...new Set(specs)];
+          if (spesDedup.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = spesDedup[0];
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: apiFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+          if (!!!pluginManifestPath || !!!apiSpecPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
+          const apis: string[] = [];
+          pluginManifest
+            .runtimes!.filter(
+              (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+            )
+            .forEach((runtime) => {
+              apis.push(...(runtime.run_for_functions as string[]));
+            });
+          const apisDedup = [...new Set(apis)];
+          if (apisDedup.length === 1) {
+            inputs[QuestionNames.ApiOperation] = apisDedup;
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: authNameQuestion(),
+      },
+      {
+        data: apiAuthQuestion(true),
+      },
+    ],
+  };
+}
+
+export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiSpecLocation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.title"),
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.placeholder"),
+    type: "singleSelect",
+    staticOptions: [],
+    cliDescription: "OpenAPI specification to add Auth configuration.",
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const specs = pluginManifest
+        .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+        .map((runtime) => runtime.spec.url as string);
+      return [...new Set(specs)];
+    },
+  };
+}
+
+export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.ApiOperation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiOperation.title"),
+    type: "multiSelect",
+    staticOptions: [],
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiOperation.placeholder"),
+    cliDescription: "API to add Auth configuration.",
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const apis: string[] = [];
+      pluginManifest
+        .runtimes!.filter(
+          (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+        )
+        .forEach((runtime) => {
+          apis.push(...(runtime.run_for_functions as string[]));
+        });
+      return [...new Set(apis)];
+    },
+  };
+}
+
+export function authNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.AuthName,
+    title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
+    type: "text",
+    cliDescription: "Name of Auth Configuration.",
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+        return;
+      },
+    },
+  };
+}
+
 export function apiSpecApiKeyConfirmQestion(): ConfirmQuestion {
   return {
     name: QuestionNames.ApiSpecApiKeyConfirm,
@@ -828,6 +954,7 @@ export function apiSpecApiKeyQuestion(): IQTreeNode {
       type: "text",
       name: QuestionNames.ApiSpecApiKey,
       cliShortName: "k",
+      password: true,
       title: getLocalizedString("core.createProjectQuestion.ApiKey"),
       cliDescription: "Api key for OpenAPI spec.",
       forgetLastValue: true,
@@ -1064,6 +1191,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     type: "text",
     name: QuestionNames.OauthClientSecret,
     cliShortName: "c",
+    password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,

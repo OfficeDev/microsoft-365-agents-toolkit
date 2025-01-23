@@ -119,6 +119,25 @@ export function getParserOptions(
         allowConversationStarters: true,
         allowConfirmation: false, // confirmation is not stable for public preview in Sydney, so it's temporarily set to false
       }
+    : type === ProjectType.TeamsAi
+    ? {
+        allowAPIKeyAuth: true,
+        allowBearerTokenAuth: true,
+        allowMultipleParameters: true,
+        allowOauth2: true,
+        projectType: ProjectType.TeamsAi,
+        allowMethods: [
+          "get",
+          "post",
+          "put",
+          "delete",
+          "patch",
+          "head",
+          "connect",
+          "options",
+          "trace",
+        ],
+      }
     : {
         projectType: type,
         allowBearerTokenAuth: !!platform && platform === Platform.VS ? false : true, // Currently, API key auth support is actually bearer token auth
@@ -601,16 +620,17 @@ export function logValidationResults(
 export async function injectAuthAction(
   projectPath: string,
   authName: string,
-  authScheme: AuthType,
+  authScheme: AuthType | undefined,
   outputApiSpecPath: string,
-  forceToAddNew: boolean
+  forceToAddNew: boolean,
+  authType?: string
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
 
   const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
 
-  if (Utils.isBearerTokenAuth(authScheme)) {
+  if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === "ApiKeyPluginVault") {
     const res = await ActionInjector.injectCreateAPIKeyAction(
       ymlPath,
       authName,
@@ -627,7 +647,10 @@ export async function injectAuthAction(
       );
     }
     return res;
-  } else if (Utils.isOAuthWithAuthCodeFlow(authScheme)) {
+  } else if (
+    (!!authScheme && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
+    authType === "OAuth2PluginVault"
+  ) {
     const res = await ActionInjector.injectCreateOAuthAction(
       ymlPath,
       authName,
@@ -1073,7 +1096,7 @@ function parseSpec(spec: OpenAPIV3.Document): [SpecObject[], boolean] {
       if (pathItem) {
         const operations = pathItem;
         for (const method in operations) {
-          if (method === "get" || method === "post") {
+          if (ConstantString.AllOperationMethods.includes(method)) {
             const operationItem = (operations as any)[method] as OpenAPIV3.OperationObject;
             if (operationItem) {
               const authResult = Utils.getAuthArray(operationItem.security, spec);
@@ -1294,9 +1317,21 @@ app.ai.action("{{operationId}}", async (context, state, parameter) => {
     }
     const cardName = "{{operationId}}".replace(/[^a-zA-Z0-9]/g, "_");
     const cardTemplatePath = path.join(__dirname, '../adaptiveCards', cardName + '.json');
+    const isTeamsChannel = context.activity.channelId === Channels.Msteams;
     if (await fs.exists(cardTemplatePath)){
       const card = generateAdaptiveCard(cardTemplatePath, result);
-      await context.sendActivity({ attachments: [card] });
+      await context.sendActivity({
+        attachments: [card],
+        ...(isTeamsChannel ? { channelData: { feedbackLoopEnabled: true }} : {}),
+        entities: [
+          {
+            type: "https://schema.org/Message",
+            "@type": "Message",
+            "@context": "https://schema.org",
+            additionalType: ["AIGeneratedContent"], // AI Generated label
+          },
+        ]
+      });
     }
     else {
       await context.sendActivity(JSON.stringify(result.data));
@@ -1326,7 +1361,7 @@ app.ai.action("{{operationId}}", async (context: TurnContext, state: Application
       const card = generateAdaptiveCard(cardTemplatePath, result);
       await context.sendActivity({
         attachments: [card],
-        ...(isTeamsChannel ? { channelData: true } : {}),
+        ...(isTeamsChannel ? { channelData: { feedbackLoopEnabled: true }} : {}),
         entities: [
           {
             type: "https://schema.org/Message",

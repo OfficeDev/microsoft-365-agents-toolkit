@@ -36,7 +36,7 @@ class TodoListSpfxTestCase extends CaseFactory {
     );
   }
   public override async onValidate(page: Page): Promise<void> {
-    return await validateTodoListSpfx(page);
+    return await validateTodoListSpfx(page, "TodoListSPFxlocal");
   }
 }
 

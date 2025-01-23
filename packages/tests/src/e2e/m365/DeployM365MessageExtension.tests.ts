@@ -54,7 +54,7 @@ describe("Deploy V3 m365-message-extension template", () => {
         testFolder,
         Capability.M365SearchApp,
         undefined,
-        "--me-architecture bot-plugin"
+        "--me-architecture bot"
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
 

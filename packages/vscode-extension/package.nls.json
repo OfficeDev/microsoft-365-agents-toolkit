@@ -161,9 +161,9 @@
   "teamstoolkit.commandsTreeViewProvider.publish.blockTooltip": "Unable to run command during package publishing. Try again after publishing completes.",
   "teamstoolkit.commandsTreeViewProvider.publish.running": "Publishing in progress...",
   "teamstoolkit.commandsTreeViewProvider.publishDescription": "Run the 'publish' lifecycle stage in teamsapp.yml file.",
-  "teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle": "Open Developer Portal to Publish",
-  "teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription": "Publish to your org in Developer Portal",
-  "teamstoolkit.commandsTreeViewProvider.publishTitle": "Publish",
+  "teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle": "Publish to store in developer portal",
+  "teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription": "Before publishing your app, we recommend to validate all integration test cases.",
+  "teamstoolkit.commandsTreeViewProvider.publishTitle": "Publish to org",
   "teamstoolkit.commandsTreeViewProvider.getStartedTitle": "Get Started",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesDescription": "Report any issues and let us know your feedback",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesTitle": "Report Issues on GitHub",
@@ -206,6 +206,7 @@
   "teamstoolkit.commandsTreeViewProvider.officeAddIn.stopDebugTitle": "Stop Previewing Your Office Add-in",
   "teamstoolkit.commandsTreeViewProvider.officeAddIn.stopDebugDescription": "Stop debugging the Office Add-in project",
   "teamstoolkit.commandsTreeViewProvider.syncManifest": "Sync Manifest",
+  "teamstoolkit.commands.addAuthAction": "Add Configurations to Support Actions with Authentication in Declarative Agent",
   "teamstoolkit.common.readMore": "Read more",
   "teamstoolkit.common.signin": "Sign in",
   "teamstoolkit.common.signout": "Sign out",
@@ -598,5 +599,7 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "Explore these resources to build intelligent apps and enhance your development projects\n🗒️ [Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Retrieval Augmented Generation (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [AI Learning and Community Hub](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "You need to sign in your Microsoft 365 account.",
   "teamstoolkit.handler.createPluginWithManifest.error.missingParameter": "Invalid parameter in the createPluginWithManifest command. Usage: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Valid values for LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.",
-  "teamstoolkit.error.KiotaNotInstalled": "You need to install Microsoft Kiota extension with minimum version %s to use this feature."
+  "teamstoolkit.error.KiotaNotInstalled": "You need to install Microsoft Kiota extension with minimum version %s to use this feature.",
+  "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision"
 }

@@ -8,7 +8,7 @@
  * Please don't manually change its contents, as any modifications will be overwritten! *
  ***************************************************************************************/
 
-import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
+import { CLICommandArgument, CLICommandOption } from "@microsoft/teamsfx-api";
 
 export const CreateProjectOptions: CLICommandOption[] = [
   {

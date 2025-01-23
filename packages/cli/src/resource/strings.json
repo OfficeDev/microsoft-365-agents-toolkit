@@ -39,6 +39,11 @@
         "FoundNotTrust": "Local Certificate is found but not trusted.",
         "Success": "Local Certificate is found and is trusted."
       }
+    },
+    "add":{
+      "auth-config": {
+        "notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml) files with added action to support authentication flow. You can proceed to remote provision."
+      }
     }
   }
 }

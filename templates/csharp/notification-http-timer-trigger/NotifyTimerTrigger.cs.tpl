@@ -1,14 +1,11 @@
 using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.TeamsFx.Conversation;
 using Newtonsoft.Json;
-
-using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
 namespace {{SafeProjectName}}
 {
@@ -16,20 +13,22 @@ namespace {{SafeProjectName}}
     {
         private readonly ConversationBot _conversation;
         private readonly ILogger<NotifyTimerTrigger> _log;
+        private readonly string _contentRootPath;
 
-        public NotifyTimerTrigger(ConversationBot conversation, ILogger<NotifyTimerTrigger> log)
+        public NotifyTimerTrigger(ConversationBot conversation, ILogger<NotifyTimerTrigger> log, string contentRootPath)
         {
             _conversation = conversation;
             _log = log;
+            _contentRootPath = contentRootPath;
         }
 
-        [FunctionName("NotifyTimerTrigger")]
+        [Function("NotifyTimerTrigger")]
         public async Task Run([TimerTrigger("*/30 * * * * *")]TimerInfo myTimer, ExecutionContext context, CancellationToken cancellationToken)
         {
             _log.LogInformation($"NotifyTimerTrigger is triggered at {DateTime.Now}.");
 
             // Read adaptive card template
-            var adaptiveCardFilePath = Path.Combine(context.FunctionAppDirectory, "Resources", "NotificationDefault.json");
+            var adaptiveCardFilePath = Path.Combine(_contentRootPath, "Resources", "NotificationDefault.json");
             var cardTemplate = await File.ReadAllTextAsync(adaptiveCardFilePath, cancellationToken);
 
             var pageSize = 100;

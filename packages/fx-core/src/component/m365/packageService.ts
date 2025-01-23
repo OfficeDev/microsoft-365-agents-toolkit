@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { LogProvider, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { LogProvider, SystemError, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
@@ -20,9 +20,16 @@ import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
 import { NotExtendedToM365Error } from "./errors";
 import { MosServiceEndpoint } from "./serviceConstant";
+import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
+import stripBom from "strip-bom";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
+
+export enum AppScope {
+  Personal = "Personal",
+  Shared = "Shared",
+}
 
 // Call m365 service for package CRUD
 export class PackageService {
@@ -139,14 +146,96 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async sideLoading(token: string, manifestPath: string): Promise<[string, string]> {
+  public async sideLoading(
+    token: string,
+    packagePath: string,
+    appScope = AppScope.Personal
+  ): Promise<[string, string, string]> {
+    const manifest = this.getManifestFromZip(packagePath);
+    if (!manifest) {
+      throw new Error("Invalid app package zip. manifest.json is missing");
+    }
+    const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
+    if (isDelcarativeAgentApp) {
+      const res = await this.sideLoadingV2(token, packagePath, appScope);
+      let shareLink = "";
+      if (appScope == AppScope.Shared) {
+        shareLink = await this.getShareLink(token, res[0]);
+      }
+      return [res[0], res[1], shareLink];
+    } else {
+      const res = await this.sideLoadingV1(token, packagePath);
+      return [res[0], res[1], ""];
+    }
+  }
+  // Side loading using Builder API
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async sideLoadingV2(
+    token: string,
+    manifestPath: string,
+    appScope: AppScope
+  ): Promise<[string, string]> {
     try {
       this.checkZip(manifestPath);
       const data = await fs.readFile(manifestPath);
       const content = new FormData();
       content.append("package", data);
       const serviceUrl = await this.getTitleServiceUrl(token);
-      this.logger?.verbose("Uploading package ...");
+      this.logger?.debug("Uploading package with sideLoading V2 ...");
+      const uploadHeaders = content.getHeaders();
+      uploadHeaders["Authorization"] = `Bearer ${token}`;
+      const uploadResponse = await this.axiosInstance.post(
+        "/builder/v1/users/packages",
+        content.getBuffer(),
+        {
+          baseURL: serviceUrl,
+          headers: uploadHeaders,
+          params: {
+            scope: appScope,
+          },
+        }
+      );
+
+      const statusId = uploadResponse.data.statusId;
+      this.logger?.debug(`Acquiring package with statusId: ${statusId as string} ...`);
+
+      do {
+        const statusResponse = await this.axiosInstance.get(
+          `/builder/v1/users/packages/status/${statusId as string}`,
+          {
+            baseURL: serviceUrl,
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const resCode = statusResponse.status;
+        this.logger?.debug(`Package status: ${resCode} ...`);
+        if (resCode === 200) {
+          const titleId: string = statusResponse.data.titleId;
+          const appId: string = statusResponse.data.appId;
+          this.logger?.info(`TitleId: ${titleId}`);
+          this.logger?.info(`AppId: ${appId}`);
+          this.logger?.verbose("Sideloading done.");
+          return [titleId, appId];
+        } else {
+          await waitSeconds(2);
+        }
+      } while (true);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      throw assembleError(error, M365ErrorSource);
+    }
+  }
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async sideLoadingV1(token: string, manifestPath: string): Promise<[string, string]> {
+    try {
+      this.checkZip(manifestPath);
+      const data = await fs.readFile(manifestPath);
+      const content = new FormData();
+      content.append("package", data);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      this.logger?.debug("Uploading package with sideLoading V1 ...");
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
       const uploadResponse = await this.axiosInstance.post(
@@ -206,6 +295,27 @@ export class PackageService {
         error = this.traceError(error);
       } else {
         // this.logger?.error(error.message);
+      }
+      throw assembleError(error, M365ErrorSource);
+    }
+  }
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async getShareLink(token: string, titleId: string): Promise<string> {
+    const serviceUrl = await this.getTitleServiceUrl(token);
+    try {
+      const resp = await this.axiosInstance.get(
+        `/marketplace/v1/users/titles/${titleId}/sharingInfo`,
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return resp.data.unifiedStoreLink;
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
       }
       throw assembleError(error, M365ErrorSource);
     }
@@ -293,6 +403,24 @@ export class PackageService {
       });
       this.logger?.verbose("Unacquiring done.");
     } catch (error: any) {
+      // try to delete in the builder API
+      try {
+        const serviceUrl = await this.getTitleServiceUrl(token);
+        this.logger?.verbose(`Unacquiring package with TitleId ${titleId} in builder API...`);
+        await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.logger?.verbose("Unacquiring using builder api done.");
+        return;
+      } catch (subError: any) {
+        if (subError.response) {
+          subError = this.traceError(subError);
+        }
+        this.logger?.error(subError);
+      }
       if (error.response) {
         error = this.traceError(error);
       }
@@ -439,5 +567,16 @@ export class PackageService {
       this.logger?.debug(`Invalid input zip ${path}. ${error.message as string}`);
       this.logger?.warning(`Please make sure input path is a valid app package zip. ${path}`);
     }
+  }
+
+  private getManifestFromZip(path: string): TeamsAppManifest | undefined {
+    const zip = new AdmZip(path);
+    const manifestEntry = zip.getEntry("manifest.json");
+    if (!manifestEntry) {
+      return undefined;
+    }
+    let manifestContent = manifestEntry.getData().toString("utf8");
+    manifestContent = stripBom(manifestContent);
+    return JSON.parse(manifestContent) as TeamsAppManifest;
   }
 }

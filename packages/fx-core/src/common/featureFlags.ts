@@ -28,7 +28,6 @@ export class FeatureFlagName {
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
-  static readonly ApiPluginAAD = "TEAMSFX_API_PLUGIN_AAD";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
 }
 
@@ -82,10 +81,6 @@ export class FeatureFlags {
   };
   static readonly KiotaIntegration = {
     name: FeatureFlagName.KiotaIntegration,
-    defaultValue: "false",
-  };
-  static readonly ApiPluginAAD = {
-    name: FeatureFlagName.ApiPluginAAD,
     defaultValue: "false",
   };
   static readonly CEAEnabled = {

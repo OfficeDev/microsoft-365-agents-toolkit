@@ -1642,9 +1642,7 @@ describe("scaffold question", () => {
       const tools = new MockTools();
       setTools(tools);
       beforeEach(() => {
-        mockedEnvRestore = mockedEnv({
-          [FeatureFlagName.ApiPluginAAD]: "true",
-        });
+        mockedEnvRestore = mockedEnv({});
       });
 
       afterEach(() => {
@@ -1981,7 +1979,6 @@ describe("scaffold question", () => {
       it("traverse in cli", async () => {
         mockedEnvRestore = mockedEnv({
           TEAMSFX_CLI_DOTNET: "false",
-          [FeatureFlagName.ApiPluginAAD]: "true",
         });
 
         const inputs: Inputs = {
@@ -3468,6 +3465,41 @@ describe("scaffold question", () => {
         assert.isTrue(validationRes?.includes("OpenApi"));
       });
 
+      it("pluginManifestQuestion: default plugin manifest", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.exists(res);
+      });
+
+      it("pluginManifestQuestion: projectpath not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
+      });
+
+      it("pluginManifestQuestion: default file not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(false);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
+      });
+
       it("pluginApiSpecQuestion: invalid file format", async () => {
         const question = pluginApiSpecQuestion();
         const inputs: Inputs = {
@@ -3932,7 +3964,7 @@ describe("scaffold question", () => {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
           assert.isTrue(options.length === 3);
-          return ok({ type: "success", result: MeArchitectureOptions.botPlugin().id });
+          return ok({ type: "success", result: MeArchitectureOptions.botMe().id });
         } else if (question.name === QuestionNames.ProgrammingLanguage) {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
@@ -4064,9 +4096,7 @@ describe("scaffold question", () => {
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "true",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4108,15 +4138,30 @@ describe("scaffold question", () => {
         ]);
       }
     });
+
+    it("api plugin from add action with auth enabled", async () => {
+      const question = apiAuthQuestion(true);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+      };
+      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+      assert.isDefined(question.dynamicOptions);
+      if (question.dynamicOptions) {
+        const options = (await question.dynamicOptions(inputs)) as OptionItem[];
+        assert.deepEqual(options, [
+          ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
+          ApiAuthOptions.oauth(),
+        ]);
+      }
+    });
   });
   describe("api plugin auth question (AAD disabled)", () => {
     let mockedEnvRestore: RestoreFn;
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "false",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4137,6 +4182,7 @@ describe("scaffold question", () => {
         assert.deepEqual(options, [
           ApiAuthOptions.none(),
           ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
           ApiAuthOptions.oauth(),
         ]);
       }

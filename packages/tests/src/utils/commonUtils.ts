@@ -183,8 +183,8 @@ export async function updateAadTemplate(
 ) {
   const filePath = path.resolve(projectPath, "aad.manifest.json");
   const context = await fs.readJSON(filePath);
-  const updatedAppName = context["name"] + displayNameSuffix;
-  context["name"] = updatedAppName;
+  const updatedAppName = context["displayName"] + displayNameSuffix;
+  context["displayName"] = updatedAppName;
   return fs.writeJSON(filePath, context, { spaces: 4 });
 }
 

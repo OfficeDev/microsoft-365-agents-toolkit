@@ -130,6 +130,10 @@ export async function runCommand(
         result = await core.kiotaRegenerate(inputs);
         break;
       }
+      case Stage.addAuthAction: {
+        result = await core.addAuthAction(inputs);
+        break;
+      }
       default:
         throw new SystemError(
           ExtensionSource,
