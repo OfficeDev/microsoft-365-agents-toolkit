@@ -80,6 +80,7 @@ import {
   SPFxVersionOptionIds,
   capabilitiesHavePythonOption,
   getRuntime,
+  KnowledgeSourceOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
@@ -1362,6 +1363,18 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
         return invalidSpecError?.content;
       },
     },
+  };
+}
+
+export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.KnowledgeSource,
+    title: getLocalizedString("core.createProjectQuestion.addKnowledge.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.addKnowledge.placeholder"),
+    cliDescription: "Knowledge source.",
+    staticOptions: KnowledgeSourceOptions.all(),
+    default: KnowledgeSourceOptions.webSearch().id,
   };
 }
 

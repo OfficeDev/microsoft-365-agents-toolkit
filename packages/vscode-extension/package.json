@@ -911,6 +911,12 @@
         "category": "Teams"
       },
       {
+        "command": "fx-extension.addKnowledge",
+        "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "category": "Teams"
+      },
+      {
         "command": "fx-extension.openOfficeDevLifecycleLink",
         "title": "%teamstoolkit.commands.lifecycleLink.title%",
         "icon": "$(info)"
