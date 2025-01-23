@@ -106,6 +106,7 @@ export enum QuestionNames {
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
+  KnowledgeSource = "knowledge-source",
 
   AuthName = "auth-name",
 }
@@ -1225,5 +1226,31 @@ export class ApiPluginStartOptions {
     } else {
       return [ApiPluginStartOptions.newApi(), ApiPluginStartOptions.apiSpec()];
     }
+  }
+}
+
+export class KnowledgeSourceOptions {
+  static webSearch(): OptionItem {
+    return {
+      id: "web-search",
+      label: getLocalizedString("core.createProjectQuestion.capability.knowledgeWebSearch.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.knowledgeWebSearch.detail"),
+    };
+  }
+
+  static oneDriveSharePoint(): OptionItem {
+    return {
+      id: "oneDrive-sharePoint",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.detail"
+      ),
+    };
+  }
+
+  static all(): OptionItem[] {
+    return [KnowledgeSourceOptions.webSearch(), KnowledgeSourceOptions.oneDriveSharePoint()];
   }
 }

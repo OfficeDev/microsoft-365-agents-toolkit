@@ -624,6 +624,13 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
   registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
+
+  registerInCommandController(
+    context,
+    "fx-extension.addKnowledge",
+    addPluginHandler,
+    "addKnowledge"
+  );
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
