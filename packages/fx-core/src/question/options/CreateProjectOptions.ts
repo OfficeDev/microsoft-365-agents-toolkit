@@ -8,7 +8,7 @@
  * Please don't manually change its contents, as any modifications will be overwritten! *
  ***************************************************************************************/
 
-import { CLICommandArgument, CLICommandOption } from "@microsoft/teamsfx-api";
+import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
 
 export const CreateProjectOptions: CLICommandOption[] = [
   {
@@ -44,7 +44,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     type: "string",
     description: "The authentication type for the API.",
     default: "none",
-    choices: ["none", "api-key", "oauth"],
+    choices: ["none", "api-key", "microsoft-entra", "oauth"],
   },
   {
     name: "openapi-spec-location",

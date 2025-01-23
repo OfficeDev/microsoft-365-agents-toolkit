@@ -2,13 +2,7 @@
 // Licensed under the MIT license.
 
 import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
-import {
-  Inputs,
-  IQTreeNode,
-  Platform,
-  SingleFileQuestion,
-  UserError,
-} from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, SingleFileQuestion, UserError } from "@microsoft/teamsfx-api";
 import * as os from "os";
 import * as path from "path";
 import { SpecParserSource } from "../../../common/constants";
@@ -196,9 +190,7 @@ export function declarativeAgentProjectTypeNode(
               staticOptions: [
                 ApiAuthOptions.none(),
                 ApiAuthOptions.apiKey(),
-                ...(featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)
-                  ? [ApiAuthOptions.microsoftEntra()]
-                  : []),
+                ApiAuthOptions.microsoftEntra(),
                 ApiAuthOptions.oauth(),
               ],
               default: ApiAuthOptions.none().id,

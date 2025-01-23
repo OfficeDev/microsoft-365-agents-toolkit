@@ -25,7 +25,7 @@ export interface CreateProjectInputs extends Inputs {
   /** @description Create API Plugin */
   "api-plugin-type"?: "new-api" | "api-spec" | "existing-plugin";
   /** @description Authentication Type */
-  "api-auth"?: "none" | "api-key" | "oauth";
+  "api-auth"?: "none" | "api-key" | "microsoft-entra" | "oauth";
   /** @description OpenAPI Description Document */
   "openapi-spec-location"?: string;
   /** @description Select Operation(s) Teams Can Interact with */
