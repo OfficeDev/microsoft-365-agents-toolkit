@@ -23,7 +23,6 @@ export const CreateProjectOptions: CLICommandOption[] = [
       "tab-type",
       "me-type",
       "outlook-addin-type",
-      "start-with-github-copilot",
     ],
   },
   {

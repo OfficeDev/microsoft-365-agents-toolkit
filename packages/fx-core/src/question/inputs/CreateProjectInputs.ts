@@ -18,8 +18,7 @@ export interface CreateProjectInputs extends Inputs {
     | "bot-type"
     | "tab-type"
     | "me-type"
-    | "outlook-addin-type"
-    | "start-with-github-copilot";
+    | "outlook-addin-type";
   /** @description Create Declarative Agent */
   "with-plugin"?: "da-without-plugin" | "da-with-plugin";
   /** @description Create API Plugin */

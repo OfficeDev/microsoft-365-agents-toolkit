@@ -10,6 +10,7 @@ import {
   IQTreeNode,
   Inputs,
   Result,
+  SystemError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -18,7 +19,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../../common/telemetry";
 import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { botTriggerQuestion, meArchitectureQuestion } from "../../../question/create";
-import { TemplateNames, Templates } from "../../../question/templates";
+import { Templates } from "../../../question/templates";
 import { ProgressMessages, ProgressTitles } from "../../messages";
 import { ActionContext, ActionExecutionMW } from "../../middleware/actionExecutionMW";
 import { commonTemplateName, componentName } from "../constant";
@@ -34,8 +35,8 @@ export class DefaultTemplateGenerator implements IGenerator {
 
   // override this method to determine whether to run this generator
   public activate(context: Context, inputs: Inputs): boolean {
-    // return tryGetTemplateName(inputs) !== undefined;
-    return inputs[QuestionNames.TemplateName] === TemplateNames.NotificationExpress;
+    const templateName = inputs[QuestionNames.TemplateName];
+    return Templates.some((t) => t.name === templateName);
   }
 
   // The main entry of the generator. Do not override this method.
@@ -54,14 +55,16 @@ export class DefaultTemplateGenerator implements IGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
-    const preResult = await this.getTemplateInfos(context, inputs, destinationPath, actionContext);
-    if (preResult.isErr()) return err(preResult.error);
-
-    const templateInfos = preResult.value;
-    for (const templateInfo of templateInfos) {
-      templateInfo.replaceMap = { ...getTemplateReplaceMap(inputs), ...templateInfo.replaceMap };
-      await this.scaffolding(context, templateInfo, destinationPath, actionContext);
+    const template = Templates.find((t) => t.name === inputs[QuestionNames.TemplateName]);
+    if (!template) {
+      return err(new SystemError("DefaultGenerator", "TemplateNotFound", "Template not found"));
     }
+    const templateInfo = {
+      templateName: template.name,
+      language: template.language,
+      replaceMap: { ...getTemplateReplaceMap(inputs) },
+    } as TemplateInfo;
+    await this.scaffolding(context, templateInfo, destinationPath, actionContext);
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);
     return postRes;
