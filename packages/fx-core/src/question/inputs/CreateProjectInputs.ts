@@ -94,6 +94,4 @@ export interface CreateProjectInputs extends Inputs {
   "openai-key"?: string;
   /** @description Application Name */
   "app-name"?: string;
-  /** @description Authentication Type */
-  "knowledge-source"?: "web-search" | "oneDrive-sharePoint";
 }

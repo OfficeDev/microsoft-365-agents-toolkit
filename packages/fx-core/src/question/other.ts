@@ -44,6 +44,7 @@ import {
   apiSpecLocationQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
+  addKnowledgeStartQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -771,6 +772,48 @@ export function createNewEnvQuestionNode(): IQTreeNode {
 export function addPluginQuestionNode(): IQTreeNode {
   return {
     data: apiPluginStartQuestion(true),
+    children: [
+      {
+        data: pluginManifestQuestion(),
+        condition: {
+          equals: ApiPluginStartOptions.existingPlugin().id,
+        },
+      },
+      {
+        data: pluginApiSpecQuestion(),
+        condition: {
+          equals: ApiPluginStartOptions.existingPlugin().id,
+        },
+      },
+      {
+        data: apiSpecLocationQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+          );
+        },
+      },
+      {
+        data: apiOperationQuestion(true, true),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+          );
+        },
+      },
+      {
+        data: selectTeamsAppManifestQuestion(),
+      },
+    ],
+  };
+}
+
+// add Knowledge to a declarative Copilot project
+export function addKnowledgeQuestionNode(): IQTreeNode {
+  return {
+    data: addKnowledgeStartQuestion(true),
     children: [
       {
         data: pluginManifestQuestion(),

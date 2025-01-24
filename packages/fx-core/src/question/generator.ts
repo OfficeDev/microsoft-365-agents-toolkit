@@ -463,6 +463,9 @@ async function batchGenerate() {
 
   await generateCliOptions(questionNodes.addAuthAction(), "AddAuthAction");
   await generateInputs(questionNodes.addAuthAction(), "AddAuthAction");
+
+  await generateCliOptions(questionNodes.addKnowledge(), "AddKnowledge");
+  await generateInputs(questionNodes.addKnowledge(), "AddKnowledge");
 }
 
 void batchGenerate();

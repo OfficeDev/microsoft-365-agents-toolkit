@@ -25,6 +25,7 @@ import {
   kiotaRegenerateQuestion,
   convertAadToNewSchemaQuestionNode,
   addAuthActionQuestion,
+  addKnowledgeQuestionNode,
 } from "./other";
 export * from "./constants";
 export * from "./create";
@@ -91,6 +92,9 @@ export class QuestionNodes {
   }
   addAuthAction(): IQTreeNode {
     return addAuthActionQuestion();
+  }
+  addKnowledge(): IQTreeNode {
+    return addKnowledgeQuestionNode();
   }
 }
 
