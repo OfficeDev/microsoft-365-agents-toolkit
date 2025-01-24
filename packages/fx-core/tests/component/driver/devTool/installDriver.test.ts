@@ -5,7 +5,7 @@ import { UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import "mocha";
 import * as sinon from "sinon";
-import { DepsType } from "../../../../src/component/deps-checker/depsChecker";
+import { DepsType, TestToolReleaseType } from "../../../../src/component/deps-checker/depsChecker";
 import { DotnetChecker } from "../../../../src/component/deps-checker/internal/dotnetChecker";
 import { FuncToolChecker } from "../../../../src/component/deps-checker/internal/funcToolChecker";
 import { TestToolChecker } from "../../../../src/component/deps-checker/internal/testToolChecker";
@@ -319,7 +319,7 @@ describe("Tools Install Driver test", () => {
     });
 
     it("Install test tool", async () => {
-      sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
+      const resolveStub = sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
         name: "Teams App Test Tool",
         type: DepsType.TestTool,
         isInstalled: true,
@@ -339,6 +339,14 @@ describe("Tools Install Driver test", () => {
       if (res.isOk()) {
         chai.assert.isEmpty(res.value);
       }
+      chai.assert.isTrue(
+        resolveStub.calledWith({
+          versionRange: "~0.1.0",
+          symlinkDir: "./devTools/testTool",
+          releaseType: TestToolReleaseType.Npm,
+          projectPath: mockedDriverContext.projectPath,
+        })
+      );
     });
 
     // it("Install test tool failed without error", async () => {
@@ -396,6 +404,13 @@ describe("Tools Install Driver test", () => {
       {
         name: "invalid symlinkDir",
         args: { testTool: { version: "~1", symlinkDir: 1 } },
+        expected: false,
+      },
+      {
+        name: "invalid releaseType",
+        args: {
+          testTool: { version: "~1", symlinkDir: "./devTools/testTool", releaseType: "bin" },
+        },
         expected: false,
       },
     ];
