@@ -5,8 +5,8 @@ import { Context, FxError, Inputs, Result, ok } from "@microsoft/teamsfx-api";
 import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { DefaultTemplateGenerator } from "./templateGenerator";
 import { TemplateInfo } from "./templateInfo";
-import { TemplateNames } from "./templateNames";
 import { Generator } from "../generator";
+import { TemplateNames } from "../../../question/templates";
 
 // For the APS.NET server-side rendering tab
 export class SsrTabGenerator extends DefaultTemplateGenerator {
@@ -15,17 +15,15 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     [CapabilityOptions.tab().id]: TemplateNames.SsoTabSSR,
   };
   override activate(context: Context, inputs: Inputs): boolean {
-    const capability = inputs.capabilities as string;
-    return (
-      this.capabilities2TemplateNames[capability] !== undefined &&
-      inputs[QuestionNames.ProgrammingLanguage] === ProgrammingLanguage.CSharp
-    );
+    const templateName = inputs[QuestionNames.TemplateName];
+    return [TemplateNames.SsoTabSSR, TemplateNames.TabSSR].includes(templateName);
   }
   override getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string
   ): Promise<Result<TemplateInfo[], FxError>> {
+    const templateName = inputs[QuestionNames.TemplateName];
     const appName = inputs[QuestionNames.AppName];
     const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
     const isNet8 = inputs.targetFramework === "net8.0";
@@ -42,7 +40,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     return Promise.resolve(
       ok([
         {
-          templateName: this.capabilities2TemplateNames[inputs.capabilities as string],
+          templateName: templateName,
           language: ProgrammingLanguage.CSharp,
           replaceMap,
         },

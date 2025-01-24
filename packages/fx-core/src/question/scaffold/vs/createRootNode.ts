@@ -35,6 +35,26 @@ export class VSCapabilityOptions {
       detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
     };
   }
+  static nonSsoTab(): OptionItem {
+    return {
+      id: "tab-non-sso",
+      label: `${getLocalizedString("core.TabNonSso.label")}`,
+      detail: getLocalizedString("core.TabNonSso.detail"),
+      description: getLocalizedString(
+        "core.createProjectQuestion.option.description.worksInOutlookM365"
+      ),
+      data: TemplateNames.TabSSR,
+    };
+  }
+  static tab(): OptionItem {
+    return {
+      id: "tab",
+      label: getLocalizedString("core.TabOption.label"),
+      description: getLocalizedString("core.TabOption.description"),
+      detail: getLocalizedString("core.TabOption.detail"),
+      data: TemplateNames.SsoTabSSR,
+    };
+  }
 }
 
 /**
@@ -64,8 +84,8 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             BotCapabilityOptions.notificationBot(),
             BotCapabilityOptions.commandBot(),
             BotCapabilityOptions.workflowBot(),
-            TabCapabilityOptions.nonSsoTab(),
-            TabCapabilityOptions.tab(),
+            VSCapabilityOptions.nonSsoTab(),
+            VSCapabilityOptions.tab(),
             MeCapabilityOptions.m365SearchMe(),
             MeCapabilityOptions.collectFormMe(),
             MeCapabilityOptions.SearchMeVS(),

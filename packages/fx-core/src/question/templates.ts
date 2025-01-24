@@ -73,6 +73,18 @@ const tabTemplates: Template[] = [
     description: "Simple Teams Tab App",
   },
   {
+    id: "non-sso-tab-ssr-cs",
+    name: TemplateNames.TabSSR,
+    language: "csharp",
+    description: "Simple Teams Tab App",
+  },
+  {
+    id: "sso-tab-ssr-cs",
+    name: TemplateNames.SsoTabSSR,
+    language: "csharp",
+    description: "Simple Teams Tab App with SSO",
+  },
+  {
     id: "sso-tab-with-obo-flow-ts",
     name: TemplateNames.SsoTabObo,
     language: "typescript",
