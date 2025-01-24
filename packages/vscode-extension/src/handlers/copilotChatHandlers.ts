@@ -65,41 +65,36 @@ async function openGithubCopilotChat(query: string): Promise<Result<null, FxErro
 }
 
 export async function installGithubCopilotChatExtension(
-  triggerFrom: TelemetryTriggerFrom
+  args?: any[]
 ): Promise<Result<null, FxError>> {
   const startEventName = "install-copilot-chat-start";
   const eventName = "install-copilot-chat";
-  const telemetryProperties = {
-    [TelemetryProperty.TriggerFrom]: triggerFrom,
-  };
+
+  const isExtensionInstalled = githubCopilotInstalled();
+  if (isExtensionInstalled) {
+    void vscode.window.showInformationMessage(
+      localize("teamstoolkit.handlers.installCopilotChatExtensionAlreadyInstalled")
+    );
+    return ok(null);
+  }
+  const telemetryProperties = getTriggerFromProperty(args);
   ExtTelemetry.sendTelemetryEvent(startEventName, telemetryProperties);
   try {
-    const confirmRes = await vscode.window.showInformationMessage(
-      localize("teamstoolkit.handlers.askInstallCopilot"),
-      localize("teamstoolkit.handlers.askInstallCopilot.install")
+    await vscode.commands.executeCommand(
+      "workbench.extensions.installExtension",
+      githubCopilotChatExtensionId,
+      {
+        installPreReleaseVersion: isVSCodeInsiderVersion(), // VSCode insider need to install Github Copilot Chat of pre-release version
+        enable: true,
+      }
     );
 
-    if (confirmRes !== localize("teamstoolkit.handlers.askInstallCopilot.install")) {
-      const error = new UserCancelError(eventName, "cancel");
-      ExtTelemetry.sendTelemetryErrorEvent(eventName, error, telemetryProperties);
-      return err(error);
-    } else {
-      await vscode.commands.executeCommand(
-        "workbench.extensions.installExtension",
-        githubCopilotChatExtensionId,
-        {
-          installPreReleaseVersion: isVSCodeInsiderVersion(), // VSCode insider need to install Github Copilot Chat of pre-release version
-          enable: true,
-        }
-      );
+    ExtTelemetry.sendTelemetryEvent(eventName, {
+      ...telemetryProperties,
+      [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+    });
 
-      ExtTelemetry.sendTelemetryEvent(eventName, {
-        ...telemetryProperties,
-        [TelemetryProperty.Success]: TelemetrySuccess.Yes,
-      });
-
-      return ok(null);
-    }
+    return ok(null);
   } catch (e) {
     const error = new SystemError(
       eventName,
@@ -117,6 +112,31 @@ export async function installGithubCopilotChatExtension(
 
     return err(error);
   }
+}
+
+export async function openInstallTeamsAgent(args?: any[]) {
+  const startEventName = "open-install-teams-agent-start";
+  const eventName = "open-install-teams-agent";
+
+  const telemetryProperties = getTriggerFromProperty(args);
+  ExtTelemetry.sendTelemetryEvent(startEventName, telemetryProperties);
+  const openUrlRes = await VS_CODE_UI.openUrl(teamsAgentLink);
+  if (openUrlRes.isOk()) {
+    ExtTelemetry.sendTelemetryEvent(eventName, telemetryProperties);
+  } else {
+    ExtTelemetry.sendTelemetryErrorEvent(eventName, openUrlRes.error, telemetryProperties);
+    VsCodeLogInstance.error(openUrlRes.error.message);
+  }
+}
+
+export async function markTeamsAgentInstallationDone(args?: any[]) {
+  const startEventName = "mark-teams-agent-installation-done-start";
+  const eventName = "mark-teams-agent-installation-done";
+
+  const telemetryProperties = getTriggerFromProperty(args);
+  ExtTelemetry.sendTelemetryEvent(startEventName, telemetryProperties);
+  await globalStateUpdate(GlobalKey.TemasAgentInstalled, true);
+  ExtTelemetry.sendTelemetryEvent(eventName, telemetryProperties);
 }
 
 export async function handleInstallTeamsAgentSelection(
@@ -158,29 +178,72 @@ async function invoke(
   eventName: string,
   triggerFromProperty: { [key: string]: TelemetryTriggerFrom }
 ): Promise<Result<null, FxError>> {
-  const skipRemindInstallTeamsAgent = await globalStateGet(
-    GlobalKey.DoNotRemindInstallTeamsAgent,
-    false
-  );
-  if (!skipRemindInstallTeamsAgent) {
-    void vscode.window
-      .showInformationMessage(
-        localize("teamstoolkit.handlers.askInstallTeamsAgent"),
-        localize("teamstoolkit.handlers.askInstallTeamsAgent.install"),
-        localize("teamstoolkit.handlers.askInstallTeamsAgent.confirmInstall")
-      )
-      .then(async (selection) => {
-        await handleInstallTeamsAgentSelection(selection, triggerFromProperty);
-      });
-  }
+  // const skipRemindInstallTeamsAgent = await globalStateGet(
+  //   GlobalKey.DoNotRemindInstallTeamsAgent,
+  //   false
+  // );
 
+  // console.log(triggerFromProperty[TelemetryProperty.TriggerFrom]);
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.teamsAgentTriggerFrom",
+    triggerFromProperty[TelemetryProperty.TriggerFrom]
+  );
+
+  // const welcomePageConfig = vscode.workspace.getConfiguration('workbench.welcomePage');
+  // const configJSON = JSON.stringify(welcomePageConfig, null, 2); // Pretty-print with 2 spaces
+  // console.log('Welcome Page Configuration (JSON):', configJSON);
+
+  // const config = vscode.workspace.getConfiguration('workbench.welcomePage');
+  // const walkthroughState = config.get<any>('walkthroughs');
+  // if (walkthroughState && walkthroughState['TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps']) {
+  //   vscode.window.showInformationMessage('Walkthrough is completed!');
+  // } else {
+  //   vscode.window.showInformationMessage('Walkthrough is not completed yet.');
+  // }
+
+  // await vscode.commands.executeCommand(
+  //   "workbench.action.openWalkthrough",
+  //   "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+  // );w
+
+  // if (!skipRemindInstallTeamsAgent) {
+  //   void vscode.window
+  //     .showInformationMessage(
+  //       localize("teamstoolkit.handlers.askInstallTeamsAgent"),
+  //       localize("teamstoolkit.handlers.askInstallTeamsAgent.install"),
+  //       localize("teamstoolkit.handlers.askInstallTeamsAgent.confirmInstall")
+  //     )
+  //     .then(async (selection) => {
+  //       await handleInstallTeamsAgentSelection(selection, triggerFromProperty);
+  //     });
+  // }
+  // const data = { category: "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps", step: "intelligentappresources" }
+  // const tt =  await vscode.commands.executeCommand(
+  //   "workbench.action.openWalkthrough",
+  //   data
+  // );
+  await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
+    category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
+  });
   const isExtensionInstalled = githubCopilotInstalled();
   if (isExtensionInstalled) {
     VsCodeLogInstance.info(
       util.format(localize("teamstoolkit.handlers.installAgent.output"), teamsAgentLink)
     );
     showOutputChannelHandler();
-    return await openGithubCopilotChat(query);
+    // await vscode.commands.executeCommand('workbench.action.openWalkthrough', {
+    //   walkthrough: 'TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps',
+    //   skipWelcome: true,
+    //   context: context // Pass the context dynamically
+    // });
+    // return await vscode.commands.executeCommand(
+    //   "workbench.action.openWalkthrough",
+    //   "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+    // );
+    return ok(null);
+    //return await openGithubCopilotChat(query);
   } else {
     VsCodeLogInstance.info(
       util.format(
@@ -191,43 +254,45 @@ async function invoke(
     );
     showOutputChannelHandler();
 
-    const maxRetry = 5;
-    const installRes = await installGithubCopilotChatExtension(
-      triggerFromProperty[TelemetryProperty.TriggerFrom]
-    );
-    if (installRes.isOk()) {
-      let checkCount = 0;
-      let verifyExtensionInstalled = false;
-      while (checkCount < maxRetry) {
-        verifyExtensionInstalled = githubCopilotInstalled();
-        if (!verifyExtensionInstalled) {
-          await sleep(3000);
-          checkCount++;
-        } else {
-          break;
-        }
-      }
+    return ok(null);
 
-      if (verifyExtensionInstalled) {
-        await sleep(2000); // wait for extension activation
-        return await openGithubCopilotChat(query);
-      } else {
-        const error = new SystemError(
-          eventName,
-          errorNames.CannotVerifyGithubCopilotChat,
-          util.format(
-            localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
-          ),
-          util.format(
-            localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
-          )
-        );
-        VsCodeLogInstance.error(error.message);
-        return err(error);
-      }
-    } else {
-      return installRes;
-    }
+    // const maxRetry = 5;
+    // const installRes = await installGithubCopilotChatExtension(
+    //   triggerFromProperty[TelemetryProperty.TriggerFrom]
+    // );
+    // if (installRes.isOk()) {
+    //   let checkCount = 0;
+    //   let verifyExtensionInstalled = false;
+    //   while (checkCount < maxRetry) {
+    //     verifyExtensionInstalled = githubCopilotInstalled();
+    //     if (!verifyExtensionInstalled) {
+    //       await sleep(3000);
+    //       checkCount++;
+    //     } else {
+    //       break;
+    //     }
+    //   }
+
+    //   if (verifyExtensionInstalled) {
+    //     await sleep(2000); // wait for extension activation
+    //     return await openGithubCopilotChat(query);
+    //   } else {
+    //     const error = new SystemError(
+    //       eventName,
+    //       errorNames.CannotVerifyGithubCopilotChat,
+    //       util.format(
+    //         localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
+    //       ),
+    //       util.format(
+    //         localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
+    //       )
+    //     );
+    //     VsCodeLogInstance.error(error.message);
+    //     return err(error);
+    //   }
+    // } else {
+    //   return installRes;
+    // }
   }
 }
 
@@ -268,6 +333,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<null, FxErr
       query =
         "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
   }
+
   const res = await invoke(query, eventName, triggerFromProperty);
 
   if (res.isErr()) {

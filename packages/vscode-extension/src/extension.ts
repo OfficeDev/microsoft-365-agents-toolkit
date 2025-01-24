@@ -18,6 +18,7 @@ import {
   FeatureFlags,
   VersionState,
   featureFlagManager,
+  globalStateGet,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
@@ -51,7 +52,7 @@ import azureAccountManager from "./commonlib/azureLogin";
 import VsCodeLogInstance from "./commonlib/log";
 import M365TokenInstance from "./commonlib/m365Login";
 import { configMgr } from "./config";
-import { CommandKey as CommandKeys } from "./constants";
+import { CommandKey as CommandKeys, GlobalKey } from "./constants";
 import { openWelcomePageAfterExtensionInstallation } from "./controls/openWelcomePage";
 import { TeamsFxTaskType } from "./debug/common/debugConstants";
 import { getLocalDebugSessionId, startLocalDebugSession } from "./debug/common/localDebugSession";
@@ -478,6 +479,24 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
   );
   context.subscriptions.push(troubleshootError);
+
+  const installCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.installCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.installGithubCopilotChatExtension, args)
+  );
+  context.subscriptions.push(installCopilotChat);
+
+  const openInstallTeamsAgent = vscode.commands.registerCommand(
+    "fx-extension.openInstallTeamsAgent",
+    (...args) => Correlator.run(copilotChatHandlers.openInstallTeamsAgent, args)
+  );
+  context.subscriptions.push(openInstallTeamsAgent);
+
+  const markTeamsAgentInstallationDone = vscode.commands.registerCommand(
+    "fx-exntesion.markInstallTeamsAgentDone",
+    (...args) => Correlator.run(copilotChatHandlers.markTeamsAgentInstallationDone, args)
+  );
+  context.subscriptions.push(markTeamsAgentInstallationDone);
 }
 
 /**

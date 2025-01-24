@@ -470,6 +470,7 @@ export enum TelemetryTriggerFrom {
   WalkThroughWhatIsNext = "WalkThroughWhatIsNext",
   WalkThroughIntelligentAppsIntroduction = "WalkThroughIntelligentAppsIntroduction",
   WalkThroughIntelligentAppsCreate = "WalkThroughIntelligentAppsCreate",
+  TeamsAgentWalkthrough = "TeamsAgentWalkthrough",
   Notification = "Notification",
   QuickPick = "QuickPick",
   InProductDoc = "InProductDoc",
