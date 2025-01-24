@@ -24,6 +24,7 @@ import {
 } from "./other";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
+import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
@@ -34,6 +35,9 @@ export class QuestionNodes {
     // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
     return scaffoldQuestionForVSCode();
+  }
+  createFromTdp(): IQTreeNode {
+    return createFromTdpNode();
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
