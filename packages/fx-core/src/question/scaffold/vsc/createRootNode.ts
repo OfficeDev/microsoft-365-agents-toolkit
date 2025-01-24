@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CLIPlatforms, Inputs, IQTreeNode, Platform } from "@microsoft/teamsfx-api";
+import { CLIPlatforms, Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
 import * as os from "os";

@@ -2,18 +2,10 @@
 // Licensed under the MIT license.
 
 import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
-import * as jsonschema from "jsonschema";
-import * as os from "os";
-import * as path from "path";
-import { ConstantString } from "../../../common/constants";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-import { createContext } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { Constants } from "../../../component/generator/spfx/utils/constants";
-import { FileNotFoundError } from "../../../error/common";
-import { AppNamePattern, ProgrammingLanguage, QuestionNames } from "../../constants";
-import { TemplateNames, Templates } from "../../templates";
+import { QuestionNames } from "../../constants";
+import { TemplateNames } from "../../templates";
 import {
   ApiPluginStartOptions,
   BotCapabilityOptions,
@@ -22,123 +14,10 @@ import {
   setTemplateName,
   TabCapabilityOptions,
 } from "../vsc/CapabilityOptions";
+import { appNameNode, folderNode, languageNode } from "../vsc/createRootNode";
 import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";
 import { declarativeAgentProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { botTriggerNode } from "../vsc/m365ProjectTypeNode";
-
-export async function getSolutionName(spfxFolder: string): Promise<string | undefined> {
-  const yoInfoPath = path.join(spfxFolder, Constants.YO_RC_FILE);
-  if (await fs.pathExists(yoInfoPath)) {
-    const yoInfo = await fs.readJson(yoInfoPath);
-    if (yoInfo["@microsoft/generator-sharepoint"]) {
-      return yoInfo["@microsoft/generator-sharepoint"][Constants.YO_RC_SOLUTION_NAME];
-    } else {
-      return undefined;
-    }
-  } else {
-    throw new FileNotFoundError(Constants.PLUGIN_NAME, yoInfoPath, Constants.IMPORT_HELP_LINK);
-  }
-}
-
-export function languageNode(): IQTreeNode {
-  return {
-    condition: (inputs: Inputs) => {
-      const templateName = inputs[QuestionNames.TemplateName];
-      const languages = Templates.filter((t) => t.name === templateName)
-        .map((t) => t.language)
-        .filter((lang) => lang !== "none" && lang !== undefined);
-      return languages.length > 0;
-    },
-    data: {
-      type: "singleSelect",
-      title: getLocalizedString("core.ProgrammingLanguageQuestion.title"),
-      name: QuestionNames.ProgrammingLanguage,
-      staticOptions: [
-        { id: ProgrammingLanguage.JS, label: "JavaScript" },
-        { id: ProgrammingLanguage.TS, label: "TypeScript" },
-        { id: ProgrammingLanguage.CSharp, label: "C#" },
-        { id: ProgrammingLanguage.PY, label: "Python" },
-      ],
-      dynamicOptions: (inputs: Inputs) => {
-        const templateName = inputs[QuestionNames.TemplateName];
-        const languages = Templates.filter((t) => t.name === templateName)
-          .map((t) => t.language)
-          .filter((lang) => lang !== "none" && lang !== undefined);
-        return languages;
-      },
-      skipSingleOption: true,
-    },
-  };
-}
-
-export function folderNode(platform: Platform = Platform.VSCode): IQTreeNode {
-  return {
-    data: {
-      type: "folder",
-      name: QuestionNames.Folder,
-      title: getLocalizedString("core.question.workspaceFolder.title"),
-      cliDescription: "Directory where the project folder will be created in.",
-      placeholder: getLocalizedString("core.question.workspaceFolder.placeholder"),
-      default:
-        platform === Platform.CLI ? "./" : path.join(os.homedir(), ConstantString.RootFolder),
-    },
-  };
-}
-
-export function appNameNode(): IQTreeNode {
-  return {
-    data: {
-      type: "text",
-      name: QuestionNames.AppName,
-      title: getLocalizedString("core.question.appName.title"),
-      default: async (inputs: Inputs) => {
-        let defaultName = undefined;
-        if (inputs[QuestionNames.SPFxSolution] == "import") {
-          defaultName = await getSolutionName(inputs[QuestionNames.SPFxFolder]);
-        }
-        return defaultName;
-      },
-      validation: {
-        validFunc: async (input: string, previousInputs?: Inputs): Promise<string | undefined> => {
-          const schema = {
-            pattern: AppNamePattern,
-            maxLength: 30,
-          };
-          if (input.length === 25) {
-            // show warning notification because it may exceed the Teams app name max length after appending suffix
-            const context = createContext();
-            void context.userInteraction.showMessage(
-              "warn",
-              getLocalizedString("core.QuestionAppName.validation.lengthWarning"),
-              false
-            );
-          }
-          const appName = input;
-          const validateResult = jsonschema.validate(appName, schema);
-          if (validateResult.errors && validateResult.errors.length > 0) {
-            if (validateResult.errors[0].name === "pattern") {
-              return getLocalizedString("core.QuestionAppName.validation.pattern");
-            }
-            if (validateResult.errors[0].name === "maxLength") {
-              return getLocalizedString("core.QuestionAppName.validation.maxlength");
-            }
-          }
-          if (previousInputs && previousInputs.folder) {
-            const folder = previousInputs.folder as string;
-            if (folder) {
-              const projectPath = path.resolve(folder, appName);
-              const exists = await fs.pathExists(projectPath);
-              if (exists)
-                return getLocalizedString("core.QuestionAppName.validation.pathExist", projectPath);
-            }
-          }
-          return undefined;
-        },
-      },
-      placeholder: getLocalizedString("core.question.appName.placeholder"),
-    },
-  };
-}
 
 export class VSCapabilityOptions {
   // empty
@@ -149,7 +28,6 @@ export class VSCapabilityOptions {
       data: TemplateNames.Empty,
     };
   }
-
   static declarativeAgent(): OptionItem {
     return {
       id: "declarative-agent",
