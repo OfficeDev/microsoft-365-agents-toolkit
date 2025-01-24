@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.7"
+      "const": "v1.8"
     },
     "additionalMetadata": {
       "type": "object",
