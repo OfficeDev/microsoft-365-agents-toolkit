@@ -4,10 +4,11 @@ import { CLICommand } from "@microsoft/teamsfx-api";
 import { commands } from "../../resource";
 import { addSPFxWebpartCommand } from "./addSPFxWebpart";
 import { addPluginCommand } from "./addPlugin";
+import { addKnowledgeCommand } from "./addKnowledge";
 import { addAuthConfigCommand } from "./addAuthConfig";
 
 const adjustCommands = (): CLICommand[] => {
-  return [addSPFxWebpartCommand, addPluginCommand, addAuthConfigCommand];
+  return [addSPFxWebpartCommand, addPluginCommand, addAuthConfigCommand, addKnowledgeCommand];
 };
 export function addCommand(): CLICommand {
   return {

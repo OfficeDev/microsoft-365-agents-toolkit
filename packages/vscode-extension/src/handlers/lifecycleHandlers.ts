@@ -134,6 +134,15 @@ export async function addPluginHandler(...args: unknown[]) {
   }
 }
 
+export async function addKnowledgeHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddKnowledgeStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.addKnowledge);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+  return result;
+}
+
 /**
  * scaffold based on app id from Developer Portal
  */

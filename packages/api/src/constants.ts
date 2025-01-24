@@ -78,6 +78,7 @@ export enum Stage {
   addPlugin = "addPlugin",
   kiotaRegenerate = "kiotaRegenerate",
   addAuthAction = "addAuthAction",
+  addKnowledge = "addKnowledge",
 }
 
 export enum TelemetryEvent {

@@ -2103,6 +2103,257 @@ export class FxCore {
   }
 
   /**
+   * Add Knowledge
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addKnowledge }),
+    ErrorHandlerMW,
+    QuestionMW("addKnowledge"),
+    ConcurrentLockerMW,
+  ])
+  async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    // Call Kiota to select the OpenAPI spec file
+    if (
+      inputs.platform === Platform.VSCode &&
+      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+      inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+      !!!inputs[QuestionNames.ApiPluginManifestPath]
+    ) {
+      return ok({
+        projectPath: inputs.projectPath,
+        lastCommand: KiotaLastCommands.addPlugin,
+        manifestPath: inputs[QuestionNames.ManifestPath],
+      });
+    }
+
+    const context = createContext();
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
+    const isGenerateFromApiSpec =
+      inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id;
+    const isKiotaIntegration =
+      inputs.platform === Platform.VSCode &&
+      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+      !!inputs[QuestionNames.ApiPluginManifestPath];
+
+    // validate the project is valid for adding plugin
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const teamsManifest = manifestRes.value;
+    const declarativeGpt = teamsManifest.copilotExtensions
+      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
+      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
+    if (!declarativeGpt?.file) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+            "declarativeCopilots",
+            teamsManifestPath
+          )
+        )
+      );
+    }
+    const gptManifestFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (gptManifestFilePathRes.isErr()) {
+      return err(gptManifestFilePathRes.error);
+    }
+
+    const declarativeCopilotManifestPath = gptManifestFilePathRes.value;
+
+    const declarativeCopilotManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeCopilotManifestPath
+    );
+    if (declarativeCopilotManifesRes.isErr()) {
+      return err(declarativeCopilotManifesRes.error);
+    }
+
+    const declarativeCopilotManifest = declarativeCopilotManifesRes.value;
+    let confirmMessage = getLocalizedString(
+      "core.addApi.confirm",
+      path.relative(inputs.projectPath, appPackageFolder)
+    );
+
+    // Will be used if generating from API spec
+    let specParser: SpecParser | undefined = undefined;
+    let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
+
+    if (isGenerateFromApiSpec) {
+      specParser = new SpecParser(
+        inputs[QuestionNames.ApiSpecLocation].trim(),
+        getParserOptions(ProjectType.Copilot, true)
+      );
+      const listResult = await specParser.list();
+      if (
+        inputs.platform === Platform.VSCode &&
+        featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+        inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+        !!inputs[QuestionNames.ApiPluginManifestPath]
+      ) {
+        inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
+          (value) => value.api
+        );
+      }
+      authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
+
+      if (authNameAndSchemes.length > 0) {
+        const doesLocalYamlPathExists = await fs.pathExists(
+          path.join(inputs.projectPath, MetadataV3.localConfigFile)
+        );
+        confirmMessage = doesLocalYamlPathExists
+          ? getLocalizedString(
+              "core.addApi.confirm.localTeamsYaml",
+              path.relative(inputs.projectPath, appPackageFolder),
+              MetadataV3.localConfigFile,
+              MetadataV3.configFile
+            )
+          : getLocalizedString(
+              "core.addApi.confirm.teamsYaml",
+              path.relative(inputs.projectPath, appPackageFolder),
+              MetadataV3.configFile
+            );
+      }
+    }
+
+    // confirm
+
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.addApi.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.addApi.continue")) {
+      return err(new UserCancelError());
+    }
+
+    // find the next available action id
+    let actionId = "";
+    let suffix = 1;
+    actionId = `action_${suffix}`;
+    const existingActionIds = declarativeCopilotManifest.actions?.map((action) => action.id);
+    while (existingActionIds?.includes(actionId)) {
+      suffix += 1;
+      actionId = `action_${suffix}`;
+    }
+
+    let destinationPluginManifestPath: string;
+    // generate files
+    if (isGenerateFromApiSpec && specParser) {
+      destinationPluginManifestPath = isKiotaIntegration
+        ? inputs[QuestionNames.ApiPluginManifestPath].trim()
+        : await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+            appPackageFolder,
+            undefined
+          );
+      const destinationApiSpecPath = isKiotaIntegration
+        ? inputs[QuestionNames.ApiSpecLocation].trim()
+        : await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+            inputs[QuestionNames.ApiSpecLocation].trim(),
+            path.join(appPackageFolder, DefaultApiSpecFolderName),
+            undefined
+          );
+
+      const generateRes = await generateFromApiSpec(
+        specParser,
+        teamsManifestPath,
+        inputs,
+        context,
+        Stage.addPlugin,
+        ProjectType.Copilot,
+        {
+          destinationApiSpecFilePath: destinationApiSpecPath,
+          pluginManifestFilePath: destinationPluginManifestPath,
+        }
+      );
+      if (generateRes.isErr()) {
+        return err(generateRes.error);
+      }
+
+      const warnings = generateRes.value.warnings;
+      if (warnings && warnings.length > 0) {
+        const warnSummary = await generateScaffoldingSummary(
+          warnings,
+          manifestRes.value,
+          path.relative(inputs.projectPath, destinationApiSpecPath),
+          path.relative(inputs.projectPath, destinationPluginManifestPath),
+          inputs.projectPath
+        );
+        context.logProvider.info(warnSummary + "\n");
+      }
+
+      const addActionRes = await copilotGptManifestUtils.addAction(
+        declarativeCopilotManifestPath,
+        actionId,
+        normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
+      );
+      if (addActionRes.isErr()) {
+        return err(addActionRes.error);
+      }
+
+      for (const authNameAndScheme of authNameAndSchemes) {
+        await this.updateAuthActionInYaml(
+          authNameAndScheme.authName,
+          authNameAndScheme.authScheme,
+          inputs.projectPath,
+          destinationApiSpecPath,
+          destinationPluginManifestPath
+        );
+      }
+    } else {
+      const addPluginRes = await addExistingPlugin(
+        declarativeCopilotManifestPath,
+        inputs[QuestionNames.PluginManifestFilePath].trim(),
+        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
+        actionId,
+        context,
+        Stage.addPlugin
+      );
+
+      if (addPluginRes.isErr()) {
+        return err(addPluginRes.error);
+      }
+      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
+      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
+      context.logProvider.info(warningMessage);
+    }
+
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addPlugin.success.vsc", actionId);
+      const viewPluginManifest = getLocalizedString("core.addPlugin.success.viewPluginManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewPluginManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewPluginManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewPluginManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString(
+        "core.addPlugin.success",
+        actionId,
+        destinationPluginManifestPath
+      );
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
+    return ok(undefined);
+  }
+
+  /**
    * Kiota regenerate
    * Need to update da manifest and update teamsapp.yml
    */
