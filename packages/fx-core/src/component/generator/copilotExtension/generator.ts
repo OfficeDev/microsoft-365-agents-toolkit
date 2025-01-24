@@ -19,7 +19,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import path from "path";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import {
   ApiAuthOptions,
   ApiPluginStartOptions,
