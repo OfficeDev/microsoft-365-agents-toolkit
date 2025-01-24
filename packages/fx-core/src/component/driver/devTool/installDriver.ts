@@ -4,10 +4,14 @@
 /**
  * @author Xiaofu Huang <xiaofhua@microsoft.com>
  */
+import { hooks } from "@feathersjs/hooks/lib";
+import { FxError, Result } from "@microsoft/teamsfx-api";
 import * as path from "path";
 import semver from "semver";
 import { Service } from "typedi";
-import { FxError, Result } from "@microsoft/teamsfx-api";
+import { ErrorContextMW } from "../../../common/globalVars";
+import { getLocalizedString } from "../../../common/localizeUtils";
+import { InvalidActionInputError } from "../../../error/common";
 import {
   DependencyStatus,
   EmptyLogger,
@@ -15,10 +19,14 @@ import {
   TestToolReleaseType,
   v3DefaultHelpLink,
 } from "../../deps-checker";
+import { DotnetChecker } from "../../deps-checker/internal/dotnetChecker";
+import { FuncToolChecker } from "../../deps-checker/internal/funcToolChecker";
+import { TestToolChecker } from "../../deps-checker/internal/testToolChecker";
 import { LocalCertificate, LocalCertificateManager } from "../../local/localCertificateManager";
 import { wrapRun } from "../../utils/common";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
+import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { WrapDriverContext } from "../util/wrapUtil";
 import {
   Summaries,
@@ -29,16 +37,8 @@ import {
 } from "./constant";
 import { DotnetInstallationUserError } from "./error/dotnetInstallationUserError";
 import { FuncInstallationUserError } from "./error/funcInstallationUserError";
-import { InstallToolArgs } from "./interfaces/InstallToolArgs";
-import { InvalidActionInputError } from "../../../error/common";
-import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
-import { hooks } from "@feathersjs/hooks/lib";
-import { getLocalizedString } from "../../../common/localizeUtils";
-import { FuncToolChecker } from "../../deps-checker/internal/funcToolChecker";
-import { DotnetChecker } from "../../deps-checker/internal/dotnetChecker";
-import { ErrorContextMW } from "../../../common/globalVars";
-import { TestToolChecker } from "../../deps-checker/internal/testToolChecker";
 import { TestToolInstallationUserError } from "./error/testToolInstallationUserError";
+import { InstallToolArgs } from "./interfaces/InstallToolArgs";
 
 const ACTION_NAME = "devTool/install";
 const helpLink = "https://aka.ms/teamsfx-actions/devtool-install";
@@ -127,8 +127,9 @@ export class ToolsInstallDriverImpl {
 
     if (args.testTool) {
       await this.resolveTestTool(
-        // Hardcode to npm release type if running from YAML
-        TestToolReleaseType.Npm,
+        args.testTool.releaseType == TestToolReleaseType.Binary
+          ? TestToolReleaseType.Binary
+          : TestToolReleaseType.Npm,
         `${args.testTool.version}`,
         args.testTool.symlinkDir
       );
@@ -328,6 +329,13 @@ export class ToolsInstallDriverImpl {
       }
       if (typeof args.testTool.symlinkDir !== "string") {
         throw new InvalidActionInputError(ACTION_NAME, ["testTool.symlinkDir"], helpLink);
+      }
+      if (
+        args.testTool.releaseType &&
+        args.testTool.releaseType !== TestToolReleaseType.Binary &&
+        args.testTool.releaseType !== TestToolReleaseType.Npm
+      ) {
+        throw new InvalidActionInputError(ACTION_NAME, ["testTool.releaseType"], helpLink);
       }
     }
   }
