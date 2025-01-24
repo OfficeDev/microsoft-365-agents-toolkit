@@ -483,7 +483,7 @@ export class NotificationBotOptions {
 export class DACapabilityOptions {
   static noPlugin(): OptionItem {
     return {
-      id: "da-without-plugin",
+      id: "no",
       label: getLocalizedString("core.createProjectQuestion.noPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.noPlugin.detail"),
       data: TemplateNames.BasicGpt,
@@ -491,7 +491,7 @@ export class DACapabilityOptions {
   }
   static withPlugin(): OptionItem {
     return {
-      id: "da-with-plugin",
+      id: "yes",
       label: getLocalizedString("core.createProjectQuestion.addPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
     };

@@ -31,6 +31,7 @@ import { envUtil } from "../../utils/envUtil";
 import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { HelperMethods } from "./helperMethods";
+import { TemplateNames } from "../../../question/templates";
 
 /**
  * case 1: project-type=office-xml-addin-type AND addin-host=outlook
@@ -122,8 +123,12 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
 
   // activation condition
   public activate(context: Context, inputs: Inputs): boolean {
-    const projectType = inputs[QuestionNames.ProjectType];
-    return ProjectTypeOptions.officeAddinAllIds().includes(projectType);
+    const templateName = inputs[QuestionNames.TemplateName];
+    return [
+      TemplateNames.OutlookTaskpane,
+      TemplateNames.WXPTaskpane,
+      TemplateNames.OfficeAddinCommon,
+    ].includes(templateName);
   }
 
   public async getTemplateInfos(
@@ -132,22 +137,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<TemplateInfo[], FxError>> {
-    const projectType = inputs[QuestionNames.ProjectType];
-    const capability = inputs[QuestionNames.Capabilities];
-    let templateName;
-    if (projectType === ProjectTypeOptions.officeMetaOS().id) {
-      if (capability === CapabilityOptions.officeAddinImport().id) {
-        templateName = "office-addin-config";
-      } else {
-        templateName = "office-addin-wxpo-taskpane";
-      }
-    } else {
-      if (capability === CapabilityOptions.outlookAddinImport().id) {
-        templateName = "office-addin-config";
-      } else {
-        templateName = "office-addin-outlook-taskpane";
-      }
-    }
+    const templateName = inputs[QuestionNames.TemplateName];
     const res = await OfficeAddinGenerator.doScaffolding(context, inputs, destinationPath);
     if (res.isErr()) return err(res.error);
     return Promise.resolve(

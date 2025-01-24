@@ -56,7 +56,7 @@ export enum TemplateNames {
   DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec",
   OutlookTaskpane = "office-addin-outlook-taskpane",
   WXPTaskpane = "office-addin-wxp-taskpane",
-  OfficeAddinCommon = "office-addin-common",
+  OfficeAddinCommon = "office-addin-config",
 }
 
 export const Templates: Template[] = [

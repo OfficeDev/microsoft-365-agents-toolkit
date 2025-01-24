@@ -422,8 +422,8 @@ async function updateExports(filePath: string, exportStatement: string) {
 }
 
 async function batchGenerate() {
-  await generateCliOptions(questionNodes.createProject(), "CreateProject");
-  await generateInputs(questionNodes.createProject(), "CreateProject");
+  // await generateCliOptions(questionNodes.createProject(), "CreateProject");
+  // await generateInputs(questionNodes.createProject(), "CreateProject");
 
   await generateCliOptions(questionNodes.createSampleProject(), "CreateSampleProject");
   await generateInputs(questionNodes.createSampleProject(), "CreateSampleProject");
