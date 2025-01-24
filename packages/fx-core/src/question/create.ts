@@ -81,7 +81,6 @@ import {
   capabilitiesHavePythonOption,
   getRuntime,
 } from "./constants";
-import { all } from "axios";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
