@@ -233,8 +233,8 @@ export function botTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode
       cliDescription: "Specifies the trigger for `Chat Notification Message` app template.",
       staticOptions: [
         platform === Platform.VS
-          ? NotificationBotOptions.appService()
-          : NotificationBotOptions.appServiceForVS(),
+          ? NotificationBotOptions.appServiceForVS()
+          : NotificationBotOptions.appService(),
         NotificationBotOptions.functionsHttpAndTimerTrigger(),
         NotificationBotOptions.functionsHttpTrigger(),
         NotificationBotOptions.functionsTimerTrigger(),

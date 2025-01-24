@@ -20,7 +20,7 @@ export interface CreateProjectInputs extends Inputs {
     | "me-type"
     | "outlook-addin-type";
   /** @description Create Declarative Agent */
-  "with-plugin"?: "da-without-plugin" | "da-with-plugin";
+  "with-plugin"?: "no" | "yes";
   /** @description Create API Plugin */
   "api-plugin-type"?: "new-api" | "api-spec" | "existing-plugin";
   /** @description Authentication Type */

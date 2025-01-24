@@ -29,7 +29,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     name: "with-plugin",
     type: "string",
     description: "Whether to add API plugin for your declarative Copilot.",
-    choices: ["da-without-plugin", "da-with-plugin"],
+    choices: ["no", "yes"],
   },
   {
     name: "api-plugin-type",
@@ -181,9 +181,9 @@ export const CreateProjectOptions: CLICommandOption[] = [
   {
     name: "folder",
     type: "string",
-    description: "Workspace Folder",
+    description: "Directory where the project folder will be created in.",
     required: true,
-    default: "C:\\Users\\nintan\\TeamsApps",
+    default: "./",
   },
   {
     name: "app-name",

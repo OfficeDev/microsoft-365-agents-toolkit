@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
+import { CLIPlatforms, Inputs, IQTreeNode, Platform } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
 import * as os from "os";
@@ -72,8 +72,12 @@ export function folderNode(): IQTreeNode {
       type: "folder",
       name: QuestionNames.Folder,
       title: getLocalizedString("core.question.workspaceFolder.title"),
+      cliDescription: "Directory where the project folder will be created in.",
       placeholder: getLocalizedString("core.question.workspaceFolder.placeholder"),
-      default: path.join(os.homedir(), ConstantString.RootFolder),
+      default: (inputs: Inputs) =>
+        CLIPlatforms.includes(inputs.platform)
+          ? "./"
+          : path.join(os.homedir(), ConstantString.RootFolder),
     },
   };
 }
