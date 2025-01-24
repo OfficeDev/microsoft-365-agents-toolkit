@@ -46,7 +46,9 @@ import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
-import { VSCodeExtensionCommand, AppStudioScopes } from "../common/constants";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -67,8 +69,8 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, telemetryUtils } from "../common/telemetry";
+import { generateDriverContext } from "../common/utils";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
-import { ActionInjector } from "../component/configManager/actionInjector";
 import { ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
 import {
@@ -80,6 +82,7 @@ import {
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
+import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
@@ -90,10 +93,12 @@ import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
 import { CreateAppPackageArgs } from "../component/driver/teamsApp/interfaces/CreateAppPackageArgs";
+import { SyncManifestArgs } from "../component/driver/teamsApp/interfaces/SyncManifest";
 import { ValidateAppPackageArgs } from "../component/driver/teamsApp/interfaces/ValidateAppPackageArgs";
 import { ValidateManifestArgs } from "../component/driver/teamsApp/interfaces/ValidateManifestArgs";
 import { ValidateWithTestCasesArgs } from "../component/driver/teamsApp/interfaces/ValidateWithTestCasesArgs";
 import { AppStudioResultFactory } from "../component/driver/teamsApp/results";
+import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
@@ -118,7 +123,10 @@ import {
   listOperations,
   listPluginExistingOperations,
 } from "../component/generator/apiSpec/helper";
+import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
+import { PackageService } from "../component/m365/packageService";
+import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -134,7 +142,6 @@ import {
   InputValidationError,
   InvalidProjectError,
   MissingRequiredInputError,
-  MultipleAuthError,
   MultipleServerError,
   UnhandledError,
   UserCancelError,
@@ -142,6 +149,7 @@ import {
 } from "../error/common";
 import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
+import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
   ApiPluginStartOptions,
   AppNamePattern,
@@ -169,18 +177,8 @@ import {
   getTrackingIdFromPath,
   getVersionState,
 } from "./middleware/utils/v3MigrationUtils";
-import { CoreTelemetryComponentName, CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
+import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { SyncManifestInputs, UninstallInputs } from "../question";
-import { PackageService } from "../component/m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
-import { SyncManifestArgs } from "../component/driver/teamsApp/interfaces/SyncManifest";
-import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
-import { generateDriverContext } from "../common/utils";
-import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
-import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
-import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 
 export class FxCore {
   constructor(tools: Tools) {

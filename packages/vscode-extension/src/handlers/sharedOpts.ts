@@ -51,6 +51,16 @@ export async function runCommand(
         }
         break;
       }
+      case Stage.createTdp: {
+        inputs.projectId = inputs.projectId ?? uuid.v4();
+        const tmpResult = await core.createProjectFromTdp(inputs);
+        if (tmpResult.isErr()) {
+          result = err(tmpResult.error);
+        } else {
+          result = ok(tmpResult.value);
+        }
+        break;
+      }
       case Stage.provision: {
         result = await core.provisionResources(inputs);
         if (inputs.env === "local" && result.isErr()) {

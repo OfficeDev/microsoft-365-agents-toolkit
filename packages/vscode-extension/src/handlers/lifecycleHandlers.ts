@@ -48,16 +48,18 @@ import * as stringUtil from "util";
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
   let inputs: Inputs | undefined;
+  let stage = Stage.create;
   if (args?.length === 1) {
     if (!!args[0].teamsAppFromTdp) {
       inputs = getSystemInputs();
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
+      stage = Stage.createTdp;
     }
   } else if (args?.length === 2) {
     // from copilot chat
     inputs = { ...getSystemInputs(), ...args[1] };
   }
-  const result = await runCommand(Stage.create, inputs);
+  const result = await runCommand(stage, inputs);
   if (result.isErr()) {
     return err(result.error);
   }
