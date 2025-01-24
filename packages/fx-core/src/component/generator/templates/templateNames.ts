@@ -15,18 +15,14 @@ import {
 export enum TemplateNames {
   Empty = "empty",
   Tab = "non-sso-tab",
-  SsoTab = "sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
   TabSSR = "non-sso-tab-ssr",
   SsoTabSSR = "sso-tab-ssr",
   DashboardTab = "dashboard-tab",
   NotificationExpress = "notification-express",
   NotificationWebApi = "notification-webapi",
-  NotificationHttpTriggerIsolated = "notification-http-trigger-isolated",
   NotificationHttpTrigger = "notification-http-trigger",
-  NotificationTimerTriggerIsolated = "notification-timer-trigger-isolated",
   NotificationTimerTrigger = "notification-timer-trigger",
-  NotificationHttpTimerTriggerIsolated = "notification-http-timer-trigger-isolated",
   NotificationHttpTimerTrigger = "notification-http-timer-trigger",
   CommandAndResponse = "command-and-response",
   Workflow = "workflow",
@@ -34,7 +30,6 @@ export enum TemplateNames {
   MessageExtension = "message-extension",
   MessageExtensionAction = "message-extension-action",
   MessageExtensionSearch = "message-extension-search",
-  MessageExtensionCopilot = "message-extension-copilot",
   M365MessageExtension = "m365-message-extension",
   TabAndDefaultBot = "non-sso-tab-default-bot",
   BotAndMessageExtension = "default-bot-message-extension",
@@ -62,7 +57,6 @@ export enum TemplateNames {
 export const Feature2TemplateName = {
   [`${CapabilityOptions.empty().id}:undefined`]: TemplateNames.Empty,
   [`${CapabilityOptions.nonSsoTab().id}:undefined`]: TemplateNames.Tab,
-  [`${CapabilityOptions.tab().id}:undefined`]: TemplateNames.SsoTab,
   [`${CapabilityOptions.m365SsoLaunchPage().id}:undefined`]: TemplateNames.SsoTabObo,
   [`${CapabilityOptions.nonSsoTab().id}:ssr`]: TemplateNames.TabSSR,
   [`${CapabilityOptions.tab().id}:ssr`]: TemplateNames.SsoTabSSR,
@@ -75,28 +69,17 @@ export const Feature2TemplateName = {
     NotificationTriggerOptions.functionsHttpTrigger().id
   }`]: TemplateNames.NotificationHttpTrigger,
   [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpTriggerIsolated().id
-  }`]: TemplateNames.NotificationHttpTriggerIsolated,
-  [`${CapabilityOptions.notificationBot().id}:${
     NotificationTriggerOptions.functionsTimerTrigger().id
   }`]: TemplateNames.NotificationTimerTrigger,
   [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsTimerTriggerIsolated().id
-  }`]: TemplateNames.NotificationTimerTriggerIsolated,
-  [`${CapabilityOptions.notificationBot().id}:${
     NotificationTriggerOptions.functionsHttpAndTimerTrigger().id
   }`]: TemplateNames.NotificationHttpTimerTrigger,
-  [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpAndTimerTriggerIsolated().id
-  }`]: TemplateNames.NotificationHttpTimerTriggerIsolated,
   [`${CapabilityOptions.commandBot().id}:undefined`]: TemplateNames.CommandAndResponse,
   [`${CapabilityOptions.workflowBot().id}:undefined`]: TemplateNames.Workflow,
   [`${CapabilityOptions.basicBot().id}:undefined`]: TemplateNames.DefaultBot,
   [`${CapabilityOptions.me().id}:undefined`]: TemplateNames.MessageExtension,
   [`${CapabilityOptions.collectFormMe().id}:undefined`]: TemplateNames.MessageExtensionAction,
   [`${CapabilityOptions.SearchMe().id}:undefined`]: TemplateNames.MessageExtensionSearch,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.botPlugin().id}`]:
-    TemplateNames.MessageExtensionCopilot,
   [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.botMe().id}`]:
     TemplateNames.M365MessageExtension,
   [`${CapabilityOptions.nonSsoTabAndBot().id}:undefined`]: TemplateNames.TabAndDefaultBot,
@@ -154,7 +137,6 @@ export function getTemplateName(inputs: Inputs): TemplateNames {
 export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = new Map([
   [{ [QuestionNames.Capabilities]: CapabilityOptions.empty().id }, TemplateNames.Empty],
   [{ [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id }, TemplateNames.Tab],
-  [{ [QuestionNames.Capabilities]: CapabilityOptions.tab().id }, TemplateNames.SsoTab],
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.m365SsoLaunchPage().id },
     TemplateNames.SsoTabObo,
@@ -180,15 +162,6 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   ],
   [
     {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationHttpTriggerIsolated,
-  ],
-  [
-    {
       [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
       [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpTrigger().id,
     },
@@ -196,28 +169,10 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   ],
   [
     {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsTimerTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationTimerTriggerIsolated,
-  ],
-  [
-    {
       [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
       [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsTimerTrigger().id,
     },
     TemplateNames.NotificationTimerTrigger,
-  ],
-  [
-    {
-      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-      [QuestionNames.Capabilities]: CapabilityOptions.notificationBot().id,
-      [QuestionNames.BotTrigger]: NotificationTriggerOptions.functionsHttpAndTimerTrigger().id,
-      ["isIsolated"]: true,
-    },
-    TemplateNames.NotificationHttpTimerTriggerIsolated,
   ],
   [
     {
@@ -240,13 +195,6 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.SearchMe().id },
     TemplateNames.MessageExtensionSearch,
-  ],
-  [
-    {
-      [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
-      [QuestionNames.MeArchitectureType]: MeArchitectureOptions.botPlugin().id,
-    },
-    TemplateNames.MessageExtensionCopilot,
   ],
   [
     {

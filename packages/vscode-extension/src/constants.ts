@@ -64,8 +64,7 @@ export enum CommandKey {
 
 export const environmentVariableRegex = /\${{[a-zA-Z-_]+}}/g;
 
-export const PublishAppLearnMoreLink =
-  "https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-publish-overview";
+export const PublishAppLearnMoreLink = "https://aka.ms/teamsfx-publish";
 
 export const DeveloperPortalHomeLink = "https://dev.teams.microsoft.com/home";
 

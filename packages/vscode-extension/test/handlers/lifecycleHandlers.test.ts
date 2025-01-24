@@ -14,6 +14,7 @@ import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
 import {
+  addAuthActionHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -586,6 +587,28 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(executeCommand.calledOnce);
       assert.isTrue(logError.notCalled);
       mockedEnvRestore();
+    });
+  });
+
+  describe("AddAuthActionHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .callsFake((title: string, ...items: any[]) => {
+          return Promise.resolve(items[0]);
+        });
+      const addAuthAction = sandbox.spy(globalVariables.core, "addAuthAction");
+      const provisionction = sandbox.spy(globalVariables.core, "provisionResources");
+      await addAuthActionHandler();
+      sandbox.assert.calledOnce(addAuthAction);
+      sandbox.assert.calledOnce(provisionction);
     });
   });
 });

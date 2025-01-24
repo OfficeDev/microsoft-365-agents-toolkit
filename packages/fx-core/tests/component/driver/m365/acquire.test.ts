@@ -143,7 +143,9 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon.stub(PackageService.prototype, "sideLoading").resolves(["test-title-id", "test-app-id"]);
+    sinon
+      .stub(PackageService.prototype, "sideLoading")
+      .resolves(["test-title-id", "test-app-id", ""]);
     sinon.stub(fs, "pathExists").resolves(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);

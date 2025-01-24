@@ -208,7 +208,7 @@ export class LocalDebugTestContext extends TestContext {
       case "msgsa":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot-plugin --programming-language ${this.lang} --telemetry false`
+          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabbot":
@@ -315,7 +315,7 @@ export class LocalDebugTestContext extends TestContext {
       case "msgapikey":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth api-key --programming-language ${this.lang} --telemetry false`
+          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth bearer-token --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgmicroentra":

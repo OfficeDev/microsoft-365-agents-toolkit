@@ -4,6 +4,7 @@
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
 import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
 import {
+  addAuthActionQuestion,
   addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
@@ -87,6 +88,9 @@ export class QuestionNodes {
   }
   kiotaRegenerate(): IQTreeNode {
     return kiotaRegenerateQuestion();
+  }
+  addAuthAction(): IQTreeNode {
+    return addAuthActionQuestion();
   }
 }
 

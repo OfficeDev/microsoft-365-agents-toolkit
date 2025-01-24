@@ -460,6 +460,9 @@ async function batchGenerate() {
 
   await generateCliOptions(questionNodes.syncManifest(), "SyncManifest");
   await generateInputs(questionNodes.syncManifest(), "SyncManifest");
+
+  await generateCliOptions(questionNodes.addAuthAction(), "AddAuthAction");
+  await generateInputs(questionNodes.addAuthAction(), "AddAuthAction");
 }
 
 void batchGenerate();

@@ -351,7 +351,7 @@ jobs:
     permissions:
       actions: write
     needs: tear-down
-    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx')) && failure() && github.run_attempt < 5 }}
+    if: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.cases == '') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx')) && failure() && github.run_attempt < 5 }}
     runs-on: ubuntu-latest
     steps:
       - name: rerun
@@ -413,13 +413,11 @@ jobs:
           passed_lists=""
           failed_lists=""
           skipped_lists=""
+          has_mos_api_failure=false
+          mos_api_failed_lists=""
 
           emails="teamsfxqa@microsoft.com;"
           while IFS= read -r case;
-
-          has_mos_api_failure=false
-          mos_api_failed_lists=""
-          
           do
             if [ -z "$case" ]; then
               continue

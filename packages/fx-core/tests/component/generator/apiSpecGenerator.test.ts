@@ -691,6 +691,39 @@ describe("injectAuthAction", async () => {
     assert.isUndefined(res);
     assert.isTrue(injectStub.calledOnce);
   });
+
+  it("api key auth from authType", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    // sandbox.stub(Utils, "isBearerTokenAuth").returns(true);
+    const injectStub = sandbox.stub(ActionInjector, "injectCreateAPIKeyAction").resolves(undefined);
+    const res = await injectAuthAction(
+      "oauth",
+      "test",
+      undefined,
+      "test",
+      false,
+      "ApiKeyPluginVault"
+    );
+
+    assert.isUndefined(res);
+    assert.isTrue(injectStub.calledTwice);
+  });
+
+  it("oauth auth from authType", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    const injectStub = sandbox.stub(ActionInjector, "injectCreateOAuthAction").resolves(undefined);
+    const res = await injectAuthAction(
+      "oauth",
+      "test",
+      undefined,
+      "test",
+      false,
+      "OAuth2PluginVault"
+    );
+
+    assert.isUndefined(res);
+    assert.isTrue(injectStub.calledTwice);
+  });
 });
 
 describe("listPluginExistingOperations", () => {
