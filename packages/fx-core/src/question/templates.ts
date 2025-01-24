@@ -89,12 +89,14 @@ const tabTemplates: Template[] = [
     name: TemplateNames.DashboardTab,
     language: "typescript",
     description: "Dashboard Tab App",
+    link: "https://aka.ms/teamsfx-dashboard-app",
   },
   {
     id: "dashboard-tab-js",
     name: TemplateNames.DashboardTab,
     language: "javascript",
     description: "Dashboard Tab App",
+    link: "https://aka.ms/teamsfx-dashboard-app",
   },
 ];
 
@@ -116,24 +118,28 @@ const basicBotTemplates: Template[] = [
     name: TemplateNames.Workflow,
     language: "typescript",
     description: "",
+    link: "https://aka.ms/teamsfx-workflow",
   },
   {
     id: "workflow-js",
     name: TemplateNames.Workflow,
     language: "javascript",
     description: "",
+    link: "https://aka.ms/teamsfx-workflow",
   },
   {
     id: "command-and-response-ts",
     name: TemplateNames.CommandAndResponse,
     language: "typescript",
     description: "",
+    link: "https://aka.ms/teamsfx-create-command",
   },
   {
     id: "command-and-response-js",
     name: TemplateNames.CommandAndResponse,
     language: "javascript",
     description: "",
+    link: "https://aka.ms/teamsfx-create-command",
   },
 ];
 
