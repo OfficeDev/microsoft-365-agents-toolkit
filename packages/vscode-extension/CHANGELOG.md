@@ -2,6 +2,13 @@
 
 > Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 5.12.1 - Jan 23, 2025
+
+Hotfix version.
+
+- Fixed an issue where the API Key and Secret is not using password style input. [#13081](https://github.com/OfficeDev/teams-toolkit/pull/13081)
+- Fixed an issue where creating a declartaive agent with an action using Microsoft Kiota might fail in some cases. [#13082](https://github.com/OfficeDev/teams-toolkit/pull/13082)
+
 ## 5.12.0 - Dec 17, 2024
 
 This update represents a minor version increment of the Teams Toolkit, introducing new features and addressing user-reported bugs. These incremental enhancements were previously documented in the prerelease version and a blog post: [Teams Toolkit for Visual Studio Code update – November 2024](https://devblogs.microsoft.com/microsoft365dev/teams-toolkit-for-visual-studio-code-update-november-2024/)
