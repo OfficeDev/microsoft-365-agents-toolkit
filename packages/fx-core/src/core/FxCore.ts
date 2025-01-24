@@ -206,20 +206,31 @@ export class FxCore {
       return ok({ projectPath: "", shouldInvokeTeamsAgent: true });
     }
     inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
-    if (inputs.teamsAppFromTdp) {
-      // should never happen as we do same check on Developer Portal.
-      if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
-        return err(
-          new InputValidationError("manifest.json", "Teams app contains unsupported features")
-        );
-      } else {
-        context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
-          [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
-            inputs.teamsAppFromTdp
-          ).join(","),
-          [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
-        });
-      }
+    const res = await coordinator.create(context, inputs);
+    inputs.projectPath = context.projectPath;
+    return res;
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "createProjectFromTdp", reset: true }),
+    ErrorHandlerMW,
+    QuestionMW("createFromTdp"),
+  ])
+  async createProjectFromTdp(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    const context = createContext();
+    inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
+    // should never happen as we do same check on Developer Portal.
+    if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
+      return err(
+        new InputValidationError("manifest.json", "Teams app contains unsupported features")
+      );
+    } else {
+      context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
+        [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
+          inputs.teamsAppFromTdp
+        ).join(","),
+        [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
+      });
     }
     const res = await coordinator.create(context, inputs);
     inputs.projectPath = context.projectPath;

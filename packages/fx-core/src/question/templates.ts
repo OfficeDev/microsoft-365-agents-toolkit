@@ -359,6 +359,33 @@ const customEngineAgentTemplates: Template[] = [
   },
 ];
 
+const tdpTemplates: Template[] = [
+  {
+    id: "non-sso-tab-default-bot-ts",
+    name: TemplateNames.TabAndDefaultBot,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "non-sso-tab-default-bot-js",
+    name: TemplateNames.TabAndDefaultBot,
+    language: "javascript",
+    description: "",
+  },
+  {
+    id: "default-bot-message-extension-ts",
+    name: TemplateNames.BotAndMessageExtension,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "default-bot-message-extension-js",
+    name: TemplateNames.BotAndMessageExtension,
+    language: "javascript",
+    description: "",
+  },
+];
+
 export const Templates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
@@ -366,4 +393,5 @@ export const Templates: Template[] = [
   ...messageExtensionTemplates,
   ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
+  ...tdpTemplates,
 ];

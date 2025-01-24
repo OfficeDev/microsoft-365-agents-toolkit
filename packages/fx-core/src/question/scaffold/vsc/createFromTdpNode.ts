@@ -2,20 +2,74 @@
 // Licensed under the MIT license.
 import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
-import { isPersonalApp, needBotCode } from "../../../component/driver/teamsApp/utils/utils";
+import {
+  isBot,
+  isBotAndBotBasedMessageExtension,
+  isBotBasedMessageExtension,
+  isPersonalApp,
+  needBotCode,
+  needTabAndBotCode,
+  needTabCode,
+} from "../../../component/driver/teamsApp/utils/utils";
 import { QuestionNames } from "../../constants";
 import {
   selectBotIdsQuestion,
   selectTabsContentUrlQuestion,
   selectTabWebsiteUrlQuestion,
 } from "../../create";
+import { appNameNode, folderNode, languageNode } from "./createRootNode";
+import { TemplateNames } from "../../templates";
 
 export class CreateFromTdpCapabilityOptions {}
+
+export function getTemplateName(teamsApp: AppDefinition): string | undefined {
+  // tab with bot, tab with message extension, tab with bot and message extension
+  if (needTabAndBotCode(teamsApp)) {
+    return TemplateNames.TabAndDefaultBot;
+  }
+
+  // tab only
+  if (needTabCode(teamsApp)) {
+    return TemplateNames.Tab;
+  }
+
+  // bot and message extension
+  if (isBotAndBotBasedMessageExtension(teamsApp)) {
+    return TemplateNames.BotAndMessageExtension;
+  }
+
+  // bot based message extension
+  if (isBotBasedMessageExtension(teamsApp)) {
+    return TemplateNames.MessageExtension;
+  }
+
+  // bot
+  if (isBot(teamsApp)) {
+    return TemplateNames.DefaultBot;
+  }
+
+  return undefined;
+}
 
 export function createFromTdpNode(): IQTreeNode {
   const node: IQTreeNode = {
     data: { type: "group" },
     children: [
+      {
+        condition: (inputs: Inputs) => inputs.teamsAppFromTdp !== undefined,
+        data: {
+          type: "singleSelect",
+          name: QuestionNames.TemplateName,
+          title: "Select a template",
+          staticOptions: [],
+          dynamicOptions: (inputs: Inputs) => {
+            const templateName = getTemplateName(inputs.teamsAppFromTdp as AppDefinition);
+            if (templateName) return [templateName];
+            return [];
+          },
+          skipSingleOption: true,
+        },
+      },
       {
         condition: (inputs: Inputs) =>
           inputs.teamsAppFromTdp && isPersonalApp(inputs.teamsAppFromTdp),
@@ -40,6 +94,9 @@ export function createFromTdpNode(): IQTreeNode {
           inputs.teamsAppFromTdp && needBotCode(inputs.teamsAppFromTdp as AppDefinition),
         data: selectBotIdsQuestion(),
       },
+      languageNode(),
+      folderNode(),
+      appNameNode(),
     ],
   };
   return node;
