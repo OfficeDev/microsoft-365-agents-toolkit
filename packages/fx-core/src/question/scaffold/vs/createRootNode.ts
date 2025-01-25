@@ -12,7 +12,6 @@ import {
   CustomCopilotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
-  TabCapabilityOptions,
 } from "../vsc/CapabilityOptions";
 import { appNameNode, folderNode, languageNode } from "../vsc/createRootNode";
 import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";

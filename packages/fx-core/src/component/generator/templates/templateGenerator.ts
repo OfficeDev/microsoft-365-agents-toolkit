@@ -55,16 +55,14 @@ export class DefaultTemplateGenerator implements IGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
-    const template = Templates.find((t) => t.name === inputs[QuestionNames.TemplateName]);
-    if (!template) {
-      return err(new SystemError("DefaultGenerator", "TemplateNotFound", "Template not found"));
+    const preResult = await this.getTemplateInfos(context, inputs, destinationPath, actionContext);
+    if (preResult.isErr()) return err(preResult.error);
+
+    const templateInfos = preResult.value;
+    for (const templateInfo of templateInfos) {
+      templateInfo.replaceMap = { ...getTemplateReplaceMap(inputs), ...templateInfo.replaceMap };
+      await this.scaffolding(context, templateInfo, destinationPath, actionContext);
     }
-    const templateInfo = {
-      templateName: template.name,
-      language: template.language,
-      replaceMap: { ...getTemplateReplaceMap(inputs) },
-    } as TemplateInfo;
-    await this.scaffolding(context, templateInfo, destinationPath, actionContext);
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);
     return postRes;

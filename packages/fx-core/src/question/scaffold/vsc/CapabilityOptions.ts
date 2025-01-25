@@ -290,6 +290,7 @@ export class MeArchitectureOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail"
       ),
+      data: TemplateNames.ApiPluginExistingApi,
     };
   }
 }

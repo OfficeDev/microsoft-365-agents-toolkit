@@ -4,7 +4,7 @@
 export interface Template {
   id: string;
   name: string;
-  language: "typescript" | "javascript" | "csharp" | "python" | "none";
+  language: "typescript" | "javascript" | "csharp" | "python" | "none" | "common";
   description: string;
   link?: string;
 }
@@ -57,6 +57,8 @@ export enum TemplateNames {
   OutlookTaskpane = "office-addin-outlook-taskpane",
   WXPTaskpane = "office-addin-wxp-taskpane",
   OfficeAddinCommon = "office-addin-config",
+  ApiPluginExistingApi = "api-plugin-existing-api",
+  CopilotPluginExistingApi = "copilot-plugin-existing-api",
 }
 
 const tabTemplates: Template[] = [
@@ -267,6 +269,12 @@ const messageExtensionTemplates: Template[] = [
     language: "javascript",
     description: "",
   },
+  {
+    id: "api-plugin-existing-api",
+    name: TemplateNames.ApiPluginExistingApi,
+    language: "common",
+    description: "",
+  },
 ];
 
 const copilotPluginTemplates: Template[] = [
@@ -296,7 +304,7 @@ const copilotPluginTemplates: Template[] = [
   },
 ];
 
-const customEngineAgentTemplates: Template[] = [
+export const customEngineAgentTemplates: Template[] = [
   {
     id: "custom-copilot-basic-ts",
     name: TemplateNames.CustomCopilotBasic,
@@ -405,5 +413,6 @@ export const Templates: Template[] = [
   ...messageExtensionTemplates,
   ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
-  ...tdpTemplates,
 ];
+
+export const TdpTemplates: Template[] = [...tdpTemplates];

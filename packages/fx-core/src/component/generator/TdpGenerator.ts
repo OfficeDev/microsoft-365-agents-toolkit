@@ -33,7 +33,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
     if (!templateName) {
       return err(
-        new InputValidationError("teamsAppFromTdp", "Invalid App Manifest", "TdpGenerator")
+        new InputValidationError("teamsAppFromTdp", "Invalid App Definition", "TdpGenerator")
       );
     }
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;

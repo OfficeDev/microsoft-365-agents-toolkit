@@ -303,7 +303,11 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     //   (capability === CapabilityOptions.customCopilotRag().id &&
     //     inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id)
     // );
-    return inputs[QuestionNames.TemplateName] === TemplateNames.DeclarativeAgentWithApiSpec;
+    return [
+      TemplateNames.CustomCopilotRagCustomApi,
+      TemplateNames.ApiPluginExistingApi,
+      TemplateNames.CopilotPluginExistingApi,
+    ].includes(inputs[QuestionNames.TemplateName]);
   }
 
   getTemplateName(inputs: Inputs): string {
@@ -325,7 +329,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     //   templateName = forCustomCopilotRagCustomApi;
     // }
     // return templateName;
-    return apiPluginFromApiSpecTemplateName;
+    return inputs[QuestionNames.TemplateName];
   }
 
   public async getTemplateInfos(

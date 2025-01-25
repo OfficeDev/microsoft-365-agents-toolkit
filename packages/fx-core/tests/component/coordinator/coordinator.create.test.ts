@@ -14,7 +14,6 @@ import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
-import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
@@ -35,6 +34,7 @@ import { MockedUserInteraction } from "../../plugins/solution/util";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import { TemplateNames } from "../../../src/question/templates";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -256,8 +256,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-type",
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
       };
@@ -295,8 +294,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.bot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+        [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
         [QuestionNames.ReplaceBotIds]: ["bot"],
         teamsAppFromTdp: appDefinition,
       };
@@ -346,8 +344,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-bot-type",
-        [QuestionNames.Capabilities]: "TabNonSsoAndBot",
+        [QuestionNames.TemplateName]: TemplateNames.TabAndDefaultBot,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
         [QuestionNames.ReplaceBotIds]: ["bot"],
@@ -389,8 +386,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-bot-type",
-        [QuestionNames.Capabilities]: "TabNonSsoAndBot",
+        [QuestionNames.TemplateName]: TemplateNames.TabAndDefaultBot,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
         [QuestionNames.ReplaceBotIds]: ["messageExtension"],
@@ -438,8 +434,7 @@ describe("coordinator create", () => {
         teamsAppFromTdp: appDefinition,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
       };
       const fxCore = new FxCore(tools);
       const res = await fxCore.createProject(inputs);
@@ -453,8 +448,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
+        [QuestionNames.TemplateName]: TemplateNames.CopilotPluginFromScratch,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -472,8 +466,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
+        [QuestionNames.TemplateName]: TemplateNames.CopilotPluginFromScratchApiKey,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -493,8 +486,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginExistingApi,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
@@ -504,6 +496,8 @@ describe("coordinator create", () => {
     });
 
     it("create non-sso tab from .NET 8", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VS,
         folder: ".",
@@ -511,17 +505,17 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "csharp",
         [QuestionNames.SafeProjectName]: "safeprojectname",
         ["targetFramework"]: "net8.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.TabSSR,
       };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
       assert.equal(generator.args[0][1].templateName, TemplateNames.TabSSR);
     });
 
     it("create sso tab from .NET 8", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VS,
         folder: ".",
@@ -529,25 +523,24 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "csharp",
         [QuestionNames.SafeProjectName]: "safeprojectname",
         ["targetFramework"]: "net8.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.TemplateName]: TemplateNames.SsoTabSSR,
       };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
       assert.equal(generator.args[0][1].templateName, TemplateNames.SsoTabSSR);
     });
 
     it("create custom copilot rag custom api success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -557,22 +550,22 @@ describe("coordinator create", () => {
       sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
       assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotRagCustomApi);
     });
 
     it("create custom copilot rag custom api with azure open ai success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -584,22 +577,22 @@ describe("coordinator create", () => {
       sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
       assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotRagCustomApi);
     });
 
     it("create custom agent api with azure open ai success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotAssistant().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
         [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -610,22 +603,22 @@ describe("coordinator create", () => {
       sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
       assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotAssistantNew);
     });
 
     it("create custom copilot rag custom api failed", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -657,6 +650,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -676,6 +670,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchBearer,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -695,6 +690,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchOAuth,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -711,6 +707,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddin().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.OutlookTaskpane,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -732,6 +729,7 @@ describe("coordinator create", () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
