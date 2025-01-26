@@ -1,33 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import {
-  ConditionFunc,
-  FuncValidation,
-  Inputs,
-  Platform,
-  TextInputQuestion,
-} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
-import { environmentNameManager } from "../../src/core/environmentName";
-import { QuestionNames } from "../../src/question/constants";
-import {
-  addAuthActionQuestion,
-  apiFromPluginManifestQuestion,
-  apiSpecFromPluginManifestQuestion,
-  kiotaRegenerateQuestion,
-  selectTargetEnvQuestion,
-} from "../../src/question/other";
-import * as sinon from "sinon";
-import fs from "fs-extra";
-import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
-import { ConfigurableTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/configurableTab";
-import { CommandScope, MeetingsContext } from "../../src/component/driver/teamsApp/utils/utils";
-import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
-import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
-import { getTemplateName } from "../../src/question/scaffold/vsc/createFromTdpNode";
+import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
+import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
+import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import {
+  createFromTdpNode,
+  getTemplateName,
+} from "../../src/question/scaffold/vsc/createFromTdpNode";
 import { TemplateNames } from "../../src/question/templates";
+import { scaffoldQuestionForVSCode } from "../../src/question/scaffold/vsc/createRootNode";
+
+describe("vsc", () => {
+  it("scaffoldQuestionForVSCode", () => {
+    const root = scaffoldQuestionForVSCode();
+    assert.isDefined(root);
+  });
+  it("createFromTdpNode", () => {
+    const root = createFromTdpNode();
+    assert.isDefined(root);
+  });
+});
 
 describe("getTemplateName", () => {
   const validBot: Bot = {
@@ -41,16 +36,6 @@ describe("getTemplateName", () => {
     teamCommands: [{ title: "title", description: "description" }],
     groupChatCommands: [{ title: "title", description: "description" }],
     scopes: ["scope"],
-  };
-
-  const validConfigurableTabForTabCode: ConfigurableTab = {
-    objectId: "objId",
-    configurationUrl: "https://url",
-    canUpdateConfiguration: false,
-    scopes: [CommandScope.GroupChat],
-    context: [MeetingsContext.ChannelTab],
-    sharePointPreviewImage: "img",
-    supportedSharePointHosts: [],
   };
 
   const validStaticTab: StaticTab = {
@@ -79,7 +64,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.equal(res, TemplateNames.TabAndDefaultBot);
+    assert.equal(res, TemplateNames.TabAndDefaultBot);
   });
 
   it("return TabNonSso", () => {
@@ -89,7 +74,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.equal(res, TemplateNames.Tab);
+    assert.equal(res, TemplateNames.Tab);
   });
 
   it("return DefaultBotAndMessageExtension", () => {
@@ -100,7 +85,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.equal(res, TemplateNames.BotAndMessageExtension);
+    assert.equal(res, TemplateNames.BotAndMessageExtension);
   });
 
   it("return MessageExtension", () => {
@@ -110,7 +95,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.equal(res, TemplateNames.MessageExtension);
+    assert.equal(res, TemplateNames.MessageExtension);
   });
 
   it("return bot", () => {
@@ -120,7 +105,7 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.equal(res, TemplateNames.DefaultBot);
+    assert.equal(res, TemplateNames.DefaultBot);
   });
 
   it("return undefined", () => {
@@ -129,6 +114,6 @@ describe("getTemplateName", () => {
     };
 
     const res = getTemplateName(appDefinition);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 });

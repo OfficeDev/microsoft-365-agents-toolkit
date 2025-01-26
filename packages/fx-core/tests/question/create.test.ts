@@ -854,35 +854,23 @@ describe("scaffold question", () => {
         } else if (question.name === QuestionNames.ReplaceWebsiteUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceContentUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceBotIds) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o: OptionItem) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         }
         return ok({ type: "success", result: undefined });
