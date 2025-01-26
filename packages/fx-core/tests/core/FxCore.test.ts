@@ -118,6 +118,8 @@ import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
 import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { TemplateNames } from "../../src/question/templates";
 
 const tools = new MockTools();
 
@@ -726,8 +728,10 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
+        [QuestionNames.ProjectType]: ProjectTypeOptions.tabOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,
         projectPath: path.join(os.tmpdir(), appName, "samples-v3"),
       };
