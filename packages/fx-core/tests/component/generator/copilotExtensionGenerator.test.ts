@@ -57,18 +57,21 @@ describe("copilotExtension", async () => {
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.microsoftEntra().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
