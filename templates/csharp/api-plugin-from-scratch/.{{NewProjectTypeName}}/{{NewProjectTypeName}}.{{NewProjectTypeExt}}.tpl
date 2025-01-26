@@ -2,6 +2,11 @@
 <Project ToolsVersion="15.0" Sdk="Microsoft.TeamsFx.Sdk">
   <ItemGroup>
     <ProjectCapability Include="ProjectConfigurationsDeclaredDimensions" />
-    <ProjectCapability Include="ApiPlugin" />
+    {{#DeclarativeCopilot}}
+      <ProjectCapability Include="DeclarativeAgent" />
+    {{/DeclarativeCopilot}}
+    {{^DeclarativeCopilot}}
+      <ProjectCapability Include="ApiPlugin" />
+    {{/DeclarativeCopilot}}
   </ItemGroup>
 </Project>
