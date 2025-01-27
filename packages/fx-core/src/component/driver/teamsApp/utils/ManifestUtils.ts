@@ -3,6 +3,7 @@
 import { hooks } from "@feathersjs/hooks";
 import {
   FxError,
+  IBot,
   IComposeExtension,
   IMessagingExtensionCommand,
   InputsWithProjectPath,
@@ -53,6 +54,7 @@ import {
 import { AppStudioError } from "../errors";
 import { AppStudioResultFactory } from "../results";
 import { getResolvedManifest } from "./utils";
+import { loadStateFromEnv } from "../../util/utils";
 
 export class ManifestUtils {
   async readAppManifest(projectPath: string): Promise<Result<TeamsAppManifest, FxError>> {
@@ -360,6 +362,7 @@ export class ManifestUtils {
       return err(manifestRes.error);
     }
     let manifest: TeamsAppManifest = manifestRes.value;
+    manifest = this.addBotCapabilityIfNeeded(manifest);
 
     let teamsAppId = "";
     if (generateIdIfNotResolved) {
@@ -477,6 +480,45 @@ export class ManifestUtils {
     const contentV2 = convertManifestTemplateToV2(content);
     await fs.writeFile(manifestPath, contentV2);
     return ok(undefined);
+  }
+
+  /**
+   * Add bot capability to manifest if meet the following conditions:
+   * 1. manifest is a declarative agent
+   * 2. .env.dev has BOT_ID and AGENT_ID
+   * @param manifest
+   * @returns
+   */
+  private addBotCapabilityIfNeeded(manifest: TeamsAppManifest): TeamsAppManifest {
+    if (manifest.bots && manifest.bots.length > 0) {
+      return manifest;
+    }
+
+    const isDeclarativeAgent =
+      manifest.copilotAgents?.declarativeAgents &&
+      manifest.copilotAgents.declarativeAgents.length > 0;
+    if (!isDeclarativeAgent) {
+      return manifest;
+    }
+
+    const outputNames = {
+      agentId: "AGENT_ID",
+      botId: "BOT_ID",
+    };
+
+    const state = loadStateFromEnv(new Map(Object.entries(outputNames)));
+    if (!state.botId || !state.agentId) {
+      return manifest;
+    }
+
+    const botCapability: IBot = {
+      botId: "${{BOT_ID}}",
+      scopes: ["personal", "team", "groupChat"],
+      supportsFiles: true,
+      isNotificationOnly: false,
+    };
+    manifest.bots = [botCapability];
+    return manifest;
   }
 }
 

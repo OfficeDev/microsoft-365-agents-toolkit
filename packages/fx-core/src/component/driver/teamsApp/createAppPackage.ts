@@ -2,16 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import {
-  Colors,
-  FxError,
-  Result,
-  err,
-  ok,
-  PluginManifestSchema,
-  InputsWithProjectPath,
-  IBot,
-} from "@microsoft/teamsfx-api";
+import { Colors, FxError, Result, err, ok, PluginManifestSchema } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
@@ -553,37 +544,5 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     await fs.writeFile(jsonFileName, content);
     await fs.chmod(jsonFileName, 0o444);
-  }
-
-  /**
-   * Add bot capability to manifest if meet the following conditions:
-   * 1. manifest is a declarative agent
-   * 2. .env.dev has BOT_ID
-   * @param manifestPath
-   * @param context
-   * @returns
-   */
-  private async addBotCapabilityIfNeeded(manifestPath: string, context: WrapDriverContext) {
-    const manifest = await manifestUtils.getManifestV3(manifestPath, context);
-    if (manifest.isErr()) {
-      return err(manifest.error);
-    }
-    const manifestContent = manifest.value;
-    if (manifestContent.bots && manifestContent.bots.length > 0) {
-      return ok(undefined);
-    }
-
-    const botCapability: IBot = {
-      botId: "${{BOT_ID}}",
-      scopes: ["personal", "team", "groupChat"],
-      supportsFiles: false,
-      isNotificationOnly: false,
-    };
-    const inputs: InputsWithProjectPath = {
-      platform: context.platform,
-      addManifestPath: manifestPath,
-      projectPath: context.projectPath,
-    };
-    await manifestUtils.addCapabilities(inputs, [{ name: "Bot", snippet: botCapability }]);
   }
 }
