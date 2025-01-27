@@ -68,7 +68,7 @@ describe("TemplateGenerator", () => {
 
   testInputsToTemplateName.forEach(async (templateName, _inputs) => {
     it(`scaffolding ${templateName}`, async () => {
-      inputs = { ...inputs, ..._inputs };
+      inputs = { ...inputs, ..._inputs, [QuestionNames.TemplateName]: templateName };
       const res = await Generators.find((g) => g.activate(ctx, inputs))?.run(
         ctx,
         inputs,
