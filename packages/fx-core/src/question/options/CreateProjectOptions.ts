@@ -15,7 +15,6 @@ export const CreateProjectOptions: CLICommandOption[] = [
     name: "runtime",
     type: "string",
     description: "Teams Toolkit: select runtime for your app",
-    required: true,
     default: "node",
     hidden: true,
     choices: ["node", "dotnet"],
