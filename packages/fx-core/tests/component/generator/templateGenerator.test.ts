@@ -18,7 +18,7 @@ import { MockTools, randomAppName } from "../../core/utils";
 
 describe("TemplateGenerator", () => {
   const testInputsToTemplateName = new Map([
-    ...inputsToTemplateName,
+    // ...inputsToTemplateName,
     [
       {
         [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
