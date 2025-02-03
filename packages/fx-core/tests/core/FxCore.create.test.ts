@@ -19,7 +19,7 @@ import fs from "fs-extra";
 import "mocha";
 import * as os from "os";
 import sinon from "sinon";
-import { AppDefinition, FxCore, UserCancelError } from "../../src";
+import { AppDefinition, FxCore, InputValidationError, UserCancelError } from "../../src";
 import { coordinator } from "../../src/component/coordinator";
 import { setTools } from "../../src/common/globalVars";
 import {
@@ -69,7 +69,16 @@ describe("FxCore.createProject", () => {
     const res = await core.createProject(inputs);
     assert.isTrue(res.isErr());
   });
+});
 
+describe("createProjectFromTdp", () => {
+  const sandbox = sinon.createSandbox();
+  const tools = new MockTools();
+  setTools(tools);
+  beforeEach(() => {});
+  afterEach(() => {
+    sandbox.restore();
+  });
   it("TDP input error", async () => {
     const appDefinition: AppDefinition = {
       teamsAppId: "mock-id",
@@ -117,8 +126,56 @@ describe("FxCore.createProject", () => {
       teamsAppFromTdp: appDefinition,
     };
     const core = new FxCore(tools);
-    const res = await core.createProject(inputs);
+    const res = await core.createProjectFromTdp(inputs);
     assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.isTrue(res.error instanceof InputValidationError);
+    }
+  });
+
+  it("happy", async () => {
+    const appDefinition: AppDefinition = {
+      teamsAppId: "mock-id",
+      appId: "mock-id",
+      staticTabs: [
+        {
+          name: "tab1",
+          entityId: "tab1",
+          contentUrl: "mock-contentUrl",
+          websiteUrl: "mock-websiteUrl",
+          context: [],
+          scopes: [],
+        },
+      ],
+      bots: [
+        {
+          botId: "mock-bot-id",
+          isNotificationOnly: false,
+          needsChannelSelector: false,
+          supportsCalling: false,
+          supportsFiles: false,
+          supportsVideo: false,
+          scopes: [],
+          teamCommands: [],
+          groupChatCommands: [],
+          personalCommands: [],
+        },
+      ],
+    };
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Scratch]: ScratchOptions.yes().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.ProgrammingLanguage]: "javascript",
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.AppName]: randomAppName(),
+      teamsAppFromTdp: appDefinition,
+    };
+    const core = new FxCore(tools);
+    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "." }));
+    const res = await core.createProjectFromTdp(inputs);
+    assert.isTrue(res.isOk());
   });
 });
 
