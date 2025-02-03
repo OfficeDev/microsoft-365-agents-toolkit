@@ -126,6 +126,7 @@ describe("createProjectFromTdp", () => {
       teamsAppFromTdp: appDefinition,
     };
     const core = new FxCore(tools);
+    sandbox.stub(tools.ui, "selectOptions").resolves(ok({ type: "success", result: [] }));
     const res = await core.createProjectFromTdp(inputs);
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -173,6 +174,7 @@ describe("createProjectFromTdp", () => {
       teamsAppFromTdp: appDefinition,
     };
     const core = new FxCore(tools);
+    sandbox.stub(tools.ui, "selectOptions").resolves(ok({ type: "success", result: [] }));
     sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "." }));
     const res = await core.createProjectFromTdp(inputs);
     assert.isTrue(res.isOk());
