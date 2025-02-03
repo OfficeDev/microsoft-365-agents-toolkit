@@ -20,6 +20,11 @@ export class MockCore {
   async createProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
+
+  async createProjectFromTdp(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    return ok({ projectPath: "" });
+  }
+
   async createSampleProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
