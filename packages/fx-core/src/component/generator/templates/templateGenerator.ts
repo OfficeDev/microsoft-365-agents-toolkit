@@ -7,18 +7,14 @@ import {
   FxError,
   GeneratorResult,
   IGenerator,
-  IQTreeNode,
   Inputs,
   Result,
-  SystemError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
-import { getLocalizedString } from "../../../common/localizeUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../../common/telemetry";
-import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../question/constants";
-import { botTriggerQuestion, meArchitectureQuestion } from "../../../question/create";
+import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { Templates } from "../../../question/templates";
 import { ProgressMessages, ProgressTitles } from "../../messages";
 import { ActionContext, ActionExecutionMW } from "../../middleware/actionExecutionMW";
