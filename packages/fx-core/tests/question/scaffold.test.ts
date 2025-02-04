@@ -134,7 +134,6 @@ describe("m365ProjectTypeNode", () => {
     const node = apiSpecNode({ equals: "a" });
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.ApiPluginManifestPath]: "a",
     };
     const condition = node.children?.[1].condition as ConditionFunc;
     const res = condition?.(inputs);
