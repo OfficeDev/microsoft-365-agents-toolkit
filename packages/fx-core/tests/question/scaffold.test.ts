@@ -27,7 +27,17 @@ import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/offi
 import { ApiPluginStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("vsc", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
   it("scaffoldQuestionForVSCode", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const root = scaffoldQuestionForVSCode();
+    assert.isDefined(root);
+  });
+  it("scaffoldQuestionForVSCode", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const root = scaffoldQuestionForVSCode();
     assert.isDefined(root);
   });
