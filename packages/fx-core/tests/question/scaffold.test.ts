@@ -11,14 +11,20 @@ import {
   getTemplateName,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import { TemplateNames } from "../../src/question/templates";
-import { scaffoldQuestionForVSCode } from "../../src/question/scaffold/vsc/createRootNode";
+import {
+  languageCondition,
+  languageNode,
+  scaffoldQuestionForVSCode,
+} from "../../src/question/scaffold/vsc/createRootNode";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import { apiSpecNode } from "../../src/question/scaffold/vsc/m365ProjectTypeNode";
-import { ConditionFunc, Inputs, Platform } from "@microsoft/teamsfx-api";
-import { QuestionNames } from "../../src/question/constants";
+import { ConditionFunc, Inputs, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
+import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
 import sinon from "sinon";
 import { featureFlagManager } from "../../src/common/featureFlags";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
+import { ApiPluginStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("vsc", () => {
   it("scaffoldQuestionForVSCode", () => {
@@ -168,5 +174,70 @@ describe("ProjectTypeOptions", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
+  });
+});
+
+describe("officeAddinProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("wxpAddinProjectTypeNode", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const node = officeAddinProjectTypeNode();
+    assert.deepEqual(node.condition, {
+      equals: ProjectTypeOptions.officeMetaOSOptionId,
+    });
+  });
+  it("outlookAddinProjectTypeNode", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const node = officeAddinProjectTypeNode();
+    assert.deepEqual(node.condition, {
+      equals: ProjectTypeOptions.outlookAddinOptionId,
+    });
+  });
+});
+
+describe("languageNode", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("happy", () => {
+    const node = languageNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.TemplateName]: TemplateNames.SsoTabSSR,
+    };
+    const res = condition(inputs);
+    assert.isTrue(res);
+    const options = (node.data as SingleSelectQuestion).dynamicOptions?.(inputs);
+    assert.deepEqual(options, [{ id: ProgrammingLanguage.CSharp, label: "C#" }]);
+  });
+});
+
+describe("languageCondition", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("ApiPluginManifestPath", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ApiPluginManifestPath]: "test",
+    };
+    const res = languageCondition(inputs);
+    assert.isTrue(res);
+  });
+  it("false", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+    };
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const res = languageCondition(inputs);
+    assert.isFalse(res);
   });
 });
