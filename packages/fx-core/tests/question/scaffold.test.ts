@@ -12,6 +12,7 @@ import {
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import { TemplateNames } from "../../src/question/templates";
 import { scaffoldQuestionForVSCode } from "../../src/question/scaffold/vsc/createRootNode";
+import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 
 describe("vsc", () => {
   it("scaffoldQuestionForVSCode", () => {
@@ -20,6 +21,13 @@ describe("vsc", () => {
   });
   it("createFromTdpNode", () => {
     const root = createFromTdpNode();
+    assert.isDefined(root);
+  });
+});
+
+describe("vs", () => {
+  it("scaffoldQuestionForVS", () => {
+    const root = scaffoldQuestionForVS();
     assert.isDefined(root);
   });
 });
