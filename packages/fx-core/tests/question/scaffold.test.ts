@@ -16,6 +16,9 @@ import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRoot
 import { apiSpecNode } from "../../src/question/scaffold/vsc/m365ProjectTypeNode";
 import { ConditionFunc, Inputs, Platform } from "@microsoft/teamsfx-api";
 import { QuestionNames } from "../../src/question/constants";
+import sinon from "sinon";
+import { featureFlagManager } from "../../src/common/featureFlags";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("vsc", () => {
   it("scaffoldQuestionForVSCode", () => {
@@ -138,5 +141,32 @@ describe("m365ProjectTypeNode", () => {
     const condition = node.children?.[1].condition as ConditionFunc;
     const res = condition?.(inputs);
     assert.isTrue(res);
+  });
+});
+
+describe("ProjectTypeOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("officeMetaOS - VSC", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const option = ProjectTypeOptions.officeAddin(Platform.VSCode);
+    assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
+  });
+  it("officeMetaOS - CLI", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const option = ProjectTypeOptions.officeAddin(Platform.CLI);
+    assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
+  });
+  it("outlookAddin - VSC", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const option = ProjectTypeOptions.officeAddin(Platform.VSCode);
+    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
+  });
+  it("outlookAddin - CLI", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const option = ProjectTypeOptions.officeAddin(Platform.CLI);
+    assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
   });
 });

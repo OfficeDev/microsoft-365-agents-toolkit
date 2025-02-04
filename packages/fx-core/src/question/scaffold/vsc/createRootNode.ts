@@ -10,9 +10,8 @@ import { ConstantString } from "../../../common/constants";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { createContext } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { Constants } from "../../../component/generator/spfx/utils/constants";
-import { FileNotFoundError } from "../../../error/common";
 import { AppNamePattern, ProgrammingLanguage, QuestionNames } from "../../constants";
+import { getSolutionName } from "../../create";
 import { Templates } from "../../templates";
 import { ApiPluginStartOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
@@ -20,20 +19,6 @@ import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./m365ProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-
-export async function getSolutionName(spfxFolder: string): Promise<string | undefined> {
-  const yoInfoPath = path.join(spfxFolder, Constants.YO_RC_FILE);
-  if (await fs.pathExists(yoInfoPath)) {
-    const yoInfo = await fs.readJson(yoInfoPath);
-    if (yoInfo["@microsoft/generator-sharepoint"]) {
-      return yoInfo["@microsoft/generator-sharepoint"][Constants.YO_RC_SOLUTION_NAME];
-    } else {
-      return undefined;
-    }
-  } else {
-    throw new FileNotFoundError(Constants.PLUGIN_NAME, yoInfoPath, Constants.IMPORT_HELP_LINK);
-  }
-}
 
 export function languageNode(): IQTreeNode {
   return {
