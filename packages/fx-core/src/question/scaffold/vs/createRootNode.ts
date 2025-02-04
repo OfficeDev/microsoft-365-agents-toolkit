@@ -12,7 +12,7 @@ import {
   MeCapabilityOptions,
   setTemplateName,
 } from "../vsc/CapabilityOptions";
-import { languageCondition, languageNode } from "../vsc/createRootNode";
+import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { botTriggerNode } from "../vsc/m365ProjectTypeNode";
@@ -105,7 +105,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
       },
       languageNode(),
       {
-        condition: languageCondition,
+        condition: folderAndAppNameCondition,
         data: {
           type: "group",
         },

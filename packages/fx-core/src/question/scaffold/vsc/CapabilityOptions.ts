@@ -482,6 +482,13 @@ export class NotificationBotOptions {
 }
 
 export class DACapabilityOptions {
+  static declarativeAgent(): OptionItem {
+    return {
+      id: "declarative-agent",
+      label: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.label"),
+      detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
+    };
+  }
   static noPlugin(): OptionItem {
     return {
       id: "no",

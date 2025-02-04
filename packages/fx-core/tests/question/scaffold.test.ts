@@ -12,7 +12,7 @@ import {
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import { TemplateNames } from "../../src/question/templates";
 import {
-  languageCondition,
+  folderAndAppNameCondition,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
@@ -227,7 +227,7 @@ describe("languageNode", () => {
   });
 });
 
-describe("languageCondition", () => {
+describe("folderAndAppNameCondition", () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
@@ -237,7 +237,7 @@ describe("languageCondition", () => {
       platform: Platform.VSCode,
       [QuestionNames.ApiPluginManifestPath]: "test",
     };
-    const res = languageCondition(inputs);
+    const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
   });
   it("false", () => {
@@ -247,7 +247,7 @@ describe("languageCondition", () => {
       [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
     };
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const res = languageCondition(inputs);
+    const res = folderAndAppNameCondition(inputs);
     assert.isFalse(res);
   });
 });

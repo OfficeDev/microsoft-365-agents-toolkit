@@ -7,7 +7,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { ProgrammingLanguage, QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { Templates } from "../../templates";
-import { ApiPluginStartOptions } from "./CapabilityOptions";
+import { ApiPluginStartOptions, DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
@@ -52,12 +52,13 @@ export function languageNode(): IQTreeNode {
   };
 }
 
-export function languageCondition(inputs: Inputs): boolean {
+export function folderAndAppNameCondition(inputs: Inputs): boolean {
   // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
   return !(
     featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
     inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
-    inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId &&
+    (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
+      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
     !inputs[QuestionNames.ApiPluginManifestPath]
   );
 }
@@ -100,7 +101,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
       },
       languageNode(),
       {
-        condition: languageCondition,
+        condition: folderAndAppNameCondition,
         data: {
           type: "group",
         },
