@@ -17,7 +17,7 @@ import { Templates } from "../../templates";
 import { ApiPluginStartOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
-import { declarativeAgentProjectTypeNode } from "./daProjectTypeNode";
+import { daProjectTypeNode } from "./daProjectTypeNode";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./m365ProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 
@@ -165,7 +165,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           ],
         },
         children: [
-          declarativeAgentProjectTypeNode(),
+          daProjectTypeNode(),
           customEngineAgentProjectTypeNode(),
           botProjectTypeNode(),
           tabProjectTypeNode(),

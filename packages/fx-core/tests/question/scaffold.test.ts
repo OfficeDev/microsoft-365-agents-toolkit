@@ -13,6 +13,9 @@ import {
 import { TemplateNames } from "../../src/question/templates";
 import { scaffoldQuestionForVSCode } from "../../src/question/scaffold/vsc/createRootNode";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
+import { apiSpecNode } from "../../src/question/scaffold/vsc/m365ProjectTypeNode";
+import { ConditionFunc, Inputs, Platform } from "@microsoft/teamsfx-api";
+import { QuestionNames } from "../../src/question/constants";
 
 describe("vsc", () => {
   it("scaffoldQuestionForVSCode", () => {
@@ -123,5 +126,18 @@ describe("getTemplateName", () => {
 
     const res = getTemplateName(appDefinition);
     assert.isUndefined(res);
+  });
+});
+
+describe("m365ProjectTypeNode", () => {
+  it("apiSpecNode", () => {
+    const node = apiSpecNode({ equals: "a" });
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ApiPluginManifestPath]: "a",
+    };
+    const condition = node.children?.[1].condition as ConditionFunc;
+    const res = condition?.(inputs);
+    assert.isTrue(res);
   });
 });

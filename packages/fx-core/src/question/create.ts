@@ -309,7 +309,7 @@ export function botTriggerQuestion(): SingleSelectQuestion {
   };
 }
 
-function SPFxSolutionQuestion(): SingleSelectQuestion {
+export function SPFxSolutionQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.SPFxSolution,

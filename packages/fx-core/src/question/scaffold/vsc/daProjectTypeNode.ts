@@ -144,7 +144,7 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
   };
 }
 
-export function declarativeAgentProjectTypeNode(
+export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId
 ): IQTreeNode {
   return {
