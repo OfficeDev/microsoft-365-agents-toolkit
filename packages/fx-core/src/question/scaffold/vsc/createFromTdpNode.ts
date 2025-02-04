@@ -13,11 +13,13 @@ import {
 } from "../../../component/driver/teamsApp/utils/utils";
 import { QuestionNames } from "../../constants";
 import {
+  appNameQuestion,
+  folderQuestion,
   selectBotIdsQuestion,
   selectTabsContentUrlQuestion,
   selectTabWebsiteUrlQuestion,
 } from "../../create";
-import { appNameNode, folderNode, languageNode } from "./createRootNode";
+import { languageNode } from "./createRootNode";
 import { TemplateNames } from "../../templates";
 
 export class CreateFromTdpCapabilityOptions {}
@@ -95,8 +97,12 @@ export function createFromTdpNode(): IQTreeNode {
         data: selectBotIdsQuestion(),
       },
       languageNode(),
-      folderNode(),
-      appNameNode(),
+      {
+        data: folderQuestion(),
+      },
+      {
+        data: appNameQuestion(),
+      },
     ],
   };
   return node;
