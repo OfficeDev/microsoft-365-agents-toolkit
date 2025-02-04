@@ -1,19 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../constants";
+import { appNameQuestion, folderQuestion } from "../../create";
 import { TemplateNames } from "../../templates";
 import {
-  ApiPluginStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
 } from "../vsc/CapabilityOptions";
-import { appNameNode, folderNode, languageNode } from "../vsc/createRootNode";
+import { languageCondition, languageNode } from "../vsc/createRootNode";
 import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { botTriggerNode } from "../vsc/m365ProjectTypeNode";
@@ -106,19 +105,18 @@ export function scaffoldQuestionForVS(): IQTreeNode {
       },
       languageNode(),
       {
-        condition: (inputs: Inputs) => {
-          // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
-          return !(
-            featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
-            inputs[QuestionNames.Capabilities] === VSCapabilityOptions.declarativeAgent().id &&
-            !inputs[QuestionNames.ApiPluginManifestPath]
-          );
-        },
+        condition: languageCondition,
         data: {
           type: "group",
         },
-        children: [folderNode(), appNameNode()],
+        children: [
+          {
+            data: folderQuestion(),
+          },
+          {
+            data: appNameQuestion(),
+          },
+        ],
       },
     ],
   };
