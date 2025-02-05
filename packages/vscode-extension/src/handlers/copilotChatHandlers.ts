@@ -26,7 +26,6 @@ const teamsAgentLink = "https://aka.ms/install-teamsapp";
 
 enum errorNames {
   NoActiveTextEditor = "NoActiveTextEditor",
-  CannotVerifyGithubCopilotChat = "CannotVerifyGithubCopilotChat",
   openCopilotError = "openCopilotError",
 }
 
@@ -35,15 +34,30 @@ function githubCopilotInstalled(): boolean {
   return !!extension;
 }
 
-async function openGithubCopilotChat(query: string): Promise<Result<null, FxError>> {
-  const eventName = "openCopilotChat";
+export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, FxError>> {
+  const startEventName = "open-github-copilot-start";
+  const eventName = "open-github-copilot";
+  const triggerFrom = getTriggerFromProperty(args);
+  const hasQuery = !!args && args.length == 2;
+  const query = hasQuery ? args[1] : "";
+
+  const telemtryProperties = {
+    ...triggerFrom,
+    [TelemetryProperty.HasQueryForCopilotChat]: hasQuery.toString(),
+  };
+  ExtTelemetry.sendTelemetryEvent(startEventName, triggerFrom);
   try {
-    const options = {
-      query,
-      isPartialQuery: true,
-    };
     await vscode.commands.executeCommand("workbench.panel.chat.view.copilot.focus");
-    await vscode.commands.executeCommand("workbench.action.chat.open", options);
+    if (query) {
+      const options = {
+        query,
+        isPartialQuery: true,
+      };
+      await vscode.commands.executeCommand("workbench.action.chat.open", options);
+    } else {
+      await vscode.commands.executeCommand("workbench.action.chat.open");
+    }
+    ExtTelemetry.sendTelemetryEvent(eventName, telemtryProperties);
     return ok(null);
   } catch (e) {
     const error = new SystemError(
@@ -53,7 +67,7 @@ async function openGithubCopilotChat(query: string): Promise<Result<null, FxErro
       util.format(localize("teamstoolkit.handlers.chatTeamsAgentError", query))
     );
     VsCodeLogInstance.error(error.message);
-    ExtTelemetry.sendTelemetryErrorEvent(eventName, error);
+    ExtTelemetry.sendTelemetryErrorEvent(eventName, error, telemtryProperties);
 
     const assembledError = assembleError(e);
     if (assembledError.message) {
@@ -133,166 +147,68 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
   const startEventName = "mark-teams-agent-installation-done-start";
   const eventName = "mark-teams-agent-installation-done";
 
-  const telemetryProperties = getTriggerFromProperty(args);
-  ExtTelemetry.sendTelemetryEvent(startEventName, telemetryProperties);
-  await globalStateUpdate(GlobalKey.TemasAgentInstalled, true);
-  ExtTelemetry.sendTelemetryEvent(eventName, telemetryProperties);
-}
+  ExtTelemetry.sendTelemetryEvent(startEventName);
 
-export async function handleInstallTeamsAgentSelection(
-  selection: string | undefined,
-  telemetryProperties: {
-    [key: string]: string;
-  }
-) {
-  const eventName = "install-teams-agent-notification";
-  const selectionTelemetryPropertyName = "selection";
-  if (selection === localize("teamstoolkit.handlers.askInstallTeamsAgent.install")) {
-    const installTelemetryProperties = {
-      ...telemetryProperties,
-      [selectionTelemetryPropertyName]: "install",
-    };
-    const openUrlRes = await VS_CODE_UI.openUrl(teamsAgentLink);
-    if (openUrlRes.isOk()) {
-      ExtTelemetry.sendTelemetryEvent(eventName, {
-        ...installTelemetryProperties,
-      });
-    } else {
-      ExtTelemetry.sendTelemetryErrorEvent(eventName, openUrlRes.error, installTelemetryProperties);
-      VsCodeLogInstance.error(openUrlRes.error.message);
-    }
-  } else if (selection === localize("teamstoolkit.handlers.askInstallTeamsAgent.confirmInstall")) {
-    ExtTelemetry.sendTelemetryEvent(eventName, {
-      ...telemetryProperties,
-      [selectionTelemetryPropertyName]: "confirmed",
-    });
-    await globalStateUpdate(GlobalKey.DoNotRemindInstallTeamsAgent, true);
-  } else {
-    const error = new UserCancelError(eventName, "cancel");
-    ExtTelemetry.sendTelemetryErrorEvent(eventName, error, telemetryProperties);
+  try {
+    await globalStateUpdate(GlobalKey.TeamsAgentInstalled, true);
+    ExtTelemetry.sendTelemetryEvent(eventName);
+  } catch (e) {
+    ExtTelemetry.sendTelemetryErrorEvent(eventName, assembleError(e));
   }
 }
 
-async function invoke(
-  query: string,
-  eventName: string,
-  triggerFromProperty: { [key: string]: TelemetryTriggerFrom }
-): Promise<Result<null, FxError>> {
-  // const skipRemindInstallTeamsAgent = await globalStateGet(
-  //   GlobalKey.DoNotRemindInstallTeamsAgent,
-  //   false
-  // );
+export async function markGitHubCopilotSetupDone(args?: any[]) {
+  const startEventName = "mark-github-copilot-setup-done-start";
+  const eventName = "mark-github-copilot-setup-done";
+  ExtTelemetry.sendTelemetryEvent(startEventName);
+  try {
+    await globalStateUpdate(GlobalKey.GitHubCopilotSetupAlready, true);
+    ExtTelemetry.sendTelemetryEvent(eventName);
+  } catch (e) {
+    ExtTelemetry.sendTelemetryErrorEvent(eventName, assembleError(e));
+  }
+}
 
-  // console.log(triggerFromProperty[TelemetryProperty.TriggerFrom]);
-
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.teamsAgentTriggerFrom",
-    triggerFromProperty[TelemetryProperty.TriggerFrom]
-  );
-
-  // const welcomePageConfig = vscode.workspace.getConfiguration('workbench.welcomePage');
-  // const configJSON = JSON.stringify(welcomePageConfig, null, 2); // Pretty-print with 2 spaces
-  // console.log('Welcome Page Configuration (JSON):', configJSON);
-
-  // const config = vscode.workspace.getConfiguration('workbench.welcomePage');
-  // const walkthroughState = config.get<any>('walkthroughs');
-  // if (walkthroughState && walkthroughState['TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps']) {
-  //   vscode.window.showInformationMessage('Walkthrough is completed!');
-  // } else {
-  //   vscode.window.showInformationMessage('Walkthrough is not completed yet.');
-  // }
-
-  // await vscode.commands.executeCommand(
-  //   "workbench.action.openWalkthrough",
-  //   "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
-  // );w
-
-  // if (!skipRemindInstallTeamsAgent) {
-  //   void vscode.window
-  //     .showInformationMessage(
-  //       localize("teamstoolkit.handlers.askInstallTeamsAgent"),
-  //       localize("teamstoolkit.handlers.askInstallTeamsAgent.install"),
-  //       localize("teamstoolkit.handlers.askInstallTeamsAgent.confirmInstall")
-  //     )
-  //     .then(async (selection) => {
-  //       await handleInstallTeamsAgentSelection(selection, triggerFromProperty);
-  //     });
-  // }
-  // const data = { category: "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps", step: "intelligentappresources" }
-  // const tt =  await vscode.commands.executeCommand(
-  //   "workbench.action.openWalkthrough",
-  //   data
-  // );
+export async function openTeamsAgentWalkthrough(args?: any[]) {
+  const triggerFromProperty = getTriggerFromProperty(args);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTeamsAgentWalkthrough, triggerFromProperty);
   await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
     category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
   });
-  const isExtensionInstalled = githubCopilotInstalled();
-  if (isExtensionInstalled) {
-    VsCodeLogInstance.info(
-      util.format(localize("teamstoolkit.handlers.installAgent.output"), teamsAgentLink)
-    );
-    showOutputChannelHandler();
-    // await vscode.commands.executeCommand('workbench.action.openWalkthrough', {
-    //   walkthrough: 'TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps',
-    //   skipWelcome: true,
-    //   context: context // Pass the context dynamically
-    // });
-    // return await vscode.commands.executeCommand(
-    //   "workbench.action.openWalkthrough",
-    //   "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
-    // );
-    return ok(null);
-    //return await openGithubCopilotChat(query);
+}
+
+/**
+ * Invoke @teamsapp
+ * @param query query
+ * @param triggerFromProperty trigger-from property
+ * @returns A boolean value indicates whether the query is sent or not. If not, it means the walkthrough is opened instead.
+ */
+async function invoke(
+  query: string,
+  triggerFromProperty: { [key: string]: TelemetryTriggerFrom }
+): Promise<Result<boolean, FxError>> {
+  let hasGitHubCopilotInstalledOnce = await globalStateGet(GlobalKey.GithubCopilotInstalled, false);
+  if (!hasGitHubCopilotInstalledOnce && githubCopilotInstalled()) {
+    await globalStateUpdate(GlobalKey.GithubCopilotInstalled, true);
+    hasGitHubCopilotInstalledOnce = true;
+  }
+
+  const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
+  const hasGitHubCopilotSetup = await globalStateGet(GlobalKey.GitHubCopilotSetupAlready, false);
+
+  if (hasGitHubCopilotInstalledOnce && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
+    const res = await openGithubCopilotChat([
+      triggerFromProperty[TelemetryProperty.TriggerFrom],
+      query,
+    ]);
+    if (res.isErr()) {
+      return err(res.error);
+    } else {
+      return ok(true);
+    }
   } else {
-    VsCodeLogInstance.info(
-      util.format(
-        localize("teamstoolkit.handlers.installCopilotAndAgent.output"),
-        InstallCopilotChatLink,
-        teamsAgentLink
-      )
-    );
-    showOutputChannelHandler();
-
-    return ok(null);
-
-    // const maxRetry = 5;
-    // const installRes = await installGithubCopilotChatExtension(
-    //   triggerFromProperty[TelemetryProperty.TriggerFrom]
-    // );
-    // if (installRes.isOk()) {
-    //   let checkCount = 0;
-    //   let verifyExtensionInstalled = false;
-    //   while (checkCount < maxRetry) {
-    //     verifyExtensionInstalled = githubCopilotInstalled();
-    //     if (!verifyExtensionInstalled) {
-    //       await sleep(3000);
-    //       checkCount++;
-    //     } else {
-    //       break;
-    //     }
-    //   }
-
-    //   if (verifyExtensionInstalled) {
-    //     await sleep(2000); // wait for extension activation
-    //     return await openGithubCopilotChat(query);
-    //   } else {
-    //     const error = new SystemError(
-    //       eventName,
-    //       errorNames.CannotVerifyGithubCopilotChat,
-    //       util.format(
-    //         localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
-    //       ),
-    //       util.format(
-    //         localize("teamstoolkit.handlers.verifyCopilotExtensionError", InstallCopilotChatLink)
-    //       )
-    //     );
-    //     VsCodeLogInstance.error(error.message);
-    //     return err(error);
-    //   }
-    // } else {
-    //   return installRes;
-    // }
+    await openTeamsAgentWalkthrough([triggerFromProperty[TelemetryProperty.TriggerFrom]]);
+    return ok(false);
   }
 }
 
@@ -301,7 +217,9 @@ async function invoke(
  * @param args args
  * @returns Result
  */
-export async function invokeTeamsAgent(args?: any[]): Promise<Result<null, FxError>> {
+export async function invokeTeamsAgentForDevelopment(
+  args?: any[]
+): Promise<Result<boolean, FxError>> {
   const eventName = TelemetryEvent.InvokeTeamsAgent;
   const triggerFromProperty = getTriggerFromProperty(args);
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.InvokeTeamsAgentStart, triggerFromProperty);
@@ -334,7 +252,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<null, FxErr
         "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
   }
 
-  const res = await invoke(query, eventName, triggerFromProperty);
+  const res = await invoke(query, triggerFromProperty);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, res.error, triggerFromProperty);
@@ -342,6 +260,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<null, FxErr
     ExtTelemetry.sendTelemetryEvent(eventName, {
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
       ...triggerFromProperty,
+      [TelemetryProperty.CopilotChatQuerySent]: res.value.toString(),
     });
   }
   return res;
@@ -352,7 +271,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<null, FxErr
  * @param args
  * @returns Result
  */
-export async function troubleshootSelectedText(args?: any[]): Promise<Result<null, FxError>> {
+export async function troubleshootSelectedText(args?: any[]): Promise<Result<boolean, FxError>> {
   const eventName = TelemetryEvent.TroubleshootSelectedText;
   const triggerFromProperty = getTriggerFromProperty([TelemetryTriggerFrom.EditorContextMenu]);
   ExtTelemetry.sendTelemetryEvent(
@@ -383,7 +302,7 @@ export async function troubleshootSelectedText(args?: any[]): Promise<Result<nul
 \`\`\`
 Can you help me diagnose the issue and suggest possible solutions?
 `;
-  const res = await invoke(query, eventName, triggerFromProperty);
+  const res = await invoke(query, triggerFromProperty);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, res.error, triggerFromProperty);
@@ -391,6 +310,7 @@ Can you help me diagnose the issue and suggest possible solutions?
     ExtTelemetry.sendTelemetryEvent(eventName, {
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
       ...triggerFromProperty,
+      [TelemetryProperty.CopilotChatQuerySent]: res.value.toString(),
     });
   }
   return res;
@@ -401,11 +321,11 @@ Can you help me diagnose the issue and suggest possible solutions?
  * @param args
  * @returns Result
  */
-export async function troubleshootError(args?: any[]): Promise<Result<null, FxError>> {
+export async function troubleshootError(args?: any[]): Promise<Result<boolean, FxError>> {
   const eventName = TelemetryEvent.TroubleshootErrorFromNotification;
   if (!args || args.length !== 2) {
     // should never happen
-    return ok(null);
+    return ok(false);
   }
 
   const currentError = args[1] as FxError;
@@ -429,7 +349,7 @@ export async function troubleshootError(args?: any[]): Promise<Result<null, FxEr
   \`\`\`
   Can you help me diagnose the issue and suggest possible solutions?
   `;
-  const res = await invoke(query, eventName, triggerFromProperty);
+  const res = await invoke(query, triggerFromProperty);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, res.error, telemtryProperties);
@@ -437,6 +357,7 @@ export async function troubleshootError(args?: any[]): Promise<Result<null, FxEr
     ExtTelemetry.sendTelemetryEvent(eventName, {
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
       ...telemtryProperties,
+      [TelemetryProperty.CopilotChatQuerySent]: res.value.toString(),
     });
   }
   return res;

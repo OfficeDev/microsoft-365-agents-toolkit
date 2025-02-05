@@ -288,6 +288,7 @@ export enum TelemetryEvent {
   TroubleshootSelectedText = "troubleshoot-selected-text",
   TroubleshootErrorFromNotificationStart = "troubleshoot-error-from-notification-start",
   TroubleshootErrorFromNotification = "troubleshoot-error-from-notification",
+  OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
 
   // Copilot Chat
   CopilotChatStart = "copilot-chat-start",
@@ -398,6 +399,8 @@ export enum TelemetryProperty {
   TeamsFxVersion = "version-teamsfx",
   TeamsJSVersion = "version-teams-js",
   BotbuilderVersion = "version-botbuilder",
+  KiotaInstalled = "kiota-installed",
+  ShowAddPluginTreeView = "show-add-plugin-tree-view",
   // Used with OpenTutorial
   TutorialName = "tutorial-name",
   DocumentationName = "documentation-name",
@@ -440,8 +443,9 @@ export enum TelemetryProperty {
   CopilotChatResponseTokenPerSecond = "copilot-chat-response-token-per-second",
   CopilotChatRequestToken = "copilot-chat-request-token",
   CopilotChatResponseToken = "copilot-chat-response-token",
-  KiotaInstalled = "kiota-installed",
-  ShowAddPluginTreeView = "show-add-plugin-tree-view",
+  // Used in Copilot Chat UI
+  HasQueryForCopilotChat = "has-query-for-copilot-chat",
+  CopilotChatQuerySent = "copilot-chat-query-sent",
 }
 
 export enum TelemetryMeasurements {

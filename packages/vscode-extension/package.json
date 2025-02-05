@@ -963,6 +963,12 @@
         "command": "fx-extension.addAuthAction",
         "title": "%teamstoolkit.commands.addAuthAction%",
         "category": "Teams"
+      },
+      {
+        "command": "fx-extension.openTeamsAgentWalkthrough",
+        "title": "%teamsagent.walkthrough.title%",
+        "category": "Teams",
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "taskDefinitions": [
@@ -1630,8 +1636,8 @@
             "title": "%teamsagent.walkthrough.introduction.title%",
             "description": "%teamsagent.walkthrough.introduction.description%",
             "media": {
-              "svg": "media/walkthroughs/get-started/introduction.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title%"
+              "svg": "media/walkthroughs/teams-agent/introduction.svg",
+              "altText": "%teamsagent.walkthrough.introduction.title%"
             }
           },
           {
@@ -1639,8 +1645,8 @@
             "title": "%teamsagent.walkthrough.copilotPlan.title%",
             "description": "%teamsagent.walkthrough.copilotPlan.description%",
             "media": {
-              "svg": "media/walkthroughs/get-started/Prerequisites.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitEnvironment.title%"
+              "image": "media/walkthroughs/teams-agent/copilot-plan.png",
+              "altText": "%teamsagent.walkthrough.copilotPlan.title%"
             }
           },
           {
@@ -1648,7 +1654,8 @@
             "title": "%teamsagent.walkthrough.copilotChat.title%",
             "description": "%teamsagent.walkthrough.copilotChat.description%",
             "media": {
-              "markdown": "media/walkthroughs/get-started/create/create.md"
+              "svg": "media/walkthroughs/teams-agent/install-github-copilot-chat.svg",
+              "altText": "%teamsagent.walkthrough.copilotChat.title%"
             },
             "completionEvents": [
               "extensionInstalled:github.copilot-chat"
@@ -1663,29 +1670,32 @@
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title%"
             },
             "completionEvents": [
-              "onCommand:fx-exntesion.markInstallTeamsAgentDone"
+              "onCommand:fx-extension.markInstallTeamsAgentDone"
             ]
           },
           {
-            "id": "teamsToolkitExploreMore",
-            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description%",
+            "id": "teamsAgentGithubCopilotSetup",
+            "title": "%teamsagent.walkthrough.setup.title%",
+            "description": "%teamsagent.walkthrough.setup.description%",
             "media": {
-              "svg": "media/walkthroughs/get-started/whatisnext.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%"
-            }
+              "svg": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.svg",
+              "altText": "%teamsagent.walkthrough.setup.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markGitHubCopilotLoginDone"
+            ]
           },
           {
-            "id": "teamsToolkitResources",
-            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.description%",
+            "id": "teamsAgentUse",
+            "title": "%teamsagent.walkthrough.use.title%",
+            "description": "%teamsagent.walkthrough.use.description%",
             "media": {
               "svg": "media/walkthroughs/get-started/resources.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText%"
             }
           }
         ],
-        "when": "!fx-extension.isChatParticipantUIEntriesEnabled"
+        "when": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "configuration": {

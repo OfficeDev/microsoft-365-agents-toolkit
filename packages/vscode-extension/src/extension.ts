@@ -464,7 +464,7 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
 
   // Register invoke teams agent command
   const invokeTeamsAgent = vscode.commands.registerCommand("fx-extension.invokeChat", (...args) =>
-    Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
+    Correlator.run(copilotChatHandlers.invokeTeamsAgentForDevelopment, args)
   );
   context.subscriptions.push(invokeTeamsAgent);
 
@@ -493,10 +493,28 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(openInstallTeamsAgent);
 
   const markTeamsAgentInstallationDone = vscode.commands.registerCommand(
-    "fx-exntesion.markInstallTeamsAgentDone",
+    "fx-extension.markInstallTeamsAgentDone",
     (...args) => Correlator.run(copilotChatHandlers.markTeamsAgentInstallationDone, args)
   );
   context.subscriptions.push(markTeamsAgentInstallationDone);
+
+  const openGitHubCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.openGithubCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
+  );
+  context.subscriptions.push(openGitHubCopilotChat);
+
+  const markGithubCopilotSetupDone = vscode.commands.registerCommand(
+    "fx-extension.markGitHubCopilotLoginDone",
+    (...args) => Correlator.run(copilotChatHandlers.markGitHubCopilotSetupDone, args)
+  );
+  context.subscriptions.push(markGithubCopilotSetupDone);
+
+  const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
+    "fx-extension.openTeamsAgentWalkthrough",
+    (...args) => Correlator.run(copilotChatHandlers.openTeamsAgentWalkthrough, args)
+  );
+  context.subscriptions.push(openTeamsAgentWalkthrough);
 }
 
 /**
