@@ -1057,6 +1057,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.addAuthAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Configurations to Support Actions with Authentication in Declarative Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавить конфигурации для поддержки действий с проверкой подлинности в декларативном агенте]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.azureAccount.signOutHelp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure account Sign Out is moved to the Accounts section on the bottom left panel. To sign out of Azure, hover on your Azure account email and click Sign Out.]]></Val>
@@ -2304,36 +2313,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
+          <Val><![CDATA[Before publishing your app, we recommend to validate all integration test cases.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Публикация в организации на Портале разработчика Индексатора видео]]></Val>
+            <Val><![CDATA[Перед публикацией приложения рекомендуется проверить все тестовые случаи интеграции.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+          <Val><![CDATA[Publish to store in developer portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Откройте Портал разработчика Индексатора видео для публикации]]></Val>
+            <Val><![CDATA[Опубликовать в store на портале разработчика]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Publish to org]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Опубликовать]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish to Teams]]></Val>
+            <Val><![CDATA[Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3169,6 +3178,21 @@
           <Prev Cat="Text">
             <Val><![CDATA[Send notifications to Teams]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Набор инструментов Teams успешно обновил файлы конфигурации проекта (teamsapp.yaml и teamsapp.local.yaml), а также добавил действие для поддержки потока проверки подлинности. Вы можете перейти к удаленной подготовке.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification.provision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provision]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5569,6 +5593,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsEnvironment.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Set up your environment]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Настройка среды]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5602,6 +5629,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введение]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5617,6 +5647,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsPreview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[To preview your declarative agent, [Provision]5D;(command:fx-extension.provision) it for Microsoft 365 Copilot and Launch Microsoft 365 Copilot for [Preview]5D;(command:fx-extension.localdebug).]A;[Provision]5D;(command:fx-extension.provision)]A;[Preview]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to browse all debug options in Teams.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Чтобы предварительно просмотреть декларативный агент, [подготовьте]5D;(command:fx-extension.provision) его для Microsoft 365 Copilot и запустите Microsoft 365 Copilot для [ознакомления]5D;(command:fx-extension.localdebug).]A;[Подготовка]5D;(command:fx-extension.provision)]A;[Предварительный просмотр]5D;(command:fx-extension.localdebug)]A;Совет. Используйте область [запуска и отладки]5D;(command:workbench.view.debug) на панели действий для просмотра всех параметров отладки в Teams.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5773,8 +5806,8 @@
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[You can customize the notification by referring to [this doc.]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5)]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Вот несколько рекомендаций, чтобы продолжить работу с набором средств Teams.]A; • Ознакомьтесь с [руководствами]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) и получите практические инструкции]A; • Откройте [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D), чтобы понять, как разрабатывать это приложение]A; • Ознакомьтесь с [документацией]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Вы можете настроить уведомление, воспользовавшись [этим документом.]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/conversations/interactive-notification-bot-in-teams?tabs=ts1%2Cts2%2Cts3%2Cts4%2Cjsts%2Cts5)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>

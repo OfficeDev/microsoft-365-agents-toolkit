@@ -1057,6 +1057,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.addAuthAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Configurations to Support Actions with Authentication in Declarative Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[新增設定以支援在宣告式代理程式中使用驗證的動作]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.azureAccount.signOutHelp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure account Sign Out is moved to the Accounts section on the bottom left panel. To sign out of Azure, hover on your Azure account email and click Sign Out.]]></Val>
@@ -2304,36 +2313,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
+          <Val><![CDATA[Before publishing your app, we recommend to validate all integration test cases.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在開發人員入口網站中發佈至貴組織]]></Val>
+            <Val><![CDATA[在發佈您的應用程式之前，建議您驗證所有整合測試案例。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+          <Val><![CDATA[Publish to store in developer portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[開啟開發人員入口網站以發佈]]></Val>
+            <Val><![CDATA[發佈至開發人員入口網站中的存放區]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Publish to org]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[發佈]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish to Teams]]></Val>
+            <Val><![CDATA[Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3169,6 +3178,21 @@
           <Prev Cat="Text">
             <Val><![CDATA[Send notifications to Teams]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 工具組已成功 (teamsapp.yaml 和 teamsapp.local.yaml 更新您的項目設定，) 包含支持驗證流程之動作的檔案。您可以繼續進行遠端布建。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification.provision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provision]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5605,6 +5629,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[簡介]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

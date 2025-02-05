@@ -1057,6 +1057,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.addAuthAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Configurations to Support Actions with Authentication in Declarative Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aggiungi configurazioni alle azioni di supporto con autenticazione nell'agente dichiarativo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.azureAccount.signOutHelp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure account Sign Out is moved to the Accounts section on the bottom left panel. To sign out of Azure, hover on your Azure account email and click Sign Out.]]></Val>
@@ -2304,36 +2313,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
+          <Val><![CDATA[Before publishing your app, we recommend to validate all integration test cases.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pubblica nell'organizzazione in portale per sviluppatori]]></Val>
+            <Val><![CDATA[Prima di pubblicare l'app, è consigliabile convalidare tutti i test case di integrazione.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+          <Val><![CDATA[Publish to store in developer portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Apri portale per sviluppatori per pubblicare]]></Val>
+            <Val><![CDATA[Pubblica nello Store nel portale per sviluppatori]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish]]></Val>
+          <Val><![CDATA[Publish to org]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pubblicare]]></Val>
+            <Val><![CDATA[Pubblica sull'organizzazione]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish to Teams]]></Val>
+            <Val><![CDATA[Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3169,6 +3178,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[Send notifications to Teams]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il toolkit di Teams ha aggiornato correttamente i file di configurazione del progetto (teamsapp.yaml e teamsapp.local.yaml) con un'azione aggiunta per supportare il flusso di autenticazione. È possibile procedere con il provisioning remoto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification.provision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provision]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Provisioning]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5605,6 +5632,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Introduzione]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

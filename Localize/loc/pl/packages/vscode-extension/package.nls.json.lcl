@@ -1057,6 +1057,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.addAuthAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Configurations to Support Actions with Authentication in Declarative Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dodaj konfiguracje do obsługi akcji z uwierzytelnianiem w agencie deklaracyjnym]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.azureAccount.signOutHelp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Azure account Sign Out is moved to the Accounts section on the bottom left panel. To sign out of Azure, hover on your Azure account email and click Sign Out.]]></Val>
@@ -2304,36 +2313,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
+          <Val><![CDATA[Before publishing your app, we recommend to validate all integration test cases.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Opublikuj w swojej organizacji w Portalu deweloperów]]></Val>
+            <Val><![CDATA[Przed opublikowaniem aplikacji zalecamy sprawdzenie poprawności wszystkich przypadków testów integracji.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Publish to your org in Developer Portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+          <Val><![CDATA[Publish to store in developer portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Otwórz Portal deweloperów, aby opublikować]]></Val>
+            <Val><![CDATA[Opublikuj w sklepie w portalu deweloperów]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish in Developer Portal]]></Val>
+            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Publish to org]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Opublikuj]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish to Teams]]></Val>
+            <Val><![CDATA[Publish]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3169,6 +3178,21 @@
           <Prev Cat="Text">
             <Val><![CDATA[Send notifications to Teams]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zestaw narzędzi teams pomyślnie zaktualizował pliki konfiguracji projektu (teamsapp.yaml i teamsapp.local.yaml) z dodaną akcją w celu obsługi przepływu uwierzytelniania. Możesz przejść do aprowizacji zdalnej.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification.provision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provision]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5605,6 +5629,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wprowadzenie]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5620,6 +5647,9 @@
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsPreview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[To preview your declarative agent, [Provision]5D;(command:fx-extension.provision) it for Microsoft 365 Copilot and Launch Microsoft 365 Copilot for [Preview]5D;(command:fx-extension.localdebug).]A;[Provision]5D;(command:fx-extension.provision)]A;[Preview]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to browse all debug options in Teams.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aby wyświetlić podgląd agenta deklaratywnego, [Aprowizacja]5D;(command:fx-extension.provision) dla platformy Microsoft 365 Copilot i uruchom funkcję Microsoft 365 Copilot for [Wersja zapoznawcza]5D;(command:fx-extension.localdebug).]A;[Aprowizacja]5D;(command:fx-extension.provision)]A;[Wersja zapoznawcza]5D;(command:fx-extension.localdebug)]A;Porada: użyj panelu [Uruchom i debuguj]5D;(command:workbench.view.debug) na pasku aktywności, aby przeglądać wszystkie opcje debugowania w usłudze Teams.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
