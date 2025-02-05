@@ -3,10 +3,12 @@
 
 import fs, { CopyOptions, WriteFileOptions } from "fs-extra";
 import path from "path";
+import yaml from "yaml";
+
+import { Platform } from "@microsoft/teamsfx-api";
 
 import { envUtil } from "../utils/envUtil";
 import { pathUtils } from "../utils/pathUtils";
-import { Platform } from "@microsoft/teamsfx-api";
 
 export const backupFolder = ".backup";
 
@@ -61,7 +63,7 @@ export class DeclarativeAgentBotContext {
   }
 
   async backup(_path: string): Promise<boolean> {
-    const srcPath = path.isAbsolute(_path) ? _path : path.join(this.projectPath, _path);
+    const srcPath = path.join(this.projectPath, _path);
     if (await fs.pathExists(srcPath)) {
       await fs.copy(srcPath, path.join(this.projectPath, backupFolder, _path));
       return true;
@@ -101,13 +103,15 @@ export class DeclarativeAgentBotContext {
   }
 
   async writeEnv(key: string, value: string): Promise<void> {
-    const envFilePath = await pathUtils.getEnvFilePath(this.projectPath, this.env);
-    if (envFilePath.isErr()) throw envFilePath.error;
-    if (!envFilePath.value) throw new Error("Env file not found");
+    const ymlFilePath = pathUtils.getYmlFilePath(this.projectPath, "dev");
+    const ymlContent = await fs.readFile(ymlFilePath, "utf-8");
+    const yamlObj = yaml.parse(ymlContent);
+    const folderPath = yamlObj.environmentFolderPath?.toString() || "./env";
+    const envFilePath = path.join(folderPath, `.env.${this.env}`);
 
-    await this.backup(envFilePath.value);
+    await this.backup(envFilePath);
     await envUtil.writeEnv(this.projectPath, this.env, { [key]: value });
-    this.addModifiedPath(envFilePath.value);
+    this.addModifiedPath(envFilePath);
   }
 
   async cleanBackup(): Promise<void> {
