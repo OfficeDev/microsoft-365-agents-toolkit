@@ -16,7 +16,6 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { localize } from "../utils/localizeUtils";
-import { showOutputChannelHandler } from "./showOutputChannel";
 import { GlobalKey, InstallCopilotChatLink } from "../constants";
 import { isVSCodeInsiderVersion } from "../utils/versionUtil";
 import { VS_CODE_UI } from "../qm/vsc_ui";
@@ -181,12 +180,26 @@ export async function openTeamsAgentWalkthrough(args?: any[]) {
  * Invoke @teamsapp
  * @param query query
  * @param triggerFromProperty trigger-from property
+ * @param skipPreCheck skip pre-check or not
  * @returns A boolean value indicates whether the query is sent or not. If not, it means the walkthrough is opened instead.
  */
 async function invoke(
   query: string,
-  triggerFromProperty: { [key: string]: TelemetryTriggerFrom }
+  triggerFromProperty: { [key: string]: TelemetryTriggerFrom },
+  skipPreCheck = false
 ): Promise<Result<boolean, FxError>> {
+  if (skipPreCheck) {
+    const res = await openGithubCopilotChat([
+      triggerFromProperty[TelemetryProperty.TriggerFrom],
+      query,
+    ]);
+    if (res.isErr()) {
+      return err(res.error);
+    } else {
+      return ok(true);
+    }
+  }
+
   let hasGitHubCopilotInstalledOnce = await globalStateGet(GlobalKey.GithubCopilotInstalled, false);
   if (!hasGitHubCopilotInstalledOnce && githubCopilotInstalled()) {
     await globalStateUpdate(GlobalKey.GithubCopilotInstalled, true);
@@ -217,9 +230,7 @@ async function invoke(
  * @param args args
  * @returns Result
  */
-export async function invokeTeamsAgentForDevelopment(
-  args?: any[]
-): Promise<Result<boolean, FxError>> {
+export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, FxError>> {
   const eventName = TelemetryEvent.InvokeTeamsAgent;
   const triggerFromProperty = getTriggerFromProperty(args);
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.InvokeTeamsAgentStart, triggerFromProperty);

@@ -1678,7 +1678,7 @@
             "title": "%teamsagent.walkthrough.setup.title%",
             "description": "%teamsagent.walkthrough.setup.description%",
             "media": {
-              "svg": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.svg",
+              "image": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.png",
               "altText": "%teamsagent.walkthrough.setup.title%"
             },
             "completionEvents": [
@@ -1690,8 +1690,8 @@
             "title": "%teamsagent.walkthrough.use.title%",
             "description": "%teamsagent.walkthrough.use.description%",
             "media": {
-              "svg": "media/walkthroughs/get-started/resources.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText%"
+              "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
+              "altText": "%teamsagent.walkthrough.use.title%"
             }
           }
         ],

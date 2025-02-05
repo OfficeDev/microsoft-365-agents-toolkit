@@ -37,7 +37,7 @@ import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
-import { invokeTeamsAgentForDevelopment } from "./copilotChatHandlers";
+import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
 import { ExtensionSource } from "../error/error";
 import VsCodeLogInstance from "../commonlib/log";
@@ -74,7 +74,7 @@ export async function createNewProjectHandler(...args: any[]): Promise<Result<an
   }
 
   if (res.shouldInvokeTeamsAgent) {
-    await invokeTeamsAgentForDevelopment([TelemetryTriggerFrom.CreateAppQuestionFlow]);
+    await invokeTeamsAgent([TelemetryTriggerFrom.CreateAppQuestionFlow]);
     return result;
   }
   const projectPathUri = vscode.Uri.file(res.projectPath);
