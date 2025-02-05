@@ -29,24 +29,6 @@ jobs:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
     steps:
-      - name: Validate CD branch
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
-        run: |
-          echo It's allowed to run CD on dev or release branch.
-          exit 1
-
-      - name: Validate inputs for release
-        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid == 'alpha' }}
-        run: |
-          echo It's not allowed to run CD on release branch for alpha.
-          exit 1
-
-      - name: Valiadte inputs for dev
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.event.inputs.preid != 'alpha' }}
-        run: |
-          echo It's only allowed to alpha on dev branch.
-          exit 1
-
       - name: Validate schedule
         if: ${{ github.event_name == 'schedule' && github.ref != 'refs/heads/dev' }}
         run: |
@@ -94,9 +76,8 @@ jobs:
           git config --global user.email 'yiz@microsoft.com'
 
       - name: release alpha npm packages to npmjs.org
-        if: ${{ github.ref == 'refs/heads/dev' }}
         run: |
-          npx lerna version prerelease --preid=alpha.$(git rev-parse --short HEAD) --exact --no-push --allow-branch dev --yes
+          npx lerna version prerelease --preid=alpha.$(git rev-parse --short HEAD) --exact --no-push --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: release preview packages to npmjs.org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
@@ -234,9 +215,8 @@ jobs:
           git commit -m "build: update ai key"
 
       - name: publish alpha release to npm org
-        if: ${{ github.ref == 'refs/heads/dev'}}
         run: |
-          npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev
+          npx lerna publish from-package --dist-tag=alpha --yes --allow-branch ${GITHUB_REF#refs/*/}
 
       - name: publish preview release to npm org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
