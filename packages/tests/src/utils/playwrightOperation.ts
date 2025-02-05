@@ -1991,6 +1991,9 @@ export async function validateTodoList(
         `div.item .creator .name:has-text("${options?.displayName}")`
       );
       console.log("debug finish!!!");
+
+      // cleanup
+      await cleanupInstalledApp(page, "Todo List");
     } catch (e: any) {
       console.log(`[Command not executed successfully] ${e.message}`);
       await page.screenshot({
@@ -2797,7 +2800,7 @@ export async function validateLargeNotificationBot(
   }
 }
 
-export async function validateTodoListSpfx(page: Page) {
+export async function validateTodoListSpfx(page: Page, tabName: string) {
   try {
     console.log("start to verify todo list spfx");
     try {
@@ -2822,6 +2825,9 @@ export async function validateTodoListSpfx(page: Page) {
       expect(task).to.not.be.undefined;
 
       console.log("verify finish!!!");
+
+      // cleanup
+      await cleanupInstalledApp(page, tabName);
     } catch (e: any) {
       console.log(`[Command not executed successfully] ${e.message}`);
       await page.screenshot({
@@ -3043,7 +3049,7 @@ export async function validateCustomapi(
   }
 }
 
-export async function validateRetailDashboard(page: Page) {
+export async function validateRetailDashboard(page: Page, tabName: string) {
   try {
     console.log("start to verify dashboard tab");
     const frameElementHandle = await page.waitForSelector(
@@ -3055,6 +3061,9 @@ export async function validateRetailDashboard(page: Page) {
       "span:has-text('Global Customer Satisfaction')"
     );
     console.log("Dashboard tab loaded successfully");
+
+    // cleanup
+    await cleanupInstalledApp(page, tabName);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
@@ -3062,6 +3071,48 @@ export async function validateRetailDashboard(page: Page) {
     });
     throw error;
   }
+}
+
+export async function cleanupInstalledApp(page: Page, appName: string) {
+  console.log("start to cleanupInstalledApp");
+  const tabCardContainer = await page?.waitForSelector(
+    "div[data-tid='app-layout-area--header']"
+  );
+  try {
+    // clean up
+    const homeTab = await tabCardContainer?.waitForSelector(
+      `button:has-text('${appName}')`
+    );
+    // right click to open context menu
+    await homeTab?.click({ button: "right" });
+    await page.waitForTimeout(Timeout.shortTimeWait);
+    const deleteBtn = await page?.waitForSelector(
+      "div[data-tid='data-tid-removeTab']"
+    );
+    await deleteBtn?.click();
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    const confirmBtn = await page?.waitForSelector(
+      "button[id='tab-remove-btn']"
+    );
+    await confirmBtn?.click();
+    await page.waitForTimeout(Timeout.shortTimeWait);
+    try {
+      await page.waitForSelector(
+        "h3:has-text('There was a problem removing this tab')"
+      );
+      const dobuleConfirmBtn = await page.waitForSelector(
+        "button:has-text('Yes, remove tab')"
+      );
+      await dobuleConfirmBtn?.click();
+    } catch (error) {
+      console.log("no error message");
+    }
+    console.log("cleanupInstalledApp successfully");
+  } catch (error) {
+    console.log("[skip] cleanupInstalledApp error");
+    console.log(error);
+  }
+  return tabCardContainer;
 }
 
 export async function validateMeeting(page: Page, name: string) {
@@ -3073,6 +3124,9 @@ export async function validateMeeting(page: Page, name: string) {
     const frame = await frameElementHandle?.contentFrame();
     await frame?.waitForSelector(`#root>div>p:has-text('${name}')`);
     console.log("meeting tab loaded successfully");
+
+    // clean up
+    await cleanupInstalledApp(page, "Home");
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),

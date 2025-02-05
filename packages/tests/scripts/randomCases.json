@@ -50,8 +50,6 @@
         },
         "cases": [
             "sample-localdebug-hello-world-tab-with-backend",
-            "sample-localdebug-graph-connector-bot",
-            "sample-localdebug-bot-sso",
             "sample-localdebug-dice-roller",
             "sample-localdebug-contact-exporter",
             "sample-localdebug-hello-world-meeting",
@@ -80,7 +78,9 @@
             "sample-remotedebug-assistant-dashboard",
             "sample-remotedebug-hello-world-tab-outlook",
             "sample-remotedebug-bot-sso",
-            "sample-remotedebug-sso-tab-via-apim-proxy"
+            "sample-remotedebug-sso-tab-via-apim-proxy",
+            "sample-localdebug-graph-connector-bot",
+            "sample-localdebug-bot-sso"
         ]
     },
     {

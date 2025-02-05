@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Teams Toolkit",
   "description": "Create, debug, and deploy Teams apps with Teams Toolkit",
-  "version": "5.12.0",
+  "version": "5.12.1",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -381,7 +381,7 @@
         },
         {
           "command": "fx-extension.openDocumentLink",
-          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(build|publishInDeveloperPortal)$/",
+          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(validateManifest|publishInDeveloperPortal)$/",
           "group": "inline"
         }
       ],
@@ -962,6 +962,11 @@
       {
         "command": "fx-extension.findSimilarIssue",
         "title": "%teamstoolkit.handlers.similarIssues%",
+        "category": "Teams"
+      },
+      {
+        "command": "fx-extension.addAuthAction",
+        "title": "%teamstoolkit.commands.addAuthAction%",
         "category": "Teams"
       }
     ],

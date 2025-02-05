@@ -1,6 +1,7 @@
 import os
 import sys
 import traceback
+from dataclasses import asdict
 
 from typing import Any, Dict, List
 from botbuilder.core import MemoryStorage, TurnContext, CardFactory, MessageFactory
@@ -14,6 +15,7 @@ from teams.state import TurnState
 from teams.ai.prompts import PromptFunctions, PromptManager, PromptManagerOptions
 from teams.ai.tokenizers import Tokenizer
 from teams.state import MemoryBase
+from teams.feedback_loop_data import FeedbackLoopData
 
 from config import Config
 from state import AppTurnState
@@ -72,6 +74,11 @@ async def on_error(context: TurnContext, error: Exception):
 
     # Send a message to the user
     await context.send_activity("The bot encountered an error or bug.")
+
+@bot_app.feedback_loop()
+async def feedback_loop(_context: TurnContext, _state: TurnState, feedback_loop_data: FeedbackLoopData):
+    # Add custom feedback process logic here.
+    print(f"Your feedback is:\n{json.dumps(asdict(feedback_loop_data), indent=4)}")
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))

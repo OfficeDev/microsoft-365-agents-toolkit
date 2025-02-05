@@ -57,7 +57,7 @@ export interface CreateProjectInputs extends Inputs {
   /** @description SPFx solution folder */
   "spfx-folder"?: string;
   /** @description Architecture of Search Based Message Extension */
-  "me-architecture"?: "new-api" | "api-spec" | "bot-plugin" | "bot";
+  "me-architecture"?: "new-api" | "api-spec" | "bot";
   /** @description Create Declarative Agent */
   "with-plugin"?: "no" | "yes";
   /** @description Create API Plugin */

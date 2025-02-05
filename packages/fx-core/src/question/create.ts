@@ -4,7 +4,9 @@
 import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
+  AppPackageFolderName,
   CLIPlatforms,
+  DefaultPluginManifestFileName,
   FolderQuestion,
   IQTreeNode,
   Inputs,
@@ -954,9 +956,7 @@ export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
       } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {
         options.push(ApiAuthOptions.apiKey());
-        if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)) {
-          options.push(ApiAuthOptions.microsoftEntra());
-        }
+        options.push(ApiAuthOptions.microsoftEntra());
         options.push(ApiAuthOptions.oauth());
       }
       return options;
@@ -1244,6 +1244,22 @@ export function pluginManifestQuestion(): SingleFileQuestion {
     },
     defaultFolder: (inputs: Inputs) =>
       CLIPlatforms.includes(inputs.platform) ? "./" : os.homedir(),
+    default: (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        return undefined;
+      }
+
+      const ttkPluginFilePath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        DefaultPluginManifestFileName
+      );
+
+      if (fs.existsSync(ttkPluginFilePath)) {
+        return ttkPluginFilePath;
+      }
+      return undefined;
+    },
     validation: {
       validFunc: async (input: string) => {
         const manifestRes = await pluginManifestUtils.readPluginManifestFile(input.trim());

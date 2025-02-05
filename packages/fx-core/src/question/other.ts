@@ -823,12 +823,18 @@ export function addAuthActionQuestion(): IQTreeNode {
         data: apiSpecFromPluginManifestQuestion(),
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
-          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          if (!!!pluginManifestPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
           const specs = pluginManifest
             .runtimes!.filter((runtime) => runtime.type === "OpenApi")
             .map((runtime) => runtime.spec.url);
-          if (specs.length === 1) {
-            inputs[QuestionNames.ApiSpecLocation] = specs[0];
+          const spesDedup = [...new Set(specs)];
+          if (spesDedup.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = spesDedup[0];
             return false;
           }
           return true;
@@ -839,7 +845,12 @@ export function addAuthActionQuestion(): IQTreeNode {
         condition: async (inputs: Inputs) => {
           const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
           const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
-          const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+          if (!!!pluginManifestPath || !!!apiSpecPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
           const apis: string[] = [];
           pluginManifest
             .runtimes!.filter(
@@ -848,8 +859,9 @@ export function addAuthActionQuestion(): IQTreeNode {
             .forEach((runtime) => {
               apis.push(...(runtime.run_for_functions as string[]));
             });
-          if (apis.length === 1) {
-            inputs[QuestionNames.ApiOperation] = apis;
+          const apisDedup = [...new Set(apis)];
+          if (apisDedup.length === 1) {
+            inputs[QuestionNames.ApiOperation] = apisDedup;
             return false;
           }
           return true;
@@ -872,13 +884,14 @@ export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
     placeholder: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.placeholder"),
     type: "singleSelect",
     staticOptions: [],
+    cliDescription: "OpenAPI specification to add Auth configuration.",
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
       const specs = pluginManifest
         .runtimes!.filter((runtime) => runtime.type === "OpenApi")
         .map((runtime) => runtime.spec.url as string);
-      return specs;
+      return [...new Set(specs)];
     },
   };
 }
@@ -890,16 +903,20 @@ export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
     type: "multiSelect",
     staticOptions: [],
     placeholder: getLocalizedString("core.addAuthActionQuestion.ApiOperation.placeholder"),
+    cliDescription: "API to add Auth configuration.",
     dynamicOptions: async (inputs: Inputs) => {
       const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
       const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-      const apis = pluginManifest
+      const apis: string[] = [];
+      pluginManifest
         .runtimes!.filter(
           (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
         )
-        .map((runtime) => runtime.spec.run_for_functions as string);
-      return apis;
+        .forEach((runtime) => {
+          apis.push(...(runtime.run_for_functions as string[]));
+        });
+      return [...new Set(apis)];
     },
   };
 }
@@ -909,6 +926,7 @@ export function authNameQuestion(): TextInputQuestion {
     name: QuestionNames.AuthName,
     title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
     type: "text",
+    cliDescription: "Name of Auth Configuration.",
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {
@@ -936,6 +954,7 @@ export function apiSpecApiKeyQuestion(): IQTreeNode {
       type: "text",
       name: QuestionNames.ApiSpecApiKey,
       cliShortName: "k",
+      password: true,
       title: getLocalizedString("core.createProjectQuestion.ApiKey"),
       cliDescription: "Api key for OpenAPI spec.",
       forgetLastValue: true,
@@ -1172,6 +1191,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     type: "text",
     name: QuestionNames.OauthClientSecret,
     cliShortName: "c",
+    password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,

@@ -96,7 +96,7 @@ export async function openDocumentLinkHandler(args?: any[]): Promise<Result<bool
     case "fx-extension.provision": {
       return VS_CODE_UI.openUrl("https://aka.ms/teamsfx-provision-cloud-resource");
     }
-    case "fx-extension.build": {
+    case "fx-extension.validateManifest": {
       return VS_CODE_UI.openUrl("https://aka.ms/teams-store-validation");
     }
     case "fx-extension.deploy": {

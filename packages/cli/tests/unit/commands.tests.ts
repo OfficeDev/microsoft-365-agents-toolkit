@@ -65,6 +65,7 @@ import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate"
 import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -247,7 +248,7 @@ describe("CLI commands", () => {
   describe("getAddCommand", async () => {
     it("customize GPT is enabled", async () => {
       const commands = addCommand();
-      assert.isTrue(commands.commands?.length === 2);
+      assert.isTrue(commands.commands?.length === 3);
     });
   });
 
@@ -881,6 +882,21 @@ describe("CLI commands", () => {
       };
       const res = await teamsappPublishCommand.handler!(ctx);
       assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("addAuthConfigCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "addAuthAction").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addAuthConfigCommand, fullName: "add auth-config" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await addAuthConfigCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
     });
   });
 });

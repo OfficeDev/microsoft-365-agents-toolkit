@@ -55,6 +55,9 @@
   "add.plugin": {
     "description": "A plugin to extend Copilot using your APIs."
   },
+  "add.auth-config": {
+    "description": "Add Configurations to Support Actions with Authentication in Declarative Agent"
+  },
   "create": {
     "description": "Create a new Microsoft Teams application."
   },

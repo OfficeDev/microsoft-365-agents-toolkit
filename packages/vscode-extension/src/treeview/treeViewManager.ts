@@ -90,13 +90,13 @@ class TreeViewManager {
       utilityTreeviewProvider.refresh();
     }
     if (await hasAdaptiveCardInWorkspace()) {
-      // after "Validate application" command, the adaptive card will be shown
+      // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
-        "teamsfx-utility"
+        "teamsfx-development"
       ) as CommandsTreeViewProvider;
       const utilityCommands = utilityTreeviewProvider.getCommands();
       const validateCommandIndex = utilityCommands.findIndex(
-        (command) => command.commandId === "fx-extension.validateManifest"
+        (command) => command.commandId === "fx-extension.localdebug"
       );
       if (validateCommandIndex >= 0) {
         utilityCommands.splice(

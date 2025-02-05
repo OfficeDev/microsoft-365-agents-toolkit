@@ -4,7 +4,14 @@
 
 > Note: This changelog only includes the changes for the pre-release versions of Teams Toolkit. For the changelog of stable versions, please refer to the [Teams Toolkit Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/CHANGELOG.md).
 
-### January 21, 2025
+### January 23, 2025
+
+#### New Feature
+
+- **Develop Office Add-ins**: Teams Toolkit now supports building add-ins for a broader range of Office applications, including Word, Excel, and PowerPoint, in addition to Outlook. You can now use Teams Toolkit to create task panes that seamlessly integrate across these Office applications.
+![Office Add-in](https://github.com/user-attachments/assets/340de205-a15c-4822-9a9b-bd438c634ff8)
+
+### January 14, 2025
 
 #### Bug Fix
 

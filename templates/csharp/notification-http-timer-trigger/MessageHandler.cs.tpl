@@ -1,5 +1,4 @@
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -22,7 +21,7 @@ namespace {{SafeProjectName}}
             _log = log;
         }
 
-        [FunctionName("MessageHandler")]
+        [Function("MessageHandler")]
         public async Task<EmptyResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/messages")] HttpRequest req)
         {
             _log.LogInformation("MessageHandler processes a request.");

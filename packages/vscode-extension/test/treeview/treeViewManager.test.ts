@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
 import treeViewManager from "../../src/treeview/treeViewManager";
+import * as commonUtils from "../../src/utils/commonUtils";
 
 describe("TreeViewManager", () => {
   const sandbox = sinon.createSandbox();
@@ -135,5 +136,23 @@ describe("TreeViewManager", () => {
     await treeViewManager.updateTreeViewsByContent(true);
     chai.assert.equal(developmentCommands.length, 4);
     chai.assert.equal(utilityCommands.length, 3);
+  });
+
+  it("updateTreeViewsByContent when adaptiveCardInWorkspace is enabled", async () => {
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeviewProvider = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+
+    const commands = developmentTreeviewProvider.getCommands();
+    chai.assert.equal(commands.length, 4);
+
+    sandbox.stub(commonUtils, "hasAdaptiveCardInWorkspace").returns(Promise.resolve(true));
+    await treeViewManager.updateTreeViewsByContent();
+
+    chai.assert.equal(commands.length, 5);
   });
 });
