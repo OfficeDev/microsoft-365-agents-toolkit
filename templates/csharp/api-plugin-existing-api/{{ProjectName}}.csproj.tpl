@@ -7,12 +7,7 @@
 
   <ItemGroup>
     <ProjectCapability Include="TeamsFx" />
-    {{#DeclarativeCopilot}}
-      <ProjectCapability Include="DeclarativeAgent" />
-    {{/DeclarativeCopilot}}
-    {{^DeclarativeCopilot}}
-      <ProjectCapability Include="ApiPlugin" />
-    {{/DeclarativeCopilot}}
+    <ProjectCapability Include="DeclarativeAgent" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,12 +20,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.TeamsFx.Sdk">
   <ItemGroup>
-    {{#DeclarativeCopilot}}
-      <ProjectCapability Include="DeclarativeAgent" />
-    {{/DeclarativeCopilot}}
-    {{^DeclarativeCopilot}}
-      <ProjectCapability Include="ApiPlugin" />
-    {{/DeclarativeCopilot}}
+    <ProjectCapability Include="DeclarativeAgent" />
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="ProjectConfigurationsDeclaredDimensions" />

@@ -60,29 +60,8 @@ provision:
       target: ./Properties/launchSettings.json
       content:
         profiles:
-        {{^DeclarativeCopilot}}
-          Microsoft 365 app (browser):
-            commandName: "Project"
-            dotnetRunMessages: true
-            launchBrowser: true
-            launchUrl: "https://www.office.com/chat?auth=2"
-            environmentVariables:
-              ASPNETCORE_ENVIRONMENT: "Development"
-            hotReloadProfile: "aspnetcore"
-          Microsoft Teams (browser):
-            commandName: "Project"
-            commandLineArgs: "host start --port 5130 --pause-on-error"
-            dotnetRunMessages: true
-            launchBrowser: true
-            launchUrl: "https://teams.microsoft.com?appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
-            environmentVariables:
-              ASPNETCORE_ENVIRONMENT: "Development"
-            hotReloadProfile: "aspnetcore"
-        {{/DeclarativeCopilot}}
-        {{#DeclarativeCopilot}}
           "Copilot (browser)": {
             "commandName": "Project",
             "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
           }
-        {{/DeclarativeCopilot}}
 {{/isNewProjectTypeEnabled}}
