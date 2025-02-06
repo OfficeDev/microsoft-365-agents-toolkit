@@ -476,16 +476,6 @@ export class SpecGenerator extends DefaultTemplateGenerator {
           ...context.templateVariables,
           DeclarativeCopilot: isDeclarativeCopilot ? "true" : "",
         },
-        filterFn: (fileName: string) => {
-          if (fileName.includes(`${defaultDeclarativeCopilotManifestFileName}.tpl`)) {
-            return isDeclarativeCopilot;
-          } else if (fileName.includes(declarativeCopilotInstructionFileName)) {
-            return isDeclarativeCopilot;
-          }
-          {
-            return true;
-          }
-        },
       },
     ]);
   }

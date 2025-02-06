@@ -76,13 +76,6 @@ describe("copilotExtension", async () => {
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-
-      if (info.isOk()) {
-        const filterFn = info.value[0].filterFn;
-        assert.isFalse(filterFn?.("repairDeclarativeAgent.json"));
-        assert.isFalse(filterFn?.("instruction.txt"));
-        assert.isTrue(filterFn?.("test.json"));
-      }
     });
 
     it("declarative Copilot: Env func enabled", async () => {

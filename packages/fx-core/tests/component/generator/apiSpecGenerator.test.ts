@@ -2009,13 +2009,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, TemplateNames.ApiPluginExistingApi);
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
 
       inputs[QuestionNames.Capabilities] = CapabilityOptions.declarativeAgent().id;
@@ -2025,11 +2018,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, TemplateNames.ApiPluginExistingApi);
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "true");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isTrue(filterResult);
       }
 
       delete inputs[QuestionNames.Capabilities];
@@ -2117,13 +2105,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
     });
 
@@ -2161,13 +2142,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
     });
 
