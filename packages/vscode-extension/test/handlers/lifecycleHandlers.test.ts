@@ -612,21 +612,21 @@ describe("Lifecycle handlers", () => {
       sandbox.assert.calledOnce(provisionction);
     });
   });
-});
 
-describe("addKnowledgeHandler", async () => {
-  const sandbox = sinon.createSandbox();
+  describe("addKnowledgeHandler", async () => {
+    const sandbox = sinon.createSandbox();
 
-  afterEach(() => {
-    sandbox.restore();
-  });
+    afterEach(() => {
+      sandbox.restore();
+    });
 
-  it("success:", async () => {
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
 
-    await addKnowledgeHandler();
+      await addKnowledgeHandler();
 
-    sinon.assert.calledOnce(addKnowledge);
+      sinon.assert.calledOnce(addKnowledge);
+    });
   });
 });
