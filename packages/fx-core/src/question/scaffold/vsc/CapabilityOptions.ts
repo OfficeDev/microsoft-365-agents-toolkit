@@ -537,6 +537,7 @@ export class ApiPluginStartOptions {
       id: "existing-plugin",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
+      data: TemplateNames.BasicGpt,
     };
   }
 }
