@@ -17,29 +17,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "Knowledge source.",
     required: true,
     default: "web-search",
-    choices: ["web-search", "oneDrive-sharePoint"],
-  },
-  {
-    name: "openapi-spec-location",
-    type: "string",
-    shortName: "a",
-    description: "OpenAPI description document location.",
-  },
-  {
-    name: "api-operation",
-    type: "array",
-    shortName: "o",
-    description: "Select operation(s) Copilot can interact with.",
-  },
-  {
-    name: "teams-manifest-file",
-    questionName: "manifest-path",
-    type: "string",
-    shortName: "t",
-    description:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
-    required: true,
-    default: "./appPackage/manifest.json",
+    choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];
