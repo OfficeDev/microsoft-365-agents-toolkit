@@ -474,7 +474,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         language: language,
         replaceMap: {
           ...context.templateVariables,
-          DeclarativeCopilot: "true",
+          DeclarativeCopilot: isDeclarativeCopilot ? "true" : "",
         },
       },
     ]);
