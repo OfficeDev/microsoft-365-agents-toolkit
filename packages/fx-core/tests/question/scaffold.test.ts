@@ -213,7 +213,7 @@ describe("languageNode", () => {
   afterEach(() => {
     sandbox.restore();
   });
-  it("happy", () => {
+  it("csharp", () => {
     const node = languageNode();
     const condition = node.condition as ConditionFunc;
     const inputs: Inputs = {
@@ -224,6 +224,18 @@ describe("languageNode", () => {
     assert.isTrue(res);
     const options = (node.data as SingleSelectQuestion).dynamicOptions?.(inputs);
     assert.deepEqual(options, [{ id: ProgrammingLanguage.CSharp, label: "C#" }]);
+  });
+  it("common", () => {
+    const node = languageNode();
+    const condition = node.condition as ConditionFunc;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.TemplateName]: TemplateNames.BasicGpt,
+    };
+    const res = condition(inputs);
+    assert.isTrue(res);
+    const options = (node.data as SingleSelectQuestion).dynamicOptions?.(inputs);
+    assert.deepEqual(options, [{ id: ProgrammingLanguage.Common, label: "None" }]);
   });
 });
 

@@ -19,6 +19,7 @@ export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.TS, { id: ProgrammingLanguage.TS, label: "TypeScript" }],
   [ProgrammingLanguage.CSharp, { id: ProgrammingLanguage.CSharp, label: "C#" }],
   [ProgrammingLanguage.PY, { id: ProgrammingLanguage.PY, label: "Python" }],
+  [ProgrammingLanguage.Common, { id: ProgrammingLanguage.PY, label: "None" }],
 ]);
 
 export function languageNode(): IQTreeNode {
@@ -45,7 +46,14 @@ export function languageNode(): IQTreeNode {
         const languages = Templates.filter((t) => t.name === templateName)
           .map((t) => t.language)
           .filter((lang) => lang !== "none" && lang !== undefined);
-        return languages.map((lang) => LanguageOptionMap.get(lang) as OptionItem);
+        const languageOptions = languages.map(
+          (lang) =>
+            (LanguageOptionMap.get(lang) as OptionItem) || {
+              id: ProgrammingLanguage.Common,
+              label: "None",
+            }
+        );
+        return languageOptions;
       },
       skipSingleOption: true,
     },

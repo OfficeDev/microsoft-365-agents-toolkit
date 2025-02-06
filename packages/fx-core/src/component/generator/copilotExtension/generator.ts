@@ -56,6 +56,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
       TemplateNames.ApiPluginFromScratch,
       TemplateNames.ApiPluginFromScratchBearer,
       TemplateNames.ApiPluginFromScratchOAuth,
+      TemplateNames.BasicGpt,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 
