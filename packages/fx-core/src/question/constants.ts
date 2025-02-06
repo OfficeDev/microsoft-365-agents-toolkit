@@ -1250,7 +1250,36 @@ export class KnowledgeSourceOptions {
     };
   }
 
+  static graphConnector(): OptionItem {
+    return {
+      id: "graph-connector",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeGraphConnector.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeGraphConnector.detail"
+      ),
+    };
+  }
+
+  static embeddedKnowledge(): OptionItem {
+    return {
+      id: "embedded-knowledge",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail"
+      ),
+    };
+  }
+
   static all(): OptionItem[] {
-    return [KnowledgeSourceOptions.webSearch(), KnowledgeSourceOptions.oneDriveSharePoint()];
+    return [
+      KnowledgeSourceOptions.webSearch(),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
+      KnowledgeSourceOptions.graphConnector(),
+      KnowledgeSourceOptions.embeddedKnowledge(),
+    ];
   }
 }

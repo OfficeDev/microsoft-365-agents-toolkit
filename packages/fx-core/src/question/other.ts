@@ -814,41 +814,7 @@ export function addPluginQuestionNode(): IQTreeNode {
 export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
-    children: [
-      {
-        data: pluginManifestQuestion(),
-        condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
-        },
-      },
-      {
-        data: pluginApiSpecQuestion(),
-        condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
-        },
-      },
-      {
-        data: apiSpecLocationQuestion(),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
-          );
-        },
-      },
-      {
-        data: apiOperationQuestion(true, true),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
-          );
-        },
-      },
-      {
-        data: selectTeamsAppManifestQuestion(),
-      },
-    ],
+    children: [],
   };
 }
 

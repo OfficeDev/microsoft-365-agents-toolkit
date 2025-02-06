@@ -12,11 +12,9 @@ import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddKnowledgeInputs extends Inputs {
   /** @description Add Knowledge */
-  "knowledge-source"?: "web-search" | "oneDrive-sharePoint";
-  /** @description OpenAPI Description Document */
-  "openapi-spec-location"?: string;
-  /** @description Select Operation(s) Copilot Can Interact with */
-  "api-operation"?: string[];
-  /** @description Select Teams manifest.json File */
-  "manifest-path"?: string;
+  "knowledge-source"?:
+    | "web-search"
+    | "oneDrive-sharePoint"
+    | "graph-connector"
+    | "embedded-knowledge";
 }
