@@ -739,6 +739,9 @@
       <Item ItemId=";core.addAuthActionQuestion.ApiSpecLocation.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[選取選項]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3904,8 +3907,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate app package using Teams Store rules]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[使用驗證規則驗證應用程式套件]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[使用 Teams 市集規則驗證應用程式套件]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate app package using validation rules]]></Val>
@@ -3925,8 +3928,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate Teams app manifest schema]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[使用資訊清單結構描述驗證]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[驗證 Teams 應用程式資訊清單結構描述]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate using manifest schema]]></Val>

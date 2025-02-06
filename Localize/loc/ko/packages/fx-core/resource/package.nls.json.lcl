@@ -739,6 +739,9 @@
       <Item ItemId=";core.addAuthActionQuestion.ApiSpecLocation.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[옵션 선택]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3904,8 +3907,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate app package using Teams Store rules]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[유효성 검사 규칙을 사용하여 앱 패키지 유효성 검사]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 스토어 규칙을 사용하여 앱 패키지 유효성 검사]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate app package using validation rules]]></Val>
@@ -3925,8 +3928,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate Teams app manifest schema]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[매니페스트 스키마를 사용하여 유효성 검사]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 앱 매니페스트 스키마 유효성 검사]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate using manifest schema]]></Val>

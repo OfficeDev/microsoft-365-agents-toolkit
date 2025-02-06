@@ -739,6 +739,9 @@
       <Item ItemId=";core.addAuthActionQuestion.ApiSpecLocation.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bir seçim yapın]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3904,8 +3907,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate app package using Teams Store rules]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Doğrulama kurallarını kullanarak uygulama paketini doğrulayın]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams mağazası kurallarını kullanarak uygulama paketini doğrulayın]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate app package using validation rules]]></Val>
@@ -3925,8 +3928,8 @@
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate Teams app manifest schema]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Bildirim şemasını kullanarak doğrulayın]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams uygulama bildirimi şemasını doğrula]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate using manifest schema]]></Val>
