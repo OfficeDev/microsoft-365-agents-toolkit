@@ -5,7 +5,6 @@ import * as vscode from "vscode";
 
 import { FxError, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import { assembleError, globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
-import { UserCancelError, sleep } from "@microsoft/vscode-ui";
 import VsCodeLogInstance from "../commonlib/log";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -34,8 +33,8 @@ function githubCopilotInstalled(): boolean {
 }
 
 export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, FxError>> {
-  const startEventName = "open-github-copilot-start";
-  const eventName = "open-github-copilot";
+  const startEventName = TelemetryEvent.OpenGitHubCopilotChatStart;
+  const eventName = TelemetryEvent.openGitHubCopilotChat;
   const triggerFrom = getTriggerFromProperty(args);
   const hasQuery = !!args && args.length == 2;
   const query = hasQuery ? args[1] : "";
@@ -80,8 +79,8 @@ export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, 
 export async function installGithubCopilotChatExtension(
   args?: any[]
 ): Promise<Result<null, FxError>> {
-  const startEventName = "install-copilot-chat-start";
-  const eventName = "install-copilot-chat";
+  const startEventName = TelemetryEvent.InstallCopilotChatStart;
+  const eventName = TelemetryEvent.InstallCopilotChat;
 
   const isExtensionInstalled = githubCopilotInstalled();
   if (isExtensionInstalled) {
@@ -128,8 +127,8 @@ export async function installGithubCopilotChatExtension(
 }
 
 export async function openInstallTeamsAgent(args?: any[]) {
-  const startEventName = "open-install-teams-agent-start";
-  const eventName = "open-install-teams-agent";
+  const startEventName = TelemetryEvent.OpenInstallTeamsAgentStart;
+  const eventName = TelemetryEvent.OpenInstallTeamsAgent;
 
   const telemetryProperties = getTriggerFromProperty(args);
   ExtTelemetry.sendTelemetryEvent(startEventName, telemetryProperties);
@@ -143,8 +142,8 @@ export async function openInstallTeamsAgent(args?: any[]) {
 }
 
 export async function markTeamsAgentInstallationDone(args?: any[]) {
-  const startEventName = "mark-teams-agent-installation-done-start";
-  const eventName = "mark-teams-agent-installation-done";
+  const startEventName = TelemetryEvent.MarkTeamsAgentInstallationDoneStart;
+  const eventName = TelemetryEvent.MarkTeamsAgentInstallationDone;
 
   ExtTelemetry.sendTelemetryEvent(startEventName);
 
@@ -157,8 +156,8 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
 }
 
 export async function markGitHubCopilotSetupDone(args?: any[]) {
-  const startEventName = "mark-github-copilot-setup-done-start";
-  const eventName = "mark-github-copilot-setup-done";
+  const startEventName = TelemetryEvent.MarkGitHubCopilotSetupDoneStart;
+  const eventName = TelemetryEvent.MarkGitHubCopilotSetupDone;
   ExtTelemetry.sendTelemetryEvent(startEventName);
   try {
     await globalStateUpdate(GlobalKey.GitHubCopilotSetupAlready, true);
@@ -180,7 +179,7 @@ export async function openTeamsAgentWalkthrough(args?: any[]) {
  * Invoke @teamsapp
  * @param query query
  * @param triggerFromProperty trigger-from property
- * @param skipPreCheck skip pre-check or not
+ * @param skipPreCheck skip pre-check or not. Default value is false.
  * @returns A boolean value indicates whether the query is sent or not. If not, it means the walkthrough is opened instead.
  */
 async function invoke(
@@ -236,6 +235,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.InvokeTeamsAgentStart, triggerFromProperty);
 
   let query = "";
+  let shouldSkipPreCheck = false;
   switch (triggerFromProperty[TelemetryProperty.TriggerFrom]) {
     case TelemetryTriggerFrom.TreeView:
     case TelemetryTriggerFrom.CommandPalette:
@@ -244,18 +244,23 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     case TelemetryTriggerFrom.WalkThroughIntroduction:
       query = "@teamsapp What is notification bot in Teams?";
+      shouldSkipPreCheck = true;
       break;
     case TelemetryTriggerFrom.WalkThroughCreate:
       query = "@teamsapp How to create notification bot with Teams Toolkit?";
+      shouldSkipPreCheck = true;
       break;
     case TelemetryTriggerFrom.WalkThroughWhatIsNext:
+      shouldSkipPreCheck = true;
       query =
         "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?";
       break;
     case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
+      shouldSkipPreCheck = true;
       query = "@teamsapp What is declarative agent for Microsoft 365 Copilot?";
       break;
     case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
+      shouldSkipPreCheck = true;
       query = "@teamsapp How to create declarative agent with Teams Toolkit?";
       break;
     default:
@@ -263,7 +268,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
         "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
   }
 
-  const res = await invoke(query, triggerFromProperty);
+  const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, res.error, triggerFromProperty);

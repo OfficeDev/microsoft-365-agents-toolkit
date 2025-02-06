@@ -288,6 +288,17 @@ export enum TelemetryEvent {
   TroubleshootSelectedText = "troubleshoot-selected-text",
   TroubleshootErrorFromNotificationStart = "troubleshoot-error-from-notification-start",
   TroubleshootErrorFromNotification = "troubleshoot-error-from-notification",
+
+  OpenGitHubCopilotChatStart = "open-github-copilot-chat-start",
+  openGitHubCopilotChat = "open-github-copilot-chat",
+  InstallCopilotChatStart = "install-copilot-chat-start",
+  InstallCopilotChat = "install-copilot-chat",
+  OpenInstallTeamsAgentStart = "open-install-teams-agent-start",
+  OpenInstallTeamsAgent = "open-install-teams-agent",
+  MarkTeamsAgentInstallationDoneStart = "mark-teams-agent-installation-done-start",
+  MarkTeamsAgentInstallationDone = "mark-teams-agent-installation-done",
+  MarkGitHubCopilotSetupDoneStart = "mark-github-copilot-setup-done-start",
+  MarkGitHubCopilotSetupDone = "mark-github-copilot-setup-done",
   OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
 
   // Copilot Chat

@@ -464,7 +464,7 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
 
   // Register invoke teams agent command
   const invokeTeamsAgent = vscode.commands.registerCommand("fx-extension.invokeChat", (...args) =>
-    Correlator.run(copilotChatHandlers.invokeTeamsAgentForDevelopment, args)
+    Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
   );
   context.subscriptions.push(invokeTeamsAgent);
 
