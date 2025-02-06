@@ -4,6 +4,6 @@ import { releaseControlledFeatureSettings } from "../src/releaseBasedFeatureSett
 describe("releaseControlledFeatureSettings", () => {
   it("verify default values", async () => {
     const settings = releaseControlledFeatureSettings;
-    chai.assert.isFalse(settings.shouldEnableTeamsCopilotChatUI);
+    chai.assert.isTrue(settings.shouldEnableTeamsCopilotChatUI);
   });
 });

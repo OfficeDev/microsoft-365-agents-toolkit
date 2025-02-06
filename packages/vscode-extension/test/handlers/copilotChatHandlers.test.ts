@@ -226,7 +226,7 @@ describe("copilotChatHandler", async () => {
 
   describe("invokeTeamsAgent", () => {
     it("open walkthrough successfully from treeview", async () => {
-      const args = [{ [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TreeView }];
+      const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(false);
       sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
@@ -242,7 +242,7 @@ describe("copilotChatHandler", async () => {
     });
 
     it("invoke chat successfully from command palette", async () => {
-      const args = [{ [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.CommandPalette }];
+      const args = [TelemetryTriggerFrom.CommandPalette];
       sandbox.stub(globalState, "globalStateGet").resolves(true);
       sandbox.stub(globalState, "globalStateUpdate").resolves();
       sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
@@ -259,7 +259,7 @@ describe("copilotChatHandler", async () => {
     });
 
     it("invoke chat successfully from unknown", async () => {
-      const args = [{ [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Unknow }];
+      const args = [TelemetryTriggerFrom.Unknow];
       sandbox
         .stub(globalState, "globalStateGet")
         .onFirstCall()
@@ -286,9 +286,7 @@ describe("copilotChatHandler", async () => {
     });
 
     it("skip precheck and invoke chat error from WalkThroughIntroduction", async () => {
-      const args = [
-        { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughIntroduction },
-      ];
+      const args = [TelemetryTriggerFrom.WalkThroughIntroduction];
 
       sandbox.stub(vscode.commands, "executeCommand").callsFake(async (command: string) => {
         if (command === "workbench.action.chat.open") {
@@ -318,12 +316,14 @@ describe("copilotChatHandler", async () => {
 
       walkthroughTriggers.forEach((trigger) => {
         it(`should invoke chat successfully from ${trigger}`, async () => {
-          const args = [{ [TelemetryProperty.TriggerFrom]: trigger }];
+          const args = [trigger];
           sandbox.stub(vscode.commands, "executeCommand").resolves();
           const res = await handlers.invokeTeamsAgent(args);
           chai.assert.isTrue(res.isOk());
           if (res.isOk()) {
             chai.assert.isTrue(res.value);
+          } else {
+            console.log(res.error);
           }
         });
       });
