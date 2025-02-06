@@ -34,8 +34,8 @@ import { declarativeCopilotInstructionFileName } from "../constant";
 import { Generator } from "../generator";
 import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
-import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
+import { TemplateNames } from "../../../question/templates";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -57,12 +57,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
       TemplateNames.ApiPluginFromScratchBearer,
       TemplateNames.ApiPluginFromScratchOAuth,
     ].includes(inputs[QuestionNames.TemplateName]);
-    // return (
-    //   (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id &&
-    //     inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.apiSpec().id) ||
-    //   (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id &&
-    //     inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id)
-    // );
   }
 
   public getTemplateInfos(
