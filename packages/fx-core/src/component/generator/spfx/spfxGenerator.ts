@@ -31,7 +31,6 @@ import { jsonUtils } from "../../../common/jsonUtils";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, UserCancelError } from "../../../error";
 import {
-  CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
   SPFxVersionOptionIds,
@@ -61,6 +60,7 @@ import { ProgressHelper } from "./utils/progress-helper";
 import { telemetryHelper } from "./utils/telemetry-helper";
 import { TelemetryEvents, TelemetryProperty } from "./utils/telemetryEvents";
 import { getShellOptionValue, Utils } from "./utils/utils";
+import { TabCapabilityOptions } from "../../../question/scaffold/vsc/CapabilityOptions";
 
 export class SPFxGenerator {
   @hooks([
@@ -894,7 +894,7 @@ export class SPFxGeneratorNew extends DefaultTemplateGenerator {
   public activate(context: Context, inputs: Inputs): boolean {
     const capability = inputs[QuestionNames.Capabilities] as string;
     const spfxSolution = inputs[QuestionNames.SPFxSolution];
-    return capability === CapabilityOptions.SPFxTab().id && spfxSolution === "new";
+    return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution === "new";
   }
   public async getTemplateInfos(
     context: Context,
@@ -924,7 +924,7 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
   public activate(context: Context, inputs: Inputs): boolean {
     const capability = inputs[QuestionNames.Capabilities] as string;
     const spfxSolution = inputs[QuestionNames.SPFxSolution];
-    return capability === CapabilityOptions.SPFxTab().id && spfxSolution !== "new";
+    return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution !== "new";
   }
 
   public async getTemplateInfos(
