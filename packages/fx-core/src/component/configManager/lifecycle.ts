@@ -24,6 +24,7 @@ import {
 } from "./interface";
 import { MissingEnvironmentVariablesError } from "../../error";
 import { setErrorContext } from "../../common/globalVars";
+import { deployUtils } from "../deployUtils";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -241,21 +242,47 @@ export class Lifecycle implements ILifecycle {
             ","
           )}) found for Action ${this.stringifyDriverDef(driver)} in lifecycle ${this.name}`
         );
-        summaries.push([
-          `${SummaryConstant.Failed} Unresolved placeholders: ${unresolved.join(",")}`,
-        ]);
-        return {
-          result: err({
-            kind: "PartialSuccess",
-            env: envOutput,
-            reason: {
-              kind: "UnresolvedPlaceholders",
-              failedDriver: driver,
-              unresolvedPlaceHolders: unresolved,
-            },
-          }),
-          summaries,
-        };
+
+        // Special handling for file/createOrUpdateEnvironmentFile driver
+        // Let user input OpenAI environment variables if unresolved placeholders are found
+        if (driver.uses == "file/createOrUpdateEnvironmentFile") {
+          const result = await deployUtils.askForOpenAIEnvironmentVariables(
+            ctx,
+            unresolved,
+            envOutput
+          );
+          if (result.isErr()) {
+            return {
+              result: err({
+                kind: "PartialSuccess",
+                env: envOutput,
+                reason: {
+                  kind: "DriverError",
+                  failedDriver: driver,
+                  error: result.error,
+                },
+              }),
+              summaries,
+            };
+          }
+          resolveDriverDef(driver, resolved, unresolved);
+        } else {
+          summaries.push([
+            `${SummaryConstant.Failed} Unresolved placeholders: ${unresolved.join(",")}`,
+          ]);
+          return {
+            result: err({
+              kind: "PartialSuccess",
+              env: envOutput,
+              reason: {
+                kind: "UnresolvedPlaceholders",
+                failedDriver: driver,
+                unresolvedPlaceHolders: unresolved,
+              },
+            }),
+            summaries,
+          };
+        }
       }
 
       if (driver.env) {
