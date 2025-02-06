@@ -61,9 +61,9 @@ export function logToDebugConsole(logLevel: LogLevel, message: string): void {
   } catch (e) {}
 }
 
-export async function writeCopilotLogToFile(log: string, filePath: string): Promise<void> {
+export function writeExecutionDetailsToFile(logFilePath: string, logString: string): void {
   const fs = require("fs");
-  await fs.appendFile(filePath, log + "\n");
+  fs.appendFileSync(logFilePath, logString + "\n");
 }
 
 export class CopilotDebugLog {
@@ -131,12 +131,6 @@ export class CopilotDebugLog {
     }
   }
 
-  private logNoMatchedFunctions(debugConsole: vscode.DebugConsole): void {
-    debugConsole.appendLine(
-      `${ANSIColors.RED}   (×) Error: ${ANSIColors.WHITE}Matched functions: None`
-    );
-  }
-
   private logNoPlugins(debugConsole: vscode.DebugConsole): void {
     debugConsole.appendLine(`${ANSIColors.RED}(×) Error: ${ANSIColors.WHITE}Enabled plugin: None`);
   }
@@ -161,9 +155,11 @@ export class CopilotDebugLog {
     debugConsole: vscode.DebugConsole,
     matchedFunction: FunctionDescriptor
   ): void {
-    const logFileName = `Copilot log ${new Date().toISOString().replace(/-|:|\.\d+Z$/g, "")}.txt`;
+    // E.g "Copilot-debug-20250113T070957.txt"
+    const logFileName = `Copilot-debug-${new Date().toISOString().replace(/-|:|\.\d+Z$/g, "")}.txt`;
     const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
     if (this.functionExecutions && this.functionExecutions.length > 0) {
+      writeExecutionDetailsToFile(logFilePath, JSON.stringify(this.functionExecutions, null, 2));
       this.functionExecutions.forEach((functionExecution) => {
         if (
           functionExecution.function.functionDisplayName === matchedFunction.functionDisplayName

@@ -4,7 +4,11 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { ANSIColors } from "../../src/debug/common/debugConstants";
 import * as globalVariables from "../../src/globalVariables";
-import { CopilotDebugLog, logToDebugConsole } from "../../src/pluginDebugger/copilotDebugLogOutput";
+import {
+  CopilotDebugLog,
+  logToDebugConsole,
+  writeExecutionDetailsToFile,
+} from "../../src/pluginDebugger/copilotDebugLogOutput";
 
 describe("copilotDebugLogOutput", () => {
   const sandbox = sinon.createSandbox();
@@ -71,14 +75,14 @@ describe("copilotDebugLogOutput", () => {
     });
   });
 
-  //   describe("writeCopilotLogToFile", () => {
-  //     it("should write log to file", async () => {
-  //       const fs = require("fs");
-  //       const appendFileStub = sandbox.stub(fs, "appendFile").resolves();
-  //       await writeCopilotLogToFile("log message", "path/to/log.txt");
-  //       assert.isTrue(appendFileStub.calledWith("path/to/log.txt", "log message\n"));
-  //     });
-  //   });
+  describe("writeExecutionDetailsToFile", () => {
+    it("should write function execution details to file", async () => {
+      const fs = require("fs");
+      const appendFileStub = sandbox.stub(fs, "appendFileSync").resolves();
+      writeExecutionDetailsToFile("path/to/log.txt", "log message");
+      chai.assert.isTrue(appendFileStub.calledWith("path/to/log.txt", "log message\n"));
+    });
+  });
 
   describe("CopilotDebugLog", () => {
     const sandbox = sinon.createSandbox();
@@ -173,6 +177,34 @@ describe("copilotDebugLogOutput", () => {
       );
     });
 
+    it("write with 0 enabled plugin(s)", () => {
+      const logJson = JSON.stringify({
+        enabledPlugins: [],
+        matchedFunctionCandidates: [],
+        functionsSelectedForInvocation: [],
+        functionExecutions: [],
+      });
+
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      copilotDebugLog.write();
+
+      chai.assert.isTrue(appendLineStub.calledWith(""));
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.WHITE}[${new Date().toJSON()}] - ${ANSIColors.BLUE}0 enabled plugin(s).`
+        )
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(`${ANSIColors.WHITE}Copilot plugin developer info:`)
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.RED}(×) Error: ${ANSIColors.WHITE}Enabled plugin: None`
+        )
+      );
+    });
+
     it("write with plugins enabled", () => {
       const logJson = JSON.stringify({
         enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
@@ -204,7 +236,10 @@ describe("copilotDebugLogOutput", () => {
           },
         ],
       });
-      const logFilePath = `/path/to/log/Copilot log ${"test".replace(/-|:|\.\d+Z$/g, "")}.txt`;
+      const logFilePath = `/path/to/log/Copilot-debug-test.txt`;
+      const responseStatus = 200;
+      const fs = require("fs");
+      const appendFileSyncStub = sandbox.stub(fs, "appendFileSync").resolves();
       sandbox.stub(globalVariables, "defaultExtensionLogPath").value("/path/to/log");
       sandbox.stub(Date.prototype, "toISOString").returns("test");
       const copilotDebugLog = new CopilotDebugLog(logJson);
@@ -212,40 +247,27 @@ describe("copilotDebugLogOutput", () => {
       copilotDebugLog.write();
       chai.assert.isTrue(
         appendLineStub.calledWith(
-          `${ANSIColors.GREEN}         (√) ${ANSIColors.WHITE}Function execution details: ${ANSIColors.GREEN}Status 200, ${ANSIColors.WHITE}refer to ${ANSIColors.BLUE}${logFilePath}${ANSIColors.WHITE} for all details.`
+          `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled plugin: ${ANSIColors.MAGENTA}plugin1 ${ANSIColors.GRAY}• version 1.0 • 1`
+        )
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.GREEN}   (√) ${ANSIColors.WHITE}Matched functions: ${ANSIColors.MAGENTA}function1`
+        )
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.GREEN}      (√) ${ANSIColors.WHITE}Selected functions for execution: ${ANSIColors.MAGENTA}function1`
+        )
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.GREEN}         (√) ${ANSIColors.WHITE}Function execution details: ${ANSIColors.GREEN}Status ${responseStatus}, ${ANSIColors.WHITE}refer to ${ANSIColors.BLUE}${logFilePath}${ANSIColors.WHITE} for all details.`
         )
       );
       chai.assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.RED}            (×) Error: ${ANSIColors.WHITE}Sample error`
-        )
-      );
-    });
-
-    it("0 enabled plugin(s)", () => {
-      const logJson = JSON.stringify({
-        enabledPlugins: [],
-        matchedFunctionCandidates: [],
-        functionsSelectedForInvocation: [],
-        functionExecutions: [],
-      });
-
-      const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
-      copilotDebugLog.write();
-
-      chai.assert.isTrue(appendLineStub.calledWith(""));
-      chai.assert.isTrue(
-        appendLineStub.calledWith(
-          `${ANSIColors.WHITE}[${new Date().toJSON()}] - ${ANSIColors.BLUE}0 enabled plugin(s).`
-        )
-      );
-      chai.assert.isTrue(
-        appendLineStub.calledWith(`${ANSIColors.WHITE}Copilot plugin developer info:`)
-      );
-      chai.assert.isTrue(
-        appendLineStub.calledWith(
-          `${ANSIColors.RED}(×) Error: ${ANSIColors.WHITE}Enabled plugin: None`
         )
       );
     });
