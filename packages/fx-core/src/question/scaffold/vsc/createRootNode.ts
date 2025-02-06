@@ -19,7 +19,8 @@ export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.TS, { id: ProgrammingLanguage.TS, label: "TypeScript" }],
   [ProgrammingLanguage.CSharp, { id: ProgrammingLanguage.CSharp, label: "C#" }],
   [ProgrammingLanguage.PY, { id: ProgrammingLanguage.PY, label: "Python" }],
-  [ProgrammingLanguage.Common, { id: ProgrammingLanguage.PY, label: "None" }],
+  [ProgrammingLanguage.Common, { id: ProgrammingLanguage.Common, label: "None" }],
+  [ProgrammingLanguage.None, { id: ProgrammingLanguage.None, label: "None" }],
 ]);
 
 export function languageNode(): IQTreeNode {
