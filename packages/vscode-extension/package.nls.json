@@ -520,7 +520,7 @@
   "teamsagent.walkthrough.copilotChat.description": "With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.\n[Install GitHub Copilot Chat](command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)",
   "teamsagent.walkthrough.install.title": "Install GitHub Copilot extension for Teams Toolkit",
   "teamsagent.walkthrough.install.description": "The [GitHub Copilot extension for Teams Toolkit](https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.\n[Install GitHub Copilot extension for Teams Toolkit](command:fx-extension.openInstallTeamsAgent)\n[Mark done](command:fx-extension.markInstallTeamsAgentDone)",
-  "teamsagent.walkthrough.setup.title": "Setup GitHub Copilot in Visual Studio Code",
+  "teamsagent.walkthrough.setup.title": "Set up GitHub Copilot in Visual Studio Code",
   "teamsagent.walkthrough.setup.description": "Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot](https://aka.ms/teams-agent-github-copilot-setup).\n[Open GitHub Copilot Chat](command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)\n[Mark login completed](command:fx-extension.markGitHubCopilotLoginDone)",
   "teamsagent.walkthrough.use.title": "Start to use @teamsapp",
   "_teamsagent.walkthrough.use.title.comment": "@teamsapp is used to call Teams agent in GitHub Copilot Chat and should not be translated.",
