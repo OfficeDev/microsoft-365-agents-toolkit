@@ -22,7 +22,6 @@ import path from "path";
 import {
   ApiAuthOptions,
   ApiPluginStartOptions,
-  CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
@@ -30,7 +29,6 @@ import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptM
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
 import { SpecGenerator } from "../apiSpec/generator";
-import { declarativeCopilotInstructionFileName } from "../constant";
 import { Generator } from "../generator";
 import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
@@ -71,7 +69,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     const safeProjectNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
-    const isDeclarativeCopilot = checkDeclarativeCopilot(inputs);
 
     const replaceMap = {
       ...Generator.getDefaultVariables(
@@ -80,18 +77,8 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
       ),
-      DeclarativeCopilot: isDeclarativeCopilot ? "true" : "",
+      DeclarativeCopilot: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
-    };
-
-    const filterFn = (fileName: string) => {
-      if (fileName.toLowerCase().includes("declarativeagent.json")) {
-        return isDeclarativeCopilot;
-      } else if (fileName.includes(declarativeCopilotInstructionFileName)) {
-        return isDeclarativeCopilot;
-      } else {
-        return true;
-      }
     };
 
     // let templateName;
@@ -111,7 +98,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
 
     merge(actionContext?.telemetryProps, {
       [telemetryProperties.templateName]: templateName,
-      [telemetryProperties.isDeclarativeCopilot]: isDeclarativeCopilot.toString(),
       [telemetryProperties.isMicrosoftEntra]:
         auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
       [telemetryProperties.needAddPluginFromExisting]:
@@ -125,7 +111,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
           templateName,
           language: language,
           replaceMap,
-          filterFn,
         },
       ])
     );
@@ -175,10 +160,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
       return ok({});
     }
   }
-}
-
-function checkDeclarativeCopilot(inputs: Inputs) {
-  return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id;
 }
 
 export const specGenerator = new SpecGenerator();
