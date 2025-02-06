@@ -482,10 +482,10 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
 
   const testCmd = vscode.commands.registerCommand("fx-extension.test", async (...args) => {
     void vscode.window.showInformationMessage("Test command is called");
-    await vscode.commands.executeCommand("fx-extension.createProjectWithApiSpec", [
-      "C:\\work\\test\\test-projects\\test-apis\\repairs-api.json",
-      "ss",
-    ]);
+    await vscode.commands.executeCommand(
+      "fx-extension.createProjectWithApiSpec",
+      "C:\\work\\test\\test-projects\\test-apis\\repairs-api.json"
+    );
   });
   context.subscriptions.push(testCmd);
 }
