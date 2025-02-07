@@ -24,7 +24,7 @@ import {
 } from "./interface";
 import { MissingEnvironmentVariablesError } from "../../error";
 import { setErrorContext } from "../../common/globalVars";
-import { deployUtils } from "../deployUtils";
+import { OpenAIEnvironmentVariables } from "../constants";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -98,6 +98,16 @@ export function resolveString(
       if (envVal === undefined || envVal === null) {
         unresolved.push(envVar);
       } else {
+        resolved.push(envVar);
+        newVal = newVal.replace(matches[0], envVal);
+      }
+    } else if (
+      envVar === OpenAIEnvironmentVariables.SECRET_AZURE_OPENAI_API_KEY ||
+      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_ENDPOINT ||
+      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_DEPLOYMENT_NAME ||
+      envVar === OpenAIEnvironmentVariables.SECRET_OPENAI_API_KEY
+    ) {
+      if (envVal) {
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);
       }
@@ -242,47 +252,21 @@ export class Lifecycle implements ILifecycle {
             ","
           )}) found for Action ${this.stringifyDriverDef(driver)} in lifecycle ${this.name}`
         );
-
-        // Special handling for file/createOrUpdateEnvironmentFile driver
-        // Let user input OpenAI environment variables if unresolved placeholders are found
-        if (driver.uses == "file/createOrUpdateEnvironmentFile") {
-          const result = await deployUtils.askForOpenAIEnvironmentVariables(
-            ctx,
-            unresolved,
-            envOutput
-          );
-          if (result.isErr()) {
-            return {
-              result: err({
-                kind: "PartialSuccess",
-                env: envOutput,
-                reason: {
-                  kind: "DriverError",
-                  failedDriver: driver,
-                  error: result.error,
-                },
-              }),
-              summaries,
-            };
-          }
-          resolveDriverDef(driver, resolved, unresolved);
-        } else {
-          summaries.push([
-            `${SummaryConstant.Failed} Unresolved placeholders: ${unresolved.join(",")}`,
-          ]);
-          return {
-            result: err({
-              kind: "PartialSuccess",
-              env: envOutput,
-              reason: {
-                kind: "UnresolvedPlaceholders",
-                failedDriver: driver,
-                unresolvedPlaceHolders: unresolved,
-              },
-            }),
-            summaries,
-          };
-        }
+        summaries.push([
+          `${SummaryConstant.Failed} Unresolved placeholders: ${unresolved.join(",")}`,
+        ]);
+        return {
+          result: err({
+            kind: "PartialSuccess",
+            env: envOutput,
+            reason: {
+              kind: "UnresolvedPlaceholders",
+              failedDriver: driver,
+              unresolvedPlaceHolders: unresolved,
+            },
+          }),
+          summaries,
+        };
       }
 
       if (driver.env) {
