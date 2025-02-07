@@ -926,6 +926,23 @@ describe("Question Model - Visitor Test", () => {
       const res = await questionVisitor(question, tools.ui, inputs);
       assert.isTrue(res.isOk() && res.value.type === "success");
     });
+    it("onDidSelection for preset answer", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
   });
 
   describe("loadOptions", async () => {
