@@ -14,7 +14,6 @@ import { getSystemInputs } from "../utils/systemEnvUtils";
 import {
   ApiPluginStartOptions,
   CapabilityOptions,
-  KiotaLastCommands,
   ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -31,18 +30,20 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
 
-export async function createPluginWithApiSpec(args?: any[]): Promise<Result<any, FxError>> {
+export async function createDeclarativeAgentWithApiSpec(
+  args?: any[]
+): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
-    TelemetryEvent.CreatePluginWithManifestStart,
+    TelemetryEvent.CreateDeclarativeAgentWithApiSpecStart,
     getTriggerFromProperty(args)
   );
-  if (!args || args.length > 99) {
+  if (!args || args.length !== 1 || !args[0] || typeof args[0] !== "string") {
     const error = new UserError(
       ExtensionSource,
       "invalidParameter",
-      "Invalid parameter for creating plugin with API spec."
+      localize("teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter")
     );
-    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.CreatePluginWithManifest, error);
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.CreateDeclarativeAgentWithApiSpec, error);
     return err(error);
   }
 
@@ -58,14 +59,17 @@ export async function createPluginWithApiSpec(args?: any[]): Promise<Result<any,
   const result = await runCommand(Stage.create, inputs);
 
   if (result.isErr()) {
-    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.CreatePluginWithManifest, result.error);
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.CreateDeclarativeAgentWithApiSpec,
+      result.error
+    );
     return err(result.error);
   }
 
   const res = result.value as CreateProjectResult;
   const projectPathUri = vscode.Uri.file(res.projectPath);
   await openFolder(projectPathUri, true, res.warnings);
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreatePluginWithManifest, {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateDeclarativeAgentWithApiSpec, {
     [TelemetryProperty.Success]: TelemetrySuccess.Yes,
   });
 
