@@ -144,6 +144,10 @@ export async function runCommand(
         result = await core.addAuthAction(inputs);
         break;
       }
+      case Stage.addKnowledge: {
+        result = await core.addKnowledge(inputs);
+        break;
+      }
       default:
         throw new SystemError(
           ExtensionSource,

@@ -23,22 +23,12 @@
   },
   "accentColor": "#FFFFFF",
   "copilotAgents": { 
-    {{^DeclarativeCopilot}}   
-    "plugins": [
-      {
-        "id": "plugin_1",
-        "file": "ai-plugin.json"
-      }
-    ]
-    {{/DeclarativeCopilot}}
-    {{#DeclarativeCopilot}} 
     "declarativeAgents": [
       {
         "id": "repairDeclarativeAgent",
         "file": "repairDeclarativeAgent.json"
       }
     ]
-    {{/DeclarativeCopilot}} 
   },
   "permissions": [
     "identity",

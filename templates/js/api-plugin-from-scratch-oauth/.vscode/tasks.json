@@ -25,7 +25,7 @@
                     "m365Account",
                     "portOccupancy"
                 ],
-                "portOccupancy": [                    
+                "portOccupancy": [
                     7071,
                     9229
                 ]
@@ -46,6 +46,7 @@
                         "access": "public",
                         "writeToEnvironmentFile": {
                             "endpoint": "OPENAPI_SERVER_URL", // output tunnel endpoint as OPENAPI_SERVER_URL
+                            "domain": "OPENAPI_SERVER_DOMAIN" // output tunnel domain as OPENAPI_SERVER_DOMAIN
                         }
                     }
                 ],
@@ -110,31 +111,6 @@
             "presentation": {
                 "reveal": "silent"
             }
-        {{^DeclarativeCopilot}}
-        },
-        {
-            "label": "Start Teams App in Desktop Client",
-            "dependsOn": [
-                "Validate prerequisites",
-                "Start local tunnel",
-                "Create resources",
-                "Build project",
-                "Start application",
-                "Start desktop client"
-            ],
-            "dependsOrder": "sequence"
-        },
-        {
-            "label": "Start desktop client",
-            "type": "teamsfx",
-            "command": "launch-desktop-client",
-            "args": {
-                "url": "teams.microsoft.com"
-            }
         }
-        {{/DeclarativeCopilot}}
-        {{#DeclarativeCopilot}}
-        }
-        {{/DeclarativeCopilot}}
     ]
 }

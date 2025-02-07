@@ -5,6 +5,7 @@ import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
 import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
+  addKnowledgeQuestionNode,
   addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
@@ -22,9 +23,9 @@ import {
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
 } from "./other";
-import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
+import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
@@ -95,6 +96,9 @@ export class QuestionNodes {
   }
   addAuthAction(): IQTreeNode {
     return addAuthActionQuestion();
+  }
+  addKnowledge(): IQTreeNode {
+    return addKnowledgeQuestionNode();
   }
 }
 

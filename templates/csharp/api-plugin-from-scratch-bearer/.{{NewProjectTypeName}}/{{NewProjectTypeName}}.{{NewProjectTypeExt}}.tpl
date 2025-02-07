@@ -5,11 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="ProjectConfigurationsDeclaredDimensions" />
-    {{#DeclarativeCopilot}}
-      <ProjectCapability Include="DeclarativeAgent" />
-    {{/DeclarativeCopilot}}
-    {{^DeclarativeCopilot}}
-      <ProjectCapability Include="ApiPlugin" />
-    {{/DeclarativeCopilot}}
+    <ProjectCapability Include="DeclarativeAgent" />
   </ItemGroup>
 </Project>

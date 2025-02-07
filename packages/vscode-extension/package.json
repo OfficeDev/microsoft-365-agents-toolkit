@@ -911,6 +911,12 @@
         "category": "Teams"
       },
       {
+        "command": "fx-extension.addKnowledge",
+        "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "category": "Teams"
+      },
+      {
         "command": "fx-extension.openOfficeDevLifecycleLink",
         "title": "%teamstoolkit.commands.lifecycleLink.title%",
         "icon": "$(info)"
@@ -963,6 +969,12 @@
         "command": "fx-extension.addAuthAction",
         "title": "%teamstoolkit.commands.addAuthAction%",
         "category": "Teams"
+      },
+      {
+        "command": "fx-extension.openTeamsAgentWalkthrough",
+        "title": "%teamsagent.walkthrough.title%",
+        "category": "Teams",
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "taskDefinitions": [
@@ -1615,6 +1627,77 @@
             "media": {
               "svg": "media/walkthroughs/get-started/resources.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText%"
+            }
+          }
+        ],
+        "when": "fx-extension.isChatParticipantUIEntriesEnabled"
+      },
+      {
+        "id": "teamsAgentGetStarted",
+        "title": "%teamsagent.walkthrough.title%",
+        "description": "%teamsagent.walkthrough.description%",
+        "steps": [
+          {
+            "id": "teamsAgentIntroduction",
+            "title": "%teamsagent.walkthrough.introduction.title%",
+            "description": "%teamsagent.walkthrough.introduction.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/introduction.svg",
+              "altText": "%teamsagent.walkthrough.introduction.title%"
+            }
+          },
+          {
+            "id": "teamsAgentInstallCopilotPlan",
+            "title": "%teamsagent.walkthrough.copilotPlan.title%",
+            "description": "%teamsagent.walkthrough.copilotPlan.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/copilot-plan.png",
+              "altText": "%teamsagent.walkthrough.copilotPlan.title%"
+            }
+          },
+          {
+            "id": "teamsAgentCopilotChatInstall",
+            "title": "%teamsagent.walkthrough.copilotChat.title%",
+            "description": "%teamsagent.walkthrough.copilotChat.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/install-github-copilot-chat.svg",
+              "altText": "%teamsagent.walkthrough.copilotChat.title%"
+            },
+            "completionEvents": [
+              "extensionInstalled:github.copilot-chat"
+            ]
+          },
+          {
+            "id": "teamsAgentInstall",
+            "title": "%teamsagent.walkthrough.install.title%",
+            "description": "%teamsagent.walkthrough.install.description%",
+            "media": {
+              "svg": "media/walkthroughs/get-started/testtool.svg",
+              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markInstallTeamsAgentDone"
+            ]
+          },
+          {
+            "id": "teamsAgentGithubCopilotSetup",
+            "title": "%teamsagent.walkthrough.setup.title%",
+            "description": "%teamsagent.walkthrough.setup.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.png",
+              "altText": "%teamsagent.walkthrough.setup.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markGitHubCopilotLoginDone"
+            ]
+          },
+          {
+            "id": "teamsAgentUse",
+            "title": "%teamsagent.walkthrough.use.title%",
+            "description": "%teamsagent.walkthrough.use.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
+              "altText": "%teamsagent.walkthrough.use.title%"
             }
           }
         ],

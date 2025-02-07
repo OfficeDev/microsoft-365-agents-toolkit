@@ -25,7 +25,7 @@
                     "m365Account",
                     "portOccupancy"
                 ],
-                "portOccupancy": [
+                "portOccupancy": [                    
                     7071,
                     9229
                 ]
@@ -110,31 +110,6 @@
             "presentation": {
                 "reveal": "silent"
             }
-        {{^DeclarativeCopilot}}
-        },
-        {
-            "label": "Start Teams App in Desktop Client",
-            "dependsOn": [
-                "Validate prerequisites",
-                "Start local tunnel",
-                "Create resources",
-                "Build project",
-                "Start application",
-                "Start desktop client"
-            ],
-            "dependsOrder": "sequence"
-        },
-        {
-            "label": "Start desktop client",
-            "type": "teamsfx",
-            "command": "launch-desktop-client",
-            "args": {
-                "url": "teams.microsoft.com"
-            }
         }
-        {{/DeclarativeCopilot}}
-        {{#DeclarativeCopilot}}
-        }
-        {{/DeclarativeCopilot}}
     ]
 }

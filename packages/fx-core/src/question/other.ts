@@ -44,6 +44,7 @@ import {
   apiSpecLocationQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
+  addKnowledgeStartQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -806,6 +807,14 @@ export function addPluginQuestionNode(): IQTreeNode {
         data: selectTeamsAppManifestQuestion(),
       },
     ],
+  };
+}
+
+// add Knowledge to a declarative Copilot project
+export function addKnowledgeQuestionNode(): IQTreeNode {
+  return {
+    data: addKnowledgeStartQuestion(true),
+    children: [],
   };
 }
 

@@ -121,6 +121,7 @@ export enum TelemetryEvent {
 
   AddCopilotPlugin = "add-copilot-plugin",
   AddAuthAction = "add-auth-action",
+  AddKnowledge = "add-knowledge",
 }
 
 export enum TelemetryProperty {

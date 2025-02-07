@@ -35,11 +35,12 @@ import {
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import { setTools } from "../../src/common/globalVars";
-import { SPFxImportFolderQuestion, questionNodes } from "../../src/question";
+import { AddKnowledgeOptions, SPFxImportFolderQuestion, questionNodes } from "../../src/question";
 import {
   ApiPluginStartOptions,
   QuestionNames,
   TeamsAppValidationOptions,
+  KnowledgeSourceOptions,
 } from "../../src/question/constants";
 import {
   apiSpecApiKeyQuestion,
@@ -1351,5 +1352,118 @@ describe("addPluginQuestionNode", async () => {
       QuestionNames.PluginOpenApiSpecFilePath,
       QuestionNames.TeamsAppManifestFilePath,
     ]);
+  });
+});
+
+describe("addKnowledgeQuestionNode", async () => {
+  const sandbox = sinon.createSandbox();
+  const mockedEnvRestore: RestoreFn = () => {};
+  afterEach(() => {
+    sandbox.restore();
+    mockedEnvRestore();
+  });
+
+  it("success: can add a knowledge from Web Search", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+
+    const questionNames: string[] = [];
+    const visitor: QuestionTreeVisitor = async (
+      question: Question,
+      ui: UserInteraction,
+      inputs: Inputs,
+      step?: number,
+      totalSteps?: number
+    ) => {
+      questionNames.push(question.name);
+      await callFuncs(question, inputs);
+      if (question.name === QuestionNames.KnowledgeSource) {
+        return ok({ type: "success", result: KnowledgeSourceOptions.webSearch().id });
+      }
+      return ok({ type: "success", result: undefined });
+    };
+    const node = questionNodes.addKnowledge();
+
+    await traverse(node, inputs, ui, undefined, visitor);
+  });
+
+  it("success: can add a knowledge from OneDrive and SharePoint", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+
+    const questionNames: string[] = [];
+    const visitor: QuestionTreeVisitor = async (
+      question: Question,
+      ui: UserInteraction,
+      inputs: Inputs,
+      step?: number,
+      totalSteps?: number
+    ) => {
+      questionNames.push(question.name);
+      await callFuncs(question, inputs);
+      if (question.name === QuestionNames.KnowledgeSource) {
+        return ok({ type: "success", result: KnowledgeSourceOptions.oneDriveSharePoint().id });
+      }
+      return ok({ type: "success", result: undefined });
+    };
+    const node = questionNodes.addKnowledge();
+
+    await traverse(node, inputs, ui, undefined, visitor);
+  });
+
+  it("success: can add a knowledge from Graph Connector", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+
+    const questionNames: string[] = [];
+    const visitor: QuestionTreeVisitor = async (
+      question: Question,
+      ui: UserInteraction,
+      inputs: Inputs,
+      step?: number,
+      totalSteps?: number
+    ) => {
+      questionNames.push(question.name);
+      await callFuncs(question, inputs);
+      if (question.name === QuestionNames.KnowledgeSource) {
+        return ok({ type: "success", result: KnowledgeSourceOptions.graphConnector().id });
+      }
+      return ok({ type: "success", result: undefined });
+    };
+    const node = questionNodes.addKnowledge();
+
+    await traverse(node, inputs, ui, undefined, visitor);
+  });
+
+  it("success: can add a knowledge from Embedded Knowledge", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+
+    const questionNames: string[] = [];
+    const visitor: QuestionTreeVisitor = async (
+      question: Question,
+      ui: UserInteraction,
+      inputs: Inputs,
+      step?: number,
+      totalSteps?: number
+    ) => {
+      questionNames.push(question.name);
+      await callFuncs(question, inputs);
+      if (question.name === QuestionNames.KnowledgeSource) {
+        return ok({ type: "success", result: KnowledgeSourceOptions.embeddedKnowledge().id });
+      }
+      return ok({ type: "success", result: undefined });
+    };
+    const node = questionNodes.addKnowledge();
+
+    await traverse(node, inputs, ui, undefined, visitor);
   });
 });

@@ -2112,6 +2112,20 @@ export class FxCore {
   }
 
   /**
+   * Add Knowledge
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addKnowledge }),
+    ErrorHandlerMW,
+    QuestionMW("addKnowledge"),
+    ConcurrentLockerMW,
+  ])
+  async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    return ok(undefined);
+  }
+
+  /**
    * Kiota regenerate
    * Need to update da manifest and update teamsapp.yml
    */

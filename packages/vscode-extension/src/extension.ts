@@ -18,6 +18,7 @@ import {
   FeatureFlags,
   VersionState,
   featureFlagManager,
+  globalStateGet,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
@@ -124,6 +125,7 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  addKnowledgeHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -478,6 +480,42 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
   );
   context.subscriptions.push(troubleshootError);
+
+  const installCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.installCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.installGithubCopilotChatExtension, args)
+  );
+  context.subscriptions.push(installCopilotChat);
+
+  const openInstallTeamsAgent = vscode.commands.registerCommand(
+    "fx-extension.openInstallTeamsAgent",
+    (...args) => Correlator.run(copilotChatHandlers.openInstallTeamsAgent, args)
+  );
+  context.subscriptions.push(openInstallTeamsAgent);
+
+  const markTeamsAgentInstallationDone = vscode.commands.registerCommand(
+    "fx-extension.markInstallTeamsAgentDone",
+    (...args) => Correlator.run(copilotChatHandlers.markTeamsAgentInstallationDone, args)
+  );
+  context.subscriptions.push(markTeamsAgentInstallationDone);
+
+  const openGitHubCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.openGithubCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
+  );
+  context.subscriptions.push(openGitHubCopilotChat);
+
+  const markGithubCopilotSetupDone = vscode.commands.registerCommand(
+    "fx-extension.markGitHubCopilotLoginDone",
+    (...args) => Correlator.run(copilotChatHandlers.markGitHubCopilotSetupDone, args)
+  );
+  context.subscriptions.push(markGithubCopilotSetupDone);
+
+  const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
+    "fx-extension.openTeamsAgentWalkthrough",
+    (...args) => Correlator.run(copilotChatHandlers.openTeamsAgentWalkthrough, args)
+  );
+  context.subscriptions.push(openTeamsAgentWalkthrough);
 }
 
 /**
@@ -624,6 +662,13 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
   registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
+
+  registerInCommandController(
+    context,
+    "fx-extension.addKnowledge",
+    addKnowledgeHandler,
+    "addKnowledge"
+  );
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {

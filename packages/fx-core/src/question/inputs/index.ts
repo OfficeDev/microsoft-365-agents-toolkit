@@ -14,3 +14,4 @@ export * from "./AddPluginInputs";
 export * from "./UninstallInputs";
 export * from "./SyncManifestInputs";
 export * from "./AddAuthActionInputs";
+export * from "./AddKnowledgeInputs";

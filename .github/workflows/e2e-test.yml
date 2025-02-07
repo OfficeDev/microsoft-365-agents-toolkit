@@ -194,6 +194,7 @@ jobs:
           sudo apt-get install azure-functions-core-tools-4
           which func
           func --version
+        timeout-minutes: 5
 
       - name: Setup .net
         uses: actions/setup-dotnet@v3

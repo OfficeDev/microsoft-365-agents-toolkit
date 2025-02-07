@@ -58,6 +58,9 @@
   "add.auth-config": {
     "description": "Add Configurations to Support Actions with Authentication in Declarative Agent"
   },
+  "add.knowledge": {
+    "description": "A knowledge source to extend Copilot using your APIs."
+  },
   "create": {
     "description": "Create a new Microsoft Teams application."
   },

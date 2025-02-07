@@ -90,6 +90,8 @@ export function getTriggerFromProperty(args?: any[]) {
       return {
         [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate,
       };
+    case TelemetryTriggerFrom.TeamsAgentWalkthrough:
+      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthrough };
     default:
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Unknow };
   }
