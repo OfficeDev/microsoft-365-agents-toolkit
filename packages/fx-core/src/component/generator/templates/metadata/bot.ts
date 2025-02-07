@@ -4,68 +4,7 @@
 import { TemplateNames } from "../templateNames";
 import { Template } from "./interface";
 
-export const basicBotTemplates: Template[] = [
-  {
-    id: "default-bot-ts",
-    name: TemplateNames.DefaultBot,
-    language: "typescript",
-    description: "",
-  },
-  {
-    id: "default-bot-js",
-    name: TemplateNames.DefaultBot,
-    language: "javascript",
-    description: "",
-  },
-  {
-    id: "default-bot-csharp",
-    name: TemplateNames.DefaultBot,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "workflow-ts",
-    name: TemplateNames.Workflow,
-    language: "typescript",
-    description: "",
-    link: "https://aka.ms/teamsfx-workflow",
-  },
-  {
-    id: "workflow-js",
-    name: TemplateNames.Workflow,
-    language: "javascript",
-    description: "",
-    link: "https://aka.ms/teamsfx-workflow",
-  },
-  {
-    id: "workflow-csharp",
-    name: TemplateNames.Workflow,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "command-and-response-ts",
-    name: TemplateNames.CommandAndResponse,
-    language: "typescript",
-    description: "",
-    link: "https://aka.ms/teamsfx-create-command",
-  },
-  {
-    id: "command-and-response-js",
-    name: TemplateNames.CommandAndResponse,
-    language: "javascript",
-    description: "",
-    link: "https://aka.ms/teamsfx-create-command",
-  },
-  {
-    id: "command-and-response-csharp",
-    name: TemplateNames.CommandAndResponse,
-    language: "csharp",
-    description: "",
-  },
-];
-
-export const notificationBotTemplates: Template[] = [
+const notificationBotTemplates: Template[] = [
   {
     id: "notification-http-trigger-ts",
     name: TemplateNames.NotificationHttpTrigger,
@@ -135,6 +74,68 @@ export const notificationBotTemplates: Template[] = [
   {
     id: "notification-webapi-csharp",
     name: TemplateNames.NotificationWebApi,
+    language: "csharp",
+    description: "",
+  },
+];
+
+export const basicBotTemplates: Template[] = [
+  {
+    id: "default-bot-ts",
+    name: TemplateNames.DefaultBot,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "default-bot-js",
+    name: TemplateNames.DefaultBot,
+    language: "javascript",
+    description: "",
+  },
+  {
+    id: "default-bot-csharp",
+    name: TemplateNames.DefaultBot,
+    language: "csharp",
+    description: "",
+  },
+  ...notificationBotTemplates,
+  {
+    id: "command-and-response-ts",
+    name: TemplateNames.CommandAndResponse,
+    language: "typescript",
+    description: "",
+    link: "https://aka.ms/teamsfx-create-command",
+  },
+  {
+    id: "command-and-response-js",
+    name: TemplateNames.CommandAndResponse,
+    language: "javascript",
+    description: "",
+    link: "https://aka.ms/teamsfx-create-command",
+  },
+  {
+    id: "command-and-response-csharp",
+    name: TemplateNames.CommandAndResponse,
+    language: "csharp",
+    description: "",
+  },
+  {
+    id: "workflow-ts",
+    name: TemplateNames.Workflow,
+    language: "typescript",
+    description: "",
+    link: "https://aka.ms/teamsfx-workflow",
+  },
+  {
+    id: "workflow-js",
+    name: TemplateNames.Workflow,
+    language: "javascript",
+    description: "",
+    link: "https://aka.ms/teamsfx-workflow",
+  },
+  {
+    id: "workflow-csharp",
+    name: TemplateNames.Workflow,
     language: "csharp",
     description: "",
   },

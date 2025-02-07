@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+
 import { Inputs } from "@microsoft/teamsfx-api";
 import {
   ApiAuthOptions,
@@ -12,7 +13,25 @@ import {
   QuestionNames,
 } from "../../../question/constants";
 
+// Sorted templates that maps to question tree
+// @author Ning Tang
 export enum TemplateNames {
+  // declarative agent
+  BasicGpt = "copilot-gpt-basic", // TODO: handled by xxx generator
+  ApiPluginFromScratch = "api-plugin-from-scratch", // TODO: handled by xxx generator
+  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator (The ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
+  ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth", // TODO: handled by xxx generator
+  DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec", // TODO: split to multiple templates, it's mapped in multiple options now.
+
+  // custom engine agent
+  CustomCopilotBasic = "custom-copilot-basic",
+  CustomCopilotRagCustomize = "custom-copilot-rag-customize",
+  CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
+  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api", // TODO: handled by xxx generator
+  CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
+  CustomCopilotAssistantNew = "custom-copilot-assistant-new",
+  CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
+
   // tab
   Tab = "non-sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
@@ -22,63 +41,44 @@ export enum TemplateNames {
 
   // bot
   DefaultBot = "default-bot",
-  Workflow = "workflow",
-  CommandAndResponse = "command-and-response",
+  NotificationExpress = "notification-express", // vsc only
+  NotificationWebApi = "notification-webapi", // vs only
   NotificationHttpTrigger = "notification-http-trigger",
   NotificationTimerTrigger = "notification-timer-trigger",
   NotificationHttpTimerTrigger = "notification-http-timer-trigger",
-  // bot (platform specific)
-  NotificationExpress = "notification-express",
-  NotificationWebApi = "notification-webapi",
+  CommandAndResponse = "command-and-response",
+  Workflow = "workflow",
 
   // messaging extension
-  MessageExtension = "message-extension",
+  MessageExtensionWithNewApiFromScratch = "copilot-plugin-from-scratch",
+  MessageExtensionWithNewApiFromScratchUsingApiKey = "copilot-plugin-from-scratch-api-key",
+  MessageExtensionWithNewApiFromScratchUsingOAuth = "api-message-extension-sso",
+  MessageExtensionWithExistingApiSpec = "api-plugin-existing-api", // TODO: handled by xxx generator
+  MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",
-  ApiMessageExtensionSso = "api-message-extension-sso",
-  // messaging extension (platform specific)
-  ApiPluginExistingApi = "api-plugin-existing-api", // TODO: handled by xxx generator
-  MessageExtensionM365 = "m365-message-extension",
-  MessageExtensionCopilot = "message-extension-copilot",
-  MessageExtensionSearch = "message-extension-search",
-
-  // copilot plugin
-  CopilotPluginFromScratch = "copilot-plugin-from-scratch",
-  CopilotPluginFromScratchApiKey = "copilot-plugin-from-scratch-api-key",
-  // copilot plugin (platform specific)
-  CopilotPluginExistingApi = "copilot-plugin-existing-api",
-
-  // declarative agent
-  BasicGpt = "copilot-gpt-basic", // TODO: handled by xxx generator
-  ApiPluginFromScratch = "api-plugin-from-scratch", // TODO: handled by xxx generator
-  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator (The ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
-  ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth", // TODO: handled by xxx generator
-  DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec",
-
-  // custom engine agent
-  CustomCopilotBasic = "custom-copilot-basic",
-  CustomCopilotRagCustomize = "custom-copilot-rag-customize",
-  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api", // TODO: handled by xxx generator
-  CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
-  CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
-  CustomCopilotAssistantNew = "custom-copilot-assistant-new",
-  CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
-
-  // from TDP only
-  TabAndDefaultBot = "non-sso-tab-default-bot",
-  BotAndMessageExtension = "default-bot-message-extension",
-
-  // VS only
-  Empty = "empty",
-  AIBot = "ai-bot",
-  AIAssistantBot = "ai-assistant-bot",
 
   // WXP
   OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
   WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
   OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
+
+  // from TDP only
+  TabAndDefaultBot = "non-sso-tab-default-bot",
+  BotAndMessageExtension = "default-bot-message-extension",
+  MessageExtension = "message-extension",
+
+  // VS only
+  Empty = "empty",
+  AIBot = "ai-bot",
+  AIAssistantBot = "ai-assistant-bot",
+  MessageExtensionSearch = "message-extension-search",
+
+  // not used yet
+  CopilotPluginExistingApi = "copilot-plugin-existing-api",
 }
 
+// TODO: deprecate
 export function tryGetTemplateName(inputs: Inputs): TemplateNames | undefined {
   for (const [key, value] of inputsToTemplateName) {
     if (Object.keys(key).every((k) => key[k] === inputs[k])) {
@@ -87,6 +87,7 @@ export function tryGetTemplateName(inputs: Inputs): TemplateNames | undefined {
   }
 }
 
+// TODO: deprecate
 export function getTemplateName(inputs: Inputs): TemplateNames {
   const templateName = tryGetTemplateName(inputs);
   if (!templateName) {
@@ -188,7 +189,7 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
       [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
       [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
     },
-    TemplateNames.CopilotPluginFromScratch,
+    TemplateNames.MessageExtensionWithNewApiFromScratch,
   ],
   [
     {
@@ -196,7 +197,7 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
       [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
       [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
     },
-    TemplateNames.CopilotPluginFromScratchApiKey,
+    TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
   ],
   [
     {
@@ -204,7 +205,7 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
       [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
       [QuestionNames.ApiAuth]: ApiAuthOptions.microsoftEntra().id,
     },
-    TemplateNames.ApiMessageExtensionSso,
+    TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth,
   ],
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.customCopilotBasic().id },

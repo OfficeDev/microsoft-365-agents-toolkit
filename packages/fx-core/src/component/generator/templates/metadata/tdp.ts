@@ -29,4 +29,22 @@ export const tdpTemplates: Template[] = [
     language: "javascript",
     description: "",
   },
+  {
+    id: "message-extension-ts",
+    name: TemplateNames.MessageExtension,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "message-extension-js",
+    name: TemplateNames.MessageExtension,
+    language: "javascript",
+    description: "",
+  },
+  {
+    id: "message-extension-csharp",
+    name: TemplateNames.MessageExtension,
+    language: "csharp",
+    description: "",
+  },
 ];

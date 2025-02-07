@@ -55,7 +55,7 @@ export class TabCapabilityOptions {
     };
   }
 
-  // need further sub-options to decide template name
+  // TODO: need further sub-options to decide template name
   static SPFxTab(): OptionItem {
     return {
       id: "tab-spfx",
@@ -70,7 +70,7 @@ export class TabCapabilityOptions {
 
 export class CustomCopilotCapabilityOptions {
   // custom copilot
-  static customCopilotBasic(): OptionItem {
+  static basicChatbot(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
@@ -103,7 +103,7 @@ export class CustomCopilotCapabilityOptions {
     };
   }
 
-  static customCopilotAssistant(): OptionItem {
+  static aiAgent(): OptionItem {
     const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
@@ -256,7 +256,7 @@ export class MeArchitectureOptions {
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookCopilot"
       ),
-      data: TemplateNames.MessageExtensionCopilot,
+      data: TemplateNames.MessageExtensionM365,
     };
   }
 
@@ -272,7 +272,7 @@ export class MeArchitectureOptions {
     };
   }
 
-  static apiSpec(): OptionItem {
+  static openApiSpec(): OptionItem {
     return {
       id: "api-spec",
       label: getLocalizedString(
@@ -281,7 +281,7 @@ export class MeArchitectureOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail"
       ),
-      data: TemplateNames.ApiPluginExistingApi,
+      data: TemplateNames.MessageExtensionWithExistingApiSpec,
     };
   }
 }
@@ -527,7 +527,9 @@ export class ApiAuthOptions {
     return {
       id: "none",
       label: "None",
-      data: isME ? TemplateNames.CopilotPluginFromScratch : TemplateNames.ApiPluginFromScratch,
+      data: isME
+        ? TemplateNames.MessageExtensionWithNewApiFromScratch
+        : TemplateNames.ApiPluginFromScratch,
     };
   }
   static apiKey(): OptionItem {
@@ -541,14 +543,16 @@ export class ApiAuthOptions {
     return {
       id: "bearer-token",
       label: "API Key (Bearer Token Auth)",
-      data: TemplateNames.CopilotPluginFromScratchApiKey,
+      data: TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
     };
   }
   static microsoftEntra(isME = false): OptionItem {
     return {
       id: "microsoft-entra",
       label: "Microsoft Entra",
-      data: isME ? TemplateNames.ApiMessageExtensionSso : TemplateNames.ApiPluginFromScratchOAuth,
+      data: isME
+        ? TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth
+        : TemplateNames.ApiPluginFromScratchOAuth,
     };
   }
 

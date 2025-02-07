@@ -24,4 +24,10 @@ export const vsOnlyTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
+  {
+    id: "message-extension-search-csharp",
+    name: TemplateNames.MessageExtensionSearch,
+    language: "csharp",
+    description: "",
+  },
 ];

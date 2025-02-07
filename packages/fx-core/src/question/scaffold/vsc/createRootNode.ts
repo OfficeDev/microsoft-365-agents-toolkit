@@ -4,15 +4,15 @@
 import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { allTemplates } from "../../../component/generator/templates/metadata";
+import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
 import { ProgrammingLanguage, QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
 import { ApiPluginStartOptions, DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
-import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./m365ProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
+import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -27,7 +27,7 @@ export function languageNode(): IQTreeNode {
   return {
     condition: (inputs: Inputs) => {
       const templateName = inputs[QuestionNames.TemplateName];
-      const languages = allTemplates
+      const languages = getAllTemplatesOnPlatform(inputs.platform)
         .filter((t) => t.name === templateName)
         .map((t) => t.language)
         .filter((lang) => lang !== "none" && lang !== undefined);
@@ -45,7 +45,7 @@ export function languageNode(): IQTreeNode {
       ],
       dynamicOptions: (inputs: Inputs) => {
         const templateName = inputs[QuestionNames.TemplateName];
-        const languages = allTemplates
+        const languages = getAllTemplatesOnPlatform(inputs.platform)
           .filter((t) => t.name === templateName)
           .map((t) => t.language)
           .filter((lang) => lang !== "none" && lang !== undefined);
@@ -77,7 +77,6 @@ export function folderAndAppNameCondition(inputs: Inputs): boolean {
 /**
  * Scaffold question model dedicated for VS Code platform
  */
-
 export function scaffoldQuestionForVSCode(): IQTreeNode {
   const node: IQTreeNode = {
     data: { type: "group" },
@@ -88,8 +87,8 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           title: getLocalizedString("core.createProjectQuestion.title"),
           type: "singleSelect",
           staticOptions: [
-            ProjectTypeOptions.Agent(),
-            ProjectTypeOptions.customCopilot(),
+            ProjectTypeOptions.declarativeAgent(),
+            ProjectTypeOptions.customEngineAgent(),
             ProjectTypeOptions.bot(),
             ProjectTypeOptions.tab(),
             ProjectTypeOptions.me(),

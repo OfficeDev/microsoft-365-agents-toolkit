@@ -86,7 +86,7 @@ export class ProjectTypeOptions {
     }
   }
 
-  static Agent(platform: Platform = Platform.VSCode): OptionItem {
+  static declarativeAgent(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.copilotAgentOptionId,
       label: `${platform === Platform.VSCode ? "$(teamsfx-agent) " : ""}${getLocalizedString(
@@ -97,7 +97,7 @@ export class ProjectTypeOptions {
     };
   }
 
-  static customCopilot(platform: Platform = Platform.VSCode): OptionItem {
+  static customEngineAgent(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.customCopilotOptionId,
       label: `${

@@ -6,20 +6,56 @@ import { Template } from "./interface";
 
 export const messagingExtensionTemplates: Template[] = [
   {
-    id: "message-extension-ts",
-    name: TemplateNames.MessageExtension,
+    id: "copilot-plugin-from-scratch-ts",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratch,
     language: "typescript",
     description: "",
   },
   {
-    id: "message-extension-js",
-    name: TemplateNames.MessageExtension,
+    id: "copilot-plugin-from-scratch-js",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratch,
     language: "javascript",
     description: "",
   },
   {
-    id: "message-extension-csharp",
-    name: TemplateNames.MessageExtension,
+    id: "copilot-plugin-from-scratch-csharp",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratch,
+    language: "csharp",
+    description: "",
+  },
+  {
+    id: "copilot-plugin-from-scratch-api-key-ts",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "copilot-plugin-from-scratch-api-key-js",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
+    language: "javascript",
+    description: "",
+  },
+  {
+    id: "copilot-plugin-from-scratch-api-key-csharp",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
+    language: "csharp",
+    description: "",
+  },
+  {
+    id: "api-message-extension-sso-ts",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "api-message-extension-sso-js",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth,
+    language: "javascript",
+    description: "",
+  },
+  {
+    id: "api-message-extension-sso-csharp",
+    name: TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth,
     language: "csharp",
     description: "",
   },
@@ -54,18 +90,6 @@ export const messagingExtensionTemplates: Template[] = [
     description: "",
   },
   {
-    id: "message-extension-copilot-ts",
-    name: TemplateNames.MessageExtensionCopilot,
-    language: "typescript",
-    description: "",
-  },
-  {
-    id: "message-extension-copilot-js",
-    name: TemplateNames.MessageExtensionCopilot,
-    language: "javascript",
-    description: "",
-  },
-  {
     id: "link-unfurling-ts",
     name: TemplateNames.LinkUnfurling,
     language: "typescript",
@@ -80,30 +104,6 @@ export const messagingExtensionTemplates: Template[] = [
   {
     id: "link-unfurling-csharp",
     name: TemplateNames.LinkUnfurling,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "api-message-extension-sso-ts",
-    name: TemplateNames.ApiMessageExtensionSso,
-    language: "typescript",
-    description: "",
-  },
-  {
-    id: "api-message-extension-sso-js",
-    name: TemplateNames.ApiMessageExtensionSso,
-    language: "javascript",
-    description: "",
-  },
-  {
-    id: "api-message-extension-sso-csharp",
-    name: TemplateNames.ApiMessageExtensionSso,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "message-extension-search-csharp",
-    name: TemplateNames.MessageExtensionSearch,
     language: "csharp",
     description: "",
   },

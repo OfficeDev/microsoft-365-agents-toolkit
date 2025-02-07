@@ -13,7 +13,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode } from "./m365ProjectTypeNode";
+import { apiSpecNode } from "./teamsProjectTypeNode";
 
 export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId

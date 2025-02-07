@@ -21,7 +21,7 @@ export const specialTemplates: Template[] = [
   },
   {
     id: "api-plugin-existing-api-csharp",
-    name: TemplateNames.ApiPluginExistingApi,
+    name: TemplateNames.MessageExtensionWithExistingApiSpec,
     language: "csharp",
     description: "",
   },

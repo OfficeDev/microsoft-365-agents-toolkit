@@ -15,7 +15,7 @@ import {
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
-import { botTriggerNode } from "../vsc/m365ProjectTypeNode";
+import { notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
 
 export class VSCapabilityOptions {
   // empty
@@ -80,9 +80,9 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           staticOptions: [
             VSCapabilityOptions.empty(),
             VSCapabilityOptions.declarativeAgent(),
-            CustomCopilotCapabilityOptions.customCopilotBasic(),
+            CustomCopilotCapabilityOptions.basicChatbot(),
             CustomCopilotCapabilityOptions.customCopilotRag(),
-            CustomCopilotCapabilityOptions.customCopilotAssistant(),
+            CustomCopilotCapabilityOptions.aiAgent(),
             BotCapabilityOptions.basicBot(),
             BotCapabilityOptions.aiBot(),
             VSCapabilityOptions.aiAssistantBot(),
@@ -102,12 +102,12 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           daProjectTypeNode(VSCapabilityOptions.declarativeAgent().id),
           llmServiceNode({
             enum: [
-              CustomCopilotCapabilityOptions.customCopilotBasic().id,
+              CustomCopilotCapabilityOptions.basicChatbot().id,
               CustomCopilotCapabilityOptions.customCopilotRag().id,
-              CustomCopilotCapabilityOptions.customCopilotAssistant().id,
+              CustomCopilotCapabilityOptions.aiAgent().id,
             ],
           }),
-          botTriggerNode(Platform.VS),
+          notificationBotTriggerNode(Platform.VS),
         ],
       },
       languageNode(),

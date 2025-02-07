@@ -7,13 +7,7 @@ import { Template } from "./interface";
 export const commonTemplates: Template[] = [
   {
     id: "api-plugin-existing-api",
-    name: TemplateNames.ApiPluginExistingApi,
-    language: "common",
-    description: "",
-  },
-  {
-    id: "copilot-gpt-basic",
-    name: TemplateNames.BasicGpt,
+    name: TemplateNames.MessageExtensionWithExistingApiSpec,
     language: "common",
     description: "",
   },

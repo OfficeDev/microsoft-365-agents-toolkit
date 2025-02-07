@@ -48,7 +48,7 @@ export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTree
   };
 }
 
-export function botTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode {
+export function notificationBotTriggerNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {
     condition: { equals: BotCapabilityOptions.notificationBotId },
     data: {
@@ -87,7 +87,7 @@ export function botProjectTypeNode(): IQTreeNode {
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
-    children: [botTriggerNode()],
+    children: [notificationBotTriggerNode()],
   };
 }
 
@@ -160,7 +160,7 @@ export function meProjectTypeNode(): IQTreeNode {
           type: "singleSelect",
           staticOptions: [
             MeArchitectureOptions.newApi(),
-            MeArchitectureOptions.apiSpec(),
+            MeArchitectureOptions.openApiSpec(),
             MeArchitectureOptions.botPlugin(),
           ],
           default: MeArchitectureOptions.newApi().id,
@@ -190,7 +190,7 @@ export function meProjectTypeNode(): IQTreeNode {
               onDidSelection: setTemplateName,
             },
           },
-          apiSpecNode({ equals: MeArchitectureOptions.apiSpec().id }),
+          apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
         ],
       },
     ],

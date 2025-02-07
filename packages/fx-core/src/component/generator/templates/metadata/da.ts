@@ -6,6 +6,12 @@ import { Template } from "./interface";
 
 export const declarativeAgentTemplates: Template[] = [
   {
+    id: "copilot-gpt-basic",
+    name: TemplateNames.BasicGpt,
+    language: "common",
+    description: "",
+  },
+  {
     id: "copilot-gpt-basic-csharp",
     name: TemplateNames.BasicGpt,
     language: "csharp",

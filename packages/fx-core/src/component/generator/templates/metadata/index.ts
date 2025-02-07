@@ -2,8 +2,9 @@
 // Licensed under the MIT license.
 
 import { Platform } from "@microsoft/teamsfx-api";
-import { basicBotTemplates, notificationBotTemplates } from "./bot";
+import { basicBotTemplates } from "./bot";
 import { customEngineAgentTemplates } from "./cea";
+import { commonTemplates } from "./common";
 import { copilotPluginTemplates } from "./copilotPlugin";
 import { Template } from "./interface";
 import { messagingExtensionTemplates } from "./me";
@@ -12,11 +13,9 @@ import { tabTemplates } from "./tab";
 import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
 
-// used by programming language question options filter
-export const allTemplates: Template[] = [
+const allTemplates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
-  ...notificationBotTemplates,
   ...messagingExtensionTemplates,
   ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
@@ -27,13 +26,28 @@ export const allTemplates: Template[] = [
 const defaultGeneratorTemplates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
-  ...notificationBotTemplates,
   ...messagingExtensionTemplates,
   ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
   ...tdpTemplates,
   ...vsOnlyTemplates,
+  ...commonTemplates,
 ];
+
+// used by programming language question options filter
+export function getAllTemplatesOnPlatform(platform: Platform): Template[] {
+  switch (platform) {
+    case Platform.VSCode:
+      return allTemplates.filter((t) => t.language !== "csharp");
+    case Platform.VS:
+      return allTemplates.filter((t) => t.language === "csharp");
+    case Platform.CLI:
+      return allTemplates;
+    default:
+      return [];
+  }
+}
+
 // used by default generator
 export function getDefaultTemplatesOnPlatform(platform: Platform): Template[] {
   switch (platform) {

@@ -17,7 +17,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode } from "./m365ProjectTypeNode";
+import { apiSpecNode } from "./teamsProjectTypeNode";
 
 export function customCopilotRagNode(): IQTreeNode {
   return {
@@ -36,14 +36,15 @@ export function customCopilotRagNode(): IQTreeNode {
         CustomCopilotRagOptions.microsoft365(),
       ],
       default: CustomCopilotRagOptions.customize().id,
+      onDidSelection: setTemplateName,
     },
     children: [apiSpecNode({ equals: CustomCopilotRagOptions.customApi().id })],
   };
 }
 
-export function customCopilotAssistantNode(): IQTreeNode {
+export function aiAgentNode(): IQTreeNode {
   return {
-    condition: { equals: CustomCopilotCapabilityOptions.customCopilotAssistant().id },
+    condition: { equals: CustomCopilotCapabilityOptions.aiAgent().id },
     data: {
       type: "singleSelect",
       name: QuestionNames.CustomCopilotAssistant,
@@ -58,6 +59,7 @@ export function customCopilotAssistantNode(): IQTreeNode {
         CustomCopilotAssistantOptions.assistantsApi(),
       ],
       default: CustomCopilotAssistantOptions.new().id,
+      onDidSelection: setTemplateName,
     },
   };
 }
@@ -161,15 +163,15 @@ export function customEngineAgentProjectTypeNode(): IQTreeNode {
       title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
       type: "singleSelect",
       staticOptions: [
-        CustomCopilotCapabilityOptions.customCopilotBasic(),
+        CustomCopilotCapabilityOptions.basicChatbot(),
         CustomCopilotCapabilityOptions.customCopilotRag(),
-        CustomCopilotCapabilityOptions.customCopilotAssistant(),
+        CustomCopilotCapabilityOptions.aiAgent(),
       ],
       placeholder: getLocalizedString(
         "core.createProjectQuestion.projectType.customCopilot.placeholder"
       ),
       onDidSelection: setTemplateName,
     },
-    children: [customCopilotRagNode(), customCopilotAssistantNode(), llmServiceNode()],
+    children: [customCopilotRagNode(), aiAgentNode(), llmServiceNode()],
   };
 }

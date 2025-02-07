@@ -304,7 +304,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     // );
     return [
       TemplateNames.CustomCopilotRagCustomApi,
-      TemplateNames.ApiPluginExistingApi,
+      TemplateNames.MessageExtensionWithExistingApiSpec,
       TemplateNames.CopilotPluginExistingApi,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
