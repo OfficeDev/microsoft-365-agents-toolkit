@@ -51,7 +51,7 @@ export enum TemplateNames {
   // declarative agent
   BasicGpt = "copilot-gpt-basic", // TODO: handled by xxx generator
   ApiPluginFromScratch = "api-plugin-from-scratch", // TODO: handled by xxx generator
-  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator
+  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator (The ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
   ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth", // TODO: handled by xxx generator
   DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec",
 
