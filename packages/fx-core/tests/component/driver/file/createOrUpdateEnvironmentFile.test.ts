@@ -12,7 +12,6 @@ import * as util from "util";
 
 import * as localizeUtils from "../../../../src/common/localizeUtils";
 import { CreateOrUpdateEnvironmentFileDriver } from "../../../../src/component/driver/file/createOrUpdateEnvironmentFile";
-import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import {
   InvalidActionInputError,
@@ -310,6 +309,26 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
       sinon.restore();
     });
 
+    it("Environment variables provided", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "fakeApiKey",
+          AZURE_OPENAI_ENDPOINT: "https://fakeEndpoint",
+          AZURE_OPENAI_DEPLOYMENT_NAME: "fakeDeploymentName",
+          OPENAI_API_KEY: "fakeOpenAIKey",
+        },
+      };
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.size, 0);
+    });
+
     it("should prompt for AZURE_OPENAI_API_KEY and update envOutput", async () => {
       const args = {
         envs: {
@@ -395,16 +414,24 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
         envs: {
           AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
         },
+        target: ".env.teamsfx.local",
       };
       sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+      const existingEnvs = {
+        existing1: "value1",
+        existing2: "value2",
+      };
+      const content = Object.entries(existingEnvs)
+        .map(([key, value]) => `${key}=${value}`)
+        .join(os.EOL);
+      sinon.stub(fs, "ensureFile").resolves();
+      sinon.stub(fs, "readFile").callsFake(async (path) => {
+        return Buffer.from(content);
+      });
 
-      const result = await driver.askForOpenAIEnvironmentVariables(
-        mockedDriverContext,
-        args,
-        envOutput
-      );
+      const result = await driver.execute(args, mockedDriverContext);
 
-      chai.assert(result.isErr());
+      chai.assert(result.result.isErr());
     });
 
     it("should return error if AZURE_OPENAI_ENDPOINT inputText fails", async () => {
