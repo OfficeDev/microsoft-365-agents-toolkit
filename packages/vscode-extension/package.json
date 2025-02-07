@@ -57,7 +57,7 @@
     "onCommand:workbench.action.debug.start",
     "workspaceContains:/.fx/**/*",
     "workspaceContains:teamsapp.yml",
-    "onView:teamsfx-empty-project",
+    "onView:teamsfx-empty-project-with-chat",
     "onUri",
     "workspaceContains:/**/manifest.json",
     "workspaceContains:/manifest*.xml"
@@ -187,12 +187,12 @@
         {
           "id": "teamsfx-empty-project",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && !fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "false"
         },
         {
           "id": "teamsfx-empty-project-with-chat",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn"
         },
         {
           "id": "teamsfx-officedev-development",
@@ -1672,8 +1672,8 @@
             "title": "%teamsagent.walkthrough.install.title%",
             "description": "%teamsagent.walkthrough.install.description%",
             "media": {
-              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
-              "altText": "%teamsagent.walkthrough.install.title%"
+              "svg": "media/walkthroughs/get-started/testtool.svg",
+              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title%"
             },
             "completionEvents": [
               "onCommand:fx-extension.markInstallTeamsAgentDone"
