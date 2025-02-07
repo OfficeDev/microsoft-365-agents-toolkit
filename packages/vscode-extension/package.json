@@ -580,11 +580,6 @@
     },
     "commands": [
       {
-        "command": "fx-extension.test",
-        "title": "TTK Test",
-        "category": "Teams"
-      },
-      {
         "command": "fx-extension.create",
         "title": "%teamstoolkit.commands.createProject.title%",
         "enablement": "!fx-extension.commandLocked",

@@ -479,15 +479,6 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
   );
   context.subscriptions.push(troubleshootError);
-
-  const testCmd = vscode.commands.registerCommand("fx-extension.test", async (...args) => {
-    void vscode.window.showInformationMessage("Test command is called");
-    await vscode.commands.executeCommand(
-      "fx-extension.createDeclarativeAgentWithApiSpec",
-      "C:\\work\\test\\test-projects\\test-apis\\repairs-api.json"
-    );
-  });
-  context.subscriptions.push(testCmd);
 }
 
 /**
