@@ -14,6 +14,7 @@ import {
   TelemetryTriggerFrom,
 } from "../telemetry/extTelemetryEvents";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import { showOutputChannelHandler } from "./showOutputChannel";
 import { localize } from "../utils/localizeUtils";
 import { GlobalKey, InstallCopilotChatLink } from "../constants";
 import { isVSCodeInsiderVersion } from "../utils/versionUtil";
