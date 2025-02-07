@@ -4,9 +4,9 @@
 import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { allTemplates } from "../../../component/generator/templates/metadata";
 import { ProgrammingLanguage, QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
-import { Templates } from "../../templates";
 import { ApiPluginStartOptions, DACapabilityOptions } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
@@ -27,7 +27,8 @@ export function languageNode(): IQTreeNode {
   return {
     condition: (inputs: Inputs) => {
       const templateName = inputs[QuestionNames.TemplateName];
-      const languages = Templates.filter((t) => t.name === templateName)
+      const languages = allTemplates
+        .filter((t) => t.name === templateName)
         .map((t) => t.language)
         .filter((lang) => lang !== "none" && lang !== undefined);
       return languages.length > 0;
@@ -44,7 +45,8 @@ export function languageNode(): IQTreeNode {
       ],
       dynamicOptions: (inputs: Inputs) => {
         const templateName = inputs[QuestionNames.TemplateName];
-        const languages = Templates.filter((t) => t.name === templateName)
+        const languages = allTemplates
+          .filter((t) => t.name === templateName)
           .map((t) => t.language)
           .filter((lang) => lang !== "none" && lang !== undefined);
         const languageOptions = languages.map(

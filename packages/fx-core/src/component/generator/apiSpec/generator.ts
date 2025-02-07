@@ -46,13 +46,12 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question/constants";
-import { TemplateNames } from "../../../question/templates";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
-import { declarativeCopilotInstructionFileName } from "../constant";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
+import { TemplateNames } from "../templates/templateNames";
 import {
   convertSpecParserErrorToFxError,
   copyKiotaFolder,
@@ -294,7 +293,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
   //   };
   // }
   // activation condition
-  public activate(context: Context, inputs: Inputs): boolean {
+  public override activate(context: Context, inputs: Inputs): boolean {
     // const capability = inputs.capabilities as string;
     // const meArchitecture = inputs[QuestionNames.MeArchitectureType] as string;
     // return (
@@ -332,7 +331,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     return inputs[QuestionNames.TemplateName];
   }
 
-  public async getTemplateInfos(
+  protected override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -480,7 +479,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     ]);
   }
 
-  public async post(
+  protected override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

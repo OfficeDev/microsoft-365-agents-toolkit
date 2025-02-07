@@ -29,11 +29,11 @@ import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptM
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
 import { SpecGenerator } from "../apiSpec/generator";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
+import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
-import { TemplateNames } from "../../../question/templates";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -49,7 +49,7 @@ const enum telemetryProperties {
  */
 export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
   componentName = "copilot-extension-from-scratch-generator";
-  public activate(context: Context, inputs: Inputs): boolean {
+  public override activate(context: Context, inputs: Inputs): boolean {
     return [
       TemplateNames.ApiPluginFromScratch,
       TemplateNames.ApiPluginFromScratchBearer,
@@ -58,7 +58,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 
-  public getTemplateInfos(
+  protected override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -116,7 +116,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     );
   }
 
-  public async post(
+  protected override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

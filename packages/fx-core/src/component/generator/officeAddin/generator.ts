@@ -20,18 +20,13 @@ import { convertProject } from "office-addin-project";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getUuid } from "../../../common/stringUtils";
 import { assembleError } from "../../../error";
-import {
-  CapabilityOptions,
-  ProgrammingLanguage,
-  ProjectTypeOptions,
-  QuestionNames,
-} from "../../../question/constants";
+import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { envUtil } from "../../utils/envUtil";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
+import { TemplateNames } from "../templates/templateNames";
 import { HelperMethods } from "./helperMethods";
-import { TemplateNames } from "../../../question/templates";
 
 /**
  * case 1: project-type=office-xml-addin-type AND addin-host=outlook
@@ -122,7 +117,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
   componentName = "office-addin-generator";
 
   // activation condition
-  public activate(context: Context, inputs: Inputs): boolean {
+  public override activate(context: Context, inputs: Inputs): boolean {
     const templateName = inputs[QuestionNames.TemplateName];
     return [
       TemplateNames.OutlookTaskpane,
@@ -131,7 +126,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     ].includes(templateName);
   }
 
-  public async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -151,7 +146,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     );
   }
 
-  async post(
+  protected override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

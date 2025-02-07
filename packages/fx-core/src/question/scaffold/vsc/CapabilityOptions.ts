@@ -4,7 +4,7 @@
 import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { TemplateNames } from "../../templates";
+import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import {
   HostType,
   HostTypeTriggerOptionItem,
@@ -22,15 +22,6 @@ export class TabCapabilityOptions {
         "core.createProjectQuestion.option.description.worksInOutlookM365"
       ),
       data: TemplateNames.Tab,
-    };
-  }
-  static tab(): OptionItem {
-    return {
-      id: "tab",
-      label: getLocalizedString("core.TabOption.label"),
-      description: getLocalizedString("core.TabOption.description"),
-      detail: getLocalizedString("core.TabOption.detail"),
-      data: TemplateNames.SsoTab,
     };
   }
   static m365SsoLaunchPage(): OptionItem {
