@@ -356,6 +356,9 @@ export async function troubleshootError(args?: any[]): Promise<Result<boolean, F
     telemtryProperties
   );
 
+  showOutputChannelHandler();
+  await vscode.commands.executeCommand("workbench.action.openActiveLogOutputFile");
+
   const query = `@teamsapp I'm encountering the following error in Teams Toolkit.
   \`\`\`
   {
