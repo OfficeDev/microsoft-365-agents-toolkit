@@ -353,17 +353,6 @@ export class BotCapabilityOptions {
       data: TemplateNames.AIBot,
     };
   }
-
-  static aiAssistantBot(): OptionItem {
-    return {
-      id: "ai-assistant-bot",
-      label: getLocalizedString("core.aiAssistantBotOption.label"),
-      detail: getLocalizedString("core.aiAssistantBotOption.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
-      data: TemplateNames.AIAssistantBot,
-    };
-  }
-
   // need further sub-options to decide template name
   static notificationBot(): OptionItem {
     return {
