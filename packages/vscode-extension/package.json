@@ -1672,8 +1672,8 @@
             "title": "%teamsagent.walkthrough.install.title%",
             "description": "%teamsagent.walkthrough.install.description%",
             "media": {
-              "svg": "media/walkthroughs/get-started/testtool.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title%"
+              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "altText": "%teamsagent.walkthrough.install.title%"
             },
             "completionEvents": [
               "onCommand:fx-extension.markInstallTeamsAgentDone"
