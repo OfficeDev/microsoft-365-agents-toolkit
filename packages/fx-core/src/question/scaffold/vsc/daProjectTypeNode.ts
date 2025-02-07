@@ -22,66 +22,86 @@ export function daProjectTypeNode(
     // project-type = Declarative Agent
     condition: { equals: parentValue },
     data: {
-      name: QuestionNames.WithPlugin,
-      title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
-      cliDescription: "Whether to add API plugin for your declarative Copilot.",
+      name: QuestionNames.Capabilities,
+      title: getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.title"),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+      ),
       type: "singleSelect",
-      staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
-      placeholder: getLocalizedString("core.createProjectQuestion.declarativeCopilot.placeholder"),
-      onDidSelection: setTemplateName,
+      staticOptions: [DACapabilityOptions.declarativeAgent()],
+      skipSingleOption: true,
     },
     children: [
       {
-        condition: { equals: DACapabilityOptions.withPlugin().id },
         data: {
+          name: QuestionNames.WithPlugin,
+          title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
+          cliDescription: "Whether to add API plugin for your declarative Copilot.",
           type: "singleSelect",
-          name: QuestionNames.ApiPluginType,
-          title: getLocalizedString("core.createProjectQuestion.createApiPlugin.title"),
-          cliDescription: "API plugin type.",
-          placeholder: getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder"),
-          staticOptions: [
-            ApiPluginStartOptions.newApi(),
-            ApiPluginStartOptions.apiSpec(),
-            ApiPluginStartOptions.existingPlugin(),
-          ],
-          default: ApiPluginStartOptions.newApi().id,
+          staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.declarativeCopilot.placeholder"
+          ),
           onDidSelection: setTemplateName,
         },
         children: [
           {
-            condition: { equals: ApiPluginStartOptions.newApi().id },
+            condition: { equals: DACapabilityOptions.withPlugin().id },
             data: {
               type: "singleSelect",
-              name: QuestionNames.ApiAuth,
-              title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
-              cliDescription: "The authentication type for the API.",
+              name: QuestionNames.ApiPluginType,
+              title: getLocalizedString("core.createProjectQuestion.createApiPlugin.title"),
+              cliDescription: "API plugin type.",
               placeholder: getLocalizedString(
-                "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+                "core.createProjectQuestion.addApiPlugin.placeholder"
               ),
               staticOptions: [
-                ApiAuthOptions.none(false),
-                ApiAuthOptions.apiKey(),
-                ApiAuthOptions.microsoftEntra(),
-                ApiAuthOptions.oauth(),
+                ApiPluginStartOptions.newApi(),
+                ApiPluginStartOptions.apiSpec(),
+                ApiPluginStartOptions.existingPlugin(),
               ],
-              default: ApiAuthOptions.none().id,
+              default: ApiPluginStartOptions.newApi().id,
               onDidSelection: setTemplateName,
             },
-          },
-          apiSpecNode(
-            (inputs: Inputs) =>
-              inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
-              !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
-          ),
-          {
-            condition: { equals: ApiPluginStartOptions.existingPlugin().id },
-            data: { type: "group", name: QuestionNames.ImportPlugin },
             children: [
               {
-                data: pluginManifestQuestion(),
+                condition: { equals: ApiPluginStartOptions.newApi().id },
+                data: {
+                  type: "singleSelect",
+                  name: QuestionNames.ApiAuth,
+                  title: getLocalizedString(
+                    "core.createProjectQuestion.apiMessageExtensionAuth.title"
+                  ),
+                  cliDescription: "The authentication type for the API.",
+                  placeholder: getLocalizedString(
+                    "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+                  ),
+                  staticOptions: [
+                    ApiAuthOptions.none(false),
+                    ApiAuthOptions.apiKey(),
+                    ApiAuthOptions.microsoftEntra(),
+                    ApiAuthOptions.oauth(),
+                  ],
+                  default: ApiAuthOptions.none().id,
+                  onDidSelection: setTemplateName,
+                },
               },
+              apiSpecNode(
+                (inputs: Inputs) =>
+                  inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
+              ),
               {
-                data: pluginApiSpecQuestion(),
+                condition: { equals: ApiPluginStartOptions.existingPlugin().id },
+                data: { type: "group", name: QuestionNames.ImportPlugin },
+                children: [
+                  {
+                    data: pluginManifestQuestion(),
+                  },
+                  {
+                    data: pluginApiSpecQuestion(),
+                  },
+                ],
               },
             ],
           },
