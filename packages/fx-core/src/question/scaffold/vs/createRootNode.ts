@@ -3,9 +3,9 @@
 
 import { IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
-import { TemplateNames } from "../../templates";
 import {
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,

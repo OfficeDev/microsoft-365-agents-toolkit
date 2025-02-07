@@ -13,109 +13,71 @@ import {
 } from "../../../question/constants";
 
 export enum TemplateNames {
-  Empty = "empty",
+  // tab
   Tab = "non-sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
-  TabSSR = "non-sso-tab-ssr",
-  SsoTabSSR = "sso-tab-ssr",
   DashboardTab = "dashboard-tab",
-  NotificationExpress = "notification-express",
-  NotificationWebApi = "notification-webapi",
+  TabSSR = "non-sso-tab-ssr", // handled by SsrTabGenerator
+  SsoTabSSR = "sso-tab-ssr", // handled by SsrTabGenerator
+
+  // bot
+  DefaultBot = "default-bot",
+  Workflow = "workflow",
+  CommandAndResponse = "command-and-response",
   NotificationHttpTrigger = "notification-http-trigger",
   NotificationTimerTrigger = "notification-timer-trigger",
   NotificationHttpTimerTrigger = "notification-http-timer-trigger",
-  CommandAndResponse = "command-and-response",
-  Workflow = "workflow",
-  DefaultBot = "default-bot",
+  // bot (platform specific)
+  NotificationExpress = "notification-express",
+  NotificationWebApi = "notification-webapi",
+
+  // messaging extension
   MessageExtension = "message-extension",
   MessageExtensionAction = "message-extension-action",
-  MessageExtensionSearch = "message-extension-search",
-  M365MessageExtension = "m365-message-extension",
-  TabAndDefaultBot = "non-sso-tab-default-bot",
-  BotAndMessageExtension = "default-bot-message-extension",
   LinkUnfurling = "link-unfurling",
-  AIBot = "ai-bot",
-  AIAssistantBot = "ai-assistant-bot",
-  ApiPluginFromScratch = "api-plugin-from-scratch",
-  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer",
-  ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth",
+  ApiMessageExtensionSso = "api-message-extension-sso",
+  // messaging extension (platform specific)
+  ApiPluginExistingApi = "api-plugin-existing-api", // TODO: handled by xxx generator
+  MessageExtensionM365 = "m365-message-extension",
+  MessageExtensionCopilot = "message-extension-copilot",
+  MessageExtensionSearch = "message-extension-search",
+
+  // copilot plugin
   CopilotPluginFromScratch = "copilot-plugin-from-scratch",
   CopilotPluginFromScratchApiKey = "copilot-plugin-from-scratch-api-key",
-  ApiMessageExtensionSso = "api-message-extension-sso",
+  // copilot plugin (platform specific)
+  CopilotPluginExistingApi = "copilot-plugin-existing-api",
+
+  // declarative agent
+  BasicGpt = "copilot-gpt-basic", // TODO: handled by xxx generator
+  ApiPluginFromScratch = "api-plugin-from-scratch", // TODO: handled by xxx generator
+  ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator
+  ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth", // TODO: handled by xxx generator
+  DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec",
+
+  // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",
+  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api", // TODO: handled by xxx generator
   CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
-  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api",
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
-  BasicGpt = "copilot-gpt-basic",
-  GptWithPluginFromScratch = "copilot-gpt-from-scratch-plugin",
-}
 
-// TODO: remove this mapping after all generators are migrated to new generator pattern
-export const Feature2TemplateName = {
-  [`${CapabilityOptions.empty().id}:undefined`]: TemplateNames.Empty,
-  [`${CapabilityOptions.nonSsoTab().id}:undefined`]: TemplateNames.Tab,
-  [`${CapabilityOptions.m365SsoLaunchPage().id}:undefined`]: TemplateNames.SsoTabObo,
-  [`${CapabilityOptions.nonSsoTab().id}:ssr`]: TemplateNames.TabSSR,
-  [`${CapabilityOptions.tab().id}:ssr`]: TemplateNames.SsoTabSSR,
-  [`${CapabilityOptions.dashboardTab().id}:undefined`]: TemplateNames.DashboardTab,
-  [`${CapabilityOptions.notificationBot().id}:${NotificationTriggerOptions.appService().id}`]:
-    TemplateNames.NotificationExpress,
-  [`${CapabilityOptions.notificationBot().id}:${NotificationTriggerOptions.appServiceForVS().id}`]:
-    TemplateNames.NotificationWebApi,
-  [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpTrigger().id
-  }`]: TemplateNames.NotificationHttpTrigger,
-  [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsTimerTrigger().id
-  }`]: TemplateNames.NotificationTimerTrigger,
-  [`${CapabilityOptions.notificationBot().id}:${
-    NotificationTriggerOptions.functionsHttpAndTimerTrigger().id
-  }`]: TemplateNames.NotificationHttpTimerTrigger,
-  [`${CapabilityOptions.commandBot().id}:undefined`]: TemplateNames.CommandAndResponse,
-  [`${CapabilityOptions.workflowBot().id}:undefined`]: TemplateNames.Workflow,
-  [`${CapabilityOptions.basicBot().id}:undefined`]: TemplateNames.DefaultBot,
-  [`${CapabilityOptions.me().id}:undefined`]: TemplateNames.MessageExtension,
-  [`${CapabilityOptions.collectFormMe().id}:undefined`]: TemplateNames.MessageExtensionAction,
-  [`${CapabilityOptions.SearchMe().id}:undefined`]: TemplateNames.MessageExtensionSearch,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.botMe().id}`]:
-    TemplateNames.M365MessageExtension,
-  [`${CapabilityOptions.nonSsoTabAndBot().id}:undefined`]: TemplateNames.TabAndDefaultBot,
-  [`${CapabilityOptions.botAndMe().id}:undefined`]: TemplateNames.BotAndMessageExtension,
-  [`${CapabilityOptions.linkUnfurling().id}:undefined`]: TemplateNames.LinkUnfurling,
-  [`${CapabilityOptions.aiBot().id}:undefined`]: TemplateNames.AIBot,
-  [`${CapabilityOptions.aiAssistantBot().id}:undefined`]: TemplateNames.AIAssistantBot,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.newApi().id}:${
-    ApiAuthOptions.none().id
-  }`]: TemplateNames.CopilotPluginFromScratch,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.newApi().id}:${
-    ApiAuthOptions.bearerToken().id
-  }`]: TemplateNames.CopilotPluginFromScratchApiKey,
-  [`${CapabilityOptions.m365SearchMe().id}:undefined:${MeArchitectureOptions.newApi().id}:${
-    ApiAuthOptions.microsoftEntra().id
-  }`]: TemplateNames.ApiMessageExtensionSso,
-  [`${CapabilityOptions.customCopilotBasic().id}:undefined`]: TemplateNames.CustomCopilotBasic,
-  [`${CapabilityOptions.customCopilotRag().id}:undefined:${
-    CustomCopilotRagOptions.customize().id
-  }`]: TemplateNames.CustomCopilotRagCustomize,
-  [`${CapabilityOptions.customCopilotRag().id}:undefined:${
-    CustomCopilotRagOptions.azureAISearch().id
-  }`]: TemplateNames.CustomCopilotRagAzureAISearch,
-  [`${CapabilityOptions.customCopilotRag().id}:undefined:${
-    CustomCopilotRagOptions.customApi().id
-  }`]: TemplateNames.CustomCopilotRagCustomApi,
-  [`${CapabilityOptions.customCopilotRag().id}:undefined:${
-    CustomCopilotRagOptions.microsoft365().id
-  }`]: TemplateNames.CustomCopilotRagMicrosoft365,
-  [`${CapabilityOptions.customCopilotAssistant().id}:undefined:${
-    CustomCopilotAssistantOptions.new().id
-  }`]: TemplateNames.CustomCopilotAssistantNew,
-  [`${CapabilityOptions.customCopilotAssistant().id}:undefined:${
-    CustomCopilotAssistantOptions.assistantsApi().id
-  }`]: TemplateNames.CustomCopilotAssistantAssistantsApi,
-};
+  // from TDP only
+  TabAndDefaultBot = "non-sso-tab-default-bot",
+  BotAndMessageExtension = "default-bot-message-extension",
+
+  // VS only
+  Empty = "empty",
+  AIBot = "ai-bot",
+  AIAssistantBot = "ai-assistant-bot",
+
+  // WXP
+  OutlookTaskpane = "office-addin-outlook-taskpane", // handled by OfficeAddinGeneratorNew
+  WXPTaskpane = "office-addin-wxpo-taskpane", // handled by OfficeAddinGeneratorNew
+  OfficeAddinCommon = "office-addin-config", // handled by OfficeAddinGeneratorNew
+}
 
 export function tryGetTemplateName(inputs: Inputs): TemplateNames | undefined {
   for (const [key, value] of inputsToTemplateName) {
@@ -201,7 +163,7 @@ export const inputsToTemplateName: Map<{ [key: string]: any }, TemplateNames> = 
       [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
       [QuestionNames.MeArchitectureType]: MeArchitectureOptions.botMe().id,
     },
-    TemplateNames.M365MessageExtension,
+    TemplateNames.MessageExtensionM365,
   ],
   [
     { [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTabAndBot().id },

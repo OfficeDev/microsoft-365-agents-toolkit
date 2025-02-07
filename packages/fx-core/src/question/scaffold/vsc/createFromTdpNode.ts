@@ -11,6 +11,7 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../../../component/driver/teamsApp/utils/utils";
+import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { QuestionNames } from "../../constants";
 import {
   appNameQuestion,
@@ -20,7 +21,6 @@ import {
   selectTabWebsiteUrlQuestion,
 } from "../../create";
 import { languageNode } from "./createRootNode";
-import { TemplateNames } from "../../templates";
 
 export class CreateFromTdpCapabilityOptions {}
 
