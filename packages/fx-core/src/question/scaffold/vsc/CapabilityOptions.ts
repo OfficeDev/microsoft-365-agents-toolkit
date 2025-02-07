@@ -533,7 +533,7 @@ export class ApiAuthOptions {
   static apiKey(): OptionItem {
     return {
       id: "api-key",
-      label: "API Key (Bearer Token Auth)",
+      label: "API Key",
       data: TemplateNames.ApiPluginFromScratchBearer,
     };
   }
