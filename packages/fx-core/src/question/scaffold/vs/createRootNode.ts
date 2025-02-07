@@ -62,6 +62,14 @@ export class VSCapabilityOptions {
       data: TemplateNames.AIAssistantBot,
     };
   }
+  static SearchMeVS(): OptionItem {
+    return {
+      id: "search-message-extension",
+      label: `${getLocalizedString("core.M365SearchAppOptionItem.label")}`,
+      detail: getLocalizedString("core.SearchAppOptionItem.detail"),
+      data: TemplateNames.MessageExtensionSearch,
+    };
+  }
 }
 
 /**
@@ -93,7 +101,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             VSCapabilityOptions.tab(),
             MeCapabilityOptions.m365SearchMe(),
             MeCapabilityOptions.collectFormMe(),
-            MeCapabilityOptions.SearchMeVS(),
+            VSCapabilityOptions.SearchMeVS(),
             MeCapabilityOptions.linkUnfurling(),
           ],
           onDidSelection: setTemplateName,

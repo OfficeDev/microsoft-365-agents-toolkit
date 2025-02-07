@@ -234,15 +234,6 @@ export class MeCapabilityOptions {
       data: TemplateNames.LinkUnfurling,
     };
   }
-
-  static SearchMeVS(): OptionItem {
-    return {
-      id: "search-message-extension",
-      label: `${getLocalizedString("core.M365SearchAppOptionItem.label")}`,
-      detail: getLocalizedString("core.SearchAppOptionItem.detail"),
-      data: TemplateNames.MessageExtensionSearch,
-    };
-  }
 }
 
 export class MeArchitectureOptions {
@@ -536,6 +527,7 @@ export class ApiAuthOptions {
     return {
       id: "api-key",
       label: "API Key",
+      // TODO: Update the name because the ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey.
       data: TemplateNames.ApiPluginFromScratchBearer,
     };
   }
