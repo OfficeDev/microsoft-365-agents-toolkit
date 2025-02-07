@@ -814,7 +814,11 @@ export function addPluginQuestionNode(): IQTreeNode {
 export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
-    children: [],
+    children: [
+      {
+        data: webContentQuestion(),
+      },
+    ],
   };
 }
 
@@ -1262,5 +1266,28 @@ export function syncManifestQuestionNode(): IQTreeNode {
         },
       },
     ],
+  };
+}
+
+export function webContentQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.AuthName,
+    title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
+    placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
+    type: "text",
+    cliDescription: "Name of Web Content.",
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        try {
+          new URL(input);
+        } catch (e) {
+          return getLocalizedString("core.addKnowledgeQuestion.invalidWebContent.message");
+        }
+        return;
+      },
+    },
   };
 }

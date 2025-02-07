@@ -107,6 +107,7 @@ export enum QuestionNames {
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
   KnowledgeSource = "knowledge-source",
+  WebContent = "web-content",
 
   AuthName = "auth-name",
 }

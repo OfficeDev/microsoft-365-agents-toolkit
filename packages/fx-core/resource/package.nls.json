@@ -947,5 +947,8 @@
   "core.addAuthActionQuestion.ApiSpecLocation.placeholder": "Select an option",
   "core.addAuthActionQuestion.ApiOperation.title": "Select an API to Add Auth Configuration",
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
-  "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration"
+  "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration",
+  "core.addKnowledgeQuestion.webContent.title": "Web Content",
+  "core.addKnowledgeQuestion.webContent.placeholder": "Input an absolute URL to a site to be searched for content.",
+  "core.addKnowledgeQuestion.invalidWebContent.message": "Invalid web content. Please provide a valid URL."
 }

@@ -17,4 +17,6 @@ export interface AddKnowledgeInputs extends Inputs {
     | "oneDrive-sharePoint"
     | "graph-connector"
     | "embedded-knowledge";
+  /** @description Web Content */
+  "auth-name"?: string;
 }
