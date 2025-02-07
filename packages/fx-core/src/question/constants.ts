@@ -4,7 +4,6 @@
 import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
-import { OfficeAddinProjectConfig } from "../component/generator/officeXMLAddin/projectConfig";
 
 export enum QuestionNames {
   Scratch = "scratch",
@@ -554,23 +553,6 @@ export class CapabilityOptions {
         ];
   }
 
-  static officeAddinStaticCapabilities(host?: string): OptionItem[] {
-    const items: OptionItem[] = [];
-    for (const h of Object.keys(OfficeAddinProjectConfig)) {
-      if (host && h !== host) continue;
-      const hostValue = OfficeAddinProjectConfig[h];
-      for (const capability of Object.keys(hostValue)) {
-        const capabilityValue = hostValue[capability];
-        items.push({
-          id: capability,
-          label: getLocalizedString(capabilityValue.title),
-          detail: getLocalizedString(capabilityValue.detail),
-        });
-      }
-    }
-    return items;
-  }
-
   static officeAddinCapabilities(projectType: string): OptionItem[] {
     const items: OptionItem[] = [CapabilityOptions.officeAddinTaskpane()];
     const isOutlookAddin = projectType === ProjectTypeOptions.outlookAddin().id;
@@ -617,7 +599,6 @@ export class CapabilityOptions {
       ...CapabilityOptions.customCopilots(),
       ...CapabilityOptions.tdpIntegrationCapabilities(),
     ];
-    capabilityOptions.push(...CapabilityOptions.officeAddinStaticCapabilities());
     return capabilityOptions;
   }
 
