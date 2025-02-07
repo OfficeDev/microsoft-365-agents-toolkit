@@ -56,9 +56,7 @@ export class VSCapabilityOptions {
 }
 
 /**
- *
- * FxCore API for scaffold: scaffold(questionModel: IQTreeNode, generators: DefaultTemplateGenerator[]): Promise<Result<any, FxError>>
- * Dedicated for VS Code platform
+ * Scaffold question model dedicated for VS platform
  */
 
 export function scaffoldQuestionForVS(): IQTreeNode {

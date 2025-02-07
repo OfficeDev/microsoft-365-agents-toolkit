@@ -49,7 +49,6 @@ import {
 import { TemplateNames } from "../../../question/templates";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
-import { declarativeCopilotInstructionFileName } from "../constant";
 import { Generator } from "../generator";
 import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";

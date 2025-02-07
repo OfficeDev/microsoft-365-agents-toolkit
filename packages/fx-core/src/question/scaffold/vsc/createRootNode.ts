@@ -73,9 +73,7 @@ export function folderAndAppNameCondition(inputs: Inputs): boolean {
 }
 
 /**
- *
- * FxCore API for scaffold: scaffold(questionModel: IQTreeNode, generators: DefaultTemplateGenerator[]): Promise<Result<any, FxError>>
- * Dedicated for VS Code platform
+ * Scaffold question model dedicated for VS Code platform
  */
 
 export function scaffoldQuestionForVSCode(): IQTreeNode {
