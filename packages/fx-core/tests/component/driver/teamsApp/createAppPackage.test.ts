@@ -1066,14 +1066,16 @@ describe("teamsApp/createAppPackage", async () => {
         }
       });
 
+      chai.assert(openapiContent, "openapi.yml not found in the zip file");
+      chai.assert(aiPluginContent, "ai-plugin.json not found in the zip file");
+      chai.assert(declarativeAgentsContent, "declarativeAgent.json not found in the zip file");
       chai.assert(
-        openapiContent &&
-          aiPluginContent &&
-          openapiContent.search("APP_NAME_SUFFIX") < 0 &&
-          aiPluginContent.search(openapiServerPlaceholder) < 0 &&
-          aiPluginContent.search("file") < 0 &&
-          declarativeAgentsContent
+        aiPluginContent.search(openapiServerPlaceholder) < 0,
+        "openapiServerPlaceholder not replaced"
       );
+      chai.assert(openapiContent.search("APP_NAME_SUFFIX") < 0, "APP_NAME_SUFFIX not replaced");
+      chai.assert(declarativeAgentsContent.search("file") < 0, "file not replaced");
+
       await fs.remove(args.outputZipPath);
     }
   });
