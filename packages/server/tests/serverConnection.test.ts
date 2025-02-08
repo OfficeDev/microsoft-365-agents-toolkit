@@ -657,7 +657,7 @@ describe("serverConnections", () => {
     }
   });
 
-  it("isDeclarativeAgentRequest - failed", async () => {
+  it("addAction - failed", async () => {
     const connection = new ServerConnection(msgConn);
     sandbox
       .stub(connection["core"], "addPlugin")
