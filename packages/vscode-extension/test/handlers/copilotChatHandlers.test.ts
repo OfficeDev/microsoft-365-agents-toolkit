@@ -377,7 +377,7 @@ describe("copilotChatHandler", async () => {
       sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const currentError = new SystemError("test", "test", "test", "test");
-      const res = await handlers.troubleshootError(["triggerFrom", currentError]);
+      const res = await handlers.troubleshootError(["Notification", currentError]);
       chai.assert.isTrue(res.isOk());
     });
 

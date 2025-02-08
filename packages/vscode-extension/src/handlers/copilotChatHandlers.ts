@@ -197,10 +197,6 @@ async function invoke(
   skipPreCheck = false
 ): Promise<Result<boolean, FxError>> {
   if (skipPreCheck) {
-    if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
-      await openOutputInEditor();
-    }
-
     const res = await openGithubCopilotChat([
       triggerFromProperty[TelemetryProperty.TriggerFrom],
       query,
