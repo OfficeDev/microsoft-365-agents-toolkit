@@ -6,6 +6,8 @@ import { Colors, FxError, Result, err, ok, PluginManifestSchema } from "@microso
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
+import * as os from "os";
+import * as uuid from "uuid";
 import { Service } from "typedi";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { ErrorContextMW } from "../../../common/globalVars";
@@ -424,16 +426,71 @@ export class CreateAppPackageDriver implements StepDriver {
       return err(checkExistenceRes.error);
     }
 
+    const pluginFileContent = await fs.readJSON(pluginFile);
+    let containExternalAdaptiveCard = false;
+    if (pluginFileContent.functions) {
+      for (const func of pluginFileContent.functions) {
+        if (func.capabilities?.response_semantics?.static_template?.file) {
+          const staticTemplateFile = path.resolve(
+            path.dirname(pluginFile),
+            func.capabilities.response_semantics.static_template.file
+          );
+          const checkExistenceRes = await this.validateReferencedFile(
+            staticTemplateFile,
+            appDirectory
+          );
+
+          if (checkExistenceRes.isErr()) {
+            delete func.capabilities.response_semantics.static_template.file;
+            context.logProvider.warning(
+              getLocalizedString(
+                "plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning",
+                pluginFile,
+                func.name
+              )
+            );
+            continue;
+          }
+
+          if (Object.keys(func.capabilities.response_semantics.static_template).length > 1) {
+            context.logProvider.warning(
+              getLocalizedString(
+                "plugins.appstudio.createPackage.aiPlugin.overrideWarning",
+                pluginFile,
+                func.name
+              )
+            );
+          }
+
+          const staticTemplateFileContent = await fs.readJSON(staticTemplateFile);
+          func.capabilities.response_semantics.static_template = staticTemplateFileContent;
+
+          containExternalAdaptiveCard = true;
+        }
+      }
+    }
+
+    let tmpPluginFile = pluginFile;
+    if (containExternalAdaptiveCard) {
+      tmpPluginFile = path.join(os.tmpdir(), `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
+      await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
+    }
+
     const addFileWithVariableRes = await this.addFileWithVariable(
       zip,
       pluginRelativePath,
-      pluginFile,
+      tmpPluginFile,
       ManifestType.PluginManifest,
       context,
       !outputDirectory
         ? undefined
         : path.join(outputDirectory, path.relative(appDirectory, pluginFile))
     );
+
+    if (containExternalAdaptiveCard && tmpPluginFile !== pluginFile) {
+      await fs.remove(tmpPluginFile);
+    }
+
     if (addFileWithVariableRes.isErr()) {
       return err(addFileWithVariableRes.error);
     }

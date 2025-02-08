@@ -133,6 +133,8 @@
   "plugins.appstudio.buildSucceedNotice": "Teams package successfully built at [local address](%s).",
   "plugins.appstudio.buildSucceedNotice.fallback": "Teams package successfully built at %s.",
   "plugins.appstudio.createPackage.progressBar.message": "Building Teams app package...",
+  "plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning": "The static_template in %s for function %s has an invalid file property. It will be deleted and ignored.",
+  "plugins.appstudio.createPackage.aiPlugin.overrideWarning":"The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.",
   "plugins.appstudio.validationFailedNotice": "Manifest Validation is unsuccessful!",
   "plugins.appstudio.validateManifest.progressBar.message": "Validating manifest...",
   "plugins.appstudio.validateAppPackage.progressBar.message": "Validating app package...",
