@@ -33,6 +33,14 @@ function githubCopilotInstalled(): boolean {
   return !!extension;
 }
 
+async function openOutputInEditor(): Promise<void> {
+  // try open output in editor but ignore error
+  try {
+    showOutputChannelHandler();
+    await vscode.commands.executeCommand("workbench.action.openActiveLogOutputFile");
+  } catch (e) {}
+}
+
 export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, FxError>> {
   const startEventName = TelemetryEvent.OpenGitHubCopilotChatStart;
   const eventName = TelemetryEvent.openGitHubCopilotChat;
@@ -189,6 +197,10 @@ async function invoke(
   skipPreCheck = false
 ): Promise<Result<boolean, FxError>> {
   if (skipPreCheck) {
+    if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
+      await openOutputInEditor();
+    }
+
     const res = await openGithubCopilotChat([
       triggerFromProperty[TelemetryProperty.TriggerFrom],
       query,
@@ -210,6 +222,10 @@ async function invoke(
   const hasGitHubCopilotSetup = await globalStateGet(GlobalKey.GitHubCopilotSetupAlready, false);
 
   if (hasGitHubCopilotInstalledOnce && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
+    if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
+      await openOutputInEditor();
+    }
+
     const res = await openGithubCopilotChat([
       triggerFromProperty[TelemetryProperty.TriggerFrom],
       query,
@@ -356,9 +372,6 @@ export async function troubleshootError(args?: any[]): Promise<Result<boolean, F
     TelemetryEvent.TroubleshootErrorFromNotificationStart,
     telemtryProperties
   );
-
-  showOutputChannelHandler();
-  await vscode.commands.executeCommand("workbench.action.openActiveLogOutputFile");
 
   const query = `@teamsapp I'm encountering the following error in Teams Toolkit.
   \`\`\`
