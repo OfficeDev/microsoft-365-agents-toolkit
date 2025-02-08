@@ -6,7 +6,6 @@ import { Colors, FxError, Result, err, ok, PluginManifestSchema } from "@microso
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
-import * as os from "os";
 import * as uuid from "uuid";
 import { Service } from "typedi";
 import { getLocalizedString } from "../../../common/localizeUtils";
@@ -426,14 +425,20 @@ export class CreateAppPackageDriver implements StepDriver {
       return err(checkExistenceRes.error);
     }
 
-    const pluginFileContent = await fs.readJSON(pluginFile);
+    let pluginFileContent;
+    try {
+      pluginFileContent = (await fs.readJSON(pluginFile)) as PluginManifestSchema;
+    } catch (e) {
+      return err(new JSONSyntaxError(pluginFile, e, actionName));
+    }
+
     let containExternalAdaptiveCard = false;
     if (pluginFileContent.functions) {
       for (const func of pluginFileContent.functions) {
         if (func.capabilities?.response_semantics?.static_template?.file) {
           const staticTemplateFile = path.resolve(
             path.dirname(pluginFile),
-            func.capabilities.response_semantics.static_template.file
+            func.capabilities.response_semantics.static_template.file as string
           );
           const checkExistenceRes = await this.validateReferencedFile(
             staticTemplateFile,
@@ -471,8 +476,12 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     let tmpPluginFile = pluginFile;
+    let tempFolder: string | undefined;
+
     if (containExternalAdaptiveCard) {
-      tmpPluginFile = path.join(os.tmpdir(), `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
+      tempFolder = path.join(appDirectory, ".tmp");
+      await fs.ensureDir(tempFolder);
+      tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
       await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
     }
 
@@ -487,8 +496,8 @@ export class CreateAppPackageDriver implements StepDriver {
         : path.join(outputDirectory, path.relative(appDirectory, pluginFile))
     );
 
-    if (containExternalAdaptiveCard && tmpPluginFile !== pluginFile) {
-      await fs.remove(tmpPluginFile);
+    if (containExternalAdaptiveCard && tmpPluginFile !== pluginFile && tempFolder) {
+      await fs.remove(tempFolder);
     }
 
     if (addFileWithVariableRes.isErr()) {
@@ -523,12 +532,7 @@ export class CreateAppPackageDriver implements StepDriver {
     context: WrapDriverContext
   ): Promise<Result<undefined, FxError>> {
     const pluginFilePath = path.join(appDirectory, pluginFile);
-    let pluginContent;
-    try {
-      pluginContent = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
-    } catch (e) {
-      return err(new JSONSyntaxError(pluginFilePath, e, actionName));
-    }
+    const pluginContent = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
     const runtimes = pluginContent.runtimes;
     if (runtimes && runtimes.length > 0) {
       for (const runtime of runtimes) {
