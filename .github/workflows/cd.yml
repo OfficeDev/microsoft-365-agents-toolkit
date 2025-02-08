@@ -98,6 +98,11 @@ jobs:
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |
           bash .github/scripts/prerelease-feature-control.sh
-          echo "next"
-          changes_detected=$(git status --porcelain | grep "packages/vscode-extension/src/releaseBasedFeatureSettings.ts")
-          echo "changes_detected: $changes_detected"
+          changes_detected=$(git status --porcelain | grep "packages/vscode-extension/src/releaseBasedFeatureSettings.ts" || true)
+          if [ -n "$changes_detected" ]; then
+            echo "Changes detected in releaseBasedFeatureSettings.ts"
+            git add packages/vscode-extension/src/releaseBasedFeatureSettings.ts
+            git commit -m "build: adjust prerelease feature settings"
+          else
+            echo "No changes detected in releaseBasedFeatureSettings.ts"
+          fi
