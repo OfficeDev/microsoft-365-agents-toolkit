@@ -14,6 +14,7 @@ import {
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
+  getProjectTypeByCapability,
   MeArchitectureOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -26,6 +27,7 @@ import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
+import { getProjectTypeAndCapability } from "@microsoft/teamsfx-core/build/question";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
@@ -70,6 +72,12 @@ export function getCreateCommand(): CLICommand {
       const inputs = ctx.optionValues as CreateProjectInputs;
       inputs.projectId = inputs.projectId ?? uuid.v4();
       const core = getFxCore();
+      if (inputs.nonInteractive) {
+        // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
+        const capability = inputs.capabilities as string;
+        const projectType = getProjectTypeByCapability(capability);
+        inputs["project-type"] = projectType as any;
+      }
       const res = await core.createProject(inputs);
       assign(ctx.telemetryProperties, {
         [TelemetryProperty.NewProjectId]: inputs.projectId,
