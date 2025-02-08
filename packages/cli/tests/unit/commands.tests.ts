@@ -91,7 +91,10 @@ describe("CLI commands", () => {
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
-        optionValues: {},
+        optionValues: {
+          capabilities: "bot",
+          nonInteractive: true,
+        },
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},

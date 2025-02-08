@@ -7,7 +7,15 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
 import { ProgrammingLanguage, QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
-import { ApiPluginStartOptions, DACapabilityOptions } from "./CapabilityOptions";
+import {
+  ApiPluginStartOptions,
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+  DACapabilityOptions,
+  MeCapabilityOptions,
+  OfficeAddinCapabilityOptions,
+  TabCapabilityOptions,
+} from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
@@ -125,4 +133,71 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
     ],
   };
   return node;
+}
+
+/**
+ * CLI non-interactive mode has no "project-type" input, to make it compatible to the question model,
+ * we need to convert capability to project type
+ */
+export function getProjectTypeByCapability(capability: string): string {
+  if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
+    return ProjectTypeOptions.copilotAgentOptionId;
+  }
+  if (
+    [
+      CustomCopilotCapabilityOptions.basicChatbot().id,
+      CustomCopilotCapabilityOptions.customCopilotRag().id,
+      CustomCopilotCapabilityOptions.aiAgent().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.customCopilotOptionId;
+  }
+  if (
+    [
+      BotCapabilityOptions.basicBot().id,
+      BotCapabilityOptions.notificationBot().id,
+      BotCapabilityOptions.commandBot().id,
+      BotCapabilityOptions.workflowBot().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.botOptionId;
+  }
+  if (
+    [
+      TabCapabilityOptions.nonSsoTab().id,
+      TabCapabilityOptions.m365SsoLaunchPage().id,
+      TabCapabilityOptions.dashboardTab().id,
+      TabCapabilityOptions.SPFxTab().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.tabOptionId;
+  }
+  if (
+    [
+      MeCapabilityOptions.m365SearchMe().id,
+      MeCapabilityOptions.collectFormMe().id,
+      MeCapabilityOptions.linkUnfurling().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.meOptionId;
+  }
+  if (
+    [
+      OfficeAddinCapabilityOptions.wxpTaskPane().id,
+      OfficeAddinCapabilityOptions.officeAddinImport().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.officeMetaOSOptionId;
+  }
+
+  if (
+    [
+      OfficeAddinCapabilityOptions.outlookTaskPane().id,
+      OfficeAddinCapabilityOptions.outlookAddinImport().id,
+    ].includes(capability)
+  ) {
+    return ProjectTypeOptions.outlookAddinOptionId;
+  }
+
+  return "";
 }

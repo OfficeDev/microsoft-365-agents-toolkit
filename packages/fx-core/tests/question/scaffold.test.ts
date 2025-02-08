@@ -12,7 +12,15 @@ import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdef
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
-import { ApiPluginStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import {
+  ApiPluginStartOptions,
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+  DACapabilityOptions,
+  MeCapabilityOptions,
+  OfficeAddinCapabilityOptions,
+  TabCapabilityOptions,
+} from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {
   createFromTdpNode,
@@ -20,6 +28,7 @@ import {
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
+  getProjectTypeByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
@@ -261,5 +270,36 @@ describe("folderAndAppNameCondition", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const res = folderAndAppNameCondition(inputs);
     assert.isFalse(res);
+  });
+});
+
+describe("getProjectTypeByCapability", () => {
+  it("DA", () => {
+    const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
+    assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
+  });
+  it("CEA", () => {
+    const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
+    assert.equal(type, ProjectTypeOptions.customCopilotOptionId);
+  });
+  it("Bot", () => {
+    const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
+    assert.equal(type, ProjectTypeOptions.botOptionId);
+  });
+  it("Tab", () => {
+    const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
+    assert.equal(type, ProjectTypeOptions.tabOptionId);
+  });
+  it("ME", () => {
+    const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
+    assert.equal(type, ProjectTypeOptions.meOptionId);
+  });
+  it("WXP", () => {
+    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
+    assert.equal(type, ProjectTypeOptions.officeMetaOSOptionId);
+  });
+  it("Outlook", () => {
+    const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.outlookTaskPane().id);
+    assert.equal(type, ProjectTypeOptions.outlookAddinOptionId);
   });
 });
