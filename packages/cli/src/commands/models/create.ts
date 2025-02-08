@@ -27,7 +27,6 @@ import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
-import { getProjectTypeAndCapability } from "@microsoft/teamsfx-core/build/question";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
