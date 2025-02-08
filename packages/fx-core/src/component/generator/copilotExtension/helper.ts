@@ -5,6 +5,7 @@ import {
   DefaultApiSpecFolderName,
   err,
   FxError,
+  Inputs,
   ok,
   PluginManifestSchema,
   Result,
@@ -20,6 +21,9 @@ import { getDefaultString, getLocalizedString } from "../../../common/localizeUt
 import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
+import { GraphScopes } from "../../../common/constants";
+import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
+import axios from "axios";
 
 export interface AddExistingPluginResult {
   warnings: Warning[];
@@ -216,5 +220,45 @@ export function validateSourcePluginManifest(
     );
   }
 
+  return ok(undefined);
+}
+
+export async function validateOneDriveSharePointItem(
+  context: Context,
+  itemUrl: string | undefined,
+  inputs: Inputs,
+  shouldLogWarning = true,
+  existingCorrelationId?: string
+): Promise<Result<undefined, UserError>> {
+  const base64Value = Buffer.from(itemUrl as string).toString("base64");
+  const encodedUrl = "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
+
+  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+    scopes: GraphScopes,
+  });
+  if (!graphTokenRes) {
+    throw new GetGraphTokenFailedError();
+  }
+  const graphToken = graphTokenRes.isOk() ? graphTokenRes.value : undefined;
+  if (!graphToken) {
+    throw new GetGraphTokenFailedError();
+  }
+
+  const instance = axios.create({
+    baseURL: "https://graph.microsoft.com/v1.0",
+  });
+  instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken}`;
+
+  let tenant = "";
+  try {
+    const res = await instance.get(`/shares/${encodedUrl}/driveItem`);
+    if (res && res.data && res.data.webUrl) {
+      tenant = res.data.webUrl;
+    } else {
+      throw new Error("Invalid OneDrive sharepoint item");
+    }
+  } catch (e) {
+    throw new Error("Invalid OneDrive sharepoint item");
+  }
   return ok(undefined);
 }

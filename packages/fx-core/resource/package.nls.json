@@ -362,6 +362,8 @@
   "core.createProjectQuestion.capability.knowledgeGraphConnector.detail": "Search selected Microsoft Graph connectors for grounding information.",
   "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.label": "Embedded Knowledge",
   "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail": "Embed files directly as grounding information.",
+  "core.createProjectQuestion.oneDriveSharePointItem.title": "OneDrive or SharePoint Content",
+  "core.createProjectQuestion.oneDriveSharePointItem.placeholder": "Input a URL for OneDrive or SharePoint",
   "core.createProjectQuestion.llmService.title": "Service for Large Language Model (LLM)",
   "core.createProjectQuestion.llmService.placeholder": "Select a service to access LLMs",
   "core.createProjectQuestion.llmServiceOpenAIOption.label": "OpenAI",

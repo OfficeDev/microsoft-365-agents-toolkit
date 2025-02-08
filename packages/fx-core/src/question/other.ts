@@ -31,6 +31,7 @@ import { TOOLS } from "../common/globalVars";
 import {
   ApiPluginStartOptions,
   HubOptions,
+  KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
 } from "./constants";
@@ -45,6 +46,7 @@ import {
   pluginApiSpecQuestion,
   pluginManifestQuestion,
   addKnowledgeStartQuestion,
+  oneDriveSharePointItemQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -814,7 +816,14 @@ export function addPluginQuestionNode(): IQTreeNode {
 export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
-    children: [],
+    children: [
+      {
+        data: oneDriveSharePointItemQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.oneDriveSharePoint().id,
+        },
+      },
+    ],
   };
 }
 

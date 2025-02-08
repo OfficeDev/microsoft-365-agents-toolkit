@@ -51,7 +51,10 @@ import {
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
 import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
-import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
+import {
+  validateOneDriveSharePointItem,
+  validateSourcePluginManifest,
+} from "../component/generator/copilotExtension/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
@@ -1375,6 +1378,53 @@ export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSe
     cliDescription: "Knowledge source.",
     staticOptions: KnowledgeSourceOptions.all(),
     default: KnowledgeSourceOptions.webSearch().id,
+  };
+}
+
+export function oneDriveSharePointItemQuestion(): TextInputQuestion {
+  const validationOnAccept = async (
+    input: string,
+    inputs?: Inputs
+  ): Promise<string | undefined> => {
+    try {
+      if (!inputs) {
+        throw new Error("inputs is undefined"); // should never happen
+      }
+      const context = createContext();
+      const res = await validateOneDriveSharePointItem(
+        context,
+        input.trim(),
+        inputs,
+        false,
+        inputs.platform === Platform.VSCode ? Correlator.getId() : undefined
+      );
+      if (res.isOk()) {
+        inputs.supportedApisFromApiSpec = res.value;
+      } else {
+        return res.error.displayMessage;
+      }
+    } catch (e) {
+      const error = assembleError(e);
+      throw error;
+    }
+  };
+  return {
+    type: "text",
+    name: QuestionNames.OneDriveSharePointItem,
+    title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
+    forgetLastValue: true,
+    required: true,
+    validation: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!isValidHttpUrl(input.trim())) {
+          return "Please input a valid URL";
+        }
+        return await validationOnAccept(input.trim(), inputs);
+      },
+    },
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.oneDriveSharePointItem.placeholder"
+    ),
   };
 }
 

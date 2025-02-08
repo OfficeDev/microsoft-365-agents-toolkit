@@ -17,4 +17,6 @@ export interface AddKnowledgeInputs extends Inputs {
     | "oneDrive-sharePoint"
     | "graph-connector"
     | "embedded-knowledge";
+  /** @description OneDrive or SharePoint Content */
+  oneDriveSharePointItem?: string;
 }

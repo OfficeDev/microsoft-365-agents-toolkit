@@ -19,5 +19,11 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     default: "web-search",
     choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
+  {
+    name: "oneDriveSharePointItem",
+    type: "string",
+    description: "OneDrive or SharePoint Content",
+    required: true,
+  },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];
