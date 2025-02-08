@@ -1074,7 +1074,7 @@ describe("teamsApp/createAppPackage", async () => {
         "openapiServerPlaceholder not replaced"
       );
       chai.assert(openapiContent.search("APP_NAME_SUFFIX") < 0, "APP_NAME_SUFFIX not replaced");
-      chai.assert(declarativeAgentsContent.search("file") < 0, "file not replaced");
+      chai.assert(aiPluginContent.search("file") < 0, "file not replaced");
 
       await fs.remove(args.outputZipPath);
     }
