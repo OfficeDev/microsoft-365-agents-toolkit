@@ -1,30 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { ConditionFunc, Inputs, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
+import sinon from "sinon";
+import { featureFlagManager } from "../../src/common/featureFlags";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
+import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
+import { ApiPluginStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {
   createFromTdpNode,
   getTemplateName,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
-import { TemplateNames } from "../../src/question/templates";
 import {
   folderAndAppNameCondition,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
-import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
-import { apiSpecNode } from "../../src/question/scaffold/vsc/m365ProjectTypeNode";
-import { ConditionFunc, Inputs, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
-import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
-import sinon from "sinon";
-import { featureFlagManager } from "../../src/common/featureFlags";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import { ApiPluginStartOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -217,7 +217,7 @@ describe("languageNode", () => {
     const node = languageNode();
     const condition = node.condition as ConditionFunc;
     const inputs: Inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.VS,
       [QuestionNames.TemplateName]: TemplateNames.SsoTabSSR,
     };
     const res = condition(inputs);

@@ -4,16 +4,20 @@ import { err, Inputs, ok, Platform, SystemError, UserError } from "@microsoft/te
 import { assert } from "chai";
 import fs from "fs-extra";
 import { glob } from "glob";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
+import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
 import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
+import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
+import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
-import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
@@ -31,10 +35,6 @@ import {
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
-import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { TemplateNames } from "../../../src/question/templates";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -448,7 +448,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.TemplateName]: TemplateNames.CopilotPluginFromScratch,
+        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithNewApiFromScratch,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -456,7 +456,10 @@ describe("coordinator create", () => {
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CopilotPluginFromScratch);
+      assert.equal(
+        generator.args[0][1].templateName,
+        TemplateNames.MessageExtensionWithNewApiFromScratch
+      );
     });
 
     it("create API ME (key auth) from new api sucessfully", async () => {
@@ -466,7 +469,8 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.TemplateName]: TemplateNames.CopilotPluginFromScratchApiKey,
+        [QuestionNames.TemplateName]:
+          TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -474,7 +478,10 @@ describe("coordinator create", () => {
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CopilotPluginFromScratchApiKey);
+      assert.equal(
+        generator.args[0][1].templateName,
+        TemplateNames.MessageExtensionWithNewApiFromScratchUsingApiKey
+      );
     });
 
     it("create API ME from existing api successfully", async () => {
@@ -486,7 +493,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginExistingApi,
+        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.MeArchitectureType]: MeArchitectureOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
@@ -547,7 +554,7 @@ describe("coordinator create", () => {
         [QuestionNames.LLMService]: "llm-service-openAI",
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(SpecGenerator.prototype, <any>"post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -574,7 +581,7 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(SpecGenerator.prototype, <any>"post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -600,7 +607,7 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(SpecGenerator.prototype, <any>"post").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);

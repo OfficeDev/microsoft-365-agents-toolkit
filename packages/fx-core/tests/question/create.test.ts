@@ -33,7 +33,6 @@ import { sampleProvider } from "../../src/common/samples";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import { OfficeAddinProjectConfig } from "../../src/component/generator/officeXMLAddin/projectConfig";
 import { convertToLangKey } from "../../src/component/generator/utils";
 import { FileNotFoundError } from "../../src/error";
 import {
@@ -3883,13 +3882,6 @@ describe("scaffold question", () => {
       assert.isTrue(
         options.findIndex((o: OptionItem) => o.id === CapabilityOptions.nonSsoTabAndBot().id) < 0
       );
-    });
-
-    describe("officeAddinStaticCapabilities()", () => {
-      it("should return correct capabilities without specific host", () => {
-        const capabilities = CapabilityOptions.officeAddinStaticCapabilities();
-        assert.equal(capabilities.length, 2);
-      });
     });
 
     describe("officeAddinCapabilities()", () => {

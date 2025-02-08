@@ -16,7 +16,6 @@ import {
   SystemError,
 } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
-import * as childProcess from "child_process";
 import fs from "fs";
 import fse from "fs-extra";
 import "mocha";
@@ -30,13 +29,14 @@ import * as uuid from "uuid";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { cpUtils } from "../../../src/component/deps-checker/";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { Generator } from "../../../src/component/generator/generator";
 import {
   getHost,
   OfficeAddinGenerator,
   OfficeAddinGeneratorNew,
 } from "../../../src/component/generator/officeAddin/generator";
 import { HelperMethods } from "../../../src/component/generator/officeAddin/helperMethods";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import { envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
 import {
   CapabilityOptions,
@@ -45,8 +45,6 @@ import {
   QuestionNames,
 } from "../../../src/question";
 import { MockTools } from "../../core/utils";
-import { envUtil } from "../../../src/component/utils/envUtil";
-import { TemplateNames } from "../../../src/question/templates";
 
 describe("OfficeAddinGenerator for Outlook Addin", function () {
   const testFolder = path.resolve("./tmp");

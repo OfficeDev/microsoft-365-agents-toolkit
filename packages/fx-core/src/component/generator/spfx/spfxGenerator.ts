@@ -896,7 +896,7 @@ export class SPFxGeneratorNew extends DefaultTemplateGenerator {
     const spfxSolution = inputs[QuestionNames.SPFxSolution];
     return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution === "new";
   }
-  protected override async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -927,7 +927,7 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
     return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution !== "new";
   }
 
-  protected override async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -1006,7 +1006,7 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
     }
   }
 
-  protected override async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

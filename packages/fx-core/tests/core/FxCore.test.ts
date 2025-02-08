@@ -4,14 +4,12 @@
 import {
   ErrorType,
   ListAPIResult,
-  ProjectType,
   SpecParser,
   SpecParserError,
   ValidationStatus,
   WarningType,
 } from "@microsoft/m365-spec-parser";
 import {
-  CLIPlatforms,
   DeclarativeCopilotManifestSchema,
   FxError,
   IQTreeNode,
@@ -43,13 +41,16 @@ import {
   getUuid,
   teamsDevPortalClient,
 } from "../../src";
+import { ConstantString } from "../../src/common/constants";
 import { FeatureFlagName } from "../../src/common/featureFlags";
-import { LaunchHelper } from "../../src/component/m365/launchHelper";
+import { setTools } from "../../src/common/globalVars";
+import * as projectHelper from "../../src/common/projectSettingsHelper";
 import {
   TeamsfxConfigType,
   TeamsfxVersionState,
   projectTypeChecker,
 } from "../../src/common/projectTypeChecker";
+import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import {
   DriverDefinition,
   DriverInstance,
@@ -68,6 +69,8 @@ import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
+import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
+import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
@@ -76,15 +79,22 @@ import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/vali
 import { ValidateAppPackageDriver } from "../../src/component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../../src/component/driver/util/utils";
+import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
 import * as CopilotPluginHelper from "../../src/component/generator/apiSpec/helper";
+import * as pluginGeneratorHelper from "../../src/component/generator/apiSpec/helper";
+import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
+import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
-import { setTools } from "../../src/common/globalVars";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
+import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
+import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
+import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
   InputValidationError,
@@ -104,22 +114,9 @@ import {
   questionNodes,
 } from "../../src/question";
 import { ApiPluginStartOptions, HubOptions } from "../../src/question/constants";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
-import { CoreHookContext } from "../../src/core/types";
-import * as projectHelper from "../../src/common/projectSettingsHelper";
-import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
-import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
-import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import * as pluginGeneratorHelper from "../../src/component/generator/apiSpec/helper";
-import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
-import { ConstantString } from "../../src/common/constants";
-import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
-import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
-import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
-import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
-import { TemplateNames } from "../../src/question/templates";
 
 const tools = new MockTools();
 

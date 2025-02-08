@@ -24,7 +24,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
     return inputs.teamsAppFromTdp !== undefined;
   }
 
-  protected override async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -48,7 +48,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
     );
   }
 
-  protected override async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

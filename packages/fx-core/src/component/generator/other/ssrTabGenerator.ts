@@ -14,7 +14,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
     return [TemplateNames.SsoTabSSR, TemplateNames.TabSSR].includes(templateName);
   }
-  protected override async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string

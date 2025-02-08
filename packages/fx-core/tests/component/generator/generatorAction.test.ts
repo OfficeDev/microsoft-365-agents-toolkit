@@ -6,12 +6,12 @@ import "mocha";
 import { assert } from "chai";
 
 import { MissKeyError } from "../../../src/component/generator/error";
+import { sampleDefaultOnActionError } from "../../../src/component/generator/generator";
 import {
   downloadDirectoryAction,
   GeneratorContext,
 } from "../../../src/component/generator/generatorAction";
 import { MockTools } from "../../core/utils";
-import { sampleDefaultOnActionError } from "../../../src/component/generator/generator";
 
 describe("Generator Actions", async () => {
   const tools = new MockTools();

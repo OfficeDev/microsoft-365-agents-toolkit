@@ -146,7 +146,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     );
   }
 
-  protected override async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

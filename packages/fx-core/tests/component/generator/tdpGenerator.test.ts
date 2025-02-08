@@ -5,15 +5,13 @@
  * @author yefuwang@microsoft.com
  */
 
-import { Context, err, Inputs, ok, Platform, SystemError } from "@microsoft/teamsfx-api";
+import { err, Inputs, ok, Platform } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import "mocha";
-import { RestoreFn } from "mocked-env";
-import * as path from "path";
 import * as sinon from "sinon";
 import { createContext } from "../../../src/common/globalVars";
 import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
-import { TdpGenerator } from "../../../src/component/generator/TdpGenerator";
+import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { InputValidationError, UserCancelError } from "../../../src/error";
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 

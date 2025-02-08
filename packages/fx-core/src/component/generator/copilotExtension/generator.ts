@@ -58,7 +58,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 
-  protected override async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -116,7 +116,7 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     );
   }
 
-  protected override async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

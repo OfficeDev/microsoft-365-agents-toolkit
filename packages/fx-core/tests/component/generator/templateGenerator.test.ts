@@ -4,14 +4,11 @@ import "mocha";
 import path from "path";
 import sinon, { createSandbox } from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { Generators } from "../../../src/component/generator/generatorProvider";
-import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
 import { TemplateInfo } from "../../../src/component/generator/templates/templateInfo";
-import {
-  TemplateNames,
-  inputsToTemplateName,
-} from "../../../src/component/generator/templates/templateNames";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { CapabilityOptions, QuestionNames } from "../../../src/question";
 import { ProgrammingLanguage } from "../../../src/question/constants";
 import { MockTools, randomAppName } from "../../core/utils";
