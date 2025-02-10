@@ -37,7 +37,7 @@ export enum GlobalKey {
   AutoInstallDependency = "teamsToolkit:autoInstallDependency",
   DoNotRemindInstallTeamsAgent = "teamsToolkit:doNotRemindInstallTeamsAgent",
   TeamsAgentInstalled = "teamsToolkit:teamsAgentInstalled",
-  GitHubCopilotSetupAlready = "teamsToolkit:githubCopilotSetupAlready",
+  //GitHubCopilotSetupAlready = "teamsToolkit:githubCopilotSetupAlready",
   //GithubCopilotInstalled = "teamsToolkit:githubCopilotInstalled",
 }
 
