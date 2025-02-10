@@ -403,24 +403,6 @@ export class PackageService {
       });
       this.logger?.verbose("Unacquiring done.");
     } catch (error: any) {
-      // try to delete in the builder API
-      try {
-        const serviceUrl = await this.getTitleServiceUrl(token);
-        this.logger?.verbose(`Unacquiring package with TitleId ${titleId} in builder API...`);
-        await this.axiosInstance.delete(`/builder/v1/users/titles/${titleId}`, {
-          baseURL: serviceUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        this.logger?.verbose("Unacquiring using builder api done.");
-        return;
-      } catch (subError: any) {
-        if (subError.response) {
-          subError = this.traceError(subError);
-        }
-        this.logger?.error(subError);
-      }
       if (error.response) {
         error = this.traceError(error);
       }

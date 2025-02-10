@@ -861,7 +861,6 @@ describe("Package Service", () => {
       },
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = {};
-    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
 
     let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
@@ -881,31 +880,6 @@ describe("Package Service", () => {
       actualError = error;
     }
 
-    chai.assert.isUndefined(actualError);
-  });
-  it("unacquire by builder api", async () => {
-    axiosGetResponses["/config/v1/environment"] = {
-      data: {
-        titlesServiceUrl: "https://test-url",
-      },
-    };
-    axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = new Error("test-delete");
-    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = {};
-    let packageService = new PackageService("https://test-endpoint");
-    let actualError: Error | undefined;
-    try {
-      await packageService.unacquire("test-token", "test-title-id");
-    } catch (error: any) {
-      actualError = error;
-    }
-    chai.assert.isUndefined(actualError);
-
-    packageService = new PackageService("https://test-endpoint", logger);
-    try {
-      await packageService.unacquire("test-token", "test-title-id");
-    } catch (error: any) {
-      actualError = error;
-    }
     chai.assert.isUndefined(actualError);
   });
   it("unacquire throws expected error", async () => {
@@ -950,7 +924,6 @@ describe("Package Service", () => {
       data: {},
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = expectedError;
-    axiosDeleteResponses["/builder/v1/users/titles/test-title-id"] = expectedError;
 
     const packageService = new PackageService("https://test-endpoint");
     let actualError: any;
