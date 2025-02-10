@@ -506,12 +506,6 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(openGitHubCopilotChat);
 
-  // const markGithubCopilotSetupDone = vscode.commands.registerCommand(
-  //   "fx-extension.markGitHubCopilotLoginDone",
-  //   (...args) => Correlator.run(copilotChatHandlers.markGitHubCopilotSetupDone, args)
-  // );
-  // context.subscriptions.push(markGithubCopilotSetupDone);
-
   const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
     "fx-extension.openTeamsAgentWalkthrough",
     (...args) => Correlator.run(copilotChatHandlers.openTeamsAgentWalkthrough, args)
