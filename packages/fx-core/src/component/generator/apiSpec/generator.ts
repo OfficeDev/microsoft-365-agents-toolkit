@@ -61,7 +61,6 @@ import {
   getEnvName,
   getParserOptions,
   listOperations,
-  updateDeclarativeAgentManifest,
   updateForCustomApi,
 } from "./helper";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
@@ -385,7 +384,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         ];
 
         // 4. add action in da manifest
-        const addActionResult = await updateDeclarativeAgentManifest(
+        const addActionResult = await copilotGptManifestUtils.updateDeclarativeAgentManifest(
           manifestPath,
           defaultDeclarativeCopilotManifestFileName,
           defaultDeclarativeCopilotActionId,
@@ -441,7 +440,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         warnings = generateResult.value.warnings;
       }
       if (isDeclarativeCopilot) {
-        const addActionResult = await updateDeclarativeAgentManifest(
+        const addActionResult = await copilotGptManifestUtils.updateDeclarativeAgentManifest(
           manifestPath,
           defaultDeclarativeCopilotManifestFileName,
           defaultDeclarativeCopilotActionId,
