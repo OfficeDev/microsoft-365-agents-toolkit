@@ -65,7 +65,6 @@ import * as util from "util";
 import { SpecParserSource } from "../../../common/constants";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -116,7 +115,7 @@ export function getParserOptions(
           "trace",
         ],
         allowResponseSemantics: true,
-        allowConversationStarters: true,
+        allowConversationStarters: false, // Conversation starters in the plugin file are no longer used; they are now sourced from the declarativeAgent file.
         allowConfirmation: false, // confirmation is not stable for public preview in Sydney, so it's temporarily set to false
       }
     : type === ProjectType.TeamsAi
@@ -1646,23 +1645,4 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
   await fs.ensureDir(destinationKiotaFolder);
   await fs.copy(originKiotaFolder, destinationKiotaFolder, { recursive: true });
   return;
-}
-
-export async function updateDeclarativeAgentManifest(
-  manifestPath: string,
-  declarativeAgentManifestPath: string,
-  declarativeCopilotActionId: string,
-  pluginManifestPath: string
-): Promise<Result<any, FxError>> {
-  const gptManifestPath = path.join(path.dirname(manifestPath), declarativeAgentManifestPath);
-  const addAcionResult = await copilotGptManifestUtils.addAction(
-    gptManifestPath,
-    declarativeCopilotActionId,
-    path.basename(pluginManifestPath)
-  );
-  if (addAcionResult.isErr()) {
-    return err(addAcionResult.error);
-  }
-
-  return ok(undefined);
 }

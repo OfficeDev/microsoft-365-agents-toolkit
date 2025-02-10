@@ -2240,6 +2240,21 @@ export class FxCore {
       return err(generateRes.error);
     }
 
+    if (declarativeCopilotManifest.actions) {
+      for (const action of declarativeCopilotManifest.actions) {
+        const actionPath = path.normalize(path.join(appPackageFolder, action.file));
+        await copilotGptManifestUtils.updateConversationStarters(
+          actionPath,
+          declarativeCopilotManifest
+        );
+      }
+    }
+
+    await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeCopilotManifest,
+      declarativeCopilotManifestPath
+    );
+
     return ok(undefined);
   }
 

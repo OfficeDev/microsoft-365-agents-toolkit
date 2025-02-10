@@ -6335,6 +6335,30 @@ describe("kiotaRegenerate", async () => {
         ],
       } as DeclarativeCopilotManifestSchema)
     );
+    sandbox.stub(fs, "readJson").resolves({
+      capabilities: {
+        conversation_starters: [],
+      },
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "apiSpecificationFile/openapi.json",
+          },
+          run_for_functions: ["listRepairs"],
+        },
+      ],
+      functions: [
+        {
+          name: "listRepairs",
+          description: "List all repairs",
+        },
+      ],
+    } as any);
+
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -6385,6 +6409,29 @@ describe("kiotaRegenerate", async () => {
       ],
     };
 
+    sandbox.stub(fs, "readJson").resolves({
+      capabilities: {
+        conversation_starters: [],
+      },
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "apiSpecificationFile/openapi.json",
+          },
+          run_for_functions: ["listRepairs"],
+        },
+      ],
+      functions: [
+        {
+          name: "listRepairs",
+          description: "List all repairs",
+        },
+      ],
+    } as any);
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
@@ -6398,6 +6445,7 @@ describe("kiotaRegenerate", async () => {
         ],
       } as DeclarativeCopilotManifestSchema)
     );
+
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
