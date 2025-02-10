@@ -1399,7 +1399,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
         inputs.platform === Platform.VSCode ? Correlator.getId() : undefined
       );
       if (res.isOk()) {
-        inputs.supportedApisFromApiSpec = res.value;
+        inputs.oneDriveSharePointItem = res.value;
       } else {
         return res.error.displayMessage;
       }
@@ -1410,7 +1410,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
   };
   return {
     type: "text",
-    name: QuestionNames.OneDriveSharePointItem,
+    name: QuestionNames.OneDriveSharePointURL,
     title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
     forgetLastValue: true,
     required: true,
@@ -1425,6 +1425,25 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
     placeholder: getLocalizedString(
       "core.createProjectQuestion.oneDriveSharePointItem.placeholder"
     ),
+  };
+}
+
+export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.OneDriveSharePointContent,
+    title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
+    type: "singleSelect",
+    staticOptions: [],
+    dynamicOptions: (inputs: Inputs) => {
+      return [
+        {
+          id: inputs.oneDriveSharePointItem[0].id,
+          label: inputs.oneDriveSharePointItem[0].label,
+        },
+      ];
+    },
+    placeholder: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.confirm"),
+    forgetLastValue: true,
   };
 }
 

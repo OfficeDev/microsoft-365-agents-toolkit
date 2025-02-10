@@ -20,6 +20,7 @@ import {
   CreateProjectResult,
   CryptoProvider,
   DefaultApiSpecFolderName,
+  File,
   Func,
   FxError,
   IGenerator,
@@ -31,6 +32,7 @@ import {
   PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
+  Site,
   Stage,
   TeamsAppInputs,
   Tools,
@@ -146,6 +148,7 @@ import {
   ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
+  KnowledgeSourceOptions,
   ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
@@ -2105,7 +2108,6 @@ export class FxCore {
   /**
    * Add Knowledge
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.addKnowledge }),
     ErrorHandlerMW,
@@ -2113,6 +2115,98 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    const context = createContext();
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    // Validate the project is valid for adding knowledge
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const teamsManifest = manifestRes.value;
+    const agent = teamsManifest.copilotExtensions
+      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
+      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
+    if (!agent?.file) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+            "declarativeAgents",
+            teamsManifestPath
+          )
+        )
+      );
+    }
+    const agentFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (agentFilePathRes.isErr()) {
+      return err(agentFilePathRes.error);
+    }
+
+    const agentManifestPath = agentFilePathRes.value;
+
+    // User confirm before adding knowledge
+    const confirmMessage = getLocalizedString(
+      "core.addKnowledge.confirm",
+      path.relative(inputs.projectPath, appPackageFolder)
+    );
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.addKnowledge.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.addKnowledge.continue")) {
+      return err(new UserCancelError());
+    }
+
+    let result: Result<undefined, FxError>;
+    switch (inputs.knowledgeSource) {
+      case KnowledgeSourceOptions.webSearch().id:
+        // TODO: To be implemented
+        break;
+      case KnowledgeSourceOptions.oneDriveSharePoint().id:
+        result = await this.addOneDriveSharePointKnowledge(inputs, agentManifestPath);
+        break;
+      case KnowledgeSourceOptions.graphConnector().id:
+        // TODO: To be implemented
+        break;
+      case KnowledgeSourceOptions.embeddedKnowledge().id:
+        // TODO: To be implemented
+        break;
+      default:
+        return err(
+          new UserError("FxCore", "UnsupportedKnowledgeSource", "Unsupported knowledge source")
+        );
+    }
+
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
+      const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewAgentManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewAgentManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewAgentManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(agentManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
     return ok(undefined);
   }
 
@@ -2363,5 +2457,34 @@ export class FxCore {
       return err(manifestRes.error);
     }
     return ok(IsDeclarativeAgentManifest(manifestRes.value));
+  }
+
+  private async addOneDriveSharePointKnowledge(
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const oneDriveSharePointIds: File = {
+      site_id: inputs.oneDriveSharePointItem[0].siteId,
+      web_id: inputs.oneDriveSharePointItem[0].webId,
+      list_id: inputs.oneDriveSharePointItem[0].listId,
+      unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
+    };
+
+    const oneDriveSharePointUrls: Site = {
+      url: inputs.oneDriveSharePointItem[0].url,
+    };
+
+    const addOneDriveSharePointCapabilityRes =
+      await copilotGptManifestUtils.addOneDriveSharePointCapability(
+        agentManifestPath,
+        oneDriveSharePointIds,
+        oneDriveSharePointUrls
+      );
+
+    if (addOneDriveSharePointCapabilityRes.isErr()) {
+      return err(addOneDriveSharePointCapabilityRes.error);
+    }
+
+    return ok(undefined);
   }
 }

@@ -22,15 +22,9 @@ export interface DeclarativeCopilotManifestSchema {
         [k: string]: unknown;
       }
     | {
-        name: "SharePoint";
-        files?: File[];
-        sites?: Site[];
-        [k: string]: unknown;
-      }
-    | {
-        name: "OneDrive";
-        files: File[];
-        [k: string]: unknown;
+        name: "OneDriveAndSharePoint";
+        items_by_sharepoint_ids?: File[];
+        items_by_url?: Site[];
       }
     | {
         name: "GraphConnectors";
@@ -47,12 +41,9 @@ export interface File {
   web_id?: string;
   list_id?: string;
   unique_id?: string;
-  file_name?: string;
 }
 export interface Site {
-  path: string;
-  site_name: string;
-  [k: string]: unknown;
+  url: string;
 }
 export interface Connection {
   connection_id: string;

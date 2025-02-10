@@ -47,6 +47,7 @@ import {
   pluginManifestQuestion,
   addKnowledgeStartQuestion,
   oneDriveSharePointItemQuestion,
+  oneDriveSharePointItemConfirmQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -822,6 +823,14 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
         condition: {
           equals: KnowledgeSourceOptions.oneDriveSharePoint().id,
         },
+        children: [
+          {
+            data: oneDriveSharePointItemConfirmQuestion(),
+          },
+        ],
+      },
+      {
+        data: selectTeamsAppManifestQuestion(),
       },
     ],
   };

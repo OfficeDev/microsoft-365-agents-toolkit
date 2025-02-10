@@ -223,13 +223,24 @@ export function validateSourcePluginManifest(
   return ok(undefined);
 }
 
+export interface OneDriveSharePointItem {
+  id: string;
+  label: string;
+  name: string;
+  uniqueId?: string;
+  listId?: string;
+  webId?: string;
+  siteId?: string;
+  url?: string;
+}
+
 export async function validateOneDriveSharePointItem(
   context: Context,
   itemUrl: string | undefined,
   inputs: Inputs,
   shouldLogWarning = true,
   existingCorrelationId?: string
-): Promise<Result<undefined, UserError>> {
+): Promise<Result<OneDriveSharePointItem[], UserError>> {
   const base64Value = Buffer.from(itemUrl as string).toString("base64");
   const encodedUrl = "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
 
@@ -249,16 +260,23 @@ export async function validateOneDriveSharePointItem(
   });
   instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken}`;
 
-  let tenant = "";
+  let item: OneDriveSharePointItem;
   try {
     const res = await instance.get(`/shares/${encodedUrl}/driveItem`);
-    if (res && res.data && res.data.webUrl) {
-      tenant = res.data.webUrl;
-    } else {
-      throw new Error("Invalid OneDrive sharepoint item");
-    }
+    item = res.data;
   } catch (e) {
-    throw new Error("Invalid OneDrive sharepoint item");
+    // TODO: To be implemented
   }
-  return ok(undefined);
+  return ok([
+    {
+      id: "9de72666-cbfe-4da5-9280-bd1741e0504e",
+      label: "HRWeb Modern",
+      name: "HRWeb Modern",
+      uniqueId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
+      listId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
+      webId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
+      siteId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
+      url: "https://hrweb-modern.sharepoint.com/sites/HRWeb-Modern",
+    },
+  ]);
 }

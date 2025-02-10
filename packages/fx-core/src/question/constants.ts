@@ -107,7 +107,8 @@ export enum QuestionNames {
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
   KnowledgeSource = "knowledge-source",
-  OneDriveSharePointItem = "oneDriveSharePointItem",
+  OneDriveSharePointURL = "oneDriveSharePointURL",
+  OneDriveSharePointContent = "oneDriveSharePointContent",
   AuthName = "auth-name",
 }
 

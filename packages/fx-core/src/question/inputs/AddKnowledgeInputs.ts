@@ -18,5 +18,9 @@ export interface AddKnowledgeInputs extends Inputs {
     | "graph-connector"
     | "embedded-knowledge";
   /** @description OneDrive or SharePoint Content */
-  oneDriveSharePointItem?: string;
+  oneDriveSharePointURL?: string;
+  /** @description OneDrive or SharePoint Content */
+  oneDriveSharePointContent?: string;
+  /** @description Select Teams manifest.json File */
+  "manifest-path"?: string;
 }

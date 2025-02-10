@@ -12,13 +12,13 @@ import {
   Platform,
   Colors,
   DefaultPluginManifestFileName,
+  Site,
+  File,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
-import stripBom from "strip-bom";
-import { TelemetryPropertyKey } from "./telemetry";
-import { WrapDriverContext } from "../../util/wrapUtil";
 import { getResolvedManifest } from "./utils";
+import stripBom from "strip-bom";
 import { AppStudioResultFactory } from "../results";
 import { AppStudioError } from "../errors";
 import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
@@ -354,6 +354,60 @@ export class CopilotGptManifestUtils {
       pluginManifestName = `${pluginManifestNamePrefix}_${pluginFileNameSuffix}.json`;
     }
     return pluginManifestName;
+  }
+
+  public async addOneDriveSharePointCapability(
+    agentManifestPath: string,
+    items_by_sharepoint_ids: File,
+    items_by_url: Site
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    const agentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      agentManifestPath
+    );
+    if (agentManifestRes.isErr()) {
+      return err(agentManifestRes.error);
+    }
+    const agentManifest = agentManifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const oneDriveCapability = agentManifest.capabilities.find(
+      (capability) => capability.name === "OneDriveAndSharePoint"
+    ) as
+      | {
+          name: string;
+          items_by_sharepoint_ids?: File[];
+          items_by_url?: Site[];
+        }
+      | undefined;
+
+    if (!oneDriveCapability) {
+      agentManifest.capabilities.push({
+        name: "OneDriveAndSharePoint",
+        items_by_sharepoint_ids: [items_by_sharepoint_ids],
+        items_by_url: [items_by_url],
+      });
+    } else {
+      if (!oneDriveCapability.items_by_sharepoint_ids) {
+        oneDriveCapability.items_by_sharepoint_ids = [];
+      }
+      if (!oneDriveCapability.items_by_url) {
+        oneDriveCapability.items_by_url = [];
+      }
+      oneDriveCapability.items_by_sharepoint_ids.push(items_by_sharepoint_ids);
+      oneDriveCapability.items_by_url.push(items_by_url);
+    }
+
+    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      agentManifest,
+      agentManifestPath
+    );
+    if (updateGptManifestRes.isErr()) {
+      return err(updateGptManifestRes.error);
+    } else {
+      return ok(agentManifest);
+    }
   }
 }
 
