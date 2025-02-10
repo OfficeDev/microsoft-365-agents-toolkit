@@ -21,7 +21,7 @@
     ]
   },
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.93.0"
   },
   "license": "MIT",
   "keywords": [
@@ -1801,7 +1801,7 @@
     "@types/tmp": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "@types/validator": "^13.1.1",
-    "@types/vscode": "^1.66.0",
+    "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.1",
