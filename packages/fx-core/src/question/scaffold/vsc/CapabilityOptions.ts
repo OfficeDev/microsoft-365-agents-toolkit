@@ -39,7 +39,7 @@ export class TabCapabilityOptions {
   static dashboardTab(): OptionItem {
     return {
       id: "dashboard-tab",
-      label: "core.DashboardOption.label",
+      label: getLocalizedString("core.DashboardOption.label"),
       detail: getLocalizedString("core.DashboardOption.detail"),
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookM365"
