@@ -1458,7 +1458,7 @@
           {
             "id": "intelligentAppsIntroductionWithChat",
             "title": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title%",
-            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroductionWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.description%",
             "media": {
               "svg": "media/walkthroughs/intelligent-apps/step1.svg",
               "altText": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title%"
@@ -1476,7 +1476,7 @@
           {
             "id": "intelligentAppsBuildAppWithChat",
             "title": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.title%",
-            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildAppWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.description%",
             "media": {
               "markdown": "media/walkthroughs/intelligent-apps/create/create_with_chat.md"
             }
@@ -1505,6 +1505,14 @@
             "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description%",
             "media": {
               "svg": "media/walkthroughs/intelligent-apps/step6.svg"
+            }
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilot",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
             }
           }
         ],
@@ -1578,11 +1586,11 @@
         "steps": [
           {
             "id": "teamsToolkitIntroductionWithChat",
-            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.description%",
+            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.description%",
             "media": {
               "svg": "media/walkthroughs/get-started/introduction.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.title%"
+              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title%"
             }
           },
           {
@@ -1597,9 +1605,9 @@
           {
             "id": "teamsToolkitBuildAppWithChat",
             "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildAppWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.description%",
             "media": {
-              "markdown": "media/walkthroughs/get-started/create/create_with_chat.md"
+              "markdown": "media/walkthroughs/get-started/create/create.md"
             }
           },
           {
@@ -1614,7 +1622,7 @@
           {
             "id": "teamsToolkitExploreMoreWithChat",
             "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMoreWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description%",
             "media": {
               "svg": "media/walkthroughs/get-started/whatisnext.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%"
@@ -1627,6 +1635,14 @@
             "media": {
               "svg": "media/walkthroughs/get-started/resources.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText%"
+            }
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilot",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
             }
           }
         ],

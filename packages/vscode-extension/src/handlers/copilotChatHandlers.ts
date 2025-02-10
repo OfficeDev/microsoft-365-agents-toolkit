@@ -256,29 +256,12 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
-      query = "@teamsapp My Teams app doesn’t sideload when debugging with Teams Toolkit.";
+      query = "@teamsapp My Teams app doesn't sideload when debugging with Teams Toolkit.";
       break;
-    // case TelemetryTriggerFrom.WalkThroughIntroduction:
-    //   query = "@teamsapp What is notification bot in Teams?";
-    //   shouldSkipPreCheck = true;
-    //   break;
-    // case TelemetryTriggerFrom.WalkThroughCreate:
-    //   query = "@teamsapp How to create notification bot with Teams Toolkit?";
-    //   shouldSkipPreCheck = true;
-    //   break;
-    // case TelemetryTriggerFrom.WalkThroughWhatIsNext:
-    //   shouldSkipPreCheck = true;
-    //   query =
-    //     "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?";
-    //   break;
-    // case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
-    //   shouldSkipPreCheck = true;
-    //   query = "@teamsapp What is declarative agent for Microsoft 365 Copilot?";
-    //   break;
-    // case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
-    //   shouldSkipPreCheck = true;
-    //   query = "@teamsapp How to create declarative agent with Teams Toolkit?";
-    //   break;
+    case TelemetryTriggerFrom.WalkThrough:
+      shouldSkipPreCheck = true;
+      query = "@teamsapp What can you do?";
+      break;
     default:
       query =
         "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
@@ -299,23 +282,12 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
 }
 
 async function isGithubLoggedIn(): Promise<boolean> {
-  // Query the GitHub authentication provider.
-  // Adjust the scopes if your use case needs additional permissions.
-  // const options: vscode.AuthenticationGetSessionOptions = {
-  //   createIfNone: true,
-  //  // scopes: ['read:user']
-  // }
-  // // github.copilot.signIn
-  // const scopes = ['user:email'];
-  // const session = await vscode.authentication.getSession('github', [], options);
-
-  // await vscode.commands.executeCommand("github.copilot.signIn").then((res) => {
-  //   console.log(res);
-  // }, (err) => {
-  //   console.log("some error");console.log(err);});
-
-  const accounts = await (vscode.authentication as any).getAccounts("github");
-  return accounts.length > 0;
+  try {
+    const accounts = await vscode.authentication.getAccounts("github");
+    return accounts.length > 0;
+  } catch (e) {
+    return true;
+  }
 }
 
 /**
