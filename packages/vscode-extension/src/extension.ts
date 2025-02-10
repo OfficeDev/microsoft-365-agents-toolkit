@@ -73,6 +73,7 @@ import {
   isTeamsFxProject,
   unsetIsTeamsFxProject,
   workspaceUri,
+  isDeclarativeCopilotApp,
 } from "./globalVariables";
 import {
   convertAadToNewSchemaHandler,
@@ -279,6 +280,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isSyncManifestEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SyncManifest)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isDeclarativeCopilotApp",
+    isDeclarativeCopilotApp
   );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
