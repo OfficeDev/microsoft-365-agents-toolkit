@@ -33,7 +33,7 @@ model = OpenAIModel(
         default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
         {{#CEAEnabled}} 
-        stream: true,
+        stream=True,
         {{/CEAEnabled}}
     )
 )
@@ -44,7 +44,7 @@ model = OpenAIModel(
         api_key=config.OPENAI_API_KEY,
         default_model=config.OPENAI_MODEL_NAME,
         {{#CEAEnabled}} 
-        stream: true,
+        stream=True,
         {{/CEAEnabled}}
     )
 )
