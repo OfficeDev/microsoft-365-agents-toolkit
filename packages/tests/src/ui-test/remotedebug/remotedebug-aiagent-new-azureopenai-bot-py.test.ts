@@ -110,23 +110,46 @@ describe("Remote debug Tests", function () {
       );
       await driver.sleep(Timeout.longTimeWait);
 
-      if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasCommandReplyValidation: true,
-          botCommand: "Show all tasks",
-          expectedReplyMessage: "no task",
-          timeout: Timeout.longTimeWait,
-        });
-      } else {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "helloWorld",
-          expectedWelcomeMessage:
-            ValidationContent.AiAssistantBotWelcomeInstruction,
-          expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-          timeout: Timeout.longTimeWait,
-        });
+      try {
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasCommandReplyValidation: true,
+            botCommand: "Show all tasks",
+            expectedReplyMessage: "no task",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+            timeout: Timeout.longTimeWait,
+          });
+        }
+      } catch (error) {
+        // [known issue] python remote need deploy twice
+        await deployProject(projectPath, Timeout.botDeploy);
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasCommandReplyValidation: true,
+            botCommand: "Show all tasks",
+            expectedReplyMessage: "no task",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+            timeout: Timeout.longTimeWait,
+          });
+        }
       }
     }
   );
