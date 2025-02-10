@@ -7,15 +7,16 @@ import traceback
 from typing import Generic, TypeVar
 
 
-from botbuilder.core import MemoryStorage, TurnContext
+from botbuilder.core import MemoryStorage, TurnContext, CardFactory
 from teams import Application, ApplicationOptions, TeamsAdapter
 from teams.ai import AIOptions
-from teams.ai.models import AzureOpenAIModelOptions, OpenAIModel, OpenAIModelOptions
+from teams.ai.models import AzureOpenAIModelOptions, OpenAIModel, OpenAIModelOptions, PromptResponse
 from teams.ai.planners import ActionPlanner, ActionPlannerOptions
 from teams.ai.prompts import PromptManager, PromptManagerOptions
 from teams.ai.actions import ActionTypes
-from teams.state import TurnState
+from teams.state import TurnState, MemoryBase
 from teams.feedback_loop_data import FeedbackLoopData
+from teams.streaming import StreamingResponse
 
 from azure_ai_search_data_source import AzureAISearchDataSource, AzureAISearchDataSourceOptions
 from config import Config
@@ -31,6 +32,9 @@ model = OpenAIModel(
         api_key=config.AZURE_OPENAI_API_KEY,
         default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
+        {{#CEAEnabled}} 
+        stream: true,
+        {{/CEAEnabled}}
     )
 )
 {{/useAzureOpenAI}}    
@@ -39,9 +43,34 @@ model = OpenAIModel(
     OpenAIModelOptions(
         api_key=config.OPENAI_API_KEY,
         default_model=config.OPENAI_MODEL_NAME,
+        {{#CEAEnabled}} 
+        stream: true,
+        {{/CEAEnabled}}
     )
 )
 {{/useOpenAI}}
+
+{{#CEAEnabled}}
+def end_stream_handler(
+    context: TurnContext,
+    state: MemoryBase,
+    response: PromptResponse[str],
+    streamer: StreamingResponse,
+):
+    if not streamer:
+        return
+
+    card = CardFactory.adaptive_card(
+        {
+            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            "version": "1.6",
+            "type": "AdaptiveCard",
+            "body": [{"type": "TextBlock", "wrap": True, "text": streamer.message}],
+        }
+    )
+
+    streamer.set_attachments([card])
+{{/CEAEnabled}}
     
 prompts = PromptManager(PromptManagerOptions(prompts_folder=f"{os.getcwd()}/prompts"))
 
@@ -57,7 +86,13 @@ prompts.add_data_source(
 )
 
 planner = ActionPlanner(
+    {{#CEAEnabled}}
+    ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat", start_streaming_message="Loading streaming results...",
+                    end_stream_handler=end_stream_handler)
+    {{/CEAEnabled}}
+    {{^CEAEnabled}}
     ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat")
+    {{/CEAEnabled}}
 )
 
 # Define storage and application
