@@ -1656,7 +1656,7 @@
             }
           },
           {
-            "id": "teamsAgentCopilotChatInstall",
+            "id": "teamsagentcopilotchatinstall",
             "title": "%teamsagent.walkthrough.copilotChat.title%",
             "description": "%teamsagent.walkthrough.copilotChat.description%",
             "media": {
@@ -1668,19 +1668,28 @@
             ]
           },
           {
-            "id": "teamsAgentInstall",
+            "id": "teamsagentinstall",
             "title": "%teamsagent.walkthrough.install.title%",
             "description": "%teamsagent.walkthrough.install.description%",
             "media": {
               "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
               "altText": "%teamsagent.walkthrough.install.title%"
+            }
+          },
+          {
+            "id": "teamsagentinstallconfirm",
+            "title": "%teamsagent.walkthrough.installConfirm.title%",
+            "description": "%teamsagent.walkthrough.installConfirm.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "altText": "%teamsagent.walkthrough.installConfirm.title%"
             },
             "completionEvents": [
               "onCommand:fx-extension.markInstallTeamsAgentDone"
             ]
           },
           {
-            "id": "teamsAgentGithubCopilotSetup",
+            "id": "teamsagentgithubcopilotsetup",
             "title": "%teamsagent.walkthrough.setup.title%",
             "description": "%teamsagent.walkthrough.setup.description%",
             "media": {

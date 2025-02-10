@@ -164,23 +164,13 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
   }
 }
 
-export async function markGitHubCopilotSetupDone(args?: any[]) {
-  const startEventName = TelemetryEvent.MarkGitHubCopilotSetupDoneStart;
-  const eventName = TelemetryEvent.MarkGitHubCopilotSetupDone;
-  ExtTelemetry.sendTelemetryEvent(startEventName);
-  try {
-    await globalStateUpdate(GlobalKey.GitHubCopilotSetupAlready, true);
-    ExtTelemetry.sendTelemetryEvent(eventName);
-  } catch (e) {
-    ExtTelemetry.sendTelemetryErrorEvent(eventName, assembleError(e));
-  }
-}
-
 export async function openTeamsAgentWalkthrough(args?: any[]) {
   const triggerFromProperty = getTriggerFromProperty(args);
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTeamsAgentWalkthrough, triggerFromProperty);
+  const stepId = args && args.length == 2 ? args[1] : undefined;
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTeamsAgentWalkthrough, triggerFromProperty); // TODO: add stepId to telemetry
   await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
     category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
+    step: stepId,
   });
 }
 
@@ -208,16 +198,11 @@ async function invoke(
     }
   }
 
-  let hasGitHubCopilotInstalledOnce = await globalStateGet(GlobalKey.GithubCopilotInstalled, false);
-  if (!hasGitHubCopilotInstalledOnce && githubCopilotInstalled()) {
-    await globalStateUpdate(GlobalKey.GithubCopilotInstalled, true);
-    hasGitHubCopilotInstalledOnce = true;
-  }
-
+  const hasGitHubCopilotInstalled = githubCopilotInstalled();
   const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
-  const hasGitHubCopilotSetup = await globalStateGet(GlobalKey.GitHubCopilotSetupAlready, false);
+  const hasGitHubCopilotSetup = await isGithubLoggedIn();
 
-  if (hasGitHubCopilotInstalledOnce && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
+  if (hasGitHubCopilotInstalled && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
     if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
       await openOutputInEditor();
     }
@@ -232,7 +217,13 @@ async function invoke(
       return ok(true);
     }
   } else {
-    await openTeamsAgentWalkthrough([triggerFromProperty[TelemetryProperty.TriggerFrom]]);
+    //  TODO?: add open times?
+    const stepId = !hasGitHubCopilotInstalled
+      ? "teamsagentcopilotchatinstall"
+      : !hasTeamsAgentInstalled
+      ? undefined
+      : "teamsagentgithubcopilotsetup";
+    await openTeamsAgentWalkthrough([triggerFromProperty[TelemetryProperty.TriggerFrom], stepId]);
     return ok(false);
   }
 }
@@ -255,27 +246,39 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       query =
         "@teamsapp Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
       break;
-    case TelemetryTriggerFrom.WalkThroughIntroduction:
-      query = "@teamsapp What is notification bot in Teams?";
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
       shouldSkipPreCheck = true;
+      query = "@teamsapp What's the difference between declarative and custom agents?";
       break;
-    case TelemetryTriggerFrom.WalkThroughCreate:
-      query = "@teamsapp How to create notification bot with Teams Toolkit?";
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
       shouldSkipPreCheck = true;
+      query = "@teamsapp I want to create a ToDo Teams app.";
       break;
-    case TelemetryTriggerFrom.WalkThroughWhatIsNext:
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
-      query =
-        "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?";
+      query = "@teamsapp My Teams app doesn’t sideload when debugging with Teams Toolkit.";
       break;
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
-      shouldSkipPreCheck = true;
-      query = "@teamsapp What is declarative agent for Microsoft 365 Copilot?";
-      break;
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
-      shouldSkipPreCheck = true;
-      query = "@teamsapp How to create declarative agent with Teams Toolkit?";
-      break;
+    // case TelemetryTriggerFrom.WalkThroughIntroduction:
+    //   query = "@teamsapp What is notification bot in Teams?";
+    //   shouldSkipPreCheck = true;
+    //   break;
+    // case TelemetryTriggerFrom.WalkThroughCreate:
+    //   query = "@teamsapp How to create notification bot with Teams Toolkit?";
+    //   shouldSkipPreCheck = true;
+    //   break;
+    // case TelemetryTriggerFrom.WalkThroughWhatIsNext:
+    //   shouldSkipPreCheck = true;
+    //   query =
+    //     "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?";
+    //   break;
+    // case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
+    //   shouldSkipPreCheck = true;
+    //   query = "@teamsapp What is declarative agent for Microsoft 365 Copilot?";
+    //   break;
+    // case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
+    //   shouldSkipPreCheck = true;
+    //   query = "@teamsapp How to create declarative agent with Teams Toolkit?";
+    //   break;
     default:
       query =
         "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
@@ -293,6 +296,26 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     });
   }
   return res;
+}
+
+async function isGithubLoggedIn(): Promise<boolean> {
+  // Query the GitHub authentication provider.
+  // Adjust the scopes if your use case needs additional permissions.
+  // const options: vscode.AuthenticationGetSessionOptions = {
+  //   createIfNone: true,
+  //  // scopes: ['read:user']
+  // }
+  // // github.copilot.signIn
+  // const scopes = ['user:email'];
+  // const session = await vscode.authentication.getSession('github', [], options);
+
+  // await vscode.commands.executeCommand("github.copilot.signIn").then((res) => {
+  //   console.log(res);
+  // }, (err) => {
+  //   console.log("some error");console.log(err);});
+
+  const accounts = await (vscode.authentication as any).getAccounts("github");
+  return accounts.length > 0;
 }
 
 /**

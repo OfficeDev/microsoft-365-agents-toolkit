@@ -38,7 +38,7 @@ export enum GlobalKey {
   DoNotRemindInstallTeamsAgent = "teamsToolkit:doNotRemindInstallTeamsAgent",
   TeamsAgentInstalled = "teamsToolkit:teamsAgentInstalled",
   GitHubCopilotSetupAlready = "teamsToolkit:githubCopilotSetupAlready",
-  GithubCopilotInstalled = "teamsToolkit:githubCopilotInstalled",
+  //GithubCopilotInstalled = "teamsToolkit:githubCopilotInstalled",
 }
 
 export enum CommandKey {
