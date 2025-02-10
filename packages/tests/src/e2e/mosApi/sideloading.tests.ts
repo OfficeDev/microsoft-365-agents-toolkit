@@ -11,7 +11,7 @@ import { M365TitleHelper } from "../../commonlib/m365TitleHelper";
 import { assert } from "chai";
 
 describe("MOS3 API", function () {
-  it(`sideloading`, async function () {
+  it(`sideloading`, { author: "huajiezhang@microsoft.com" }, async function () {
     const m365TitleHelper = await M365TitleHelper.init(
       "https://titles.prod.mos.microsoft.com",
       "https://titles.prod.mos.microsoft.com/.default"
