@@ -167,4 +167,8 @@ export class MockCore {
   async addAuthAction(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }
+
+  async addKnowledge(inputs: Inputs): Promise<Result<any, FxError>> {
+    return ok(undefined);
+  }
 }

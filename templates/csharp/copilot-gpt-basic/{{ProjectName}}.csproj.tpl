@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectCapability Include="TeamsFx" />
+    <ProjectCapability Include="DeclarativeAgent" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
 <Project ToolsVersion="15.0" Sdk="Microsoft.TeamsFx.Sdk">
   <ItemGroup>
     <ProjectCapability Include="ProjectConfigurationsDeclaredDimensions" />
+    <ProjectCapability Include="DeclarativeAgent" />
   </ItemGroup>
 </Project>
 {{/isNewProjectTypeEnabled}}

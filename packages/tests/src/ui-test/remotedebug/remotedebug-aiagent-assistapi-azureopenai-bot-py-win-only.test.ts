@@ -156,9 +156,12 @@ describe("Remote debug Tests", function () {
 
       await provisionProject(appName, projectPath);
       await deployProject(projectPath, Timeout.botDeploy);
+      // [known issue] python remote need deploy twice
+      await deployProject(projectPath, Timeout.botDeploy);
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
         projectPath
       );
+
       const page = await initPage(
         remoteDebugTestContext.context!,
         teamsAppId,
@@ -166,27 +169,55 @@ describe("Remote debug Tests", function () {
         Env.password
       );
       await driver.sleep(Timeout.longTimeWait);
-      if (isRealKey) {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand:
-            "I need to solve the equation `3x + 11 = 14`. Can you help me?",
-          expectedWelcomeMessage:
-            ValidationContent.AiAssistantBotWelcomeInstruction,
-          expectedReplyMessage: "x = 1",
-          timeout: Timeout.longTimeWait,
-        });
-      } else {
-        await validateWelcomeAndReplyBot(page, {
-          hasWelcomeMessage: false,
-          hasCommandReplyValidation: true,
-          botCommand: "helloWorld",
-          expectedWelcomeMessage:
-            ValidationContent.AiAssistantBotWelcomeInstruction,
-          expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-          timeout: Timeout.longTimeWait,
-        });
+
+      try {
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand:
+              "I need to solve the equation `3x + 11 = 14`. Can you help me?",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: "x = 1",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
+            timeout: Timeout.longTimeWait,
+          });
+        }
+      } catch (error) {
+        // [known issue] python remote need deploy twice
+        await deployProject(projectPath, Timeout.botDeploy);
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand:
+              "I need to solve the equation `3x + 11 = 14`. Can you help me?",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: "x = 1",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
+            timeout: Timeout.longTimeWait,
+          });
+        }
       }
     }
   );

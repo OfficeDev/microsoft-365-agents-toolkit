@@ -6889,3 +6889,22 @@ describe("addAuthAction", async () => {
     assert.isTrue(result.isErr());
   });
 });
+
+describe("addKnowledge", async () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("happy path: successfully add knowledge", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isOk());
+  });
+});

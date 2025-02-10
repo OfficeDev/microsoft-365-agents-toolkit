@@ -1007,6 +1007,79 @@ describe("teamsApp/createAppPackage", async () => {
     }
   });
 
+  it("happy path - Declarative Agent with external adaptive cards", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          file: "resources/declarativeAgent.json",
+          id: "dc1",
+        },
+      ],
+    };
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "chmod").callsFake(async () => {});
+    const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    if (result.isErr()) {
+      console.log(result.error);
+    }
+    chai.assert.isTrue(result.isOk());
+    const outputExist = await fs.pathExists(args.outputZipPath);
+    chai.assert.isTrue(outputExist);
+    chai.assert.isTrue(writeFileStub.calledThrice);
+    if (outputExist) {
+      const zip = new AdmZip(args.outputZipPath);
+      let aiPluginContent = "";
+      let openapiContent = "";
+      let declarativeAgentsContent = "";
+
+      const entries = zip.getEntries();
+      entries.forEach((e) => {
+        const name = e.entryName;
+        if (name.endsWith("ai-plugin-with-external-ac.json")) {
+          const data = e.getData();
+          aiPluginContent = data.toString("utf8");
+        }
+
+        if (name.endsWith("openai.yml")) {
+          const data = e.getData();
+          openapiContent = data.toString("utf8");
+        }
+
+        if (name.endsWith("declarativeAgent.json")) {
+          const data = e.getData();
+          declarativeAgentsContent = data.toString("utf8");
+        }
+      });
+
+      chai.assert(openapiContent, "openapi.yml not found in the zip file");
+      chai.assert(aiPluginContent, "ai-plugin.json not found in the zip file");
+      chai.assert(declarativeAgentsContent, "declarativeAgent.json not found in the zip file");
+      chai.assert(
+        aiPluginContent.search(openapiServerPlaceholder) < 0,
+        "openapiServerPlaceholder not replaced"
+      );
+      chai.assert(openapiContent.search("APP_NAME_SUFFIX") < 0, "APP_NAME_SUFFIX not replaced");
+      chai.assert(aiPluginContent.search("file") < 0, "file not replaced");
+
+      await fs.remove(args.outputZipPath);
+    }
+  });
+
   it("invalid color file", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath:

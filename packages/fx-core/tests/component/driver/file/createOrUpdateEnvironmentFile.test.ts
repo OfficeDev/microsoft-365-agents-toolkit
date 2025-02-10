@@ -12,7 +12,6 @@ import * as util from "util";
 
 import * as localizeUtils from "../../../../src/common/localizeUtils";
 import { CreateOrUpdateEnvironmentFileDriver } from "../../../../src/component/driver/file/createOrUpdateEnvironmentFile";
-import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import {
   InvalidActionInputError,
@@ -21,6 +20,7 @@ import {
 } from "../../../../src/error/common";
 import { pathUtils } from "../../../../src/component/utils/pathUtils";
 import { err, ok } from "@microsoft/teamsfx-api";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
 
 describe("CreateOrUpdateEnvironmentFileDriver", () => {
   const mockedDriverContexts = [
@@ -291,5 +291,298 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
         );
       });
     }
+  });
+
+  describe("askForOpenAIEnvironmentVariables", () => {
+    let envOutput: Map<string, string>;
+    const mockedDriverContext = {
+      logProvider: new MockedLogProvider(),
+      projectPath: "/path/to/project",
+      ui: new MockedUserInteraction(),
+    } as any;
+
+    beforeEach(() => {
+      envOutput = new Map<string, string>();
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("Environment variables provided", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "fakeApiKey",
+          AZURE_OPENAI_ENDPOINT: "https://fakeEndpoint",
+          AZURE_OPENAI_DEPLOYMENT_NAME: "fakeDeploymentName",
+          OPENAI_API_KEY: "fakeOpenAIKey",
+        },
+      };
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.size, 0);
+    });
+
+    it("should prompt for AZURE_OPENAI_API_KEY and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(ok({ result: "fakeApiKey" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("AZURE_OPENAI_API_KEY"), "fakeApiKey");
+      chai.assert.equal(args.envs["AZURE_OPENAI_API_KEY"], "fakeApiKey");
+    });
+
+    it("should prompt for AZURE_OPENAI_ENDPOINT and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ENDPOINT: "${{ AZURE_OPENAI_ENDPOINT }}",
+        },
+      };
+      sinon
+        .stub(mockedDriverContext.ui!, "inputText")
+        .resolves(ok({ result: "https://fakeEndpoint" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("AZURE_OPENAI_ENDPOINT"), "https://fakeEndpoint");
+      chai.assert.equal(args.envs["AZURE_OPENAI_ENDPOINT"], "https://fakeEndpoint");
+    });
+
+    it("should prompt for AZURE_OPENAI_DEPLOYMENT_NAME and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon
+        .stub(mockedDriverContext.ui!, "inputText")
+        .resolves(ok({ result: "fakeDeploymentName" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("AZURE_OPENAI_DEPLOYMENT_NAME"), "fakeDeploymentName");
+      chai.assert.equal(args.envs["AZURE_OPENAI_DEPLOYMENT_NAME"], "fakeDeploymentName");
+    });
+
+    it("should prompt for OPENAI_API_KEY and update envOutput", async () => {
+      const args = {
+        envs: {
+          OPENAI_API_KEY: "${{ OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(ok({ result: "fakeOpenAIKey" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("OPENAI_API_KEY"), "fakeOpenAIKey");
+      chai.assert.equal(args.envs["OPENAI_API_KEY"], "fakeOpenAIKey");
+    });
+
+    it("should return error if AZURE_OPENAI_API_KEY inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
+        },
+        target: ".env.teamsfx.local",
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+      const existingEnvs = {
+        existing1: "value1",
+        existing2: "value2",
+      };
+      const content = Object.entries(existingEnvs)
+        .map(([key, value]) => `${key}=${value}`)
+        .join(os.EOL);
+      sinon.stub(fs, "ensureFile").resolves();
+      sinon.stub(fs, "readFile").callsFake(async (path) => {
+        return Buffer.from(content);
+      });
+
+      const result = await driver.execute(args, mockedDriverContext);
+
+      chai.assert(result.result.isErr());
+    });
+
+    it("should return error if AZURE_OPENAI_ENDPOINT inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ENDPOINT: "${{ AZURE_OPENAI_ENDPOINT }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should return error if AZURE_OPENAI_DEPLOYMENT_NAME inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should return error if OPENAI_API_KEY inputText fails", async () => {
+      const args = {
+        envs: {
+          OPENAI_API_KEY: "${{ OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should validate OPENAI_API_KEY input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          OPENAI_API_KEY: "${{ OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString("driver.file.createOrUpdateEnvironmentFile.OpenAIKey.validation")
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_API_KEY input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString("driver.file.createOrUpdateEnvironmentFile.OpenAIKey.validation")
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_ENDPOINT input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ENDPOINT: "${{ AZURE_OPENAI_ENDPOINT }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentEndpoint.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_DEPLOYMENT_NAME input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentName.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
   });
 });

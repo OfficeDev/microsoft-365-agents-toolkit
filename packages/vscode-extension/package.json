@@ -21,7 +21,7 @@
     ]
   },
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.93.0"
   },
   "license": "MIT",
   "keywords": [
@@ -57,7 +57,7 @@
     "onCommand:workbench.action.debug.start",
     "workspaceContains:/.fx/**/*",
     "workspaceContains:teamsapp.yml",
-    "onView:teamsfx-empty-project",
+    "onView:teamsfx-empty-project-with-chat",
     "onUri",
     "workspaceContains:/**/manifest.json",
     "workspaceContains:/manifest*.xml"
@@ -187,12 +187,12 @@
         {
           "id": "teamsfx-empty-project",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && !fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "false"
         },
         {
           "id": "teamsfx-empty-project-with-chat",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn"
         },
         {
           "id": "teamsfx-officedev-development",
@@ -969,6 +969,12 @@
         "command": "fx-extension.addAuthAction",
         "title": "%teamstoolkit.commands.addAuthAction%",
         "category": "Teams"
+      },
+      {
+        "command": "fx-extension.openTeamsAgentWalkthrough",
+        "title": "%teamsagent.walkthrough.title%",
+        "category": "Teams",
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "taskDefinitions": [
@@ -1625,6 +1631,77 @@
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"
+      },
+      {
+        "id": "teamsAgentGetStarted",
+        "title": "%teamsagent.walkthrough.title%",
+        "description": "%teamsagent.walkthrough.description%",
+        "steps": [
+          {
+            "id": "teamsAgentIntroduction",
+            "title": "%teamsagent.walkthrough.introduction.title%",
+            "description": "%teamsagent.walkthrough.introduction.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/introduction.svg",
+              "altText": "%teamsagent.walkthrough.introduction.title%"
+            }
+          },
+          {
+            "id": "teamsAgentInstallCopilotPlan",
+            "title": "%teamsagent.walkthrough.copilotPlan.title%",
+            "description": "%teamsagent.walkthrough.copilotPlan.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/copilot-plan.png",
+              "altText": "%teamsagent.walkthrough.copilotPlan.title%"
+            }
+          },
+          {
+            "id": "teamsAgentCopilotChatInstall",
+            "title": "%teamsagent.walkthrough.copilotChat.title%",
+            "description": "%teamsagent.walkthrough.copilotChat.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/install-github-copilot-chat.svg",
+              "altText": "%teamsagent.walkthrough.copilotChat.title%"
+            },
+            "completionEvents": [
+              "extensionInstalled:github.copilot-chat"
+            ]
+          },
+          {
+            "id": "teamsAgentInstall",
+            "title": "%teamsagent.walkthrough.install.title%",
+            "description": "%teamsagent.walkthrough.install.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "altText": "%teamsagent.walkthrough.install.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markInstallTeamsAgentDone"
+            ]
+          },
+          {
+            "id": "teamsAgentGithubCopilotSetup",
+            "title": "%teamsagent.walkthrough.setup.title%",
+            "description": "%teamsagent.walkthrough.setup.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.png",
+              "altText": "%teamsagent.walkthrough.setup.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markGitHubCopilotLoginDone"
+            ]
+          },
+          {
+            "id": "teamsAgentUse",
+            "title": "%teamsagent.walkthrough.use.title%",
+            "description": "%teamsagent.walkthrough.use.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
+              "altText": "%teamsagent.walkthrough.use.title%"
+            }
+          }
+        ],
+        "when": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "configuration": {
@@ -1724,7 +1801,7 @@
     "@types/tmp": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "@types/validator": "^13.1.1",
-    "@types/vscode": "^1.66.0",
+    "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.1",

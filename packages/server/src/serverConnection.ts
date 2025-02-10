@@ -96,6 +96,7 @@ export default class ServerConnection implements IServerConnection {
       this.listPluginApiSpecs.bind(this),
       this.syncTeamsAppManifestRequest.bind(this),
       this.isDeclarativeAgentRequest.bind(this),
+      this.declarativeAgentAddActionRequest.bind(this),
     ].forEach((fn) => {
       /// fn.name = `bound ${functionName}`
       connection.onRequest(`${ServerConnection.namespace}/${fn.name.split(" ")[1]}`, fn);
@@ -530,6 +531,17 @@ export default class ServerConnection implements IServerConnection {
     token: CancellationToken
   ): Promise<Result<undefined, FxError>> {
     const res = await this.core.isDelcarativeAgentApp(inputs);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    return standardizeResult(res);
+  }
+
+  public async declarativeAgentAddActionRequest(
+    inputs: Inputs,
+    token: CancellationToken
+  ): Promise<Result<undefined, FxError>> {
+    const res = await this.core.addPlugin(inputs);
     if (res.isErr()) {
       return err(res.error);
     }

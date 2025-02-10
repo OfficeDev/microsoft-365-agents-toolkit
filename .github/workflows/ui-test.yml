@@ -268,7 +268,7 @@ jobs:
       - name: Install Python environment
         if: contains(matrix.test-case,  'py')
         run: |
-          pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.2.0
+          pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
 
       - name: Install function core tool (ubuntu)
         if: matrix.os == 'ubuntu-latest'

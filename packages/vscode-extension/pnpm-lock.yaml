@@ -221,8 +221,8 @@ devDependencies:
     specifier: ^13.1.1
     version: 13.1.1
   '@types/vscode':
-    specifier: ^1.66.0
-    version: 1.66.0
+    specifier: ^1.93.0
+    version: 1.93.0
   '@typescript-eslint/eslint-plugin':
     specifier: ^5.0.0
     version: 5.0.0(@typescript-eslint/parser@5.0.0)(eslint@8.1.0)(typescript@4.7.4)
@@ -3414,8 +3414,8 @@ packages:
     resolution: {integrity: sha512-/39uXOKe1KV4ElXb8cp0RVyeRn9X1QRwllComMMql+FQ9nhmTx0Yhw+kJtccPSShsjma+KXjW/TiXyGUNqNn+w==}
     dev: true
 
-  /@types/vscode@1.66.0:
-    resolution: {integrity: sha512-ZfJck4M7nrGasfs4A4YbUoxis3Vu24cETw3DERsNYtDZmYSYtk6ljKexKFKhImO/ZmY6ZMsmegu2FPkXoUFImA==}
+  /@types/vscode@1.93.0:
+    resolution: {integrity: sha512-kUK6jAHSR5zY8ps42xuW89NLcBpw1kOabah7yv38J8MyiYuOHxLQBi0e7zeXbQgVefDy/mZZetqEFC+Fl5eIEQ==}
     dev: true
 
   /@types/which@2.0.2:

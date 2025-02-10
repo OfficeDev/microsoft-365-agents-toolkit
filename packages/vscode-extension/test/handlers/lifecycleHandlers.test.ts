@@ -23,6 +23,7 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  addKnowledgeHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -609,6 +610,23 @@ describe("Lifecycle handlers", () => {
       await addAuthActionHandler();
       sandbox.assert.calledOnce(addAuthAction);
       sandbox.assert.calledOnce(provisionction);
+    });
+  });
+
+  describe("addKnowledgeHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
+
+      await addKnowledgeHandler();
+
+      sinon.assert.calledOnce(addKnowledge);
     });
   });
 });

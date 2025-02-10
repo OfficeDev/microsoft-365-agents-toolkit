@@ -11,12 +11,7 @@
 {{^isNewProjectTypeEnabled}}
   <ItemGroup>
     <ProjectCapability Include="TeamsFx" />
-  {{#DeclarativeCopilot}}
     <ProjectCapability Include="DeclarativeAgent" />
-  {{/DeclarativeCopilot}}
-  {{^DeclarativeCopilot}}
-    <ProjectCapability Include="ApiPlugin" />
-  {{/DeclarativeCopilot}}
   </ItemGroup>
 
   <ItemGroup>
