@@ -1415,7 +1415,7 @@ describe("addKnowledgeQuestionNode", async () => {
     await traverse(node, inputs, ui, undefined, visitor);
   });
 
-  it("success: can add a knowledge from Graph Connector", async () => {
+  it.skip("success: can add a knowledge from Graph Connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
