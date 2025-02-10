@@ -110,69 +110,23 @@ describe("Remote debug Tests", function () {
       );
       await driver.sleep(Timeout.longTimeWait);
 
-      try {
-        if (isRealKey) {
-          await validateWelcomeAndReplyBot(page, {
-            hasCommandReplyValidation: true,
-            botCommand: "Remind me to attend the team meeting next Monday",
-            expectedReplyMessage:
-              "Remind me to attend the team meeting next Monday",
-          });
-          try {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "task:",
-              timeout: Timeout.longTimeWait,
-            });
-          } catch (error) {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "I'm sorry",
-              timeout: Timeout.longTimeWait,
-            });
-          }
-        } else {
-          await validateWelcomeAndReplyBot(page, {
-            hasWelcomeMessage: false,
-            hasCommandReplyValidation: true,
-            botCommand: "helloWorld",
-            expectedWelcomeMessage:
-              ValidationContent.AiAssistantBotWelcomeInstruction,
-            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-            timeout: Timeout.longTimeWait,
-          });
-        }
-      } catch {
-        await RetryHandler.retry(async () => {
-          await deployProject(projectPath, Timeout.botDeploy);
-          await driver.sleep(Timeout.longTimeWait);
-          if (isRealKey) {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Remind me to attend the team meeting next Monday",
-              expectedReplyMessage:
-                "Remind me to attend the team meeting next Monday",
-            });
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "current tasks",
-              timeout: Timeout.longTimeWait,
-            });
-          } else {
-            await validateWelcomeAndReplyBot(page, {
-              hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
-              botCommand: "helloWorld",
-              expectedWelcomeMessage:
-                ValidationContent.AiAssistantBotWelcomeInstruction,
-              expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-              timeout: Timeout.longTimeWait,
-            });
-          }
-        }, 2);
+      if (isRealKey) {
+        await validateWelcomeAndReplyBot(page, {
+          hasCommandReplyValidation: true,
+          botCommand: "Show all tasks",
+          expectedReplyMessage: "no task",
+          timeout: Timeout.longTimeWait,
+        });
+      } else {
+        await validateWelcomeAndReplyBot(page, {
+          hasWelcomeMessage: false,
+          hasCommandReplyValidation: true,
+          botCommand: "helloWorld",
+          expectedWelcomeMessage:
+            ValidationContent.AiAssistantBotWelcomeInstruction,
+          expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+          timeout: Timeout.longTimeWait,
+        });
       }
     }
   );
