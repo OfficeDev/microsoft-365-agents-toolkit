@@ -17,7 +17,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "Knowledge source.",
     required: true,
     default: "web-search",
-    choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
+    choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
   },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];
