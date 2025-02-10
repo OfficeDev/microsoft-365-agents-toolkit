@@ -96,6 +96,9 @@ describe("Remote debug Tests", function () {
       );
       await provisionProject(appName, projectPath);
       await deployProject(projectPath, Timeout.botDeploy);
+      // [known issue] python remote need deploy twice
+      await deployProject(projectPath, Timeout.botDeploy);
+
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
         projectPath
       );
