@@ -24,6 +24,12 @@ export const customEngineAgentTemplates: Template[] = [
     description: "",
   },
   {
+    id: "custom-copilot-basic-python",
+    name: TemplateNames.CustomCopilotBasic,
+    language: "python",
+    description: "",
+  },
+  {
     id: "custom-copilot-rag-customize-ts",
     name: TemplateNames.CustomCopilotRagCustomize,
     language: "typescript",
@@ -42,6 +48,12 @@ export const customEngineAgentTemplates: Template[] = [
     description: "",
   },
   {
+    id: "custom-copilot-rag-customize-python",
+    name: TemplateNames.CustomCopilotRagCustomize,
+    language: "python",
+    description: "",
+  },
+  {
     id: "custom-copilot-rag-azure-ai-search-ts",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
     language: "typescript",
@@ -57,6 +69,12 @@ export const customEngineAgentTemplates: Template[] = [
     id: "custom-copilot-rag-azure-ai-search-csharp",
     name: TemplateNames.CustomCopilotRagAzureAISearch,
     language: "csharp",
+    description: "",
+  },
+  {
+    id: "custom-copilot-rag-azure-ai-search-python",
+    name: TemplateNames.CustomCopilotRagAzureAISearch,
+    language: "python",
     description: "",
   },
   {
@@ -96,6 +114,12 @@ export const customEngineAgentTemplates: Template[] = [
     description: "",
   },
   {
+    id: "custom-copilot-assistant-new-python",
+    name: TemplateNames.CustomCopilotAssistantNew,
+    language: "python",
+    description: "",
+  },
+  {
     id: "custom-copilot-assistant-assistants-api-ts",
     name: TemplateNames.CustomCopilotAssistantAssistantsApi,
     language: "typescript",
@@ -111,6 +135,12 @@ export const customEngineAgentTemplates: Template[] = [
     id: "custom-copilot-assistant-assistants-api-csharp",
     name: TemplateNames.CustomCopilotAssistantAssistantsApi,
     language: "csharp",
+    description: "",
+  },
+  {
+    id: "custom-copilot-assistant-assistants-api-python",
+    name: TemplateNames.CustomCopilotAssistantAssistantsApi,
+    language: "python",
     description: "",
   },
 ];
