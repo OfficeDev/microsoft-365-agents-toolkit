@@ -86,7 +86,7 @@ describe("CLI commands", () => {
   });
 
   describe("getCreateCommand", async () => {
-    it("happy path", async () => {
+    it("happy path for donet", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
@@ -103,7 +103,23 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
     });
-
+    it("happy path for cli", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "bot",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
     it("core return error", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "createProject").resolves(err(new UserCancelError()));

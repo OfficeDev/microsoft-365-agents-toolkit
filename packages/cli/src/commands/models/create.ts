@@ -74,14 +74,15 @@ export function getCreateCommand(): CLICommand {
       inputs.projectId = inputs.projectId ?? uuid.v4();
       const core = getFxCore();
       if (inputs.nonInteractive) {
-        // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
-        const capability = inputs.capabilities as string;
-        const projectType = getProjectTypeByCapability(capability);
-        inputs["project-type"] = projectType as any;
-      }
-      if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
-        // this feature is used in e2e test only
-        inputs.platform = Platform.VS;
+        if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
+          // this feature is used in e2e test to scaffold VS project in non-interactive mode
+          inputs.platform = Platform.VS;
+        } else {
+          // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
+          const capability = inputs.capabilities as string;
+          const projectType = getProjectTypeByCapability(capability);
+          inputs["project-type"] = projectType as any;
+        }
       }
       const res = await core.createProject(inputs);
       assign(ctx.telemetryProperties, {
