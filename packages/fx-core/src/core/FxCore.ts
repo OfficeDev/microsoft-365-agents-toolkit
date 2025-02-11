@@ -2496,13 +2496,13 @@ export class FxCore {
       url: inputs.webSearchUrl,
     };
 
-    const addOneDriveSharePointCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
+    const addWebSearchCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
       agentManifestPath,
       webSearchUrl
     );
 
-    if (addOneDriveSharePointCapabilityRes.isErr()) {
-      return err(addOneDriveSharePointCapabilityRes.error);
+    if (addWebSearchCapabilityRes.isErr()) {
+      return err(addWebSearchCapabilityRes.error);
     }
 
     return ok(undefined);

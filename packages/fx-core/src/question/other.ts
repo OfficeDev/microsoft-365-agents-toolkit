@@ -820,6 +820,9 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
     children: [
       {
         data: webContentQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.webSearch().id,
+        },
       },
       {
         data: oneDriveSharePointItemQuestion(),
