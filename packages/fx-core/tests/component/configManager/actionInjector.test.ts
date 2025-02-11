@@ -78,7 +78,8 @@ describe("ActionInjector", () => {
         ymlPath,
         authName,
         specRelativePath,
-        forceToAddNew
+        forceToAddNew,
+        false
       );
 
       assert.deepEqual(result, {
@@ -107,7 +108,8 @@ describe("ActionInjector", () => {
           ymlPath,
           authName,
           specRelativePath,
-          forceToAddNew
+          forceToAddNew,
+          false
         );
         assert.fail("Expected InjectOAuthActionFailedError to be thrown");
       } catch (error) {
@@ -135,7 +137,8 @@ describe("ActionInjector", () => {
           ymlPath,
           authName,
           specRelativePath,
-          forceToAddNew
+          forceToAddNew,
+          false
         );
         assert.fail("Expected InjectOAuthActionFailedError to be thrown");
       } catch (error) {
@@ -180,7 +183,8 @@ describe("ActionInjector", () => {
         ymlPath,
         authName,
         specRelativePath,
-        forceToAddNew
+        forceToAddNew,
+        false
       );
 
       assert.deepEqual(result, {
@@ -242,6 +246,7 @@ describe("ActionInjector", () => {
         ymlPath,
         authName,
         specRelativePath,
+        false,
         false
       );
 
@@ -285,6 +290,7 @@ describe("ActionInjector", () => {
         ymlPath,
         authName,
         specRelativePath,
+        false,
         false
       );
 
