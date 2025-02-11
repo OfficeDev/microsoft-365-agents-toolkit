@@ -14,6 +14,8 @@ import {
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
+  featureFlagManager,
+  FeatureFlags,
   getProjectTypeByCapability,
   MeArchitectureOptions,
   QuestionNames,
@@ -76,6 +78,10 @@ export function getCreateCommand(): CLICommand {
         const capability = inputs.capabilities as string;
         const projectType = getProjectTypeByCapability(capability);
         inputs["project-type"] = projectType as any;
+      }
+      if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
+        // this feature is used in e2e test only
+        inputs.platform = Platform.VS;
       }
       const res = await core.createProject(inputs);
       assign(ctx.telemetryProperties, {

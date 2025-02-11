@@ -12,6 +12,7 @@ import {
   QuestionNames,
   UserCancelError,
   envUtil,
+  featureFlagManager,
 } from "@microsoft/teamsfx-core";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { assert } from "chai";
@@ -88,7 +89,7 @@ describe("CLI commands", () => {
     it("happy path", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
-
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
         optionValues: {
@@ -99,7 +100,6 @@ describe("CLI commands", () => {
         argumentValues: [],
         telemetryProperties: {},
       };
-
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
     });

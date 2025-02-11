@@ -64,6 +64,10 @@ export function notificationBotTriggerNode(platform: Platform = Platform.VSCode)
         NotificationBotOptions.functionsHttpTrigger(),
         NotificationBotOptions.functionsTimerTrigger(),
       ],
+      default:
+        platform === Platform.VS
+          ? NotificationBotOptions.appServiceForVS().id
+          : NotificationBotOptions.appService().id,
       placeholder: getLocalizedString("plugins.bot.questionHostTypeTrigger.placeholder"),
       onDidSelection: setTemplateName,
     },
