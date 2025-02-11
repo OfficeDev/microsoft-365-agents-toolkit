@@ -968,7 +968,8 @@
       {
         "command": "fx-extension.addAuthAction",
         "title": "%teamstoolkit.commands.addAuthAction%",
-        "category": "Teams"
+        "category": "Teams",
+        "enablement": "false"
       },
       {
         "command": "fx-extension.openTeamsAgentWalkthrough",

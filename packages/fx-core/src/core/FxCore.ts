@@ -2258,7 +2258,9 @@ export class FxCore {
     const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
     const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
     const authName = inputs[QuestionNames.AuthName] as string;
-    const apiSpecPath = path.normalize(path.join(pluginManifestPath, apiSpecRelativePath));
+    const apiSpecPath = path.normalize(
+      path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
+    );
     let authType;
     switch (inputs[QuestionNames.ApiAuth] as string) {
       case "api-key":
@@ -2267,6 +2269,9 @@ export class FxCore {
         break;
       case "oauth":
         authType = "OAuthPluginVault";
+        break;
+      case "microsoft-entra":
+        authType = "MicrosoftEntra";
         break;
     }
 

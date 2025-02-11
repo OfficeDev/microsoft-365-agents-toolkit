@@ -649,13 +649,15 @@ export async function injectAuthAction(
     return res;
   } else if (
     (!!authScheme && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
-    authType === "OAuth2PluginVault"
+    authType === "OAuthPluginVault" ||
+    authType === "MicrosoftEntra"
   ) {
     const res = await ActionInjector.injectCreateOAuthAction(
       ymlPath,
       authName,
       relativeSpecPath,
-      forceToAddNew
+      forceToAddNew,
+      authType === "MicrosoftEntra"
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -663,7 +665,8 @@ export async function injectAuthAction(
         localYamlPath,
         authName,
         relativeSpecPath,
-        forceToAddNew
+        forceToAddNew,
+        authType === "MicrosoftEntra"
       );
     }
     return res;
