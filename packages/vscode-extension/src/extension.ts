@@ -501,7 +501,7 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(markTeamsAgentInstallationDone);
 
   const openGitHubCopilotChat = vscode.commands.registerCommand(
-    "fx-extension.openGithubCopilotChat",
+    "fx-extension.openGitHubCopilotChat",
     (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
   );
   context.subscriptions.push(openGitHubCopilotChat);

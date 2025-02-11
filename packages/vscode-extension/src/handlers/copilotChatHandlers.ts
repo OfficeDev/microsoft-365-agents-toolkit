@@ -166,7 +166,6 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
 
 export async function openTeamsAgentWalkthrough(args?: any[]) {
   const triggerFromProperty = getTriggerFromProperty(args);
-  //const stepId = args && args.length == 2 ? args[1] : undefined;
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTeamsAgentWalkthrough, triggerFromProperty);
   await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
     category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
@@ -216,16 +215,6 @@ async function invoke(
       return ok(true);
     }
   } else {
-    // let stepId;
-    // if (!hasGitHubCopilotInstalled && !hasTeamsAgentInstalled) {
-    //   stepId = undefined;
-    // } else if (!hasGitHubCopilotInstalled) {
-    //   stepId = "teamsagentcopilotchatinstall";
-    // } else if (!hasTeamsAgentInstalled) {
-    //   stepId = "teamsagentinstallconfirm";
-    // } else {
-    //   stepId = "teamsagentgithubcopilotsetup";
-    // }
     await openTeamsAgentWalkthrough([triggerFromProperty[TelemetryProperty.TriggerFrom]]);
     return ok(false);
   }

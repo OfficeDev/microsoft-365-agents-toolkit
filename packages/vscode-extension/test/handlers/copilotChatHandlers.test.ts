@@ -199,7 +199,6 @@ describe("copilotChatHandler", async () => {
       chai.assert.isTrue(
         executeCommandStub.calledOnceWith("workbench.action.openWalkthrough", {
           category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
-          step: undefined,
         })
       );
     });
