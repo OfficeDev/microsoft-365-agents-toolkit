@@ -185,6 +185,7 @@ class Coordinator {
       }
 
       // refactored generator
+      context.projectPath = projectPath;
       const generator = Generators.find((g) => g.activate(context, inputs));
       if (!generator) {
         return err(new MissingRequiredInputError(QuestionNames.Capabilities, "coordinator"));
@@ -203,8 +204,6 @@ class Coordinator {
       if (ensureRes.isErr()) return err(ensureRes.error);
       inputs.projectId = ensureRes.value;
     }
-
-    context.projectPath = projectPath;
 
     const trimRes = await manifestUtils.trimManifestShortName(projectPath);
     if (trimRes.isErr()) return err(trimRes.error);
