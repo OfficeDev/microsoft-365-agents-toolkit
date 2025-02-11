@@ -1711,10 +1711,7 @@
             "media": {
               "image": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.png",
               "altText": "%teamsagent.walkthrough.setup.title%"
-            },
-            "completionEvents": [
-              "onCommand:fx-extension.markGitHubCopilotLoginDone"
-            ]
+            }
           },
           {
             "id": "teamsAgentUse",
