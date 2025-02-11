@@ -41,5 +41,11 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     required: true,
     default: "./appPackage/manifest.json",
   },
+  {
+    name: "auth-name",
+    type: "string",
+    description: "Name of Web Content.",
+    required: true,
+  },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];

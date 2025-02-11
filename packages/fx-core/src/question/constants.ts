@@ -109,6 +109,8 @@ export enum QuestionNames {
   KnowledgeSource = "knowledge-source",
   OneDriveSharePointURL = "oneDriveSharePointURL",
   OneDriveSharePointContent = "oneDriveSharePointContent",
+  WebContent = "web-content",
+
   AuthName = "auth-name",
 }
 
