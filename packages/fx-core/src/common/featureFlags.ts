@@ -29,6 +29,7 @@ export class FeatureFlagName {
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
+  static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
 }
 
 export interface FeatureFlag {
@@ -85,6 +86,10 @@ export class FeatureFlags {
   };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
+    defaultValue: "false",
+  };
+  static readonly BuilderAPIEnabled = {
+    name: FeatureFlagName.BuilderAPIEnabled,
     defaultValue: "false",
   };
 }
