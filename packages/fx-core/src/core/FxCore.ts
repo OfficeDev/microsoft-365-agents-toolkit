@@ -2172,7 +2172,7 @@ export class FxCore {
     let result: Result<undefined, FxError>;
     switch (inputs.knowledgeSource) {
       case KnowledgeSourceOptions.webSearch().id:
-        // TODO: To be implemented
+        result = await this.addWebSearchKnowledge(inputs, agentManifestPath);
         break;
       case KnowledgeSourceOptions.oneDriveSharePoint().id:
         result = await this.addOneDriveSharePointKnowledge(inputs, agentManifestPath);
@@ -2480,6 +2480,26 @@ export class FxCore {
         oneDriveSharePointIds,
         oneDriveSharePointUrls
       );
+
+    if (addOneDriveSharePointCapabilityRes.isErr()) {
+      return err(addOneDriveSharePointCapabilityRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async addWebSearchKnowledge(
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const webSearchUrl: Site = {
+      url: inputs.webSearchUrl,
+    };
+
+    const addOneDriveSharePointCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
+      agentManifestPath,
+      webSearchUrl
+    );
 
     if (addOneDriveSharePointCapabilityRes.isErr()) {
       return err(addOneDriveSharePointCapabilityRes.error);

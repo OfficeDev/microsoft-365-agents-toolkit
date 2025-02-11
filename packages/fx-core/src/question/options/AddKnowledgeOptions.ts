@@ -20,6 +20,12 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
   },
   {
+    name: "web-content",
+    type: "string",
+    description: "Name of Web Content.",
+    required: true,
+  },
+  {
     name: "oneDriveSharePointURL",
     type: "string",
     description: "OneDrive or SharePoint Content",
@@ -40,12 +46,6 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
       "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     required: true,
     default: "./appPackage/manifest.json",
-  },
-  {
-    name: "auth-name",
-    type: "string",
-    description: "Name of Web Content.",
-    required: true,
   },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];

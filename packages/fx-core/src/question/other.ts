@@ -1288,7 +1288,7 @@ export function syncManifestQuestionNode(): IQTreeNode {
 
 export function webContentQuestion(): TextInputQuestion {
   return {
-    name: QuestionNames.AuthName,
+    name: QuestionNames.WebContent,
     title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
     placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
     type: "text",
