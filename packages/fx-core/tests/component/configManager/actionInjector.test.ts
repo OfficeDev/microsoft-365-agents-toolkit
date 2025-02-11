@@ -38,10 +38,43 @@ describe("ActionInjector", () => {
 
     beforeEach(() => {
       writeStub = sandbox.stub(fs, "writeFile").resolves();
-      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
     });
     afterEach(() => {
       sandbox.restore();
+    });
+
+    it("generateAuthAction should return correct result for microsoft entra", () => {
+      const actionName = "oauth/register";
+      const authName = "testAuth";
+      const teamsAppIdEnvName = "TEAMS_APP_ID";
+      const specRelativePath = "path/to/spec";
+      const envName = "TEST_AUTH_CONFIGURATION_ID";
+      const flow = "authorizationCode";
+      const isMicrosoftEntra = true;
+
+      const result = ActionInjector.generateAuthAction(
+        actionName,
+        authName,
+        teamsAppIdEnvName,
+        specRelativePath,
+        envName,
+        flow,
+        isMicrosoftEntra
+      );
+
+      assert.deepEqual(result, {
+        uses: actionName,
+        with: {
+          name: `${authName}`,
+          appId: `\${{${teamsAppIdEnvName}}}`,
+          apiSpecPath: specRelativePath,
+          flow: flow,
+          identityProvider: "MicrosoftEntra",
+        },
+        writeToEnvironmentFile: {
+          configurationId: envName,
+        },
+      });
     });
 
     it("should inject OAuth action successfully if no existing env names for configuration id exists", async () => {
@@ -73,6 +106,7 @@ describe("ActionInjector", () => {
       sandbox.stub(fs, "readFile").resolves(ymlContent as any);
       sandbox.stub(Utils, "getSafeRegistrationIdEnvName").returns("TEST_AUTH_CONFIGURATION_ID");
       sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       const result = await ActionInjector.injectCreateOAuthAction(
         ymlPath,
@@ -102,6 +136,7 @@ describe("ActionInjector", () => {
       `;
 
       sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       try {
         await ActionInjector.injectCreateOAuthAction(
@@ -131,6 +166,7 @@ describe("ActionInjector", () => {
       sandbox.stub(fs, "readFile").resolves(ymlContent as any);
       sandbox.stub(ActionInjector, "hasActionWithName").returns(false);
       sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns(undefined);
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       try {
         await ActionInjector.injectCreateOAuthAction(
@@ -178,6 +214,7 @@ describe("ActionInjector", () => {
         .stub(Utils, "getSafeRegistrationIdEnvName")
         .returns("OAUTH2AUTHCODE_CONFIGURATION_ID");
       sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       const result = await ActionInjector.injectCreateOAuthAction(
         ymlPath,
@@ -241,6 +278,7 @@ describe("ActionInjector", () => {
         .stub(Utils, "getSafeRegistrationIdEnvName")
         .returns("OAUTH2AUTHCODE_CONFIGURATION_ID");
       sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       const result = await ActionInjector.injectCreateOAuthAction(
         ymlPath,
@@ -285,6 +323,7 @@ describe("ActionInjector", () => {
         .stub(Utils, "getSafeRegistrationIdEnvName")
         .returns("OAUTH2AUTHCODE_CONFIGURATION_ID");
       sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+      sandbox.stub(ActionInjector, "generateAuthAction").returns(sampleAuthAction);
 
       const result = await ActionInjector.injectCreateOAuthAction(
         ymlPath,
