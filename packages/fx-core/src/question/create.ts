@@ -84,7 +84,6 @@ import {
   capabilitiesHavePythonOption,
   getRuntime,
   KnowledgeSourceOptions,
-  KnowledgeSourceOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
@@ -1415,7 +1414,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
     title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
     forgetLastValue: true,
     required: true,
-    validation: {
+    additionalValidationOnAccept: {
       validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
         if (!isValidHttpUrl(input.trim())) {
           return "Please input a valid URL";
