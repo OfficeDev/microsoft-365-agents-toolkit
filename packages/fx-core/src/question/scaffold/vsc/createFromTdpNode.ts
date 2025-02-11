@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
+import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import {
   isBot,
@@ -21,13 +22,10 @@ import {
   selectTabWebsiteUrlQuestion,
 } from "../../create";
 import { languageNode } from "./createRootNode";
-import { getLocalizedString } from "../../../common/localizeUtils";
-import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-import { daProjectTypeNode } from "./daProjectTypeNode";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
+import { daProjectTypeNode } from "./daProjectTypeNode";
+import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
-import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 
 export class CreateFromTdpCapabilityOptions {}
 
