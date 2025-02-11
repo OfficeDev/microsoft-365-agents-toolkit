@@ -163,6 +163,10 @@ export async function zipAppPackage(env = "dev") {
   const input = await InputBox.create();
   await input.selectQuickPick("manifest.json");
   await driver.sleep(Timeout.input);
-  await input.selectQuickPick(env);
-  await driver.sleep(Timeout.input);
+  try {
+    await input.selectQuickPick(env);
+    await driver.sleep(Timeout.input);
+  } catch {
+    console.log("No need to select env.");
+  }
 }
