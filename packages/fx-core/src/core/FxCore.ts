@@ -2170,7 +2170,7 @@ export class FxCore {
     }
 
     let result: Result<undefined, FxError>;
-    switch (inputs.knowledgeSource) {
+    switch (inputs[QuestionNames.KnowledgeSource] as string) {
       case KnowledgeSourceOptions.webSearch().id:
         result = await this.addWebSearchKnowledge(inputs, agentManifestPath);
         break;

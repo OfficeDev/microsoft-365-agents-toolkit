@@ -23,7 +23,6 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     name: "web-content",
     type: "string",
     description: "Name of Web Content.",
-    required: true,
   },
   {
     name: "oneDriveSharePointURL",
