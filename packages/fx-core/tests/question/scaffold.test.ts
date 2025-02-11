@@ -1,6 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ConditionFunc, Inputs, Platform, SingleSelectQuestion } from "@microsoft/teamsfx-api";
+import {
+  ConditionFunc,
+  Inputs,
+  LocalFunc,
+  Platform,
+  SingleSelectQuestion,
+} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
@@ -231,8 +237,12 @@ describe("languageNode", () => {
     };
     const res = condition(inputs);
     assert.isTrue(res);
-    const options = (node.data as SingleSelectQuestion).dynamicOptions?.(inputs);
+    const question = node.data as SingleSelectQuestion;
+    const options = question.dynamicOptions?.(inputs);
     assert.deepEqual(options, [{ id: ProgrammingLanguage.CSharp, label: "C#" }]);
+    const defaultFunc = question.default as LocalFunc<string | undefined>;
+    const defaultOptionId = defaultFunc ? defaultFunc(inputs) : undefined;
+    assert.equal(defaultOptionId, ProgrammingLanguage.CSharp);
   });
   it("common", () => {
     const node = languageNode();

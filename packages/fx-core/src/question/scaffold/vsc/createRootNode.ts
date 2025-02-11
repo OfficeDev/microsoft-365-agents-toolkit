@@ -31,6 +31,27 @@ export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.None, { id: ProgrammingLanguage.None, label: "None" }],
 ]);
 
+export function getLanguageOptions(inputs: Inputs): OptionItem[] {
+  const templateName = inputs[QuestionNames.TemplateName];
+  const languages = getAllTemplatesOnPlatform(inputs.platform)
+    .filter((t) => t.name === templateName)
+    .map((t) => t.language)
+    .filter((lang) => lang !== "none" && lang !== undefined);
+  const languageOptions = languages.map(
+    (lang) =>
+      (LanguageOptionMap.get(lang) as OptionItem) || {
+        id: ProgrammingLanguage.Common,
+        label: "None",
+      }
+  );
+  return languageOptions;
+}
+
+export function getDefaultLanguage(inputs: Inputs): string | undefined {
+  const options = getLanguageOptions(inputs);
+  return options[0]?.id;
+}
+
 export function languageNode(): IQTreeNode {
   return {
     condition: (inputs: Inputs) => {
@@ -51,21 +72,8 @@ export function languageNode(): IQTreeNode {
         { id: ProgrammingLanguage.CSharp, label: "C#" },
         { id: ProgrammingLanguage.PY, label: "Python" },
       ],
-      dynamicOptions: (inputs: Inputs) => {
-        const templateName = inputs[QuestionNames.TemplateName];
-        const languages = getAllTemplatesOnPlatform(inputs.platform)
-          .filter((t) => t.name === templateName)
-          .map((t) => t.language)
-          .filter((lang) => lang !== "none" && lang !== undefined);
-        const languageOptions = languages.map(
-          (lang) =>
-            (LanguageOptionMap.get(lang) as OptionItem) || {
-              id: ProgrammingLanguage.Common,
-              label: "None",
-            }
-        );
-        return languageOptions;
-      },
+      dynamicOptions: getLanguageOptions,
+      default: getDefaultLanguage,
       skipSingleOption: true,
     },
   };
