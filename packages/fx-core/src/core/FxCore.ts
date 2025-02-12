@@ -210,7 +210,9 @@ export class FxCore {
     }
     inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
     const res = await coordinator.create(context, inputs);
-    inputs.projectPath = context.projectPath;
+    if (res.isOk()) {
+      inputs.projectPath = res.value.projectPath;
+    }
     return res;
   }
 
