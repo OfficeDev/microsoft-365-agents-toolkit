@@ -237,15 +237,15 @@ export class MeCapabilityOptions {
 }
 
 export class MeArchitectureOptions {
-  static botPlugin(): OptionItem {
+  static botMe(): OptionItem {
     return {
-      id: "bot-plugin",
+      id: "bot",
       label: getLocalizedString("core.createProjectQuestion.capability.botMessageExtension.label"),
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.botMessageExtension.detail"
       ),
       description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookCopilot"
+        "core.createProjectQuestion.option.description.worksInOutlook"
       ),
       data: TemplateNames.MessageExtensionM365,
     };

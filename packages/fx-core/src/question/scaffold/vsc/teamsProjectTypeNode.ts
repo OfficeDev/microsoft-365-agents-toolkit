@@ -165,7 +165,7 @@ export function meProjectTypeNode(): IQTreeNode {
           staticOptions: [
             MeArchitectureOptions.newApi(),
             MeArchitectureOptions.openApiSpec(),
-            MeArchitectureOptions.botPlugin(),
+            MeArchitectureOptions.botMe(),
           ],
           default: MeArchitectureOptions.newApi().id,
           placeholder: getLocalizedString(
