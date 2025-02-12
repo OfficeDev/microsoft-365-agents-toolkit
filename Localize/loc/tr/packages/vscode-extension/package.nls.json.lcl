@@ -94,6 +94,9 @@
       <Item ItemId=";teamsagent.walkthrough.introduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Giriş]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1783,6 +1786,9 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bilgi Ekle]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

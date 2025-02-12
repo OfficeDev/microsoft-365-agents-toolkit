@@ -67,6 +67,9 @@
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[[Teams Toolkit の GitHub Copilot 拡張機能]5D;(https://aka.ms/install-teamsapp) (@teamsapp) を使用すると、Teams アプリの開発が簡単になり、チャット機能を使用して Microsoft 365 Copilot をカスタマイズできます。]A;[Teams Toolkit の GitHub Copilot 拡張機能をインストールする]5D;(command:fx-extension.openInstallTeamsAgent)]A;[完了としてマークする]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -82,18 +85,27 @@
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams Toolkit の GitHub Copilot 拡張機能 (@teamsapp) を使用すると、Teams アプリの開発が簡単になり、チャット機能を使用して Microsoft 365 Copilot をカスタマイズできます。[Teams Toolkit の GitHub Copilot 拡張機能]5D;(https://aka.ms/install-teamsapp) に関する詳細情報。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[概要]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.setup.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[GitHub アカウントにサインインして使用を開始します。[GitHub Copilot を設定する]5D;(https://aka.ms/teams-agent-github-copilot-setup) 方法に関する詳細情報。]A;[GitHub Copilot Chat を開く]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[ログイン完了としてマークする]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1774,6 +1786,9 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ナレッジの追加]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

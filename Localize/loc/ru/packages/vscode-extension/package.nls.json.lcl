@@ -40,6 +40,9 @@
       <Item ItemId=";teamsagent.walkthrough.copilotPlan.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[**GitHub Copilot Free** is available to individual GitHub customers by default, with limited access to select features. You could also use Copilot through other organization or enterprise plan. Learn more about [GitHub Copilot plans]5D;(https://aka.ms/teams-agent-github-copilot-plan) and [GitHub Copilot free plan]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[**GitHub Copilot Free** по умолчанию доступен отдельным клиентам GitHub с ограниченным доступом к некоторым функциям. Вы также можете использовать Copilot в рамках другого плана организации или корпоративного плана. Подробнее о [планах GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-plan) и [бесплатном плане GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -64,6 +67,9 @@
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Расширение [GitHub Copilot для набора средств Teams]5D;(https://aka.ms/install-teamsapp) (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата.]A;[Установить расширение GitHub Copilot для набора средств Teams]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Пометить как выполненное]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -79,12 +85,18 @@
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Расширение GitHub Copilot для набора средств Teams (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата. Подробнее о [расширении GitHub Copilot для набора средств Teams]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введение]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1774,6 +1786,9 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавить набор знаний]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -40,6 +40,9 @@
       <Item ItemId=";teamsagent.walkthrough.copilotPlan.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[**GitHub Copilot Free** is available to individual GitHub customers by default, with limited access to select features. You could also use Copilot through other organization or enterprise plan. Learn more about [GitHub Copilot plans]5D;(https://aka.ms/teams-agent-github-copilot-plan) and [GitHub Copilot free plan]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[**GitHub Copilot Free** je ve výchozím nastavení dostupný pro jednotlivé zákazníky GitHubu s omezeným přístupem k vybraným funkcím. Můžete také používat Copilot prostřednictvím jiné ho plánu pro organizace nebo podniky. Přečtěte si další informace o [plánech GitHub Copilotu]5D;(https://aka.ms/teams-agent-github-copilot-plan) a [plánu GitHub Copilot Free]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -82,12 +85,18 @@
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Rozšíření GitHub Copilot pro sadu Teams Toolkit (@teamsapp) zjednodušuje vývoj aplikací pro Teams a umožňuje přizpůsobení Microsoft 365 Copilotu s funkcemi chatu. Přečtěte si další informace o [rozšíření GitHub Copilot pro Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Úvod]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1777,6 +1786,9 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Add Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Přidat znalosti]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
