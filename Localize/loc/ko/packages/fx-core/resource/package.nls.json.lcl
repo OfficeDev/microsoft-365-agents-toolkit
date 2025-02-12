@@ -1978,6 +1978,21 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기술 원본을 선언적 에이전트에 대한 접지 정보로 선택]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addKnowledge.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Knowledge]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.addPlugin.MissingRequiredProperty" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid plugin manifest. Missing "%s"]]></Val>
@@ -2476,6 +2491,75 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams 및 Microsoft 365 Copilot에서 작업]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Embed files directly as grounding information.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일을 접지 정보로 직접 포함합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Embedded Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[포함된 기술 자료]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search selected Microsoft Graph connectors for grounding information.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[선택한 Microsoft Graph 커넥터에서 접지 정보를 검색합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[그래프 연결선]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search a user's SharePoint and OneDrive for grounding information.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[사용자의 SharePoint 및 OneDrive에서 접지 정보를 검색합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OneDrive and SharePoint]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OneDrive 및 SharePoint]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeWebSearch.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search the web for grounding information.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[웹에서 접지 정보를 검색합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.knowledgeWebSearch.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Web Search]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8221,6 +8305,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[Teams package is successfully built at %s.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The static_template in %s for function %s has an invalid file property. It will be deleted and ignored.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[함수 %s 대한 %s static_template 잘못된 파일 속성이 있습니다. 삭제되고 무시됩니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[함수 %s %s static_template 파일 및 기타 속성이 모두 있습니다. 모든 속성이 파일 콘텐츠에 의해 재정의됩니다.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

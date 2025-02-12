@@ -32,6 +32,7 @@ import { generateDriverContext } from "../../../../src/common/utils";
 import { MockTools } from "../../../core/utils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import path from "path";
+import { SpecParser } from "@microsoft/m365-spec-parser";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -84,7 +85,7 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("add plugin success", async () => {
+    it("add plugin success - use conversation_starters in action file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
       sandbox.stub(fs, "writeFile").resolves();
@@ -116,7 +117,176 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("add plugin and append conversation starters success", async () => {
+    it("add plugin success - parse conversation_starters in open api spec file", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(fs, "readJson").resolves({
+        capabilities: {
+          conversation_starters: [],
+        },
+        runtimes: [
+          {
+            type: "OpenApi",
+            auth: {
+              type: "None",
+            },
+            spec: {
+              url: "apiSpecificationFile/openapi.json",
+            },
+            run_for_functions: ["deleteRepairs", "listRepairs", "patchRepairs", "createRepair"],
+          },
+        ],
+        functions: [
+          {
+            name: "listRepairs",
+            description: "List all repairs",
+          },
+          {
+            name: "deleteRepairs",
+            description: "Delete repairs",
+          },
+          {
+            name: "patchRepairs",
+            description: "Patch repairs",
+          },
+          {
+            name: "createRepair",
+            description: "Create repairs",
+          },
+        ],
+      } as any);
+
+      sandbox.stub(SpecParser.prototype, "list").resolves({
+        APIs: [
+          {
+            api: "GET /repairs",
+            server: "https://example.com",
+            operationId: "listRepairs",
+            isValid: true,
+            reason: [],
+            summary: "List all repairs",
+            description: "It is used to list all repairs",
+          },
+          {
+            api: "POST /repairs",
+            server: "https://example.com",
+            operationId: "createRepair",
+            isValid: true,
+            reason: [],
+          },
+          {
+            api: "DELETE /repairs",
+            server: "https://example.com",
+            operationId: "deleteRepairs",
+            isValid: true,
+            reason: [],
+            description: "It is used to delete a repair",
+          },
+          {
+            api: "PATCH /repairs",
+            server: "https://example.com",
+            operationId: "patchRepairs",
+            isValid: false,
+            reason: [],
+            summary: "Patch a repair",
+            description: "It is used to patch a repair",
+          },
+          {
+            api: "Put /repairs",
+            server: "https://example.com",
+            operationId: "putRepairs",
+            isValid: true,
+            reason: [],
+            summary: "Put a repair",
+            description: "It is used to put a repair",
+          },
+        ],
+        allAPICount: 1,
+        validAPICount: 1,
+      });
+
+      const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        const updatedManifest = res.value;
+        chai.assert.deepEqual(updatedManifest.actions![0], {
+          id: "testId",
+          file: "testFile",
+        });
+
+        chai.assert.deepEqual(updatedManifest.conversation_starters, [
+          {
+            text: "List all repairs",
+          },
+          {
+            text: "It is used to delete a repair",
+          },
+        ]);
+      }
+    });
+
+    it("add plugin success - parse conversation_starters in open api spec file with undefined existing conversation starter", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(fs, "readJson").resolves({
+        capabilities: {},
+        runtimes: [
+          {
+            type: "OpenApi",
+            auth: {
+              type: "None",
+            },
+            spec: {
+              url: "apiSpecificationFile/openapi.json",
+            },
+            run_for_functions: ["listRepairs"],
+          },
+        ],
+        functions: [
+          {
+            name: "listRepairs",
+            description: "List all repairs",
+          },
+        ],
+      } as any);
+
+      sandbox.stub(SpecParser.prototype, "list").resolves({
+        APIs: [
+          {
+            api: "GET /repairs",
+            server: "https://example.com",
+            operationId: "listRepairs",
+            isValid: true,
+            reason: [],
+            summary: "List all repairs",
+          },
+        ],
+        allAPICount: 1,
+        validAPICount: 1,
+      });
+
+      const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        const updatedManifest = res.value;
+        chai.assert.deepEqual(updatedManifest.actions![0], {
+          id: "testId",
+          file: "testFile",
+        });
+
+        chai.assert.deepEqual(updatedManifest.conversation_starters, [
+          {
+            text: "List all repairs",
+          },
+        ]);
+      }
+    });
+
+    it("add plugin and append conversation starters success - use conversation_starters in action file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(
         JSON.stringify({

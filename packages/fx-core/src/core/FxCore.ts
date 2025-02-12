@@ -184,6 +184,11 @@ import { generateDriverContext } from "../common/utils";
 import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
+import {
+  APIKeyAuthType,
+  MicrosoftEntraAuthType,
+  OAuthAuthType,
+} from "../component/configManager/constant";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2334,6 +2339,18 @@ export class FxCore {
       return err(generateRes.error);
     }
 
+    for (const action of declarativeCopilotManifest.actions!) {
+      const actionPath = path.normalize(path.join(appPackageFolder, action.file));
+      await copilotGptManifestUtils.updateConversationStarters(
+        actionPath,
+        declarativeCopilotManifest
+      );
+    }
+    await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeCopilotManifest,
+      declarativeCopilotManifestPath
+    );
+
     return ok(undefined);
   }
 
@@ -2352,15 +2369,20 @@ export class FxCore {
     const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
     const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
     const authName = inputs[QuestionNames.AuthName] as string;
-    const apiSpecPath = path.normalize(path.join(pluginManifestPath, apiSpecRelativePath));
+    const apiSpecPath = path.normalize(
+      path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
+    );
     let authType;
     switch (inputs[QuestionNames.ApiAuth] as string) {
       case "api-key":
       default:
-        authType = "ApiKeyPluginVault";
+        authType = APIKeyAuthType;
         break;
       case "oauth":
-        authType = "OAuthPluginVault";
+        authType = OAuthAuthType;
+        break;
+      case "microsoft-entra":
+        authType = MicrosoftEntraAuthType;
         break;
     }
 

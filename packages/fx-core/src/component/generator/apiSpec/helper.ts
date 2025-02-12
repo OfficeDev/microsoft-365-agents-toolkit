@@ -53,7 +53,12 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question/constants";
-import { SummaryConstant } from "../../configManager/constant";
+import {
+  APIKeyAuthType,
+  MicrosoftEntraAuthType,
+  OAuthAuthType,
+  SummaryConstant,
+} from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
 import {
@@ -65,7 +70,6 @@ import * as util from "util";
 import { SpecParserSource } from "../../../common/constants";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -116,7 +120,7 @@ export function getParserOptions(
           "trace",
         ],
         allowResponseSemantics: true,
-        allowConversationStarters: true,
+        allowConversationStarters: false, // Conversation starters in the plugin file are no longer used; they are now sourced from the declarativeAgent file.
         allowConfirmation: false, // confirmation is not stable for public preview in Sydney, so it's temporarily set to false
       }
     : type === ProjectType.TeamsAi
@@ -630,7 +634,7 @@ export async function injectAuthAction(
 
   const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
 
-  if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === "ApiKeyPluginVault") {
+  if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
     const res = await ActionInjector.injectCreateAPIKeyAction(
       ymlPath,
       authName,
@@ -649,13 +653,15 @@ export async function injectAuthAction(
     return res;
   } else if (
     (!!authScheme && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
-    authType === "OAuth2PluginVault"
+    authType === OAuthAuthType ||
+    authType === MicrosoftEntraAuthType
   ) {
     const res = await ActionInjector.injectCreateOAuthAction(
       ymlPath,
       authName,
       relativeSpecPath,
-      forceToAddNew
+      forceToAddNew,
+      authType === MicrosoftEntraAuthType
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -663,7 +669,8 @@ export async function injectAuthAction(
         localYamlPath,
         authName,
         relativeSpecPath,
-        forceToAddNew
+        forceToAddNew,
+        authType === MicrosoftEntraAuthType
       );
     }
     return res;
@@ -1646,23 +1653,4 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
   await fs.ensureDir(destinationKiotaFolder);
   await fs.copy(originKiotaFolder, destinationKiotaFolder, { recursive: true });
   return;
-}
-
-export async function updateDeclarativeAgentManifest(
-  manifestPath: string,
-  declarativeAgentManifestPath: string,
-  declarativeCopilotActionId: string,
-  pluginManifestPath: string
-): Promise<Result<any, FxError>> {
-  const gptManifestPath = path.join(path.dirname(manifestPath), declarativeAgentManifestPath);
-  const addAcionResult = await copilotGptManifestUtils.addAction(
-    gptManifestPath,
-    declarativeCopilotActionId,
-    path.basename(pluginManifestPath)
-  );
-  if (addAcionResult.isErr()) {
-    return err(addAcionResult.error);
-  }
-
-  return ok(undefined);
 }

@@ -200,6 +200,8 @@ export class SpecParser {
           operationId: operationId,
           isValid: isValid,
           reason: reason,
+          description: operation.description,
+          summary: operation.summary,
         };
 
         // Try best to parse server url and auth type

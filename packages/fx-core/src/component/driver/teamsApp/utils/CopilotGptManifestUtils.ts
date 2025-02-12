@@ -17,6 +17,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
+import stripBom from "strip-bom";
 import { getResolvedManifest } from "./utils";
 import stripBom from "strip-bom";
 import { AppStudioResultFactory } from "../results";
@@ -30,6 +31,8 @@ import { EOL } from "os";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import { manifestUtils } from "./ManifestUtils";
+import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
+import { getParserOptions } from "../../../generator/apiSpec/helper";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -170,6 +173,67 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public async updateConversationStarters(
+    actionPath: string,
+    gptManifest: DeclarativeCopilotManifestSchema
+  ): Promise<void> {
+    const actionManifest = await fs.readJson(actionPath);
+    let conversationStarters = actionManifest.capabilities?.conversation_starters;
+
+    if (!conversationStarters || conversationStarters.length === 0) {
+      const openApiRuntimes = actionManifest.runtimes?.filter(
+        (runtime: any) => runtime.type === "OpenApi"
+      );
+
+      if (openApiRuntimes) {
+        for (const runtime of openApiRuntimes) {
+          const specPathRelativePath = runtime.spec.url;
+          const specPath = path.resolve(path.dirname(actionPath), specPathRelativePath);
+
+          if (await fs.pathExists(specPath)) {
+            const specParser = new SpecParser(
+              specPath,
+              getParserOptions(ProjectType.Copilot, true)
+            );
+            const listResult = await specParser.list();
+            const operationIds = actionManifest.functions?.map((func: any) => func.name);
+            const newStarters = listResult.APIs.filter(
+              (item) =>
+                item.isValid &&
+                operationIds?.includes(item.operationId) &&
+                (item.description || item.summary)
+            ).map((operation) => {
+              return {
+                text: operation.summary || operation.description,
+              };
+            });
+
+            conversationStarters = (conversationStarters || []).concat(newStarters);
+          }
+        }
+      }
+    }
+
+    if (conversationStarters) {
+      if (!gptManifest.conversation_starters) {
+        gptManifest.conversation_starters = [];
+      }
+
+      for (const starter of conversationStarters) {
+        if (gptManifest.conversation_starters.length >= 6) {
+          break;
+        }
+        if (
+          !gptManifest.conversation_starters.some(
+            (existingStarter) => existingStarter.text === starter.text
+          )
+        ) {
+          gptManifest.conversation_starters.push(starter);
+        }
+      }
+    }
+  }
+
   public async addAction(
     copilotGptPath: string,
     id: string,
@@ -189,30 +253,7 @@ export class CopilotGptManifestUtils {
       });
 
       const actionPath = path.join(path.dirname(copilotGptPath), pluginFile);
-      const actionManifest = await fs.readJson(actionPath);
-      const conversationStarters = actionManifest.capabilities?.conversation_starters;
-
-      if (conversationStarters) {
-        if (!gptManifest.conversation_starters) {
-          gptManifest.conversation_starters = [];
-        }
-
-        for (const starter of conversationStarters) {
-          if (gptManifest.conversation_starters.length >= 6) {
-            break;
-          }
-          if (
-            !gptManifest.conversation_starters.some(
-              (existingStarter) => existingStarter.text === starter.text
-            )
-          ) {
-            gptManifest.conversation_starters.push(starter);
-          }
-        }
-
-        delete actionManifest.capabilities.conversation_starters;
-        await fs.writeJson(actionPath, actionManifest, { spaces: 4 });
-      }
+      await this.updateConversationStarters(actionPath, gptManifest);
 
       const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
         gptManifest,
@@ -356,85 +397,23 @@ export class CopilotGptManifestUtils {
     return pluginManifestName;
   }
 
-  public async addOneDriveSharePointCapability(
-    agentManifestPath: string,
-    items_by_sharepoint_ids: File,
-    items_by_url: Site
-  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    return this.addOrUpdateCapability(
-      agentManifestPath,
-      "OneDriveAndSharePoint",
-      items_by_sharepoint_ids,
-      items_by_url
+  async updateDeclarativeAgentManifest(
+    manifestPath: string,
+    declarativeAgentManifestPath: string,
+    declarativeCopilotActionId: string,
+    pluginManifestPath: string
+  ): Promise<Result<any, FxError>> {
+    const gptManifestPath = path.join(path.dirname(manifestPath), declarativeAgentManifestPath);
+    const addAcionResult = await copilotGptManifestUtils.addAction(
+      gptManifestPath,
+      declarativeCopilotActionId,
+      path.basename(pluginManifestPath)
     );
-  }
-
-  public async addWebSearchCapability(
-    agentManifestPath: string,
-    items_by_url: Site
-  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    return this.addOrUpdateCapability(agentManifestPath, "WebSearch", null, items_by_url);
-  }
-
-  private async addOrUpdateCapability(
-    agentManifestPath: string,
-    capabilityName: string,
-    itemsBySharepointIds: File | null,
-    itemsByUrl: Site | null
-  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    const agentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      agentManifestPath
-    );
-    if (agentManifestRes.isErr()) {
-      return err(agentManifestRes.error);
+    if (addAcionResult.isErr()) {
+      return err(addAcionResult.error);
     }
 
-    const agentManifest = agentManifestRes.value;
-    if (!agentManifest.capabilities) {
-      agentManifest.capabilities = [];
-    }
-
-    const capability = agentManifest.capabilities.find((cap) => cap.name === capabilityName) as
-      | {
-          name: string;
-          items_by_sharepoint_ids?: File[] | null;
-          items_by_url?: Site[] | null;
-        }
-      | undefined;
-
-    if (!capability) {
-      const newCapability: any = { name: capabilityName };
-      if (itemsBySharepointIds) {
-        newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
-      }
-      if (itemsByUrl) {
-        newCapability.items_by_url = [itemsByUrl];
-      }
-      agentManifest.capabilities.push(newCapability);
-    } else {
-      if (itemsBySharepointIds) {
-        if (!capability.items_by_sharepoint_ids) {
-          capability.items_by_sharepoint_ids = [];
-        }
-        capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
-      }
-      if (itemsByUrl) {
-        if (!capability.items_by_url) {
-          capability.items_by_url = [];
-        }
-        capability.items_by_url.push(itemsByUrl);
-      }
-    }
-
-    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
-      agentManifest,
-      agentManifestPath
-    );
-    if (updateGptManifestRes.isErr()) {
-      return err(updateGptManifestRes.error);
-    } else {
-      return ok(agentManifest);
-    }
+    return ok(undefined);
   }
 }
 

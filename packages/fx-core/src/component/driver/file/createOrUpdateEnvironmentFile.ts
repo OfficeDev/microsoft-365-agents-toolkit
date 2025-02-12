@@ -129,7 +129,7 @@ export class CreateOrUpdateEnvironmentFileDriver implements StepDriver {
     args: GenerateEnvArgs,
     envOutput: Map<string, string>
   ): Promise<Result<Void, FxError>> {
-    const placeHolderReg = /\${{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}}/g;
+    const placeHolderReg = /\${{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}}/;
     if (args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_API_KEY]) {
       const matches = placeHolderReg.exec(
         args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_API_KEY]
