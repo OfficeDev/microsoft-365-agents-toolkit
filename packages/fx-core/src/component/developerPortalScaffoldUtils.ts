@@ -51,7 +51,7 @@ export class DeveloperPortalScaffoldUtils {
     appDefinition: AppDefinition,
     inputs: Inputs
   ): Promise<Result<undefined, FxError>> {
-    if (!ctx.projectPath) {
+    if (!inputs.projectPath) {
       return err(new InputValidationError("projectPath", "undefined"));
     }
 
@@ -64,7 +64,7 @@ export class DeveloperPortalScaffoldUtils {
       return err(manifestRes.error);
     }
 
-    const envRes = await updateEnv(appDefinition.teamsAppId!, ctx.projectPath);
+    const envRes = await updateEnv(appDefinition.teamsAppId!, inputs.projectPath);
     if (envRes.isErr()) {
       return err(envRes.error);
     }
