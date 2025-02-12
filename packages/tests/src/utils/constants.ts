@@ -330,7 +330,7 @@ export class CommandPaletteCommands {
   public static readonly SamplesCommand: string = "Teams: View Samples";
   public static readonly CreateProjectCommand: string = "Teams: Create New App";
   public static readonly ManifestValidateCommand: string =
-    "Teams: Validate manifest file";
+    "Teams: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
     "Teams: Zip Teams App Package";
   public static readonly ProvisionCommand: string = "Teams: Provision";
@@ -474,6 +474,7 @@ export class Notification {
   static readonly UnresolvedPlaceholderError =
     "MissingEnvironmentVariablesError";
   static readonly ZipAppPackageSucceeded = "successfully built";
+  static readonly appManifestSchemaSucceeded = "passed";
 }
 
 export class CreateProjectQuestion {

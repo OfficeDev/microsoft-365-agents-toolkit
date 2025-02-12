@@ -8,7 +8,7 @@ import {
 } from "../../utils/vscodeOperation";
 import { it } from "../../utils/it";
 import * as path from "path";
-import { zipAppPackage } from "../treeview/treeviewContext";
+import { validateAppPackage, zipAppPackage } from "../treeview/treeviewContext";
 
 describe("Env support for localization.json", function () {
   this.timeout(Timeout.testCase);
@@ -42,6 +42,12 @@ describe("Env support for localization.json", function () {
       await zipAppPackage("dev");
       await getNotification(
         Notification.ZipAppPackageSucceeded,
+        Timeout.shortTimeWait
+      );
+      console.log("Validate app manifest schema");
+      await validateAppPackage("dev");
+      await getNotification(
+        Notification.appManifestSchemaSucceeded,
         Timeout.shortTimeWait
       );
     }
