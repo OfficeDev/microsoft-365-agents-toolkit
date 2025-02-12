@@ -17,6 +17,7 @@ import {
   featureFlagManager,
   FeatureFlags,
   getProjectTypeByCapability,
+  isTdpTemplate,
   MeArchitectureOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -84,7 +85,10 @@ export function getCreateCommand(): CLICommand {
           inputs["project-type"] = projectType as any;
         }
       }
-      const res = await core.createProject(inputs);
+      const isTdp = isTdpTemplate(inputs);
+      const res = isTdp
+        ? await core.createProjectFromTdp(inputs)
+        : await core.createProject(inputs);
       assign(ctx.telemetryProperties, {
         [TelemetryProperty.NewProjectId]: inputs.projectId,
         [TelemetryProperty.IsCreatingM365]: inputs.isM365 + "",

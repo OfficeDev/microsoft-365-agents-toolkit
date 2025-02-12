@@ -234,16 +234,6 @@ export class MeCapabilityOptions {
       data: TemplateNames.LinkUnfurling,
     };
   }
-
-  static me(): OptionItem {
-    return {
-      id: "message-extension",
-      label: getLocalizedString("core.MessageExtensionOption.label"),
-      description: getLocalizedString("core.MessageExtensionOption.description"),
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
-      data: TemplateNames.MessageExtension,
-    };
-  }
 }
 
 export class MeArchitectureOptions {

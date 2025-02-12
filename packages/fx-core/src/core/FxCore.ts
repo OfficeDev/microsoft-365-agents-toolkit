@@ -223,17 +223,19 @@ export class FxCore {
     const context = createContext();
     inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
     // should never happen as we do same check on Developer Portal.
-    if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
-      return err(
-        new InputValidationError("manifest.json", "Teams app contains unsupported features")
-      );
-    } else {
-      context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
-        [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
-          inputs.teamsAppFromTdp
-        ).join(","),
-        [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
-      });
+    if (inputs.teamsAppFromTdp) {
+      if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
+        return err(
+          new InputValidationError("manifest.json", "Teams app contains unsupported features")
+        );
+      } else {
+        context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
+          [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
+            inputs.teamsAppFromTdp
+          ).join(","),
+          [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
+        });
+      }
     }
     const res = await coordinator.create(context, inputs);
     inputs.projectPath = context.projectPath;

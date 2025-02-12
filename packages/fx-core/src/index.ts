@@ -103,6 +103,7 @@ export { environmentNameManager } from "./core/environmentName";
 export { FxCore } from "./core/FxCore";
 export { PreProvisionResForVS, VersionCheckRes } from "./core/types";
 export { getProjectTypeByCapability } from "./question/scaffold/vsc/createRootNode";
+export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export * from "./error/index";
 export * from "./question/constants";
 export * from "./question/inputs";

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import {
@@ -26,54 +26,110 @@ import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
-export class CreateFromTdpCapabilityOptions {}
-
-export function getTemplateName(teamsApp?: AppDefinition): string | undefined {
-  if (!teamsApp) return undefined;
-  // tab with bot, tab with message extension, tab with bot and message extension
-  if (needTabAndBotCode(teamsApp)) {
-    return TemplateNames.TabAndDefaultBot;
+export class TdpCapabilityOptions {
+  static me(): OptionItem {
+    return {
+      id: "message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      description: getLocalizedString("core.MessageExtensionOption.description"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.MessageExtension,
+    };
   }
-
-  // tab only
-  if (needTabCode(teamsApp)) {
-    return TemplateNames.Tab;
+  static botAndMe(): OptionItem {
+    return {
+      id: "BotAndMessageExtension",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.BotAndMessageExtension,
+    };
   }
-
-  // bot and message extension
-  if (isBotAndBotBasedMessageExtension(teamsApp)) {
-    return TemplateNames.BotAndMessageExtension;
+  static nonSsoTabAndBot(): OptionItem {
+    return {
+      id: "TabNonSsoAndBot",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.TabAndDefaultBot,
+    };
   }
-
-  // bot based message extension
-  if (isBotBasedMessageExtension(teamsApp)) {
-    return TemplateNames.MessageExtension;
+  static nonSsoTab(): OptionItem {
+    return {
+      id: "tab-non-sso",
+      label: `${getLocalizedString("core.TabNonSso.label")}`,
+      detail: getLocalizedString("core.TabNonSso.detail"),
+      description: getLocalizedString(
+        "core.createProjectQuestion.option.description.worksInOutlookM365"
+      ),
+      data: TemplateNames.Tab,
+    };
   }
+}
 
-  // bot
-  if (isBot(teamsApp)) {
-    return TemplateNames.DefaultBot;
+export function getTemplateName(inputs: Inputs): string | undefined {
+  if (inputs.teamsAppFromTdp) {
+    const teamsApp = inputs.teamsAppFromTdp as AppDefinition;
+    // tab with bot, tab with message extension, tab with bot and message extension
+    if (needTabAndBotCode(teamsApp)) {
+      return TemplateNames.TabAndDefaultBot;
+    }
+
+    // tab only
+    if (needTabCode(teamsApp)) {
+      return TemplateNames.Tab;
+    }
+
+    // bot and message extension
+    if (isBotAndBotBasedMessageExtension(teamsApp)) {
+      return TemplateNames.BotAndMessageExtension;
+    }
+
+    // bot based message extension
+    if (isBotBasedMessageExtension(teamsApp)) {
+      return TemplateNames.MessageExtension;
+    }
+
+    // bot
+    if (isBot(teamsApp)) {
+      return TemplateNames.DefaultBot;
+    }
+  } else if (
+    featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest) &&
+    inputs.nonInteractive
+  ) {
+    const capability = inputs[QuestionNames.Capabilities];
+    if (capability === TdpCapabilityOptions.me().id) {
+      return TemplateNames.MessageExtension;
+    } else if (capability === TdpCapabilityOptions.nonSsoTab().id) {
+      return TemplateNames.Tab;
+    } else if (capability === TdpCapabilityOptions.botAndMe().id) {
+      return TemplateNames.BotAndMessageExtension;
+    } else if (capability === TdpCapabilityOptions.nonSsoTabAndBot().id) {
+      return TemplateNames.TabAndDefaultBot;
+    }
+    return undefined;
   }
+}
 
-  return undefined;
+export function isTdpTemplate(inputs: Inputs): boolean {
+  const template = getTemplateName(inputs);
+  return template !== undefined;
 }
 
 export function createFromTdpNode(): IQTreeNode {
   const node: IQTreeNode = {
-    condition: (inputs: Inputs) => inputs.teamsAppFromTdp !== undefined,
+    condition: isTdpTemplate,
     data: { type: "group" },
     children: [
       {
         // templateName is decided by teamsAppFromTdp itself
-        condition: (inputs: Inputs) => getTemplateName(inputs.teamsAppFromTdp) !== undefined,
+        condition: (inputs: Inputs) => getTemplateName(inputs) !== undefined,
         data: {
           type: "singleSelect",
           name: QuestionNames.TemplateName,
           title: "Select a template",
           staticOptions: [],
           dynamicOptions: (inputs: Inputs) => {
-            const templateName = getTemplateName(inputs.teamsAppFromTdp as AppDefinition);
+            const templateName = getTemplateName(inputs);
             return [templateName!];
           },
           skipSingleOption: true,
@@ -81,7 +137,7 @@ export function createFromTdpNode(): IQTreeNode {
       },
       {
         // templateName can not decided by teamsAppFromTdp itself, need user input
-        condition: (inputs: Inputs) => getTemplateName(inputs.teamsAppFromTdp) === undefined,
+        condition: (inputs: Inputs) => getTemplateName(inputs) === undefined,
         data: {
           name: QuestionNames.ProjectType,
           title: getLocalizedString("core.createProjectQuestion.title"),
@@ -103,7 +159,8 @@ export function createFromTdpNode(): IQTreeNode {
         ],
       },
       {
-        condition: (inputs: Inputs) => isPersonalApp(inputs.teamsAppFromTdp),
+        condition: (inputs: Inputs) =>
+          !!inputs.teamsAppFromTdp && isPersonalApp(inputs.teamsAppFromTdp),
         data: { type: "group", name: QuestionNames.RepalceTabUrl },
         children: [
           {
@@ -114,14 +171,16 @@ export function createFromTdpNode(): IQTreeNode {
           },
           {
             condition: (inputs: Inputs) =>
+              !!inputs.teamsAppFromTdp &&
               (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.contentUrl) || []).length >
-              0,
+                0,
             data: selectTabsContentUrlQuestion(),
           },
         ],
       },
       {
-        condition: (inputs: Inputs) => needBotCode(inputs.teamsAppFromTdp as AppDefinition),
+        condition: (inputs: Inputs) =>
+          !!inputs.teamsAppFromTdp && needBotCode(inputs.teamsAppFromTdp as AppDefinition),
         data: selectBotIdsQuestion(),
       },
       languageNode(),
