@@ -21,6 +21,7 @@ const allTemplates: Template[] = [
   ...customEngineAgentTemplates,
   ...tdpTemplates,
   ...specialTemplates,
+  ...vsOnlyTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [
