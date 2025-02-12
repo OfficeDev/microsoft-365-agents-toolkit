@@ -155,4 +155,16 @@ describe("TreeViewManager", () => {
 
     chai.assert.equal(commands.length, 5);
   });
+
+  it("Development Treeview when Add knowledge is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
+    chai.assert.isDefined(developmentTreeview);
+    chai.assert.equal((developmentTreeview as any).commands.length, 7);
+  });
 });
