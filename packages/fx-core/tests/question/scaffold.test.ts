@@ -208,6 +208,17 @@ describe("getTemplateName", () => {
     const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.MessageExtension);
   });
+
+  it("isTdpTemplate", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
+    };
+    const res = isTdpTemplate(inputs);
+    assert.isTrue(res);
+  });
 });
 
 describe("m365ProjectTypeNode", () => {
