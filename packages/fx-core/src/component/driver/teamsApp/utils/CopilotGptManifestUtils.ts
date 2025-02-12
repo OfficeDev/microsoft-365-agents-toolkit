@@ -19,7 +19,6 @@ import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
 import stripBom from "strip-bom";
 import { getResolvedManifest } from "./utils";
-import stripBom from "strip-bom";
 import { AppStudioResultFactory } from "../results";
 import { AppStudioError } from "../errors";
 import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
@@ -414,6 +413,87 @@ export class CopilotGptManifestUtils {
     }
 
     return ok(undefined);
+  }
+
+  public async addOneDriveSharePointCapability(
+    agentManifestPath: string,
+    items_by_sharepoint_ids: File,
+    items_by_url: Site
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      "OneDriveAndSharePoint",
+      items_by_sharepoint_ids,
+      items_by_url
+    );
+  }
+
+  public async addWebSearchCapability(
+    agentManifestPath: string,
+    items_by_url: Site
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    return this.addOrUpdateCapability(agentManifestPath, "WebSearch", null, items_by_url);
+  }
+
+  private async addOrUpdateCapability(
+    agentManifestPath: string,
+    capabilityName: string,
+    itemsBySharepointIds: File | null,
+    itemsByUrl: Site | null
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    const agentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      agentManifestPath
+    );
+    if (agentManifestRes.isErr()) {
+      return err(agentManifestRes.error);
+    }
+
+    const agentManifest = agentManifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const capability = agentManifest.capabilities.find((cap) => cap.name === capabilityName) as
+      | {
+          name: string;
+          items_by_sharepoint_ids?: File[] | null;
+          items_by_url?: Site[] | null;
+        }
+      | undefined;
+
+    if (!capability) {
+      const newCapability: any = { name: capabilityName };
+      if (itemsBySharepointIds) {
+        newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
+      }
+      if (itemsByUrl) {
+        newCapability.items_by_url = [itemsByUrl];
+      }
+      agentManifest.capabilities.push(newCapability);
+    } else {
+      if (itemsBySharepointIds) {
+        if (!capability.items_by_sharepoint_ids) {
+          capability.items_by_sharepoint_ids = [];
+        }
+        capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
+      }
+      if (itemsByUrl) {
+        if (!capability.items_by_url) {
+          capability.items_by_url = [];
+        }
+        capability.items_by_url.push(itemsByUrl);
+      }
+    }
+
+    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      agentManifest,
+      agentManifestPath
+    );
+    if (updateGptManifestRes.isErr()) {
+      return err(updateGptManifestRes.error);
+    } else {
+      return ok(agentManifest);
+    }
   }
 }
 
