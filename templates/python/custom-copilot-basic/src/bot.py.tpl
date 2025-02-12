@@ -4,15 +4,14 @@ import json
 import traceback
 from dataclasses import asdict
 
-from botbuilder.core import MemoryStorage, TurnContext, CardFactory
+from botbuilder.core import MemoryStorage, TurnContext
 from teams import Application, ApplicationOptions, TeamsAdapter
 from teams.ai import AIOptions
-from teams.ai.models import AzureOpenAIModelOptions, OpenAIModel, OpenAIModelOptions, PromptResponse
+from teams.ai.models import AzureOpenAIModelOptions, OpenAIModel, OpenAIModelOptions
 from teams.ai.planners import ActionPlanner, ActionPlannerOptions
 from teams.ai.prompts import PromptManager, PromptManagerOptions
-from teams.state import TurnState, MemoryBase
+from teams.state import TurnState
 from teams.feedback_loop_data import FeedbackLoopData
-from teams.streaming import StreamingResponse
 
 from config import Config
 
