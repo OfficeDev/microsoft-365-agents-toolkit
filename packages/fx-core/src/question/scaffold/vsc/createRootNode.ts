@@ -185,6 +185,7 @@ export function getProjectTypeByCapability(capability: string): string {
       MeCapabilityOptions.m365SearchMe().id,
       MeCapabilityOptions.collectFormMe().id,
       MeCapabilityOptions.linkUnfurling().id,
+      MeCapabilityOptions.me().id,
     ].includes(capability)
   ) {
     return ProjectTypeOptions.meOptionId;

@@ -62,6 +62,7 @@ import {
   listOperations,
   updateForCustomApi,
 } from "./helper";
+import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 const defaultDeclarativeCopilotActionId = "action_1";
 // const fromApiSpecComponentName = "copilot-plugin-existing-api";
