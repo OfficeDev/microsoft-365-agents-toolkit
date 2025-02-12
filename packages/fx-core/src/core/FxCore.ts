@@ -181,6 +181,11 @@ import { generateDriverContext } from "../common/utils";
 import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
+import {
+  APIKeyAuthType,
+  MicrosoftEntraAuthType,
+  OAuthAuthType,
+} from "../component/configManager/constant";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2265,13 +2270,13 @@ export class FxCore {
     switch (inputs[QuestionNames.ApiAuth] as string) {
       case "api-key":
       default:
-        authType = "ApiKeyPluginVault";
+        authType = APIKeyAuthType;
         break;
       case "oauth":
-        authType = "OAuthPluginVault";
+        authType = OAuthAuthType;
         break;
       case "microsoft-entra":
-        authType = "MicrosoftEntra";
+        authType = MicrosoftEntraAuthType;
         break;
     }
 

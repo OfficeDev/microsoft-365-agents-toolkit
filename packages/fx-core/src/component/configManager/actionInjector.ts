@@ -5,6 +5,7 @@ import { ConstantString, Utils } from "@microsoft/m365-spec-parser";
 import fs from "fs-extra";
 import { parseDocument } from "yaml";
 import { InjectAPIKeyActionFailedError, InjectOAuthActionFailedError } from "../../error/common";
+import { MicrosoftEntraAuthType } from "./constant";
 
 export class ActionInjector {
   static hasActionWithName(
@@ -63,7 +64,7 @@ export class ActionInjector {
     }
 
     if (isMicrosoftEntra) {
-      result.with.identityProvider = "MicrosoftEntra";
+      result.with.identityProvider = MicrosoftEntraAuthType;
     }
 
     return result;
