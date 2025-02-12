@@ -1260,7 +1260,8 @@ export class KnowledgeSourceOptions {
     return [
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
-      KnowledgeSourceOptions.graphConnector(),
+      // TODO:  add graph connector feature in future.
+      // KnowledgeSourceOptions.graphConnector(),
       KnowledgeSourceOptions.embeddedKnowledge(),
     ];
   }

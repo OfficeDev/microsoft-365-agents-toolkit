@@ -5,6 +5,7 @@ import { ConstantString, Utils } from "@microsoft/m365-spec-parser";
 import fs from "fs-extra";
 import { parseDocument } from "yaml";
 import { InjectAPIKeyActionFailedError, InjectOAuthActionFailedError } from "../../error/common";
+import { MicrosoftEntraAuthType } from "./constant";
 
 export class ActionInjector {
   static hasActionWithName(
@@ -39,7 +40,8 @@ export class ActionInjector {
     teamsAppIdEnvName: string,
     specRelativePath: string,
     envName: string,
-    flow?: string
+    flow?: string,
+    isMicrosoftEntra?: boolean
   ): any {
     const result: any = {
       uses: actionName,
@@ -61,6 +63,10 @@ export class ActionInjector {
       };
     }
 
+    if (isMicrosoftEntra) {
+      result.with.identityProvider = MicrosoftEntraAuthType;
+    }
+
     return result;
   }
 
@@ -68,7 +74,8 @@ export class ActionInjector {
     ymlPath: string,
     authName: string,
     specRelativePath: string,
-    forceToAddNew: boolean // If it from add plugin, then we will add another CreateOAuthAction
+    forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
+    isMicrosoftEntra: boolean
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -125,7 +132,8 @@ export class ActionInjector {
             teamsAppIdEnvName,
             specRelativePath,
             registrationIdEnvName,
-            flow
+            flow,
+            isMicrosoftEntra
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {

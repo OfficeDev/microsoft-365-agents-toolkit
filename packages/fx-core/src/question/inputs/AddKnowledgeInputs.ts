@@ -12,9 +12,5 @@ import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddKnowledgeInputs extends Inputs {
   /** @description Add Knowledge */
-  "knowledge-source"?:
-    | "web-search"
-    | "oneDrive-sharePoint"
-    | "graph-connector"
-    | "embedded-knowledge";
+  "knowledge-source"?: "web-search" | "oneDrive-sharePoint" | "embedded-knowledge";
 }

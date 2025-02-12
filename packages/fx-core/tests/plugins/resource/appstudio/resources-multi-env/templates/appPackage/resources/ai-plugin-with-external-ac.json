@@ -1,0 +1,67 @@
+{
+  "schema_version": "v2",
+  "name_for_human": "Plugin${{APP_NAME_SUFFIX}}",
+  "description_for_model": "Plugin",
+  "functions": [
+    {
+      "name": "listRepairs",
+      "description": "Returns a list of repairs with their details and images",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$.results",
+          "properties": {
+            "title": "$.title",
+            "subtitle": "$.id"
+          },
+          "static_template": {
+            "file": "adaptiveCards/listRepairs.json"
+          }
+        }
+      }
+    },
+    {
+      "name": "postRepairs",
+      "description": "Update repairs with their details and images",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.title",
+            "subtitle": "$.id"
+          },
+          "static_template": {
+            "type": "AdaptiveCard",
+            "file": "adaptiveCards/postRepairs.json"
+          }
+        }
+      }
+    },
+    {
+      "name": "deleteRepairs",
+      "description": "Update repairs with their details and images",
+      "capabilities": {
+        "response_semantics": {
+          "data_path": "$",
+          "properties": {
+            "title": "$.title",
+            "subtitle": "$.id"
+          },
+          "static_template": {
+            "file": "adaptiveCards/invalidPath.json"
+          }
+        }
+      }
+    }
+  ],
+  "runtimes": [
+    {
+      "type": "OpenApi",
+      "auth": {
+        "type": "none"
+      },
+      "spec": {
+        "url": "./openai.yml"
+      }
+    }
+  ]
+}

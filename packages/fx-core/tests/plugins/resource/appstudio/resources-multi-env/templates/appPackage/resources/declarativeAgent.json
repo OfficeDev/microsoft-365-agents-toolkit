@@ -1,0 +1,18 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.2/schema.json",
+    "version": "v1.2",
+    "name": "test-da",
+    "description": "Declarative agent created with Teams Toolkit can assist user in calling APIs and retrieving responses",
+    "instructions": "this is test instructions",
+    "actions": [
+        {
+            "id": "action_1",
+            "file": "ai-plugin-with-external-ac.json"
+        }
+    ],
+    "conversation_starters": [
+        {
+            "text": "List all repairs"
+        }
+    ]
+}

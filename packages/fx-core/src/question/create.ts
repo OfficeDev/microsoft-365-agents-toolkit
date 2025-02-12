@@ -1135,7 +1135,7 @@ function llmServiceQuestion(): SingleSelectQuestion {
   };
 }
 
-function openAIKeyQuestion(): TextInputQuestion {
+export function openAIKeyQuestion(): TextInputQuestion {
   return {
     type: "text",
     password: true,
@@ -1145,7 +1145,7 @@ function openAIKeyQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIKeyQuestion(): TextInputQuestion {
+export function azureOpenAIKeyQuestion(): TextInputQuestion {
   return {
     type: "text",
     password: true,
@@ -1157,7 +1157,7 @@ function azureOpenAIKeyQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIEndpointQuestion(): TextInputQuestion {
+export function azureOpenAIEndpointQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.AzureOpenAIEndpoint,
@@ -1168,7 +1168,7 @@ function azureOpenAIEndpointQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIDeploymentNameQuestion(): TextInputQuestion {
+export function azureOpenAIDeploymentNameQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.AzureOpenAIDeploymentName,

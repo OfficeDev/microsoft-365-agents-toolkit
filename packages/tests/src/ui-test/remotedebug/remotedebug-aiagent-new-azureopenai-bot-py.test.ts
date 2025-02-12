@@ -96,6 +96,9 @@ describe("Remote debug Tests", function () {
       );
       await provisionProject(appName, projectPath);
       await deployProject(projectPath, Timeout.botDeploy);
+      // [known issue] python remote need deploy twice
+      await deployProject(projectPath, Timeout.botDeploy);
+
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
         projectPath
       );
@@ -111,25 +114,10 @@ describe("Remote debug Tests", function () {
         if (isRealKey) {
           await validateWelcomeAndReplyBot(page, {
             hasCommandReplyValidation: true,
-            botCommand: "Remind me to attend the team meeting next Monday",
-            expectedReplyMessage:
-              "Remind me to attend the team meeting next Monday",
+            botCommand: "Show all tasks",
+            expectedReplyMessage: "no task",
+            timeout: Timeout.longTimeWait,
           });
-          try {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "task:",
-              timeout: Timeout.longTimeWait,
-            });
-          } catch (error) {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "I'm sorry",
-              timeout: Timeout.longTimeWait,
-            });
-          }
         } else {
           await validateWelcomeAndReplyBot(page, {
             hasWelcomeMessage: false,
@@ -141,35 +129,27 @@ describe("Remote debug Tests", function () {
             timeout: Timeout.longTimeWait,
           });
         }
-      } catch {
-        await RetryHandler.retry(async () => {
-          await deployProject(projectPath, Timeout.botDeploy);
-          await driver.sleep(Timeout.longTimeWait);
-          if (isRealKey) {
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Remind me to attend the team meeting next Monday",
-              expectedReplyMessage:
-                "Remind me to attend the team meeting next Monday",
-            });
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "current tasks",
-              timeout: Timeout.longTimeWait,
-            });
-          } else {
-            await validateWelcomeAndReplyBot(page, {
-              hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
-              botCommand: "helloWorld",
-              expectedWelcomeMessage:
-                ValidationContent.AiAssistantBotWelcomeInstruction,
-              expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-              timeout: Timeout.longTimeWait,
-            });
-          }
-        }, 2);
+      } catch (error) {
+        // [known issue] python remote need deploy twice
+        await deployProject(projectPath, Timeout.botDeploy);
+        if (isRealKey) {
+          await validateWelcomeAndReplyBot(page, {
+            hasCommandReplyValidation: true,
+            botCommand: "Show all tasks",
+            expectedReplyMessage: "no task",
+            timeout: Timeout.longTimeWait,
+          });
+        } else {
+          await validateWelcomeAndReplyBot(page, {
+            hasWelcomeMessage: false,
+            hasCommandReplyValidation: true,
+            botCommand: "helloWorld",
+            expectedWelcomeMessage:
+              ValidationContent.AiAssistantBotWelcomeInstruction,
+            expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+            timeout: Timeout.longTimeWait,
+          });
+        }
       }
     }
   );

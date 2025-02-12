@@ -74,6 +74,7 @@ import {
   isTeamsFxProject,
   unsetIsTeamsFxProject,
   workspaceUri,
+  isDeclarativeCopilotApp,
 } from "./globalVariables";
 import {
   convertAadToNewSchemaHandler,
@@ -208,6 +209,7 @@ import { manifestListener } from "./manifestListener";
 import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
 import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
+import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -280,6 +282,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isSyncManifestEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SyncManifest)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isDeclarativeCopilotApp",
+    isDeclarativeCopilotApp
   );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
@@ -591,6 +599,12 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(validatePrerequisitesCmd);
 
   registerInCommandController(context, CommandKeys.SigninAzure, signinAzureCallback);
+
+  const createDeclarativeAgentWithApiSpecCommand = vscode.commands.registerCommand(
+    "fx-extension.createDeclarativeAgentWithApiSpec",
+    (...args) => Correlator.run(createDeclarativeAgentWithApiSpec, args)
+  );
+  context.subscriptions.push(createDeclarativeAgentWithApiSpecCommand);
 
   // Register createPluginWithManifest command
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {

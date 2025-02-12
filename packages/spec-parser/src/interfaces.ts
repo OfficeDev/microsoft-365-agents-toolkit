@@ -291,6 +291,8 @@ export interface ListAPIInfo {
   isValid: boolean;
   reason: ErrorType[];
   auth?: AuthInfo;
+  summary?: string;
+  description?: string;
 }
 
 export interface APIMap {

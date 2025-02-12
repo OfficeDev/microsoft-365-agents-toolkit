@@ -454,6 +454,7 @@ describe("v3 lifecyle", () => {
 
   describe("when dealing with unresolved placeholders", async () => {
     const sandbox = sinon.createSandbox();
+    let restoreFn: RestoreFn | undefined = undefined;
 
     before(() => {
       sandbox
@@ -477,6 +478,13 @@ describe("v3 lifecyle", () => {
     after(() => {
       mockedDriverContext.progressBar = undefined;
       sandbox.restore();
+      if (restoreFn) {
+        restoreFn();
+      }
+    });
+
+    restoreFn = mockedEnv({
+      AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4o",
     });
 
     it("should return unresolved placeholders", async () => {
@@ -563,6 +571,25 @@ describe("v3 lifecyle", () => {
           summaries[0].length === 1 &&
           summaries[0][0].includes("Unresolved placeholders")
       );
+    });
+
+    it("should escape OpenAI related env keys", async () => {
+      const driverDefs: DriverDefinition[] = [];
+      driverDefs.push({
+        uses: "file/createOrUpdateEnvironmentFile",
+        with: {
+          target: ".env",
+          envs: {
+            OPENAI_API_KEY: "${{SECRET_OPENAI_API_KEY}}",
+            AZURE_OPENAI_DEPLOYMENT_NAME: "${{AZURE_OPENAI_DEPLOYMENT_NAME}}",
+          },
+        },
+      });
+
+      const lifecycle = new Lifecycle("deploy", driverDefs, "1.0.0");
+
+      const unresolved = lifecycle.resolvePlaceholders();
+      assert.equal(unresolved.length, 0);
     });
 
     describe("execute()", async () => {

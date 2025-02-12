@@ -719,7 +719,7 @@ describe("injectAuthAction", async () => {
       undefined,
       "test",
       false,
-      "OAuth2PluginVault"
+      "OAuthPluginVault"
     );
 
     assert.isUndefined(res);

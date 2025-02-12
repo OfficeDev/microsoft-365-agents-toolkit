@@ -323,6 +323,9 @@ export enum TelemetryEvent {
   CreatePluginWithManifestStart = "create-plugin-with-manifest-start",
   CreatePluginWithManifest = "create-plugin-with-manifest",
 
+  CreateDeclarativeAgentWithApiSpecStart = "create-declarative-agent-with-api-spec-start",
+  CreateDeclarativeAgentWithApiSpec = "create-declarative-agent-with-api-spec",
+
   InstallKiota = "install-kiota",
   Configuration = "vsc-configuration",
 

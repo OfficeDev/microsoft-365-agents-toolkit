@@ -6336,6 +6336,30 @@ describe("kiotaRegenerate", async () => {
         ],
       } as DeclarativeCopilotManifestSchema)
     );
+    sandbox.stub(fs, "readJson").resolves({
+      capabilities: {
+        conversation_starters: [],
+      },
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "apiSpecificationFile/openapi.json",
+          },
+          run_for_functions: ["listRepairs"],
+        },
+      ],
+      functions: [
+        {
+          name: "listRepairs",
+          description: "List all repairs",
+        },
+      ],
+    } as any);
+
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -6386,6 +6410,29 @@ describe("kiotaRegenerate", async () => {
       ],
     };
 
+    sandbox.stub(fs, "readJson").resolves({
+      capabilities: {
+        conversation_starters: [],
+      },
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "apiSpecificationFile/openapi.json",
+          },
+          run_for_functions: ["listRepairs"],
+        },
+      ],
+      functions: [
+        {
+          name: "listRepairs",
+          description: "List all repairs",
+        },
+      ],
+    } as any);
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
@@ -6399,6 +6446,7 @@ describe("kiotaRegenerate", async () => {
         ],
       } as DeclarativeCopilotManifestSchema)
     );
+
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -6762,6 +6810,54 @@ describe("addAuthAction", async () => {
       [QuestionNames.ApiOperation]: ["operation1"],
       [QuestionNames.AuthName]: "mockAuthName",
       [QuestionNames.ApiAuth]: "oauth",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const pluginManifest = {
+      schema_version: "1.0",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "spec1.yaml",
+          },
+          run_for_functions: ["function1"],
+        },
+      ],
+    };
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+      defaultRegistrationIdEnvName: "test",
+      registrationIdEnvName: "test",
+    });
+    sandbox.stub(path, "normalize").returns("normalizedPath");
+    sandbox.stub(path, "join").returns("joinedPath");
+    sandbox.stub(fs, "readJson").resolves(pluginManifest);
+    sandbox.stub(fs, "writeJson").callsFake(async (path: string, data: any) => {
+      assert.equal(data.runtimes.length, 2);
+    });
+    const core = new FxCore(tools);
+    const result = await core.addAuthAction(inputs);
+    assert.isTrue(result.isOk());
+  });
+
+  it("happy path: successfully add auth action for microsoft entra", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.PluginManifestFilePath]: "aiplugin.json",
+      [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
+      [QuestionNames.ApiOperation]: ["operation1"],
+      [QuestionNames.AuthName]: "mockAuthName",
+      [QuestionNames.ApiAuth]: "microsoft-entra",
       projectPath: path.join(os.tmpdir(), appName),
     };
     const pluginManifest = {

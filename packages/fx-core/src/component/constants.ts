@@ -116,3 +116,12 @@ export const KiotaLastCommands = {
   createDeclarativeCopilotWithManifest: "createDeclarativeCopilotWithManifest",
   addPlugin: "addPlugin",
 };
+
+export const OpenAIEnvironmentVariables = {
+  OPENAI_API_KEY: "OPENAI_API_KEY",
+  AZURE_OPENAI_API_KEY: "AZURE_OPENAI_API_KEY",
+  SECRET_OPENAI_API_KEY: "SECRET_OPENAI_API_KEY",
+  SECRET_AZURE_OPENAI_API_KEY: "SECRET_AZURE_OPENAI_API_KEY",
+  AZURE_OPENAI_ENDPOINT: "AZURE_OPENAI_ENDPOINT",
+  AZURE_OPENAI_DEPLOYMENT_NAME: "AZURE_OPENAI_DEPLOYMENT_NAME",
+};

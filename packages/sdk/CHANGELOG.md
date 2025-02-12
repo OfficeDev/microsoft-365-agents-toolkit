@@ -1,3 +1,7 @@
+# 3.0.0
+- Remove deprecated classes and APIs: `TeamsFx`, `CommandBot`, `CardActionBot`, `CommandBot`, Microsoft Graph Client, etc.
+- Update dependencies to support Node.js v20.
+
 # 2.3.2
 - Update peer dependency `@microsoft/teams-js` version to `^2.19.0`.
 

@@ -637,4 +637,39 @@ describe("serverConnections", () => {
     );
     assert.isTrue(res.isErr());
   });
+
+  it("addAction - success", async () => {
+    const connection = new ServerConnection(msgConn);
+    sandbox
+      .stub(connection["core"], "addPlugin")
+      .callsFake((inputs: Inputs): Promise<Result<any, FxError>> => {
+        return Promise.resolve(ok(true));
+      });
+    const res = await connection.declarativeAgentAddActionRequest(
+      {
+        correlationId: "123",
+      } as Inputs,
+      {} as CancellationToken
+    );
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value, true);
+    }
+  });
+
+  it("addAction - failed", async () => {
+    const connection = new ServerConnection(msgConn);
+    sandbox
+      .stub(connection["core"], "addPlugin")
+      .callsFake((inputs: Inputs): Promise<Result<any, FxError>> => {
+        return Promise.resolve(err(new UserError("source", "name", "", "")));
+      });
+    const res = await connection.declarativeAgentAddActionRequest(
+      {
+        correlationId: "123",
+      } as Inputs,
+      {} as CancellationToken
+    );
+    assert.isTrue(res.isErr());
+  });
 });
