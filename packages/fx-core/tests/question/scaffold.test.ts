@@ -31,6 +31,7 @@ import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeO
 import {
   createFromTdpNode,
   getTemplateName,
+  isTdpTemplate,
 } from "../../src/question/scaffold/vsc/createFromTdpNode";
 import {
   folderAndAppNameCondition,
@@ -40,6 +41,7 @@ import {
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -70,6 +72,10 @@ describe("vs", () => {
 });
 
 describe("getTemplateName", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
   const validBot: Bot = {
     botId: "botId",
     isNotificationOnly: false,
@@ -108,7 +114,12 @@ describe("getTemplateName", () => {
       messagingExtensions: [validMessagingExtension],
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.TabAndDefaultBot);
   });
 
@@ -118,7 +129,12 @@ describe("getTemplateName", () => {
       staticTabs: [validStaticTab],
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.Tab);
   });
 
@@ -129,7 +145,12 @@ describe("getTemplateName", () => {
       messagingExtensions: [validMessagingExtension],
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.BotAndMessageExtension);
   });
 
@@ -139,7 +160,12 @@ describe("getTemplateName", () => {
       messagingExtensions: [validMessagingExtension],
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.MessageExtension);
   });
 
@@ -149,7 +175,12 @@ describe("getTemplateName", () => {
       bots: [validBot],
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.equal(res, TemplateNames.DefaultBot);
   });
 
@@ -158,8 +189,24 @@ describe("getTemplateName", () => {
       teamsAppId: "id",
     };
 
-    const res = getTemplateName(appDefinition);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      teamsAppFromTdp: appDefinition,
+    };
+
+    const res = getTemplateName(inputs);
     assert.isUndefined(res);
+  });
+
+  it("tdp cli test", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.Capabilities]: TdpCapabilityOptions.me().id,
+    };
+    const res = getTemplateName(inputs);
+    assert.equal(res, TemplateNames.MessageExtension);
   });
 });
 

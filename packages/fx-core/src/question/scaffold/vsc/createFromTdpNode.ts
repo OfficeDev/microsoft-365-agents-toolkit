@@ -97,16 +97,14 @@ export function getTemplateName(inputs: Inputs): string | undefined {
     inputs.nonInteractive
   ) {
     const capability = inputs[QuestionNames.Capabilities];
-    if (capability === TdpCapabilityOptions.me().id) {
-      return TemplateNames.MessageExtension;
-    } else if (capability === TdpCapabilityOptions.nonSsoTab().id) {
-      return TemplateNames.Tab;
-    } else if (capability === TdpCapabilityOptions.botAndMe().id) {
-      return TemplateNames.BotAndMessageExtension;
-    } else if (capability === TdpCapabilityOptions.nonSsoTabAndBot().id) {
-      return TemplateNames.TabAndDefaultBot;
-    }
-    return undefined;
+    const map = {
+      [TdpCapabilityOptions.me().id]: TemplateNames.MessageExtension,
+      [TdpCapabilityOptions.nonSsoTab().id]: TemplateNames.Tab,
+      [TdpCapabilityOptions.botAndMe().id]: TemplateNames.BotAndMessageExtension,
+      [TdpCapabilityOptions.nonSsoTabAndBot().id]: TemplateNames.TabAndDefaultBot,
+    };
+    const value = map[capability];
+    return value;
   }
 }
 
