@@ -45,38 +45,10 @@ model = OpenAIModel(
 )
 {{/useOpenAI}}
 
-{{#CEAEnabled}}
-def end_stream_handler(
-    context: TurnContext,
-    state: MemoryBase,
-    response: PromptResponse[str],
-    streamer: StreamingResponse,
-):
-    if not streamer:
-        return
-
-    card = CardFactory.adaptive_card(
-        {
-            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-            "version": "1.6",
-            "type": "AdaptiveCard",
-            "body": [{"type": "TextBlock", "wrap": True, "text": streamer.message}],
-        }
-    )
-
-    streamer.set_attachments([card])
-{{/CEAEnabled}}
-    
 prompts = PromptManager(PromptManagerOptions(prompts_folder=f"{os.getcwd()}/prompts"))
 
 planner = ActionPlanner(
-    {{#CEAEnabled}}
-    ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat", start_streaming_message="Loading streaming results...",
-                    end_stream_handler=end_stream_handler)
-    {{/CEAEnabled}}
-    {{^CEAEnabled}}
     ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat")
-    {{/CEAEnabled}}
 )
 
 # Define storage and application
