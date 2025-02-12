@@ -2,4 +2,4 @@ python-dotenv
 aiohttp
 azure-search
 azure-search-documents
-teams-ai>=1.4.0,<2.0.0
+teams-ai>=1.6.0,<2.0.0
