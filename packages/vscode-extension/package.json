@@ -913,7 +913,7 @@
       {
         "command": "fx-extension.addKnowledge",
         "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAddKnowledgeEnabled",
         "category": "Teams"
       },
       {

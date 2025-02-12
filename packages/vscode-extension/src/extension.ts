@@ -289,6 +289,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
   );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isAddKnowledgeEnabled",
+    featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
+  );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.

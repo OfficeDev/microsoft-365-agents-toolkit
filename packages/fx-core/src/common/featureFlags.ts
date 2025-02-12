@@ -30,6 +30,7 @@ export class FeatureFlagName {
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
+  static readonly AddKnowledge = "ADD_KNOWLEDGE";
 }
 
 export interface FeatureFlag {
@@ -90,6 +91,10 @@ export class FeatureFlags {
   };
   static readonly BuilderAPIEnabled = {
     name: FeatureFlagName.BuilderAPIEnabled,
+    defaultValue: "false",
+  };
+  static readonly AddKnowledge = {
+    name: FeatureFlagName.AddKnowledge,
     defaultValue: "false",
   };
 }
