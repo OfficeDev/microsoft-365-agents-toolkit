@@ -2463,16 +2463,20 @@ export class FxCore {
     inputs: Inputs,
     agentManifestPath: string
   ): Promise<Result<undefined, FxError>> {
-    const oneDriveSharePointIds: File = {
-      site_id: inputs.oneDriveSharePointItem[0].siteId,
-      web_id: inputs.oneDriveSharePointItem[0].webId,
-      list_id: inputs.oneDriveSharePointItem[0].listId,
-      unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
-    };
-
-    const oneDriveSharePointUrls: Site = {
-      url: inputs.oneDriveSharePointItem[0].url,
-    };
+    let oneDriveSharePointIds: File | undefined;
+    let oneDriveSharePointUrls: Site | undefined;
+    if (inputs.oneDriveSharePointItem[0].url) {
+      oneDriveSharePointUrls = {
+        url: inputs.oneDriveSharePointItem[0].url,
+      };
+    } else {
+      oneDriveSharePointIds = {
+        site_id: inputs.oneDriveSharePointItem[0].siteId,
+        web_id: inputs.oneDriveSharePointItem[0].webId,
+        list_id: inputs.oneDriveSharePointItem[0].listId,
+        unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
+      };
+    }
 
     const addOneDriveSharePointCapabilityRes =
       await copilotGptManifestUtils.addOneDriveSharePointCapability(

@@ -358,8 +358,8 @@ export class CopilotGptManifestUtils {
 
   public async addOneDriveSharePointCapability(
     agentManifestPath: string,
-    items_by_sharepoint_ids: File,
-    items_by_url: Site
+    items_by_sharepoint_ids: File | undefined,
+    items_by_url: Site | undefined
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     return this.addOrUpdateCapability(
       agentManifestPath,
@@ -373,14 +373,14 @@ export class CopilotGptManifestUtils {
     agentManifestPath: string,
     items_by_url: Site
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    return this.addOrUpdateCapability(agentManifestPath, "WebSearch", null, items_by_url);
+    return this.addOrUpdateCapability(agentManifestPath, "WebSearch", undefined, items_by_url);
   }
 
   private async addOrUpdateCapability(
     agentManifestPath: string,
     capabilityName: string,
-    itemsBySharepointIds: File | null,
-    itemsByUrl: Site | null
+    itemsBySharepointIds: File | undefined,
+    itemsByUrl: Site | undefined
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     const agentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
       agentManifestPath
@@ -399,6 +399,7 @@ export class CopilotGptManifestUtils {
           name: string;
           items_by_sharepoint_ids?: File[] | null;
           items_by_url?: Site[] | null;
+          sites?: Site[] | null;
         }
       | undefined;
 
@@ -408,7 +409,11 @@ export class CopilotGptManifestUtils {
         newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
       }
       if (itemsByUrl) {
-        newCapability.items_by_url = [itemsByUrl];
+        if (capabilityName === "OneDriveAndSharePoint") {
+          newCapability.items_by_url = [itemsByUrl];
+        } else {
+          newCapability.sites = [itemsByUrl];
+        }
       }
       agentManifest.capabilities.push(newCapability);
     } else {
@@ -419,10 +424,17 @@ export class CopilotGptManifestUtils {
         capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
       }
       if (itemsByUrl) {
-        if (!capability.items_by_url) {
-          capability.items_by_url = [];
+        if (capabilityName === "OneDriveAndSharePoint") {
+          if (!capability.items_by_url) {
+            capability.items_by_url = [];
+          }
+          capability.items_by_url.push(itemsByUrl);
+        } else {
+          if (!capability.sites) {
+            capability.sites = [];
+          }
+          capability.sites.push(itemsByUrl);
         }
-        capability.items_by_url.push(itemsByUrl);
       }
     }
 

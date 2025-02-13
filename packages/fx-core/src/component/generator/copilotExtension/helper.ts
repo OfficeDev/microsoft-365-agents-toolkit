@@ -241,42 +241,111 @@ export async function validateOneDriveSharePointItem(
   shouldLogWarning = true,
   existingCorrelationId?: string
 ): Promise<Result<OneDriveSharePointItem[], UserError>> {
-  const base64Value = Buffer.from(itemUrl as string).toString("base64");
-  const encodedUrl = "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
-
-  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
-    scopes: GraphScopes,
-  });
-  if (!graphTokenRes) {
-    throw new GetGraphTokenFailedError();
-  }
-  const graphToken = graphTokenRes.isOk() ? graphTokenRes.value : undefined;
-  if (!graphToken) {
-    throw new GetGraphTokenFailedError();
-  }
-
-  const instance = axios.create({
-    baseURL: "https://graph.microsoft.com/v1.0",
-  });
-  instance.defaults.headers.common["Authorization"] = `Bearer ${graphToken}`;
-
-  let item: OneDriveSharePointItem;
   try {
+    if (!itemUrl) {
+      return err(
+        new UserError("validateOneDriveSharePointItem", "InvalidInput", "Item URL is required")
+      );
+    }
+
+    const base64Value = Buffer.from(itemUrl).toString("base64");
+    const encodedUrl =
+      "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
+
+    const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+      scopes: GraphScopes,
+    });
+    if (!graphTokenRes?.isOk()) {
+      return err(new GetGraphTokenFailedError());
+    }
+    const graphToken = graphTokenRes.value;
+
+    const instance = axios.create({
+      baseURL: "https://graph.microsoft.com/v1.0",
+      headers: { Authorization: `Bearer ${graphToken}` },
+    });
+
     const res = await instance.get(`/shares/${encodedUrl}/driveItem`);
-    item = res.data;
-  } catch (e) {
-    // TODO: To be implemented
+    const data = res.data;
+
+    if (!data || !data.webUrl) {
+      return err(
+        new UserError(
+          "validateOneDriveSharePointItem",
+          "InvalidResponse",
+          "Invalid response from OneDrive/SharePoint"
+        )
+      );
+    }
+
+    if (data.folder) {
+      return ok([
+        {
+          id: data.id,
+          label: data.name,
+          name: data.name,
+          url: data.webUrl,
+        },
+      ]);
+    }
+
+    if (data.file) {
+      const fileName: string = data.name;
+      const parentRef: { driveId: string; id: string } = data.parentReference;
+
+      if (!parentRef?.driveId || !parentRef?.id) {
+        return err(
+          new UserError(
+            "validateOneDriveSharePointItem",
+            "InvalidResponse",
+            "Missing parent reference information"
+          )
+        );
+      }
+
+      const parentItemRes = await instance.get(
+        `/drives/${parentRef.driveId}/items/${parentRef.id}`
+      );
+      const parentData = parentItemRes.data;
+
+      if (!parentData?.webUrl) {
+        return err(
+          new UserError(
+            "validateOneDriveSharePointItem",
+            "InvalidResponse",
+            "Invalid parent folder response"
+          )
+        );
+      }
+
+      return ok([
+        {
+          id: data.id,
+          label: fileName,
+          name: fileName,
+          url: `${parentData.webUrl as string}/${fileName}`,
+        },
+      ]);
+    }
+
+    return ok([]);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return err(
+        new UserError(
+          "validateOneDriveSharePointItem",
+          "GraphApiError",
+          `Failed to validate OneDrive/SharePoint item: ${error.message}`,
+          error.response?.data?.message || error.message
+        )
+      );
+    }
+    return err(
+      new UserError(
+        "validateOneDriveSharePointItem",
+        "UnknownError",
+        `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+      )
+    );
   }
-  return ok([
-    {
-      id: "9de72666-cbfe-4da5-9280-bd1741e0504e",
-      label: "HRWeb Modern",
-      name: "HRWeb Modern",
-      uniqueId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
-      listId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
-      webId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
-      siteId: "9de72666-cbfe-4da5-9280-bd1741e0504e",
-      url: "https://hrweb-modern.sharepoint.com/sites/HRWeb-Modern",
-    },
-  ]);
 }
