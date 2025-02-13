@@ -54,7 +54,7 @@ export async function createNewProjectHandler(...args: any[]): Promise<Result<an
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
     }
   } else if (args?.length === 2) {
-    // from copilot chat
+    // from copilot chat or createDeclarativeAgentWithApiSpec
     inputs = { ...getSystemInputs(), ...args[1] };
   }
   const result = await runCommand(Stage.create, inputs);
