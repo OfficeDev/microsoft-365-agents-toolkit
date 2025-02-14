@@ -1023,6 +1023,9 @@ export async function createNewProject(
     await driver.sleep(Timeout.input);
     await input.confirm();
   } else {
+    const title = await input.getTitle();
+    console.log("title:", title);
+    await VSBrowser.instance.takeScreenshot(getScreenshotName("gettitle"));
     assert.fail("Failed to input app name");
   }
 
