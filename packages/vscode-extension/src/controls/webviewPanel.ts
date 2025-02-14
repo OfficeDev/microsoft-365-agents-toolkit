@@ -265,7 +265,7 @@ export class WebviewPanel {
     }
     if (this.panel && this.panel.webview) {
       let readme = this.replaceRelativeImagePaths(htmlContent, sample);
-      readme = this.replaceRelativeMarkdownPaths(htmlContent, sample);
+      readme = this.replaceRelativeMarkdownPaths(readme, sample);
       readme = this.replaceMermaidRelatedContent(readme);
       readme = this.addTabIndex(readme);
       await this.panel.webview.postMessage({
