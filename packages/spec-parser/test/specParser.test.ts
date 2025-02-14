@@ -1438,6 +1438,15 @@ describe("SpecParser", () => {
             },
           },
           {
+            name: "testFunc1",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
             name: "skipFunc",
             capabilities: {
               response_semantics: {
@@ -1485,6 +1494,17 @@ describe("SpecParser", () => {
               data_path: "$.results",
               static_template: {
                 file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+        {
+          name: "testFunc1",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc1.json",
               },
             },
           },
