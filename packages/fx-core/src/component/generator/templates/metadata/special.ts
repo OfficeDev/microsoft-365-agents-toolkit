@@ -43,5 +43,11 @@ export const specialTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
+  {
+    id: "api-plugin-existing-api",
+    name: TemplateNames.MessageExtensionWithExistingApiSpec,
+    language: "common",
+    description: "",
+  },
   ...declarativeAgentTemplates,
 ];
