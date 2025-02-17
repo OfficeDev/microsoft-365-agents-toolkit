@@ -49,6 +49,7 @@ describe("FxCore.createProject", () => {
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
     };
+    sandbox.stub(tools, "logProvider").value(undefined);
     const core = new FxCore(tools);
     const res = await core.createProject(inputs);
     assert.isTrue(res.isOk());
@@ -127,6 +128,7 @@ describe("createProjectFromTdp", () => {
     };
     const core = new FxCore(tools);
     sandbox.stub(tools.ui, "selectOptions").resolves(ok({ type: "success", result: [] }));
+    sandbox.stub(tools, "logProvider").value(undefined);
     const res = await core.createProjectFromTdp(inputs);
     assert.isTrue(res.isErr());
     if (res.isErr()) {
