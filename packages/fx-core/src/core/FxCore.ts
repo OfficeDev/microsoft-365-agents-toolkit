@@ -209,6 +209,7 @@ export class FxCore {
       return ok({ projectPath: "", shouldInvokeTeamsAgent: true });
     }
     inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
+    TOOLS.logProvider?.debug(`Scaffold inputs after question model: ${JSON.stringify(inputs)}`);
     const res = await coordinator.create(context, inputs);
     if (res.isOk()) {
       inputs.projectPath = res.value.projectPath;
@@ -239,6 +240,7 @@ export class FxCore {
         });
       }
     }
+    TOOLS.logProvider?.debug(`Scaffold inputs after question model: ${JSON.stringify(inputs)}`);
     const res = await coordinator.create(context, inputs);
     inputs.projectPath = context.projectPath;
     return res;

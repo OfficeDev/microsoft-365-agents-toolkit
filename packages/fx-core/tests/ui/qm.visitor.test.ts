@@ -51,7 +51,7 @@ import {
   MissingRequiredInputError,
   UserCancelError,
 } from "../../src/error/common";
-import { loadOptions, questionVisitor, traverse } from "../../src/ui/visitor";
+import { loadOptions, questionVisitor, singleSelectCallback, traverse } from "../../src/ui/visitor";
 import { MockTools } from "../core/utils";
 
 function createInputs(): Inputs {
@@ -941,6 +941,106 @@ describe("Question Model - Visitor Test", () => {
       };
       const res = await questionVisitor(question, tools.ui, inputs);
       assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+    it("skip single select will trigger onDidSelection", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+        skipSingleOption: true,
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+    it("select default value will trigger onDidSelection", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a", "b"],
+        default: "a",
+        onDidSelection: () => {},
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+  });
+
+  describe("singleSelectCallback", async () => {
+    it("no onDidSelection", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      singleSelectCallback(question, "a", inputs, ["a"]);
+    });
+    it("answer is OptionItem", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, { id: "a", label: "" }, inputs, ["a"]);
+      assert.isTrue(stub.calledOnce);
+    });
+    it("option is string[]", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, { id: "a", label: "" }, inputs, ["a"]);
+      assert.isTrue(stub.calledOnce);
+    });
+    it("option is OptionItem[]", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: [{ id: "a", label: "" }],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, "a", inputs, [{ id: "a", label: "" }]);
       assert.isTrue(stub.calledOnce);
     });
   });
