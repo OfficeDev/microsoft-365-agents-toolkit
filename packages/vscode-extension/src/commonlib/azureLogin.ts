@@ -19,7 +19,7 @@ import {
   err,
 } from "@microsoft/teamsfx-api";
 import { ExtensionErrors } from "../error/error";
-import { LoginFailureError } from "./codeFlowLogin";
+import { ConvertTokenToJson, LoginFailureError } from "./codeFlowLogin";
 import * as vscode from "vscode";
 import {
   azureCacheName,
@@ -154,7 +154,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             }
           });
       }
-      await saveTenantId(azureCacheName, session.id.split("/")[0]);
+      await saveTenantId(azureCacheName, (ConvertTokenToJson(session.accessToken) as any).tid);
 
       const credential: TokenCredential = {
         // eslint-disable-next-line @typescript-eslint/require-await

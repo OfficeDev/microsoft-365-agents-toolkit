@@ -837,9 +837,7 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       await input.selectQuickPick("Basic AI Chatbot");
       await driver.sleep(Timeout.input);
-      // Choose programming language
-      await input.selectQuickPick(lang);
-      await driver.sleep(Timeout.input);
+      // Choose ai type
       await input.setText(aiType);
       await driver.sleep(Timeout.input);
       await input.confirm();
@@ -864,6 +862,9 @@ export async function createNewProject(
         await input.confirm();
         await driver.sleep(Timeout.input);
       }
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      await driver.sleep(Timeout.input);
       break;
     }
     case "aiagentassist": {
@@ -875,14 +876,15 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(aiManagement);
       await driver.sleep(Timeout.input);
-      // Choose programming language
-      await input.selectQuickPick(lang);
-      await driver.sleep(Timeout.input);
+      // choose ai type
       await input.setText(aiType);
       await driver.sleep(Timeout.input);
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.confirm();
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      await driver.sleep(Timeout.input);
       await driver.sleep(Timeout.input);
       break;
     }
@@ -895,14 +897,15 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(aiManagement);
       await driver.sleep(Timeout.input);
-      // Choose programming language
-      await input.selectQuickPick(lang);
-      await driver.sleep(Timeout.input);
+      // choose ai type
       await input.setText(aiType);
       await driver.sleep(Timeout.input);
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.confirm();
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      await driver.sleep(Timeout.input);
       await driver.sleep(Timeout.input);
       break;
     }
@@ -913,14 +916,15 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(dataOption);
       await driver.sleep(Timeout.input);
-      // Choose programming language
-      await input.selectQuickPick(lang);
-      await driver.sleep(Timeout.input);
+      // choose ai type
       await input.setText(aiType);
       await driver.sleep(Timeout.input);
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.confirm();
+      // Choose programming language
+      await input.selectQuickPick(lang);
+      await driver.sleep(Timeout.input);
       await driver.sleep(Timeout.input);
       break;
     }
@@ -943,14 +947,15 @@ export async function createNewProject(
       const ckAll = await driver.findElement(By.css(".quick-input-check-all"));
       await ckAll?.click();
       await input.confirm();
-      // Choose programming language
-      await input.selectQuickPick(lang);
-      await driver.sleep(Timeout.input);
+      // choose ai type
       await input.setText(aiType);
       await driver.sleep(Timeout.input);
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.confirm();
+      await driver.sleep(Timeout.input);
+      // Choose programming language
+      await input.selectQuickPick(lang);
       await driver.sleep(Timeout.input);
       break;
     }
@@ -1023,6 +1028,9 @@ export async function createNewProject(
     await driver.sleep(Timeout.input);
     await input.confirm();
   } else {
+    const title = await input.getTitle();
+    console.log("title:", title);
+    await VSBrowser.instance.takeScreenshot(getScreenshotName("gettitle"));
     assert.fail("Failed to input app name");
   }
 

@@ -927,15 +927,9 @@ describe("updateForCustomApi", async () => {
       .callsFake(async (updatedManifest, manifestPath) => {
         expect(manifestPath.replace(/\\/g, "/")).to.be.equal("path/appPackage/manifest.json");
         expect(updatedManifest.bots![0].commandLists![0].commands[0].title).to.be.equal(
-          "Hello, how can you help me?"
-        );
-        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
-          "How to build apps with TTK?"
-        );
-        expect(updatedManifest.bots![0].commandLists![0].commands[2].title).to.be.equal(
           "Returns a greeting"
         );
-        expect(updatedManifest.bots![0].commandLists![0].commands[3].title).to.be.equal(
+        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
           "Create a pet"
         );
         return ok(undefined);

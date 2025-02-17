@@ -22,6 +22,7 @@ import { SMEValidator } from "../src/validators/smeValidator";
 import { ValidatorFactory } from "../src/validators/validatorFactory";
 import { createHash } from "crypto";
 import { JsonDataGenerator } from "../src/jsonDataGenerator";
+import path from "path";
 
 describe("SpecParser", () => {
   afterEach(() => {
@@ -1408,6 +1409,122 @@ describe("SpecParser", () => {
       expect(updateManifestWithAiPluginStub.calledOnce).to.be.true;
       expect(outputFileStub.firstCall.args[0]).to.equal(outputSpecPath);
       expect(outputJSONStub.calledTwice).to.be.true;
+    });
+
+    it("should generate adaptive card and data files for functions with valid static_template", async () => {
+      const manifestPath = "path/to/manifest.json";
+      const outputSpecPath = "path/to/spec.json";
+      const pluginFilePath = "C:\\fakepath\\ai-plugin.json";
+      const filter = ["get /hello"];
+
+      const fakeSpec = { openapi: "3.0.0", paths: {} };
+      const fakeUnresolvedSpec = { paths: {} };
+
+      const adaptiveCardContent = { foo: "bar" };
+      const adaptiveCardData = { key: "value" };
+      const fakeApiPlugin = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json",
+        schema_version: "v2.2",
+        name_for_human: "testsep22",
+        description_for_human: "A simple service to manage repairs",
+        functions: [
+          {
+            name: "testFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "testFunc1",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "skipFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: {},
+              },
+            },
+          },
+          {
+            name: "noCapability",
+          },
+        ],
+      };
+
+      const fakeWarnings: any[] = [];
+      const fakeJsonDataSet = {
+        testFunc: adaptiveCardData,
+      };
+
+      sinon
+        .stub(ManifestUpdater, "updateManifestWithAiPlugin")
+        .resolves([{} as any, fakeApiPlugin, fakeWarnings, fakeJsonDataSet]);
+
+      sinon
+        .stub(SpecParser.prototype, "getFilteredSpecs")
+        .resolves([fakeUnresolvedSpec as any, fakeSpec as any]);
+
+      // Stub fs.outputJSON to capture calls
+      const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
+
+      // Use a dummy instance (other flows will be stubbed so they are not executed)
+      const specParser = new SpecParser("path/to/spec.yaml");
+
+      await specParser.generateForCopilot(manifestPath, filter, outputSpecPath, pluginFilePath);
+
+      const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
+      const expectedCardPath = path.join(adaptiveCardFolder, "testFunc.json");
+      const expectedDataPath = path.join(adaptiveCardFolder, "testFunc.data.json");
+
+      expect(fakeApiPlugin?.functions).to.deep.equal([
+        {
+          name: "testFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+        {
+          name: "testFunc1",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc1.json",
+              },
+            },
+          },
+        },
+        {
+          name: "skipFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {},
+            },
+          },
+        },
+        {
+          name: "noCapability",
+        },
+      ]);
+
+      sinon.assert.calledWith(outputJSONStub, expectedCardPath, adaptiveCardContent, { spaces: 4 });
+      sinon.assert.calledWith(outputJSONStub, expectedDataPath, adaptiveCardData, { spaces: 4 });
     });
   });
 

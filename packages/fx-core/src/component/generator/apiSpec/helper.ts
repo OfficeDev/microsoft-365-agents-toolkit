@@ -1611,14 +1611,6 @@ async function updatePromptSuggestions(specItems: SpecObject[], manifestPath: st
       {
         scopes: ["personal"],
         commands: [
-          {
-            title: "Hello, how can you help me?",
-            description: "How can you help me?",
-          },
-          {
-            title: "How to build apps with TTK?",
-            description: "How can I develop apps with Teams Toolkit?",
-          },
           ...descriptions.map((des) => {
             return {
               title: des.slice(0, 32),

@@ -124,14 +124,14 @@ export const basicBotTemplates: Template[] = [
     name: TemplateNames.Workflow,
     language: "typescript",
     description: "",
-    link: "https://aka.ms/teamsfx-workflow",
+    link: "https://aka.ms/teamsfx-workflow-new",
   },
   {
     id: "workflow-js",
     name: TemplateNames.Workflow,
     language: "javascript",
     description: "",
-    link: "https://aka.ms/teamsfx-workflow",
+    link: "https://aka.ms/teamsfx-workflow-new",
   },
   {
     id: "workflow-csharp",

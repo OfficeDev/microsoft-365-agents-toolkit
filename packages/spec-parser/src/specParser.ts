@@ -365,7 +365,7 @@ export class SpecParser {
         : undefined;
 
       const authMap = Utils.getAuthMap(newSpec);
-      const [updatedManifest, apiPlugin, warnings] =
+      const [updatedManifest, apiPlugin, warnings, jsonDataSet] =
         await ManifestUpdater.updateManifestWithAiPlugin(
           manifestPath,
           outputSpecPath,
@@ -375,6 +375,28 @@ export class SpecParser {
           authMap,
           existingPluginManifestInfo
         );
+
+      const functions = apiPlugin.functions;
+
+      if (functions) {
+        const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
+        for (const func of functions) {
+          if (func.capabilities?.response_semantics) {
+            const responseSemantic = func.capabilities.response_semantics;
+            const card = responseSemantic.static_template;
+            if (card && Object.keys(card).length !== 0) {
+              const cardPath = path.join(adaptiveCardFolder, `${func.name}.json`);
+              const dataPath = path.join(adaptiveCardFolder, `${func.name}.data.json`);
+              responseSemantic.static_template = {
+                file: `adaptiveCards/${func.name}.json`,
+              };
+              await fs.outputJSON(cardPath, card, { spaces: 4 });
+              const data = jsonDataSet[func.name] ?? {};
+              await fs.outputJSON(dataPath, data, { spaces: 4 });
+            }
+          }
+        }
+      }
 
       result.warnings.push(...warnings);
 
