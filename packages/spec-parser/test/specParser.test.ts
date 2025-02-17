@@ -1477,6 +1477,11 @@ describe("SpecParser", () => {
       // Stub fs.outputJSON to capture calls
       const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
 
+      // Stub fs.existsSync to only return true for testFunc1
+      const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
+        return path.toString().endsWith("testFunc1");
+      });
+
       // Use a dummy instance (other flows will be stubbed so they are not executed)
       const specParser = new SpecParser("path/to/spec.yaml");
 
@@ -1504,7 +1509,7 @@ describe("SpecParser", () => {
             response_semantics: {
               data_path: "$.results",
               static_template: {
-                file: "adaptiveCards/testFunc1.json",
+                file: "adaptiveCards/testFunc11.json",
               },
             },
           },

@@ -385,13 +385,14 @@ export class SpecParser {
             const responseSemantic = func.capabilities.response_semantics;
             const card = responseSemantic.static_template;
             if (card && Object.keys(card).length !== 0) {
-              const cardPath = path.join(adaptiveCardFolder, `${func.name}.json`);
-              const dataPath = path.join(adaptiveCardFolder, `${func.name}.data.json`);
+              const cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
+              const cardPath = path.join(adaptiveCardFolder, `${cardName}.json`);
+              const dataPath = path.join(adaptiveCardFolder, `${cardName}.data.json`);
               responseSemantic.static_template = {
-                file: `adaptiveCards/${func.name}.json`,
+                file: `adaptiveCards/${cardName}.json`,
               };
               await fs.outputJSON(cardPath, card, { spaces: 4 });
-              const data = jsonDataSet[func.name] ?? {};
+              const data = jsonDataSet[cardName] ?? {};
               await fs.outputJSON(dataPath, data, { spaces: 4 });
             }
           }
@@ -615,5 +616,18 @@ export class SpecParser {
     const specString = JSON.stringify(spec);
     const specResolved = Utils.resolveEnv(specString);
     return JSON.parse(specResolved) as OpenAPIV3.Document;
+  }
+
+  private findUniqueCardName(defaultName: string, cardFolder: string) {
+    let cardName = defaultName;
+    let counter = 1;
+    while (true) {
+      if (!fs.existsSync(path.join(cardFolder, cardName))) {
+        break;
+      }
+      cardName = `${defaultName}${counter}`;
+      counter++;
+    }
+    return cardName;
   }
 }
