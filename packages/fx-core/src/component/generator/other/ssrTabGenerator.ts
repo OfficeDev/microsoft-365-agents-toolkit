@@ -22,7 +22,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
     const appName = inputs[QuestionNames.AppName];
     const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
-    const isNet8 = inputs.targetFramework === "net8.0";
+    const isNet8 = !inputs.targetFramework || inputs.targetFramework === "net8.0";
     const replaceMap = {
       ...Generator.getDefaultVariables(
         appName,
