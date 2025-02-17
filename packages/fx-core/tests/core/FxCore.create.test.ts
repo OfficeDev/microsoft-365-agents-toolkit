@@ -19,7 +19,13 @@ import fs from "fs-extra";
 import "mocha";
 import * as os from "os";
 import sinon from "sinon";
-import { AppDefinition, FxCore, InputValidationError, UserCancelError } from "../../src";
+import {
+  AppDefinition,
+  featureFlagManager,
+  FxCore,
+  InputValidationError,
+  UserCancelError,
+} from "../../src";
 import { coordinator } from "../../src/component/coordinator";
 import { setTools } from "../../src/common/globalVars";
 import {
@@ -53,6 +59,27 @@ describe("FxCore.createProject", () => {
     const core = new FxCore(tools);
     const res = await core.createProject(inputs);
     assert.isTrue(res.isOk());
+  });
+
+  it("startWithGithubCopilot", async () => {
+    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "" }));
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Scratch]: ScratchOptions.yes().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.startWithGithubCopilot().id,
+      [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+      [QuestionNames.ProgrammingLanguage]: "javascript",
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.AppName]: randomAppName(),
+    };
+    sandbox.stub(tools, "logProvider").value(undefined);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const core = new FxCore(tools);
+    const res = await core.createProject(inputs);
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.isTrue(res.value.shouldInvokeTeamsAgent);
+    }
   });
 
   it("coordinator error", async () => {
