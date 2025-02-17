@@ -5,7 +5,6 @@ import { Platform } from "@microsoft/teamsfx-api";
 import { basicBotTemplates } from "./bot";
 import { customEngineAgentTemplates } from "./cea";
 import { commonTemplates } from "./common";
-import { copilotPluginTemplates } from "./copilotPlugin";
 import { Template } from "./interface";
 import { messagingExtensionTemplates } from "./me";
 import { specialTemplates } from "./special";
@@ -17,22 +16,20 @@ const allTemplates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
   ...messagingExtensionTemplates,
-  ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
   ...tdpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
+  ...commonTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
   ...messagingExtensionTemplates,
-  ...copilotPluginTemplates,
   ...customEngineAgentTemplates,
   ...tdpTemplates,
   ...vsOnlyTemplates,
-  ...commonTemplates,
 ];
 
 // used by programming language question options filter

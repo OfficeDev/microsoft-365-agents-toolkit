@@ -22,6 +22,7 @@ export enum TemplateNames {
   ApiPluginFromScratchBearer = "api-plugin-from-scratch-bearer", // TODO: handled by xxx generator (The ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
   ApiPluginFromScratchOAuth = "api-plugin-from-scratch-oauth", // TODO: handled by xxx generator
   DeclarativeAgentWithApiSpec = "declarative-agent-with-api-spec", // TODO: split to multiple templates, it's mapped in multiple options now.
+  ApiPluginWithExistingApiSpec = "api-plugin-existing-api",
 
   // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
@@ -53,7 +54,7 @@ export enum TemplateNames {
   MessageExtensionWithNewApiFromScratch = "copilot-plugin-from-scratch",
   MessageExtensionWithNewApiFromScratchUsingApiKey = "copilot-plugin-from-scratch-api-key",
   MessageExtensionWithNewApiFromScratchUsingOAuth = "api-message-extension-sso",
-  MessageExtensionWithExistingApiSpec = "api-plugin-existing-api", // TODO: handled by xxx generator
+  MessageExtensionWithExistingApiSpec = "copilot-plugin-existing-api", // TODO: handled by xxx generator
   MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",
@@ -75,7 +76,6 @@ export enum TemplateNames {
   MessageExtensionSearch = "message-extension-search",
 
   // not used yet
-  CopilotPluginExistingApi = "copilot-plugin-existing-api",
 }
 
 // TODO: deprecate
