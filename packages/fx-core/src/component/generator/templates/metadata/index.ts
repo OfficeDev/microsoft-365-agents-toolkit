@@ -4,7 +4,6 @@
 import { Platform } from "@microsoft/teamsfx-api";
 import { basicBotTemplates } from "./bot";
 import { customEngineAgentTemplates } from "./cea";
-import { commonTemplates } from "./common";
 import { Template } from "./interface";
 import { messagingExtensionTemplates } from "./me";
 import { specialTemplates } from "./special";
@@ -20,7 +19,6 @@ const allTemplates: Template[] = [
   ...tdpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
-  ...commonTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [

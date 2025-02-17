@@ -21,8 +21,14 @@ export const specialTemplates: Template[] = [
   },
   {
     id: "api-plugin-existing-api-csharp",
-    name: TemplateNames.MessageExtensionWithExistingApiSpec,
+    name: TemplateNames.ApiPluginWithExistingApiSpec,
     language: "csharp",
+    description: "",
+  },
+  {
+    id: "api-plugin-existing-api",
+    name: TemplateNames.ApiPluginWithExistingApiSpec,
+    language: "none",
     description: "",
   },
   {
@@ -44,9 +50,15 @@ export const specialTemplates: Template[] = [
     description: "",
   },
   {
-    id: "api-plugin-existing-api",
+    id: "copilot-plugin-existing-api",
     name: TemplateNames.MessageExtensionWithExistingApiSpec,
-    language: "common",
+    language: "none",
+    description: "",
+  },
+  {
+    id: "copilot-plugin-existing-api-csharp",
+    name: TemplateNames.MessageExtensionWithExistingApiSpec,
+    language: "csharp",
     description: "",
   },
   ...declarativeAgentTemplates,
