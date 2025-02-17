@@ -52,6 +52,7 @@ import {
   UserCancelError,
 } from "../../src/error/common";
 import {
+  findValue,
   getSingleOption,
   loadOptions,
   questionVisitor,
@@ -1112,6 +1113,40 @@ describe("Question Model - Visitor Test", () => {
         { platform: Platform.VSCode }
       );
       assert.deepEqual(options, ["a"]);
+    });
+  });
+
+  describe("findValue", () => {
+    it("group node return the value of parent", () => {
+      const node: IQTreeNode = {
+        data: {
+          type: "group",
+          name: "1",
+        },
+      };
+      const parent: IQTreeNode = {
+        data: {
+          type: "text",
+          title: "2",
+          name: "2",
+          value: "2",
+        },
+      };
+      const map = new Map();
+      map.set(node, parent);
+      const value = findValue(node, map);
+      assert.equal(value, "2");
+    });
+    it("group node no parent", () => {
+      const node: IQTreeNode = {
+        data: {
+          type: "group",
+          name: "1",
+        },
+      };
+      const map = new Map();
+      const value = findValue(node, map);
+      assert.isUndefined(value);
     });
   });
 });

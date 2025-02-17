@@ -529,7 +529,7 @@ export async function traverse(
   return ok(Void);
 }
 
-function findValue(curr: IQTreeNode, parentMap: Map<IQTreeNode, IQTreeNode>): any {
+export function findValue(curr: IQTreeNode, parentMap: Map<IQTreeNode, IQTreeNode>): any {
   if (curr.data.type !== "group") {
     // need to convert OptionItem value into id for validation
     if (curr.data.type === "singleSelect") {
