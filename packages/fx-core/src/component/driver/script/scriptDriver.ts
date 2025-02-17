@@ -108,6 +108,7 @@ export async function executeCommand(
       workingDirectory: workingDir,
       timeout: timeout,
       shell: shell,
+      env: { ...process.env, ...env },
     });
     if (res.isErr()) {
       return err(res.error);
