@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.8"
+      "const": "v1.7"
     },
     "additionalMetadata": {
       "type": "object",
@@ -1304,10 +1304,6 @@
                 "symlinkDir": {
                   "type": "string",
                   "description": "The path of the symlink target for the folder containing Teams App Test Tool binaries."
-                },
-                "releaseType": {
-                  "type": "string",
-                  "description": "The release type of Teams App Test Tool: binary or npm. Default to 'npm'."
                 }
               }
             }

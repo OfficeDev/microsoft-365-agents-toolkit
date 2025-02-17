@@ -406,13 +406,6 @@ describe("Tools Install Driver test", () => {
         args: { testTool: { version: "~1", symlinkDir: 1 } },
         expected: false,
       },
-      {
-        name: "invalid releaseType",
-        args: {
-          testTool: { version: "~1", symlinkDir: "./devTools/testTool", releaseType: "bin" },
-        },
-        expected: false,
-      },
     ];
     for (const c of cases) {
       it("Install test tool args check " + c.name, async () => {
