@@ -9,12 +9,18 @@ param resourceBaseName string
 param azureOpenaiKey string
 param azureOpenaiModelDeploymentName string
 param azureOpenaiEndpoint string
+param azureOpenaiEmbeddingDeployment string
 {{/useAzureOpenAI}}
 {{#useOpenAI}}
 @secure()
 @description('Required in your bot project to access OpenAI service. You can get it from OpenAI > API > API Key')
 param openaiKey string
 {{/useOpenAI}}
+
+@secure()
+@description('Required in your bot project to access Azure Search service. You can get it from Azure Portal > Azure Search > Keys > Admin Key')
+param azureSearchKey string
+param azureSearchEndpoint string
 
 param webAppSKU string
 param linuxFxVersion string
@@ -83,6 +89,10 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'AZURE_OPENAI_ENDPOINT'
           value: azureOpenaiEndpoint
         }
+        {
+          name: 'AZURE_OPENAI_EMBEDDING_DEPLOYMENT'
+          value: azureOpenaiEmbeddingDeployment
+        }
         {{/useAzureOpenAI}}
         {{#useOpenAI}}
         {
@@ -90,6 +100,14 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: openaiKey
         }
         {{/useOpenAI}}
+        {
+          name: 'AZURE_SEARCH_KEY'
+          value: azureSearchKey
+        }
+        {
+          name: 'AZURE_SEARCH_ENDPOINT'
+          value: azureSearchEndpoint
+        }
         {
           name: 'MicrosoftAppTenantId'
           value: identity.properties.tenantId

@@ -3,18 +3,20 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
-{{#useAzureOpenAI}}
-@secure()
-@description('Required in your bot project to access Azure OpenAI service. You can get it from Azure Portal > OpenAI > Keys > Key1 > Resource Management > Endpoint')  
-param azureOpenaiKey string
-param azureOpenaiModelDeploymentName string
-param azureOpenaiEndpoint string
-{{/useAzureOpenAI}}
 {{#useOpenAI}}
 @secure()
-@description('Required in your bot project to access OpenAI service. You can get it from OpenAI > API > API Key')
-param openaiKey string
+param openAIKey string
 {{/useOpenAI}}
+{{#useAzureOpenAI}}
+@secure()
+param azureOpenAIKey string
+
+@secure()
+param azureOpenAIEndpoint string
+
+@secure()
+param azureOpenAIDeployment string
+{{/useAzureOpenAI}}
 
 param webAppSKU string
 param linuxFxVersion string
@@ -55,7 +57,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
     serverFarmId: serverfarm.id
     siteConfig: {
       alwaysOn: true
-      appCommandLine: 'gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 app:app'
+      appCommandLine: 'gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 --chdir src app:app'
       linuxFxVersion: pythonVersion
       appSettings: [
         {
@@ -70,26 +72,26 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'BOT_ID'
           value: identity.properties.clientId
         }
-        {{#useAzureOpenAI}}
-        {
-          name: 'AZURE_OPENAI_API_KEY'
-          value: azureOpenaiKey
-        }
-        {
-          name: 'AZURE_OPENAI_MODEL_DEPLOYMENT_NAME'
-          value: azureOpenaiModelDeploymentName
-        }
-        {
-          name: 'AZURE_OPENAI_ENDPOINT'
-          value: azureOpenaiEndpoint
-        }
-        {{/useAzureOpenAI}}
         {{#useOpenAI}}
         {
           name: 'OPENAI_API_KEY'
           value: openaiKey
         }
         {{/useOpenAI}}
+        {{#useAzureOpenAI}}
+        {
+          name: 'AZURE_OPENAI_API_KEY'
+          value: azureOpenAIKey
+        }
+        {
+          name: 'AZURE_OPENAI_ENDPOINT'
+          value: azureOpenAIEndpoint
+        }
+        {
+          name: 'AZURE_OPENAI_DEPLOYMENT'
+          value: azureOpenAIDeployment
+        }
+        {{/useAzureOpenAI}}
         {
           name: 'MicrosoftAppTenantId'
           value: identity.properties.tenantId
