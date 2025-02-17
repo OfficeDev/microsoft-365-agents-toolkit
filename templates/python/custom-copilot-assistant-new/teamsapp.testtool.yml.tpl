@@ -10,7 +10,6 @@ deploy:
       testTool:
         version: ~0.2.1
         symlinkDir: ./devTools/teamsapptester
-        releaseType: binary
 
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile

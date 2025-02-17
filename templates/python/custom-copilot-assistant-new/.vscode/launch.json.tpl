@@ -63,6 +63,18 @@
       "program": "${workspaceFolder}/src/app.py",
       "cwd": "${workspaceFolder}/src",
       "console": "integratedTerminal"
+    },
+    {
+        "name": "Start Test Tool",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/devTools/teamsapptester/node_modules/@microsoft/teams-app-test-tool/cli.js",
+        "args": [
+            "start"
+        ],
+        "cwd": "${workspaceFolder}",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
     {{#CEAEnabled}}
     },
     {
@@ -168,8 +180,12 @@
         "name": "Debug in Test Tool",
         "configurations": [
             "Start Python",
+            "Start Test Tool"
         ],
-        "preLaunchTask": "Test Tool",
+        "cascadeTerminateToConfigurations": [
+            "Start Test Tool"
+        ],
+        "preLaunchTask": "Deploy (Test Tool)",
         "presentation": {
             "group": "1-local",
             "order": 1
