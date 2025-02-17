@@ -51,7 +51,13 @@ import {
   MissingRequiredInputError,
   UserCancelError,
 } from "../../src/error/common";
-import { loadOptions, questionVisitor, singleSelectCallback, traverse } from "../../src/ui/visitor";
+import {
+  getSingleOption,
+  loadOptions,
+  questionVisitor,
+  singleSelectCallback,
+  traverse,
+} from "../../src/ui/visitor";
 import { MockTools } from "../core/utils";
 
 function createInputs(): Inputs {
@@ -980,7 +986,20 @@ describe("Question Model - Visitor Test", () => {
       assert.isTrue(stub.calledOnce);
     });
   });
-
+  describe("getSingleOption", () => {
+    it("undefined option", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a", "b"],
+        default: "a",
+        onDidSelection: () => {},
+      };
+      const options = getSingleOption(question, undefined);
+      assert.deepEqual(options as string, "a");
+    });
+  });
   describe("singleSelectCallback", async () => {
     it("no onDidSelection", async () => {
       const question: SingleSelectQuestion = {
@@ -1024,7 +1043,7 @@ describe("Question Model - Visitor Test", () => {
         test: "a",
       };
       const stub = sandbox.stub(question, "onDidSelection");
-      singleSelectCallback(question, { id: "a", label: "" }, inputs, ["a"]);
+      singleSelectCallback(question, "a", inputs, ["a"]);
       assert.isTrue(stub.calledOnce);
     });
     it("option is OptionItem[]", async () => {
@@ -1042,6 +1061,22 @@ describe("Question Model - Visitor Test", () => {
       const stub = sandbox.stub(question, "onDidSelection");
       singleSelectCallback(question, "a", inputs, [{ id: "a", label: "" }]);
       assert.isTrue(stub.calledOnce);
+    });
+    it("answer not match in options", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, "b", inputs, ["a"]);
+      assert.isTrue(stub.notCalled);
     });
   });
 
