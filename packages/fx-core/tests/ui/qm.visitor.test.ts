@@ -866,6 +866,7 @@ describe("Question Model - Visitor Test", () => {
         type: "singleFile",
         name: "test",
         title: "test",
+        default: "test",
         innerStep: 1,
         innerTotalStep: 2,
         defaultFolder: "./",
@@ -893,6 +894,7 @@ describe("Question Model - Visitor Test", () => {
         type: "folder",
         name: "test",
         title: "test",
+        default: () => "test",
       };
       const inputs: Inputs = {
         platform: Platform.VSCode,
