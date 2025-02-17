@@ -622,7 +622,7 @@ export class SpecParser {
     let cardName = defaultName;
     let counter = 1;
     while (true) {
-      if (!fs.existsSync(path.join(cardFolder, cardName))) {
+      if (!fs.existsSync(path.join(cardFolder, cardName + ".json"))) {
         break;
       }
       cardName = `${defaultName}${counter}`;

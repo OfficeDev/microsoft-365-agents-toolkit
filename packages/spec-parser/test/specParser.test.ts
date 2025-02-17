@@ -1479,7 +1479,7 @@ describe("SpecParser", () => {
 
       // Stub fs.existsSync to only return true for testFunc1
       const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
-        return path.toString().endsWith("testFunc1");
+        return path.toString().endsWith("testFunc1.json");
       });
 
       // Use a dummy instance (other flows will be stubbed so they are not executed)
