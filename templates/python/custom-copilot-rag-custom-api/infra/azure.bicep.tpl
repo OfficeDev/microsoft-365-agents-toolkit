@@ -75,7 +75,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         {{#useOpenAI}}
         {
           name: 'OPENAI_API_KEY'
-          value: openaiKey
+          value: openAIKey
         }
         {{/useOpenAI}}
         {{#useAzureOpenAI}}

@@ -15,6 +15,7 @@ param azureOpenaiEndpoint string
 @description('Required in your bot project to access OpenAI service. You can get it from OpenAI > API > API Key')
 param openaiKey string
 {{/useOpenAI}}
+param assistantId string
 
 param webAppSKU string
 param linuxFxVersion string
@@ -70,6 +71,16 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'BOT_ID'
           value: identity.properties.clientId
         }
+        {{#useOpenAI}}
+        {
+          name: 'OPENAI_API_KEY'
+          value: openaiKey
+        }
+        {
+          name: 'OPENAI_ASSISTANT_ID'
+          value: assistantId
+        }
+        {{/useOpenAI}}
         {{#useAzureOpenAI}}
         {
           name: 'AZURE_OPENAI_API_KEY'
@@ -83,13 +94,11 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           name: 'AZURE_OPENAI_ENDPOINT'
           value: azureOpenaiEndpoint
         }
-        {{/useAzureOpenAI}}
-        {{#useOpenAI}}
         {
-          name: 'OPENAI_API_KEY'
-          value: openaiKey
+          name: 'AZURE_OPENAI_ASSISTANT_ID'
+          value: assistantId
         }
-        {{/useOpenAI}}
+        {{/useAzureOpenAI}}
         {
           name: 'MicrosoftAppTenantId'
           value: identity.properties.tenantId
