@@ -2017,12 +2017,12 @@ describe("SpecGenerator", async () => {
       delete inputs[QuestionNames.Capabilities];
       delete inputs.apiAuthData;
       inputs[QuestionNames.MeArchitectureType] = MeArchitectureOptions.apiSpec().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.CopilotPluginExistingApi;
+      inputs[QuestionNames.TemplateName] = TemplateNames.MessageExtensionWithExistingApiSpec;
       res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, TemplateNames.CopilotPluginExistingApi);
+        assert.equal(res.value[0].templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
       }
 
       delete inputs[QuestionNames.MeArchitectureType];
