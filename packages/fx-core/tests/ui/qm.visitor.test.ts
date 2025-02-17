@@ -951,7 +951,7 @@ describe("Question Model - Visitor Test", () => {
       assert.isTrue(res.isOk() && res.value.type === "skip");
       assert.isTrue(stub.calledOnce);
     });
-    it("skip single select will trigger onDidSelection", async () => {
+    it("skip single select will trigger onDidSelection in non-interactive mode", async () => {
       const question: SingleSelectQuestion = {
         type: "singleSelect",
         name: "test",
@@ -964,6 +964,23 @@ describe("Question Model - Visitor Test", () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         nonInteractive: true,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+    it("skip single select will trigger onDidSelection in interactive mode", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+        skipSingleOption: true,
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
       };
       const res = await questionVisitor(question, tools.ui, inputs);
       assert.isTrue(res.isOk() && res.value.type === "skip");
