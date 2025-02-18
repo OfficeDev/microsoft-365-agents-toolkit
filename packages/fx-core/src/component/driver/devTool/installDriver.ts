@@ -127,9 +127,8 @@ export class ToolsInstallDriverImpl {
 
     if (args.testTool) {
       await this.resolveTestTool(
-        args.testTool.releaseType == TestToolReleaseType.Binary
-          ? TestToolReleaseType.Binary
-          : TestToolReleaseType.Npm,
+        // Hardcode to npm release type if running from YAML
+        TestToolReleaseType.Npm,
         `${args.testTool.version}`,
         args.testTool.symlinkDir
       );
@@ -329,13 +328,6 @@ export class ToolsInstallDriverImpl {
       }
       if (typeof args.testTool.symlinkDir !== "string") {
         throw new InvalidActionInputError(ACTION_NAME, ["testTool.symlinkDir"], helpLink);
-      }
-      if (
-        args.testTool.releaseType &&
-        args.testTool.releaseType !== TestToolReleaseType.Binary &&
-        args.testTool.releaseType !== TestToolReleaseType.Npm
-      ) {
-        throw new InvalidActionInputError(ACTION_NAME, ["testTool.releaseType"], helpLink);
       }
     }
   }
