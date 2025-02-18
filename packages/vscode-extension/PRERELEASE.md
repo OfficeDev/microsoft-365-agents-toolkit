@@ -11,8 +11,6 @@
 
   <img width="643" alt="image" src="https://github.com/user-attachments/assets/f4c541ee-f79e-44cc-8f1e-84873a785c0e" />
 
-- **Binary version of Test Tool** Users cannot install and use the Test Tool without having the Node.js runtime in their environment. However, the Teams Toolkit has now released a binary version of the Test Tool, which allows users to use the tool smoothly without needing the Node.js runtime, especially for python users.
-
 - **GitHub Copilot Extension Walkthrough**: To make it easier for users to get started with the GitHub Copilot Extension "@teamsapp," Teams Toolkit has added a walkthrough UI experience. This guide helps users understand how to install and use this helpful AI assistant to build Teams apps.
 
   <img width="1306" alt="image" src="https://github.com/user-attachments/assets/0af92cf1-c784-4e5c-ac2e-9a6e07133546" />
