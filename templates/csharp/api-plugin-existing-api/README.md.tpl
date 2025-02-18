@@ -12,8 +12,8 @@
 2. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
 to install the app to.
 3. Right-click your project and select `Teams Toolkit > Preview in > Copilot`.
-4. When Teams launches in the browser, open the `Copilot` app and send a prompt to trigger your plugin.
-   > Note: Please make sure to switch to New Teams when Teams web client has launched
+4. Once the Copilot app is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.
+5. Ask a question to your declarative agent and it should respond based on the instructions provided.
 
 {{#ApiKey}}
 > [!NOTE]
