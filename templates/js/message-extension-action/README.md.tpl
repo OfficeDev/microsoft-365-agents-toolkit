@@ -10,7 +10,7 @@ This app template implements action command that allows you to present your user
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 {{^enableMETestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableMETestToolByDefault}}

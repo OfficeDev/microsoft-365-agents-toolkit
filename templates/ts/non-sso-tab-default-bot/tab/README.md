@@ -4,7 +4,7 @@ Microsoft Teams supports the ability to run web-based UI inside "custom tabs" th
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/), supported versions: 18, 20
+- [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 - An M365 account. If you do not have M365 account, apply one from [M365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program)
 - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
