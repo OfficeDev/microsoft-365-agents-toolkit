@@ -1,7 +1,7 @@
 {
     {{#CEAEnabled}} 
-    "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.19",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vdevPreview/MicrosoftTeams.schema.json",
+    "manifestVersion": "devPreview",
     "version": "1.0.0",
     {{/CEAEnabled}}
     {{^CEAEnabled}} 
