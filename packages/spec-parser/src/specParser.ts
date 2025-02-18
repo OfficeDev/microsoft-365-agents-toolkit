@@ -376,28 +376,7 @@ export class SpecParser {
           existingPluginManifestInfo
         );
 
-      const functions = apiPlugin.functions;
-
-      if (functions) {
-        const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
-        for (const func of functions) {
-          if (func.capabilities?.response_semantics) {
-            const responseSemantic = func.capabilities.response_semantics;
-            const card = responseSemantic.static_template;
-            if (card && Object.keys(card).length !== 0) {
-              const cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
-              const cardPath = path.join(adaptiveCardFolder, `${cardName}.json`);
-              const dataPath = path.join(adaptiveCardFolder, `${cardName}.data.json`);
-              responseSemantic.static_template = {
-                file: `adaptiveCards/${cardName}.json`,
-              };
-              await fs.outputJSON(cardPath, card, { spaces: 4 });
-              const data = jsonDataSet[cardName] ?? {};
-              await fs.outputJSON(dataPath, data, { spaces: 4 });
-            }
-          }
-        }
-      }
+      await this.separateAdaptiveCards(apiPlugin, pluginFilePath, jsonDataSet);
 
       result.warnings.push(...warnings);
 
@@ -519,6 +498,8 @@ export class SpecParser {
     const newSpec = newSpecs[1];
     const apiPlugin = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
 
+    const jsonDataSet: Record<string, any> = {};
+
     const paths = newSpec.paths;
     for (const pathUrl in paths) {
       const pathItem = paths[pathUrl];
@@ -539,11 +520,17 @@ export class SpecParser {
 
                 const { json } = Utils.getResponseJson(operationItem);
                 if (json.schema) {
-                  const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
+                  const [card, jsonPath, jsonData] = AdaptiveCardGenerator.generateAdaptiveCard(
                     operationItem,
                     false,
                     5
                   );
+
+                  if (jsonPath === "$") {
+                    jsonDataSet[safeFunctionName] = jsonData;
+                  } else {
+                    jsonDataSet[safeFunctionName] = jsonData[jsonPath];
+                  }
 
                   const responseSemantic = wrapResponseSemantics(card, jsonPath);
                   apiPlugin.functions!.find(
@@ -564,7 +551,37 @@ export class SpecParser {
       }
     }
 
+    await this.separateAdaptiveCards(apiPlugin, pluginFilePath, jsonDataSet);
+
     await fs.outputJSON(pluginFilePath, apiPlugin, { spaces: 4 });
+  }
+
+  private async separateAdaptiveCards(
+    apiPlugin: PluginManifestSchema,
+    pluginFilePath: string,
+    jsonDataSet: Record<string, any> = {}
+  ): Promise<void> {
+    const functions = apiPlugin.functions;
+    if (functions) {
+      const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
+      for (const func of functions) {
+        if (func.capabilities?.response_semantics) {
+          const responseSemantic = func.capabilities.response_semantics;
+          const card = responseSemantic.static_template;
+          if (card && Object.keys(card).length !== 0) {
+            const cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
+            const cardPath = path.join(adaptiveCardFolder, `${cardName}.json`);
+            const dataPath = path.join(adaptiveCardFolder, `${cardName}.data.json`);
+            responseSemantic.static_template = {
+              file: `adaptiveCards/${cardName}.json`,
+            };
+            await fs.outputJSON(cardPath, card, { spaces: 4 });
+            const data = jsonDataSet[cardName] ?? {};
+            await fs.outputJSON(dataPath, data, { spaces: 4 });
+          }
+        }
+      }
+    }
   }
 
   private async loadSpec(): Promise<void> {
