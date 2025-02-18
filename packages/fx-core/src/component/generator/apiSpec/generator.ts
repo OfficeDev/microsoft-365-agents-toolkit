@@ -72,8 +72,6 @@ const fromApiSpecTemplateName = "copilot-plugin-existing-api";
 const forCustomCopilotRagCustomApi = "custom-copilot-rag-custom-api";
 const copilotPluginExistingApiSpecUrlTelemetryEvent = "copilot-plugin-existing-api-spec-url";
 
-const apiPluginFromApiSpecTemplateName = "api-plugin-existing-api";
-
 const failedToUpdateCustomApiTemplateErrorName = "failed-to-update-custom-api-template";
 const defaultDeclarativeCopilotManifestFileName = "declarativeAgent.json";
 
@@ -305,7 +303,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     return [
       TemplateNames.CustomCopilotRagCustomApi,
       TemplateNames.MessageExtensionWithExistingApiSpec,
-      TemplateNames.CopilotPluginExistingApi,
+      TemplateNames.ApiPluginWithExistingApiSpec,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 

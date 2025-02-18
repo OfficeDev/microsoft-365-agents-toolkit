@@ -499,7 +499,7 @@ export class ApiPluginStartOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
-      data: TemplateNames.MessageExtensionWithExistingApiSpec,
+      data: TemplateNames.ApiPluginWithExistingApiSpec,
     };
   }
 
