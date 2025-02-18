@@ -11,6 +11,7 @@ import {
   InputsWithProjectPath,
   Platform,
   Result,
+  SystemError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -189,9 +190,10 @@ class Coordinator {
       const generator = Generators.find((g) => g.activate(context, inputs));
       if (!generator) {
         return err(
-          new InternalError(
-            new Error(`Unable to activate any generator by inputs: ${JSON.stringify(inputs)}`),
-            "coordinator"
+          new SystemError(
+            "coordinator",
+            "NoActivatedGeneratorError",
+            `No activated generator by inputs: ${JSON.stringify(inputs)}, this is an internal bug, please report to us.`
           )
         );
       }
