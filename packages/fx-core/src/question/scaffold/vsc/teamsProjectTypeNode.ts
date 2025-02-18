@@ -137,6 +137,52 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
   };
 }
 
+export function m365SearchMeSubNode(): IQTreeNode {
+  return {
+    // Search ME sub-tree
+    condition: { equals: MeCapabilityOptions.m365SearchMe().id },
+    data: {
+      name: QuestionNames.MeArchitectureType,
+      title: getLocalizedString("core.createProjectQuestion.meArchitecture.title"),
+      cliDescription: "The authentication type for the API.",
+      type: "singleSelect",
+      staticOptions: [
+        MeArchitectureOptions.newApi(),
+        MeArchitectureOptions.openApiSpec(),
+        MeArchitectureOptions.botMe(),
+      ],
+      default: MeArchitectureOptions.newApi().id,
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.projectType.copilotExtension.placeholder"
+      ),
+      forgetLastValue: true,
+      skipSingleOption: true,
+      onDidSelection: setTemplateName,
+    },
+    children: [
+      {
+        condition: { equals: MeArchitectureOptions.newApi().id },
+        data: {
+          type: "singleSelect",
+          name: QuestionNames.ApiAuth,
+          title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+          ),
+          staticOptions: [
+            ApiAuthOptions.none(true),
+            ApiAuthOptions.bearerToken(),
+            ApiAuthOptions.microsoftEntra(true),
+          ],
+          default: ApiAuthOptions.none(true).id,
+          onDidSelection: setTemplateName,
+        },
+      },
+      apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
+    ],
+  };
+}
+
 export function meProjectTypeNode(): IQTreeNode {
   return {
     // project-type = Messaging Extension
@@ -153,50 +199,6 @@ export function meProjectTypeNode(): IQTreeNode {
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
-    children: [
-      {
-        // Search ME sub-tree
-        condition: { equals: MeCapabilityOptions.m365SearchMe().id },
-        data: {
-          name: QuestionNames.MeArchitectureType,
-          title: getLocalizedString("core.createProjectQuestion.meArchitecture.title"),
-          cliDescription: "The authentication type for the API.",
-          type: "singleSelect",
-          staticOptions: [
-            MeArchitectureOptions.newApi(),
-            MeArchitectureOptions.openApiSpec(),
-            MeArchitectureOptions.botMe(),
-          ],
-          default: MeArchitectureOptions.newApi().id,
-          placeholder: getLocalizedString(
-            "core.createProjectQuestion.projectType.copilotExtension.placeholder"
-          ),
-          forgetLastValue: true,
-          skipSingleOption: true,
-          onDidSelection: setTemplateName,
-        },
-        children: [
-          {
-            condition: { equals: MeArchitectureOptions.newApi().id },
-            data: {
-              type: "singleSelect",
-              name: QuestionNames.ApiAuth,
-              title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
-              placeholder: getLocalizedString(
-                "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
-              ),
-              staticOptions: [
-                ApiAuthOptions.none(true),
-                ApiAuthOptions.bearerToken(),
-                ApiAuthOptions.microsoftEntra(true),
-              ],
-              default: ApiAuthOptions.none(true).id,
-              onDidSelection: setTemplateName,
-            },
-          },
-          apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
-        ],
-      },
-    ],
+    children: [m365SearchMeSubNode()],
   };
 }
