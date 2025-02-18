@@ -1912,8 +1912,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[將您的 Teams 應用程式建置為套件進行發佈]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[將您的 Teams 應用程式建置為套件進行發佈。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
@@ -2041,8 +2041,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 中執行 'deploy' 生命週期階段]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 teamsapp.yml 中執行 'deploy' 生命週期階段。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
@@ -2431,8 +2431,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 檔案中執行 'provision' 生命週期階段]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 teamsapp.yml 檔案中執行 'provision' 生命週期階段。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
@@ -2635,8 +2635,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[根據資訊清單結構描述和應用程式套件進行驗證]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[根據資訊清單結構描述和應用程式套件進行驗證。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate against manifest schema and app package]]></Val>

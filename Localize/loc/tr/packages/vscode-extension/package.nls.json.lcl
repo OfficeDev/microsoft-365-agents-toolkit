@@ -1912,8 +1912,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Teams uygulamanızı yayımlama paketi olarak oluşturun]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams uygulamanızı yayımlama paketi olarak oluşturun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
@@ -2041,8 +2041,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'dağıt' yaşam döngüsü aşamasını yürütün]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[teamsapp.yml dosyasında 'dağıt' yaşam döngüsü aşamasını yürütün.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
@@ -2431,8 +2431,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'sağla' yaşam döngüsü aşamasını çalıştırın]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[teamsapp.yml dosyasında 'sağla' yaşam döngüsü aşamasını çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
@@ -2635,8 +2635,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Bildirim şemasına ve uygulama paketine göre doğrulayın]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bildirim şemasına ve uygulama paketine göre doğrulayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate against manifest schema and app package]]></Val>

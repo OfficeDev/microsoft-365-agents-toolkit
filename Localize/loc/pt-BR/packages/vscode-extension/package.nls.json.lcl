@@ -73,8 +73,8 @@
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[A [extensão GitHub Copilot para o Kit de ferramentas do Teams]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifica o desenvolvimento de aplicativos do Teams e permite a personalização do Microsoft 365 Copilot com recursos de chat.]A;[Instalar a extensão GitHub Copilot para Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Marcar como concluído]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A [extensão GitHub Copilot para o Kit de ferramentas do Teams]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifica o desenvolvimento de aplicativos do Teams e permite a personalização do Microsoft 365 Copilot com recursos de chat.]A;[Instale a extensão GitHub Copilot para Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
@@ -1912,8 +1912,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Compilar seu aplicativo Teams em um pacote para publicação]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Compilar seu aplicativo Teams em um pacote para publicação.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
@@ -2041,8 +2041,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Executar o estágio de ciclo de vida 'fornecer' no teamsapp.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Executar o estágio de ciclo de vida "implantar" no teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
@@ -2431,8 +2431,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Executar o estágio do ciclo de vida "provisionar" no arquivo teamsapp.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Executar o estágio do ciclo de vida "provisionar" no arquivo teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
@@ -2635,8 +2635,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Valide com relação ao esquema do manifesto e ao pacote do aplicativo]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Validar com relação ao esquema do manifesto e ao pacote do aplicativo.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate against manifest schema and app package]]></Val>

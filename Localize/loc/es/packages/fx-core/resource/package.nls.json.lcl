@@ -3073,8 +3073,8 @@
       <Item ItemId=";core.createProjectQuestion.projectType.tab.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 application]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Inserte su propio contenido web en Teams, Outlook y la aplicación de Microsoft 365]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Inserte su propio contenido web en Teams, Outlook y la aplicación Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Embed your own web content in Teams, Outlook, and the Microsoft 365 app]]></Val>

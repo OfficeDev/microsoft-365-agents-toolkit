@@ -1912,8 +1912,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Zbuduj aplikację Teams w pakiecie do publikacji]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zbuduj aplikację Teams w pakiecie do publikacji.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
@@ -2041,8 +2041,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Wykonaj etap cyklu życia wdrażania w pliku teamsapp.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wykonaj etap cyklu życia „wdrażanie” w pliku teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
@@ -2431,8 +2431,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Uruchamianie etapu cyklu życia „aprowizacja” w pliku teamsapp.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uruchamianie etapu cyklu życia „aprowizacja” w pliku teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
@@ -2635,8 +2635,8 @@
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Weryfikowanie pod kątem schematu manifestu i pakietu aplikacji]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Weryfikowanie pod kątem schematu manifestu i pakietu aplikacji.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Validate against manifest schema and app package]]></Val>
