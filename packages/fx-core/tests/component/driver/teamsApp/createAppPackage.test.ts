@@ -1745,7 +1745,7 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
-    it("should add embedded knowledge files for Copilot GPT", async () => {
+    it("should add embedded knowledge files for Declarative Agent", async () => {
       // Enable builder API flag.
       sinon
         .stub(featureFlagManager, "getBooleanValue")
@@ -1821,7 +1821,77 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
-    it("should handle undefined embedded knowledge files for Copilot GPT", async () => {
+    it("should skip if there is no embedded knowledge capability for Declarative Agent", async () => {
+      // Enable builder API flag.
+      sinon
+        .stub(featureFlagManager, "getBooleanValue")
+        .withArgs(FeatureFlags.BuilderAPIEnabled)
+        .returns(true);
+
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.embedded.zip",
+        outputJsonPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.embedded.json",
+      };
+
+      const manifest = new TeamsAppManifest();
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+
+      // Updated gpt manifest stub with required properties.
+      const declarativeAgentManifest = {
+        name: "TestDeclarativeCopilot",
+        description: "Test declarative copilot manifest",
+        actions: [],
+        capabilities: [
+          {
+            name: "WebSearch",
+          },
+        ],
+      } as DeclarativeCopilotManifestSchema;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(declarativeAgentManifest));
+      sinon.stub(fs, "pathExists").callsFake(async (filePath) => {
+        // Return true for all required files including declarativeAgent.json, color/outline files.
+        if (
+          filePath.includes("declarativeAgent.json") ||
+          filePath.includes("color.png") ||
+          filePath.includes("outline.png")
+        ) {
+          return true;
+        }
+        return true;
+      });
+
+      const mockedDriverContext: any = {
+        m365TokenProvider: {},
+        projectPath: "./",
+        platform: 0,
+        logProvider: { info: () => {} },
+        ui: {},
+        addTelemetryProperties: () => {},
+      };
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert.isTrue(result.isOk());
+
+      if (await fs.pathExists(args.outputZipPath)) {
+        await fs.remove(args.outputZipPath);
+      }
+    });
+
+    it("should handle undefined embedded knowledge files for Declarative Agent", async () => {
       // Enable builder API flag.
       sinon
         .stub(featureFlagManager, "getBooleanValue")
@@ -1886,9 +1956,13 @@ describe("teamsApp/createAppPackage", async () => {
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert.isTrue(result.isOk());
+
+      if (await fs.pathExists(args.outputZipPath)) {
+        await fs.remove(args.outputZipPath);
+      }
     });
 
-    it("should throw error if embedded knowledge file does not exist", async () => {
+    it("should throw error if embedded knowledge file does not exist for Declarative Agent", async () => {
       // Enable builder API flag.
       sinon
         .stub(featureFlagManager, "getBooleanValue")
