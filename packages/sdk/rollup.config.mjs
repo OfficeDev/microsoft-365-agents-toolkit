@@ -2,7 +2,7 @@ import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 import typescript from "typescript";
 import typescriptPlugin from "@rollup/plugin-typescript";
-import pkg from "./package.json" with { type: "json" };
+import pkg from "./package.json" assert { type: "json" };
 
 const deps = Object.keys(Object.assign({}, pkg.peerDependencies, pkg.dependencies));
 
