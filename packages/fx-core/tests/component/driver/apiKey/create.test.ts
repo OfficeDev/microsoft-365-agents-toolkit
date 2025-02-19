@@ -99,6 +99,63 @@ describe("CreateApiKeyDriver", () => {
     }
   });
 
+  it("happy path: create registraionid, read domain from api spec, clientSecret and apis from input", async () => {
+    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+      id: "mockedRegistrationId",
+      clientSecrets: [],
+      targetUrlsShouldStartWith: [],
+      applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
+    });
+    sinon.stub(SpecParser.prototype, "list").resolves({
+      APIs: [
+        {
+          api: "api",
+          server: "https://test",
+          operationId: "api",
+          auth: {
+            name: "test",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+          isValid: true,
+          reason: [],
+        },
+        {
+          api: "api2",
+          server: "https://test",
+          operationId: "api2",
+          auth: {
+            name: "test",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+          isValid: true,
+          reason: [],
+        },
+      ],
+      allAPICount: 2,
+      validAPICount: 2,
+    });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      primaryClientSecret: "mockedClientSecret",
+      apiSpecPath: "mockedPath",
+      apis: "api;api2",
+    };
+    const result = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.get(outputKeys.registrationId)).to.equal("mockedRegistrationId");
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
   it("happy path: create registraionid, read domain from api spec, clientSecret and secondaryClientSecret from input", async () => {
     sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",

@@ -51,7 +51,8 @@ export async function getandValidateOauthInfoFromSpec(
   const operations =
     "apis" in args
       ? listResult.APIs.filter((value) => {
-          return args.apis?.includes(value.operationId);
+          const apis = args.apis?.split(";");
+          return apis?.includes(value.operationId);
         })
       : listResult.APIs.filter((value) => {
           const auth = value.auth;

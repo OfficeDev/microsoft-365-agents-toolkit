@@ -77,6 +77,44 @@ describe("ActionInjector", () => {
       });
     });
 
+    it("generateAuthAction should add auth parameters", () => {
+      const actionName = "oauth/register";
+      const authName = "testAuth";
+      const teamsAppIdEnvName = "TEAMS_APP_ID";
+      const specRelativePath = "path/to/spec";
+      const envName = "TEST_AUTH_CONFIGURATION_ID";
+      const flow = "authorizationCode";
+      const isMicrosoftEntra = true;
+
+      const result = ActionInjector.generateAuthAction(
+        actionName,
+        authName,
+        teamsAppIdEnvName,
+        specRelativePath,
+        envName,
+        flow,
+        isMicrosoftEntra,
+        {
+          authorizationUrl: "mockedAuthoriationUrl",
+        }
+      );
+
+      assert.deepEqual(result, {
+        uses: actionName,
+        with: {
+          name: `${authName}`,
+          appId: `\${{${teamsAppIdEnvName}}}`,
+          apiSpecPath: specRelativePath,
+          flow: flow,
+          identityProvider: "MicrosoftEntra",
+          authorizationUrl: "mockedAuthoriationUrl",
+        },
+        writeToEnvironmentFile: {
+          configurationId: envName,
+        },
+      });
+    });
+
     it("should inject OAuth action successfully if no existing env names for configuration id exists", async () => {
       const ymlPath = "path/to/yml";
       const authName = "testAuth";
@@ -122,6 +160,60 @@ describe("ActionInjector", () => {
       });
       assert.isTrue(writeStub.args[0][1].includes("oauth/register"));
       assert.isTrue(writeStub.args[0][1].includes("oauthName"));
+    });
+
+    it("should inject OAuth action successfully if no existing env names for configuration id exists with auth parameters", async () => {
+      const ymlPath = "path/to/yml";
+      const authName = "testAuth";
+      const specRelativePath = "path/to/spec";
+      const forceToAddNew = false;
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              # Teams app name
+              name: test
+            # Write the information of created resources into environment file for
+            # the specified environment variable(s).
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(Utils, "getSafeRegistrationIdEnvName").returns("TEST_AUTH_CONFIGURATION_ID");
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+      sandbox.stub(ActionInjector, "generateAuthAction").returns({
+        uses: "oauth/register",
+        with: {
+          name: "testAuth",
+          appId: "${{TEAMS_APP_ID}}",
+          apiSpecPath: "path/to/spec",
+          flow: "authorizationCode",
+          authorizationUrl: "mockedAuthoriationUrl",
+        },
+        writeToEnvironmentFile: {
+          configurationId: "TEST_AUTH_CONFIGURATION_ID",
+        },
+      });
+
+      const result = await ActionInjector.injectCreateOAuthAction(
+        ymlPath,
+        authName,
+        specRelativePath,
+        forceToAddNew,
+        false,
+        {
+          authorizationUrl: "mockedAuthoriationUrl",
+        }
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: "TEST_AUTH_CONFIGURATION_ID",
+        registrationIdEnvName: "TEST_AUTH_CONFIGURATION_ID",
+      });
+      assert.isTrue(writeStub.args[0][1].includes("oauth/register"));
+      assert.isTrue(writeStub.args[0][1].includes("mockedAuthoriationUrl"));
     });
 
     it("should throw InjectOAuthActionFailedError if provision node is missing", async () => {

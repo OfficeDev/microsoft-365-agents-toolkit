@@ -128,6 +128,69 @@ describe("CreateOauthDriver", () => {
     }
   });
 
+  it("happy path: read clientSecret, refreshurl, apis, urls from input ", async () => {
+    sinon
+      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .callsFake(async (token, oauthRegistration) => {
+        expect(oauthRegistration.clientId).to.equals("mockedClientId");
+        expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
+        expect(oauthRegistration.description).to.equals("test");
+        expect(oauthRegistration.authorizationEndpoint).to.equals("mockedAuthorizationUrl");
+        expect(oauthRegistration.scopes[0]).to.equals("mockedScope1");
+        expect(oauthRegistration.targetUrlsShouldStartWith[0]).to.equals("https://test");
+        expect(oauthRegistration.tokenExchangeEndpoint).to.equals("mockedTokenUrl");
+        expect(oauthRegistration.tokenRefreshEndpoint).to.equal("mockedRefreshUrl");
+        expect(oauthRegistration.applicableToApps).to.equals(OauthRegistrationAppType.AnyApp);
+        expect(oauthRegistration.isPKCEEnabled).to.be.false;
+        expect(oauthRegistration.targetAudience).to.equals(
+          OauthRegistrationTargetAudience.AnyTenant
+        );
+        expect(oauthRegistration.m365AppId).to.equal("");
+        expect(oauthRegistration.identityProvider).to.equal("Custom");
+        return {
+          configurationRegistrationId: {
+            oAuthConfigId: "mockedRegistrationId",
+          },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      });
+    sinon.stub(SpecParser.prototype, "list").resolves({
+      APIs: [
+        {
+          api: "api",
+          server: "https://test",
+          operationId: "api1",
+          isValid: true,
+          reason: [],
+        },
+      ],
+      allAPICount: 1,
+      validAPICount: 1,
+    });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      apiSpecPath: "mockedPath",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      isPKCEEnabled: false,
+      identityProvider: "Custom",
+      apis: "api1;api2",
+      authorizationUrl: "mockedAuthorizationUrl",
+      tokenUrl: "mockedTokenUrl",
+      scopes: "mockedScope1;mockedScope2",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.get(outputKeys.configurationId)).to.equal("mockedRegistrationId");
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
   it("happy path: secret is not needed when PKCE enabled", async () => {
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")

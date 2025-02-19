@@ -40,7 +40,8 @@ export async function getDomain(
   const filteredOperations =
     "apis" in args
       ? operations.filter((value) => {
-          return args.apis?.includes(value.operationId);
+          const apis = args.apis?.split(";");
+          return apis?.includes(value.operationId);
         })
       : operations.filter((value) => {
           const auth = value.auth;
