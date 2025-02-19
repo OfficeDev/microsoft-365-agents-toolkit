@@ -75,7 +75,17 @@ export class CopilotDebugLog {
   constructor(logAsJson: string) {
     let message: this;
     try {
-      message = JSON.parse(logAsJson) as this;
+      const incomingJson = JSON.parse(logAsJson);
+      if (
+        incomingJson !== null &&
+        typeof incomingJson === "object" &&
+        incomingJson?.pluginDeveloperInfo !== undefined
+      ) {
+        const pluginDeveloperInfo = incomingJson?.pluginDeveloperInfo;
+        message = pluginDeveloperInfo as this;
+      } else {
+        message = incomingJson as this;
+      }
     } catch (error) {
       throw new Error(`Error parsing logAsJson: ${(error as Error).message}`);
     }
