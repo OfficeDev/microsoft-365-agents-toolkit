@@ -483,23 +483,29 @@ export class CopilotGptManifestUtils {
       }
       agentManifest.capabilities.push(newCapability);
     } else {
-      if (itemsBySharepointIds) {
-        if (!capability.items_by_sharepoint_ids) {
-          capability.items_by_sharepoint_ids = [];
+      if (itemsBySharepointIds === null && itemsByUrl === null) {
+        // search all
+        delete capability.sites;
+        delete capability.items_by_sharepoint_ids;
+      } else {
+        if (itemsBySharepointIds) {
+          if (!capability.items_by_sharepoint_ids) {
+            capability.items_by_sharepoint_ids = [];
+          }
+          capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
         }
-        capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
-      }
-      if (itemsByUrl) {
-        if (capabilityName === "OneDriveAndSharePoint") {
-          if (!capability.items_by_url) {
-            capability.items_by_url = [];
+        if (itemsByUrl) {
+          if (capabilityName === "OneDriveAndSharePoint") {
+            if (!capability.items_by_url) {
+              capability.items_by_url = [];
+            }
+            capability.items_by_url.push(itemsByUrl);
+          } else {
+            if (!capability.sites) {
+              capability.sites = [];
+            }
+            capability.sites.push(itemsByUrl);
           }
-          capability.items_by_url.push(itemsByUrl);
-        } else {
-          if (!capability.sites) {
-            capability.sites = [];
-          }
-          capability.sites.push(itemsByUrl);
         }
       }
     }
