@@ -274,6 +274,11 @@ export enum ProjectType {
   TeamsAi,
 }
 
+export enum AdaptiveCardUpdateStrategy {
+  CreateNew, // Add a new adaptive card with a new name
+  KeepExisting, // Do nothing with the existing adaptive card
+}
+
 export interface APIInfo {
   method: string;
   path: string;

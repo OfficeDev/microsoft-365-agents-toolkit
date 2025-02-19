@@ -9,6 +9,7 @@ import jsyaml from "js-yaml";
 import fs from "fs-extra";
 import path from "path";
 import {
+  AdaptiveCardUpdateStrategy,
   APIInfo,
   APIMap,
   ErrorResult,
@@ -307,7 +308,8 @@ export class SpecParser {
     outputSpecPath: string,
     pluginFilePath: string,
     existingPluginFilePath?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    adaptiveCardUpdateStrategy?: AdaptiveCardUpdateStrategy
   ): Promise<GenerateResult> {
     const result: GenerateResult = {
       allSuccess: true,
@@ -376,7 +378,12 @@ export class SpecParser {
           existingPluginManifestInfo
         );
 
-      await this.separateAdaptiveCards(apiPlugin, pluginFilePath, jsonDataSet);
+      await this.separateAdaptiveCards(
+        apiPlugin,
+        pluginFilePath,
+        jsonDataSet,
+        adaptiveCardUpdateStrategy
+      );
 
       result.warnings.push(...warnings);
 
@@ -559,9 +566,13 @@ export class SpecParser {
   private async separateAdaptiveCards(
     apiPlugin: PluginManifestSchema,
     pluginFilePath: string,
-    jsonDataSet: Record<string, any> = {}
+    jsonDataSet: Record<string, any> = {},
+    adaptiveCardUpdateStrategy?: AdaptiveCardUpdateStrategy
   ): Promise<void> {
     const functions = apiPlugin.functions;
+    if (!adaptiveCardUpdateStrategy) {
+      adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.CreateNew;
+    }
     if (functions) {
       const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
       for (const func of functions) {
@@ -569,12 +580,23 @@ export class SpecParser {
           const responseSemantic = func.capabilities.response_semantics;
           const card = responseSemantic.static_template;
           if (card && Object.keys(card).length !== 0) {
-            const cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
+            let cardName = func.name;
+
+            if (adaptiveCardUpdateStrategy === AdaptiveCardUpdateStrategy.CreateNew) {
+              cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
+            } else {
+              if (
+                adaptiveCardUpdateStrategy === AdaptiveCardUpdateStrategy.KeepExisting &&
+                fs.existsSync(path.join(adaptiveCardFolder, `${cardName}.json`))
+              ) {
+                responseSemantic.static_template = { file: `adaptiveCards/${cardName}.json` };
+                continue;
+              }
+            }
+
             const cardPath = path.join(adaptiveCardFolder, `${cardName}.json`);
             const dataPath = path.join(adaptiveCardFolder, `${cardName}.data.json`);
-            responseSemantic.static_template = {
-              file: `adaptiveCards/${cardName}.json`,
-            };
+            responseSemantic.static_template = { file: `adaptiveCards/${cardName}.json` };
             await fs.outputJSON(cardPath, card, { spaces: 4 });
             const data = jsonDataSet[cardName] ?? {};
             await fs.outputJSON(dataPath, data, { spaces: 4 });

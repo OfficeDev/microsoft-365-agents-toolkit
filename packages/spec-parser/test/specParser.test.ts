@@ -7,7 +7,13 @@ import { expect } from "chai";
 import sinon from "sinon";
 import converter from "swagger2openapi";
 import { SpecParser } from "../src/specParser";
-import { ErrorType, ProjectType, ValidationStatus, WarningType } from "../src/interfaces";
+import {
+  AdaptiveCardUpdateStrategy,
+  ErrorType,
+  ProjectType,
+  ValidationStatus,
+  WarningType,
+} from "../src/interfaces";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { SpecParserError } from "../src/specParserError";
 import { ConstantString } from "../src/constants";
@@ -1530,6 +1536,83 @@ describe("SpecParser", () => {
 
       sinon.assert.calledWith(outputJSONStub, expectedCardPath, adaptiveCardContent, { spaces: 4 });
       sinon.assert.calledWith(outputJSONStub, expectedDataPath, adaptiveCardData, { spaces: 4 });
+    });
+
+    it("should generate adaptive card and not override if AdaptiveCardUpdateStrategy is KeepExisting", async () => {
+      const manifestPath = "path/to/manifest.json";
+      const outputSpecPath = "path/to/spec.json";
+      const pluginFilePath = "C:\\fakepath\\ai-plugin.json";
+      const filter = ["get /hello"];
+
+      const fakeSpec = { openapi: "3.0.0", paths: {} };
+      const fakeUnresolvedSpec = { paths: {} };
+
+      const adaptiveCardContent = { foo: "bar" };
+      const adaptiveCardData = { key: "value" };
+      const fakeApiPlugin = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json",
+        schema_version: "v2.2",
+        name_for_human: "testsep22",
+        description_for_human: "A simple service to manage repairs",
+        functions: [
+          {
+            name: "testFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+        ],
+      };
+
+      const fakeWarnings: any[] = [];
+      const fakeJsonDataSet = {
+        testFunc: adaptiveCardData,
+      };
+
+      sinon
+        .stub(ManifestUpdater, "updateManifestWithAiPlugin")
+        .resolves([{} as any, fakeApiPlugin, fakeWarnings, fakeJsonDataSet]);
+
+      sinon
+        .stub(SpecParser.prototype, "getFilteredSpecs")
+        .resolves([fakeUnresolvedSpec as any, fakeSpec as any]);
+
+      const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
+
+      const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
+        return path.toString().endsWith("testFunc.json");
+      });
+
+      const specParser = new SpecParser("path/to/spec.yaml");
+
+      await specParser.generateForCopilot(
+        manifestPath,
+        filter,
+        outputSpecPath,
+        pluginFilePath,
+        undefined,
+        undefined,
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      expect(fakeApiPlugin?.functions).to.deep.equal([
+        {
+          name: "testFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+      ]);
+
+      sinon.assert.callCount(outputJSONStub, 2);
     });
   });
 
