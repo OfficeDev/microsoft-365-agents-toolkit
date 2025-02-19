@@ -209,6 +209,64 @@ describe("copilotDebugLogOutput", () => {
       ]);
     });
 
+    it("should parse the original log JSON format and initialize properties", () => {
+      const logJson = JSON.stringify({
+        enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
+        matchedFunctionCandidates: [
+          {
+            plugin: { name: "plugin1", id: "1", version: "1.0" },
+            functionDisplayName: "function1",
+          },
+        ],
+        functionsSelectedForInvocation: [
+          {
+            plugin: { name: "plugin1", id: "1", version: "1.0" },
+            functionDisplayName: "function1",
+          },
+        ],
+        functionExecutions: [
+          {
+            function: {
+              plugin: { name: "plugin1", id: "1", version: "1.0" },
+              functionDisplayName: "function1",
+            },
+            executionStatus: { requestStatus: 200, responseStatus: 200, responseType: 1 },
+            parameters: {},
+            requestUri: "http://example.com",
+            requestMethod: "GET",
+            responseContent: "",
+            responseContentType: "",
+            errorMessage: "",
+          },
+        ],
+      });
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      chai.assert.deepEqual(copilotDebugLog.enabledPlugins, [
+        { name: "plugin1", id: "1", version: "1.0" },
+      ]);
+      chai.assert.deepEqual(copilotDebugLog.matchedFunctionCandidates, [
+        { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
+      ]);
+      chai.assert.deepEqual(copilotDebugLog.functionsSelectedForInvocation, [
+        { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
+      ]);
+      chai.assert.deepEqual(copilotDebugLog.functionExecutions, [
+        {
+          function: {
+            plugin: { name: "plugin1", id: "1", version: "1.0" },
+            functionDisplayName: "function1",
+          },
+          executionStatus: { requestStatus: 200, responseStatus: 200, responseType: 1 },
+          parameters: {},
+          requestUri: "http://example.com",
+          requestMethod: "GET",
+          responseContent: "",
+          responseContentType: "",
+          errorMessage: "",
+        },
+      ]);
+    });
+
     it("should throw an error if log JSON is invalid", () => {
       const invalidLogJson = "{ invalid json }";
       chai.assert.throws(() => new CopilotDebugLog(invalidLogJson), /Error parsing logAsJson/);
