@@ -51,7 +51,14 @@ import {
   MissingRequiredInputError,
   UserCancelError,
 } from "../../src/error/common";
-import { loadOptions, questionVisitor, traverse } from "../../src/ui/visitor";
+import {
+  findValue,
+  getSingleOption,
+  loadOptions,
+  questionVisitor,
+  singleSelectCallback,
+  traverse,
+} from "../../src/ui/visitor";
 import { MockTools } from "../core/utils";
 
 function createInputs(): Inputs {
@@ -860,6 +867,7 @@ describe("Question Model - Visitor Test", () => {
         type: "singleFile",
         name: "test",
         title: "test",
+        default: "test",
         innerStep: 1,
         innerTotalStep: 2,
         defaultFolder: "./",
@@ -887,6 +895,7 @@ describe("Question Model - Visitor Test", () => {
         type: "folder",
         name: "test",
         title: "test",
+        default: () => "test",
       };
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -943,6 +952,152 @@ describe("Question Model - Visitor Test", () => {
       assert.isTrue(res.isOk() && res.value.type === "skip");
       assert.isTrue(stub.calledOnce);
     });
+    it("skip single select will trigger onDidSelection in non-interactive mode", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+        skipSingleOption: true,
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+    it("skip single select will trigger onDidSelection in interactive mode", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+        skipSingleOption: true,
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+    it("select default value will trigger onDidSelection", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a", "b"],
+        default: "a",
+        onDidSelection: () => {},
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+      };
+      const res = await questionVisitor(question, tools.ui, inputs);
+      assert.isTrue(res.isOk() && res.value.type === "skip");
+      assert.isTrue(stub.calledOnce);
+    });
+  });
+  describe("getSingleOption", () => {
+    it("undefined option", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a", "b"],
+        default: "a",
+        onDidSelection: () => {},
+      };
+      const options = getSingleOption(question, undefined);
+      assert.deepEqual(options as string, "a");
+    });
+  });
+  describe("singleSelectCallback", async () => {
+    it("no onDidSelection", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      singleSelectCallback(question, "a", inputs, ["a"]);
+    });
+    it("answer is OptionItem", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, { id: "a", label: "" }, inputs, ["a"]);
+      assert.isTrue(stub.calledOnce);
+    });
+    it("option is string[]", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, "a", inputs, ["a"]);
+      assert.isTrue(stub.calledOnce);
+    });
+    it("option is OptionItem[]", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: [{ id: "a", label: "" }],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, "a", inputs, [{ id: "a", label: "" }]);
+      assert.isTrue(stub.calledOnce);
+    });
+    it("answer not match in options", async () => {
+      const question: SingleSelectQuestion = {
+        type: "singleSelect",
+        name: "test",
+        title: "test",
+        staticOptions: ["a"],
+        onDidSelection: () => {},
+      };
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        test: "a",
+      };
+      const stub = sandbox.stub(question, "onDidSelection");
+      singleSelectCallback(question, "b", inputs, ["a"]);
+      assert.isTrue(stub.notCalled);
+    });
   });
 
   describe("loadOptions", async () => {
@@ -958,6 +1113,40 @@ describe("Question Model - Visitor Test", () => {
         { platform: Platform.VSCode }
       );
       assert.deepEqual(options, ["a"]);
+    });
+  });
+
+  describe("findValue", () => {
+    it("group node return the value of parent", () => {
+      const node: IQTreeNode = {
+        data: {
+          type: "group",
+          name: "1",
+        },
+      };
+      const parent: IQTreeNode = {
+        data: {
+          type: "text",
+          title: "2",
+          name: "2",
+          value: "2",
+        },
+      };
+      const map = new Map();
+      map.set(node, parent);
+      const value = findValue(node, map);
+      assert.equal(value, "2");
+    });
+    it("group node no parent", () => {
+      const node: IQTreeNode = {
+        data: {
+          type: "group",
+          name: "1",
+        },
+      };
+      const map = new Map();
+      const value = findValue(node, map);
+      assert.isUndefined(value);
     });
   });
 });

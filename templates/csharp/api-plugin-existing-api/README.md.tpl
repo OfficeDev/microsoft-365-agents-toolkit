@@ -11,7 +11,7 @@
 1. Right-click your project and select `Teams Toolkit > Provision in the Cloud..`. You can find everything it will do in the `teamsapp.yml`.
 2. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
 to install the app to.
-3. Right-click your project and select `Teams Toolkit > Preview in > Teams`.
+3. Right-click your project and select `Teams Toolkit > Preview in > Copilot`.
 4. When Teams launches in the browser, open the `Copilot` app and send a prompt to trigger your plugin.
    > Note: Please make sure to switch to New Teams when Teams web client has launched
 

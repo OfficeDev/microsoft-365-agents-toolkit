@@ -13,7 +13,11 @@ import {
   setTemplateName,
 } from "../vsc/CapabilityOptions";
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
-import { llmServiceNode } from "../vsc/customAgentProjectTypeNode";
+import {
+  aiAgentNode,
+  customCopilotRagNode,
+  llmServiceNode,
+} from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
 
@@ -108,6 +112,8 @@ export function scaffoldQuestionForVS(): IQTreeNode {
         },
         children: [
           daProjectTypeNode(VSCapabilityOptions.declarativeAgent().id),
+          customCopilotRagNode(),
+          aiAgentNode(),
           llmServiceNode({
             enum: [
               CustomCopilotCapabilityOptions.basicChatbot().id,

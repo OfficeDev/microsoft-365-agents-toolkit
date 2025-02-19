@@ -30,10 +30,13 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.copilotChat.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
+          <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Visual Studio Code GitHub Copilot 채팅 설치]]></Val>
+            <Val><![CDATA[⚠️Visual Studio Code GitHub Copilot 채팅 설치]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -57,27 +60,54 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트의 GitHub Copilot 확장으로 채팅하여 Teams 앱을 빌드하거나 Microsoft 365 Copilot 사용자 지정하고 확장하세요.]]></Val>
+            <Val><![CDATA[필수 단계(포함 ⚠️)를 완료하여 Teams 도구 키트의 GitHub Copilot 확장을 설정합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp)(@teamsapp)을 사용하면 Teams 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot 사용자 지정할 수 있습니다.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[[GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp)(@teamsapp)을 사용하면 Teams 앱 개발을 간소화하고 채팅 기능을 사용하여 Microsoft 365 Copilot 사용자 지정할 수 있습니다.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentRoughthrough%22%5D)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install GitHub Copilot extension for Teams Toolkit]]></Val>
+          <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit용 GitHub Copilot 확장 설치]]></Val>
+            <Val><![CDATA[⚠️Teams Toolkit용 GitHub Copilot 확장 설치]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install GitHub Copilot extension for Teams Toolkit]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.installConfirm.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[[GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) 설치 후 설치를 완료된 것으로 표시하세요.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.installConfirm.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[⚠️@teamsapp 설치 확인]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -102,28 +132,37 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.setup.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+          <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub 계정에 로그인하고 시작합니다. [GitHub Copilot 설정]5D;(https://aka.ms/teams-agent-github-copilot-setup) 방법에 대해 자세히 알아보세요.]A;[GitHub Copilot Chat 열기]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[로그인 완료 표시]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+            <Val><![CDATA[GitHub 계정에 로그인하고 시작합니다. [GitHub Copilot 설정]5D;(https://aka.ms/teams-agent-github-copilot-setup) 방법에 대해 자세히 알아보세요.]A;[GitHub Copilot Chat 열기]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.setup.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Set up GitHub Copilot in Visual Studio Code]]></Val>
+          <Val><![CDATA[⚠️Set up GitHub Copilot in Visual Studio Code]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Visual Studio Code GitHub Copilot 설정]]></Val>
+            <Val><![CDATA[⚠️Visual Studio Code GitHub Copilot 설정]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Set up GitHub Copilot in Visual Studio Code]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Getting Started of the GitHub Copilot Extension for Teams Toolkit]]></Val>
+          <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit용 GitHub Copilot 확장의 시작]]></Val>
+            <Val><![CDATA[Teams Toolkit용 GitHub Copilot 확장으로 시작]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Getting Started of the GitHub Copilot Extension for Teams Toolkit]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1872,10 +1911,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+          <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 게시용 패키지로 빌드]]></Val>
+            <Val><![CDATA[Teams 앱을 게시용 패키지로 빌드합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1998,12 +2040,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
+          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml에서 '배포' 수명 주기 단계 실행]]></Val>
+            <Val><![CDATA[teamsapp.yml에서 '배포' 수명 주기 단계를 실행합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Deploy your Teams app to the provisioned resources in Azure]]></Val>
+            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2388,12 +2430,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
+          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml 파일에서 '프로비전' 수명 주기 단계 실행]]></Val>
+            <Val><![CDATA[teamsapp.yml 파일에서 '프로비전' 수명 주기 단계를 실행합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'provision' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2478,24 +2520,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to store in developer portal]]></Val>
+          <Val><![CDATA[Publish to Store in Developer Portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[개발자 포털에서 저장소에 게시]]></Val>
+            <Val><![CDATA[개발자 포털 Microsoft Store에 게시]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+            <Val><![CDATA[Publish to store in developer portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to org]]></Val>
+          <Val><![CDATA[Publish to Organization]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[조직에 게시]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish]]></Val>
+            <Val><![CDATA[Publish to org]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2592,10 +2634,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate against manifest schema and app package]]></Val>
+          <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[매니페스트 스키마 및 앱 패키지에 대해 유효성 검사]]></Val>
+            <Val><![CDATA[매니페스트 스키마 및 앱 패키지에 대해 검증합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate against manifest schema and app package]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5892,6 +5937,24 @@
           <Val><![CDATA[Select a Tutorial to Get Started]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[시작하려면 자습서를 선택하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[도움이 더 필요하세요? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22RoughThrough%22%5D)에서 Teams 앱 또는 Microsoft 365 Copilot 에이전트 개발을 탐색합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Chat with GitHub Copilot]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[GitHub Copilot 채팅]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
