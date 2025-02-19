@@ -347,7 +347,7 @@ export class CreateAppPackageDriver implements StepDriver {
             const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
               (capability) => capability.name === EmbeddedKnowledgeCapabilityName
             );
-            if (embeddedKnowledgeCapabilities && embeddedKnowledgeCapabilities.length > 0) {
+            if (embeddedKnowledgeCapabilities.length > 0) {
               const fileSet = new Set<string>();
               for (const capability of embeddedKnowledgeCapabilities) {
                 for (const file of capability.files as File[]) {
