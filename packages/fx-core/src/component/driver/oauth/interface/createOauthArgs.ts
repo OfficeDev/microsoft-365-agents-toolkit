@@ -14,4 +14,8 @@ export interface CreateOauthArgs {
   refreshUrl?: string; // Refresh url
   isPKCEEnabled?: boolean; // Whether PKCE is enabled
   identityProvider?: string; // Identity provider
+  authorizationUrl?: string; // Authorization url
+  tokenUrl?: string; // Token url
+  scopes?: string; // Scopes
+  apis?: string; // Apis
 }

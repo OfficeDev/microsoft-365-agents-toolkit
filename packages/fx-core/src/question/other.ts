@@ -882,7 +882,52 @@ export function addAuthActionQuestion(): IQTreeNode {
       {
         data: apiAuthQuestion(true),
       },
+      oauthParametersQuestion(),
     ],
+  };
+}
+
+export function oauthParametersQuestion(): IQTreeNode {
+  return {
+    data: oauthAuthorizationUrlQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === "oauth";
+    },
+    children: [
+      {
+        data: oauthTokenUrlQuestion(),
+      },
+      {
+        data: oauthScopeQuestion(),
+      },
+    ],
+  };
+}
+
+export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthAuthorizationUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
+    type: "text",
+    cliDescription: "Authorization Url for oauth.",
+  };
+}
+
+export function oauthTokenUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthTokenUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
+    type: "text",
+    cliDescription: "Token Url for oauth.",
+  };
+}
+
+export function oauthScopeQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
   };
 }
 

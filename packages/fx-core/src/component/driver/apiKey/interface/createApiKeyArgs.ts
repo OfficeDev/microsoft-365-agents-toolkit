@@ -9,4 +9,5 @@ export interface CreateApiKeyArgs {
   apiSpecPath: string; // The location of api spec file
   applicableToApps?: string; // What app can access the api key. Values can be "SpecificApp" or "AnyApp". Default is "AnyApp".
   targetAudience?: string; // What tenant can access the api key. Values can be "HomeTenant" or "AnyTenant". Default is "HomeTenant".
+  apis?: string;
 }

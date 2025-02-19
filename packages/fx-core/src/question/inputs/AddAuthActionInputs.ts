@@ -21,4 +21,10 @@ export interface AddAuthActionInputs extends Inputs {
   "auth-name"?: string;
   /** @description Authentication Type */
   "api-auth"?: "none" | "api-key" | "bearer-token" | "microsoft-entra" | "oauth";
+  /** @description Input the OAuth Authorization URL */
+  "oauth-authorization-url"?: string;
+  /** @description Input the OAuth Token URL */
+  "oauth-token-url"?: string;
+  /** @description Input the OAuth Scope. Separate by semicolon. */
+  "oauth-scope"?: string;
 }

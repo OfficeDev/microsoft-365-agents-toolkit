@@ -41,5 +41,20 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     default: "none",
     choices: ["none", "api-key", "bearer-token", "microsoft-entra", "oauth"],
   },
+  {
+    name: "oauth-authorization-url",
+    type: "string",
+    description: "Authorization Url for oauth.",
+  },
+  {
+    name: "oauth-token-url",
+    type: "string",
+    description: "Token Url for oauth.",
+  },
+  {
+    name: "oauth-scope",
+    type: "string",
+    description: "Scope for oauth.",
+  },
 ];
 export const AddAuthActionArguments: CLICommandArgument[] = [];

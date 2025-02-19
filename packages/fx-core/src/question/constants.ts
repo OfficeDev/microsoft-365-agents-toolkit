@@ -109,6 +109,10 @@ export enum QuestionNames {
 
   AuthName = "auth-name",
   TemplateName = "template-name",
+
+  OAuthAuthorizationUrl = "oauth-authorization-url",
+  OAuthTokenUrl = "oauth-token-url",
+  OAuthScope = "oauth-scope",
 }
 
 export enum ProjectTypeGroup {

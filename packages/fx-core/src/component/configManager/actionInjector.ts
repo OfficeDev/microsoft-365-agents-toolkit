@@ -41,7 +41,8 @@ export class ActionInjector {
     specRelativePath: string,
     envName: string,
     flow?: string,
-    isMicrosoftEntra?: boolean
+    isMicrosoftEntra?: boolean,
+    authParameters?: any
   ): any {
     const result: any = {
       uses: actionName,
@@ -67,6 +68,13 @@ export class ActionInjector {
       result.with.identityProvider = MicrosoftEntraAuthType;
     }
 
+    if (authParameters) {
+      result.with = {
+        ...result.with,
+        ...authParameters,
+      };
+    }
+
     return result;
   }
 
@@ -75,7 +83,8 @@ export class ActionInjector {
     authName: string,
     specRelativePath: string,
     forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
-    isMicrosoftEntra: boolean
+    isMicrosoftEntra: boolean,
+    authParameters?: any
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -133,7 +142,8 @@ export class ActionInjector {
             specRelativePath,
             registrationIdEnvName,
             flow,
-            isMicrosoftEntra
+            isMicrosoftEntra,
+            authParameters
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {
@@ -157,7 +167,8 @@ export class ActionInjector {
     ymlPath: string,
     authName: string,
     specRelativePath: string,
-    forceToAddNew: boolean // If it from add plugin, then we will add another CreateApiKeyAction
+    forceToAddNew: boolean, // If it from add plugin, then we will add another CreateApiKeyAction
+    authParameters?: any
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "apiKey/register";
@@ -213,7 +224,10 @@ export class ActionInjector {
             authName,
             teamsAppIdEnvName,
             specRelativePath,
-            registrationIdEnvName
+            registrationIdEnvName,
+            undefined,
+            undefined,
+            authParameters
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {

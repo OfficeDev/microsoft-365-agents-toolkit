@@ -627,7 +627,8 @@ export async function injectAuthAction(
   authScheme: AuthType | undefined,
   outputApiSpecPath: string,
   forceToAddNew: boolean,
-  authType?: string
+  authType?: string,
+  authParameters?: any
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
@@ -639,7 +640,8 @@ export async function injectAuthAction(
       ymlPath,
       authName,
       relativeSpecPath,
-      forceToAddNew
+      forceToAddNew,
+      authParameters
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -647,7 +649,8 @@ export async function injectAuthAction(
         localYamlPath,
         authName,
         relativeSpecPath,
-        forceToAddNew
+        forceToAddNew,
+        authParameters
       );
     }
     return res;
@@ -661,7 +664,8 @@ export async function injectAuthAction(
       authName,
       relativeSpecPath,
       forceToAddNew,
-      authType === MicrosoftEntraAuthType
+      authType === MicrosoftEntraAuthType,
+      authParameters
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -670,7 +674,8 @@ export async function injectAuthAction(
         authName,
         relativeSpecPath,
         forceToAddNew,
-        authType === MicrosoftEntraAuthType
+        authType === MicrosoftEntraAuthType,
+        authParameters
       );
     }
     return res;

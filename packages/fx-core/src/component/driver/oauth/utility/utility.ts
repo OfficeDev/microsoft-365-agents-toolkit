@@ -48,10 +48,15 @@ export async function getandValidateOauthInfoFromSpec(
     allowMethods: ["get", "post", "put", "delete", "patch", "head", "connect", "options", "trace"],
   });
   const listResult = await parser.list();
-  const operations = listResult.APIs.filter((value) => {
-    const auth = value.auth;
-    return auth && auth.authScheme.type === "oauth2" && auth.name === args.name;
-  });
+  const operations =
+    "apis" in args
+      ? listResult.APIs.filter((value) => {
+          return args.apis?.includes(value.operationId);
+        })
+      : listResult.APIs.filter((value) => {
+          const auth = value.auth;
+          return auth && auth.authScheme.type === "oauth2" && auth.name === args.name;
+        });
 
   if (operations.length === 0) {
     throw new OauthAuthMissingInSpec(actionName, args.name);
@@ -65,6 +70,16 @@ export async function getandValidateOauthInfoFromSpec(
       return self.indexOf(value) === index;
     });
   validateDomain(domains, actionName);
+
+  if ("authorizationUrl" in args) {
+    return {
+      domain: domains,
+      authorizationEndpoint: args.authorizationUrl,
+      tokenExchangeEndpoint: args.tokenUrl,
+      tokenRefreshEndpoint: args.refreshUrl,
+      scopes: args.scopes?.split(";").map((value) => value.trim()),
+    };
+  }
 
   // Need to separate the logic for different flows
   const flow = "flow" in args ? args.flow : "authorizationCode";

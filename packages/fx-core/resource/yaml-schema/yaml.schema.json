@@ -1609,6 +1609,10 @@
               "type": "string",
               "description": "Which tenant can access the API key? Values can be \"HomeTenant\" or \"AnyTenant\". Default is \"AnyTenant\".",
               "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "apis": {
+              "type": "string",
+              "description": "The APIs of OAuth registration. Split by semicolon"
             }
           }
         },
@@ -1774,6 +1778,22 @@
               "type": "string",
               "description": "The identity provider of OAuth registration.",
               "enum": ["MicrosoftEntra", "Custom"]
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "description": "The authorization url of OAuth registration."
+            },
+            "tokenUrl": {
+              "type": "string",
+              "description": "The token url of OAuth registration."
+            },
+            "scopes": {
+              "type": "string",
+              "description": "The scopes of OAuth registration. Split by semicolon"
+            },
+            "apis": {
+              "type": "string",
+              "description": "The APIs of OAuth registration. Split by semicolon"
             }
           }
         },

@@ -2307,13 +2307,34 @@ export class FxCore {
         break;
     }
 
+    let authParameters = {};
+    if (authType === OAuthAuthType) {
+      const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
+      const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
+      const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+      const apis = inputs[QuestionNames.ApiOperation] as string;
+
+      authParameters = {
+        authorizationUrl: oauthAuthorizationUrl,
+        tokenUrl: oauthTokenUrl,
+        scopes: oauthScopes,
+        apis: apis,
+      };
+    } else if (authType === APIKeyAuthType) {
+      const apis = inputs[QuestionNames.ApiOperation] as string[];
+      authParameters = {
+        apis: apis,
+      };
+    }
+
     const addAuthActionRes = await injectAuthAction(
       inputs.projectPath,
       authName,
       undefined,
       apiSpecPath,
       true,
-      authType
+      authType,
+      authParameters
     );
 
     if (addAuthActionRes?.registrationIdEnvName) {

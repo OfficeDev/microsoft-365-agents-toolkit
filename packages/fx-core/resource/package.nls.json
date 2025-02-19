@@ -952,5 +952,8 @@
   "core.addAuthActionQuestion.ApiSpecLocation.placeholder": "Select an option",
   "core.addAuthActionQuestion.ApiOperation.title": "Select an API to Add Auth Configuration",
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
-  "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration"
+  "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration",
+  "core.addAuthActionQuestion.OAuthAuthorizationUrl.title": "Input the OAuth Authorization URL",
+  "core.addAuthActionQuestion.OAuthTokenUrl.title": "Input the OAuth Token URL",
+  "core.addAuthActionQuestion.OAuthScope.title": "Input the OAuth Scope. Separate by semicolon."
 }

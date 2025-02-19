@@ -37,15 +37,20 @@ export async function getDomain(
   const listResult = await parser.list();
   const operations = listResult.APIs;
 
-  const filteredOperations = operations.filter((value) => {
-    const auth = value.auth;
-    return (
-      auth &&
-      auth.name === args.name &&
-      ((auth.authScheme.type === "http" && auth.authScheme.scheme === "bearer") ||
-        (auth.authScheme.type === "apiKey" && auth.authScheme.in !== "cookie"))
-    );
-  });
+  const filteredOperations =
+    "apis" in args
+      ? operations.filter((value) => {
+          return args.apis?.includes(value.operationId);
+        })
+      : operations.filter((value) => {
+          const auth = value.auth;
+          return (
+            auth &&
+            auth.name === args.name &&
+            ((auth.authScheme.type === "http" && auth.authScheme.scheme === "bearer") ||
+              (auth.authScheme.type === "apiKey" && auth.authScheme.in !== "cookie"))
+          );
+        });
 
   if (filteredOperations.length === 0) {
     throw new ApiKeyAuthMissingInSpecError(actionName, args.name);

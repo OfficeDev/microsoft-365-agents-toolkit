@@ -6810,6 +6810,9 @@ describe("addAuthAction", async () => {
       [QuestionNames.ApiOperation]: ["operation1"],
       [QuestionNames.AuthName]: "mockAuthName",
       [QuestionNames.ApiAuth]: "oauth",
+      [QuestionNames.OAuthAuthorizationUrl]: "mockAuthUrl",
+      [QuestionNames.OAuthTokenUrl]: "mockTokenUrl",
+      [QuestionNames.OAuthScope]: "mockScope",
       projectPath: path.join(os.tmpdir(), appName),
     };
     const pluginManifest = {
