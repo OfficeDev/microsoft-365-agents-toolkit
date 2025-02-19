@@ -417,38 +417,45 @@ export class CopilotGptManifestUtils {
 
   public async addOneDriveSharePointCapability(
     agentManifestPath: string,
-    items_by_sharepoint_ids: File | undefined,
-    items_by_url: Site | undefined
+    items_by_sharepoint_ids: File | null,
+    items_by_url: Site | null,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     return this.addOrUpdateCapability(
       agentManifestPath,
       "OneDriveAndSharePoint",
       items_by_sharepoint_ids,
-      items_by_url
+      items_by_url,
+      manifestRes
     );
   }
 
   public async addWebSearchCapability(
     agentManifestPath: string,
-    items_by_url: Site
+    items_by_url: Site | null,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    return this.addOrUpdateCapability(agentManifestPath, "WebSearch", undefined, items_by_url);
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      "WebSearch",
+      null,
+      items_by_url,
+      manifestRes
+    );
   }
 
   private async addOrUpdateCapability(
     agentManifestPath: string,
     capabilityName: string,
-    itemsBySharepointIds: File | undefined,
-    itemsByUrl: Site | undefined
+    itemsBySharepointIds: File | null,
+    itemsByUrl: Site | null,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
-    const agentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      agentManifestPath
-    );
-    if (agentManifestRes.isErr()) {
-      return err(agentManifestRes.error);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
     }
 
-    const agentManifest = agentManifestRes.value;
+    const agentManifest = manifestRes.value;
     if (!agentManifest.capabilities) {
       agentManifest.capabilities = [];
     }

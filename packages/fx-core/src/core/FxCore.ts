@@ -148,6 +148,7 @@ import {
   ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
+  KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
   ProjectTypeOptions,
   QuestionNames,
@@ -2174,7 +2175,7 @@ export class FxCore {
       return err(new UserCancelError());
     }
 
-    let result: Result<undefined, FxError>;
+    let result: Result<undefined, FxError> = ok(undefined);
     switch (inputs[QuestionNames.KnowledgeSource] as string) {
       case KnowledgeSourceOptions.webSearch().id:
         result = await this.addWebSearchKnowledge(inputs, agentManifestPath);
@@ -2192,6 +2193,10 @@ export class FxCore {
         return err(
           new UserError("FxCore", "UnsupportedKnowledgeSource", "Unsupported knowledge source")
         );
+    }
+    if (result.isErr()) {
+      await context.userInteraction.showMessage("warn", result.error.message, true);
+      return ok(undefined);
     }
 
     if (inputs.platform === Platform.VSCode) {
@@ -2485,26 +2490,37 @@ export class FxCore {
     inputs: Inputs,
     agentManifestPath: string
   ): Promise<Result<undefined, FxError>> {
-    let oneDriveSharePointIds: File | undefined;
-    let oneDriveSharePointUrls: Site | undefined;
-    if (inputs.oneDriveSharePointItem[0].url) {
-      oneDriveSharePointUrls = {
-        url: inputs.oneDriveSharePointItem[0].url,
-      };
-    } else {
-      oneDriveSharePointIds = {
-        site_id: inputs.oneDriveSharePointItem[0].siteId,
-        web_id: inputs.oneDriveSharePointItem[0].webId,
-        list_id: inputs.oneDriveSharePointItem[0].listId,
-        unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
-      };
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    let oneDriveSharePointIds: File | null = null;
+    let oneDriveSharePointUrls: Site | null = null;
+
+    if (
+      inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.AllOneDriveSharepoint().id
+    ) {
+      if (inputs.oneDriveSharePointItem[0].url) {
+        oneDriveSharePointUrls = {
+          url: inputs.oneDriveSharePointItem[0].url,
+        };
+      } else {
+        oneDriveSharePointIds = {
+          site_id: inputs.oneDriveSharePointItem[0].siteId,
+          web_id: inputs.oneDriveSharePointItem[0].webId,
+          list_id: inputs.oneDriveSharePointItem[0].listId,
+          unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
+        };
+      }
     }
 
     const addOneDriveSharePointCapabilityRes =
       await copilotGptManifestUtils.addOneDriveSharePointCapability(
         agentManifestPath,
         oneDriveSharePointIds,
-        oneDriveSharePointUrls
+        oneDriveSharePointUrls,
+        manifestRes
       );
 
     if (addOneDriveSharePointCapabilityRes.isErr()) {
@@ -2518,13 +2534,36 @@ export class FxCore {
     inputs: Inputs,
     agentManifestPath: string
   ): Promise<Result<undefined, FxError>> {
-    const webSearchUrl: Site = {
-      url: inputs.webSearchUrl,
-    };
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const manifest = manifestRes.value;
+    const webSearchCapability = (manifest.capabilities ?? []).find(
+      (cap) => cap.name === "WebSearch"
+    ) as { name: string; sites?: Site[] } | undefined;
+
+    let webSearchUrl: Site | null = null;
+    if (inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allWeb().id) {
+      if (webSearchCapability?.sites && webSearchCapability.sites.length >= 4) {
+        return err(
+          AppStudioResultFactory.UserError(
+            AppStudioError.KnowledgeWebSearchLengthError.name,
+            AppStudioError.KnowledgeWebSearchLengthError.message()
+          )
+        );
+      }
+
+      webSearchUrl = {
+        url: inputs.webSearchUrl,
+      };
+    }
 
     const addWebSearchCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
       agentManifestPath,
-      webSearchUrl
+      webSearchUrl,
+      manifestRes
     );
 
     if (addWebSearchCapabilityRes.isErr()) {

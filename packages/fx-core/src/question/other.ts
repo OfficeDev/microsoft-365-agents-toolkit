@@ -34,6 +34,7 @@ import {
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
+  KnowledgeSearchTypeOptions,
 } from "./constants";
 import {
   SPFxFrameworkQuestion,
@@ -819,15 +820,25 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
     data: addKnowledgeStartQuestion(true),
     children: [
       {
+        data: selectSearchType(),
+      },
+      {
         data: webContentQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.webSearch().id,
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id &&
+            inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id
+          );
         },
       },
       {
         data: oneDriveSharePointItemQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.oneDriveSharePoint().id,
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] ===
+              KnowledgeSourceOptions.oneDriveSharePoint().id &&
+            inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id
+          );
         },
         children: [
           {
@@ -1309,6 +1320,26 @@ export function webContentQuestion(): TextInputQuestion {
         }
         return;
       },
+    },
+  };
+}
+
+function selectSearchType(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SearchType,
+    title: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.title"),
+    staticOptions: [],
+    type: "singleSelect",
+    dynamicOptions: (inputs: Inputs) => {
+      const options = [KnowledgeSearchTypeOptions.url()];
+      if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {
+        options.push(KnowledgeSearchTypeOptions.allWeb());
+      } else if (
+        inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
+      ) {
+        options.push(KnowledgeSearchTypeOptions.AllOneDriveSharepoint());
+      }
+      return options;
     },
   };
 }

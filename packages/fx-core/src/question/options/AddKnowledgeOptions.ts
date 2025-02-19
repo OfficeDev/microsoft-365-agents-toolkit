@@ -20,6 +20,12 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
   },
   {
+    name: "search-type",
+    type: "string",
+    description: "Select Search Type",
+    required: true,
+  },
+  {
     name: "web-content",
     type: "string",
     description: "Name of Web Content.",

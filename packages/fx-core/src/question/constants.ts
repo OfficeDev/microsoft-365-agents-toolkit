@@ -110,6 +110,7 @@ export enum QuestionNames {
   OneDriveSharePointURL = "oneDriveSharePointURL",
   OneDriveSharePointContent = "oneDriveSharePointContent",
   WebContent = "web-content",
+  SearchType = "search-type",
 
   AuthName = "auth-name",
 }
@@ -1285,5 +1286,26 @@ export class KnowledgeSourceOptions {
       // KnowledgeSourceOptions.graphConnector(),
       KnowledgeSourceOptions.embeddedKnowledge(),
     ];
+  }
+}
+
+export class KnowledgeSearchTypeOptions {
+  static url(): OptionItem {
+    return {
+      id: "url",
+      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.url"),
+    };
+  }
+  static allWeb(): OptionItem {
+    return {
+      id: "all-web",
+      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.web"),
+    };
+  }
+  static AllOneDriveSharepoint(): OptionItem {
+    return {
+      id: "all-oneDrive-sharePoint",
+      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.oneDriveSharepoint"),
+    };
   }
 }

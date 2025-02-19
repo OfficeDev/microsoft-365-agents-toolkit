@@ -13,6 +13,8 @@ import { Inputs } from "@microsoft/teamsfx-api";
 export interface AddKnowledgeInputs extends Inputs {
   /** @description Add Knowledge */
   "knowledge-source"?: "web-search" | "oneDrive-sharePoint" | "embedded-knowledge";
+  /** @description Select Search Type */
+  "search-type"?: string;
   /** @description Web Content */
   "web-content"?: string;
   /** @description OneDrive or SharePoint Content */
