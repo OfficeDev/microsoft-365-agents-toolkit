@@ -36,6 +36,7 @@ describe("Create single tab", function () {
   const projectPath = path.resolve(testFolder, appName);
   const envName = environmentNameManager.getDefaultEnvName();
   const resourceGroupName = `${appName}-rg`;
+  process.env.TEAMSFX_CLI_DOTNET = "false";
 
   after(async () => {
     // clean up
@@ -50,7 +51,9 @@ describe("Create single tab", function () {
         await CliHelper.createProjectWithCapability(
           appName,
           testFolder,
-          Capability.M365SsoLaunchPage
+          Capability.M365SsoLaunchPage,
+          process.env,
+          `--programming-language javascript`
         );
         {
           // Validate scaffold
