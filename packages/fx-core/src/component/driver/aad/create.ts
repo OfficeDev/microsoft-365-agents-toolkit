@@ -39,8 +39,8 @@ import {
   constants,
   descriptionMessageKeys,
   logMessageKeys,
+  questionKeys,
   telemetryKeys,
-  titleKeys,
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
 import { MissingServiceManagementReferenceError } from "./error/missingServiceManagamentReferenceError";
@@ -276,25 +276,40 @@ export class CreateAadAppDriver implements StepDriver {
     if (res.isOk() && res.value == "Proceed") {
       const aadAppId = await context.ui!.inputText({
         name: "aadAppId",
-        title: getLocalizedString(titleKeys.aadAppIdTitle),
+        title: getLocalizedString(questionKeys.aadAppIdTitle),
+        validation: (input: string): string | undefined => {
+          if (input.length < 1) {
+            return getLocalizedString(questionKeys.addAppIdValidation);
+          }
+        },
       });
       if (aadAppId.isErr()) {
-        return err(aadAppId.error);
+        return err(new UserCancelError(actionName));
       }
       const aadAppSecret = await context.ui!.inputText({
         name: "aadAppSecret",
-        title: getLocalizedString(titleKeys.aadAppSecretTitle),
+        title: getLocalizedString(questionKeys.aadAppSecretTitle),
         password: true,
+        validation: (input: string): string | undefined => {
+          if (input.length < 1) {
+            return getLocalizedString(questionKeys.aadAppSecretValidation);
+          }
+        },
       });
       if (aadAppSecret.isErr()) {
-        return err(aadAppSecret.error);
+        return err(new UserCancelError(actionName));
       }
       const aadAppObjectId = await context.ui!.inputText({
         name: "aadAppObjectId",
-        title: getLocalizedString(titleKeys.aadAppObjectIdTitle),
+        title: getLocalizedString(questionKeys.aadAppObjectIdTitle),
+        validation: (input: string): string | undefined => {
+          if (input.length < 1) {
+            return getLocalizedString(questionKeys.aadAppObjectIdValidation);
+          }
+        },
       });
       if (aadAppObjectId.isErr()) {
-        return err(aadAppObjectId.error);
+        return err(new UserCancelError(actionName));
       }
       aadAppState.clientId = aadAppId.value.result;
       AadSet.add(aadAppState.clientId!);

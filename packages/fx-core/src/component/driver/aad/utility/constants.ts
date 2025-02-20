@@ -22,10 +22,13 @@ export const descriptionMessageKeys = {
   update: "driver.aadApp.description.update",
 };
 
-export const titleKeys = {
-  aadAppIdTitle: "driver.aadApp.title.id",
-  aadAppSecretTitle: "driver.aadApp.title.secret",
-  aadAppObjectIdTitle: "driver.aadApp.title.objectId",
+export const questionKeys = {
+  aadAppIdTitle: "driver.aadApp.question.id.title",
+  addAppIdValidation: "driver.aadApp.question.id.validation",
+  aadAppSecretTitle: "driver.aadApp.question.secret.title",
+  aadAppSecretValidation: "driver.aadApp.question.secret.validation",
+  aadAppObjectIdTitle: "driver.aadApp.question.objectId.title",
+  aadAppObjectIdValidation: "driver.aadApp.question.objectId.validation",
 };
 
 export const permissionsKeys = {

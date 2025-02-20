@@ -390,6 +390,18 @@ version: v1.8`;
       })
       .to.throw("resourceAccess should be an array.");
   });
+
+  it("should return true if test tool YAML file exists", () => {
+    sinon.stub(fs, "pathExistsSync").returns(true);
+    const result = AadManifestHelper.isTestToolEnabledProject("test-project-path");
+    chai.expect(result).to.be.true;
+  });
+
+  it("should return false if test tool YAML file does not exist", () => {
+    sinon.stub(fs, "pathExistsSync").returns(false);
+    const result = AadManifestHelper.isTestToolEnabledProject("test-project-path");
+    chai.expect(result).to.be.false;
+  });
 });
 
 const invalidAadManifest: AADManifest = {
