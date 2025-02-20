@@ -413,4 +413,12 @@ export class AadManifestHelper {
       }
     }
   }
+
+  public static isTestToolEnabledProject(projectPath: string): boolean {
+    const testToolYmlPath = path.join(projectPath, MetadataV3.testToolConfigFile);
+    if (fs.pathExistsSync(testToolYmlPath)) {
+      return true;
+    }
+    return false;
+  }
 }

@@ -2,7 +2,15 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { M365TokenProvider, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
+import {
+  FxError,
+  M365TokenProvider,
+  SystemError,
+  UserError,
+  err,
+  ok,
+  Result,
+} from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { Service } from "typedi";
 import { GraphScopes } from "../../../common/constants";
@@ -11,6 +19,7 @@ import {
   HttpClientError,
   HttpServerError,
   InvalidActionInputError,
+  UserCancelError,
   assembleError,
 } from "../../../error/common";
 import { OutputEnvironmentVariableUndefinedError } from "../error/outputEnvironmentVariableUndefinedError";
@@ -25,11 +34,13 @@ import { CreateAadAppArgs } from "./interface/createAadAppArgs";
 import { CreateAadAppOutput, OutputKeys } from "./interface/createAadAppOutput";
 import { SignInAudience } from "./interface/signInAudience";
 import { AadAppClient } from "./utility/aadAppClient";
+import { AadManifestHelper } from "./utility/aadManifestHelper";
 import {
   constants,
   descriptionMessageKeys,
   logMessageKeys,
   telemetryKeys,
+  titleKeys,
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
 import { MissingServiceManagementReferenceError } from "./error/missingServiceManagamentReferenceError";
@@ -62,16 +73,23 @@ export class CreateAadAppDriver implements StepDriver {
   ): Promise<ExecutionResult> {
     const summaries: string[] = [];
     let outputs: Map<string, string> = new Map<string, string>();
+    if (!outputEnvVarNames) {
+      const error = new OutputEnvironmentVariableUndefinedError(actionName);
+      context.logProvider?.error(
+        getLocalizedString(logMessageKeys.failExecuteDriver, actionName, error.displayMessage)
+      );
+      return {
+        result: err(error),
+        summaries: summaries,
+      };
+    }
+    const aadAppState: CreateAadAppOutput = loadStateFromEnv(outputEnvVarNames);
     try {
       context.logProvider?.info(getLocalizedString(logMessageKeys.startExecuteDriver, actionName));
 
       this.validateArgs(args);
-      if (!outputEnvVarNames) {
-        throw new OutputEnvironmentVariableUndefinedError(actionName);
-      }
 
       const aadAppClient = new AadAppClient(context.m365TokenProvider, context.logProvider);
-      const aadAppState: CreateAadAppOutput = loadStateFromEnv(outputEnvVarNames);
       if (!aadAppState.clientId) {
         context.logProvider?.info(
           getLocalizedString(
@@ -195,6 +213,24 @@ export class CreateAadAppDriver implements StepDriver {
           getLocalizedString(logMessageKeys.failExecuteDriver, actionName, message)
         );
         if (error.response!.status >= 400 && error.response!.status < 500) {
+          if (
+            error.response!.status === 403 &&
+            message.includes(constants.insufficientPermissionErrorMessage) &&
+            !AadManifestHelper.isTestToolEnabledProject(context.projectPath)
+          ) {
+            const res = await this.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+            if (res.isOk()) {
+              return {
+                result: ok(res.value),
+                summaries: summaries,
+              };
+            } else {
+              return {
+                result: err(res.error),
+                summaries: summaries,
+              };
+            }
+          }
           return {
             result: err(new HttpClientError(error, actionName, message, helpLink)),
             summaries: summaries,
@@ -215,6 +251,57 @@ export class CreateAadAppDriver implements StepDriver {
         result: err(assembleError(error as Error, actionName)),
         summaries: summaries,
       };
+    }
+  }
+
+  /**
+   * Pop up a dialog to ask for AAD app id and secret
+   * @param context
+   * @param aadAppState
+   * @param outputEnvVarNames
+   * @returns
+   */
+  private async askForAADAppIdAndSecret(
+    context: WrapDriverContext,
+    aadAppState: CreateAadAppOutput,
+    outputEnvVarNames: Map<string, string>
+  ): Promise<Result<Map<string, string>, FxError>> {
+    const res = await context.ui!.showMessage(
+      "error",
+      getLocalizedString(logMessageKeys.insufficientPermission),
+      true,
+      "Proceed"
+    );
+    if (res.isOk() && res.value == "Proceed") {
+      const aadAppId = await context.ui!.inputText({
+        name: "aadAppId",
+        title: getLocalizedString(titleKeys.aadAppIdTitle),
+      });
+      if (aadAppId.isErr()) {
+        return err(aadAppId.error);
+      }
+      const aadAppSecret = await context.ui!.inputText({
+        name: "aadAppSecret",
+        title: getLocalizedString(titleKeys.aadAppSecretTitle),
+      });
+      if (aadAppSecret.isErr()) {
+        return err(aadAppSecret.error);
+      }
+      const aadAppObjectId = await context.ui!.inputText({
+        name: "aadAppObjectId",
+        title: getLocalizedString(titleKeys.aadAppObjectIdTitle),
+      });
+      if (aadAppObjectId.isErr()) {
+        return err(aadAppObjectId.error);
+      }
+      aadAppState.clientId = aadAppId.value.result;
+      AadSet.add(aadAppState.clientId);
+      aadAppState.clientSecret = aadAppSecret.value.result;
+      aadAppState.objectId = aadAppObjectId.value.result;
+      const outputs = mapStateToEnv(aadAppState, outputEnvVarNames);
+      return ok(outputs);
+    } else {
+      return err(new UserCancelError(actionName));
     }
   }
 
