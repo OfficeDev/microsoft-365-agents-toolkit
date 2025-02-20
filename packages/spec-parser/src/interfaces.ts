@@ -126,6 +126,8 @@ export enum ErrorType {
 
   Cancelled = "cancelled",
   Unknown = "unknown",
+
+  AddAuthFailed = "add-auth-failed",
 }
 
 /**

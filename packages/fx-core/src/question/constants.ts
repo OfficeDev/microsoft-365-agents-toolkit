@@ -109,6 +109,13 @@ export enum QuestionNames {
 
   AuthName = "auth-name",
   TemplateName = "template-name",
+
+  OAuthAuthorizationUrl = "oauth-authorization-url",
+  OAuthTokenUrl = "oauth-token-url",
+  OAuthScope = "oauth-scope",
+  OauthPKCE = "oauth-pkce",
+  ApiKeyIn = "api-key-in",
+  ApiKeyName = "api-key-name",
 }
 
 export enum ProjectTypeGroup {
@@ -800,6 +807,37 @@ export class ApiAuthOptions {
       ApiAuthOptions.bearerToken(),
       ApiAuthOptions.microsoftEntra(),
       ApiAuthOptions.oauth(),
+    ];
+  }
+}
+
+export class AddAuthActionAuthTypeOptions {
+  static apiKey(): OptionItem {
+    return {
+      id: "api-key",
+      label: "API Key",
+    };
+  }
+
+  static bearerToken(): OptionItem {
+    return {
+      id: "bearer-token",
+      label: "API Key (Bearer Token Auth)",
+    };
+  }
+
+  static oauth(): OptionItem {
+    return {
+      id: "oauth",
+      label: "OAuth",
+    };
+  }
+
+  static all(): OptionItem[] {
+    return [
+      AddAuthActionAuthTypeOptions.bearerToken(),
+      AddAuthActionAuthTypeOptions.apiKey(),
+      AddAuthActionAuthTypeOptions.oauth(),
     ];
   }
 }

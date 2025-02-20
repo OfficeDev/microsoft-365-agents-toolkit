@@ -627,7 +627,8 @@ export async function injectAuthAction(
   authScheme: AuthType | undefined,
   outputApiSpecPath: string,
   forceToAddNew: boolean,
-  authType?: string
+  authType?: string,
+  enablePKCE?: boolean
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
@@ -661,7 +662,8 @@ export async function injectAuthAction(
       authName,
       relativeSpecPath,
       forceToAddNew,
-      authType === MicrosoftEntraAuthType
+      authType === MicrosoftEntraAuthType,
+      enablePKCE
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -670,7 +672,8 @@ export async function injectAuthAction(
         authName,
         relativeSpecPath,
         forceToAddNew,
-        authType === MicrosoftEntraAuthType
+        authType === MicrosoftEntraAuthType,
+        enablePKCE
       );
     }
     return res;
