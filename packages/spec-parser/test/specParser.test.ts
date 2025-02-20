@@ -1632,7 +1632,7 @@ describe("SpecParser", () => {
         },
       ]);
 
-      sinon.assert.callCount(outputJSONStub, 2);
+      sinon.assert.callCount(outputJSONStub, 4);
     });
   });
 
