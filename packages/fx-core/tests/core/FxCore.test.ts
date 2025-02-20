@@ -6383,7 +6383,17 @@ describe("kiotaRegenerate", async () => {
     sandbox
       .stub(CopilotPluginHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+
+    sandbox.stub(SpecParser.prototype, "validate").resolves({
+      status: ValidationStatus.Valid,
+      warnings: [],
+      errors: [],
+    });
+
+    sandbox.stub(SpecParser.prototype, "generateForCopilot").resolves({
+      allSuccess: true,
+      warnings: [],
+    });
 
     const core = new FxCore(tools);
     const result = await core.kiotaRegenerate(inputs);
