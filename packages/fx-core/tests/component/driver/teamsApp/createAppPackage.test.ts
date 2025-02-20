@@ -1778,7 +1778,7 @@ describe("teamsApp/createAppPackage", async () => {
         capabilities: [
           {
             name: "EmbeddedKnowledge",
-            files: [{ file: "knowledge.docx" }],
+            files: [{ file: "EmbeddedKnowledge/knowledge.docx" }],
           },
         ],
       } as DeclarativeCopilotManifestSchema;
@@ -1815,7 +1815,7 @@ describe("teamsApp/createAppPackage", async () => {
       if (await fs.pathExists(args.outputZipPath)) {
         const AdmZip = require("adm-zip");
         const zip = new AdmZip(args.outputZipPath);
-        const knowledgeEntry = zip.getEntry("knowledge.docx");
+        const knowledgeEntry = zip.getEntry("EmbeddedKnowledge/knowledge.docx");
         chai.assert.exists(knowledgeEntry, "Embedded knowledge file should be added");
         await fs.remove(args.outputZipPath);
       }
@@ -1994,7 +1994,7 @@ describe("teamsApp/createAppPackage", async () => {
         capabilities: [
           {
             name: "EmbeddedKnowledge",
-            files: [{ file: "knowledgeMissing.docx" }],
+            files: [{ file: "EmbeddedKnowledge/knowledgeMissing.docx" }],
           },
         ],
       } as DeclarativeCopilotManifestSchema;

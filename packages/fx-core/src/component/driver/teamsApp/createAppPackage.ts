@@ -360,14 +360,14 @@ export class CreateAppPackageDriver implements StepDriver {
               if (fileArr.length > 0) {
                 for (const file of fileArr) {
                   const knowledgeFileAbsolutePath = path.resolve(
-                    path.dirname(appDirectory),
+                    appDirectory,
                     EmbeddedKnowledgeLocalDirectoryName,
                     file
                   );
                   // check existence
                   const checkExistenceRes = await this.validateReferencedFile(
                     knowledgeFileAbsolutePath,
-                    path.dirname(appDirectory)
+                    appDirectory
                   );
                   if (checkExistenceRes.isErr()) {
                     return err(checkExistenceRes.error);
