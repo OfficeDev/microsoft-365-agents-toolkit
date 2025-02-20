@@ -213,6 +213,7 @@ export class CreateAadAppDriver implements StepDriver {
           getLocalizedString(logMessageKeys.failExecuteDriver, actionName, message)
         );
         if (error.response!.status >= 400 && error.response!.status < 500) {
+          // When user don't have permission to create AAD app, and cannot use Test Tool, we will ask for AAD app id and secret
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
@@ -283,6 +284,7 @@ export class CreateAadAppDriver implements StepDriver {
       const aadAppSecret = await context.ui!.inputText({
         name: "aadAppSecret",
         title: getLocalizedString(titleKeys.aadAppSecretTitle),
+        password: true,
       });
       if (aadAppSecret.isErr()) {
         return err(aadAppSecret.error);
@@ -295,7 +297,7 @@ export class CreateAadAppDriver implements StepDriver {
         return err(aadAppObjectId.error);
       }
       aadAppState.clientId = aadAppId.value.result;
-      AadSet.add(aadAppState.clientId);
+      AadSet.add(aadAppState.clientId!);
       aadAppState.clientSecret = aadAppSecret.value.result;
       aadAppState.objectId = aadAppObjectId.value.result;
       const outputs = mapStateToEnv(aadAppState, outputEnvVarNames);
