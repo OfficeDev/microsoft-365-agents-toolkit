@@ -26,8 +26,7 @@
     "composeExtensions": [
         {
             "botId": "${{BOT_ID}}",
-            "commands": [
-            ],
+            "commands": [],
             "messageHandlers": [
                 {
                     "type": "link",
