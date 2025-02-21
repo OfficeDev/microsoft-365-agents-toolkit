@@ -470,6 +470,7 @@ export class CopilotGptManifestUtils {
       | undefined;
 
     if (!capability) {
+      // add new capability
       const newCapability: any = { name: capabilityName };
       if (itemsBySharepointIds) {
         newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
@@ -483,27 +484,22 @@ export class CopilotGptManifestUtils {
       }
       agentManifest.capabilities.push(newCapability);
     } else {
+      // update existing capability
       if (itemsBySharepointIds === null && itemsByUrl === null) {
         // search all
         delete capability.sites;
         delete capability.items_by_sharepoint_ids;
       } else {
         if (itemsBySharepointIds) {
-          if (!capability.items_by_sharepoint_ids) {
-            capability.items_by_sharepoint_ids = [];
-          }
+          capability.items_by_sharepoint_ids = capability.items_by_sharepoint_ids || [];
           capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
         }
         if (itemsByUrl) {
           if (capabilityName === "OneDriveAndSharePoint") {
-            if (!capability.items_by_url) {
-              capability.items_by_url = [];
-            }
+            capability.items_by_url = capability.items_by_url || [];
             capability.items_by_url.push(itemsByUrl);
           } else {
-            if (!capability.sites) {
-              capability.sites = [];
-            }
+            capability.sites = capability.sites || [];
             capability.sites.push(itemsByUrl);
           }
         }
