@@ -71,7 +71,7 @@ export const AddAuthActionOptions: CLICommandOption[] = [
   {
     name: "api-key-in",
     type: "string",
-    description: "Input where the API Key should be in the request",
+    description: "Enter where the API Key should be in the request",
     default: "header",
     choices: ["header", "query"],
   },

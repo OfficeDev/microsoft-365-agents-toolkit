@@ -17,22 +17,22 @@ export interface AddAuthActionInputs extends Inputs {
   "openapi-spec-location"?: string;
   /** @description Select an API to Add Auth Configuration */
   "api-operation"?: string[];
-  /** @description Input the Name of Auth Configuration */
+  /** @description Enter the Name of Auth Configuration */
   "auth-name"?: string;
   /** @description Authentication Type */
   "api-auth"?: "bearer-token" | "api-key" | "oauth";
-  /** @description Input the OAuth Authorization URL */
+  /** @description Enter the OAuth Authorization URL */
   "oauth-authorization-url"?: string;
-  /** @description Input the OAuth Token URL */
+  /** @description Enter the OAuth Token URL */
   "oauth-token-url"?: string;
-  /** @description Input the OAuth Refresh URL */
+  /** @description Enter the OAuth Refresh URL */
   "oauth-refresh-url"?: string;
-  /** @description Input the OAuth Scope. Samle: scope1: description for scope1; scope2: description for scope2 */
+  /** @description Enter the OAuth Scope. Samle: scope1: description for scope1; scope2: description for scope2 */
   "oauth-scope"?: string;
   /** @description Enable PKCE for OAuth? */
   "oauth-pkce"?: "true" | "false";
-  /** @description Input where the API Key should be in the request */
+  /** @description Enter where the API Key should be in the request */
   "api-key-in"?: "header" | "query";
-  /** @description Input the Name of API Key */
+  /** @description Enter the Name of API Key */
   "api-key-name"?: string;
 }
