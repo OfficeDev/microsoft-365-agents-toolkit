@@ -30,6 +30,7 @@ import { environmentNameManager } from "../core/environmentName";
 import { TOOLS } from "../common/globalVars";
 import {
   ApiPluginStartOptions,
+  GCSelectOptions,
   HubOptions,
   KnowledgeSourceOptions,
   QuestionNames,
@@ -49,6 +50,9 @@ import {
   addKnowledgeStartQuestion,
   oneDriveSharePointItemQuestion,
   oneDriveSharePointItemConfirmQuestion,
+  GCItemQuestion,
+  GCListQuestion,
+  GCInputQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -819,9 +823,9 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
     children: [
-      {
-        data: selectSearchType(),
-      },
+      // {
+      //   data: selectSearchType(),
+      // },
       {
         data: webContentQuestion(),
         condition: (inputs: Inputs) => {
@@ -843,6 +847,26 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
         children: [
           {
             data: oneDriveSharePointItemConfirmQuestion(),
+          },
+        ],
+      },
+      {
+        data: GCItemQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.graphConnector().id,
+        },
+        children: [
+          {
+            data: GCListQuestion(),
+            condition: {
+              equals: GCSelectOptions.list().id,
+            },
+          },
+          {
+            data: GCInputQuestion(),
+            condition: {
+              equals: GCSelectOptions.input().id,
+            },
           },
         ],
       },

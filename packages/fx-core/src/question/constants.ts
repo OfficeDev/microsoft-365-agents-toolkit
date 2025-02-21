@@ -111,7 +111,9 @@ export enum QuestionNames {
   OneDriveSharePointContent = "oneDriveSharePointContent",
   WebContent = "web-content",
   SearchType = "search-type",
-
+  GCContent = "graph-connector-content",
+  GCList = "graph-connector-list",
+  GCInput = "graph-connector-input",
   AuthName = "auth-name",
 }
 
@@ -1233,6 +1235,23 @@ export class ApiPluginStartOptions {
   }
 }
 
+export class GCSelectOptions {
+  static list(): OptionItem {
+    return {
+      id: "listConnections",
+      label: getLocalizedString("core.GCSelectOptions.listOption.title"),
+      detail: getLocalizedString("core.GCSelectOptions.listOption.description"),
+    };
+  }
+  static input(): OptionItem {
+    return {
+      id: "inputConnectionId",
+      label: getLocalizedString("core.GCSelectOptions.inputOption.title"),
+      detail: getLocalizedString("core.GCSelectOptions.inputOption.description"),
+    };
+  }
+}
+
 export class KnowledgeSourceOptions {
   static webSearch(): OptionItem {
     return {
@@ -1283,7 +1302,7 @@ export class KnowledgeSourceOptions {
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
       // TODO:  add graph connector feature in future.
-      // KnowledgeSourceOptions.graphConnector(),
+      KnowledgeSourceOptions.graphConnector(),
       KnowledgeSourceOptions.embeddedKnowledge(),
     ];
   }

@@ -17,13 +17,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "Knowledge source.",
     required: true,
     default: "web-search",
-    choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
-  },
-  {
-    name: "search-type",
-    type: "string",
-    description: "Select Search Type",
-    required: true,
+    choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
   {
     name: "web-content",
@@ -41,6 +35,23 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     type: "string",
     description: "OneDrive or SharePoint Content",
     required: true,
+  },
+  {
+    name: "graph-connector-content",
+    type: "string",
+    description: "Graph Connector Content",
+    choices: ["listConnections", "inputConnectionId"],
+  },
+  {
+    name: "graph-connector-list",
+    type: "array",
+    description: "Select one or more Graph Connectors as knowledge source",
+    default: [],
+  },
+  {
+    name: "graph-connector-input",
+    type: "string",
+    description: "a connection ID for Graph Connector",
   },
   {
     name: "teams-manifest-file",

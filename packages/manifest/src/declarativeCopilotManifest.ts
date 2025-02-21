@@ -3,6 +3,14 @@
 
 import { ConversationStarter } from "./pluginManifest";
 
+export enum DeclarativeCopilotCapabilityName {
+  WebSearch = "WebSearch",
+  GraphicArt = "GraphicArt",
+  CodeInterpreter = "CodeInterpreter",
+  OneDriveAndSharePoint = "OneDriveAndSharePoint",
+  GraphConnectors = "GraphConnectors",
+}
+
 export interface DeclarativeCopilotManifestSchema {
   id?: string;
   name: string;
@@ -10,24 +18,24 @@ export interface DeclarativeCopilotManifestSchema {
   instructions?: string;
   capabilities?: (
     | {
-        name: "WebSearch";
+        name: DeclarativeCopilotCapabilityName.WebSearch;
         [k: string]: unknown;
       }
     | {
-        name: "GraphicArt";
+        name: DeclarativeCopilotCapabilityName.GraphicArt;
         [k: string]: unknown;
       }
     | {
-        name: "CodeInterpreter";
+        name: DeclarativeCopilotCapabilityName.CodeInterpreter;
         [k: string]: unknown;
       }
     | {
-        name: "OneDriveAndSharePoint";
+        name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint;
         items_by_sharepoint_ids?: File[];
         items_by_url?: Site[];
       }
     | {
-        name: "GraphConnectors";
+        name: DeclarativeCopilotCapabilityName.GraphConnectors;
         connections: Connection[];
         [k: string]: unknown;
       }

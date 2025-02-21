@@ -14,6 +14,7 @@ import {
   DefaultPluginManifestFileName,
   Site,
   File,
+  DeclarativeCopilotCapabilityName,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
@@ -423,7 +424,7 @@ export class CopilotGptManifestUtils {
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     return this.addOrUpdateCapability(
       agentManifestPath,
-      "OneDriveAndSharePoint",
+      DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
       items_by_sharepoint_ids,
       items_by_url,
       manifestRes
@@ -437,16 +438,60 @@ export class CopilotGptManifestUtils {
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     return this.addOrUpdateCapability(
       agentManifestPath,
-      "WebSearch",
+      DeclarativeCopilotCapabilityName.WebSearch,
       null,
       items_by_url,
       manifestRes
     );
   }
 
+  public async addGCCapability(
+    agentManifestPath: string,
+    inputConnectionIds: string[],
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    let capability: any = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.GraphConnectors
+    );
+    if (!capability) {
+      capability = { name: DeclarativeCopilotCapabilityName.GraphConnectors, connections: [] };
+      agentManifest.capabilities.push(capability);
+    }
+    if (!capability.connections) {
+      capability.connections = [];
+    }
+    const connections = capability.connections;
+    inputConnectionIds.forEach((id) => {
+      if (
+        !connections.some(
+          (connection: { connection_id: string }) => connection.connection_id === id
+        )
+      ) {
+        connections.push({ connection_id: id });
+      }
+    });
+    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      agentManifest,
+      agentManifestPath
+    );
+    if (updateGptManifestRes.isErr()) {
+      return err(updateGptManifestRes.error);
+    }
+    return ok(agentManifest);
+  }
+
   private async addOrUpdateCapability(
     agentManifestPath: string,
-    capabilityName: string,
+    capabilityName: DeclarativeCopilotCapabilityName,
     itemsBySharepointIds: File | null,
     itemsByUrl: Site | null,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
@@ -475,7 +520,7 @@ export class CopilotGptManifestUtils {
         newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
       }
       if (itemsByUrl) {
-        if (capabilityName === "OneDriveAndSharePoint") {
+        if (capabilityName === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint) {
           newCapability.items_by_url = [itemsByUrl];
         } else {
           newCapability.sites = [itemsByUrl];
@@ -495,7 +540,7 @@ export class CopilotGptManifestUtils {
           capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
         }
         if (itemsByUrl) {
-          if (capabilityName === "OneDriveAndSharePoint") {
+          if (capabilityName === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint) {
             if (!capability.items_by_url) {
               capability.items_by_url = [];
             }

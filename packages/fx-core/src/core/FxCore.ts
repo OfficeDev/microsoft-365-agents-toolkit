@@ -2184,7 +2184,7 @@ export class FxCore {
         result = await this.addOneDriveSharePointKnowledge(inputs, agentManifestPath);
         break;
       case KnowledgeSourceOptions.graphConnector().id:
-        // TODO: To be implemented
+        result = await this.addGCKnowledge(inputs, agentManifestPath);
         break;
       case KnowledgeSourceOptions.embeddedKnowledge().id:
         // TODO: To be implemented
@@ -2568,6 +2568,34 @@ export class FxCore {
 
     if (addWebSearchCapabilityRes.isErr()) {
       return err(addWebSearchCapabilityRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async addGCKnowledge(
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    let connectionIds: string[];
+    if (inputs[QuestionNames.GCInput]) {
+      connectionIds = [inputs[QuestionNames.GCInput]];
+    } else {
+      connectionIds = inputs[QuestionNames.GCList];
+    }
+    const addGCCapabilityRes = await copilotGptManifestUtils.addGCCapability(
+      agentManifestPath,
+      connectionIds,
+      manifestRes
+    );
+
+    if (addGCCapabilityRes.isErr()) {
+      return err(addGCCapabilityRes.error);
     }
 
     return ok(undefined);

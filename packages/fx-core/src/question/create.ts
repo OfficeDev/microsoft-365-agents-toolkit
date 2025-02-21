@@ -52,6 +52,7 @@ import {
 } from "../component/driver/teamsApp/utils/utils";
 import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
 import {
+  getGraphConnectors,
   validateOneDriveSharePointItem,
   validateSourcePluginManifest,
 } from "../component/generator/copilotExtension/helper";
@@ -84,6 +85,7 @@ import {
   capabilitiesHavePythonOption,
   getRuntime,
   KnowledgeSourceOptions,
+  GCSelectOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
@@ -1444,6 +1446,51 @@ export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
     },
     placeholder: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.confirm"),
     forgetLastValue: true,
+  };
+}
+
+export function GCItemQuestion(): SingleSelectQuestion {
+  const options = [GCSelectOptions.list(), GCSelectOptions.input()];
+
+  return {
+    name: QuestionNames.GCContent,
+    title: getLocalizedString("core.GCSelectQuestion.title"),
+    staticOptions: options,
+    type: "singleSelect",
+  };
+}
+
+export function GCListQuestion(): MultiSelectQuestion {
+  return {
+    type: "multiSelect",
+    name: QuestionNames.GCList,
+    title: getLocalizedString("core.GCListQuestion.title"),
+    staticOptions: [],
+    dynamicOptions: getGraphConnectors,
+    default: [],
+    placeholder: getLocalizedString("core.GCListQuestion.placeholder"),
+    forgetLastValue: true,
+  };
+}
+
+export function GCInputQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.GCInput,
+    // cliShortName: "i",
+    title: getLocalizedString("core.GCInputQuestion.title"),
+    cliDescription: "a connection ID for Graph Connector",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.GCInput] = input;
+        return;
+      },
+    },
   };
 }
 

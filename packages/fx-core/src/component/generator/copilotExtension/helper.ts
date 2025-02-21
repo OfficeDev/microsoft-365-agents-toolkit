@@ -21,9 +21,10 @@ import { getDefaultString, getLocalizedString } from "../../../common/localizeUt
 import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
-import { GraphScopes } from "../../../common/constants";
+import { GCScopes, GraphScopes } from "../../../common/constants";
 import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
 import axios from "axios";
+import { createContext } from "../../../common/globalVars";
 
 export interface AddExistingPluginResult {
   warnings: Warning[];
@@ -345,6 +346,45 @@ export async function validateOneDriveSharePointItem(
         "validateOneDriveSharePointItem",
         "UnknownError",
         `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+      )
+    );
+  }
+}
+
+export interface GCItem {
+  id: string;
+  label: string;
+}
+export async function getGraphConnectors(): Promise<GCItem[]> {
+  const context = createContext();
+  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+    scopes: GCScopes,
+  });
+  if (!graphTokenRes?.isOk()) {
+    throw err(new GetGraphTokenFailedError());
+  }
+  const graphToken = graphTokenRes.value;
+
+  const instance = axios.create({
+    baseURL: "https://graph.microsoft.com/v1.0",
+    headers: { Authorization: `Bearer ${graphToken}` },
+  });
+
+  try {
+    const res = await instance.get(`/external/connections?$select=id,name`);
+    const data = res.data;
+    return data.value.map((item: any) => {
+      return { id: item.id, label: item.name };
+    });
+  } catch (error) {
+    throw err(
+      new UserError(
+        "getGraphConnectors",
+        "GraphApiError",
+        `Failed to get Graph Connector item: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        error.response?.data?.message || error.message
       )
     );
   }
