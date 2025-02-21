@@ -528,6 +528,7 @@ export class Utils {
             authorizationCode: {
               authorizationUrl: authParameters.authorizationUrl,
               tokenUrl: authParameters.tokenUrl,
+              refreshUrl: authParameters.refreshUrl,
               scopes: authParameters.scopes,
             },
           },

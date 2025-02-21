@@ -25,6 +25,8 @@ export interface AddAuthActionInputs extends Inputs {
   "oauth-authorization-url"?: string;
   /** @description Input the OAuth Token URL */
   "oauth-token-url"?: string;
+  /** @description Input the OAuth Refresh URL */
+  "oauth-refresh-url"?: string;
   /** @description Input the OAuth Scope. Samle: scope1: description for scope1; scope2: description for scope2 */
   "oauth-scope"?: string;
   /** @description Enable PKCE for OAuth? */

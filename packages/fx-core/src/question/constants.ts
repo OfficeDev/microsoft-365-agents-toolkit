@@ -112,6 +112,7 @@ export enum QuestionNames {
 
   OAuthAuthorizationUrl = "oauth-authorization-url",
   OAuthTokenUrl = "oauth-token-url",
+  OAuthRefreshUrl = "oauth-refresh-url",
   OAuthScope = "oauth-scope",
   OauthPKCE = "oauth-pkce",
   ApiKeyIn = "api-key-in",

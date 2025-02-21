@@ -2302,6 +2302,7 @@ export class FxCore {
     if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
       const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
       const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
+      const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
       const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
       const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
       const scopeArr: { [scope: string]: string } = {};
@@ -2318,6 +2319,7 @@ export class FxCore {
         ...authParameters,
         authorizationUrl: oauthAuthorizationUrl,
         tokenUrl: oauthTokenUrl,
+        refreshUrl: !oauthRefreshUrl || oauthRefreshUrl === "" ? undefined : oauthRefreshUrl,
         scopes: scopeArr,
         enablePKCE: enablePKCEStr === "true",
       };

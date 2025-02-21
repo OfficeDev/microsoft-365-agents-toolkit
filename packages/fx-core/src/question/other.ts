@@ -914,6 +914,9 @@ export function oauthParametersQuestion(): IQTreeNode {
         data: oauthTokenUrlQuestion(),
       },
       {
+        data: oauthRefreshUrlQuestion(),
+      },
+      {
         data: oauthScopeQuestion(),
       },
       {
@@ -938,6 +941,15 @@ export function oauthTokenUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
     type: "text",
     cliDescription: "Token Url for oauth.",
+  };
+}
+
+export function oauthRefreshUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthRefreshUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
+    type: "text",
+    cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
   };
 }
 

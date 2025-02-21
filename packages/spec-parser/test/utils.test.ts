@@ -867,11 +867,12 @@ describe("utils", () => {
   });
 
   describe("getAuthSchemaObject", () => {
-    it("should return correct oauth scheme", () => {
+    it("should return correct oauth scheme with refresh url", () => {
       const authParameter = {
         apis: "operationId1",
         authorizationUrl: "mockedAuthorizationUrl",
         tokenUrl: "mockedTokenUrl",
+        refreshUrl: "mockedRefreshUrl",
         scopes: {
           read: "Grants read access",
         },
@@ -883,6 +884,33 @@ describe("utils", () => {
           authorizationCode: {
             authorizationUrl: "mockedAuthorizationUrl",
             tokenUrl: "mockedTokenUrl",
+            refreshUrl: "mockedRefreshUrl",
+            scopes: {
+              read: "Grants read access",
+            },
+          },
+        },
+      });
+    });
+
+    it("should return correct oauth scheme with refreshout url", () => {
+      const authParameter = {
+        apis: "operationId1",
+        authorizationUrl: "mockedAuthorizationUrl",
+        tokenUrl: "mockedTokenUrl",
+        refreshUrl: undefined,
+        scopes: {
+          read: "Grants read access",
+        },
+      };
+      const authSchema = Utils.getAuthSchemaObject("oauth", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "mockedAuthorizationUrl",
+            tokenUrl: "mockedTokenUrl",
+            refreshUrl: undefined,
             scopes: {
               read: "Grants read access",
             },

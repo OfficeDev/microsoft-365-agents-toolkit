@@ -954,6 +954,7 @@
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
   "core.addAuthActionQuestion.OAuthAuthorizationUrl.title": "Input the OAuth Authorization URL",
   "core.addAuthActionQuestion.OAuthTokenUrl.title": "Input the OAuth Token URL",
+  "core.addAuthActionQuestion.OAuthRefreshUrl.title": "Input the OAuth Refresh URL",
   "core.addAuthActionQuestion.OAuthScope.title": "Input the OAuth Scope. Samle: scope1: description for scope1; scope2: description for scope2",
   "core.addAuthActionQuestion.authName.title": "Input the Name of Auth Configuration",
   "core.addAuthActionQuestion.OauthPKCE.title": "Enable PKCE for OAuth?",

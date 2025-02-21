@@ -52,6 +52,11 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     description: "Token Url for oauth.",
   },
   {
+    name: "oauth-refresh-url",
+    type: "string",
+    description: "Refresh Url for oauth. Leave it emplt if not needed.",
+  },
+  {
     name: "oauth-scope",
     type: "string",
     description: "Scope for oauth.",
