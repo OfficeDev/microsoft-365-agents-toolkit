@@ -100,11 +100,11 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {{/useAzureOpenAI}}
         {
-          name: 'MicrosoftAppTenantId'
+          name: 'BOT_TENANT_ID'
           value: identity.properties.tenantId
         }
         { 
-          name: 'MicrosoftAppType'
+          name: 'BOT_TYPE'
           value: 'UserAssignedMsi' 
         }
       ]
