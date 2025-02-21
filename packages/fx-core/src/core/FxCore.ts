@@ -2498,19 +2498,19 @@ export class FxCore {
     let oneDriveSharePointIds: File | null = null;
     let oneDriveSharePointUrls: Site | null = null;
 
+    const sharePointItem = inputs.oneDriveSharePointItem?.[0];
     if (
+      sharePointItem &&
       inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.AllOneDriveSharepoint().id
     ) {
-      if (inputs.oneDriveSharePointItem[0].url) {
-        oneDriveSharePointUrls = {
-          url: inputs.oneDriveSharePointItem[0].url,
-        };
+      if (sharePointItem.url) {
+        oneDriveSharePointUrls = { url: sharePointItem.url };
       } else {
         oneDriveSharePointIds = {
-          site_id: inputs.oneDriveSharePointItem[0].siteId,
-          web_id: inputs.oneDriveSharePointItem[0].webId,
-          list_id: inputs.oneDriveSharePointItem[0].listId,
-          unique_id: inputs.oneDriveSharePointItem[0].uniqueId,
+          site_id: sharePointItem.siteId,
+          web_id: sharePointItem.webId,
+          list_id: sharePointItem.listId,
+          unique_id: sharePointItem.uniqueId,
         };
       }
     }
@@ -2539,10 +2539,10 @@ export class FxCore {
       return err(manifestRes.error);
     }
 
-    const manifest = manifestRes.value;
-    const webSearchCapability = (manifest.capabilities ?? []).find(
-      (cap) => cap.name === "WebSearch"
-    ) as { name: string; sites?: Site[] } | undefined;
+    const { capabilities = [] } = manifestRes.value;
+    const webSearchCapability = capabilities.find((cap) => cap.name === "WebSearch") as
+      | { name: string; sites?: Site[] }
+      | undefined;
 
     let webSearchUrl: Site | null = null;
     if (inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allWeb().id) {
