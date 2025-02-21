@@ -262,7 +262,7 @@ export class CreateAadAppDriver implements StepDriver {
    * @param outputEnvVarNames
    * @returns
    */
-  private async askForAADAppIdAndSecret(
+  async askForAADAppIdAndSecret(
     context: WrapDriverContext,
     aadAppState: CreateAadAppOutput,
     outputEnvVarNames: Map<string, string>

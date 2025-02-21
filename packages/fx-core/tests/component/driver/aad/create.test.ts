@@ -5,7 +5,11 @@ import "mocha";
 import * as sinon from "sinon";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { CreateAadAppDriver } from "../../../../src/component/driver/aad/create";
-import { MockedTelemetryReporter, MockedUserInteraction } from "../../../plugins/solution/util";
+import {
+  MockedLogProvider,
+  MockedTelemetryReporter,
+  MockedUserInteraction,
+} from "../../../plugins/solution/util";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAppClient";
@@ -19,9 +23,9 @@ import {
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";
-import { SignInAudience } from "../../../../src/component/driver/aad/interface/signInAudience";
 import { MissingServiceManagementReferenceError } from "../../../../src/component/driver/aad/error/missingServiceManagamentReferenceError";
 import { MockedM365Provider } from "../../../core/utils";
+import { UserCancelError } from "../../../../src/error/common";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -921,5 +925,42 @@ describe("aadAppCreate", async () => {
     const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
 
     expect(result.result.isOk()).to.be.false;
+  });
+});
+
+describe("askForAADAppIdAndSecret", () => {
+  const driver = new CreateAadAppDriver();
+  const context = {
+    ui: new MockedUserInteraction(),
+    logProvider: new MockedLogProvider(),
+    m365TokenProvider: new MockedM365Provider(),
+  } as any;
+
+  afterEach(() => {
+    sinon.restore();
+  });
+  it("should return user input when user proceeds", async () => {
+    const aadAppState = {};
+    const outputEnvVarNames = new Map<string, string>();
+
+    sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    expect(result.isOk()).to.be.true;
+  });
+
+  it("should return UserCancelError when user cancels", async () => {
+    const aadAppState = {};
+    const outputEnvVarNames = new Map<string, string>();
+
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Cancel"));
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+
+    expect(result.isErr()).to.be.true;
+    if (result.isErr()) {
+      expect(result.error).is.instanceOf(UserCancelError);
+    }
   });
 });
