@@ -36,6 +36,7 @@ import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
 import { ManifestType } from "../../utils/envFunctionUtils";
 import { getAbsolutePath } from "../../utils/common";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { updateVersionForTeamsAppYamlFile } from "../util/utils";
 
 export const actionName = "teamsApp/zipAppPackage";
 
@@ -533,6 +534,7 @@ export class CreateAppPackageDriver implements StepDriver {
     let tempFolder: string | undefined;
 
     if (containExternalAdaptiveCard) {
+      await updateVersionForTeamsAppYamlFile(context.projectPath);
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
