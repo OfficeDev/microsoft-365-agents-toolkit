@@ -27,7 +27,7 @@
 1. If you haven't added your own API Key, please follow the above steps to add your own API Key.
 2. In the debug dropdown menu, select Dev Tunnels > Create a Tunnel (set authentication type to Public) or select an existing public dev tunnel
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/create-devtunnel-button.png)
-3. Right-click the '{{NewProjectTypeName}}' project and select Teams Toolkit > Prepare Teams App Dependencies
+3. Right-click your project and select Teams Toolkit > Prepare Teams App Dependencies
 4. If prompted, sign in with a Microsoft 365 account for the Teams organization you want to install the app to.
 5. Press F5, or select the `Debug > Start Debugging` menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
