@@ -2319,7 +2319,7 @@ export class FxCore {
         ...authParameters,
         authorizationUrl: oauthAuthorizationUrl,
         tokenUrl: oauthTokenUrl,
-        refreshUrl: !oauthRefreshUrl || oauthRefreshUrl === "" ? undefined : oauthRefreshUrl,
+        refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
         scopes: scopeArr,
         enablePKCE: enablePKCEStr === "true",
       };
