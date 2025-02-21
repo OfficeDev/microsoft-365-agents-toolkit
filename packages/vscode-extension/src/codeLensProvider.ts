@@ -695,3 +695,98 @@ export class OfficeDevManifestCodeLensProvider implements vscode.CodeLensProvide
     return codeLenses;
   }
 }
+
+export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvider {
+  private sharePointIdsRegex: RegExp;
+
+  constructor() {
+    this.sharePointIdsRegex = /"(?:web_id|list_id|unique_id|site_id)"\s*:\s*"([^"]+)"/g;
+  }
+
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    const inputs = getSystemInputs();
+
+    if (inputs.projectPath) {
+      const manifestFilePath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        ManifestTemplateFileName
+      );
+      if (!fs.existsSync(manifestFilePath)) {
+        return [];
+      }
+      const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+      const manifest = JSON.parse(manifestContent);
+      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      if (!manifestProperties.capabilities.includes("copilotGpt")) {
+        return [];
+      }
+
+      let agentFileName: string | undefined;
+      if ((manifest as TeamsAppManifest).copilotAgents?.declarativeAgents) {
+        const agents = (manifest as TeamsAppManifest).copilotAgents?.declarativeAgents;
+        if (agents && agents.length > 0) {
+          agentFileName = agents[0].file;
+        }
+      }
+      if (!commandIsRunning && agentFileName && document.fileName === agentFileName) {
+        return this.computeCodeLenses(document);
+      }
+    }
+    return [];
+  }
+
+  private computeCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    const codeLenses: vscode.CodeLens[] = [];
+    const text = document.getText();
+
+    // Find all SharePoint IDs
+    let matches;
+    while (!commandIsRunning && (matches = this.sharePointIdsRegex.exec(text)) !== null) {
+      const match = matches[1];
+      const line = document.lineAt(document.positionAt(matches.index).line);
+      const indexOf = line.text.indexOf(match);
+      const position = new vscode.Position(line.lineNumber, indexOf);
+      const range = new vscode.Range(
+        position,
+        new vscode.Position(line.lineNumber, indexOf + match.length)
+      );
+
+      // Add CodeLens for SharePoint ID validation
+      const command = {
+        title: "🔍 Validate SharePoint ID",
+        command: "fx-extension.validateSharePointId",
+        arguments: [match, range],
+      };
+
+      if (range) {
+        codeLenses.push(new vscode.CodeLens(range, command));
+      }
+    }
+
+    // Also add a CodeLens for each items_by_sharepoint_ids block
+    const itemsBlockRegex = /"items_by_sharepoint_ids"\s*:\s*\[/g;
+    while (!commandIsRunning && (matches = itemsBlockRegex.exec(text)) !== null) {
+      const line = document.lineAt(document.positionAt(matches.index).line);
+      const range = new vscode.Range(
+        new vscode.Position(line.lineNumber, 0),
+        new vscode.Position(line.lineNumber, line.text.length)
+      );
+
+      // Add CodeLens for fetching SharePoint details
+      const command = {
+        title: "📋 Fetch SharePoint Details",
+        command: "fx-extension.fetchSharePointDetails",
+        arguments: [range],
+      };
+
+      codeLenses.push(new vscode.CodeLens(range, command));
+    }
+
+    return codeLenses;
+  }
+}

@@ -279,16 +279,7 @@ export async function validateOneDriveSharePointItem(
       );
     }
 
-    if (data.folder) {
-      return ok([
-        {
-          id: data.id,
-          label: data.name,
-          name: data.name,
-          url: data.webUrl,
-        },
-      ]);
-    }
+    let itemWebUrl: string = data.webUrl;
 
     if (data.file) {
       const fileName: string = data.name;
@@ -319,17 +310,35 @@ export async function validateOneDriveSharePointItem(
         );
       }
 
-      return ok([
-        {
-          id: data.id,
-          label: fileName,
-          name: fileName,
-          url: `${parentData.webUrl as string}/${fileName}`,
-        },
-      ]);
+      itemWebUrl = `${parentData.webUrl as string}/${fileName}`;
     }
 
-    return ok([]);
+    const capabilitiesIdRes = await instance.post(`/search/query`, {
+      requests: [
+        {
+          entityTypes: ["driveItem"],
+          query: {
+            queryString: `Path:\"${itemWebUrl}\"`,
+          },
+          fields: ["fileName", "listId", "webId", "siteId", "uniqueId"],
+        },
+      ],
+    });
+
+    const capabilitiesId =
+      capabilitiesIdRes.data.value[0].hitsContainers[0].hits[0].resource.listItem.fields;
+
+    return ok([
+      {
+        id: data.id,
+        label: data.name,
+        name: data.name,
+        uniqueId: capabilitiesId.uniqueId,
+        listId: capabilitiesId.listId,
+        webId: capabilitiesId.webId,
+        siteId: capabilitiesId.siteId,
+      },
+    ]);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return err(

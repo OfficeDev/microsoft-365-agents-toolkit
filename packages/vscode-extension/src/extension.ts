@@ -43,6 +43,7 @@ import {
   CryptoCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
+  OneDriveSharePointCodeLensProvider,
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
@@ -1181,6 +1182,12 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     pattern: `**/${AppPackageFolderName}/apiSpecificationFile/*.{yml,yaml,json}`,
   };
 
+  const agentManifestSelector = {
+    language: "json",
+    scheme: "file",
+    pattern: `**/${AppPackageFolderName}/**/*.json`,
+  };
+
   const aadAppTemplateCodeLensProvider = new AadAppTemplateCodeLensProvider();
 
   const aadAppTemplateSelectorV3 = {
@@ -1299,6 +1306,14 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(diagnosticCollection);
+
+  const oneDriveSharePointCodeLensProvider = new OneDriveSharePointCodeLensProvider();
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      agentManifestSelector,
+      oneDriveSharePointCodeLensProvider
+    )
+  );
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {
