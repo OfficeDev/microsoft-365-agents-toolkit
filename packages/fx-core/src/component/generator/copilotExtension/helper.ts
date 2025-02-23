@@ -9,6 +9,7 @@ import {
   ok,
   PluginManifestSchema,
   Result,
+  SystemError,
   UserError,
   Warning,
 } from "@microsoft/teamsfx-api";
@@ -235,129 +236,219 @@ export interface OneDriveSharePointItem {
   url?: string;
 }
 
-export async function validateOneDriveSharePointItem(
+interface GraphDriveItemResponse {
+  id: string;
+  name: string;
+  webUrl: string;
+  file?: any;
+  parentReference?: {
+    driveId: string;
+    id: string;
+  };
+}
+
+interface GraphSearchResponse {
+  value: [
+    {
+      hitsContainers: [
+        {
+          hits: [
+            {
+              resource: {
+                listItem: {
+                  fields: {
+                    uniqueId: string;
+                    listId: string;
+                    webId: string;
+                    siteId: string;
+                  };
+                };
+              };
+            }
+          ];
+        }
+      ];
+    }
+  ];
+}
+
+async function createGraphClientWithToken(context: Context): Promise<Result<any, FxError>> {
+  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+    scopes: GraphScopes,
+  });
+  if (!graphTokenRes?.isOk()) {
+    return err(
+      new SystemError({
+        source: "copilotPlugin",
+        name: "GetGraphTokenFailed",
+        message: "Failed to get Graph token",
+        displayMessage: "Failed to get Graph token",
+      })
+    );
+  }
+
+  const client = axios.create({
+    baseURL: "https://graph.microsoft.com/v1.0",
+    headers: { Authorization: `Bearer ${graphTokenRes.value}` },
+  });
+  return ok(client);
+}
+
+function encodeSharePointUrl(itemUrl: string): string {
+  const base64Value = Buffer.from(itemUrl).toString("base64");
+  return "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
+}
+
+async function getDriveItemInfo(
+  graphClient: any,
+  encodedUrl: string
+): Promise<GraphDriveItemResponse> {
+  const res = await graphClient.get(`/shares/${encodedUrl}/driveItem`);
+  if (!res?.data) {
+    throw new SystemError(
+      "validateOneDriveSharePointItem",
+      "InvalidResponse",
+      "Invalid drive item response"
+    );
+  }
+  return res.data;
+}
+
+async function getParentFolderUrl(
+  graphClient: any,
+  parentRef: { driveId: string; id: string }
+): Promise<string> {
+  const parentItemRes = await graphClient.get(`/drives/${parentRef.driveId}/items/${parentRef.id}`);
+  if (!parentItemRes.data?.webUrl) {
+    throw new SystemError(
+      "validateOneDriveSharePointItem",
+      "InvalidResponse",
+      "Invalid parent folder response"
+    );
+  }
+  return parentItemRes.data.webUrl;
+}
+
+async function getSharePointMetadata(graphClient: any, itemWebUrl: string): Promise<any> {
+  const searchResponse = await graphClient.post(`/search/query`, {
+    requests: [
+      {
+        entityTypes: ["driveItem"],
+        query: {
+          queryString: `Path:\"${itemWebUrl}\"`,
+        },
+        fields: ["fileName", "listId", "webId", "siteId", "uniqueId"],
+      },
+    ],
+  });
+
+  if (
+    !searchResponse?.data?.value?.[0]?.hitsContainers?.[0]?.hits?.[0]?.resource?.listItem?.fields
+  ) {
+    throw new SystemError(
+      "validateOneDriveSharePointItem",
+      "InvalidResponse",
+      "Could not find SharePoint metadata for the item"
+    );
+  }
+
+  return searchResponse.data.value[0].hitsContainers[0].hits[0].resource.listItem.fields;
+}
+
+export async function getODSPItemInfo(
   context: Context,
   itemUrl: string | undefined,
   inputs: Inputs,
-  shouldLogWarning = true,
+  shouldLogWarning: boolean,
   existingCorrelationId?: string
 ): Promise<Result<OneDriveSharePointItem[], UserError>> {
+  if (!itemUrl) {
+    return err(
+      new UserError("validateOneDriveSharePointItem", "InvalidInput", "Item URL is required")
+    );
+  }
+
   try {
-    if (!itemUrl) {
-      return err(
-        new UserError("validateOneDriveSharePointItem", "InvalidInput", "Item URL is required")
+    const graphClientResult = await createGraphClientWithToken(context);
+    if (graphClientResult.isErr()) {
+      return err(graphClientResult.error);
+    }
+    const graphClient = graphClientResult.value;
+
+    const encodedUrl = encodeSharePointUrl(itemUrl);
+    const driveItem = await getDriveItemInfo(graphClient, encodedUrl);
+
+    if (!driveItem?.webUrl) {
+      throw new SystemError(
+        "validateOneDriveSharePointItem",
+        "InvalidResponse",
+        "Invalid response from OneDrive/SharePoint"
       );
     }
 
-    const base64Value = Buffer.from(itemUrl).toString("base64");
-    const encodedUrl =
-      "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
-
-    const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
-      scopes: GraphScopes,
-    });
-    if (!graphTokenRes?.isOk()) {
-      return err(new GetGraphTokenFailedError());
-    }
-    const graphToken = graphTokenRes.value;
-
-    const instance = axios.create({
-      baseURL: "https://graph.microsoft.com/v1.0",
-      headers: { Authorization: `Bearer ${graphToken}` },
-    });
-
-    const res = await instance.get(`/shares/${encodedUrl}/driveItem`);
-    const data = res.data;
-
-    if (!data || !data.webUrl) {
-      return err(
-        new UserError(
-          "validateOneDriveSharePointItem",
-          "InvalidResponse",
-          "Invalid response from OneDrive/SharePoint"
-        )
-      );
+    let itemWebUrl: string = driveItem.webUrl;
+    if (driveItem.file && driveItem.parentReference) {
+      const parentUrl = await getParentFolderUrl(graphClient, driveItem.parentReference);
+      itemWebUrl = `${parentUrl}/${driveItem.name}`;
     }
 
-    let itemWebUrl: string = data.webUrl;
-
-    if (data.file) {
-      const fileName: string = data.name;
-      const parentRef: { driveId: string; id: string } = data.parentReference;
-
-      if (!parentRef?.driveId || !parentRef?.id) {
-        return err(
-          new UserError(
-            "validateOneDriveSharePointItem",
-            "InvalidResponse",
-            "Missing parent reference information"
-          )
-        );
-      }
-
-      const parentItemRes = await instance.get(
-        `/drives/${parentRef.driveId}/items/${parentRef.id}`
-      );
-      const parentData = parentItemRes.data;
-
-      if (!parentData?.webUrl) {
-        return err(
-          new UserError(
-            "validateOneDriveSharePointItem",
-            "InvalidResponse",
-            "Invalid parent folder response"
-          )
-        );
-      }
-
-      itemWebUrl = `${parentData.webUrl as string}/${fileName}`;
-    }
-
-    const capabilitiesIdRes = await instance.post(`/search/query`, {
-      requests: [
-        {
-          entityTypes: ["driveItem"],
-          query: {
-            queryString: `Path:\"${itemWebUrl}\"`,
-          },
-          fields: ["fileName", "listId", "webId", "siteId", "uniqueId"],
-        },
-      ],
-    });
-
-    const capabilitiesId =
-      capabilitiesIdRes.data.value[0].hitsContainers[0].hits[0].resource.listItem.fields;
+    const metadata = await getSharePointMetadata(graphClient, itemWebUrl);
 
     return ok([
       {
-        id: data.id,
-        label: data.name,
-        name: data.name,
-        uniqueId: capabilitiesId.uniqueId,
-        listId: capabilitiesId.listId,
-        webId: capabilitiesId.webId,
-        siteId: capabilitiesId.siteId,
+        id: driveItem.id,
+        label: driveItem.name,
+        name: driveItem.name,
+        uniqueId: metadata.uniqueId.replace(/[{}]/g, ""),
+        listId: metadata.listId,
+        webId: metadata.webId,
+        siteId: metadata.siteId,
       },
     ]);
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return err(
-        new UserError(
-          "validateOneDriveSharePointItem",
-          "GraphApiError",
-          `Failed to validate OneDrive/SharePoint item: ${error.message}`,
-          error.response?.data?.message || error.message
-        )
-      );
-    }
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const responseMessage = axios.isAxiosError(error) ? error.response?.data?.message : undefined;
+
     return err(
-      new UserError(
-        "validateOneDriveSharePointItem",
-        "UnknownError",
-        `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+      new SystemError(
+        "GetODSPItemInfo",
+        axios.isAxiosError(error) ? "GraphApiError" : "UnknownError",
+        `Failed to get OneDrive/SharePoint item info: ${errorMessage}`,
+        responseMessage || errorMessage
       )
     );
   }
+}
+
+export async function getODSPItemDetailById(
+  context: Context,
+  siteId: string,
+  itemId: string,
+  inputs: Inputs
+): Promise<Result<OneDriveSharePointItem[], UserError>> {
+  const graphClientResult = await createGraphClientWithToken(context);
+  if (graphClientResult.isErr()) {
+    return err(graphClientResult.error);
+  }
+  const graphClient = graphClientResult.value;
+
+  const itemRes = await graphClient.get(`/sites/${siteId}/drive/items/${itemId}`);
+  if (!itemRes.data) {
+    throw new SystemError(
+      "getODSPItemDetailById",
+      "InvalidResponse",
+      "Invalid response from OneDrive/SharePoint"
+    );
+  }
+
+  return ok([
+    {
+      id: itemRes.data.id,
+      label: itemRes.data.name,
+      name: itemRes.data.name,
+      url: itemRes.data.webUrl,
+    },
+  ]);
 }
 
 export interface GCItem {

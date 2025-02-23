@@ -53,7 +53,7 @@ import {
 import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
 import {
   getGraphConnectors,
-  validateOneDriveSharePointItem,
+  getODSPItemInfo,
   validateSourcePluginManifest,
 } from "../component/generator/copilotExtension/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
@@ -1393,7 +1393,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
         throw new Error("inputs is undefined"); // should never happen
       }
       const context = createContext();
-      const res = await validateOneDriveSharePointItem(
+      const res = await getODSPItemInfo(
         context,
         input.trim(),
         inputs,

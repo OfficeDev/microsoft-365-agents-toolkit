@@ -700,7 +700,10 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
   private sharePointIdsRegex: RegExp;
 
   constructor() {
-    this.sharePointIdsRegex = /"(?:web_id|list_id|unique_id|site_id)"\s*:\s*"([^"]+)"/g;
+    // Regular expression to match SharePoint resource IDs in JSON:
+    // - Matches opening curly brace with optional whitespace/newlines
+    // - Followed by one of: web_id, list_id, unique_id, or site_id property names
+    this.sharePointIdsRegex = /\s*{[\s\n]*"(?:web_id|list_id|unique_id|site_id)"/g;
   }
 
   public provideCodeLenses(
@@ -731,7 +734,7 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
           agentFileName = agents[0].file;
         }
       }
-      if (!commandIsRunning && agentFileName && document.fileName === agentFileName) {
+      if (!commandIsRunning && agentFileName && document.fileName.includes(agentFileName)) {
         return this.computeCodeLenses(document);
       }
     }
@@ -744,47 +747,43 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
     const codeLenses: vscode.CodeLens[] = [];
     const text = document.getText();
 
-    // Find all SharePoint IDs
-    let matches;
-    while (!commandIsRunning && (matches = this.sharePointIdsRegex.exec(text)) !== null) {
-      const match = matches[1];
-      const line = document.lineAt(document.positionAt(matches.index).line);
-      const indexOf = line.text.indexOf(match);
-      const position = new vscode.Position(line.lineNumber, indexOf);
-      const range = new vscode.Range(
-        position,
-        new vscode.Position(line.lineNumber, indexOf + match.length)
-      );
+    try {
+      const jsonContent = JSON.parse(text);
+      const capabilities = jsonContent.capabilities;
+      if (!Array.isArray(capabilities)) return codeLenses;
 
-      // Add CodeLens for SharePoint ID validation
-      const command = {
-        title: "🔍 Validate SharePoint ID",
-        command: "fx-extension.validateSharePointId",
-        arguments: [match, range],
-      };
+      const oneDriveCapability = capabilities.find((c) => c.name === "OneDriveAndSharePoint");
+      if (!oneDriveCapability?.items_by_sharepoint_ids) return codeLenses;
 
-      if (range) {
-        codeLenses.push(new vscode.CodeLens(range, command));
+      let matches;
+      while ((matches = this.sharePointIdsRegex.exec(text)) !== null) {
+        const position = document.positionAt(matches.index);
+        const lineNumber = position.line;
+
+        // Parse the object containing the IDs
+        const objectStartIndex = text.indexOf("{", matches.index);
+        const objectText = text.slice(objectStartIndex);
+        try {
+          const idObject = JSON.parse(objectText.substring(0, objectText.indexOf("}") + 1));
+
+          const range = new vscode.Range(
+            new vscode.Position(lineNumber + 1, 0),
+            new vscode.Position(lineNumber + 1, 0)
+          );
+
+          const command = {
+            title: "🔍 Fetch Item Details",
+            command: "fx-extension.fetchOneDriveSharePointDetail",
+            arguments: [idObject.site_id, idObject.unique_id],
+          };
+
+          codeLenses.push(new vscode.CodeLens(range, command));
+        } catch (parseError) {
+          console.error("Failed to parse ID object:", parseError);
+        }
       }
-    }
-
-    // Also add a CodeLens for each items_by_sharepoint_ids block
-    const itemsBlockRegex = /"items_by_sharepoint_ids"\s*:\s*\[/g;
-    while (!commandIsRunning && (matches = itemsBlockRegex.exec(text)) !== null) {
-      const line = document.lineAt(document.positionAt(matches.index).line);
-      const range = new vscode.Range(
-        new vscode.Position(line.lineNumber, 0),
-        new vscode.Position(line.lineNumber, line.text.length)
-      );
-
-      // Add CodeLens for fetching SharePoint details
-      const command = {
-        title: "📋 Fetch SharePoint Details",
-        command: "fx-extension.fetchSharePointDetails",
-        arguments: [range],
-      };
-
-      codeLenses.push(new vscode.CodeLens(range, command));
+    } catch (e) {
+      console.error("Failed to parse JSON:", e);
     }
 
     return codeLenses;

@@ -15,6 +15,7 @@ import {
   Site,
   File,
   DeclarativeCopilotCapabilityName,
+  DeclarativeCopilotCapabilityName,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
@@ -544,6 +545,9 @@ export class CopilotGptManifestUtils {
             capability.items_by_url = capability.items_by_url || [];
             capability.items_by_url.push(itemsByUrl);
           } else {
+            if (!capability.sites) {
+              capability.sites = [];
+            }
             if (!capability.sites) {
               capability.sites = [];
             }

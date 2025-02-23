@@ -182,7 +182,11 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { SyncManifestArgs } from "../component/driver/teamsApp/interfaces/SyncManifest";
 import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
 import { generateDriverContext } from "../common/utils";
-import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
+import {
+  addExistingPlugin,
+  getODSPItemDetailById,
+  OneDriveSharePointItem,
+} from "../component/generator/copilotExtension/helper";
 import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import {
@@ -2218,6 +2222,26 @@ export class FxCore {
     }
 
     return ok(undefined);
+  }
+
+  /**
+   * only for vs code extension
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "getODSPItemDetails", reset: true }),
+    ErrorHandlerMW,
+  ])
+  async getODSPItemDetails(
+    siteId: string,
+    itemId: string,
+    inputs: Inputs
+  ): Promise<Result<OneDriveSharePointItem, FxError>> {
+    const context = createContext();
+    const res = await getODSPItemDetailById(context, siteId, itemId, inputs);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    return ok(res.value[0]);
   }
 
   /**
