@@ -41,7 +41,8 @@ export class ActionInjector {
     specRelativePath: string,
     envName: string,
     flow?: string,
-    isMicrosoftEntra?: boolean
+    isMicrosoftEntra?: boolean,
+    enablePKCE?: boolean
   ): any {
     const result: any = {
       uses: actionName,
@@ -63,6 +64,10 @@ export class ActionInjector {
       };
     }
 
+    if (enablePKCE) {
+      result.with.isPKCEEnabled = true;
+    }
+
     if (isMicrosoftEntra) {
       result.with.identityProvider = MicrosoftEntraAuthType;
     }
@@ -75,7 +80,8 @@ export class ActionInjector {
     authName: string,
     specRelativePath: string,
     forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
-    isMicrosoftEntra: boolean
+    isMicrosoftEntra: boolean,
+    enablePKCE?: boolean
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -133,7 +139,8 @@ export class ActionInjector {
             specRelativePath,
             registrationIdEnvName,
             flow,
-            isMicrosoftEntra
+            isMicrosoftEntra,
+            enablePKCE
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {

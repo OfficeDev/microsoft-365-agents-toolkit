@@ -173,6 +173,51 @@ export class SpecParser {
     throw new Error("Method not implemented.");
   }
 
+  async addAuthScheme(
+    authName: string,
+    authType: string,
+    authParameters: any,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      await this.loadSpec();
+      const spec = this.spec!;
+      if (signal?.aborted) {
+        throw new SpecParserError(ConstantString.CancelledMessage, ErrorType.Cancelled);
+      }
+
+      if (!spec.components) {
+        spec.components = {};
+      }
+
+      if (!spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
+      spec.components.securitySchemes[authName] = Utils.getAuthSchemaObject(
+        authType,
+        authParameters
+      );
+
+      const paths = spec.paths;
+      for (const path in paths) {
+        const methods = paths[path];
+        for (const method in methods) {
+          const operationId = (methods as any)[method].operationId;
+          if (authParameters.apis.includes(operationId)) {
+            (methods as any)[method].security = [{ [authName]: [] }];
+          }
+        }
+      }
+      await this.saveFilterSpec(this.pathOrSpec as string, this.spec!);
+    } catch (err) {
+      if (err instanceof SpecParserError) {
+        throw err;
+      }
+      throw new SpecParserError((err as Error).toString(), ErrorType.AddAuthFailed);
+    }
+  }
+
   /**
    * Lists all the OpenAPI operations in the specification file.
    * @returns A string array that represents the HTTP method and path of each operation, such as ['GET /pets/{petId}', 'GET /user/{userId}']

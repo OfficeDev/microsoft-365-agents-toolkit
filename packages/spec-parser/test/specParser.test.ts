@@ -4115,4 +4115,256 @@ describe("SpecParser", () => {
       }
     });
   });
+
+  describe("addAuthScheme", () => {
+    it("should add auth scheme to spec for api key auth", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon
+        .stub(Utils, "getAuthSchemaObject")
+        .returns(authScheme as OpenAPIV3.ApiKeySecurityScheme);
+      sinon.stub(fs, "outputFile").callsFake((path, data) => {
+        expect(path).to.equal(specPath);
+        const dataJson = JSON.parse(data as string);
+        expect(dataJson.components.securitySchemes["authName"]).to.deep.equal(authScheme);
+        const paths = dataJson.paths;
+        for (const path in paths) {
+          const methods = paths[path];
+          for (const method in methods) {
+            const operationId = (methods as any)[method].operationId;
+            if (operationId === "getUserById") {
+              expect((methods as any)[method].security).to.deep.equal([
+                {
+                  authName: [],
+                },
+              ]);
+            }
+          }
+        }
+      });
+      await specParser.addAuthScheme("authName", "api-key", {
+        apis: ["getUserById"],
+      });
+    });
+
+    it("should throw error if failed", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon.stub(Utils, "getAuthSchemaObject").throws(new Error("error"));
+      try {
+        await specParser.addAuthScheme("authName", "api-key", {
+          apis: ["getUserById"],
+        });
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.AddAuthFailed);
+      }
+    });
+
+    it("should throw error if aborted", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const signal = { aborted: true } as AbortSignal;
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      try {
+        await specParser.addAuthScheme(
+          "authName",
+          "api-key",
+          {
+            apis: ["getUserById"],
+          },
+          signal
+        );
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.Cancelled);
+      }
+    });
+  });
 });
