@@ -15,7 +15,6 @@ import {
   Site,
   File,
   DeclarativeCopilotCapabilityName,
-  DeclarativeCopilotCapabilityName,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
