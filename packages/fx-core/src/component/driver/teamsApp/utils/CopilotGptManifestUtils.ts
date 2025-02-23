@@ -541,9 +541,7 @@ export class CopilotGptManifestUtils {
         }
         if (itemsByUrl) {
           if (capabilityName === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint) {
-            if (!capability.items_by_url) {
-              capability.items_by_url = [];
-            }
+            capability.items_by_url = capability.items_by_url || [];
             capability.items_by_url.push(itemsByUrl);
           } else {
             if (!capability.sites) {
