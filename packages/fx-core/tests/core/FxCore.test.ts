@@ -680,6 +680,41 @@ describe("Core basic APIs", () => {
     }
   });
 
+  it("convertAadToNewSchema throw user cancel error if user canceled", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
+      NODE_ENV: "development", // workaround test failure that when local template not released to GitHub
+    });
+
+    try {
+      const core = new FxCore(tools);
+      const appName = await mockV3Project();
+      const projectPath = path.join(os.tmpdir(), appName);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: projectPath,
+        [QuestionNames.AadAppManifestFilePath]: `${projectPath}/aad.manifest.json`,
+      };
+
+      sandbox.stub(tools.ui, "showMessage").callsFake(async (level, message) => {
+        if (level === "warn") {
+          return err(new UserCancelError("test"));
+        } else {
+          return ok("Continue");
+        }
+      });
+
+      const result = await core.convertAadToNewSchema(inputs);
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.isTrue(result.error instanceof UserCancelError);
+      }
+    } finally {
+      restore();
+      sinon.restore();
+    }
+  });
+
   it("convertAadToNewSchema show message when manifest is in new schema", async () => {
     const restore = mockedEnv({
       TEAMSFX_DEBUG_TEMPLATE: "true", // workaround test failure that when local template not released to GitHub
