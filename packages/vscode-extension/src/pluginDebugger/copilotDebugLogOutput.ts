@@ -155,10 +155,7 @@ export class CopilotDebugLog {
     this.logAgentHeaderDetails(debugConsole);
     debugConsole.appendLine("");
     debugConsole.appendLine(ANSIColors.WHITE + "CAPABILITIES");
-    if (
-      this.capabilitiesDeveloperInfo &&
-      this.capabilitiesDeveloperInfo.enabledCapabilities.length > 0
-    ) {
+    if ((this.capabilitiesDeveloperInfo?.enabledCapabilities?.length ?? 0) > 0) {
       this.logCapabilities(debugConsole);
     } else {
       debugConsole.appendLine(
