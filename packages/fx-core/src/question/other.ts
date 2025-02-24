@@ -989,7 +989,8 @@ export function oauthScopeQuestion(): TextInputQuestion {
     cliDescription: "Scope for oauth.",
     validation: {
       validFunc: (input: string): string | undefined => {
-        const regExp = /^(?:\s*[^:]+?\s*:\s*[^;]+?\s*)(?:;\s*[^:]+?\s*:\s*[^;]+?\s*)*;?\s*$/g;
+        const regExp =
+          /([-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)(\s*;\s*[-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)*/g;
         if (!regExp.test(input)) {
           return getLocalizedString("core.oauthScopeQuestion.validation.scope");
         }
