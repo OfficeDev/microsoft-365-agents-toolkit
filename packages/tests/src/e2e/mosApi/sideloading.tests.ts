@@ -28,13 +28,16 @@ describe("MOS3 API", function () {
         await m365TitleHelper.unacquire(res[0]);
         success = true;
       } catch (e) {
-        console.error(`Failed to call MOS3 API (acquire/unacquire): ${e}`);
         error = e;
       }
       if (success) {
-        console.log("Successfully call MOS3 API (acquire/unacquire)");
+        console.log(
+          "Successfully call MOS3 API (acquire/unacquire) for non DA app"
+        );
       } else {
-        console.error("Failed to call MOS3 API (acquire/unacquire)");
+        console.error(
+          "Failed to call MOS3 API (acquire/unacquire) for non DA app"
+        );
         console.error(error);
       }
       assert.isTrue(success);
@@ -62,13 +65,14 @@ describe("MOS3 API", function () {
         await m365TitleHelper.unacquire(res[0]);
         success = true;
       } catch (e) {
-        console.error(`Failed to call MOS3 API (acquire/unacquire): ${e}`);
         error = e;
       }
       if (success) {
-        console.log("Successfully call MOS3 API (acquire/unacquire)");
+        console.log(
+          "Successfully call MOS3 API (acquire/unacquire) for DA app"
+        );
       } else {
-        console.error("Failed to call MOS3 API (acquire/unacquire)");
+        console.error("Failed to call MOS3 API (acquire/unacquire) for DA app");
         console.error(error);
       }
       assert.isTrue(success);
