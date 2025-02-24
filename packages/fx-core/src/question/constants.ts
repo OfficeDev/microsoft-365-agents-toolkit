@@ -117,7 +117,6 @@ export enum QuestionNames {
   OauthPKCE = "oauth-pkce",
   ApiKeyIn = "api-key-in",
   ApiKeyName = "api-key-name",
-  MicrosoftEntraTenantId = "microsoft-entra-tenant-id",
 }
 
 export enum ProjectTypeGroup {

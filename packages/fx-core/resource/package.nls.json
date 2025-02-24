@@ -964,5 +964,5 @@
   "core.addAuthActionQuestion.ApiKeyIn.header": "Header",
   "core.addAuthActionQuestion.ApiKeyIn.query": "Query",
   "core.addAuthActionQuestion.ApiKeyName.title": "Enter the Name of API Key",
-  "core.addAuthAction.microsoftEntra.message": "Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app."
+  "core.addAuthAction.microsoftEntra.message": "Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Update redirect uri of the Mcirosoft Entra app to https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect."
 }
