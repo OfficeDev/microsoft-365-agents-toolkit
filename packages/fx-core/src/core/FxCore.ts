@@ -2140,7 +2140,18 @@ export class FxCore {
       case KnowledgeSourceOptions.embeddedKnowledge().id:
         const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
         const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
-        return await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
+        const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
+          manifestFilePath,
+          filePath
+        );
+        if (res.isOk()) {
+          await TOOLS.ui.showMessage(
+            "info",
+            getLocalizedString("core.addKnowledge.success"),
+            false
+          );
+        }
+        return res;
       default:
         return ok(undefined);
     }
