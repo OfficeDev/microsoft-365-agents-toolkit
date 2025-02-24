@@ -7,7 +7,13 @@ import { expect } from "chai";
 import sinon from "sinon";
 import converter from "swagger2openapi";
 import { SpecParser } from "../src/specParser";
-import { ErrorType, ProjectType, ValidationStatus, WarningType } from "../src/interfaces";
+import {
+  AdaptiveCardUpdateStrategy,
+  ErrorType,
+  ProjectType,
+  ValidationStatus,
+  WarningType,
+} from "../src/interfaces";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { SpecParserError } from "../src/specParserError";
 import { ConstantString } from "../src/constants";
@@ -1530,6 +1536,103 @@ describe("SpecParser", () => {
 
       sinon.assert.calledWith(outputJSONStub, expectedCardPath, adaptiveCardContent, { spaces: 4 });
       sinon.assert.calledWith(outputJSONStub, expectedDataPath, adaptiveCardData, { spaces: 4 });
+    });
+
+    it("should generate adaptive card and not override if AdaptiveCardUpdateStrategy is KeepExisting", async () => {
+      const manifestPath = "path/to/manifest.json";
+      const outputSpecPath = "path/to/spec.json";
+      const pluginFilePath = "C:\\fakepath\\ai-plugin.json";
+      const filter = ["get /hello"];
+
+      const fakeSpec = { openapi: "3.0.0", paths: {} };
+      const fakeUnresolvedSpec = { paths: {} };
+
+      const adaptiveCardContent = { foo: "bar" };
+      const adaptiveCardData = { key: "value" };
+      const fakeApiPlugin = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json",
+        schema_version: "v2.2",
+        name_for_human: "testsep22",
+        description_for_human: "A simple service to manage repairs",
+        functions: [
+          {
+            name: "testFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "testFunc2",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+        ],
+      };
+
+      const fakeWarnings: any[] = [];
+      const fakeJsonDataSet = {
+        testFunc: adaptiveCardData,
+      };
+
+      sinon
+        .stub(ManifestUpdater, "updateManifestWithAiPlugin")
+        .resolves([{} as any, fakeApiPlugin, fakeWarnings, fakeJsonDataSet]);
+
+      sinon
+        .stub(SpecParser.prototype, "getFilteredSpecs")
+        .resolves([fakeUnresolvedSpec as any, fakeSpec as any]);
+
+      const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
+
+      const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
+        return path.toString().endsWith("testFunc.json");
+      });
+
+      const specParser = new SpecParser("path/to/spec.yaml");
+
+      await specParser.generateForCopilot(
+        manifestPath,
+        filter,
+        outputSpecPath,
+        pluginFilePath,
+        undefined,
+        undefined,
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      expect(fakeApiPlugin?.functions).to.deep.equal([
+        {
+          name: "testFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+        {
+          name: "testFunc2",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc2.json",
+              },
+            },
+          },
+        },
+      ]);
+
+      sinon.assert.callCount(outputJSONStub, 4);
     });
   });
 
@@ -4009,6 +4112,258 @@ describe("SpecParser", () => {
         expect(err).to.be.instanceOf(SpecParserError);
         expect(err.errorType).to.equal(ErrorType.GenerateAdaptiveCardFailed);
         expect(err.message).to.equal("Error: generate ac error");
+      }
+    });
+  });
+
+  describe("addAuthScheme", () => {
+    it("should add auth scheme to spec for api key auth", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon
+        .stub(Utils, "getAuthSchemaObject")
+        .returns(authScheme as OpenAPIV3.ApiKeySecurityScheme);
+      sinon.stub(fs, "outputFile").callsFake((path, data) => {
+        expect(path).to.equal(specPath);
+        const dataJson = JSON.parse(data as string);
+        expect(dataJson.components.securitySchemes["authName"]).to.deep.equal(authScheme);
+        const paths = dataJson.paths;
+        for (const path in paths) {
+          const methods = paths[path];
+          for (const method in methods) {
+            const operationId = (methods as any)[method].operationId;
+            if (operationId === "getUserById") {
+              expect((methods as any)[method].security).to.deep.equal([
+                {
+                  authName: [],
+                },
+              ]);
+            }
+          }
+        }
+      });
+      await specParser.addAuthScheme("authName", "api-key", {
+        apis: ["getUserById"],
+      });
+    });
+
+    it("should throw error if failed", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon.stub(Utils, "getAuthSchemaObject").throws(new Error("error"));
+      try {
+        await specParser.addAuthScheme("authName", "api-key", {
+          apis: ["getUserById"],
+        });
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.AddAuthFailed);
+      }
+    });
+
+    it("should throw error if aborted", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const signal = { aborted: true } as AbortSignal;
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      try {
+        await specParser.addAuthScheme(
+          "authName",
+          "api-key",
+          {
+            apis: ["getUserById"],
+          },
+          signal
+        );
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.Cancelled);
       }
     });
   });

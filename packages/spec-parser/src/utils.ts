@@ -515,4 +515,36 @@ export class Utils {
 
     return serverUrl;
   }
+
+  static getAuthSchemaObject(
+    authType: string,
+    authParameters: any
+  ): OpenAPIV3.SecuritySchemeObject {
+    switch (authType) {
+      case "oauth":
+        return {
+          type: "oauth2",
+          flows: {
+            authorizationCode: {
+              authorizationUrl: authParameters.authorizationUrl,
+              tokenUrl: authParameters.tokenUrl,
+              refreshUrl: authParameters.refreshUrl,
+              scopes: authParameters.scopes,
+            },
+          },
+        } as OpenAPIV3.OAuth2SecurityScheme;
+      case "api-key":
+        return {
+          type: "apiKey",
+          in: authParameters.in,
+          name: authParameters.name,
+        } as OpenAPIV3.ApiKeySecurityScheme;
+      case "bearer-token":
+      default:
+        return {
+          type: "http",
+          scheme: "bearer",
+        } as OpenAPIV3.HttpSecurityScheme;
+    }
+  }
 }

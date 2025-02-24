@@ -37,6 +37,10 @@ export interface DeclarativeCopilotManifestSchema {
         connections: Connection[];
         [k: string]: unknown;
       }
+    | {
+        name: "EmbeddedKnowledge";
+        files: File[];
+      }
   )[];
   conversation_starters?: ConversationStarter[];
   actions?: ActionObject[];
@@ -48,6 +52,7 @@ export interface File {
   list_id?: string;
   unique_id?: string;
   file_name?: string;
+  file?: string;
 }
 export interface Site {
   path: string;

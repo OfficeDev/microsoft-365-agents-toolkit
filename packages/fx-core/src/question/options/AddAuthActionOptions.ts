@@ -38,8 +38,47 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     type: "string",
     description: "The authentication type for the API.",
     required: true,
-    default: "none",
-    choices: ["none", "api-key", "bearer-token", "microsoft-entra", "oauth"],
+    default: "bearer-token",
+    choices: ["bearer-token", "api-key", "oauth"],
+  },
+  {
+    name: "oauth-authorization-url",
+    type: "string",
+    description: "Authorization Url for oauth.",
+  },
+  {
+    name: "oauth-token-url",
+    type: "string",
+    description: "Token Url for oauth.",
+  },
+  {
+    name: "oauth-refresh-url",
+    type: "string",
+    description: "Refresh Url for oauth. Leave it emplt if not needed.",
+  },
+  {
+    name: "oauth-scope",
+    type: "string",
+    description: "Scope for oauth.",
+  },
+  {
+    name: "oauth-pkce",
+    type: "string",
+    description: "Enable PKCE for OAuth?",
+    default: "false",
+    choices: ["true", "false"],
+  },
+  {
+    name: "api-key-in",
+    type: "string",
+    description: "Enter where the API Key should be in the request",
+    default: "header",
+    choices: ["header", "query"],
+  },
+  {
+    name: "api-key-name",
+    type: "string",
+    description: "Name of the API key.",
   },
 ];
 export const AddAuthActionArguments: CLICommandArgument[] = [];

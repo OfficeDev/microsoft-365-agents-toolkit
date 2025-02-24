@@ -29,6 +29,7 @@ import { CollaborationConstants, CollaborationUtil } from "../core/collaborator"
 import { environmentNameManager } from "../core/environmentName";
 import { TOOLS } from "../common/globalVars";
 import {
+  AddAuthActionAuthTypeOptions,
   ApiPluginStartOptions,
   HubOptions,
   QuestionNames,
@@ -880,9 +881,145 @@ export function addAuthActionQuestion(): IQTreeNode {
         data: authNameQuestion(),
       },
       {
-        data: apiAuthQuestion(true),
+        data: addAuthActionAuthTypeQuestion(),
+      },
+      oauthParametersQuestion(),
+      apiKeyParameterQuestion(),
+    ],
+  };
+}
+
+export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.ApiAuth,
+    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+    ),
+    cliDescription: "The authentication type for the API.",
+    staticOptions: AddAuthActionAuthTypeOptions.all(),
+    default: AddAuthActionAuthTypeOptions.bearerToken().id,
+  };
+}
+
+export function oauthParametersQuestion(): IQTreeNode {
+  return {
+    data: oauthAuthorizationUrlQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.oauth().id;
+    },
+    children: [
+      {
+        data: oauthTokenUrlQuestion(),
+      },
+      {
+        data: oauthRefreshUrlQuestion(),
+      },
+      {
+        data: oauthScopeQuestion(),
+      },
+      {
+        data: oauthPKCEQuestion(),
       },
     ],
+  };
+}
+
+export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthAuthorizationUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
+    type: "text",
+    cliDescription: "Authorization Url for oauth.",
+  };
+}
+
+export function oauthTokenUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthTokenUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
+    type: "text",
+    cliDescription: "Token Url for oauth.",
+  };
+}
+
+export function oauthRefreshUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthRefreshUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
+    type: "text",
+    cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
+  };
+}
+
+export function oauthScopeQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+  };
+}
+
+export function oauthPKCEQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.OauthPKCE,
+    title: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "true",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.true"),
+      },
+      {
+        id: "false",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.false"),
+      },
+    ],
+    default: "false",
+  };
+}
+
+export function apiKeyParameterQuestion(): IQTreeNode {
+  return {
+    data: apiKeyInQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.apiKey().id;
+    },
+    children: [
+      {
+        data: apiKeyNameQuestion(),
+      },
+    ],
+  };
+}
+
+export function apiKeyInQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiKeyIn,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "header",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.header"),
+      },
+      {
+        id: "query",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.query"),
+      },
+    ],
+    default: "header",
+  };
+}
+
+export function apiKeyNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.ApiKeyName,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyName.title"),
+    type: "text",
+    cliDescription: "Name of the API key.",
   };
 }
 

@@ -156,6 +156,7 @@ import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
 import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
+  AddAuthActionAuthTypeOptions,
   ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
@@ -2293,17 +2294,58 @@ export class FxCore {
     const apiSpecPath = path.normalize(
       path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
     );
-    let authType;
-    switch (inputs[QuestionNames.ApiAuth] as string) {
-      case "api-key":
+    const authType = inputs[QuestionNames.ApiAuth] as string;
+
+    let authParameters: any = {
+      apis: apiOperation,
+    };
+    if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
+      const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
+      const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
+      const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
+      const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+      const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
+      const scopeArr: { [scope: string]: string } = {};
+      oauthScopes.split(";").forEach((scopeStr) => {
+        const lastIndex = scopeStr.lastIndexOf(":");
+        if (lastIndex !== -1) {
+          const key = scopeStr.substring(0, lastIndex).trim();
+          const value = scopeStr.substring(lastIndex + 1).trim();
+          scopeArr[key] = value;
+        }
+      });
+
+      authParameters = {
+        ...authParameters,
+        authorizationUrl: oauthAuthorizationUrl,
+        tokenUrl: oauthTokenUrl,
+        refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
+        scopes: scopeArr,
+        enablePKCE: enablePKCEStr === "true",
+      };
+    } else if (authType === AddAuthActionAuthTypeOptions.apiKey().id) {
+      const apiKeyIn = inputs[QuestionNames.ApiKeyIn] as string;
+      const apiKeyName = inputs[QuestionNames.ApiKeyName] as string;
+      authParameters = {
+        ...authParameters,
+        in: apiKeyIn,
+        name: apiKeyName,
+      };
+    }
+
+    // Update openapi spec
+    const specParser = new SpecParser(apiSpecPath, getParserOptions(ProjectType.Copilot, true));
+    await specParser.addAuthScheme(authName, authType, authParameters);
+
+    let authTypeScheme;
+    switch (authType) {
+      case AddAuthActionAuthTypeOptions.apiKey().id:
+      case AddAuthActionAuthTypeOptions.bearerToken().id:
       default:
-        authType = APIKeyAuthType;
+        authTypeScheme = APIKeyAuthType;
         break;
       case "oauth":
-        authType = OAuthAuthType;
-        break;
-      case "microsoft-entra":
-        authType = MicrosoftEntraAuthType;
+        authTypeScheme = OAuthAuthType;
         break;
     }
 
@@ -2313,15 +2355,30 @@ export class FxCore {
       undefined,
       apiSpecPath,
       true,
-      authType
+      authTypeScheme,
+      authParameters.enablePKCE ?? undefined
     );
 
     if (addAuthActionRes?.registrationIdEnvName) {
       const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      pluginManifest.runtimes?.forEach((runtime) => {
+        if (
+          runtime.type === "OpenApi" &&
+          runtime.auth?.type === "None" &&
+          runtime.spec?.url === apiSpecRelativePath
+        ) {
+          runtime.run_for_functions = runtime.run_for_functions?.filter(
+            (value) => !!!apiOperation.includes(value)
+          );
+        }
+      });
+      pluginManifest.runtimes = pluginManifest.runtimes?.filter((runtime) => {
+        return !!runtime.run_for_functions && runtime.run_for_functions?.length > 0;
+      });
       pluginManifest.runtimes?.push({
         type: "OpenApi",
         auth: {
-          type: authType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
+          type: authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
           reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
         },
         spec: {

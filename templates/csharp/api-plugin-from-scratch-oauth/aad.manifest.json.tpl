@@ -51,7 +51,8 @@
     ],
     "identifierUris": [
 {{#MicrosoftEntra}}
-        "api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}"
+        "api://${{OPENAPI_SERVER_DOMAIN}}/${{AAD_APP_CLIENT_ID}}",
+        "${{AADAUTHCODE_APPLICATION_ID_URI}}"
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
         "api://${{AAD_APP_CLIENT_ID}}"
