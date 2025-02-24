@@ -25,7 +25,10 @@ export class M365TitleHelper {
 
   private axios: AxiosInstance;
 
+  token: string;
+
   private constructor(serviceURL: string, access: string) {
+    this.token = access;
     this.axios = axios.create({
       baseURL: serviceURL,
       headers: {
@@ -169,11 +172,14 @@ export class M365TitleHelper {
     const data = (await fs.readFile(packageFile)) as Buffer;
     const content = new FormData();
     content.append("package", data);
-
+    const uploadHeaders = content.getHeaders();
+    uploadHeaders["Authorization"] = `Bearer ${this.token}`;
     const uploadResponse = await this.axios!.post(
       "/builder/v1/users/packages",
       content.getBuffer(),
       {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        headers: uploadHeaders,
         params: {
           scope: appScope,
         },
@@ -185,7 +191,11 @@ export class M365TitleHelper {
 
     do {
       const statusResponse = await this.axios!.get(
-        `/builder/v1/users/packages/status/${statusId as string}`
+        `/builder/v1/users/packages/status/${statusId as string}`,
+        {
+          baseURL: "https://titles.prod.mos.microsoft.com",
+          headers: uploadHeaders,
+        }
       );
       const resCode = statusResponse.status;
       console.debug(`Package status: ${resCode} ...`);
