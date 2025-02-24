@@ -5,14 +5,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Test Tool",
-            "dependsOn": ["Validate prerequisites (Test Tool)", "Deploy (Test Tool)", "Start Test Tool"],
-            "dependsOrder": "sequence",
-            "presentation": {
-              "reveal": "never"
-            },
-        },
-        {
             // Check all required prerequisites.
             // See https://aka.ms/teamsfx-tasks/check-prerequisites to know the details and how to customize the args.
             "label": "Validate prerequisites (Test Tool)",
@@ -40,31 +32,6 @@
             "command": "deploy",
             "args": {
                 "env": "testtool",
-            }
-        },
-        {
-            "label": "Start Test Tool",
-            "type": "shell",
-            "command": "${workspaceFolder}/devTools/teamsapptester/teamsapptester.exe",
-            "args": [
-                "start"
-            ],
-            "isBackground": true,
-            "problemMatcher": {
-                "owner": "custom",
-                "pattern": {
-                    "regexp": ".*InternalServiceError: (.*)",
-                    "message": 1
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": {
-                        "regexp": ".*Teams App Test Tool"
-                    },
-                    "endsPattern": {
-                        "regexp": ".*started web socket client"
-                    }
-                },
             }
         },
         {

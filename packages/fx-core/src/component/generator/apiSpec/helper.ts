@@ -21,8 +21,10 @@ import {
   ValidationStatus,
   WarningResult,
   WarningType,
+  AuthType,
+  ListAPIInfo,
+  AdaptiveCardUpdateStrategy,
 } from "@microsoft/m365-spec-parser";
-import { AuthType, ListAPIInfo } from "@microsoft/m365-spec-parser/dist/src/interfaces";
 import {
   ApiOperation,
   AppPackageFolderName,
@@ -39,6 +41,7 @@ import {
   Warning,
   err,
   ok,
+  Stage,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { OpenAPIV3 } from "openapi-types";
@@ -492,13 +495,21 @@ export async function generateFromApiSpec(
   }
 
   try {
+    let adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.CreateNew;
+    if (sourceComponent === Stage.kiotaRegenerate) {
+      adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
+    }
+
     const generateResult =
       projectType === ProjectType.Copilot
         ? await specParser.generateForCopilot(
             teamsManifestPath,
             operations,
             outputFilePath.destinationApiSpecFilePath,
-            outputFilePath.pluginManifestFilePath!
+            outputFilePath.pluginManifestFilePath!,
+            undefined,
+            undefined,
+            adaptiveCardUpdateStrategy
           )
         : await specParser.generate(
             teamsManifestPath,
@@ -627,7 +638,8 @@ export async function injectAuthAction(
   authScheme: AuthType | undefined,
   outputApiSpecPath: string,
   forceToAddNew: boolean,
-  authType?: string
+  authType?: string,
+  enablePKCE?: boolean
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
@@ -661,7 +673,8 @@ export async function injectAuthAction(
       authName,
       relativeSpecPath,
       forceToAddNew,
-      authType === MicrosoftEntraAuthType
+      authType === MicrosoftEntraAuthType,
+      enablePKCE
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -670,7 +683,8 @@ export async function injectAuthAction(
         authName,
         relativeSpecPath,
         forceToAddNew,
-        authType === MicrosoftEntraAuthType
+        authType === MicrosoftEntraAuthType,
+        enablePKCE
       );
     }
     return res;

@@ -865,4 +865,83 @@ describe("utils", () => {
       expect(Utils.getSafeRegistrationIdEnvName("authname")).to.equal("AUTHNAME");
     });
   });
+
+  describe("getAuthSchemaObject", () => {
+    it("should return correct oauth scheme with refresh url", () => {
+      const authParameter = {
+        apis: "operationId1",
+        authorizationUrl: "mockedAuthorizationUrl",
+        tokenUrl: "mockedTokenUrl",
+        refreshUrl: "mockedRefreshUrl",
+        scopes: {
+          read: "Grants read access",
+        },
+      };
+      const authSchema = Utils.getAuthSchemaObject("oauth", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "mockedAuthorizationUrl",
+            tokenUrl: "mockedTokenUrl",
+            refreshUrl: "mockedRefreshUrl",
+            scopes: {
+              read: "Grants read access",
+            },
+          },
+        },
+      });
+    });
+
+    it("should return correct oauth scheme with refreshout url", () => {
+      const authParameter = {
+        apis: "operationId1",
+        authorizationUrl: "mockedAuthorizationUrl",
+        tokenUrl: "mockedTokenUrl",
+        refreshUrl: undefined,
+        scopes: {
+          read: "Grants read access",
+        },
+      };
+      const authSchema = Utils.getAuthSchemaObject("oauth", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "mockedAuthorizationUrl",
+            tokenUrl: "mockedTokenUrl",
+            refreshUrl: undefined,
+            scopes: {
+              read: "Grants read access",
+            },
+          },
+        },
+      });
+    });
+
+    it("should return correct apiKey scheme", () => {
+      const authParameter = {
+        apis: "operationId1",
+        in: "header",
+        name: "apiKeyName",
+      };
+      const authSchema = Utils.getAuthSchemaObject("api-key", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "apiKey",
+        in: "header",
+        name: "apiKeyName",
+      });
+    });
+
+    it("should return correct bearer token scheme", () => {
+      const authParameter = {
+        apis: "operationId1",
+      };
+      const authSchema = Utils.getAuthSchemaObject("bearer-token", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "http",
+        scheme: "bearer",
+      });
+    });
+  });
 });

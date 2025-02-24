@@ -20,9 +20,7 @@ import { getLocalizedString } from "../../../../common/localizeUtils";
 import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import { FileNotFoundError, UserCancelError } from "../../../../error";
 import fs from "fs-extra";
-import { parseDocument } from "yaml";
-import { MetadataV3 } from "../../../../common/versionMetadata";
-import path from "path";
+import { updateVersionForTeamsAppYamlFile } from "../../util/utils";
 
 const componentName = "AadManifestHelper";
 
@@ -385,32 +383,7 @@ export class AadManifestHelper {
       false
     );
 
-    await AadManifestHelper.updateVersionForTeamsAppYamlFile(projectPath);
+    await updateVersionForTeamsAppYamlFile(projectPath);
     return ok(undefined);
-  }
-
-  public static async updateVersionForTeamsAppYamlFile(projectPath: string): Promise<void> {
-    const allPossilbeYamlFileNames = [
-      MetadataV3.localConfigFile,
-      MetadataV3.configFile,
-      MetadataV3.testToolConfigFile,
-    ];
-    for (const yamlFileName of allPossilbeYamlFileNames) {
-      const ymlPath = path.join(projectPath, yamlFileName);
-      if (await fs.pathExists(ymlPath)) {
-        const ymlContent = await fs.readFile(ymlPath, "utf-8");
-        const document = parseDocument(ymlContent);
-        const version = document.get("version") as string;
-        if (version <= "v1.7") {
-          document.set("version", "v1.8");
-          const docContent = document.toString();
-          const updatedContent = docContent.replace(
-            /(yaml-language-server:\s*\$schema=https:\/\/aka\.ms\/teams-toolkit\/)v\d+\.\d+(\/yaml\.schema\.json)/,
-            "$1v1.8$2"
-          );
-          await fs.writeFile(ymlPath, updatedContent, "utf8");
-        }
-      }
-    }
   }
 }

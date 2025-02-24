@@ -2017,12 +2017,12 @@ describe("SpecGenerator", async () => {
       delete inputs[QuestionNames.Capabilities];
       delete inputs.apiAuthData;
       inputs[QuestionNames.MeArchitectureType] = MeArchitectureOptions.apiSpec().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.CopilotPluginExistingApi;
+      inputs[QuestionNames.TemplateName] = TemplateNames.MessageExtensionWithExistingApiSpec;
       res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, TemplateNames.CopilotPluginExistingApi);
+        assert.equal(res.value[0].templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
       }
 
       delete inputs[QuestionNames.MeArchitectureType];
@@ -2047,7 +2047,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       inputs.apiAuthData = [
@@ -2076,7 +2076,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "listOperations").resolves(
@@ -2115,7 +2115,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "listOperations").resolves(
@@ -2150,7 +2150,7 @@ describe("SpecGenerator", async () => {
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
       };

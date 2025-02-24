@@ -48,11 +48,11 @@ async function isAutoSkipSelect(q: Question, inputs: Inputs): Promise<boolean> {
 export function getSingleOption(
   q: SingleSelectQuestion | MultiSelectQuestion,
   option?: StaticOptions
-): any {
+): string | OptionItem | [string | OptionItem] {
   if (!option) option = q.staticOptions;
   const optionIsString = typeof option[0] === "string";
-  let returnResult;
-  if (optionIsString) returnResult = option[0];
+  let returnResult: string | OptionItem;
+  if (optionIsString) returnResult = option[0] as string;
   else {
     if (q.returnObject === true) returnResult = option[0];
     else returnResult = (option[0] as OptionItem).id;
@@ -87,6 +87,26 @@ export type QuestionTreeVisitor = (
   totalSteps?: number
 ) => Promise<Result<InputResult<any>, FxError>>;
 
+export async function singleSelectCallback(
+  question: SingleSelectQuestion,
+  answer: string | OptionItem,
+  inputs: Inputs,
+  options: StaticOptions
+): Promise<void> {
+  if (!question.onDidSelection) return;
+  if (typeof answer !== "string") {
+    await question.onDidSelection(answer, inputs);
+  } else {
+    const selected = (options as (string | OptionItem)[]).find((o: string | OptionItem) => {
+      if (typeof o === "string") return o === answer;
+      return o.id === answer;
+    });
+    if (selected) {
+      await question.onDidSelection(selected, inputs);
+    }
+  }
+}
+
 /**
  * ask question when visiting the question tree
  * @param question
@@ -106,23 +126,16 @@ export const questionVisitor: QuestionTreeVisitor = async function (
     if (res) return err(new InputValidationError(question.name, res, "questionVisitor"));
     if (question.type === "singleSelect" && question.onDidSelection) {
       const options = await loadOptions(question, inputs);
-      const presetAnswer = inputs[question.name];
-      const selected = (options as (string | OptionItem)[]).find((o: string | OptionItem) => {
-        if (typeof o === "string") return o === presetAnswer;
-        return o.id === presetAnswer;
-      });
-      if (selected) {
-        await question.onDidSelection(selected, inputs);
-      }
+      await singleSelectCallback(question, inputs[question.name], inputs, options);
     }
     return ok({ type: "skip", result: inputs[question.name] });
   }
 
-  const skipSingle = await isAutoSkipSelect(question, inputs);
   if (inputs.nonInteractive) {
     // if no preset answer and non-interactive mode
     // first priority: use single option as value
     if (question.type === "singleSelect" || question.type === "multiSelect") {
+      const skipSingle = await isAutoSkipSelect(question, inputs);
       if (skipSingle) {
         const options = await loadOptions(question, inputs);
         if (options.length === 0) {
@@ -131,6 +144,9 @@ export const questionVisitor: QuestionTreeVisitor = async function (
         if (options.length === 1) {
           const value = getSingleOption(question, options);
           if (value) {
+            if (question.type === "singleSelect") {
+              await singleSelectCallback(question, inputs[question.name], inputs, options);
+            }
             return ok({ type: "skip", result: value });
           }
         }
@@ -148,6 +164,10 @@ export const questionVisitor: QuestionTreeVisitor = async function (
         if (validateRes) {
           return err(new InputValidationError(question.name, validateRes, "questionVisitor"));
         } else {
+          if (question.type === "singleSelect") {
+            const options = await loadOptions(question, inputs);
+            await singleSelectCallback(question, value as string, inputs, options);
+          }
           return ok({ type: "skip", result: value });
         }
       }
@@ -202,6 +222,7 @@ export const questionVisitor: QuestionTreeVisitor = async function (
       additionalValidationOnAccept: additionalValidationOnAcceptFunc,
     });
   } else if (question.type === "singleSelect" || question.type === "multiSelect") {
+    const skipSingle = await isAutoSkipSelect(question, inputs);
     let options: StaticOptions | (() => Promise<StaticOptions>) | undefined = undefined;
     if (question.dynamicOptions) {
       options = async () => {
@@ -508,7 +529,7 @@ export async function traverse(
   return ok(Void);
 }
 
-function findValue(curr: IQTreeNode, parentMap: Map<IQTreeNode, IQTreeNode>): any {
+export function findValue(curr: IQTreeNode, parentMap: Map<IQTreeNode, IQTreeNode>): any {
   if (curr.data.type !== "group") {
     // need to convert OptionItem value into id for validation
     if (curr.data.type === "singleSelect") {

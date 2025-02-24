@@ -49,9 +49,9 @@ export class ConstantString {
 
   static readonly GenerateJsonDataFailed = "Failed to generate JSON data for api: %s due to %s.";
 
-  static readonly WrappedCardVersion = "devPreview";
+  static readonly WrappedCardVersion = "1.0";
   static readonly WrappedCardSchema =
-    "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.ResponseRenderingTemplate.schema.json";
+    "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.ResponseRenderingTemplate.schema.json";
   static readonly WrappedCardResponseLayout = "list";
 
   static readonly GetMethod = "get";
