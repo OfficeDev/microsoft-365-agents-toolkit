@@ -244,9 +244,13 @@ export class CopilotDebugLog {
     if (capabilitiesContainAdditionalInfo) {
       debugConsole.appendLine("");
       capabilitiesOfThisTpe?.forEach((execution, index) => {
+        const logFileName = `Copilot-debug-${new Date()
+          .toISOString()
+          .replace(/-|:|\.\d+Z$/g, "")}-${index}.txt`;
+        const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
         writeExecutionDetailsToFile(logFilePath, JSON.stringify(execution, null, 2));
         debugConsole.appendLine(
-          `       ${ANSIColors.WHITE} ${execution.name} ${index} ${
+          `       ${ANSIColors.WHITE} ${execution.name} Execution ${index} ${
             ANSIColors.WHITE
           }• ${CopilotDebugLog.getExecutionStatusColor(
             execution.status
