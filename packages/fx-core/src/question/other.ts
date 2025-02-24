@@ -885,6 +885,7 @@ export function addAuthActionQuestion(): IQTreeNode {
       },
       oauthParametersQuestion(),
       apiKeyParameterQuestion(),
+      microsoftEntraParameterQuestion(),
     ],
   };
 }
@@ -1020,6 +1021,29 @@ export function apiKeyNameQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.ApiKeyName.title"),
     type: "text",
     cliDescription: "Name of the API key.",
+  };
+}
+
+export function microsoftEntraParameterQuestion(): IQTreeNode {
+  return {
+    data: microsoftEntraTenantIdQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.microsoftEntra().id;
+    },
+    children: [
+      {
+        data: oauthScopeQuestion(),
+      },
+    ],
+  };
+}
+
+export function microsoftEntraTenantIdQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.MicrosoftEntraTenantId,
+    title: getLocalizedString("core.addAuthActionQuestion.MicrosoftEntraTenantId.title"),
+    type: "text",
+    cliDescription: "Tenant ID for Microsoft Entra.",
   };
 }
 

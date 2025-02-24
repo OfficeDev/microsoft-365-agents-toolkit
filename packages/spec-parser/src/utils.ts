@@ -522,6 +522,7 @@ export class Utils {
   ): OpenAPIV3.SecuritySchemeObject {
     switch (authType) {
       case "oauth":
+      case "microsoft-entra":
         return {
           type: "oauth2",
           flows: {

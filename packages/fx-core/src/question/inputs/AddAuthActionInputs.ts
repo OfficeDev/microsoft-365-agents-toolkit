@@ -20,7 +20,7 @@ export interface AddAuthActionInputs extends Inputs {
   /** @description Enter the Name of Auth Configuration */
   "auth-name"?: string;
   /** @description Authentication Type */
-  "api-auth"?: "bearer-token" | "api-key" | "oauth";
+  "api-auth"?: "bearer-token" | "api-key" | "oauth" | "microsoft-entra";
   /** @description Enter the OAuth Authorization URL */
   "oauth-authorization-url"?: string;
   /** @description Enter the OAuth Token URL */
@@ -35,4 +35,6 @@ export interface AddAuthActionInputs extends Inputs {
   "api-key-in"?: "header" | "query";
   /** @description Enter the Name of API Key */
   "api-key-name"?: string;
+  /** @description Enter the Microsoft Entra Tenant ID */
+  "microsoft-entra-tenant-id"?: string;
 }

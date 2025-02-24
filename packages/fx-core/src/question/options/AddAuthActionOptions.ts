@@ -39,7 +39,7 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     description: "The authentication type for the API.",
     required: true,
     default: "bearer-token",
-    choices: ["bearer-token", "api-key", "oauth"],
+    choices: ["bearer-token", "api-key", "oauth", "microsoft-entra"],
   },
   {
     name: "oauth-authorization-url",
@@ -79,6 +79,11 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     name: "api-key-name",
     type: "string",
     description: "Name of the API key.",
+  },
+  {
+    name: "microsoft-entra-tenant-id",
+    type: "string",
+    description: "Tenant ID for Microsoft Entra.",
   },
 ];
 export const AddAuthActionArguments: CLICommandArgument[] = [];

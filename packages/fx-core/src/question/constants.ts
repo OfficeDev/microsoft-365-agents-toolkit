@@ -117,6 +117,7 @@ export enum QuestionNames {
   OauthPKCE = "oauth-pkce",
   ApiKeyIn = "api-key-in",
   ApiKeyName = "api-key-name",
+  MicrosoftEntraTenantId = "microsoft-entra-tenant-id",
 }
 
 export enum ProjectTypeGroup {
@@ -834,11 +835,19 @@ export class AddAuthActionAuthTypeOptions {
     };
   }
 
+  static microsoftEntra(): OptionItem {
+    return {
+      id: "microsoft-entra",
+      label: "Microsoft Entra",
+    };
+  }
+
   static all(): OptionItem[] {
     return [
       AddAuthActionAuthTypeOptions.bearerToken(),
       AddAuthActionAuthTypeOptions.apiKey(),
       AddAuthActionAuthTypeOptions.oauth(),
+      AddAuthActionAuthTypeOptions.microsoftEntra(),
     ];
   }
 }

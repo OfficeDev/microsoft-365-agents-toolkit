@@ -963,5 +963,7 @@
   "core.addAuthActionQuestion.ApiKeyIn.title": "Enter where the API Key should be in the request",
   "core.addAuthActionQuestion.ApiKeyIn.header": "Header",
   "core.addAuthActionQuestion.ApiKeyIn.query": "Query",
-  "core.addAuthActionQuestion.ApiKeyName.title": "Enter the Name of API Key"
+  "core.addAuthActionQuestion.ApiKeyName.title": "Enter the Name of API Key",
+  "core.addAuthActionQuestion.MicrosoftEntraTenantId.title": "Enter the Microsoft Entra Tenant ID",
+  "core.addAuthAction.microsoftEntra.message": "Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app."
 }
