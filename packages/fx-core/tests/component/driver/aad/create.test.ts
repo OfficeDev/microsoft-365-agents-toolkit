@@ -26,6 +26,7 @@ import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/err
 import { MissingServiceManagementReferenceError } from "../../../../src/component/driver/aad/error/missingServiceManagamentReferenceError";
 import { MockedM365Provider } from "../../../core/utils";
 import { UserCancelError } from "../../../../src/error/common";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -936,13 +937,19 @@ describe("askForAADAppIdAndSecret", () => {
     m365TokenProvider: new MockedM365Provider(),
   } as any;
 
+  let aadAppState: any;
+  let outputEnvVarNames: Map<string, string>;
+
+  beforeEach(() => {
+    aadAppState = {};
+    outputEnvVarNames = new Map<string, string>();
+  });
+
   afterEach(() => {
     sinon.restore();
   });
-  it("should return user input when user proceeds", async () => {
-    const aadAppState = {};
-    const outputEnvVarNames = new Map<string, string>();
 
+  it("should return user input when user proceeds", async () => {
     sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
     sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
 
@@ -951,9 +958,6 @@ describe("askForAADAppIdAndSecret", () => {
   });
 
   it("should return UserCancelError when user cancels", async () => {
-    const aadAppState = {};
-    const outputEnvVarNames = new Map<string, string>();
-
     sinon.stub(context.ui!, "showMessage").resolves(ok("Cancel"));
 
     const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
@@ -962,5 +966,100 @@ describe("askForAADAppIdAndSecret", () => {
     if (result.isErr()) {
       expect(result.error).is.instanceOf(UserCancelError);
     }
+  });
+
+  it("should return UserCancelError if user cancels input for aadAppId", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(context.ui!, "inputText").resolves(err(new UserCancelError("test")));
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+
+    expect(result.isErr()).to.be.true;
+    if (result.isErr()) {
+      expect(result.error).is.instanceOf(UserCancelError);
+    }
+    expect(aadAppState.aadAppId).to.be.undefined;
+  });
+
+  it("should return UserCancelError if user cancels input for aadAppSecret", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon
+      .stub(context.ui!, "inputText")
+      .onFirstCall()
+      .resolves(ok({ result: "test-input" }))
+      .onSecondCall()
+      .resolves(err(new UserCancelError("test")));
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+
+    expect(result.isErr()).to.be.true;
+    if (result.isErr()) {
+      expect(result.error).is.instanceOf(UserCancelError);
+    }
+  });
+
+  it("should return UserCancelError if user cancels input for aadAppObjectId", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon
+      .stub(context.ui!, "inputText")
+      .onFirstCall()
+      .resolves(ok({ result: "test-input" }))
+      .onSecondCall()
+      .resolves(ok({ result: "test-input" }))
+      .onThirdCall()
+      .resolves(err(new UserCancelError("test")));
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+
+    expect(result.isErr()).to.be.true;
+    if (result.isErr()) {
+      expect(result.error).is.instanceOf(UserCancelError);
+    }
+  });
+
+  it("should validate aadAppId input and return error if input is empty", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(context.ui!, "inputText").callsFake(async (options: any) => {
+      if (options.name === "aadAppId") {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        expect(validationResult).equal(getLocalizedString("driver.aadApp.question.id.validation"));
+      }
+      return ok({ result: "test-input" });
+    });
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    expect(result.isOk()).to.be.true;
+  });
+
+  it("should validate aadAppSecret input and return error if input is empty", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(context.ui!, "inputText").callsFake(async (options: any) => {
+      if (options.name === "aadAppSecret") {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        expect(validationResult).equal(
+          getLocalizedString("driver.aadApp.question.secret.validation")
+        );
+      }
+      return ok({ result: "test-input" });
+    });
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    expect(result.isOk()).to.be.true;
+  });
+
+  it("should validate aadAppSecret input and return error if input is empty", async () => {
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(context.ui!, "inputText").callsFake(async (options: any) => {
+      if (options.name === "aadAppObjectId") {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        expect(validationResult).equal(
+          getLocalizedString("driver.aadApp.question.objectId.validation")
+        );
+      }
+      return ok({ result: "test-input" });
+    });
+
+    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    expect(result.isOk()).to.be.true;
   });
 });

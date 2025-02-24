@@ -20,6 +20,8 @@ import { getLocalizedString } from "../../../../common/localizeUtils";
 import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import { FileNotFoundError, UserCancelError } from "../../../../error";
 import fs from "fs-extra";
+import path from "path";
+import { MetadataV3 } from "../../../../common/versionMetadata";
 import { updateVersionForTeamsAppYamlFile } from "../../util/utils";
 
 const componentName = "AadManifestHelper";
