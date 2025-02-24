@@ -1312,19 +1312,19 @@ export class KnowledgeSearchTypeOptions {
   static url(): OptionItem {
     return {
       id: "url",
-      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.url"),
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.url"),
     };
   }
   static allWeb(): OptionItem {
     return {
       id: "all-web",
-      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.web"),
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.web"),
     };
   }
   static AllOneDriveSharepoint(): OptionItem {
     return {
       id: "all-oneDrive-sharePoint",
-      label: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.oneDriveSharepoint"),
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.oneDriveSharepoint"),
     };
   }
 }

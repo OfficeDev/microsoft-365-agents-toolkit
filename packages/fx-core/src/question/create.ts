@@ -86,6 +86,7 @@ import {
   getRuntime,
   KnowledgeSourceOptions,
   GCSelectOptions,
+  KnowledgeSearchTypeOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
@@ -1490,6 +1491,50 @@ export function GCInputQuestion(): TextInputQuestion {
         process.env[QuestionNames.GCInput] = input;
         return;
       },
+    },
+  };
+}
+
+export function webContentQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.WebContent,
+    title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
+    placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
+    type: "text",
+    cliDescription: "Name of Web Content.",
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        try {
+          new URL(input);
+          inputs.webSearchUrl = input;
+        } catch (e) {
+          return getLocalizedString("core.addKnowledgeQuestion.invalidWebContent.message");
+        }
+        return;
+      },
+    },
+  };
+}
+
+export function searchTypeQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SearchType,
+    title: getLocalizedString("core.addKnowledgeQuestion.searchType.title"),
+    staticOptions: [],
+    type: "singleSelect",
+    dynamicOptions: (inputs: Inputs) => {
+      const options = [KnowledgeSearchTypeOptions.url()];
+      if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {
+        options.push(KnowledgeSearchTypeOptions.allWeb());
+      } else if (
+        inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
+      ) {
+        options.push(KnowledgeSearchTypeOptions.AllOneDriveSharepoint());
+      }
+      return options;
     },
   };
 }

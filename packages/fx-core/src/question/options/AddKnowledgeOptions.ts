@@ -20,6 +20,11 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
   {
+    name: "search-type",
+    type: "string",
+    description: "Select Search Type",
+  },
+  {
     name: "web-content",
     type: "string",
     description: "Name of Web Content.",
@@ -34,7 +39,6 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     name: "oneDriveSharePointContent",
     type: "string",
     description: "OneDrive or SharePoint Content",
-    required: true,
   },
   {
     name: "graph-connector-content",

@@ -53,6 +53,8 @@ import {
   GCItemQuestion,
   GCListQuestion,
   GCInputQuestion,
+  searchTypeQuestion,
+  webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
@@ -823,30 +825,41 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
     children: [
-      // {
-      //   data: selectSearchType(),
-      // },
+      // Web Content
       {
-        data: webContentQuestion(),
+        data: searchTypeQuestion(),
         condition: (inputs: Inputs) => {
-          return (
-            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id &&
-            inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id
-          );
+          return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id;
         },
+        children: [
+          {
+            data: webContentQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+        ],
       },
+      // OneDrive SharePoint
       {
-        data: oneDriveSharePointItemQuestion(),
+        data: searchTypeQuestion(),
         condition: (inputs: Inputs) => {
           return (
-            inputs[QuestionNames.KnowledgeSource] ===
-              KnowledgeSourceOptions.oneDriveSharePoint().id &&
-            inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
           );
         },
         children: [
           {
+            data: oneDriveSharePointItemQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
             data: oneDriveSharePointItemConfirmQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
           },
         ],
       },
@@ -870,6 +883,7 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
           },
         ],
       },
+      // manifest selection
       {
         data: selectTeamsAppManifestQuestion(),
       },
@@ -1321,49 +1335,5 @@ export function syncManifestQuestionNode(): IQTreeNode {
         },
       },
     ],
-  };
-}
-
-export function webContentQuestion(): TextInputQuestion {
-  return {
-    name: QuestionNames.WebContent,
-    title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
-    placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
-    type: "text",
-    cliDescription: "Name of Web Content.",
-    additionalValidationOnAccept: {
-      validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        if (!inputs) {
-          throw new Error("inputs is undefined"); // should never happen
-        }
-        try {
-          new URL(input);
-          inputs.webSearchUrl = input;
-        } catch (e) {
-          return getLocalizedString("core.addKnowledgeQuestion.invalidWebContent.message");
-        }
-        return;
-      },
-    },
-  };
-}
-
-function selectSearchType(): SingleSelectQuestion {
-  return {
-    name: QuestionNames.SearchType,
-    title: getLocalizedString("core.addKnowledgeQuestion.selectSearchType.title"),
-    staticOptions: [],
-    type: "singleSelect",
-    dynamicOptions: (inputs: Inputs) => {
-      const options = [KnowledgeSearchTypeOptions.url()];
-      if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {
-        options.push(KnowledgeSearchTypeOptions.allWeb());
-      } else if (
-        inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
-      ) {
-        options.push(KnowledgeSearchTypeOptions.AllOneDriveSharepoint());
-      }
-      return options;
-    },
   };
 }
