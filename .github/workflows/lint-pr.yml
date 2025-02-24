@@ -88,8 +88,6 @@ jobs:
       - name: Check if there are changes
         id: changes
         run: |
-          git status
-          git diff .
           git add .
           VAR=$(git diff --cached --name-only)
           if [ ! -z "$VAR" ]
