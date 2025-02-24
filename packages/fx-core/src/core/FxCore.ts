@@ -2147,7 +2147,7 @@ export class FxCore {
         if (res.isOk()) {
           await TOOLS.ui.showMessage(
             "info",
-            getLocalizedString("core.addKnowledge.success"),
+            getLocalizedString("core.addEmbeddedKnowledge.success"),
             false
           );
         }

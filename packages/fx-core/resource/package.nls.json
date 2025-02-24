@@ -954,6 +954,7 @@
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
   "core.addEmbeddedKnowledgeFilesQuestion.title": "Add embedded knowledge files",
   "core.addEmbeddedKnowledgeFilesQuestion.placeholder": "Select files",
+  "core.addEmbeddedKnowledge.success": "Successfully added embedded knowledge files to the project.",
   "core.addAuthActionQuestion.OAuthAuthorizationUrl.title": "Enter the OAuth Authorization URL",
   "core.addAuthActionQuestion.OAuthTokenUrl.title": "Enter the OAuth Token URL",
   "core.addAuthActionQuestion.OAuthRefreshUrl.title": "Enter the OAuth Refresh URL",
@@ -965,6 +966,5 @@
   "core.addAuthActionQuestion.ApiKeyIn.title": "Enter where the API Key should be in the request",
   "core.addAuthActionQuestion.ApiKeyIn.header": "Header",
   "core.addAuthActionQuestion.ApiKeyIn.query": "Query",
-  "core.addAuthActionQuestion.ApiKeyName.title": "Enter the Name of API Key",
-  "core.addKnowledge.success": "Successfully added embedded knowledge files to the project."
+  "core.addAuthActionQuestion.ApiKeyName.title": "Enter the Name of API Key"
 }
