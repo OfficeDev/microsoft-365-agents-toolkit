@@ -130,8 +130,7 @@ export class CopilotDebugLog {
       message.pluginDeveloperInfo?.functionsSelectedForInvocation;
     this.functionExecutions =
       message.functionExecutions ?? message.pluginDeveloperInfo?.functionExecutions;
-    this.capabilitiesDeveloperInfo =
-      message.capabilitiesDeveloperInfo ?? message.capabilitiesDeveloperInfo;
+    this.capabilitiesDeveloperInfo = message.capabilitiesDeveloperInfo;
     this.pluginDeveloperInfo = message.pluginDeveloperInfo;
     this.agentMetadata = message.agentMetadata;
 
