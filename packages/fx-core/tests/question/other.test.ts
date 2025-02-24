@@ -15,7 +15,12 @@ import {
   addAuthActionQuestion,
   apiFromPluginManifestQuestion,
   apiSpecFromPluginManifestQuestion,
+  authNameQuestion,
   kiotaRegenerateQuestion,
+  oauthAuthorizationUrlQuestion,
+  oauthRefreshUrlQuestion,
+  oauthScopeQuestion,
+  oauthTokenUrlQuestion,
   selectTargetEnvQuestion,
 } from "../../src/question/other";
 import * as sinon from "sinon";
@@ -386,6 +391,64 @@ describe("addAuthActionQuestion", () => {
       const res = await validation("input", undefined);
     } catch (error) {
       assert.equal(error.message, "inputs is undefined");
+    }
+  });
+
+  it("oauthAuthorizationUrlQuestion: should throw error if no input", async () => {
+    const validation = (oauthAuthorizationUrlQuestion().validation as FuncValidation<string>)
+      .validFunc;
+    try {
+      const res = await validation("", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
+    }
+  });
+
+  it("oauthTokenUrlQuestion: should throw error if no input", async () => {
+    const validation = (oauthTokenUrlQuestion().validation as FuncValidation<string>).validFunc;
+    try {
+      const res = await validation("", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
+    }
+  });
+
+  it("oauthRefreshUrlQuestion: should throw error if no input", async () => {
+    const validation = (oauthRefreshUrlQuestion().validation as FuncValidation<string>).validFunc;
+    try {
+      const res = await validation("", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
+    }
+  });
+
+  it("oauthScopeQuestion: should throw error if invalid input", async () => {
+    const validation = (oauthScopeQuestion().validation as FuncValidation<string>).validFunc;
+    try {
+      const res = await validation("scope", undefined);
+    } catch (error) {
+      assert.equal(
+        error.message,
+        "Invalid scope format. Please enter a valid scope. Samle: scope1: description for scope1; scope2: description for scope2"
+      );
+    }
+  });
+
+  it("oauthScopeQuestion: happy path", async () => {
+    const validation = (oauthScopeQuestion().validation as FuncValidation<string>).validFunc;
+    const res = await validation(
+      "api://tenant_id: description; api://clientId: description",
+      undefined
+    );
+    assert.isUndefined(res);
+  });
+
+  it("authNameQuestion: should throw error if no input", async () => {
+    const validation = (authNameQuestion().validation as FuncValidation<string>).validFunc;
+    try {
+      const res = await validation("", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Auth name cannot be empty.");
     }
   });
 });

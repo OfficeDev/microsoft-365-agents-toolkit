@@ -933,6 +933,15 @@ export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
     type: "text",
     cliDescription: "Authorization Url for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (input.trim() === "") {
+          return getLocalizedString("core.addAuthAction.validation.url");
+        }
+
+        return undefined;
+      },
+    },
   };
 }
 
@@ -942,6 +951,15 @@ export function oauthTokenUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
     type: "text",
     cliDescription: "Token Url for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (input.trim() === "") {
+          return getLocalizedString("core.addAuthAction.validation.url");
+        }
+
+        return undefined;
+      },
+    },
   };
 }
 
@@ -951,6 +969,15 @@ export function oauthRefreshUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
     type: "text",
     cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (input.trim() === "") {
+          return undefined;
+        }
+
+        return undefined;
+      },
+    },
   };
 }
 
@@ -960,6 +987,15 @@ export function oauthScopeQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
     type: "text",
     cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp = /^(?:\s*[^:]+?\s*:\s*[^;]+?\s*)(?:;\s*[^:]+?\s*:\s*[^;]+?\s*)*;?\s*$/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.oauthScopeQuestion.validation.scope");
+        }
+        return undefined;
+      },
+    },
   };
 }
 
@@ -1083,6 +1119,15 @@ export function authNameQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
     type: "text",
     cliDescription: "Name of Auth Configuration.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.authNameQuestion.validation.empty");
+        }
+
+        return undefined;
+      },
+    },
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {
