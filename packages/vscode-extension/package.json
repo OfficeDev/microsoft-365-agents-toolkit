@@ -1744,6 +1744,11 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota)"
+        },
+        "fx-extension.enableCustomEngineAgent": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable sideloading your bot app as a custom engine agent in Copilot. For more information, please refer to [this doc](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-custom-engine-agent)."
         }
       }
     },
