@@ -250,7 +250,7 @@ export class CopilotDebugLog {
         const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
         writeExecutionDetailsToFile(logFilePath, JSON.stringify(execution, null, 2));
         debugConsole.appendLine(
-          `       ${ANSIColors.WHITE} ${execution.name} Execution ${index} ${
+          `       ${ANSIColors.WHITE} ${execution.name} ${index} ${
             ANSIColors.WHITE
           }• ${CopilotDebugLog.getExecutionStatusColor(
             execution.status
