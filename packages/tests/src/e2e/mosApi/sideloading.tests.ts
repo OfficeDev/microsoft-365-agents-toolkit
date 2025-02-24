@@ -20,25 +20,20 @@ describe("MOS3 API", function () {
         "https://titles.prod.mos.microsoft.com/.default"
       );
       const packageFilePath = path.join(__dirname, ".", "appPackage.local.zip");
-      let error: any;
       let success = false;
       try {
         const res = await m365TitleHelper.acquire(packageFilePath);
         assert.isDefined(res[0], res[1]);
         await m365TitleHelper.unacquire(res[0]);
         success = true;
-      } catch (e) {
-        error = e;
-      }
-      if (success) {
         console.log(
           "Successfully call MOS3 API (acquire/unacquire) for non DA app"
         );
-      } else {
+      } catch (e) {
         console.error(
           "Failed to call MOS3 API (acquire/unacquire) for non DA app"
         );
-        console.error(error);
+        console.error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
       }
       assert.isTrue(success);
     }
@@ -57,23 +52,18 @@ describe("MOS3 API", function () {
         ".",
         "appPackage-da.local.zip"
       );
-      let error: any;
       let success = false;
       try {
         const res = await m365TitleHelper.acquire(packageFilePath);
         assert.isDefined(res[0], res[1]);
         await m365TitleHelper.unacquire(res[0]);
         success = true;
-      } catch (e) {
-        error = e;
-      }
-      if (success) {
         console.log(
           "Successfully call MOS3 API (acquire/unacquire) for DA app"
         );
-      } else {
+      } catch (e) {
         console.error("Failed to call MOS3 API (acquire/unacquire) for DA app");
-        console.error(error);
+        console.error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
       }
       assert.isTrue(success);
     }
