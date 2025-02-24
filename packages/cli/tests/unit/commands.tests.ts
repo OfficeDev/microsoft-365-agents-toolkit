@@ -67,6 +67,7 @@ import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
+import { addKnowledgeCommand } from "../../src/commands/models/addKnowledge";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -264,10 +265,25 @@ describe("CLI commands", () => {
     });
   });
 
+  describe("addKnowledgeCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "addKnowledge").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addKnowledgeCommand, fullName: "add knowledge" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await addKnowledgeCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+
   describe("getAddCommand", async () => {
     it("customize GPT is enabled", async () => {
       const commands = addCommand();
-      assert.isTrue(commands.commands?.length === 3);
+      assert.isTrue(commands.commands?.length === 4);
     });
   });
 

@@ -160,6 +160,7 @@ import {
   ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
+  KnowledgeSourceOptions,
   ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
@@ -2134,7 +2135,15 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    return ok(undefined);
+    const konwledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
+    switch (konwledgeSource) {
+      case KnowledgeSourceOptions.embeddedKnowledge().id:
+        const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
+        const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
+        return await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
+      default:
+        return ok(undefined);
+    }
   }
 
   /**

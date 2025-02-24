@@ -117,6 +117,7 @@ import { ApiPluginStartOptions, HubOptions } from "../../src/question/constants"
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
+import { KnowledgeSourceOptions } from "../../build";
 
 const tools = new MockTools();
 
@@ -7130,6 +7131,22 @@ describe("addKnowledge", async () => {
       projectPath: path.join(os.tmpdir(), appName),
     };
     const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isOk());
+  });
+
+  it("add embedded files", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      projectPath: path.join(os.tmpdir(), appName),
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.embeddedKnowledge().id,
+      [QuestionNames.EmbeddedKnowledgeFiles]: ["test:txt"],
+      [QuestionNames.ManifestPath]: "manifest.json",
+    };
+    const core = new FxCore(tools);
+    sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isOk());
   });

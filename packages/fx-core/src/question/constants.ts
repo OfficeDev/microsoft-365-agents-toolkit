@@ -110,6 +110,7 @@ export enum QuestionNames {
   AuthName = "auth-name",
   TemplateName = "template-name",
 
+  EmbeddedKnowledgeFiles = "embedded-knowledge-files",
   OAuthAuthorizationUrl = "oauth-authorization-url",
   OAuthTokenUrl = "oauth-token-url",
   OAuthRefreshUrl = "oauth-refresh-url",
@@ -1296,12 +1297,13 @@ export class KnowledgeSourceOptions {
   }
 
   static all(): OptionItem[] {
-    return [
+    const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
-      // TODO:  add graph connector feature in future.
-      // KnowledgeSourceOptions.graphConnector(),
-      KnowledgeSourceOptions.embeddedKnowledge(),
     ];
+    if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+      items.push(KnowledgeSourceOptions.embeddedKnowledge());
+    }
+    return items;
   }
 }

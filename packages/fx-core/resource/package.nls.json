@@ -952,6 +952,8 @@
   "core.addAuthActionQuestion.ApiSpecLocation.placeholder": "Select an option",
   "core.addAuthActionQuestion.ApiOperation.title": "Select an API to Add Auth Configuration",
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
+  "core.addEmbeddedKnowledgeFilesQuestion.title": "Add embedded knowledge files",
+  "core.addEmbeddedKnowledgeFilesQuestion.placeholder": "Select files",
   "core.addAuthActionQuestion.OAuthAuthorizationUrl.title": "Enter the OAuth Authorization URL",
   "core.addAuthActionQuestion.OAuthTokenUrl.title": "Enter the OAuth Token URL",
   "core.addAuthActionQuestion.OAuthRefreshUrl.title": "Enter the OAuth Refresh URL",
