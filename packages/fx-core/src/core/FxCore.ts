@@ -2391,7 +2391,7 @@ export class FxCore {
             type:
               authTypeScheme === MicrosoftEntraAuthType
                 ? OAuthAuthType
-                : (MicrosoftEntraAuthType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault"),
+                : (authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault"),
             reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
           },
           spec: {

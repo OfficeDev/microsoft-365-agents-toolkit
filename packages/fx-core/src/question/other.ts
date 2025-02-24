@@ -939,6 +939,12 @@ export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
           return getLocalizedString("core.addAuthAction.validation.url");
         }
 
+        try {
+          new URL(input);
+        } catch (error) {
+          return getLocalizedString("core.addAuthAction.validation.url");
+        }
+
         return undefined;
       },
     },
@@ -954,6 +960,12 @@ export function oauthTokenUrlQuestion(): TextInputQuestion {
     validation: {
       validFunc: (input: string): string | undefined => {
         if (input.trim() === "") {
+          return getLocalizedString("core.addAuthAction.validation.url");
+        }
+
+        try {
+          new URL(input);
+        } catch (error) {
           return getLocalizedString("core.addAuthAction.validation.url");
         }
 
@@ -973,6 +985,12 @@ export function oauthRefreshUrlQuestion(): TextInputQuestion {
       validFunc: (input: string): string | undefined => {
         if (input.trim() === "") {
           return undefined;
+        }
+
+        try {
+          new URL(input);
+        } catch (error) {
+          return getLocalizedString("core.addAuthAction.validation.url");
         }
 
         return undefined;

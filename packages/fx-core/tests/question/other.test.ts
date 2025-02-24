@@ -407,8 +407,18 @@ describe("addAuthActionQuestion", () => {
   it("oauthAuthorizationUrlQuestion: happy path", async () => {
     const validation = (oauthAuthorizationUrlQuestion().validation as FuncValidation<string>)
       .validFunc;
-    const res = await validation("test", undefined);
+    const res = await validation("https://mock-auth-url", undefined);
     assert.isUndefined(res);
+  });
+
+  it("oauthAuthorizationUrlQuestion: should throw error if not valid url", async () => {
+    const validation = (oauthAuthorizationUrlQuestion().validation as FuncValidation<string>)
+      .validFunc;
+    try {
+      const res = await validation("testUrl", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
+    }
   });
 
   it("oauthTokenUrlQuestion: should throw error if no input", async () => {
@@ -422,23 +432,38 @@ describe("addAuthActionQuestion", () => {
 
   it("oauthTokenUrlQuestion: happy path", async () => {
     const validation = (oauthTokenUrlQuestion().validation as FuncValidation<string>).validFunc;
-    const res = await validation("test", undefined);
+    const res = await validation("https://mock-token-url", undefined);
     assert.isUndefined(res);
   });
 
-  it("oauthRefreshUrlQuestion: should throw error if no input", async () => {
-    const validation = (oauthRefreshUrlQuestion().validation as FuncValidation<string>).validFunc;
+  it("oauthTokenUrlQuestion: should throw error if not valid url", async () => {
+    const validation = (oauthTokenUrlQuestion().validation as FuncValidation<string>).validFunc;
     try {
-      const res = await validation("", undefined);
+      const res = await validation("testUrl", undefined);
     } catch (error) {
       assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
     }
   });
 
+  it("oauthRefreshUrlQuestion: should not throw error if no input", async () => {
+    const validation = (oauthRefreshUrlQuestion().validation as FuncValidation<string>).validFunc;
+    const res = await validation("", undefined);
+    assert.isUndefined(res);
+  });
+
   it("oauthRefreshUrlQuestion: happy path", async () => {
     const validation = (oauthRefreshUrlQuestion().validation as FuncValidation<string>).validFunc;
-    const res = await validation("test", undefined);
+    const res = await validation("https://mock-refresh-url", undefined);
     assert.isUndefined(res);
+  });
+
+  it("oauthRefreshUrlQuestion: should throw error if not valid url", async () => {
+    const validation = (oauthRefreshUrlQuestion().validation as FuncValidation<string>).validFunc;
+    try {
+      const res = await validation("testUrl", undefined);
+    } catch (error) {
+      assert.equal(error.message, "Invalid URL format. Please enter a valid URL.");
+    }
   });
 
   it("oauthScopeQuestion: should throw error if invalid input", async () => {
@@ -469,11 +494,11 @@ describe("addAuthActionQuestion", () => {
     } catch (error) {
       assert.equal(error.message, "Auth name cannot be empty.");
     }
+  });
 
-    it("authNameQuestion: happy path", async () => {
-      const validation = (authNameQuestion().validation as FuncValidation<string>).validFunc;
-      const res = await validation("test", undefined);
-      assert.isUndefined(res);
-    });
+  it("authNameQuestion: happy path", async () => {
+    const validation = (authNameQuestion().validation as FuncValidation<string>).validFunc;
+    const res = await validation("test", undefined);
+    assert.isUndefined(res);
   });
 });
