@@ -39,7 +39,7 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     description: "The authentication type for the API.",
     required: true,
     default: "bearer-token",
-    choices: ["bearer-token", "api-key", "oauth"],
+    choices: ["bearer-token", "api-key", "oauth", "microsoft-entra"],
   },
   {
     name: "oauth-authorization-url",

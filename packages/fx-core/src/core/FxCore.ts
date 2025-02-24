@@ -185,6 +185,7 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2296,7 +2297,7 @@ export class FxCore {
     );
     const authType = inputs[QuestionNames.ApiAuth] as string;
 
-    let authParameters: any = {
+    let authParameters: AuthParameters = {
       apis: apiOperation,
     };
     if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
@@ -2305,15 +2306,7 @@ export class FxCore {
       const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
       const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
       const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
-      const scopeArr: { [scope: string]: string } = {};
-      oauthScopes.split(";").forEach((scopeStr) => {
-        const lastIndex = scopeStr.lastIndexOf(":");
-        if (lastIndex !== -1) {
-          const key = scopeStr.substring(0, lastIndex).trim();
-          const value = scopeStr.substring(lastIndex + 1).trim();
-          scopeArr[key] = value;
-        }
-      });
+      const scopeArr = this.parseScope(oauthScopes);
 
       authParameters = {
         ...authParameters,
@@ -2322,7 +2315,7 @@ export class FxCore {
         refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
         scopes: scopeArr,
         enablePKCE: enablePKCEStr === "true",
-      };
+      } as OAuthParameters;
     } else if (authType === AddAuthActionAuthTypeOptions.apiKey().id) {
       const apiKeyIn = inputs[QuestionNames.ApiKeyIn] as string;
       const apiKeyName = inputs[QuestionNames.ApiKeyName] as string;
@@ -2330,7 +2323,18 @@ export class FxCore {
         ...authParameters,
         in: apiKeyIn,
         name: apiKeyName,
-      };
+      } as ApiKeyParameters;
+    } else if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+      const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+      const scopeArr = this.parseScope(oauthScopes);
+      authParameters = {
+        ...authParameters,
+        authorizationUrl:
+          "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+        tokenUrl: "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/token",
+        refreshUrl: undefined,
+        scopes: scopeArr,
+      } as OAuthParameters;
     }
 
     // Update openapi spec
@@ -2344,8 +2348,11 @@ export class FxCore {
       default:
         authTypeScheme = APIKeyAuthType;
         break;
-      case "oauth":
+      case AddAuthActionAuthTypeOptions.oauth().id:
         authTypeScheme = OAuthAuthType;
+        break;
+      case AddAuthActionAuthTypeOptions.microsoftEntra().id:
+        authTypeScheme = MicrosoftEntraAuthType;
         break;
     }
 
@@ -2356,7 +2363,7 @@ export class FxCore {
       apiSpecPath,
       true,
       authTypeScheme,
-      authParameters.enablePKCE ?? undefined
+      "enablePKCE" in authParameters ? authParameters.enablePKCE : undefined
     );
 
     if (addAuthActionRes?.registrationIdEnvName) {
@@ -2378,7 +2385,10 @@ export class FxCore {
       pluginManifest.runtimes?.push({
         type: "OpenApi",
         auth: {
-          type: authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
+          type:
+            authTypeScheme === MicrosoftEntraAuthType
+              ? OAuthAuthType
+              : (MicrosoftEntraAuthType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault"),
           reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
         },
         spec: {
@@ -2388,6 +2398,18 @@ export class FxCore {
         run_for_functions: apiOperation,
       });
       await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+    }
+
+    if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+      const context = createContext();
+      const appIdUriPlaceholder = Utils.getSafeRegistrationIdEnvName(
+        `${authName}_APPLICATION_ID_URI`
+      );
+      void context.userInteraction.showMessage(
+        "warn",
+        getLocalizedString("core.addAuthAction.microsoftEntra.message", appIdUriPlaceholder),
+        false
+      );
     }
 
     return ok(undefined);
@@ -2448,6 +2470,19 @@ export class FxCore {
       }
     }
     return result;
+  }
+
+  private parseScope(scope: string): { [scope: string]: string } {
+    const scopeArr: { [scope: string]: string } = {};
+    scope.split(";").forEach((scopeStr) => {
+      const lastIndex = scopeStr.lastIndexOf(":");
+      if (lastIndex !== -1) {
+        const key = scopeStr.substring(0, lastIndex).trim();
+        const value = scopeStr.substring(lastIndex + 1).trim();
+        scopeArr[key] = value;
+      }
+    });
+    return scopeArr;
   }
 
   async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {

@@ -834,11 +834,19 @@ export class AddAuthActionAuthTypeOptions {
     };
   }
 
+  static microsoftEntra(): OptionItem {
+    return {
+      id: "microsoft-entra",
+      label: "Microsoft Entra",
+    };
+  }
+
   static all(): OptionItem[] {
     return [
       AddAuthActionAuthTypeOptions.bearerToken(),
       AddAuthActionAuthTypeOptions.apiKey(),
       AddAuthActionAuthTypeOptions.oauth(),
+      AddAuthActionAuthTypeOptions.microsoftEntra(),
     ];
   }
 }

@@ -885,6 +885,7 @@ export function addAuthActionQuestion(): IQTreeNode {
       },
       oauthParametersQuestion(),
       apiKeyParameterQuestion(),
+      microsoftEntraParameterQuestion(),
     ],
   };
 }
@@ -1020,6 +1021,15 @@ export function apiKeyNameQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.ApiKeyName.title"),
     type: "text",
     cliDescription: "Name of the API key.",
+  };
+}
+
+export function microsoftEntraParameterQuestion(): IQTreeNode {
+  return {
+    data: oauthScopeQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.microsoftEntra().id;
+    },
   };
 }
 
