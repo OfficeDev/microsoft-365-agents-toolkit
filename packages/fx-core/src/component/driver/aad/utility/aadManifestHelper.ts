@@ -20,8 +20,6 @@ import { getLocalizedString } from "../../../../common/localizeUtils";
 import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import { FileNotFoundError, UserCancelError } from "../../../../error";
 import fs from "fs-extra";
-import path from "path";
-import { MetadataV3 } from "../../../../common/versionMetadata";
 import { updateVersionForTeamsAppYamlFile } from "../../util/utils";
 
 const componentName = "AadManifestHelper";
@@ -387,13 +385,5 @@ export class AadManifestHelper {
 
     await updateVersionForTeamsAppYamlFile(projectPath);
     return ok(undefined);
-  }
-
-  public static isTestToolEnabledProject(projectPath: string): boolean {
-    const testToolYmlPath = path.join(projectPath, MetadataV3.testToolConfigFile);
-    if (fs.pathExistsSync(testToolYmlPath)) {
-      return true;
-    }
-    return false;
   }
 }

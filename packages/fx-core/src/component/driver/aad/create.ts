@@ -34,7 +34,6 @@ import { CreateAadAppArgs } from "./interface/createAadAppArgs";
 import { CreateAadAppOutput, OutputKeys } from "./interface/createAadAppOutput";
 import { SignInAudience } from "./interface/signInAudience";
 import { AadAppClient } from "./utility/aadAppClient";
-import { AadManifestHelper } from "./utility/aadManifestHelper";
 import {
   constants,
   descriptionMessageKeys,
@@ -44,6 +43,7 @@ import {
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
 import { MissingServiceManagementReferenceError } from "./error/missingServiceManagamentReferenceError";
+import { isTestToolEnabledProject } from "../../../common/tools";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -217,15 +217,20 @@ export class CreateAadAppDriver implements StepDriver {
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !AadManifestHelper.isTestToolEnabledProject(context.projectPath)
+            !isTestToolEnabledProject(context.projectPath)
           ) {
+            context.addTelemetryProperties({
+              [telemetryKeys.insufficientPermissionAadApp]: "true",
+            });
             const res = await this.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
             if (res.isOk()) {
+              context.addTelemetryProperties({ [telemetryKeys.userInputAadApp]: "true" });
               return {
                 result: ok(res.value),
                 summaries: summaries,
               };
             } else {
+              context.addTelemetryProperties({ [telemetryKeys.userInputAadApp]: "false" });
               return {
                 result: err(res.error),
                 summaries: summaries,
