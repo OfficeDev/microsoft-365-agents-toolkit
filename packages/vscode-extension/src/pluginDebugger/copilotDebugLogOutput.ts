@@ -163,10 +163,10 @@ export class CopilotDebugLog {
       this.logCapabilities(debugConsole);
     } else {
       debugConsole.appendLine(
-        `${ANSIColors.GREEN} (√) ${ANSIColors.WHITE}Enabled capabilities: None.`
+        `${ANSIColors.RED} (×) ${ANSIColors.WHITE}Enabled capabilities: None.`
       );
       debugConsole.appendLine(
-        `   ${ANSIColors.GREEN} (√) Execution status: ${ANSIColors.WHITE}None.`
+        `   ${ANSIColors.RED} (×) Execution status: ${ANSIColors.WHITE}None.`
       );
     }
 
@@ -311,7 +311,7 @@ export class CopilotDebugLog {
       (this.functionExecutions?.length ?? 0) - failedActionExecutionsCount;
 
     debugConsole.appendLine(
-      `${ANSIColors.GREEN} ${enabledCapabilitiesCount} enabled capabilities ${enabledPluginsCount} enabled actions, ${failedActionExecutionsCount} failed function executions, ${successfulActionExecutionsCount} successful function executions, ${matchedFunctionCandidatesCount} matched function candidates, ${functionsSelectedForInvocationCount} functions selected for invocation.`
+      `${ANSIColors.GREEN}${enabledCapabilitiesCount} enabled capabilities ${enabledPluginsCount} enabled actions, ${failedActionExecutionsCount} failed function executions, ${successfulActionExecutionsCount} successful function executions, ${matchedFunctionCandidatesCount} matched function candidates, ${functionsSelectedForInvocationCount} functions selected for invocation.`
     );
   }
 

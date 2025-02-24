@@ -361,19 +361,46 @@ describe("copilotDebugLogOutput", () => {
           scopes: {},
         },
       ]);
-      // chai.assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.capabilityExecutions, [
-      //   {
-      //     name: "GraphConnectors",
-      //     status: "0",
-      //     errorMessage: "",
-      //   },
-      // ]);
+      chai.assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.capabilityExecutions, [
+        {
+          name: "GraphConnectors",
+          status: "0",
+          errorMessage: "",
+        },
+      ]);
       chai.assert.deepEqual(copilotDebugLog.agentMetadata, {
         agentId: "agentId",
         agentVersion: "1.0",
         conversationId: "conversationId",
         requestId: "requestId",
       });
+    });
+
+    it("should write header details", () => {
+      const logJson = JSON.stringify({
+        agentMetadata: {
+          agentId: "agentId",
+          agentVersion: "1.0",
+          conversationId: "conversationId",
+          requestId: "requestId",
+        },
+      });
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      copilotDebugLog.write();
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${ANSIColors.WHITE}Agent ID (agentId). Conversation ID (conversationId). Request ID (requestId)`
+        )
+      );
+      chai.assert.isTrue(
+        appendLineStub.calledWith(
+          `${
+            ANSIColors.GREEN
+          }${0} enabled capabilities ${0} enabled actions, ${0} failed function executions, ${0} successful function executions, ${0} matched function candidates, ${0} functions selected for invocation.`
+        )
+      );
+      chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "Execution summary"));
     });
 
     it("should write with 0 capabilities", () => {
@@ -388,15 +415,15 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(appendLineStub.calledWith(""));
+      chai.assert.isTrue(appendLineStub.calledWith("CAPABILITIES"));
       chai.assert.isTrue(
         appendLineStub.calledWith(
-          `${ANSIColors.GREEN} (√) ${ANSIColors.WHITE}Enabled capabilities: None.`
+          `${ANSIColors.RED} (×) ${ANSIColors.WHITE}Enabled capabilities: None.`
         )
       );
       chai.assert.isTrue(
         appendLineStub.calledWith(
-          `   ${ANSIColors.GREEN} (√) Execution status: ${ANSIColors.WHITE}None.`
+          `   ${ANSIColors.RED} (×) Execution status: ${ANSIColors.WHITE}None.`
         )
       );
     });
@@ -481,10 +508,7 @@ describe("copilotDebugLogOutput", () => {
         },
       });
 
-      const logFilePath = `/path/to/log/Copilot-debug-test.txt`;
-      const responseStatus = 200;
       const fs = require("fs");
-      const appendFileSyncStub = sandbox.stub(fs, "appendFileSync").resolves();
       sandbox.stub(globalVariables, "defaultExtensionLogPath").value("/path/to/log");
       sandbox.stub(Date.prototype, "toISOString").returns("test");
       const copilotDebugLog = new CopilotDebugLog(logJson);
@@ -496,12 +520,6 @@ describe("copilotDebugLogOutput", () => {
           `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}GraphConnectors`
         )
       );
-
-      // chai.assert.isTrue(
-      //   appendLineStub.calledWith(
-      //     `       ${ANSIColors.WHITE} GraphConnectors 0 ${ANSIColors.WHITE}• ${ANSIColors.GREEN} Execution status Success ${ANSIColors.WHITE}refer to ${ANSIColors.BLUE}${logFilePath}${ANSIColors.WHITE} for all details.`
-      //   )
-      // );
     });
   });
 });
