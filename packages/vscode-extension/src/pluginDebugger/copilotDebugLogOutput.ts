@@ -280,7 +280,7 @@ export class CopilotDebugLog {
   }
 
   private static getExecutionStatusText(executionStatus: string): string {
-    if (executionStatus.toString() === "1") {
+    if (executionStatus === "1") {
       return "Success";
     }
     return "Failed";
