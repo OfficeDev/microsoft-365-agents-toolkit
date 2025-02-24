@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { M365TokenProvider } from "@microsoft/teamsfx-api";
+import { M365TokenProvider, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import axios, { AxiosInstance } from "axios";
 import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
+import stripBom from "strip-bom";
 
 const sideloadingServiceEndpoint =
   process.env.SIDELOADING_SERVICE_ENDPOINT ??
@@ -88,8 +89,39 @@ export class M365TitleHelper {
     const zip = new AdmZip(path, {});
     zip.getEntries();
   }
+  isDeclarativeAgentManifest(manifest: any): boolean {
+    return !!(
+      manifest.copilotAgents?.declarativeAgents &&
+      manifest.copilotAgents.declarativeAgents.length > 0
+    );
+  }
+  getManifestFromZip(path: string): TeamsAppManifest | undefined {
+    const zip = new AdmZip(path);
+    const manifestEntry = zip.getEntry("manifest.json");
+    if (!manifestEntry) {
+      return undefined;
+    }
+    let manifestContent = manifestEntry.getData().toString("utf8");
+    manifestContent = stripBom(manifestContent);
+    return JSON.parse(manifestContent) as TeamsAppManifest;
+  }
 
   public async acquire(packageFile: string): Promise<[string, string]> {
+    const manifest = this.getManifestFromZip(packageFile);
+    if (!manifest) {
+      throw new Error("Invalid app package zip. manifest.json is missing");
+    }
+    const isDelcarativeAgentApp = this.isDeclarativeAgentManifest(manifest);
+    if (isDelcarativeAgentApp) {
+      const res = await this.acquireV2(packageFile, "Personal");
+      return res;
+    } else {
+      const res = await this.acquireV1(packageFile);
+      return res;
+    }
+  }
+
+  public async acquireV1(packageFile: string): Promise<[string, string]> {
     try {
       this.checkZip(packageFile);
       const data = (await fs.readFile(packageFile)) as Buffer;
@@ -137,6 +169,57 @@ export class M365TitleHelper {
       throw error;
     }
   }
+
+  public async acquireV2(
+    packageFile: string,
+    appScope: string
+  ): Promise<[string, string]> {
+    try {
+      this.checkZip(packageFile);
+      const data = (await fs.readFile(packageFile)) as Buffer;
+      const content = new FormData();
+      content.append("package", data);
+
+      const uploadResponse = await this.axios!.post(
+        "/builder/v1/users/packages",
+        content.getBuffer(),
+        {
+          params: {
+            scope: appScope,
+          },
+        }
+      );
+
+      const statusId = uploadResponse.data.statusId;
+      console.debug(
+        `Acquiring package with statusId: ${statusId as string} ...`
+      );
+
+      do {
+        const statusResponse = await this.axios!.get(
+          `/builder/v1/users/packages/status/${statusId as string}`
+        );
+        const resCode = statusResponse.status;
+        console.debug(`Package status: ${resCode} ...`);
+        if (resCode === 200) {
+          const titleId: string = statusResponse.data.titleId;
+          const appId: string = statusResponse.data.appId;
+          console.info(`TitleId: ${titleId}`);
+          console.info(`AppId: ${appId}`);
+          console.info("Sideloading done.");
+          return [titleId, appId];
+        } else {
+          await delay(2000);
+        }
+      } while (true);
+    } catch (error: any) {
+      if (error.response) {
+        throw this.convertError(error);
+      }
+      throw error;
+    }
+  }
+
   private convertError(error: any): any {
     // add error details and trace to message
     const tracingId = (error.response.headers?.traceresponse ?? "") as string;
