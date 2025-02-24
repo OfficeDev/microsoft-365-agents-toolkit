@@ -80,10 +80,5 @@ export const AddAuthActionOptions: CLICommandOption[] = [
     type: "string",
     description: "Name of the API key.",
   },
-  {
-    name: "microsoft-entra-tenant-id",
-    type: "string",
-    description: "Tenant ID for Microsoft Entra.",
-  },
 ];
 export const AddAuthActionArguments: CLICommandArgument[] = [];

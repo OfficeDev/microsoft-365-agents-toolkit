@@ -6987,7 +6987,6 @@ describe("addAuthAction", async () => {
       [QuestionNames.AuthName]: "mockAuthName",
       [QuestionNames.ApiAuth]: "microsoft-entra",
       [QuestionNames.OAuthScope]: "api://mockScopes: mockedDescription",
-      [QuestionNames.MicrosoftEntraTenantId]: "mockedTenantId",
       projectPath: path.join(os.tmpdir(), appName),
     };
     const pluginManifest = {

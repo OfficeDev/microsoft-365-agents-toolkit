@@ -2326,12 +2326,12 @@ export class FxCore {
       } as ApiKeyParameters;
     } else if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
       const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
-      const tenantId = inputs[QuestionNames.MicrosoftEntraTenantId] as string;
       const scopeArr = this.parseScope(oauthScopes);
       authParameters = {
         ...authParameters,
-        authorizationUrl: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize`,
-        tokenUrl: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        authorizationUrl:
+          "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+        tokenUrl: "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/token",
         refreshUrl: undefined,
         scopes: scopeArr,
       } as OAuthParameters;

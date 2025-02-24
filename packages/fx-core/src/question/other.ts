@@ -1026,24 +1026,10 @@ export function apiKeyNameQuestion(): TextInputQuestion {
 
 export function microsoftEntraParameterQuestion(): IQTreeNode {
   return {
-    data: microsoftEntraTenantIdQuestion(),
+    data: oauthScopeQuestion(),
     condition: (inputs: Inputs) => {
       return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.microsoftEntra().id;
     },
-    children: [
-      {
-        data: oauthScopeQuestion(),
-      },
-    ],
-  };
-}
-
-export function microsoftEntraTenantIdQuestion(): TextInputQuestion {
-  return {
-    name: QuestionNames.MicrosoftEntraTenantId,
-    title: getLocalizedString("core.addAuthActionQuestion.MicrosoftEntraTenantId.title"),
-    type: "text",
-    cliDescription: "Tenant ID for Microsoft Entra.",
   };
 }
 
