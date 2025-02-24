@@ -1300,6 +1300,15 @@ export class KnowledgeSourceOptions {
     const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
+      KnowledgeSourceOptions.embeddedKnowledge(),
+    ];
+    return items;
+  }
+
+  static allWithFeatureFlags(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSourceOptions.webSearch(),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
     ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
       items.push(KnowledgeSourceOptions.embeddedKnowledge());
