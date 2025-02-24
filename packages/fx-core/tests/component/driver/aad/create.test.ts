@@ -27,6 +27,7 @@ import { MissingServiceManagementReferenceError } from "../../../../src/componen
 import { MockedM365Provider } from "../../../core/utils";
 import { UserCancelError } from "../../../../src/error/common";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
+import { constants } from "../../../../src/component/driver/aad/utility/constants";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -51,6 +52,7 @@ describe("aadAppCreate", async () => {
   const mockedDriverContext: any = {
     m365TokenProvider: new MockedM365Provider(),
     ui: new MockedUserInteraction(),
+    projectPath: "test",
   };
 
   let envRestore: RestoreFn | undefined;
@@ -927,6 +929,61 @@ describe("aadAppCreate", async () => {
 
     expect(result.result.isOk()).to.be.false;
   });
+
+  it("should continue when AadAppClient failed with insufficient permission but provide input", async () => {
+    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
+      isAxiosError: true,
+      response: {
+        status: 403,
+        data: {
+          error: {
+            code: "Request_BadRequest",
+            message: constants.insufficientPermissionErrorMessage,
+          },
+        },
+      },
+    });
+    sinon
+      .stub(createAadAppDriver, "askForAADAppIdAndSecret")
+      .resolves(ok(new Map<string, string>()));
+
+    const args: any = {
+      name: "test",
+      generateClientSecret: false,
+    };
+
+    const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+  });
+
+  it("should failed when AadAppClient failed with insufficient permission and not provide input", async () => {
+    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
+      isAxiosError: true,
+      response: {
+        status: 403,
+        data: {
+          error: {
+            code: "Request_BadRequest",
+            message: constants.insufficientPermissionErrorMessage,
+          },
+        },
+      },
+    });
+    sinon
+      .stub(createAadAppDriver, "askForAADAppIdAndSecret")
+      .resolves(err(new UserCancelError("test")));
+
+    const args: any = {
+      name: "test",
+      generateClientSecret: false,
+    };
+
+    const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error).is.instanceOf(UserCancelError);
+    }
+  });
 });
 
 describe("askForAADAppIdAndSecret", () => {
@@ -1000,14 +1057,14 @@ describe("askForAADAppIdAndSecret", () => {
 
   it("should return UserCancelError if user cancels input for aadAppObjectId", async () => {
     sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
-    sinon
-      .stub(context.ui!, "inputText")
-      .onFirstCall()
-      .resolves(ok({ result: "test-input" }))
-      .onSecondCall()
-      .resolves(ok({ result: "test-input" }))
-      .onThirdCall()
-      .resolves(err(new UserCancelError("test")));
+    sinon.stub(context.ui!, "inputText").callsFake(async (options: any) => {
+      if (options.name === "aadAppObjectId") {
+        return err(new UserCancelError("test"));
+      } else {
+        (options as any).validation!("test-input"); // Simulate empty input
+        return ok({ result: "test-input" });
+      }
+    });
 
     const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
 
