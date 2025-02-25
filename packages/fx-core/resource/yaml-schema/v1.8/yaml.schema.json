@@ -1429,7 +1429,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Write environment variables to environment file",
-          "required": ["titleId", "appId"],
+          "required": ["titleId", "appId", "shareLink"],
           "properties": {
             "titleId": {
               "description": "Required. The ID of M365 title.",
@@ -1437,6 +1437,10 @@
             },
             "appId": {
               "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "shareLink": {
+              "description": "Required. The share link of the app.",
               "$ref": "#/definitions/envVarName"
             }
           }
