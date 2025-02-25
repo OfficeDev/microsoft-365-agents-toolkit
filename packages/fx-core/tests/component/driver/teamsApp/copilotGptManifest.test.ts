@@ -969,11 +969,6 @@ describe("copilotGptManifestUtils", () => {
   });
 
   describe("addEmbeddedKnowledgeFiles", () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should add embedded knowledge files successfully - empty declarative agent manifest", async () => {
       const manifestFilePath = "test/manifest.json";
       const resolvedManifestPath = "test/resolvedManifest.json";
