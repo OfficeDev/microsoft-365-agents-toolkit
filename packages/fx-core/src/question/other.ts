@@ -890,6 +890,20 @@ export function addAuthActionQuestion(): IQTreeNode {
   };
 }
 
+export function urlValidation(input: string, allowEmpty = false): string | undefined {
+  if (input.trim() === "") {
+    return allowEmpty ? undefined : getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  try {
+    new URL(input);
+  } catch (error) {
+    return getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  return undefined;
+}
+
 export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
@@ -933,6 +947,9 @@ export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
     type: "text",
     cliDescription: "Authorization Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
   };
 }
 
@@ -942,6 +959,9 @@ export function oauthTokenUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
     type: "text",
     cliDescription: "Token Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
   };
 }
 
@@ -951,6 +971,9 @@ export function oauthRefreshUrlQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
     type: "text",
     cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
+    validation: {
+      validFunc: (input) => urlValidation(input, true),
+    },
   };
 }
 
@@ -960,6 +983,16 @@ export function oauthScopeQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
     type: "text",
     cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /([-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)(\s*;\s*[-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)*/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.oauthScopeQuestion.validation.scope");
+        }
+        return undefined;
+      },
+    },
   };
 }
 
@@ -1083,6 +1116,15 @@ export function authNameQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
     type: "text",
     cliDescription: "Name of Auth Configuration.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.authNameQuestion.validation.empty");
+        }
+
+        return undefined;
+      },
+    },
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {
