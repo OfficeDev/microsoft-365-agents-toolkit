@@ -12,6 +12,7 @@ import {
 } from "@microsoft/m365-spec-parser";
 import {
   CLIPlatforms,
+  DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
   IQTreeNode,
@@ -103,9 +104,14 @@ import {
   UninstallInputs,
   questionNodes,
 } from "../../src/question";
-import { ApiPluginStartOptions, HubOptions } from "../../src/question/constants";
+import {
+  ApiPluginStartOptions,
+  HubOptions,
+  KnowledgeSearchTypeOptions,
+  KnowledgeSourceOptions,
+} from "../../src/question/constants";
 import { validationUtils } from "../../src/ui/validationUtils";
-import { MockTools, randomAppName } from "./utils";
+import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 import { CoreHookContext } from "../../src/core/types";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
@@ -6992,15 +6998,104 @@ describe("addKnowledge", async () => {
     sandbox.restore();
   });
 
-  it("happy path: successfully add knowledge", async () => {
+  it("happy path: add knowledge for Web Content(search all)", async () => {
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
+    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
+    if (addWebSearchCapabilityRes.isOk()) {
+      const capabilities = addWebSearchCapabilityRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.WebSearch,
+        },
+      ]);
+    } else {
+      assert.fail("addWebSearchCapability failed");
+    }
+    assert.isTrue(result.isOk());
+  });
+
+  it("happy path: add knowledge for Web Content(search by url)", async () => {
+    const appName = await mockV3Project();
+    const searchUrl = "https://fakeUrl.com";
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url(),
+      webSearchUrl: searchUrl,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
+    if (addWebSearchCapabilityRes.isOk()) {
+      const capabilities = addWebSearchCapabilityRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.WebSearch,
+          sites: [
+            {
+              url: searchUrl,
+            },
+          ],
+        },
+      ]);
+    } else {
+      assert.fail("addWebSearchCapability failed");
+    }
     assert.isTrue(result.isOk());
   });
 });
