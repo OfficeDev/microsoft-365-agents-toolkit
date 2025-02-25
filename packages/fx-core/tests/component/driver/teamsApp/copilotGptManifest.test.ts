@@ -14,6 +14,10 @@ import {
   err,
   Colors,
   UserError,
+  Result,
+  FxError,
+  DeclarativeCopilotCapabilityName,
+  Ok,
 } from "@microsoft/teamsfx-api";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import {
@@ -965,6 +969,66 @@ describe("copilotGptManifestUtils", () => {
       sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
       const res = await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath("test");
       chai.assert.equal(res, path.join("test", "ai-plugin_1.json"));
+    });
+  });
+
+  describe("add knowledge for Graph Connector", async () => {
+    setTools(new MockTools());
+    const context = generateDriverContext(createContext(), {
+      platform: Platform.VSCode,
+      projectPath: "",
+    });
+
+    const agentManifestPath = "test/agentManifestPath";
+    let manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>;
+
+    it("happy path", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["connectionId1", "connectionId2"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            connections: [
+              {
+                connection_id: "123",
+              },
+            ],
+          },
+        ],
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+                {
+                  connection_id: "connectionId1",
+                },
+                {
+                  connection_id: "connectionId2",
+                },
+              ],
+            },
+          ],
+        });
+      }
     });
   });
 
