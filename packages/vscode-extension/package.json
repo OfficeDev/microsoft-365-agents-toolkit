@@ -1748,7 +1748,7 @@
         "fx-extension.enableCustomEngineAgent": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Enable sideloading your bot app as a custom engine agent in Copilot. For more information, please refer to [this doc](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-custom-engine-agent)."
+          "markdownDescription": "Enable uploading the Custom Engine Agent in Microsoft 365 Copilot. For more information please refer to [this documentation](https://aka.ms/cea-feature-flag)."
         }
       }
     },
