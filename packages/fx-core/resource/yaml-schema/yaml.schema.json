@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.7"
+      "const": "v1.8"
     },
     "additionalMetadata": {
       "type": "object",
@@ -76,7 +76,8 @@
           { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey"},
           { "$ref": "#/definitions/apiKeyUpdate"},
           { "$ref": "#/definitions/oauthRegister"},
-          { "$ref": "#/definitions/oauthUpdate"}
+          { "$ref": "#/definitions/oauthUpdate"},
+          { "$ref": "#/definitions/shareToOthers"}
         ]
       }
     },
@@ -1355,6 +1356,58 @@
           "type": "string",
           "description": "Extend Teams app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
           "const": "teamsApp/extendToM365"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "path to Teams app package"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["titleId", "appId"],
+          "properties": {
+            "titleId": {
+              "description": "Required. The ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "appId": {
+              "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "shareToOthers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Share apps to others.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Share apps to others.",
+          "const": "teamsApp/shareToOthers"
         },
         "with": {
           "type": "object",
