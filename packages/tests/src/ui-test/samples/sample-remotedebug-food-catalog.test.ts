@@ -24,7 +24,16 @@ class FoodCatalogTestCase extends CaseFactory {
       sampledebugContext.projectPath
     );
     console.log("env file created");
-    await Executor.execute(`npm install`, sampledebugContext.projectPath);
+    const { success } = await Executor.execute(
+      `npm install`,
+      sampledebugContext.projectPath,
+      process.env,
+      undefined,
+      "npm warn"
+    );
+    if (!success) {
+      throw new Error("Failed to install packages");
+    }
   }
 }
 
