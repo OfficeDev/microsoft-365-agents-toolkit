@@ -15,6 +15,8 @@ class Config:
     PORT = 3978
     APP_ID = os.environ.get("BOT_ID", "")
     APP_PASSWORD = os.environ.get("BOT_PASSWORD", "")
+    APP_TYPE = os.environ.get("BOT_TYPE", "")
+    APP_TENANTID = os.environ.get("BOT_TENANT_ID", "")
     {{#useOpenAI}}
     OPENAI_API_KEY = os.environ["OPENAI_API_KEY"] # OpenAI API key
     OPENAI_ASSISTANT_ID = os.environ["OPENAI_ASSISTANT_ID"] # OpenAI Assistant ID

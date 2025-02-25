@@ -9,6 +9,9 @@ import { FxError, M365TokenProvider, Result, SystemError, err, ok } from "@micro
 import axios from "axios";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { GraphReadUserScopes, SPFxScopes } from "./constants";
+import fs from "fs-extra";
+import path from "path";
+import { MetadataV3 } from "./versionMetadata";
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
@@ -87,4 +90,12 @@ export async function listDevTunnels(
   } catch (error) {
     return err(new SystemError("DevTunnels", "ListDevTunnelsFailed", error.message));
   }
+}
+
+export function isTestToolEnabledProject(projectPath: string): boolean {
+  const testToolYmlPath = path.join(projectPath, MetadataV3.testToolConfigFile);
+  if (fs.pathExistsSync(testToolYmlPath)) {
+    return true;
+  }
+  return false;
 }

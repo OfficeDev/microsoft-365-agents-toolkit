@@ -17,21 +17,6 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
-  # Create or reuse an existing Microsoft Entra application for bot.
-  - uses: aadApp/create
-    with:
-      # The Microsoft Entra application's display name
-      name: {{appName}}${{APP_NAME_SUFFIX}}
-      generateClientSecret: true
-      signInAudience: AzureADMultipleOrgs
-    writeToEnvironmentFile:
-      # The Microsoft Entra application's client id created for bot.
-      clientId: BOT_ID
-      # The Microsoft Entra application's client secret created for bot.
-      clientSecret: SECRET_BOT_PASSWORD
-      # The Microsoft Entra application's object id created for bot.
-      objectId: BOT_OBJECT_ID
-
   - uses: arm/deploy # Deploy given ARM templates parallelly.
     with:
       # AZURE_SUBSCRIPTION_ID is a built-in environment variable,
@@ -57,11 +42,13 @@ provision:
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
 
+  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
+  {{/CEAEnabled}}
 
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage

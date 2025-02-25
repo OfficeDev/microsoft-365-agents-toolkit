@@ -5,12 +5,6 @@
     "resourceBaseName": {
       "value": "bot${{RESOURCE_SUFFIX}}"
     },
-    "botAadAppClientId": {
-      "value": "${{BOT_ID}}"
-    },
-    "botAadAppClientSecret": {
-      "value": "${{SECRET_BOT_PASSWORD}}"
-    },
     {{#useAzureOpenAI}}
     "azureOpenaiKey": {
       "value": "${{SECRET_AZURE_OPENAI_API_KEY}}"
@@ -40,7 +34,7 @@
       "value": "B1"
     },
     "botDisplayName": {
-      "value": "AISearch-py"
+      "value": "{{appName}}"
     },
     "linuxFxVersion": {
       "value": "PYTHON|3.11"
