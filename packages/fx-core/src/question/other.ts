@@ -890,6 +890,20 @@ export function addAuthActionQuestion(): IQTreeNode {
   };
 }
 
+export function urlValidation(input: string, allowEmpty = false): string | undefined {
+  if (input.trim() === "") {
+    return allowEmpty ? undefined : getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  try {
+    new URL(input);
+  } catch (error) {
+    return getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  return undefined;
+}
+
 export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
@@ -934,19 +948,7 @@ export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
     type: "text",
     cliDescription: "Authorization Url for oauth.",
     validation: {
-      validFunc: (input: string): string | undefined => {
-        if (input.trim() === "") {
-          return getLocalizedString("core.addAuthAction.validation.url");
-        }
-
-        try {
-          new URL(input);
-        } catch (error) {
-          return getLocalizedString("core.addAuthAction.validation.url");
-        }
-
-        return undefined;
-      },
+      validFunc: (input) => urlValidation(input, false),
     },
   };
 }
@@ -958,19 +960,7 @@ export function oauthTokenUrlQuestion(): TextInputQuestion {
     type: "text",
     cliDescription: "Token Url for oauth.",
     validation: {
-      validFunc: (input: string): string | undefined => {
-        if (input.trim() === "") {
-          return getLocalizedString("core.addAuthAction.validation.url");
-        }
-
-        try {
-          new URL(input);
-        } catch (error) {
-          return getLocalizedString("core.addAuthAction.validation.url");
-        }
-
-        return undefined;
-      },
+      validFunc: (input) => urlValidation(input, false),
     },
   };
 }
@@ -982,19 +972,7 @@ export function oauthRefreshUrlQuestion(): TextInputQuestion {
     type: "text",
     cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
     validation: {
-      validFunc: (input: string): string | undefined => {
-        if (input.trim() === "") {
-          return undefined;
-        }
-
-        try {
-          new URL(input);
-        } catch (error) {
-          return getLocalizedString("core.addAuthAction.validation.url");
-        }
-
-        return undefined;
-      },
+      validFunc: (input) => urlValidation(input, true),
     },
   };
 }
