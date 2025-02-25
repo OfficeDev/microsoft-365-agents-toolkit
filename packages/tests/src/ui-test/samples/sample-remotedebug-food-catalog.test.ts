@@ -11,6 +11,7 @@ import fs from "fs";
 import { TemplateProject } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
+import { Executor } from "../../utils/executor";
 
 class FoodCatalogTestCase extends CaseFactory {
   override async onAfterCreate(
@@ -18,18 +19,10 @@ class FoodCatalogTestCase extends CaseFactory {
     env: "local" | "dev"
   ): Promise<void> {
     console.log("pre provision project");
-    await sampledebugContext.createEnvFolder(
-      sampledebugContext.projectPath,
-      "env"
+    await Executor.execute(
+      `node ./scripts/env.js`,
+      sampledebugContext.projectPath
     );
-    // create .env file
-    const filePath = path.resolve(
-      sampledebugContext.projectPath,
-      "env",
-      `.env.${env}`
-    );
-    const envContent = `TEAMSFX_ENV=dev\nAPP_NAME=${sampledebugContext.appName}`;
-    fs.writeFileSync(filePath, envContent, { encoding: "utf-8" });
     console.log("env file created");
   }
 }
