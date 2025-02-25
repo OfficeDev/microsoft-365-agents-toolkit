@@ -422,12 +422,44 @@ export class CopilotGptManifestUtils {
     items_by_url: Site | null,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+    interface oneDriveSharePointCapability {
+      name: string;
+      items_by_sharepoint_ids?: File[] | null;
+      items_by_url?: Site[] | null;
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const newCapabilityData: oneDriveSharePointCapability = {
+      name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+    };
+
+    const capability = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint
+    ) as oneDriveSharePointCapability | undefined;
+
+    if (items_by_url) {
+      newCapabilityData.items_by_url = capability ? capability.items_by_url || [] : [];
+      newCapabilityData.items_by_url.push(items_by_url);
+    }
+    if (items_by_sharepoint_ids) {
+      newCapabilityData.items_by_sharepoint_ids = capability
+        ? capability.items_by_sharepoint_ids || []
+        : [];
+      newCapabilityData.items_by_sharepoint_ids.push(items_by_sharepoint_ids);
+    }
+
     return this.addOrUpdateCapability(
       agentManifestPath,
       DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
-      items_by_sharepoint_ids,
-      items_by_url,
-      manifestRes
+      manifestRes,
+      newCapabilityData
     );
   }
 
@@ -436,12 +468,36 @@ export class CopilotGptManifestUtils {
     items_by_url: Site | null,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+    interface WebSearchCapability {
+      name: string;
+      sites?: Site[];
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const newCapabilityData: WebSearchCapability = {
+      name: DeclarativeCopilotCapabilityName.WebSearch,
+    };
+    const capability = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.WebSearch
+    ) as WebSearchCapability | undefined;
+
+    if (items_by_url) {
+      newCapabilityData.sites = capability ? capability.sites || [] : [];
+      newCapabilityData.sites.push(items_by_url);
+    }
+
     return this.addOrUpdateCapability(
       agentManifestPath,
       DeclarativeCopilotCapabilityName.WebSearch,
-      null,
-      items_by_url,
-      manifestRes
+      manifestRes,
+      newCapabilityData
     );
   }
 
@@ -489,12 +545,19 @@ export class CopilotGptManifestUtils {
     return ok(agentManifest);
   }
 
+  /**
+   * Updates or adds a capability in the agent manifest.
+   *
+   * @param agentManifestPath - The path to the agent manifest file.
+   * @param capabilityName - The name of the capability to update or add.
+   * @param manifestRes - The result containing the agent manifest schema.
+   * @param capabilityData - The data for the capability to update or add.
+   */
   private async addOrUpdateCapability(
     agentManifestPath: string,
     capabilityName: DeclarativeCopilotCapabilityName,
-    itemsBySharepointIds: File | null,
-    itemsByUrl: Site | null,
-    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>,
+    capabilityData: any
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     if (manifestRes.isErr()) {
       return err(manifestRes.error);
@@ -505,58 +568,18 @@ export class CopilotGptManifestUtils {
       agentManifest.capabilities = [];
     }
 
-    const capability = agentManifest.capabilities.find((cap) => cap.name === capabilityName) as
-      | {
-          name: string;
-          items_by_sharepoint_ids?: File[] | null;
-          items_by_url?: Site[] | null;
-          sites?: Site[] | null;
-        }
-      | undefined;
+    const newCapability: any = { name: capabilityName, ...capabilityData };
 
-    if (!capability) {
-      const newCapability: any = { name: capabilityName };
-      if (itemsBySharepointIds) {
-        newCapability.items_by_sharepoint_ids = [itemsBySharepointIds];
-      }
-      if (itemsByUrl) {
-        if (capabilityName === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint) {
-          newCapability.items_by_url = [itemsByUrl];
-        } else {
-          newCapability.sites = [itemsByUrl];
-        }
-      }
-      agentManifest.capabilities.push(newCapability);
+    const capabilityIndex = agentManifest.capabilities.findIndex(
+      (cap) => cap.name === capabilityName
+    );
+    if (capabilityIndex !== -1) {
+      agentManifest.capabilities[capabilityIndex] = newCapability;
     } else {
-      if (itemsBySharepointIds === null && itemsByUrl === null) {
-        // search all
-        delete capability.sites;
-        delete capability.items_by_sharepoint_ids;
-      } else {
-        if (itemsBySharepointIds) {
-          if (!capability.items_by_sharepoint_ids) {
-            capability.items_by_sharepoint_ids = [];
-          }
-          capability.items_by_sharepoint_ids.push(itemsBySharepointIds);
-        }
-        if (itemsByUrl) {
-          if (capabilityName === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint) {
-            capability.items_by_url = capability.items_by_url || [];
-            capability.items_by_url.push(itemsByUrl);
-          } else {
-            if (!capability.sites) {
-              capability.sites = [];
-            }
-            if (!capability.sites) {
-              capability.sites = [];
-            }
-            capability.sites.push(itemsByUrl);
-          }
-        }
-      }
+      agentManifest.capabilities.push(newCapability);
     }
 
-    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+    const updateGptManifestRes = await this.writeCopilotGptManifestFile(
       agentManifest,
       agentManifestPath
     );
