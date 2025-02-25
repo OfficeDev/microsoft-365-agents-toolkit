@@ -954,7 +954,7 @@
   "core.addAuthActionQuestion.ApiOperation.placeholder": "Select one or multiple options",
   "core.addEmbeddedKnowledgeFilesQuestion.title": "Add embedded knowledge files",
   "core.addEmbeddedKnowledgeFilesQuestion.placeholder": "Select files",
-  "core.addEmbeddedKnowledge.success": "Successfully added embedded knowledge files to the project.",
+  "core.addEmbeddedKnowledge.success": "Embedded knowledge files successfully added to the project.",
   "core.addAuthActionQuestion.OAuthAuthorizationUrl.title": "Enter the OAuth Authorization URL",
   "core.addAuthActionQuestion.OAuthTokenUrl.title": "Enter the OAuth Token URL",
   "core.addAuthActionQuestion.OAuthRefreshUrl.title": "Enter the OAuth Refresh URL",
