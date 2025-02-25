@@ -368,6 +368,8 @@
   "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail": "Embed files directly as grounding information.",
   "core.createProjectQuestion.oneDriveSharePointItem.title": "OneDrive or SharePoint Content",
   "core.createProjectQuestion.oneDriveSharePointItem.placeholder": "Input a URL for OneDrive or SharePoint",
+  "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem": "Failed to validate OneDrive/SharePoint URL: %s",
+  "core.createProjectQuestion.log.fail.invalidOneDriveSharePointURL": "The OneDrive/SharePoint URL is invalid.",
   "core.createProjectQuestion.llmService.title": "Service for Large Language Model (LLM)",
   "core.createProjectQuestion.llmService.placeholder": "Select a service to access LLMs",
   "core.createProjectQuestion.llmServiceOpenAIOption.label": "OpenAI",

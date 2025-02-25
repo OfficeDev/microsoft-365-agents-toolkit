@@ -772,7 +772,7 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
           );
 
           const command = {
-            title: "🔍 Fetch Item Details",
+            title: "🔍 Get Item Name",
             command: "fx-extension.fetchOneDriveSharePointDetail",
             arguments: [idObject.site_id, idObject.unique_id],
           };

@@ -22,11 +22,16 @@ import { getDefaultString, getLocalizedString } from "../../../common/localizeUt
 import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
-import { GCScopes, GraphScopes } from "../../../common/constants";
-import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
 import axios from "axios";
-import { createContext } from "../../../common/globalVars";
+import { createContext } from "vm";
+import { GCScopes } from "../../../common/constants";
+import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
+import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, ItemMetadata } from "./onedriveSharePointHandler";
 
+const logMessageKeys = {
+  failValidateOneDriveSharePointItem: "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
+  invalidOneDriveSharePointURL: "core.createProjectQuestion.log.fail.invalidOneDriveSharePointURL",
+};
 export interface AddExistingPluginResult {
   warnings: Warning[];
   destinationPluginManifestPath: string;
@@ -225,135 +230,6 @@ export function validateSourcePluginManifest(
   return ok(undefined);
 }
 
-export interface OneDriveSharePointItem {
-  id: string;
-  label: string;
-  name: string;
-  uniqueId?: string;
-  listId?: string;
-  webId?: string;
-  siteId?: string;
-  url?: string;
-}
-
-interface GraphDriveItemResponse {
-  id: string;
-  name: string;
-  webUrl: string;
-  file?: any;
-  parentReference?: {
-    driveId: string;
-    id: string;
-  };
-}
-
-interface GraphSearchResponse {
-  value: [
-    {
-      hitsContainers: [
-        {
-          hits: [
-            {
-              resource: {
-                listItem: {
-                  fields: {
-                    uniqueId: string;
-                    listId: string;
-                    webId: string;
-                    siteId: string;
-                  };
-                };
-              };
-            }
-          ];
-        }
-      ];
-    }
-  ];
-}
-
-async function createGraphClientWithToken(context: Context): Promise<Result<any, FxError>> {
-  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
-    scopes: GraphScopes,
-  });
-  if (!graphTokenRes?.isOk()) {
-    return err(
-      new SystemError({
-        source: "copilotPlugin",
-        name: "GetGraphTokenFailed",
-        message: "Failed to get Graph token",
-        displayMessage: "Failed to get Graph token",
-      })
-    );
-  }
-
-  const client = axios.create({
-    baseURL: "https://graph.microsoft.com/v1.0",
-    headers: { Authorization: `Bearer ${graphTokenRes.value}` },
-  });
-  return ok(client);
-}
-
-function encodeSharePointUrl(itemUrl: string): string {
-  const base64Value = Buffer.from(itemUrl).toString("base64");
-  return "u!" + base64Value.replace(/=+$/, "").replace(/\//g, "_").replace(/\+/g, "-");
-}
-
-async function getDriveItemInfo(
-  graphClient: any,
-  encodedUrl: string
-): Promise<GraphDriveItemResponse> {
-  const res = await graphClient.get(`/shares/${encodedUrl}/driveItem`);
-  if (!res?.data) {
-    throw new SystemError(
-      "validateOneDriveSharePointItem",
-      "InvalidResponse",
-      "Invalid drive item response"
-    );
-  }
-  return res.data;
-}
-
-async function getParentFolderUrl(
-  graphClient: any,
-  parentRef: { driveId: string; id: string }
-): Promise<string> {
-  const parentItemRes = await graphClient.get(`/drives/${parentRef.driveId}/items/${parentRef.id}`);
-  if (!parentItemRes.data?.webUrl) {
-    throw new SystemError(
-      "validateOneDriveSharePointItem",
-      "InvalidResponse",
-      "Invalid parent folder response"
-    );
-  }
-  return parentItemRes.data.webUrl;
-}
-
-async function getSharePointMetadata(graphClient: any, itemWebUrl: string): Promise<any> {
-  const searchResponse = await graphClient.post(`/search/query`, {
-    requests: [
-      {
-        entityTypes: ["driveItem"],
-        query: {
-          queryString: `Path:\"${itemWebUrl}\"`,
-        },
-        fields: ["fileName", "listId", "webId", "siteId", "uniqueId"],
-      },
-    ],
-  });
-
-  if (
-    !searchResponse?.data?.value?.[0]?.hitsContainers?.[0]?.hits?.[0]?.resource?.listItem?.fields
-  ) {
-    throw new SystemError(
-      "validateOneDriveSharePointItem",
-      "InvalidResponse",
-      "Could not find SharePoint metadata for the item"
-    );
-  }
-
-  return searchResponse.data.value[0].hitsContainers[0].hits[0].resource.listItem.fields;
-}
 
 export async function getODSPItemInfo(
   context: Context,
@@ -361,7 +237,7 @@ export async function getODSPItemInfo(
   inputs: Inputs,
   shouldLogWarning: boolean,
   existingCorrelationId?: string
-): Promise<Result<OneDriveSharePointItem[], UserError>> {
+): Promise<Result<ItemMetadata[], UserError>> {
   if (!itemUrl) {
     return err(
       new UserError("validateOneDriveSharePointItem", "InvalidInput", "Item URL is required")
@@ -378,77 +254,42 @@ export async function getODSPItemInfo(
     const encodedUrl = encodeSharePointUrl(itemUrl);
     const driveItem = await getDriveItemInfo(graphClient, encodedUrl);
 
-    if (!driveItem?.webUrl) {
-      throw new SystemError(
-        "validateOneDriveSharePointItem",
-        "InvalidResponse",
-        "Invalid response from OneDrive/SharePoint"
-      );
-    }
-
-    let itemWebUrl: string = driveItem.webUrl;
-    if (driveItem.file && driveItem.parentReference) {
-      const parentUrl = await getParentFolderUrl(graphClient, driveItem.parentReference);
-      itemWebUrl = `${parentUrl}/${driveItem.name}`;
-    }
-
-    const metadata = await getSharePointMetadata(graphClient, itemWebUrl);
-
     return ok([
       {
-        id: driveItem.id,
-        label: driveItem.name,
         name: driveItem.name,
-        uniqueId: metadata.uniqueId.replace(/[{}]/g, ""),
-        listId: metadata.listId,
-        webId: metadata.webId,
-        siteId: metadata.siteId,
+        uniqueId: driveItem.uniqueId,
+        listId: driveItem.listId,
+        webId: driveItem.webId,
+        siteId: driveItem.siteId,
+        itemType: driveItem.itemType,
       },
     ]);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const responseMessage = axios.isAxiosError(error) ? error.response?.data?.message : undefined;
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response!.status >= 400 && error.response!.status < 510) {
+        context.logProvider?.error(
+          getLocalizedString(logMessageKeys.failValidateOneDriveSharePointItem, error.message)
+        );
+        return err(new UserError(
+          "ValidateOneDriveSharePointURL",
+          "GraphApiError",
+          error.message,
+          error.message
+        ));
+      }
+    }
 
-    return err(
-      new SystemError(
-        "GetODSPItemInfo",
-        axios.isAxiosError(error) ? "GraphApiError" : "UnknownError",
-        `Failed to get OneDrive/SharePoint item info: ${errorMessage}`,
-        responseMessage || errorMessage
-      )
+    const message = JSON.stringify(error);
+    context.logProvider?.error(
+      getLocalizedString(logMessageKeys.failValidateOneDriveSharePointItem, message)
     );
+    return err(new SystemError(
+      "ValidateOneDriveSharePointURL",
+      "GraphApiError",
+      message,
+      message
+    ));
   }
-}
-
-export async function getODSPItemDetailById(
-  context: Context,
-  siteId: string,
-  itemId: string,
-  inputs: Inputs
-): Promise<Result<OneDriveSharePointItem[], UserError>> {
-  const graphClientResult = await createGraphClientWithToken(context);
-  if (graphClientResult.isErr()) {
-    return err(graphClientResult.error);
-  }
-  const graphClient = graphClientResult.value;
-
-  const itemRes = await graphClient.get(`/sites/${siteId}/drive/items/${itemId}`);
-  if (!itemRes.data) {
-    throw new SystemError(
-      "getODSPItemDetailById",
-      "InvalidResponse",
-      "Invalid response from OneDrive/SharePoint"
-    );
-  }
-
-  return ok([
-    {
-      id: itemRes.data.id,
-      label: itemRes.data.name,
-      name: itemRes.data.name,
-      url: itemRes.data.webUrl,
-    },
-  ]);
 }
 
 export interface GCItem {
@@ -488,4 +329,4 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
       )
     );
   }
-}
+} 
