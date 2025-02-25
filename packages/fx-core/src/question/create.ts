@@ -1471,6 +1471,22 @@ export function GCListQuestion(): MultiSelectQuestion {
     default: [],
     placeholder: getLocalizedString("core.GCListQuestion.placeholder"),
     forgetLastValue: true,
+    validation: {
+      validFunc: async (input: string[], inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        if (
+          inputs[QuestionNames.KnowledgeSource] == KnowledgeSourceOptions.graphConnector().id &&
+          inputs[QuestionNames.GCContent] == GCSelectOptions.list().id &&
+          input.length < 1
+        ) {
+          return Promise.resolve(
+            getLocalizedString("core.GCListQuestion.invalidMessage", input.length)
+          );
+        }
+      },
+    },
   };
 }
 
