@@ -11,6 +11,7 @@ import {
   InputsWithProjectPath,
   Platform,
   Result,
+  SystemError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -34,6 +35,7 @@ import { environmentNameManager } from "../../core/environmentName";
 import { ResourceGroupConflictError, SelectSubscriptionError } from "../../error/azure";
 import {
   InputValidationError,
+  InternalError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
   assembleError,
@@ -187,7 +189,13 @@ class Coordinator {
       // refactored generator
       const generator = Generators.find((g) => g.activate(context, inputs));
       if (!generator) {
-        return err(new MissingRequiredInputError(QuestionNames.Capabilities, "coordinator"));
+        return err(
+          new SystemError(
+            "coordinator",
+            "NoActivatedGeneratorError",
+            `No activated generator by inputs: ${JSON.stringify(inputs)}`
+          )
+        );
       }
       const res = await generator.run(context, inputs, projectPath);
       if (res.isErr()) return err(res.error);
@@ -630,10 +638,8 @@ class Coordinator {
       }
     } else {
       if (ctx.platform === Platform.VS) {
-        void ctx.ui!.showMessage(
-          "info",
-          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp"),
-          false
+        void ctx.logProvider.info(
+          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp")
         );
       } else {
         void ctx.ui!.showMessage("info", msg, false);

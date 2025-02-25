@@ -1,6 +1,6 @@
 {
-  "version": "devPreview",
-  "$schema": "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.ResponseRenderingTemplate.schema.json",
+  "version": "1.0",
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.ResponseRenderingTemplate.schema.json",
   "jsonPath": "results",
   "responseLayout": "list",
   "responseCardTemplate": {

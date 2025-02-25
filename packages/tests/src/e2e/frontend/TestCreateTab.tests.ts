@@ -50,7 +50,9 @@ describe("Create single tab", function () {
         await CliHelper.createProjectWithCapability(
           appName,
           testFolder,
-          Capability.M365SsoLaunchPage
+          Capability.M365SsoLaunchPage,
+          { ...process.env, TEAMSFX_CLI_DOTNET: "false" },
+          `--programming-language javascript`
         );
         {
           // Validate scaffold

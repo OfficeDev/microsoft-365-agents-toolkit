@@ -19,7 +19,7 @@ import {
   llmServiceNode,
 } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
-import { notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
+import { m365SearchMeSubNode, notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
 
 export class VSCapabilityOptions {
   // empty
@@ -114,6 +114,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
           daProjectTypeNode(VSCapabilityOptions.declarativeAgent().id),
           customCopilotRagNode(),
           aiAgentNode(),
+          m365SearchMeSubNode(),
           llmServiceNode({
             enum: [
               CustomCopilotCapabilityOptions.basicChatbot().id,
