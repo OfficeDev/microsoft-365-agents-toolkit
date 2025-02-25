@@ -969,6 +969,11 @@ describe("copilotGptManifestUtils", () => {
   });
 
   describe("addEmbeddedKnowledgeFiles", () => {
+    setTools(new MockTools());
+    const context = generateDriverContext(createContext(), {
+      platform: Platform.VSCode,
+      projectPath: "",
+    });
     it("should add embedded knowledge files successfully - empty declarative agent manifest", async () => {
       const manifestFilePath = "test/manifest.json";
       const resolvedManifestPath = "test/resolvedManifest.json";

@@ -113,11 +113,14 @@ import {
   UninstallInputs,
   questionNodes,
 } from "../../src/question";
-import { ApiPluginStartOptions, HubOptions } from "../../src/question/constants";
+import {
+  ApiPluginStartOptions,
+  HubOptions,
+  KnowledgeSourceOptions,
+} from "../../src/question/constants";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
-import { KnowledgeSourceOptions } from "../../build";
 
 const tools = new MockTools();
 
