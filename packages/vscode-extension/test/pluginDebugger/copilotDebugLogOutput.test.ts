@@ -314,7 +314,7 @@ describe("copilotDebugLogOutput", () => {
               scopes: {},
             },
           ],
-          capabilitiesExecutions: [
+          capabilityExecutions: [
             {
               name: "GraphConnectors",
               status: "0",
@@ -397,7 +397,7 @@ describe("copilotDebugLogOutput", () => {
         appendLineStub.calledWith(
           `${
             ANSIColors.GREEN
-          }${0} enabled capabilities ${0} enabled actions, ${0} failed function executions, ${0} successful function executions, ${0} matched function candidates, ${0} functions selected for invocation.`
+          }${0} enabled capabilities, ${0} enabled actions, ${0} failed function executions, ${0} successful function executions, ${0} matched function candidates, ${0} functions selected for invocation.`
         )
       );
       chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "Execution summary"));
@@ -415,7 +415,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(appendLineStub.calledWith("CAPABILITIES"));
+      chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "CAPABILITIES"));
       chai.assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.RED} (×) ${ANSIColors.WHITE}Enabled capabilities: None.`

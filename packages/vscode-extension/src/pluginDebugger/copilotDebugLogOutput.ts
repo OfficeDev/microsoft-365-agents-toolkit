@@ -272,7 +272,7 @@ export class CopilotDebugLog {
   }
 
   private static getExecutionStatusColor(executionStatus: string): ANSIColors {
-    if (executionStatus.toString() === "1") {
+    if (executionStatus === "1") {
       return ANSIColors.GREEN;
     } else {
       return ANSIColors.RED;
@@ -311,7 +311,7 @@ export class CopilotDebugLog {
       (this.functionExecutions?.length ?? 0) - failedActionExecutionsCount;
 
     debugConsole.appendLine(
-      `${ANSIColors.GREEN}${enabledCapabilitiesCount} enabled capabilities ${enabledPluginsCount} enabled actions, ${failedActionExecutionsCount} failed function executions, ${successfulActionExecutionsCount} successful function executions, ${matchedFunctionCandidatesCount} matched function candidates, ${functionsSelectedForInvocationCount} functions selected for invocation.`
+      `${ANSIColors.GREEN}${enabledCapabilitiesCount} enabled capabilities, ${enabledPluginsCount} enabled actions, ${failedActionExecutionsCount} failed function executions, ${successfulActionExecutionsCount} successful function executions, ${matchedFunctionCandidatesCount} matched function candidates, ${functionsSelectedForInvocationCount} functions selected for invocation.`
     );
   }
 
