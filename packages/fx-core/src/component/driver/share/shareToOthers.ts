@@ -134,7 +134,11 @@ export class ShareToOthersDriver implements StepDriver {
   }
 
   private validateOutputEnvVarNames(outputEnvVarNames?: Map<string, string>): void {
-    if (!outputEnvVarNames?.get(outputKeys.titleId) || !outputEnvVarNames.get(outputKeys.appId)) {
+    if (
+      !outputEnvVarNames?.get(outputKeys.titleId) ||
+      !outputEnvVarNames.get(outputKeys.appId) ||
+      !outputEnvVarNames.get(outputKeys.shareLink)
+    ) {
       throw new InvalidActionInputError(actionName, ["writeToEnvironmentFile"]);
     }
   }
