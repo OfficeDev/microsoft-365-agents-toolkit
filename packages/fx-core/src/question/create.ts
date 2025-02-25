@@ -88,6 +88,7 @@ import {
   GCSelectOptions,
   KnowledgeSearchTypeOptions,
 } from "./constants";
+import { OneDriveSharePointItemType } from "../component/generator/constant";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -1438,10 +1439,11 @@ export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     staticOptions: [],
     dynamicOptions: (inputs: Inputs) => {
+      const icon = inputs.oneDriveSharePointItem[0].itemType === OneDriveSharePointItemType.Folder ? "$(folder)" : "$(file)";
       return [
         {
-          id: inputs.oneDriveSharePointItem[0].id,
-          label: inputs.oneDriveSharePointItem[0].label,
+          id: inputs.oneDriveSharePointItem[0].uniqueId,
+          label: `${icon} ${inputs.oneDriveSharePointItem[0].name}`,
         },
       ];
     },
