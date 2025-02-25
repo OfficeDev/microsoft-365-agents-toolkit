@@ -2145,7 +2145,7 @@ export class FxCore {
           filePath
         );
         if (res.isOk()) {
-          await TOOLS.ui.showMessage(
+          void TOOLS.ui.showMessage(
             "info",
             getLocalizedString("core.addEmbeddedKnowledge.success"),
             false
