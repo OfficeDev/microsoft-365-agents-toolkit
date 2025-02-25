@@ -72,6 +72,7 @@ describe("ActionInjector", () => {
           identityProvider: "MicrosoftEntra",
         },
         writeToEnvironmentFile: {
+          applicationIdUri: "TESTAUTH_APPLICATION_ID_URI",
           configurationId: envName,
         },
       });
@@ -84,7 +85,7 @@ describe("ActionInjector", () => {
       const specRelativePath = "path/to/spec";
       const envName = "TEST_AUTH_CONFIGURATION_ID";
       const flow = "authorizationCode";
-      const isMicrosoftEntra = true;
+      const isMicrosoftEntra = false;
 
       const result = ActionInjector.generateAuthAction(
         actionName,
@@ -104,7 +105,6 @@ describe("ActionInjector", () => {
           appId: `\${{${teamsAppIdEnvName}}}`,
           apiSpecPath: specRelativePath,
           flow: flow,
-          identityProvider: "MicrosoftEntra",
           isPKCEEnabled: true,
         },
         writeToEnvironmentFile: {

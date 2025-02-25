@@ -68,7 +68,7 @@ import {
   ProjectTypeResult,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
-import { TelemetryEvent, telemetryUtils } from "../common/telemetry";
+import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
 import {
@@ -186,6 +186,7 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2307,107 +2308,142 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
-    const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
-    const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
-    const authName = inputs[QuestionNames.AuthName] as string;
-    const apiSpecPath = path.normalize(
-      path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
-    );
-    const authType = inputs[QuestionNames.ApiAuth] as string;
+    const context = createContext();
 
-    let authParameters: any = {
-      apis: apiOperation,
-    };
-    if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
-      const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
-      const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
-      const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
-      const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
-      const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
-      const scopeArr: { [scope: string]: string } = {};
-      oauthScopes.split(";").forEach((scopeStr) => {
-        const lastIndex = scopeStr.lastIndexOf(":");
-        if (lastIndex !== -1) {
-          const key = scopeStr.substring(0, lastIndex).trim();
-          const value = scopeStr.substring(lastIndex + 1).trim();
-          scopeArr[key] = value;
-        }
-      });
+    try {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
+      const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
+      const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
+      const authName = inputs[QuestionNames.AuthName] as string;
+      const apiSpecPath = path.normalize(
+        path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
+      );
+      const authType = inputs[QuestionNames.ApiAuth] as string;
 
-      authParameters = {
-        ...authParameters,
-        authorizationUrl: oauthAuthorizationUrl,
-        tokenUrl: oauthTokenUrl,
-        refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
-        scopes: scopeArr,
-        enablePKCE: enablePKCEStr === "true",
+      let authParameters: AuthParameters = {
+        apis: apiOperation,
       };
-    } else if (authType === AddAuthActionAuthTypeOptions.apiKey().id) {
-      const apiKeyIn = inputs[QuestionNames.ApiKeyIn] as string;
-      const apiKeyName = inputs[QuestionNames.ApiKeyName] as string;
-      authParameters = {
-        ...authParameters,
-        in: apiKeyIn,
-        name: apiKeyName,
-      };
-    }
+      if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
+        const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
+        const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
+        const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
+        const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+        const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
+        const scopeArr = this.parseScope(oauthScopes);
 
-    // Update openapi spec
-    const specParser = new SpecParser(apiSpecPath, getParserOptions(ProjectType.Copilot, true));
-    await specParser.addAuthScheme(authName, authType, authParameters);
+        authParameters = {
+          ...authParameters,
+          authorizationUrl: oauthAuthorizationUrl,
+          tokenUrl: oauthTokenUrl,
+          refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
+          scopes: scopeArr,
+          enablePKCE: enablePKCEStr === "true",
+        } as OAuthParameters;
+      } else if (authType === AddAuthActionAuthTypeOptions.apiKey().id) {
+        const apiKeyIn = inputs[QuestionNames.ApiKeyIn] as string;
+        const apiKeyName = inputs[QuestionNames.ApiKeyName] as string;
+        authParameters = {
+          ...authParameters,
+          in: apiKeyIn,
+          name: apiKeyName,
+        } as ApiKeyParameters;
+      } else if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+        const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+        const scopeArr = this.parseScope(oauthScopes);
+        authParameters = {
+          ...authParameters,
+          authorizationUrl:
+            "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+          tokenUrl: "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/token",
+          refreshUrl: undefined,
+          scopes: scopeArr,
+        } as OAuthParameters;
+      }
 
-    let authTypeScheme;
-    switch (authType) {
-      case AddAuthActionAuthTypeOptions.apiKey().id:
-      case AddAuthActionAuthTypeOptions.bearerToken().id:
-      default:
-        authTypeScheme = APIKeyAuthType;
-        break;
-      case "oauth":
-        authTypeScheme = OAuthAuthType;
-        break;
-    }
+      // Update openapi spec
+      const specParser = new SpecParser(apiSpecPath, getParserOptions(ProjectType.Copilot, true));
+      await specParser.addAuthScheme(authName, authType, authParameters);
 
-    const addAuthActionRes = await injectAuthAction(
-      inputs.projectPath,
-      authName,
-      undefined,
-      apiSpecPath,
-      true,
-      authTypeScheme,
-      authParameters.enablePKCE ?? undefined
-    );
+      let authTypeScheme;
+      switch (authType) {
+        case AddAuthActionAuthTypeOptions.apiKey().id:
+        case AddAuthActionAuthTypeOptions.bearerToken().id:
+        default:
+          authTypeScheme = APIKeyAuthType;
+          break;
+        case AddAuthActionAuthTypeOptions.oauth().id:
+          authTypeScheme = OAuthAuthType;
+          break;
+        case AddAuthActionAuthTypeOptions.microsoftEntra().id:
+          authTypeScheme = MicrosoftEntraAuthType;
+          break;
+      }
 
-    if (addAuthActionRes?.registrationIdEnvName) {
-      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-      pluginManifest.runtimes?.forEach((runtime) => {
-        if (
-          runtime.type === "OpenApi" &&
-          runtime.auth?.type === "None" &&
-          runtime.spec?.url === apiSpecRelativePath
-        ) {
-          runtime.run_for_functions = runtime.run_for_functions?.filter(
-            (value) => !!!apiOperation.includes(value)
-          );
-        }
+      const addAuthActionRes = await injectAuthAction(
+        inputs.projectPath,
+        authName,
+        undefined,
+        apiSpecPath,
+        true,
+        authTypeScheme,
+        "enablePKCE" in authParameters ? authParameters.enablePKCE : undefined
+      );
+
+      if (addAuthActionRes?.registrationIdEnvName) {
+        const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+        pluginManifest.runtimes?.forEach((runtime) => {
+          if (
+            runtime.type === "OpenApi" &&
+            runtime.auth?.type === "None" &&
+            runtime.spec?.url === apiSpecRelativePath
+          ) {
+            runtime.run_for_functions = runtime.run_for_functions?.filter(
+              (value) => !!!apiOperation.includes(value)
+            );
+          }
+        });
+        pluginManifest.runtimes = pluginManifest.runtimes?.filter((runtime) => {
+          return !!runtime.run_for_functions && runtime.run_for_functions?.length > 0;
+        });
+        pluginManifest.runtimes?.push({
+          type: "OpenApi",
+          auth: {
+            type:
+              authTypeScheme === MicrosoftEntraAuthType
+                ? OAuthAuthType
+                : (authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault"),
+            reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
+          },
+          spec: {
+            url: apiSpecRelativePath,
+            progress_style: "ShowUsageWithInputAndOutput",
+          },
+          run_for_functions: apiOperation,
+        });
+        await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+      }
+
+      if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+        const appIdUriPlaceholder = Utils.getSafeRegistrationIdEnvName(
+          `${authName}_APPLICATION_ID_URI`
+        );
+        void context.userInteraction.showMessage(
+          "warn",
+          getLocalizedString("core.addAuthAction.microsoftEntra.message", appIdUriPlaceholder),
+          false
+        );
+      }
+
+      context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.AddAuthAction, {
+        [TelemetryProperty.AddAuthType]: authType,
       });
-      pluginManifest.runtimes = pluginManifest.runtimes?.filter((runtime) => {
-        return !!runtime.run_for_functions && runtime.run_for_functions?.length > 0;
+    } catch (err: any) {
+      const error = assembleError(err);
+      context.telemetryReporter.sendTelemetryErrorEvent(TelemetryEvent.AddAuthAction, {
+        [TelemetryProperty.ErrorCode]: error.name,
+        [TelemetryProperty.ErrorMessage]: error.message,
       });
-      pluginManifest.runtimes?.push({
-        type: "OpenApi",
-        auth: {
-          type: authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
-          reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
-        },
-        spec: {
-          url: apiSpecRelativePath,
-          progress_style: "ShowUsageWithInputAndOutput",
-        },
-        run_for_functions: apiOperation,
-      });
-      await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+      return err(error);
     }
 
     return ok(undefined);
@@ -2468,6 +2504,19 @@ export class FxCore {
       }
     }
     return result;
+  }
+
+  private parseScope(scope: string): { [scope: string]: string } {
+    const scopeArr: { [scope: string]: string } = {};
+    scope.split(";").forEach((scopeStr) => {
+      const lastIndex = scopeStr.lastIndexOf(":");
+      if (lastIndex !== -1) {
+        const key = scopeStr.substring(0, lastIndex).trim();
+        const value = scopeStr.substring(lastIndex + 1).trim();
+        scopeArr[key] = value;
+      }
+    });
+    return scopeArr;
   }
 
   async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {

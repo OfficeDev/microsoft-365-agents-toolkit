@@ -638,10 +638,8 @@ class Coordinator {
       }
     } else {
       if (ctx.platform === Platform.VS) {
-        void ctx.ui!.showMessage(
-          "info",
-          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp"),
-          false
+        void ctx.logProvider.info(
+          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp")
         );
       } else {
         void ctx.ui!.showMessage("info", msg, false);

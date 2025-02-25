@@ -368,10 +368,11 @@ export class AadManifestHelper {
       getLocalizedString("core.convertAadToNewSchema.continue")
     );
 
-    if (
-      confirmRes.isOk() &&
-      confirmRes.value !== getLocalizedString("core.convertAadToNewSchema.continue")
-    ) {
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    }
+
+    if (confirmRes.value !== getLocalizedString("core.convertAadToNewSchema.continue")) {
       return err(new UserCancelError());
     }
 

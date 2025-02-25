@@ -14,11 +14,21 @@ export const logMessageKeys = {
   outputAadAppManifest: "driver.aadApp.log.outputAadAppManifest",
   successUpdateAadAppManifest: "driver.aadApp.log.successUpdateAadAppManifest",
   deleteAadAfterDebugging: "driver.aadApp.log.deleteAadAfterDebugging",
+  insufficientPermission: "driver.aadApp.log.insufficientPermission",
 };
 
 export const descriptionMessageKeys = {
   create: "driver.aadApp.description.create",
   update: "driver.aadApp.description.update",
+};
+
+export const questionKeys = {
+  aadAppIdTitle: "driver.aadApp.question.id.title",
+  addAppIdValidation: "driver.aadApp.question.id.validation",
+  aadAppSecretTitle: "driver.aadApp.question.secret.title",
+  aadAppSecretValidation: "driver.aadApp.question.secret.validation",
+  aadAppObjectIdTitle: "driver.aadApp.question.objectId.title",
+  aadAppObjectIdValidation: "driver.aadApp.question.objectId.validation",
 };
 
 export const permissionsKeys = {
@@ -41,8 +51,11 @@ export const constants = {
   defaultHelpLink: "https://aka.ms/teamsfx-actions/aadapp-create",
   missingServiceManagementReferenceHelpLink:
     "https://aka.ms/teamsfx/missing-service-management-reference-help",
+  insufficientPermissionErrorMessage: "Insufficient privileges to complete the operation.",
 };
 
 export const telemetryKeys = {
   newAadApp: "new-aad-app",
+  userInputAadApp: "user-input-aad-app",
+  insufficientPermissionAadApp: "insufficient-permission-aad-app",
 };

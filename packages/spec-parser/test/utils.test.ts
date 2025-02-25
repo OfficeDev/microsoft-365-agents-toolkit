@@ -943,5 +943,33 @@ describe("utils", () => {
         scheme: "bearer",
       });
     });
+
+    it("should return correct microsoft entra scheme", () => {
+      const authParameter = {
+        apis: "operationId1",
+        authorizationUrl:
+          "https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+        tokenUrl: "https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/token",
+        refreshUrl: undefined,
+        scopes: {
+          read: "Grants read access",
+        },
+      };
+      const authSchema = Utils.getAuthSchemaObject("oauth", authParameter);
+      expect(authSchema).to.deep.equal({
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl:
+              "https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+            tokenUrl: "https://login.microsoftonline.com/${{AAD_APP_TENANT_ID}}/oauth2/v2.0/token",
+            refreshUrl: undefined,
+            scopes: {
+              read: "Grants read access",
+            },
+          },
+        },
+      });
+    });
   });
 });

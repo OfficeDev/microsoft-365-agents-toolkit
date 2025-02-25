@@ -43,6 +43,9 @@
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
+                {{#CEAEnabled}} 
+                "copilot",
+                {{/CEAEnabled}}
                 "personal",
                 "team",
                 "groupChat"
@@ -52,6 +55,9 @@
             "commandLists": [
                 {
                     "scopes": [
+                        {{#CEAEnabled}} 
+                        "copilot",
+                        {{/CEAEnabled}}
                         "personal"
                     ],
                     "commands": [

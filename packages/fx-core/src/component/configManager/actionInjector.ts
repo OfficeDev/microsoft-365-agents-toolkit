@@ -70,6 +70,9 @@ export class ActionInjector {
 
     if (isMicrosoftEntra) {
       result.with.identityProvider = MicrosoftEntraAuthType;
+      result.writeToEnvironmentFile.applicationIdUri = Utils.getSafeRegistrationIdEnvName(
+        `${authName}_APPLICATION_ID_URI`
+      );
     }
 
     return result;

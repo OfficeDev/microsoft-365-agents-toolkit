@@ -809,7 +809,7 @@ export async function createNewProject(
       const importPath: string =
         testRootFolder + "\\..\\src\\ui-test\\treeview\\office-xml-addin";
       await input.selectQuickPick(CreateProjectQuestion.OfficeAddin);
-      await input.selectQuickPick("Import an Existing Outlook Add-ins");
+      await input.selectQuickPick("Upgrade an Existing Office Add-in");
 
       console.log("choose import path: ", importPath);
       await input.selectQuickPick("Browse...");

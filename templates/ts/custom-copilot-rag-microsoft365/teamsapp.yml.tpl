@@ -60,11 +60,13 @@ provision:
       manifestPath: ./aad.manifest.json # Relative path to teamsfx folder. Environment variables in manifest will be replaced before apply to AAD app
       outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
 
+  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
+  {{/CEAEnabled}}
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -123,11 +125,13 @@ deploy:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
+  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
+  {{/CEAEnabled}}
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
