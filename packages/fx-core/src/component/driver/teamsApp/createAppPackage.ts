@@ -2,7 +2,16 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { Colors, FxError, Result, err, ok, PluginManifestSchema } from "@microsoft/teamsfx-api";
+import {
+  Colors,
+  FxError,
+  Result,
+  err,
+  ok,
+  PluginManifestSchema,
+  File,
+  DeclarativeCopilotCapabilityName,
+} from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import * as path from "path";
@@ -15,7 +24,10 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { WrapDriverContext } from "../util/wrapUtil";
-import { Constants } from "./constants";
+import {
+  Constants,
+  EmbeddedKnowledgeLocalDirectoryName,
+} from "./constants";
 import { CreateAppPackageArgs } from "./interfaces/CreateAppPackageArgs";
 import { manifestUtils } from "./utils/ManifestUtils";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
@@ -23,6 +35,8 @@ import { getResolvedManifest, normalizePath } from "./utils/utils";
 import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
 import { ManifestType } from "../../utils/envFunctionUtils";
 import { getAbsolutePath } from "../../utils/common";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { updateVersionForTeamsAppYamlFile } from "../util/utils";
 
 export const actionName = "teamsApp/zipAppPackage";
 
@@ -275,9 +289,9 @@ export class CreateAppPackageDriver implements StepDriver {
       : manifest.copilotAgents?.declarativeAgents;
     // Copilot GPT
     if (declarativeCopilots?.length && declarativeCopilots[0].file) {
-      const copilotGptManifestFile = path.resolve(appDirectory, declarativeCopilots[0].file);
+      const declarativeAgentManifestFile = path.resolve(appDirectory, declarativeCopilots[0].file);
       const checkExistenceRes = await this.validateReferencedFile(
-        copilotGptManifestFile,
+        declarativeAgentManifestFile,
         appDirectory
       );
       if (checkExistenceRes.isErr()) {
@@ -287,29 +301,28 @@ export class CreateAppPackageDriver implements StepDriver {
       const addFileWithVariableRes = await this.addFileWithVariable(
         zip,
         declarativeCopilots[0].file,
-        copilotGptManifestFile,
+        declarativeAgentManifestFile,
         ManifestType.DeclarativeCopilotManifest,
         context,
         shouldwriteAllManifest
-          ? path.join(jsonFileDir, path.relative(appDirectory, copilotGptManifestFile))
+          ? path.join(jsonFileDir, path.relative(appDirectory, declarativeAgentManifestFile))
           : undefined
       );
       if (addFileWithVariableRes.isErr()) {
         return err(addFileWithVariableRes.error);
       }
-
       const getCopilotGptRes = await copilotGptManifestUtils.getManifest(
-        copilotGptManifestFile,
+        declarativeAgentManifestFile,
         context
       );
-
       if (getCopilotGptRes.isOk()) {
+        // Add action files
         if (getCopilotGptRes.value.actions) {
           const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
             const pluginFileAbsolutePath = path.resolve(
-              path.dirname(copilotGptManifestFile),
+              path.dirname(declarativeAgentManifestFile),
               pluginFile
             );
 
@@ -326,6 +339,48 @@ export class CreateAppPackageDriver implements StepDriver {
 
             if (addPluginRes.isErr()) {
               return err(addPluginRes.error);
+            }
+          }
+        }
+        // Add embedded knowledge files
+        if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+          if (getCopilotGptRes.value.capabilities) {
+            const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
+              (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+            );
+            if (embeddedKnowledgeCapabilities.length > 0) {
+              const fileSet = new Set<string>();
+              for (const capability of embeddedKnowledgeCapabilities) {
+                for (const file of capability.files as File[]) {
+                  if (file.file) {
+                    fileSet.add(file.file);
+                  }
+                }
+              }
+              const fileArr = Array.from(fileSet);
+              if (fileArr.length > 0) {
+                for (const file of fileArr) {
+                  const knowledgeFileAbsolutePath = path.resolve(appDirectory, file);
+                  // check existence
+                  const checkExistenceRes = await this.validateReferencedFile(
+                    knowledgeFileAbsolutePath,
+                    appDirectory
+                  );
+                  if (checkExistenceRes.isErr()) {
+                    return err(checkExistenceRes.error);
+                  }
+                  const addKnowledgeRes = await this.addFileWithVariable(
+                    zip,
+                    file,
+                    knowledgeFileAbsolutePath,
+                    ManifestType.EmbeddedKnowledgeFile,
+                    context
+                  );
+                  if (addKnowledgeRes.isErr()) {
+                    return err(addKnowledgeRes.error);
+                  }
+                }
+              }
             }
           }
         }
@@ -479,6 +534,7 @@ export class CreateAppPackageDriver implements StepDriver {
     let tempFolder: string | undefined;
 
     if (containExternalAdaptiveCard) {
+      await updateVersionForTeamsAppYamlFile(context.projectPath);
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);

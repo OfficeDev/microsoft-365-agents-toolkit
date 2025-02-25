@@ -17,6 +17,7 @@ import {
   getSideloadingStatus,
   listAllTenants,
   listDevTunnels,
+  isTestToolEnabledProject,
 } from "../../src/common/tools";
 import { PackageService } from "../../src/component/m365/packageService";
 import { isVideoFilterProject } from "../../src/core/middleware/videoFilterAppBlocker";
@@ -396,6 +397,24 @@ projectId: 00000000-0000-0000-0000-000000000000`;
       const error = new Error();
       error.name = "UserCancelError";
       chai.expect(isUserCancelError(error)).is.true;
+    });
+  });
+
+  describe("isTestToolEnabledProject", () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it("should return true if test tool YAML file exists", () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const result = isTestToolEnabledProject("test-project-path");
+      chai.expect(result).to.be.true;
+    });
+
+    it("should return false if test tool YAML file does not exist", () => {
+      sandbox.stub(fs, "pathExistsSync").returns(false);
+      const result = isTestToolEnabledProject("test-project-path");
+      chai.expect(result).to.be.false;
     });
   });
 });

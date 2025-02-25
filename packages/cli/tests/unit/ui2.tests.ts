@@ -8,6 +8,7 @@ import {
   SingleSelectConfig,
   UserError,
   err,
+  ok,
 } from "@microsoft/teamsfx-api";
 import { SelectSubscriptionError, UnhandledError } from "@microsoft/teamsfx-core";
 import { assert } from "chai";
@@ -182,6 +183,19 @@ describe("UserInteraction(CLI) 2", () => {
       assert.isTrue(result.isErr());
       if (result.isErr()) {
         assert.isTrue(result.error instanceof SelectSubscriptionError);
+      }
+    });
+    it("happy return options", async () => {
+      const config: SingleSelectConfig = {
+        name: "test",
+        title: "test",
+        options: ["a", "b"],
+      };
+      sandbox.stub(UI, "singleSelect").resolves(ok("a"));
+      const result = await UI.selectOption(config);
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        assert.deepEqual(result.value.options, ["a", "b"]);
       }
     });
   });

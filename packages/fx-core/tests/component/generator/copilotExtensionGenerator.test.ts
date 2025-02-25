@@ -47,6 +47,7 @@ describe("copilotExtension", async () => {
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",
       };
@@ -56,29 +57,25 @@ describe("copilotExtension", async () => {
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.microsoftEntra().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-
-      if (info.isOk()) {
-        const filterFn = info.value[0].filterFn;
-        assert.isFalse(filterFn?.("repairDeclarativeAgent.json"));
-        assert.isFalse(filterFn?.("instruction.txt"));
-        assert.isTrue(filterFn?.("test.json"));
-      }
     });
 
     it("declarative Copilot: Env func enabled", async () => {
@@ -89,6 +86,7 @@ describe("copilotExtension", async () => {
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",
       };
@@ -98,29 +96,18 @@ describe("copilotExtension", async () => {
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-
-      inputs[QuestionNames.ApiPluginType] = "";
-      res = await generator.activate(context, inputs);
-      info = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, TemplateNames.BasicGpt);
-
-      if (info.isOk()) {
-        const filterFn = info.value[0].filterFn;
-        assert.isTrue(filterFn?.("repairDeclarativeAgent.json"));
-        assert.isTrue(filterFn?.("instruction.txt"));
-        assert.isTrue(filterFn?.("test.json"));
-      }
     });
   });
 

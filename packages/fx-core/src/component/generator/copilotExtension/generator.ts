@@ -17,25 +17,23 @@ import {
   Platform,
   Result,
 } from "@microsoft/teamsfx-api";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
+import { merge } from "lodash";
+import path from "path";
 import {
   ApiAuthOptions,
   ApiPluginStartOptions,
-  CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
-import { ActionContext } from "../../middleware/actionExecutionMW";
-import { Generator } from "../generator";
-import { merge } from "lodash";
-import { TemplateNames } from "../templates/templateNames";
-import { TemplateInfo } from "../templates/templateInfo";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-import { declarativeCopilotInstructionFileName } from "../constant";
-import { addExistingPlugin } from "./helper";
-import path from "path";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
+import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
+import { SpecGenerator } from "../apiSpec/generator";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
+import { Generator } from "../generator";
+import { TemplateInfo } from "../templates/templateInfo";
+import { TemplateNames } from "../templates/templateNames";
+import { addExistingPlugin } from "./helper";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -51,16 +49,16 @@ const enum telemetryProperties {
  */
 export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
   componentName = "copilot-extension-from-scratch-generator";
-  public activate(context: Context, inputs: Inputs): boolean {
-    return (
-      (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id &&
-        inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.apiSpec().id) ||
-      (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id &&
-        inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id)
-    );
+  public override activate(context: Context, inputs: Inputs): boolean {
+    return [
+      TemplateNames.ApiPluginFromScratch,
+      TemplateNames.ApiPluginFromScratchBearer,
+      TemplateNames.ApiPluginFromScratchOAuth,
+      TemplateNames.BasicGpt,
+    ].includes(inputs[QuestionNames.TemplateName]);
   }
 
-  public getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -71,7 +69,6 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     const safeProjectNameFromVS =
       language === "csharp" ? inputs[QuestionNames.SafeProjectName] : undefined;
-    const isDeclarativeCopilot = checkDeclarativeCopilot(inputs);
 
     const replaceMap = {
       ...Generator.getDefaultVariables(
@@ -80,37 +77,27 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
       ),
-      DeclarativeCopilot: isDeclarativeCopilot ? "true" : "",
+      DeclarativeCopilot: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
     };
 
-    const filterFn = (fileName: string) => {
-      if (fileName.toLowerCase().includes("declarativeagent.json")) {
-        return isDeclarativeCopilot;
-      } else if (fileName.includes(declarativeCopilotInstructionFileName)) {
-        return isDeclarativeCopilot;
-      } else {
-        return true;
-      }
-    };
-
-    let templateName;
-    const apiPluginFromScratch =
-      inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id;
-    if (apiPluginFromScratch) {
-      const authTemplateMap = {
-        [ApiAuthOptions.apiKey().id]: TemplateNames.ApiPluginFromScratchBearer,
-        [ApiAuthOptions.microsoftEntra().id]: TemplateNames.ApiPluginFromScratchOAuth,
-        [ApiAuthOptions.oauth().id]: TemplateNames.ApiPluginFromScratchOAuth,
-      };
-      templateName = authTemplateMap[auth] || TemplateNames.ApiPluginFromScratch;
-    } else {
-      templateName = TemplateNames.BasicGpt;
-    }
+    // let templateName;
+    // const apiPluginFromScratch =
+    //   inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id;
+    // if (apiPluginFromScratch) {
+    //   const authTemplateMap = {
+    //     [ApiAuthOptions.apiKey().id]: TemplateNames.ApiPluginFromScratchBearer,
+    //     [ApiAuthOptions.microsoftEntra().id]: TemplateNames.ApiPluginFromScratchOAuth,
+    //     [ApiAuthOptions.oauth().id]: TemplateNames.ApiPluginFromScratchOAuth,
+    //   };
+    //   templateName = authTemplateMap[auth] || TemplateNames.ApiPluginFromScratch;
+    // } else {
+    //   templateName = TemplateNames.BasicGpt;
+    // }
+    const templateName = inputs[QuestionNames.TemplateName];
 
     merge(actionContext?.telemetryProps, {
       [telemetryProperties.templateName]: templateName,
-      [telemetryProperties.isDeclarativeCopilot]: isDeclarativeCopilot.toString(),
       [telemetryProperties.isMicrosoftEntra]:
         auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
       [telemetryProperties.needAddPluginFromExisting]:
@@ -124,13 +111,12 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
           templateName,
           language: language,
           replaceMap,
-          filterFn,
         },
       ])
     );
   }
 
-  public async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -176,6 +162,4 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
   }
 }
 
-function checkDeclarativeCopilot(inputs: Inputs) {
-  return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id;
-}
+export const specGenerator = new SpecGenerator();

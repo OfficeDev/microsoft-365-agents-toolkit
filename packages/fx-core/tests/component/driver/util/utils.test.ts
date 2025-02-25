@@ -3,8 +3,14 @@
 
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
-import { loadStateFromEnv, mapStateToEnv } from "../../../../src/component/driver/util/utils";
+import {
+  loadStateFromEnv,
+  mapStateToEnv,
+  updateVersionForTeamsAppYamlFile,
+} from "../../../../src/component/driver/util/utils";
+import fs from "fs-extra";
 import { expect } from "chai";
+import sinon from "sinon";
 
 describe("loadStateFromEnv", () => {
   let envRestore: RestoreFn | undefined;
@@ -103,5 +109,45 @@ describe("mapStateToEnv", async () => {
     const result = mapStateToEnv(state, outputEnvVarNames, ["envB"]);
     expect(result.size).to.equal(1);
     expect(result.get("ENV_A")).to.equal("ENV_A value");
+  });
+});
+
+describe("updateVersionForTeamsAppYamlFile", async () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+  it("updateVersionForTeamsAppYamlFile should works fine", async () => {
+    const teamsAppYaml = "version: v1.7";
+    const expectedTeamsAppYaml = "version: v1.8";
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
+    const writeFileStub = sinon.stub(fs, "writeFile");
+
+    await updateVersionForTeamsAppYamlFile("fake-project-path");
+
+    const writtenContent = writeFileStub.getCall(0).args[1];
+    // use epect instead
+    expect(writtenContent).to.include(expectedTeamsAppYaml);
+  });
+
+  it("updateVersionForTeamsAppYamlFile should works fine when yaml contains schema url", async () => {
+    const teamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
+# Visit https://aka.ms/teamsfx-actions for details on actions
+version: v1.7`;
+    const expectedTeamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
+# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
+# Visit https://aka.ms/teamsfx-actions for details on actions
+version: v1.8`;
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
+    const writeFileStub = sinon.stub(fs, "writeFile");
+
+    await updateVersionForTeamsAppYamlFile("fake-project-path");
+
+    const writtenContent = writeFileStub.getCall(0).args[1];
+    expect(writtenContent).to.include(expectedTeamsAppYaml);
   });
 });

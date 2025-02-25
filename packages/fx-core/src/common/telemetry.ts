@@ -88,6 +88,8 @@ export enum TelemetryProperty {
   TDPTraceId = "tdp-trace-id",
   MOSTraceId = "mos-trace-id",
   MOSPATH = "mos-api-path",
+
+  AddAuthType = "add-auth-type",
 }
 
 export const TelemetryConstants = {
@@ -163,6 +165,7 @@ export enum TelemetryEvent {
   AppStudioApi = "app-studio-api",
   MOSApi = "ttk-mos-api",
   ViewPluginManifestAfterAdded = "view-plugin-manifest-after-added",
+  AddAuthAction = "add-auth-action",
   ViewAgentManifestAfterAdded = "view-agent-manifest-after-added",
 }
 

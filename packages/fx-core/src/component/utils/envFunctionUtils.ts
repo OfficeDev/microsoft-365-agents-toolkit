@@ -31,6 +31,7 @@ export enum ManifestType {
   PluginManifest = "plugin-manifest",
   DeclarativeCopilotManifest = "declarative-copilot-manifest",
   ApiSpec = "api-spec",
+  EmbeddedKnowledgeFile = "embedded-knowledge-file",
 }
 
 export async function expandVariableWithFunction(

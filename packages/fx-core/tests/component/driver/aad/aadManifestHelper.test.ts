@@ -6,7 +6,6 @@ import * as chai from "chai";
 import { AadManifestHelper } from "../../../../src/component/driver/aad/utility/aadManifestHelper";
 import { AadManifestErrorMessage } from "../../../../src/component/driver/aad/error/aadManifestError";
 import { AADManifest } from "../../../../src/component/driver/aad/interface/AADManifest";
-import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 import * as sinon from "sinon";
 import { MockTools } from "../../../core/utils";
 import { setTools, TOOLS } from "../../../../src/common/globalVars";
@@ -104,40 +103,6 @@ describe("Microsoft Entra manifest helper Test", () => {
       .stub(AadManifestHelper, "convertManifestToNewSchemaAndOverride")
       .resolves();
     await AadManifestHelper.showWarningIfManifestIsOutdated("fake-path", "fake-project-path");
-  });
-
-  it("updateVersionForTeamsAppYamlFile should works fine", async () => {
-    const teamsAppYaml = "version: v1.7";
-    const expectedTeamsAppYaml = "version: v1.8";
-
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
-    const writeFileStub = sinon.stub(fs, "writeFile");
-
-    await AadManifestHelper.updateVersionForTeamsAppYamlFile("fake-project-path");
-
-    const writtenContent = writeFileStub.getCall(0).args[1];
-    chai.assert.isTrue(writtenContent.includes(expectedTeamsAppYaml));
-  });
-
-  it("updateVersionForTeamsAppYamlFile should works fine when yaml contains schema url", async () => {
-    const teamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
-# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
-# Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.7`;
-    const expectedTeamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
-# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
-# Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.8`;
-
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
-    const writeFileStub = sinon.stub(fs, "writeFile");
-
-    await AadManifestHelper.updateVersionForTeamsAppYamlFile("fake-project-path");
-
-    const writtenContent = writeFileStub.getCall(0).args[1];
-    chai.assert.isTrue(writtenContent.includes(expectedTeamsAppYaml));
   });
 
   it("processRequiredResourceAccessInManifest with id", async () => {

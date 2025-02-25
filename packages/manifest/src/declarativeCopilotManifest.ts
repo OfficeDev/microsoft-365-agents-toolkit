@@ -9,6 +9,7 @@ export enum DeclarativeCopilotCapabilityName {
   CodeInterpreter = "CodeInterpreter",
   OneDriveAndSharePoint = "OneDriveAndSharePoint",
   GraphConnectors = "GraphConnectors",
+  EmbeddedKnowledge = "EmbeddedKnowledge",
 }
 
 export interface DeclarativeCopilotManifestSchema {
@@ -39,6 +40,10 @@ export interface DeclarativeCopilotManifestSchema {
         connections: Connection[];
         [k: string]: unknown;
       }
+    | {
+        name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge;
+        files: File[];
+      }
   )[];
   conversation_starters?: ConversationStarter[];
   actions?: ActionObject[];
@@ -49,6 +54,8 @@ export interface File {
   web_id?: string;
   list_id?: string;
   unique_id?: string;
+  file_name?: string;
+  file?: string;
 }
 export interface Site {
   url: string;

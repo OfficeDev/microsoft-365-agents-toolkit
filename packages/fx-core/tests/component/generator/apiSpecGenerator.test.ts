@@ -27,26 +27,35 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import { fail } from "assert";
 import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
 import "mocha";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import { OpenAPIV3 } from "openapi-types";
 import path from "path";
 import * as sinon from "sinon";
 import { format } from "util";
+import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { getLocalizedString } from "../../../src/common/localizeUtils";
+import * as commonUtils from "../../../src/common/utils";
+import { ActionInjector } from "../../../src/component/configManager/actionInjector";
+import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { PluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
 import * as CopilotPluginHelper from "../../../src/component/generator/apiSpec/helper";
+import * as helper from "../../../src/component/generator/apiSpec/helper";
+import * as pluginGeneratorHelper from "../../../src/component/generator/apiSpec/helper";
 import {
   formatValidationErrors,
   generateScaffoldingSummary,
-  listPluginExistingOperations,
   injectAuthAction,
+  listPluginExistingOperations,
 } from "../../../src/component/generator/apiSpec/helper";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import {
   ApiPluginStartOptions,
   CapabilityOptions,
@@ -58,14 +67,6 @@ import {
   apiPluginApiSpecOptionId,
 } from "../../../src/question";
 import { MockTools } from "../../core/utils";
-import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import * as pluginGeneratorHelper from "../../../src/component/generator/apiSpec/helper";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
-import * as commonUtils from "../../../src/common/utils";
-import * as helper from "../../../src/component/generator/apiSpec/helper";
-import { fail } from "assert";
-import { ActionInjector } from "../../../src/component/configManager/actionInjector";
 
 const teamsManifest: TeamsAppManifest = {
   name: {
@@ -926,15 +927,9 @@ describe("updateForCustomApi", async () => {
       .callsFake(async (updatedManifest, manifestPath) => {
         expect(manifestPath.replace(/\\/g, "/")).to.be.equal("path/appPackage/manifest.json");
         expect(updatedManifest.bots![0].commandLists![0].commands[0].title).to.be.equal(
-          "Hello, how can you help me?"
-        );
-        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
-          "How to build apps with TTK?"
-        );
-        expect(updatedManifest.bots![0].commandLists![0].commands[2].title).to.be.equal(
           "Returns a greeting"
         );
-        expect(updatedManifest.bots![0].commandLists![0].commands[3].title).to.be.equal(
+        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
           "Create a pet"
         );
         return ok(undefined);
@@ -1963,32 +1958,22 @@ describe("SpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
       };
       let res = await generator.activate(context, inputs);
       let templateName = generator.getTemplateName(inputs);
       assert.isTrue(res);
-      assert.equal(templateName, "api-plugin-existing-api");
+      assert.equal(templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
 
-      delete inputs[QuestionNames.Capabilities];
-      inputs[QuestionNames.MeArchitectureType] = MeArchitectureOptions.apiSpec().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.CustomCopilotRagCustomApi;
       res = generator.activate(context, inputs);
       templateName = generator.getTemplateName(inputs);
       assert.isTrue(res);
-      assert.equal(templateName, "copilot-plugin-existing-api");
-
-      delete inputs[QuestionNames.MeArchitectureType];
-      inputs[QuestionNames.Capabilities] = CapabilityOptions.customCopilotRag().id;
-      inputs[QuestionNames.CustomCopilotRag] = CustomCopilotRagOptions.customApi().id;
-      res = generator.activate(context, inputs);
-      templateName = generator.getTemplateName(inputs);
-      assert.isTrue(res);
-      assert.equal(templateName, "custom-copilot-rag-custom-api");
+      assert.equal(templateName, TemplateNames.CustomCopilotRagCustomApi);
     });
   });
 
-  describe("getTempalteInfos", async () => {
+  describe("getTemplateInfos", async () => {
     const sandbox = sinon.createSandbox();
     let mockedEnvRestore: RestoreFn | undefined;
     afterEach(async () => {
@@ -2005,6 +1990,7 @@ describe("SpecGenerator", async () => {
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
@@ -2015,15 +2001,8 @@ describe("SpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "api-plugin-existing-api");
+        assert.equal(res.value[0].templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
 
       inputs[QuestionNames.Capabilities] = CapabilityOptions.declarativeAgent().id;
@@ -2031,33 +2010,30 @@ describe("SpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "api-plugin-existing-api");
+        assert.equal(res.value[0].templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "true");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isTrue(filterResult);
       }
 
       delete inputs[QuestionNames.Capabilities];
       delete inputs.apiAuthData;
       inputs[QuestionNames.MeArchitectureType] = MeArchitectureOptions.apiSpec().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.MessageExtensionWithExistingApiSpec;
       res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "copilot-plugin-existing-api");
+        assert.equal(res.value[0].templateName, TemplateNames.MessageExtensionWithExistingApiSpec);
       }
 
       delete inputs[QuestionNames.MeArchitectureType];
       inputs[QuestionNames.Capabilities] = CapabilityOptions.customCopilotRag().id;
       inputs[QuestionNames.CustomCopilotRag] = CustomCopilotRagOptions.customApi().id;
+      inputs[QuestionNames.TemplateName] = TemplateNames.CustomCopilotRagCustomApi;
       res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "custom-copilot-rag-custom-api");
+        assert.equal(res.value[0].templateName, TemplateNames.CustomCopilotRagCustomApi);
       }
     });
 
@@ -2071,6 +2047,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       inputs.apiAuthData = [
@@ -2099,6 +2076,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "listOperations").resolves(
@@ -2121,13 +2099,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
     });
 
@@ -2144,6 +2115,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "listOperations").resolves(
@@ -2164,13 +2136,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value.length, 1);
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
-
-        let filterResult = res.value[0].filterFn!("declarativeAgent.json.tpl");
-        assert.isFalse(filterResult);
-        filterResult = res.value[0].filterFn!("test.json");
-        assert.isTrue(filterResult);
-        filterResult = res.value[0].filterFn!("instruction.txt");
-        assert.isFalse(filterResult);
       }
     });
 
@@ -2185,6 +2150,7 @@ describe("SpecGenerator", async () => {
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
       };

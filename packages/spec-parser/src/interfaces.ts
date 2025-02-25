@@ -126,6 +126,8 @@ export enum ErrorType {
 
   Cancelled = "cancelled",
   Unknown = "unknown",
+
+  AddAuthFailed = "add-auth-failed",
 }
 
 /**
@@ -272,6 +274,11 @@ export enum ProjectType {
   Copilot,
   SME,
   TeamsAi,
+}
+
+export enum AdaptiveCardUpdateStrategy {
+  CreateNew, // Add a new adaptive card with a new name
+  KeepExisting, // Do nothing with the existing adaptive card
 }
 
 export interface APIInfo {

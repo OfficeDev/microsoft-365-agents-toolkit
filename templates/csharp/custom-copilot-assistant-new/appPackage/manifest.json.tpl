@@ -43,6 +43,7 @@
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
+                "copilot",
                 "personal",
                 "team",
                 "groupChat"
@@ -52,6 +53,7 @@
             "commandLists": [
                 {
                     "scopes": [
+                        "copilot",
                         "personal"
                     ],
                     "commands": [

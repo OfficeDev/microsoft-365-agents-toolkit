@@ -4,7 +4,6 @@
 import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
-import { OfficeAddinProjectConfig } from "../component/generator/officeXMLAddin/projectConfig";
 
 export enum QuestionNames {
   Scratch = "scratch",
@@ -115,6 +114,16 @@ export enum QuestionNames {
   GCList = "graph-connector-list",
   GCInput = "graph-connector-input",
   AuthName = "auth-name",
+  TemplateName = "template-name",
+
+  EmbeddedKnowledgeFiles = "embedded-knowledge-files",
+  OAuthAuthorizationUrl = "oauth-authorization-url",
+  OAuthTokenUrl = "oauth-token-url",
+  OAuthRefreshUrl = "oauth-refresh-url",
+  OAuthScope = "oauth-scope",
+  OauthPKCE = "oauth-pkce",
+  ApiKeyIn = "api-key-in",
+  ApiKeyName = "api-key-name",
 }
 
 export enum ProjectTypeGroup {
@@ -559,23 +568,6 @@ export class CapabilityOptions {
         ];
   }
 
-  static officeAddinStaticCapabilities(host?: string): OptionItem[] {
-    const items: OptionItem[] = [];
-    for (const h of Object.keys(OfficeAddinProjectConfig)) {
-      if (host && h !== host) continue;
-      const hostValue = OfficeAddinProjectConfig[h];
-      for (const capability of Object.keys(hostValue)) {
-        const capabilityValue = hostValue[capability];
-        items.push({
-          id: capability,
-          label: getLocalizedString(capabilityValue.title),
-          detail: getLocalizedString(capabilityValue.detail),
-        });
-      }
-    }
-    return items;
-  }
-
   static officeAddinCapabilities(projectType: string): OptionItem[] {
     const items: OptionItem[] = [CapabilityOptions.officeAddinTaskpane()];
     const isOutlookAddin = projectType === ProjectTypeOptions.outlookAddin().id;
@@ -622,7 +614,6 @@ export class CapabilityOptions {
       ...CapabilityOptions.customCopilots(),
       ...CapabilityOptions.tdpIntegrationCapabilities(),
     ];
-    capabilityOptions.push(...CapabilityOptions.officeAddinStaticCapabilities());
     return capabilityOptions;
   }
 
@@ -828,6 +819,45 @@ export class ApiAuthOptions {
   }
 }
 
+export class AddAuthActionAuthTypeOptions {
+  static apiKey(): OptionItem {
+    return {
+      id: "api-key",
+      label: "API Key",
+    };
+  }
+
+  static bearerToken(): OptionItem {
+    return {
+      id: "bearer-token",
+      label: "API Key (Bearer Token Auth)",
+    };
+  }
+
+  static oauth(): OptionItem {
+    return {
+      id: "oauth",
+      label: "OAuth",
+    };
+  }
+
+  static microsoftEntra(): OptionItem {
+    return {
+      id: "microsoft-entra",
+      label: "Microsoft Entra",
+    };
+  }
+
+  static all(): OptionItem[] {
+    return [
+      AddAuthActionAuthTypeOptions.bearerToken(),
+      AddAuthActionAuthTypeOptions.apiKey(),
+      AddAuthActionAuthTypeOptions.oauth(),
+      AddAuthActionAuthTypeOptions.microsoftEntra(),
+    ];
+  }
+}
+
 export class MeArchitectureOptions {
   static botMe(): OptionItem {
     return {
@@ -893,9 +923,9 @@ export const NotificationTriggers = {
   TIMER: "timer",
 } as const;
 
-type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
+export type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
 
-interface HostTypeTriggerOptionItem extends OptionItem {
+export interface HostTypeTriggerOptionItem extends OptionItem {
   hostType: HostType;
   triggers?: NotificationTrigger[];
 }
@@ -1298,13 +1328,25 @@ export class KnowledgeSourceOptions {
   }
 
   static all(): OptionItem[] {
-    return [
+    const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
-      // TODO:  add graph connector feature in future.
       KnowledgeSourceOptions.graphConnector(),
       KnowledgeSourceOptions.embeddedKnowledge(),
     ];
+    return items;
+  }
+
+  static allWithFeatureFlags(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSourceOptions.webSearch(),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
+      KnowledgeSourceOptions.graphConnector(),
+    ];
+    if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+      items.push(KnowledgeSourceOptions.embeddedKnowledge());
+    }
+    return items;
   }
 }
 
@@ -1328,3 +1370,4 @@ export class KnowledgeSearchTypeOptions {
     };
   }
 }
+

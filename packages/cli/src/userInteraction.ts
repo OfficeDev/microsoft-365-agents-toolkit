@@ -274,12 +274,12 @@ class CLIUserInteraction implements UserInteraction {
     if (config.options.length === 1 && config.skipSingleOption) {
       const answer = (config.options as StaticOptions)[0];
       if (config.returnObject) {
-        return ok({ type: "skip", result: answer });
+        return ok({ type: "skip", result: answer, options: config.options as StaticOptions });
       } else {
         if (typeof answer === "string") {
-          return ok({ type: "skip", result: answer });
+          return ok({ type: "skip", result: answer, options: config.options as StaticOptions });
         } else {
-          return ok({ type: "skip", result: answer.id });
+          return ok({ type: "skip", result: answer.id, options: config.options as StaticOptions });
         }
       }
     }
@@ -310,9 +310,13 @@ class CLIUserInteraction implements UserInteraction {
         return ok({ type: "success", result: answer });
       } else {
         if (typeof answer === "string") {
-          return ok({ type: "success", result: answer });
+          return ok({ type: "success", result: answer, options: config.options as StaticOptions });
         } else {
-          return ok({ type: "success", result: answer.id });
+          return ok({
+            type: "success",
+            result: answer.id,
+            options: config.options as StaticOptions,
+          });
         }
       }
     } else {

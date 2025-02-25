@@ -481,7 +481,7 @@ describe("Lifecycle handlers", () => {
         .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
         .returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
-      const createProject = sandbox.spy(globalVariables.core, "createProject");
+      const createProject = sandbox.spy(globalVariables.core, "createProjectFromTdp");
       sandbox.stub(vscode.commands, "executeCommand");
       sandbox.stub(globalState, "globalStateUpdate");
       const appDefinition: AppDefinition = {
