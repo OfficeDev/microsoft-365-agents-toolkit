@@ -18,6 +18,10 @@ class FoodCatalogTestCase extends CaseFactory {
     env: "local" | "dev"
   ): Promise<void> {
     console.log("pre provision project");
+    await sampledebugContext.createEnvFolder(
+      sampledebugContext.projectPath,
+      "env"
+    );
     // create .env file
     const filePath = path.resolve(
       sampledebugContext.projectPath,
