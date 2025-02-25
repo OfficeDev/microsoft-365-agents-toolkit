@@ -50,8 +50,8 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
-import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
 import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
+import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
@@ -71,6 +71,7 @@ import {
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   DeclarativeCopilotTypeOptions,
+  KnowledgeSourceOptions,
   MeArchitectureOptions,
   NotificationTriggerOptions,
   ProgrammingLanguage,
@@ -80,7 +81,6 @@ import {
   SPFxVersionOptionIds,
   capabilitiesHavePythonOption,
   getRuntime,
-  KnowledgeSourceOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {

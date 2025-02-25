@@ -119,6 +119,7 @@ import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/valida
 import { createDriverContext } from "../component/driver/util/utils";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
+import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import {
   convertSpecParserErrorToFxError,
   generateFromApiSpec,
@@ -127,8 +128,7 @@ import {
   injectAuthAction,
   listOperations,
   listPluginExistingOperations,
-} from "../component/generator/apiSpec/helper";
-import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
+} from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";

@@ -110,12 +110,14 @@ export async function getTemplateInfosFromApiSpec(
   });
 
   let language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
-  let safeProjectNameFromVS: string | undefined = undefined;
-  if (language === ProgrammingLanguage.CSharp) {
-    safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
-  } else {
-    language = ProgrammingLanguage.None;
+  if (projectType !== ProjectType.TeamsAi) {
+    language =
+      language === ProgrammingLanguage.CSharp
+        ? ProgrammingLanguage.CSharp
+        : ProgrammingLanguage.None;
   }
+  const safeProjectNameFromVS =
+    language === ProgrammingLanguage.CSharp ? inputs[QuestionNames.SafeProjectName] : undefined;
   const url = inputs[QuestionNames.ApiSpecLocation].trim();
   const isYaml = !(await isJsonSpecFile(url));
   const openapiSpecFileName = isYaml ? DefaultApiSpecYamlFileName : DefaultApiSpecJsonFileName;
