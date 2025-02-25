@@ -6941,7 +6941,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -6995,7 +6995,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7095,7 +7095,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7235,7 +7235,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
