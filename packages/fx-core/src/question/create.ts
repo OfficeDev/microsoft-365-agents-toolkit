@@ -1363,6 +1363,9 @@ export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSe
     cliDescription: "Knowledge source.",
     staticOptions: KnowledgeSourceOptions.all(),
     default: KnowledgeSourceOptions.webSearch().id,
+    dynamicOptions: (inputs: Inputs) => {
+      return KnowledgeSourceOptions.allWithFeatureFlags();
+    },
   };
 }
 

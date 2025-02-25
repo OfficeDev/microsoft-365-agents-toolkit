@@ -17,6 +17,7 @@ import {
   FolderQuestion,
   CLIPlatforms,
   PluginManifestSchema,
+  MultiFileQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
@@ -32,6 +33,7 @@ import {
   AddAuthActionAuthTypeOptions,
   ApiPluginStartOptions,
   HubOptions,
+  KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
 } from "./constants";
@@ -815,7 +817,29 @@ export function addPluginQuestionNode(): IQTreeNode {
 export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
-    children: [],
+    children: [
+      {
+        data: selectTeamsAppManifestQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        },
+      },
+      {
+        data: addEmbeddedKnowledgeFilesQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        },
+      },
+    ],
+  };
+}
+export function addEmbeddedKnowledgeFilesQuestion(): MultiFileQuestion {
+  return {
+    name: QuestionNames.EmbeddedKnowledgeFiles,
+    title: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.title"),
+    type: "multiFile",
+    cliDescription: "Select your embedded knowledge files.",
+    placeholder: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.placeholder"),
   };
 }
 
