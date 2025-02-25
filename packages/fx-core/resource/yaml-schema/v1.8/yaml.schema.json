@@ -38,6 +38,10 @@
     "publish": {
       "$ref": "#/definitions/lifeCycleArray",
       "description": "Called by `teamsfx publish`"
+    },
+    "share": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx share`"
     }
   },
   "required": ["version"],
