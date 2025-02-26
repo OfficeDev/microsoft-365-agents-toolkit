@@ -41,7 +41,6 @@ import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
-  apiAuthQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
