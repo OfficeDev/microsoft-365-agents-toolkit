@@ -6,11 +6,9 @@ import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
   TelemetryTriggerFrom,
-  TelemetrySuccess,
   TelemetryEvent,
   TelemetryProperty,
 } from "../telemetry/extTelemetryEvents";
-import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { core } from "../globalVariables";
 
@@ -34,7 +32,7 @@ export async function obtainOneDriveSharePointDetailHandler(args: any[]): Promis
       name: "OneDrive Sharepoint Details",
     });
     if (res.isOk()) {
-      void VS_CODE_UI.openUrl(result.value.url as string);
+      void VS_CODE_UI.openUrl(result.value.webUrl as string);
     } else {
       void vscode.window.showErrorMessage(res.error.message);
     }

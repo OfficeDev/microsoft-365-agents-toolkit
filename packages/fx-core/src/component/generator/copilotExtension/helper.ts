@@ -26,7 +26,7 @@ import axios from "axios";
 import { createContext } from "vm";
 import { GCScopes } from "../../../common/constants";
 import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
-import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, ItemMetadata } from "./onedriveSharePointHandler";
+import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, ItemMetadata } from "./oneDriveSharePointHandler";
 
 const logMessageKeys = {
   failValidateOneDriveSharePointItem: "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",

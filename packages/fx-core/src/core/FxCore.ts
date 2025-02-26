@@ -192,9 +192,7 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
-import { getODSPItemDetailById } from "../component/generator/copilotExtension/onedriveSharePointHandler";
-import { ItemMetadata } from "../component/generator/copilotExtension/onedriveSharePointHandler";
-
+import { getODSPItemDetailById, ItemMetadata } from "../component/generator/copilotExtension/oneDriveSharePointHandler";
 export class FxCore {
   constructor(tools: Tools) {
     setTools(tools);
@@ -2196,7 +2194,7 @@ export class FxCore {
       return err(new UserCancelError());
     }
 
-    let result: Result<undefined, FxError> = ok(undefined);
+    let result: Result<undefined, FxError>;
     switch (inputs[QuestionNames.KnowledgeSource] as string) {
       case KnowledgeSourceOptions.webSearch().id:
         result = await this.addWebSearchKnowledge(inputs, agentManifestPath);

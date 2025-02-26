@@ -12,43 +12,56 @@ export enum DeclarativeCopilotCapabilityName {
   EmbeddedKnowledge = "EmbeddedKnowledge",
 }
 
+export interface WebSearchCapability {
+  name: DeclarativeCopilotCapabilityName.WebSearch;
+  [k: string]: unknown;
+}
+
+export interface GraphicArtCapability {
+  name: DeclarativeCopilotCapabilityName.GraphicArt;
+  [k: string]: unknown;
+}
+
+export interface CodeInterpreterCapability {
+  name: DeclarativeCopilotCapabilityName.CodeInterpreter;
+  [k: string]: unknown;
+}
+
+export interface OneDriveAndSharePointCapability {
+  name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint;
+  items_by_sharepoint_ids?: File[];
+  items_by_url?: Site[];
+}
+
+export interface GraphConnectorsCapability {
+  name: DeclarativeCopilotCapabilityName.GraphConnectors;
+  connections: Connection[];
+  [k: string]: unknown;
+}
+
+export interface EmbeddedKnowledgeCapability {
+  name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge;
+  files: File[];
+}
+
 export interface DeclarativeCopilotManifestSchema {
   id?: string;
   name: string;
   description: string;
   instructions?: string;
   capabilities?: (
-    | {
-        name: DeclarativeCopilotCapabilityName.WebSearch;
-        [k: string]: unknown;
-      }
-    | {
-        name: DeclarativeCopilotCapabilityName.GraphicArt;
-        [k: string]: unknown;
-      }
-    | {
-        name: DeclarativeCopilotCapabilityName.CodeInterpreter;
-        [k: string]: unknown;
-      }
-    | {
-        name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint;
-        items_by_sharepoint_ids?: File[];
-        items_by_url?: Site[];
-      }
-    | {
-        name: DeclarativeCopilotCapabilityName.GraphConnectors;
-        connections: Connection[];
-        [k: string]: unknown;
-      }
-    | {
-        name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge;
-        files: File[];
-      }
+    | WebSearchCapability
+    | GraphicArtCapability
+    | CodeInterpreterCapability
+    | OneDriveAndSharePointCapability
+    | GraphConnectorsCapability
+    | EmbeddedKnowledgeCapability
   )[];
   conversation_starters?: ConversationStarter[];
   actions?: ActionObject[];
   [k: string]: unknown;
 }
+
 export interface File {
   site_id?: string;
   web_id?: string;
@@ -57,9 +70,11 @@ export interface File {
   file_name?: string;
   file?: string;
 }
+
 export interface Site {
   url: string;
 }
+
 export interface Connection {
   connection_id: string;
   [k: string]: unknown;

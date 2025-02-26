@@ -11,6 +11,7 @@ import {
   PluginManifestSchema,
   File,
   DeclarativeCopilotCapabilityName,
+  EmbeddedKnowledgeCapability
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -351,9 +352,12 @@ export class CreateAppPackageDriver implements StepDriver {
             if (embeddedKnowledgeCapabilities.length > 0) {
               const fileSet = new Set<string>();
               for (const capability of embeddedKnowledgeCapabilities) {
-                for (const file of capability.files as File[]) {
-                  if (file.file) {
-                    fileSet.add(file.file);
+                const embeddedCapability = capability as EmbeddedKnowledgeCapability;
+                if (embeddedCapability.files) {
+                  for (const file of embeddedCapability.files) {
+                    if (file.file) {
+                      fileSet.add(file.file);
+                    }
                   }
                 }
               }
