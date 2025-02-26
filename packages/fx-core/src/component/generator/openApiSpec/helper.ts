@@ -42,6 +42,8 @@ import {
   err,
   ok,
   Stage,
+  PluginManifestSchema,
+  RuntimeObjectOpenapi,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { OpenAPIV3 } from "openapi-types";
@@ -639,7 +641,8 @@ export async function injectAuthAction(
   outputApiSpecPath: string,
   forceToAddNew: boolean,
   authType?: string,
-  enablePKCE?: boolean
+  enablePKCE?: boolean,
+  registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = path.join(projectPath, MetadataV3.configFile);
   const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
@@ -651,7 +654,8 @@ export async function injectAuthAction(
       ymlPath,
       authName,
       relativeSpecPath,
-      forceToAddNew
+      forceToAddNew,
+      registrationId
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -659,7 +663,8 @@ export async function injectAuthAction(
         localYamlPath,
         authName,
         relativeSpecPath,
-        forceToAddNew
+        forceToAddNew,
+        registrationId
       );
     }
     return res;
@@ -674,7 +679,8 @@ export async function injectAuthAction(
       relativeSpecPath,
       forceToAddNew,
       authType === MicrosoftEntraAuthType,
-      enablePKCE
+      enablePKCE,
+      registrationId
     );
 
     if (await fs.pathExists(localYamlPath)) {
@@ -684,7 +690,8 @@ export async function injectAuthAction(
         relativeSpecPath,
         forceToAddNew,
         authType === MicrosoftEntraAuthType,
-        enablePKCE
+        enablePKCE,
+        registrationId
       );
     }
     return res;
@@ -1659,4 +1666,52 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
   await fs.ensureDir(destinationKiotaFolder);
   await fs.copy(originKiotaFolder, destinationKiotaFolder, { recursive: true });
   return;
+}
+
+export async function parseAndUpdatePluginManifestForKiota(
+  pluginManifestPath: string,
+  updatePlaceholder: boolean
+): Promise<any[]> {
+  const authData: any[] = [];
+  const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
+  pluginManifest.runtimes?.forEach((runtime) => {
+    if ((runtime as RuntimeObjectOpenapi).auth) {
+      const auth = (runtime as RuntimeObjectOpenapi).auth;
+      if (auth?.reference_id && auth?.type !== "None") {
+        const registrationId = auth.reference_id.replace(/[{}]/g, "");
+        authData.push({
+          authName: registrationId.split("_")[0],
+          authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
+          registrationId: registrationId.toUpperCase(),
+        });
+        if (updatePlaceholder) {
+          auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;
+        }
+      }
+    }
+  });
+
+  if (updatePlaceholder && authData.length > 0) {
+    await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+  }
+  return authData;
+}
+
+export async function generateAdaptiveCardInPluginManifestForKiota(
+  pluginManifestPath: string,
+  specPath: string,
+  context: Context
+): Promise<void> {
+  try {
+    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
+    const operation = (await specParser.list()).APIs.filter((value) => value.isValid).map(
+      (value) => value.api
+    );
+    await specParser.generateAdaptiveCardInPlugin(pluginManifestPath, operation, undefined);
+  } catch (error) {
+    // create ac error, should not block the whole process
+    const errorMsg = getLocalizedString("error.kiota.FailedToCreateAdaptiveCard");
+    void context.userInteraction.showMessage("warn", errorMsg, false);
+    context.logProvider.warning(errorMsg);
+  }
 }

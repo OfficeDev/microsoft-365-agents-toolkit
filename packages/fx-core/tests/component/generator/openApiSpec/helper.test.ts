@@ -17,6 +17,7 @@ import {
 import {
   IComposeExtension,
   Platform,
+  PluginManifestSchema,
   SystemError,
   TeamsAppManifest,
   err,
@@ -27,6 +28,7 @@ import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
 import "mocha";
+import { RestoreFn } from "mocked-env";
 import { OpenAPIV3 } from "openapi-types";
 import path from "path";
 import * as sinon from "sinon";
@@ -37,9 +39,10 @@ import * as commonUtils from "../../../../src/common/utils";
 import { ActionInjector } from "../../../../src/component/configManager/actionInjector";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { PluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import * as CopilotPluginHelper from "../../../../src/component/generator/openApiSpec/helper";
+import * as openApiSpecHelper from "../../../../src/component/generator/openApiSpec/helper";
 import {
   formatValidationErrors,
+  generateAdaptiveCardInPluginManifestForKiota,
   generateScaffoldingSummary,
   injectAuthAction,
   listPluginExistingOperations,
@@ -897,7 +900,7 @@ describe("updateForCustomApi", async () => {
         );
         return ok(undefined);
       });
-    await CopilotPluginHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
   });
 
   it("read manifest failed", async () => {
@@ -922,7 +925,7 @@ describe("updateForCustomApi", async () => {
       .stub(manifestUtils, "_readAppManifest")
       .resolves(err(new SystemError("test", "", "", "")));
     try {
-      await CopilotPluginHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
+      await openApiSpecHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
       assert.fail("should throw error");
     } catch (e) {
       expect(e.source).to.be.equal("test");
@@ -954,7 +957,7 @@ describe("updateForCustomApi", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
 
-    const result = await CopilotPluginHelper.updateForCustomApi(
+    const result = await openApiSpecHelper.updateForCustomApi(
       spec,
       "typescript",
       "path",
@@ -997,7 +1000,7 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-    await CopilotPluginHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
   });
 
   it("happy path: should contain warning if generate adaptive card data failed", async () => {
@@ -1041,7 +1044,7 @@ describe("updateForCustomApi", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
 
-    const result = await CopilotPluginHelper.updateForCustomApi(
+    const result = await openApiSpecHelper.updateForCustomApi(
       spec,
       "typescript",
       "path",
@@ -1084,7 +1087,7 @@ describe("updateForCustomApi", async () => {
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "javascript", "path", "openapi.yaml");
   });
 
   it("happy path: python", async () => {
@@ -1107,7 +1110,7 @@ describe("updateForCustomApi", async () => {
       .resolves(Buffer.from("test code # Replace with action code {{OPENAPI_SPEC_PATH}}"));
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(spec, "python", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "python", "path", "openapi.yaml");
   });
 
   it("happy path: csharp", async () => {
@@ -1141,7 +1144,7 @@ describe("updateForCustomApi", async () => {
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
     //sandbox fs.readdir(destinationPath)
     sandbox.stub(fs, "readdir").resolves(["MyApp.csproj"] as any);
-    await CopilotPluginHelper.updateForCustomApi(spec, "csharp", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "csharp", "path", "openapi.yaml");
   });
 
   it("unknown language: unknown", async () => {
@@ -1169,7 +1172,7 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-    await CopilotPluginHelper.updateForCustomApi(spec, "unknown", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(spec, "unknown", "path", "openapi.yaml");
   });
 
   it("happy path with spec without path", async () => {
@@ -1196,7 +1199,7 @@ describe("updateForCustomApi", async () => {
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
   });
 
   it("happy path with spec without pathItem", async () => {
@@ -1224,7 +1227,7 @@ describe("updateForCustomApi", async () => {
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
   });
 
   it("happy path with spec with patch", async () => {
@@ -1276,7 +1279,7 @@ describe("updateForCustomApi", async () => {
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(limitedSpec, "javascript", "path", "openapi.yaml");
     expect(mockWriteFile.calledThrice).to.be.true;
   });
 
@@ -1371,7 +1374,7 @@ describe("updateForCustomApi", async () => {
 
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    await CopilotPluginHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
   });
 
   it("happy path with spec request body and schema contains format", async () => {
@@ -1500,7 +1503,7 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-    await CopilotPluginHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(newSpec, "typescript", "path", "openapi.yaml");
   });
 
   it("happy path with spec with auth", async () => {
@@ -1593,7 +1596,7 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-    await CopilotPluginHelper.updateForCustomApi(authSpec, "typescript", "path", "openapi.yaml");
+    await openApiSpecHelper.updateForCustomApi(authSpec, "typescript", "path", "openapi.yaml");
   });
 
   it("happy path with spec with jsonPath", async () => {
@@ -1665,7 +1668,7 @@ describe("updateForCustomApi", async () => {
     sandbox
       .stub(fs, "readFile")
       .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
-    await CopilotPluginHelper.updateForCustomApi(
+    await openApiSpecHelper.updateForCustomApi(
       specWithJsonPath,
       "typescript",
       "path",
@@ -1760,8 +1763,8 @@ describe("listOperations", async () => {
       "custom-copilot-rag": "custom-copilot-rag-customApi",
       platform: Platform.VSCode,
     };
-    sandbox.stub(CopilotPluginHelper, "formatValidationErrors").resolves([]);
-    sandbox.stub(CopilotPluginHelper, "logValidationResults").resolves();
+    sandbox.stub(openApiSpecHelper, "formatValidationErrors").resolves([]);
+    sandbox.stub(openApiSpecHelper, "logValidationResults").resolves();
     sandbox.stub(SpecParser.prototype, "validate").resolves({
       status: ValidationStatus.Valid,
       warnings: [],
@@ -1772,7 +1775,7 @@ describe("listOperations", async () => {
       .stub(SpecParser.prototype, "list")
       .resolves({ APIs: [], allAPICount: 1, validAPICount: 0 });
 
-    const res = await CopilotPluginHelper.listOperations(context, "", inputs, true, false, "");
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
     expect(res.isOk()).to.be.true;
   });
 
@@ -1782,8 +1785,8 @@ describe("listOperations", async () => {
       "custom-copilot-rag": "custom-copilot-rag-customApi",
       platform: Platform.VSCode,
     };
-    sandbox.stub(CopilotPluginHelper, "formatValidationErrors").resolves([]);
-    sandbox.stub(CopilotPluginHelper, "logValidationResults").resolves();
+    sandbox.stub(openApiSpecHelper, "formatValidationErrors").resolves([]);
+    sandbox.stub(openApiSpecHelper, "logValidationResults").resolves();
     sandbox.stub(SpecParser.prototype, "validate").resolves({
       status: ValidationStatus.Valid,
       warnings: [],
@@ -1812,7 +1815,7 @@ describe("listOperations", async () => {
     });
     const warningSpy = sandbox.spy(context.logProvider, "warning");
 
-    const res = await CopilotPluginHelper.listOperations(context, "", inputs, true, false, "");
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
     expect(res.isOk()).to.be.true;
     expect(warningSpy.calledOnce).to.be.true;
   });
@@ -1823,11 +1826,11 @@ describe("listOperations", async () => {
       platform: Platform.VSCode,
       "manifest-path": "fake-path",
     };
-    sandbox.stub(CopilotPluginHelper, "formatValidationErrors").resolves([]);
-    sandbox.stub(CopilotPluginHelper, "logValidationResults").resolves();
+    sandbox.stub(openApiSpecHelper, "formatValidationErrors").resolves([]);
+    sandbox.stub(openApiSpecHelper, "logValidationResults").resolves();
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as any));
     sandbox.stub(manifestUtils, "getOperationIds").returns(["getHello"]);
-    sandbox.stub(CopilotPluginHelper, "listPluginExistingOperations").resolves(["getHello"]);
+    sandbox.stub(openApiSpecHelper, "listPluginExistingOperations").resolves(["getHello"]);
     sandbox.stub(SpecParser.prototype, "validate").resolves({
       status: ValidationStatus.Valid,
       warnings: [],
@@ -1848,7 +1851,7 @@ describe("listOperations", async () => {
       validAPICount: 0,
     });
 
-    const res = await CopilotPluginHelper.listOperations(context, "", inputs, false, false, "");
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, false, false, "");
     expect(res.isErr()).to.be.true;
     if (res.isErr()) {
       expect(res.error.length).to.be.equal(1);
@@ -1861,8 +1864,8 @@ describe("listOperations", async () => {
     const inputs = {
       platform: Platform.VS,
     };
-    sandbox.stub(CopilotPluginHelper, "formatValidationErrors").resolves([]);
-    sandbox.stub(CopilotPluginHelper, "logValidationResults").resolves();
+    sandbox.stub(openApiSpecHelper, "formatValidationErrors").resolves([]);
+    sandbox.stub(openApiSpecHelper, "logValidationResults").resolves();
     sandbox.stub(SpecParser.prototype, "validate").resolves({
       status: ValidationStatus.Valid,
       warnings: [],
@@ -1883,7 +1886,7 @@ describe("listOperations", async () => {
       validAPICount: 0,
     });
 
-    const res = await CopilotPluginHelper.listOperations(context, "", inputs, true, false, "");
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
     expect(res.isOk()).to.be.true;
   });
 
@@ -1893,8 +1896,8 @@ describe("listOperations", async () => {
       platform: Platform.VS,
       "api-plugin-type": "api-spec",
     };
-    sandbox.stub(CopilotPluginHelper, "formatValidationErrors").resolves([]);
-    sandbox.stub(CopilotPluginHelper, "logValidationResults").resolves();
+    sandbox.stub(openApiSpecHelper, "formatValidationErrors").resolves([]);
+    sandbox.stub(openApiSpecHelper, "logValidationResults").resolves();
     sandbox.stub(SpecParser.prototype, "validate").resolves({
       status: ValidationStatus.Valid,
       warnings: [],
@@ -1915,7 +1918,248 @@ describe("listOperations", async () => {
       validAPICount: 0,
     });
 
-    const res = await CopilotPluginHelper.listOperations(context, "", inputs, true, false, "");
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
     expect(res.isOk()).to.be.true;
+  });
+});
+
+describe("parseAndUpdatePluginManifestForKiota", async () => {
+  const tools = new MockTools();
+  setTools(tools);
+  const sandbox = sinon.createSandbox();
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  afterEach(async () => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+  });
+
+  it("happy path: update plugin manifest", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "ApiKeyPluginVault",
+            reference_id: "{test_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "OAuthPluginVault",
+            reference_id: "{test2_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
+      const dataJson = JSON.parse(data);
+      assert.isTrue(dataJson.runtimes.length === 2);
+      assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
+    });
+
+    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+      "pluginManifestPath",
+      true
+    );
+    assert.deepEqual(result, [
+      {
+        authName: "test",
+        authType: "apiKey",
+        registrationId: "TEST_REIGSTRATION_ID",
+      },
+      {
+        authName: "test2",
+        authType: "oauth2",
+        registrationId: "TEST2_REIGSTRATION_ID",
+      },
+    ]);
+  });
+
+  it("happy path: skip update plugin manifest", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "ApiKeyPluginVault",
+            reference_id: "{test_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+      "pluginManifestPath",
+      false
+    );
+    assert.deepEqual(result, [
+      {
+        authName: "test",
+        authType: "apiKey",
+        registrationId: "TEST_REIGSTRATION_ID",
+      },
+    ]);
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+
+  it("happy path: skip update plugin manifest if no auth", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+      "pluginManifestPath",
+      true
+    );
+    assert.isTrue(result.length === 0);
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+
+  it("happy path: do nothing if no auth in runtime", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          run_for_functions: ["mockedOperationId"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+      "pluginManifestPath",
+      true
+    );
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+});
+
+describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
+  const tools = new MockTools();
+  setTools(tools);
+  const context = createContext();
+  const sandbox = sinon.createSandbox();
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  afterEach(async () => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+  });
+
+  it("happy path", async () => {
+    sandbox.stub(SpecParser.prototype, "list").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "mockedApi1",
+          server: "mockedSever1",
+          operationId: "mockedOperationId1",
+          isValid: true,
+          reason: [],
+          auth: {
+            name: "mockedAuthName1",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+        },
+      ],
+    });
+    sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
+    const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
+    await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);
+    assert.isTrue(warningStub.notCalled);
+  });
+
+  it("happy path: should not throw error if error occurs", async () => {
+    sandbox.stub(SpecParser.prototype, "list").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "mockedApi1",
+          server: "mockedSever1",
+          operationId: "mockedOperationId1",
+          isValid: true,
+          reason: [],
+          auth: {
+            name: "mockedAuthName1",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+        },
+      ],
+    });
+    sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").throws(new Error("test"));
+    const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
+    await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);
+    assert.isTrue(warningStub.calledOnce);
   });
 });
