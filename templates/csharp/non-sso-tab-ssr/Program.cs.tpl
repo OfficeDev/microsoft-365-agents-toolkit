@@ -33,13 +33,13 @@ app.UseAntiforgery();
 app.UseAuthentication();
 app.UseAuthorization();
 
-{{#IsNet8Framework}}
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-{{/IsNet8Framework}}
-{{^IsNet8Framework}}
+{{#IsNet9Framework}}
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode(o => o.ContentSecurityFrameAncestorsPolicy = "'self' *");
-{{/IsNet8Framework}}
+{{/IsNet9Framework}}
+{{^IsNet9Framework}}
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+{{/IsNet9Framework}}
 
 app.Run();

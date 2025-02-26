@@ -22,7 +22,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
     const templateName = inputs[QuestionNames.TemplateName];
     const appName = inputs[QuestionNames.AppName];
     const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
-    const isNet8 = !inputs.targetFramework || inputs.targetFramework === "net8.0";
+    const isNet9 = inputs.targetFramework === "net9.0";
     const replaceMap = {
       ...Generator.getDefaultVariables(
         appName,
@@ -30,7 +30,7 @@ export class SsrTabGenerator extends DefaultTemplateGenerator {
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
       ),
-      IsNet8Framework: isNet8 ? "true" : "",
+      IsNet9Framework: isNet9 ? "true" : "",
     };
 
     return Promise.resolve(
