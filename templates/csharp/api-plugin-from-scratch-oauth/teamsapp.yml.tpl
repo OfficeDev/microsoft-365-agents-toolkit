@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.7
+version: v1.8
 
 environmentFolderPath: ./env
 
@@ -96,6 +96,7 @@ provision:
       identityProvider: MicrosoftEntra
     writeToEnvironmentFile:
       configurationId: AADAUTHCODE_CONFIGURATION_ID
+      applicationIdUri: AADAUTHCODE_APPLICATION_ID_URI
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
@@ -108,6 +109,15 @@ provision:
     writeToEnvironmentFile:
       configurationId: OAUTH2AUTHCODE_CONFIGURATION_ID
 {{/MicrosoftEntra}}
+
+  # Apply the Microsoft Entra manifest to an existing Microsoft Entra app. Will use the object id in
+  # manifest file to determine which Microsoft Entra app to update.
+  - uses: aadApp/update
+    with:
+      # Relative path to this file. Environment variables in manifest will
+      # be replaced before apply to Microsoft Entra app
+      manifestPath: ./aad.manifest.json
+      outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
 
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage

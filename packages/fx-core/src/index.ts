@@ -18,32 +18,32 @@ export {
   AppStudioScopes,
   AuthSvcScopes,
   AzureScopes,
+  getAllowedAppMaps,
   GraphReadUserScopes,
   GraphScopes,
   SPFxScopes,
-  getAllowedAppMaps,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
-  FeatureFlags,
   featureFlagManager,
-  isFeatureFlagEnabled,
   FeatureFlagName,
+  FeatureFlags,
+  isFeatureFlagEnabled,
 } from "./common/featureFlags";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
+export { AadSet } from "./common/globalVars";
 export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {
+  projectTypeChecker,
   ProjectTypeResult,
   TeamsfxConfigType,
   TeamsfxVersionState,
-  projectTypeChecker,
 } from "./common/projectTypeChecker";
 export { sendRequestWithRetry, sendRequestWithTimeout } from "./common/requestUtils";
-export { SampleConfig, SampleUrlInfo, sampleProvider } from "./common/samples";
+export { SampleConfig, sampleProvider, SampleUrlInfo } from "./common/samples";
 export {
-  MaskSecretOptions,
   convertToAlphanumericOnly,
   getHashedEnv,
   getResourceGroupNameFromResourceId,
@@ -52,12 +52,14 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
 export { telemetryUtils } from "./common/telemetry";
-export { getSPFxTenant, getSideloadingStatus, listDevTunnels } from "./common/tools";
+export { getSideloadingStatus, getSPFxTenant, listDevTunnels } from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";
 export { SummaryConstant } from "./component/configManager/constant";
+export { KiotaLastCommands } from "./component/constants";
 export { CheckerFactory } from "./component/deps-checker/checkerFactory";
 export {
   DepsCheckerEvent,
@@ -76,8 +78,9 @@ export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinit
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
 export { generateScaffoldingSummary } from "./component/generator/apiSpec/helper";
+export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
-export { DefaultTemplateGenerator } from "./component/generator/templates/templateGenerator";
+export { TemplateInfo } from "./component/generator/templates/templateInfo";
 export { getSampleFileInfo, runWithLimitedConcurrency } from "./component/generator/utils";
 export * from "./component/local/constants";
 export { LocalCertificateManager } from "./component/local/localCertificateManager";
@@ -87,6 +90,7 @@ export { loadTeamsFxDevScript } from "./component/local/packageJsonHelper";
 export { Hub } from "./component/m365/constants";
 export { PackageService } from "./component/m365/packageService";
 export { MosServiceEndpoint, MosServiceScope } from "./component/m365/serviceConstant";
+export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
 export { metadataUtil } from "./component/utils/metadataUtil";
@@ -98,11 +102,9 @@ export { environmentManager } from "./core/environment";
 export { environmentNameManager } from "./core/environmentName";
 export { FxCore } from "./core/FxCore";
 export { PreProvisionResForVS, VersionCheckRes } from "./core/types";
+export { getProjectTypeByCapability } from "./question/scaffold/vsc/createRootNode";
+export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export * from "./error/index";
 export * from "./question/constants";
 export * from "./question/inputs";
 export * from "./question/options";
-export * from "./component/middleware/actionExecutionMW";
-export { TemplateInfo } from "./component/generator/templates/templateInfo";
-export { AadSet } from "./common/globalVars";
-export { KiotaLastCommands } from "./component/constants";

@@ -43,6 +43,9 @@
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
+                {{#CEAEnabled}} 
+                "copilot",
+                {{/CEAEnabled}}
                 "personal"
             ],
             "supportsFiles": false,
@@ -50,6 +53,9 @@
             "commandLists": [
                 {
                     "scopes": [
+                        {{#CEAEnabled}} 
+                        "copilot",
+                        {{/CEAEnabled}}
                         "personal"
                     ],
                     "commands": [

@@ -17,6 +17,8 @@ export interface AddKnowledgeInputs extends Inputs {
     | "oneDrive-sharePoint"
     | "graph-connector"
     | "embedded-knowledge";
+  /** @description Select Teams manifest.json File */
+  "manifest-path"?: string;
   /** @description Select Search Type */
   "search-type"?: string;
   /** @description Web Content */
@@ -31,6 +33,6 @@ export interface AddKnowledgeInputs extends Inputs {
   "graph-connector-list"?: string[];
   /** @description Connection ID */
   "graph-connector-input"?: string;
-  /** @description Select Teams manifest.json File */
-  "manifest-path"?: string;
+  /** @description Add embedded knowledge files */
+  "embedded-knowledge-files"?: string;
 }

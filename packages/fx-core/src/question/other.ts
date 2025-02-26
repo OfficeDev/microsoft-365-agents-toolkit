@@ -17,6 +17,7 @@ import {
   FolderQuestion,
   CLIPlatforms,
   PluginManifestSchema,
+  MultiFileQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
@@ -29,6 +30,7 @@ import { CollaborationConstants, CollaborationUtil } from "../core/collaborator"
 import { environmentNameManager } from "../core/environmentName";
 import { TOOLS } from "../common/globalVars";
 import {
+  AddAuthActionAuthTypeOptions,
   ApiPluginStartOptions,
   GCSelectOptions,
   HubOptions,
@@ -134,7 +136,7 @@ export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
               inputs.platform === Platform.VSCode && // confirm question only works for VSC
               inputs.projectPath !== undefined &&
               path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-                path.join(inputs.projectPath, "aad.manifest.json"),
+              path.join(inputs.projectPath, "aad.manifest.json"),
             data: confirmManifestQuestion(false, false),
             cliOptionDisabled: "self",
             inputsDisabled: "self",
@@ -158,7 +160,7 @@ export function deployAadManifestQuestionNode(): IQTreeNode {
               inputs.platform === Platform.VSCode && // confirm question only works for VSC
               inputs.projectPath !== undefined &&
               path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-                path.join(inputs.projectPath, "aad.manifest.json"),
+              path.join(inputs.projectPath, "aad.manifest.json"),
             data: confirmManifestQuestion(false, false),
             cliOptionDisabled: "self",
             inputsDisabled: "self",
@@ -219,7 +221,7 @@ export function selectAadAppManifestQuestionNode(): IQTreeNode {
           inputs.projectPath &&
           inputs[QuestionNames.AadAppManifestFilePath] &&
           path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-            path.join(inputs.projectPath, "aad.manifest.json"),
+          path.join(inputs.projectPath, "aad.manifest.json"),
         data: confirmManifestQuestion(false, false),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
@@ -233,20 +235,20 @@ function confirmCondition(inputs: Inputs, isLocal: boolean): boolean {
     inputs.platform === Platform.VSCode && // confirm question only works for VSC
     inputs.projectPath &&
     inputs[
-      isLocal ? QuestionNames.LocalTeamsAppManifestFilePath : QuestionNames.TeamsAppManifestFilePath
+    isLocal ? QuestionNames.LocalTeamsAppManifestFilePath : QuestionNames.TeamsAppManifestFilePath
     ] &&
     path.resolve(
       inputs[
-        isLocal
-          ? QuestionNames.LocalTeamsAppManifestFilePath
-          : QuestionNames.TeamsAppManifestFilePath
+      isLocal
+        ? QuestionNames.LocalTeamsAppManifestFilePath
+        : QuestionNames.TeamsAppManifestFilePath
       ]
     ) !==
-      path.join(
-        inputs.projectPath,
-        AppPackageFolderName,
-        isLocal ? "manifest.local.json" : "manifest.json"
-      )
+    path.join(
+      inputs.projectPath,
+      AppPackageFolderName,
+      isLocal ? "manifest.local.json" : "manifest.json"
+    )
   );
 }
 
@@ -375,10 +377,10 @@ function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSele
     name: name,
     title: isTeamsApp
       ? getLocalizedString(
-          isLocal
-            ? "core.selectLocalTeamsAppManifestQuestion.title"
-            : "core.selectTeamsAppManifestQuestion.title"
-        )
+        isLocal
+          ? "core.selectLocalTeamsAppManifestQuestion.title"
+          : "core.selectTeamsAppManifestQuestion.title"
+      )
       : getLocalizedString("core.selectAadAppManifestQuestion.title"),
     type: "singleSelect",
     staticOptions: [],
@@ -391,19 +393,19 @@ function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSele
           label: `$(file) ${path.basename(
             isTeamsApp
               ? inputs[
-                  isLocal
-                    ? QuestionNames.LocalTeamsAppManifestFilePath
-                    : QuestionNames.TeamsAppManifestFilePath
-                ]
+              isLocal
+                ? QuestionNames.LocalTeamsAppManifestFilePath
+                : QuestionNames.TeamsAppManifestFilePath
+              ]
               : inputs[QuestionNames.AadAppManifestFilePath]
           )}`,
           description: path.dirname(
             isTeamsApp
               ? inputs[
-                  isLocal
-                    ? QuestionNames.LocalTeamsAppManifestFilePath
-                    : QuestionNames.TeamsAppManifestFilePath
-                ]
+              isLocal
+                ? QuestionNames.LocalTeamsAppManifestFilePath
+                : QuestionNames.TeamsAppManifestFilePath
+              ]
               : inputs[QuestionNames.AadAppManifestFilePath]
           ),
         },
@@ -827,22 +829,27 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
     children: [
       // Web Content
       {
-        data: searchTypeQuestion(),
+        data: selectTeamsAppManifestQuestion(),
         condition: (inputs: Inputs) => {
           return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id;
         },
         children: [
           {
-            data: webContentQuestion(),
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-            },
-          },
-        ],
+            data: searchTypeQuestion(),
+            children: [
+              {
+                data: webContentQuestion(),
+                condition: (inputs: Inputs) => {
+                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+                },
+              },
+            ],
+          }
+        ]
       },
       // OneDrive SharePoint
       {
-        data: searchTypeQuestion(),
+        data: selectTeamsAppManifestQuestion(),
         condition: (inputs: Inputs) => {
           return (
             inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
@@ -850,19 +857,26 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
         },
         children: [
           {
-            data: oneDriveSharePointItemQuestion(),
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-            },
-          },
-          {
-            data: oneDriveSharePointItemConfirmQuestion(),
-            condition: (inputs: Inputs) => {
-              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-            },
-          },
-        ],
+            data: searchTypeQuestion(),
+            children: [
+              {
+                data: oneDriveSharePointItemQuestion(),
+                condition: (inputs: Inputs) => {
+                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+                },
+              },
+              {
+                data: oneDriveSharePointItemConfirmQuestion(),
+                condition: (inputs: Inputs) => {
+                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+                },
+              }
+            ],
+          }
+          
+        ]
       },
+      // Graph Connector
       {
         data: GCItemQuestion(),
         condition: {
@@ -881,13 +895,34 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
               equals: GCSelectOptions.input().id,
             },
           },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
         ],
       },
-      // manifest selection
+      // Embedded Knowledge
       {
         data: selectTeamsAppManifestQuestion(),
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.embeddedKnowledge().id;
+        },
+        children: [
+          {
+            data: addEmbeddedKnowledgeFilesQuestion(),
+          },
+        ],
       },
     ],
+  };
+}
+
+export function addEmbeddedKnowledgeFilesQuestion(): MultiFileQuestion {
+  return {
+    name: QuestionNames.EmbeddedKnowledgeFiles,
+    title: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.title"),
+    type: "multiFile",
+    cliDescription: "Select your embedded knowledge files.",
+    placeholder: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.placeholder"),
   };
 }
 
@@ -953,9 +988,188 @@ export function addAuthActionQuestion(): IQTreeNode {
         data: authNameQuestion(),
       },
       {
-        data: apiAuthQuestion(true),
+        data: addAuthActionAuthTypeQuestion(),
+      },
+      oauthParametersQuestion(),
+      apiKeyParameterQuestion(),
+      microsoftEntraParameterQuestion(),
+    ],
+  };
+}
+
+export function urlValidation(input: string, allowEmpty = false): string | undefined {
+  if (input.trim() === "") {
+    return allowEmpty ? undefined : getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  try {
+    new URL(input);
+  } catch (error) {
+    return getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  return undefined;
+}
+
+export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.ApiAuth,
+    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+    ),
+    cliDescription: "The authentication type for the API.",
+    staticOptions: AddAuthActionAuthTypeOptions.all(),
+    default: AddAuthActionAuthTypeOptions.bearerToken().id,
+  };
+}
+
+export function oauthParametersQuestion(): IQTreeNode {
+  return {
+    data: oauthAuthorizationUrlQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.oauth().id;
+    },
+    children: [
+      {
+        data: oauthTokenUrlQuestion(),
+      },
+      {
+        data: oauthRefreshUrlQuestion(),
+      },
+      {
+        data: oauthScopeQuestion(),
+      },
+      {
+        data: oauthPKCEQuestion(),
       },
     ],
+  };
+}
+
+export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthAuthorizationUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
+    type: "text",
+    cliDescription: "Authorization Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
+  };
+}
+
+export function oauthTokenUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthTokenUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
+    type: "text",
+    cliDescription: "Token Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
+  };
+}
+
+export function oauthRefreshUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthRefreshUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
+    type: "text",
+    cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
+    validation: {
+      validFunc: (input) => urlValidation(input, true),
+    },
+  };
+}
+
+export function oauthScopeQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /([-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)(\s*;\s*[-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)*/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.oauthScopeQuestion.validation.scope");
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+export function oauthPKCEQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.OauthPKCE,
+    title: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "true",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.true"),
+      },
+      {
+        id: "false",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.false"),
+      },
+    ],
+    default: "false",
+  };
+}
+
+export function apiKeyParameterQuestion(): IQTreeNode {
+  return {
+    data: apiKeyInQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.apiKey().id;
+    },
+    children: [
+      {
+        data: apiKeyNameQuestion(),
+      },
+    ],
+  };
+}
+
+export function apiKeyInQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiKeyIn,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "header",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.header"),
+      },
+      {
+        id: "query",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.query"),
+      },
+    ],
+    default: "header",
+  };
+}
+
+export function apiKeyNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.ApiKeyName,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyName.title"),
+    type: "text",
+    cliDescription: "Name of the API key.",
+  };
+}
+
+export function microsoftEntraParameterQuestion(): IQTreeNode {
+  return {
+    data: oauthScopeQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.microsoftEntra().id;
+    },
   };
 }
 
@@ -1009,6 +1223,15 @@ export function authNameQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
     type: "text",
     cliDescription: "Name of Auth Configuration.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.authNameQuestion.validation.empty");
+        }
+
+        return undefined;
+      },
+    },
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {

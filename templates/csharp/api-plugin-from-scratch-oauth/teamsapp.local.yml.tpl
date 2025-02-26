@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.7
+version: v1.8
 
 provision:
   # Creates a new Microsoft Entra app to authenticate users if
@@ -54,15 +54,6 @@ provision:
         echo "::set-teamsfx-env OPENAPI_SERVER_URL=https://${{DEV_TUNNEL_URL}}";
         echo "::set-teamsfx-env OPENAPI_SERVER_DOMAIN=${{DEV_TUNNEL_URL}}";
 
-  # Apply the Microsoft Entra manifest to an existing Microsoft Entra app. Will use the object id in
-  # manifest file to determine which Microsoft Entra app to update.
-  - uses: aadApp/update
-    with:
-      # Relative path to this file. Environment variables in manifest will
-      # be replaced before apply to Microsoft Entra app
-      manifestPath: ./aad.manifest.json
-      outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
-
   - uses: oauth/register
     with:
 {{#MicrosoftEntra}}
@@ -75,6 +66,7 @@ provision:
       identityProvider: MicrosoftEntra
     writeToEnvironmentFile:
       configurationId: AADAUTHCODE_CONFIGURATION_ID
+      applicationIdUri: AADAUTHCODE_APPLICATION_ID_URI
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
@@ -93,6 +85,7 @@ provision:
 {{#MicrosoftEntra}}
       name: aadAuthCode
       appId: ${{TEAMS_APP_ID}}
+      clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       configurationId: ${{AADAUTHCODE_CONFIGURATION_ID}}
@@ -100,10 +93,20 @@ provision:
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
       appId: ${{TEAMS_APP_ID}}
+      clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       configurationId: ${{OAUTH2AUTHCODE_CONFIGURATION_ID}}
 {{/MicrosoftEntra}}
+
+  # Apply the Microsoft Entra manifest to an existing Microsoft Entra app. Will use the object id in
+  # manifest file to determine which Microsoft Entra app to update.
+  - uses: aadApp/update
+    with:
+      # Relative path to this file. Environment variables in manifest will
+      # be replaced before apply to Microsoft Entra app
+      manifestPath: ./aad.manifest.json
+      outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
 
   # Generate runtime appsettings to JSON file
   - uses: file/createOrUpdateJsonFile

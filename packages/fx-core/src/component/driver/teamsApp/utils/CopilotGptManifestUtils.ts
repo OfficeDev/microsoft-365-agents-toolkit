@@ -12,8 +12,10 @@ import {
   Platform,
   Colors,
   DefaultPluginManifestFileName,
-  Site,
+  AppPackageFolderName,
+  ManifestTemplateFileName,
   File,
+  Site,
   DeclarativeCopilotCapabilityName,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -33,6 +35,7 @@ import { DriverContext } from "../../interface/commonArgs";
 import { manifestUtils } from "./ManifestUtils";
 import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import { getParserOptions } from "../../../generator/apiSpec/helper";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../constants";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -360,7 +363,7 @@ export class CopilotGptManifestUtils {
     folder: string,
     pluginManifestFileName = DefaultPluginManifestFileName,
     isKiotaIntegration = false
-  ) {
+  ): Promise<string> {
     if (!(await fs.pathExists(path.join(folder, pluginManifestFileName)))) {
       return path.join(folder, pluginManifestFileName);
     }
@@ -382,11 +385,67 @@ export class CopilotGptManifestUtils {
     return path.join(folder, pluginManifestName);
   }
 
+  public async addEmbeddedKnowledgeFiles(
+    manifestFilePath: string,
+    filePathList: string[]
+  ): Promise<Result<undefined, FxError>> {
+    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+      manifestFilePath
+    );
+    if (declarativeAgentManifestPathRes.isErr()) {
+      return err(declarativeAgentManifestPathRes.error);
+    }
+
+    const declarativeAgentManifestPath = declarativeAgentManifestPathRes.value;
+    const declarativeAgentManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifesRes.isErr()) {
+      return err(declarativeAgentManifesRes.error);
+    }
+
+    const declarativeAgentManifest = declarativeAgentManifesRes.value;
+    if (!declarativeAgentManifest.capabilities) {
+      declarativeAgentManifest.capabilities = [];
+    }
+    let embeddedKnowledgeCapability: any;
+    embeddedKnowledgeCapability = declarativeAgentManifest.capabilities.find(
+      (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
+    );
+    if (!embeddedKnowledgeCapability) {
+      embeddedKnowledgeCapability = {
+        name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
+        files: [],
+      };
+      declarativeAgentManifest.capabilities.push(embeddedKnowledgeCapability);
+    }
+    await fs.ensureDir(
+      path.resolve(path.dirname(manifestFilePath), EmbeddedKnowledgeLocalDirectoryName)
+    );
+    for (const filePath of filePathList) {
+      const savedAbsolutePath = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName,
+        path.basename(filePath)
+      );
+      await fs.copyFile(filePath, savedAbsolutePath);
+      embeddedKnowledgeCapability.files.push({
+        file: path.relative(path.dirname(manifestFilePath), savedAbsolutePath).replace(/\\/g, "/"),
+      });
+    }
+    // save the updated declarativeCopilotManifestPath
+    await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    return ok(undefined);
+  }
+
   getPluginManifestFileName(
     pluginManifestNamePrefix: string,
     pluginFileNameSuffix: number,
     isKiotaIntegration: boolean
-  ) {
+  ): string {
     let pluginManifestName;
     if (isKiotaIntegration) {
       const pluginManifestNameSplit = pluginManifestNamePrefix.split("-");

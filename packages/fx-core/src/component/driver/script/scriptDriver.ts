@@ -102,12 +102,14 @@ export async function executeCommand(
   redirectTo?: string
 ): Promise<Result<[string, DotenvOutput], FxError>> {
   const workingDir = pathUtils.resolveFilePath(projectPath, workingDirectory);
+  env = env || {};
   if (ui?.runCommand) {
     const res = await ui.runCommand({
       cmd: command,
       workingDirectory: workingDir,
       timeout: timeout,
       shell: shell,
+      env: { ...process.env, ...env } as { [k: string]: string },
     });
     if (res.isErr()) {
       return err(res.error);

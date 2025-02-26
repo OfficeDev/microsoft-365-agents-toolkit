@@ -33,7 +33,6 @@ import { sampleProvider } from "../../src/common/samples";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import { OfficeAddinProjectConfig } from "../../src/component/generator/officeXMLAddin/projectConfig";
 import { convertToLangKey } from "../../src/component/generator/utils";
 import { FileNotFoundError } from "../../src/error";
 import {
@@ -854,35 +853,23 @@ describe("scaffold question", () => {
         } else if (question.name === QuestionNames.ReplaceWebsiteUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceContentUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceBotIds) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o: OptionItem) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         }
         return ok({ type: "success", result: undefined });
@@ -3895,13 +3882,6 @@ describe("scaffold question", () => {
       assert.isTrue(
         options.findIndex((o: OptionItem) => o.id === CapabilityOptions.nonSsoTabAndBot().id) < 0
       );
-    });
-
-    describe("officeAddinStaticCapabilities()", () => {
-      it("should return correct capabilities without specific host", () => {
-        const capabilities = CapabilityOptions.officeAddinStaticCapabilities();
-        assert.equal(capabilities.length, 2);
-      });
     });
 
     describe("officeAddinCapabilities()", () => {

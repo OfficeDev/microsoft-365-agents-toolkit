@@ -263,6 +263,11 @@ export interface InputResult<T> {
    * answer value
    */
   result?: T;
+
+  /**
+   * resolved option list
+   */
+  options?: StaticOptions;
 }
 
 export type ConfirmResult = InputResult<boolean>;

@@ -20,6 +20,15 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
   },
   {
+    name: "teams-manifest-file",
+    questionName: "manifest-path",
+    type: "string",
+    shortName: "t",
+    description:
+      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    default: "./appPackage/manifest.json",
+  },
+  {
     name: "search-type",
     type: "string",
     description: "Select Search Type",
@@ -58,14 +67,9 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "a connection ID for Graph Connector",
   },
   {
-    name: "teams-manifest-file",
-    questionName: "manifest-path",
+    name: "embedded-knowledge-files",
     type: "string",
-    shortName: "t",
-    description:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
-    required: true,
-    default: "./appPackage/manifest.json",
+    description: "Select your embedded knowledge files.",
   },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];

@@ -96,7 +96,7 @@ describe("developPortalScaffoldUtils", () => {
         appId: "mock-app-id",
         teamsAppId: "mock-app-id",
       };
-      const inputs: Inputs = { platform: Platform.VSCode };
+      const inputs: Inputs = { platform: Platform.VSCode, projectPath: "project-path" };
 
       sandbox
         .stub(appStudio, "getAppPackage")
@@ -120,7 +120,7 @@ describe("developPortalScaffoldUtils", () => {
         appId: "mock-app-id",
         teamsAppId: "mock-app-id",
       };
-      const inputs: Inputs = { platform: Platform.VSCode };
+      const inputs: Inputs = { platform: Platform.VSCode, projectPath: "project-path" };
 
       sandbox.stub(appStudio, "getAppPackage").resolves(ok({}));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
@@ -219,6 +219,7 @@ describe("developPortalScaffoldUtils", () => {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceWebsiteUrl]: ["name0"],
         [QuestionNames.ReplaceContentUrl]: ["name1"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -362,6 +363,7 @@ describe("developPortalScaffoldUtils", () => {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceWebsiteUrl]: [],
         [QuestionNames.ReplaceContentUrl]: [],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -496,6 +498,7 @@ describe("developPortalScaffoldUtils", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceBotIds]: ["bot"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -617,6 +620,7 @@ describe("developPortalScaffoldUtils", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceBotIds]: ["messageExtension"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -751,6 +755,7 @@ describe("developPortalScaffoldUtils", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceBotIds]: ["bot", "messageExtension"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -877,6 +882,7 @@ describe("developPortalScaffoldUtils", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceBotIds]: ["bot", "messageExtension"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
@@ -1011,6 +1017,7 @@ describe("developPortalScaffoldUtils", () => {
       };
       const inputs: Inputs = {
         platform: Platform.VSCode,
+        projectPath: "project-path",
       };
       const manifest = {
         manifestVersion: "1.17",
@@ -1147,6 +1154,7 @@ describe("developPortalScaffoldUtils", () => {
       };
       const inputs: Inputs = {
         platform: Platform.VSCode,
+        projectPath: "project-path",
       };
       const manifest = {
         manifestVersion: "1.17",
@@ -1267,6 +1275,7 @@ describe("developPortalScaffoldUtils", () => {
         platform: Platform.VSCode,
         [QuestionNames.ReplaceWebsiteUrl]: ["name0"],
         [QuestionNames.ReplaceContentUrl]: ["name1"],
+        projectPath: "project-path",
       };
       const manifest: TeamsAppManifest = {
         manifestVersion: "version",
