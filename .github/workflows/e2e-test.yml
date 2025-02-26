@@ -367,7 +367,6 @@ jobs:
 
   report:
     needs: execute-case
-    if: ${{ github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5)) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
