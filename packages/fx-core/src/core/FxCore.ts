@@ -2073,19 +2073,16 @@ export class FxCore {
     } else {
       // generate files
       if (isGenerateFromApiSpec && specParser) {
-        destinationPluginManifestPath = isKiotaIntegration
-          ? inputs[QuestionNames.ApiPluginManifestPath].trim()
-          : await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-              appPackageFolder,
-              undefined
-            );
-        const destinationApiSpecPath = isKiotaIntegration
-          ? inputs[QuestionNames.ApiSpecLocation].trim()
-          : await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-              inputs[QuestionNames.ApiSpecLocation].trim(),
-              path.join(appPackageFolder, DefaultApiSpecFolderName),
-              undefined
-            );
+        destinationPluginManifestPath =
+          await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+            appPackageFolder,
+            undefined
+          );
+        const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+          inputs[QuestionNames.ApiSpecLocation].trim(),
+          path.join(appPackageFolder, DefaultApiSpecFolderName),
+          undefined
+        );
 
         const generateRes = await generateFromApiSpec(
           specParser,

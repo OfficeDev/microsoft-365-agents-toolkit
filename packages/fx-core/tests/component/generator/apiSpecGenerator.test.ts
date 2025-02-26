@@ -3141,6 +3141,17 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
         {
           type: "OpenApi",
           auth: {
+            type: "OAuthPluginVault",
+            reference_id: "{test2_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
             type: "None",
           },
           spec: {
@@ -3163,6 +3174,12 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
         authName: "test",
         authType: "apiKey",
         registrationId: "TEST_REIGSTRATION_ID",
+      },
+      {
+        serverUrl: "",
+        authName: "test2",
+        authType: "oauth2",
+        registrationId: "TEST2_REIGSTRATION_ID",
       },
     ]);
   });
@@ -3232,6 +3249,24 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
 
     const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", true);
     assert.isTrue(result.length === 0);
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+
+  it("happy path: do nothing if no auth in runtime", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          run_for_functions: ["mockedOperationId"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", true);
     assert.isTrue(writeJsonStub.notCalled);
   });
 });
