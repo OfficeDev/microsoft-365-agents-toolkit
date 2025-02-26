@@ -224,7 +224,7 @@ export class CopilotDebugLog {
     debugConsole: vscode.DebugConsole,
     capability: EnabledCapability
   ): void {
-    debugConsole.append(
+    debugConsole.appendLine(
       `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}${capability.capabilityName}`
     );
     const capabilitiesOfThisTpe = this.capabilitiesDeveloperInfo?.capabilityExecutions?.filter(
@@ -239,7 +239,6 @@ export class CopilotDebugLog {
     const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
 
     if (capabilitiesContainAdditionalInfo) {
-      debugConsole.appendLine("");
       capabilitiesOfThisTpe?.forEach((execution, index) => {
         const logFileName = `Copilot-debug-${new Date()
           .toISOString()

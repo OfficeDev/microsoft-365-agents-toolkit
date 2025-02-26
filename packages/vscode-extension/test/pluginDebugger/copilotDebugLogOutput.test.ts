@@ -497,18 +497,34 @@ describe("copilotDebugLogOutput", () => {
                 },
               },
             },
+            {
+              capabilityIcon: "iconUrl",
+              capabilityName: "OneDriveAndSharePoint",
+              scopes: {
+                scope1: {
+                  scopeName: "scope1",
+                },
+              },
+            },
           ],
-          capabilitiesExecutions: [
+          capabilityExecutions: [
             {
               name: "GraphConnectors",
               status: "1",
               errorMessage: "",
+            },
+            {
+              name: "OneDriveAndSharePoint",
+              status: "0",
+              errorMessage: "",
+              additionalDebugInfo: "test debug info",
             },
           ],
         },
       });
 
       const fs = require("fs");
+      const appendFileStub = sandbox.stub(fs, "appendFileSync").resolves();
       sandbox.stub(globalVariables, "defaultExtensionLogPath").value("/path/to/log");
       sandbox.stub(Date.prototype, "toISOString").returns("test");
       const copilotDebugLog = new CopilotDebugLog(logJson);
@@ -520,6 +536,7 @@ describe("copilotDebugLogOutput", () => {
           `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}GraphConnectors`
         )
       );
+      chai.assert.isTrue(appendFileStub.calledTwice);
     });
   });
 });

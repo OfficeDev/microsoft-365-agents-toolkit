@@ -67,9 +67,14 @@ describe("WebSocketEventHandler", () => {
   describe("selectBotTextMessages", () => {
     it("happy", () => {
       const res = WebSocketEventHandler.selectBotTextMessages({
-        item: { messages: [{ messageType: "DeveloperLogs" }] },
+        item: {
+          messages: [
+            { messageType: "DeveloperLogs" },
+            { contentOrigin: "officeweb", text: "test" },
+          ],
+        },
       } as any);
-      chai.assert.deepEqual(res, [{ messageType: "DeveloperLogs" }] as any);
+      chai.assert.deepEqual(res, [{ messageType: "DeveloperLogs", prompt: "test" }] as any);
     });
   });
   describe("convertBotMessageToChannelOutput", () => {
