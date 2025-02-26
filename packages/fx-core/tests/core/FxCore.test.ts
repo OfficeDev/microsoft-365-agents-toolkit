@@ -121,7 +121,6 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
-import * as helper from "../../src/component/generator/apiSpec/helper";
 
 const tools = new MockTools();
 
@@ -6130,19 +6129,18 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
       {
-        serverUrl: "",
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
       },
     ]);
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
     sandbox.stub(fs, "copyFile").resolves();
-    sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
+    sandbox.stub(openApiSpecHelper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
@@ -6400,9 +6398,8 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
       {
-        serverUrl: "",
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
@@ -6485,9 +6482,8 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
       {
-        serverUrl: "",
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",

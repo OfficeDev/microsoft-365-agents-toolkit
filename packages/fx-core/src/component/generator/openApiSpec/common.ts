@@ -140,7 +140,7 @@ export async function getTemplateInfosFromApiSpec(
   const convertedAuthData = [];
   if (authData && authData.length > 0) {
     for (const auth of authData) {
-      const envName = getEnvName(auth.authName ?? "");
+      const envName = (auth as any).registrationId ?? getEnvName(auth.authName ?? "");
       convertedAuthData.push({
         authName: auth.authName ?? "",
         openapiSpecPath: openapiSpecPath,
@@ -160,7 +160,7 @@ export async function getTemplateInfosFromApiSpec(
   context.telemetryReporter.sendTelemetryEvent(declarativeAgentExistingApiSpecUrlTelemetryEvent, {
     [telemetryProperties.isRemoteUrlTelemetryProperty]: isValidHttpUrl(url).toString(),
     [telemetryProperties.generateType]: projectType.toString(),
-    [telemetryProperties.authType]: authData?.map((item) => item.authType).join(",") ?? "None",
+    [telemetryProperties.authType]: authData?.map((item: any) => item.authType).join(",") ?? "None",
   });
   inputs.templateState = {
     isYaml: isYaml,

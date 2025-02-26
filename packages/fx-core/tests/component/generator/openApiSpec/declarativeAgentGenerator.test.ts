@@ -1,4 +1,4 @@
-import { ErrorType, ProjectType, SpecParser, ValidationStatus } from "@microsoft/m365-spec-parser";
+import { ProjectType, SpecParser, ValidationStatus } from "@microsoft/m365-spec-parser";
 import { ApiOperation, Inputs, Platform, SystemError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -120,20 +120,13 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        ok([
-          {
-            id: "operation1",
-            label: "operation1",
-            groupName: "1",
-            data: {
-              serverUrl: "https://server1",
-              authName: "auth",
-              authType: "apiKey",
-            },
-          },
-        ])
-      );
+      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+        {
+          authName: "mockedAuthName",
+          authType: "apiKey",
+          registrationId: "MOCKED_REGISTRATION_ID",
+        },
+      ]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -159,18 +152,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        ok([
-          {
-            id: "operation1",
-            label: "operation1",
-            groupName: "1",
-            data: {
-              serverUrl: "https://server1",
-            },
-          },
-        ])
-      );
+      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -178,34 +160,6 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap?.["DeclarativeCopilot"], "true");
       }
-    });
-
-    it("should not throw error parse failed for kiota integration", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
-        [QuestionNames.AppName]: "testapp",
-        [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-      };
-      inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        err([
-          {
-            type: ErrorType.SpecNotValid,
-            content: "test",
-          },
-        ])
-      );
-      const res = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res.isOk());
     });
   });
 

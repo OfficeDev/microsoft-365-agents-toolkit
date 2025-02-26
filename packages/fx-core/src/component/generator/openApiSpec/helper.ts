@@ -7,11 +7,14 @@
 
 import {
   AdaptiveCardGenerator,
+  AdaptiveCardUpdateStrategy,
   ErrorResult as ApiSpecErrorResult,
   ErrorType as ApiSpecErrorType,
+  AuthType,
   ConstantString,
   ErrorType,
   InvalidAPIInfo,
+  ListAPIInfo,
   ListAPIResult,
   ParseOptions,
   ProjectType,
@@ -21,36 +24,41 @@ import {
   ValidationStatus,
   WarningResult,
   WarningType,
-  AuthType,
-  ListAPIInfo,
-  AdaptiveCardUpdateStrategy,
 } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
   AppPackageFolderName,
   Context,
+  err,
   FxError,
   Inputs,
   ManifestTemplateFileName,
   ManifestUtil,
+  ok,
   Platform,
+  PluginManifestSchema,
   Result,
+  RuntimeObjectOpenapi,
+  Stage,
   SystemError,
   TeamsAppManifest,
   UserError,
   Warning,
-  err,
-  ok,
-  Stage,
-  PluginManifestSchema,
-  RuntimeObjectOpenapi,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { OpenAPIV3 } from "openapi-types";
 import { EOL } from "os";
 import path from "path";
-import { FeatureFlags, featureFlagManager } from "../../../common/featureFlags";
+import * as util from "util";
+import { SpecParserSource } from "../../../common/constants";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import {
+  ApiSpecTelemetryPropertis,
+  sendTelemetryErrorEvent,
+  TelemetryProperty,
+} from "../../../common/telemetry";
+import { MetadataV3 } from "../../../common/versionMetadata";
 import { assembleError, MissingRequiredInputError } from "../../../error";
 import {
   apiPluginApiSpecOptionId,
@@ -58,6 +66,7 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question/constants";
+import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -66,15 +75,6 @@ import {
 } from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
-import {
-  ApiSpecTelemetryPropertis,
-  sendTelemetryErrorEvent,
-  TelemetryProperty,
-} from "../../../common/telemetry";
-import * as util from "util";
-import { SpecParserSource } from "../../../common/constants";
-import { MetadataV3 } from "../../../common/versionMetadata";
-import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -1671,8 +1671,9 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
 export async function parseAndUpdatePluginManifestForKiota(
   pluginManifestPath: string,
   updatePlaceholder: boolean
-): Promise<any[]> {
-  const authData: any[] = [];
+): Promise<{ authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[]> {
+  const authData: { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] =
+    [];
   const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
   pluginManifest.runtimes?.forEach((runtime) => {
     if ((runtime as RuntimeObjectOpenapi).auth) {
