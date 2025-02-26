@@ -17,7 +17,7 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 
-interface AcquireArgs {
+interface ShareArgs {
   appPackagePath?: string; // The path of the app package
 }
 
@@ -36,7 +36,7 @@ export class ShareToOthersDriver implements StepDriver {
 
   @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async run(
-    args: AcquireArgs,
+    args: ShareArgs,
     context: DriverContext
   ): Promise<Result<Map<string, string>, FxError>> {
     return wrapRun(async () => {
@@ -47,7 +47,7 @@ export class ShareToOthersDriver implements StepDriver {
 
   @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async execute(
-    args: AcquireArgs,
+    args: ShareArgs,
     ctx: DriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<ExecutionResult> {
@@ -64,7 +64,7 @@ export class ShareToOthersDriver implements StepDriver {
   }
 
   private async handler(
-    args: AcquireArgs,
+    args: ShareArgs,
     context: DriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<{
@@ -121,7 +121,7 @@ export class ShareToOthersDriver implements StepDriver {
     }
   }
 
-  private validateArgs(args: AcquireArgs): void {
+  private validateArgs(args: ShareArgs): void {
     const invalidParameters: string[] = [];
 
     if (!args.appPackagePath || typeof args.appPackagePath !== "string") {

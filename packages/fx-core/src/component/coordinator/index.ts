@@ -77,6 +77,7 @@ const M365Actions = [
   "aadApp/update",
   "botFramework/create",
   "teamsApp/extendToM365",
+  "teamsApp/shareToOthers",
 ];
 const AzureActions = ["arm/deploy"];
 const needTenantCheckActions = ["botAadApp/create", "aadApp/create", "botFramework/create"];
