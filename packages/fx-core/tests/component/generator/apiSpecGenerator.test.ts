@@ -3170,13 +3170,11 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", true);
     assert.deepEqual(result, [
       {
-        serverUrl: "",
         authName: "test",
         authType: "apiKey",
         registrationId: "TEST_REIGSTRATION_ID",
       },
       {
-        serverUrl: "",
         authName: "test2",
         authType: "oauth2",
         registrationId: "TEST2_REIGSTRATION_ID",
@@ -3218,7 +3216,6 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", false);
     assert.deepEqual(result, [
       {
-        serverUrl: "",
         authName: "test",
         authType: "apiKey",
         registrationId: "TEST_REIGSTRATION_ID",
