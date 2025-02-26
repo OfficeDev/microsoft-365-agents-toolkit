@@ -150,4 +150,89 @@ version: v1.8`;
     const writtenContent = writeFileStub.getCall(0).args[1];
     expect(writtenContent).to.include(expectedTeamsAppYaml);
   });
+
+  it("updateVersionForTeamsAppYamlFile should works fine when yaml contains schema url for old version style", async () => {
+    const teamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/1.0.0/yaml.schema.json
+# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
+# Visit https://aka.ms/teamsfx-actions for details on actions
+version: 1.0.0`;
+    const expectedTeamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
+# Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
+# Visit https://aka.ms/teamsfx-actions for details on actions
+version: v1.8`;
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
+    const writeFileStub = sinon.stub(fs, "writeFile");
+
+    await updateVersionForTeamsAppYamlFile("fake-project-path");
+
+    const writtenContent = writeFileStub.getCall(0).args[1];
+    expect(writtenContent).to.include(expectedTeamsAppYaml);
+  });
+
+  it("should convert outputJsonPath to outputFolder in provision and publish sections if original version <= v1.6", async () => {
+    const teamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.6/yaml.schema.json
+  version: v1.6
+  provision:
+    - uses: teamsApp/zipAppPackage
+      with:
+        # Path to manifest template
+        manifestPath: ./appPackage/manifest.json
+        outputZipPath: ./appPackage/build/appPackage.dev.zip
+        outputJsonPath: ./appPackage/build/manifest.dev.json
+  publish:
+    - uses: teamsApp/zipAppPackage
+      with:
+        # Path to manifest template
+        manifestPath: ./appPackage/manifest.json
+        outputZipPath: ./appPackage/build/appPackage.dev.zip
+        outputJsonPath: ./appPackage/build/manifest.dev.json`;
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
+    const writeFileStub = sinon.stub(fs, "writeFile");
+
+    await updateVersionForTeamsAppYamlFile("fake-project-path");
+
+    const writtenContent = writeFileStub.getCall(0).args[1] as string;
+    expect(writtenContent).to.include("version: v1.8");
+    expect(writtenContent).to.include("https://aka.ms/teams-toolkit/v1.8/yaml.schema.json");
+    expect(writtenContent).to.include("outputFolder: ./appPackage/build");
+    expect(writtenContent).to.not.include("outputJsonPath");
+    expect(writtenContent).to.include("# Path to manifest template");
+  });
+
+  it("should convert clientSecret to primaryClientSecret in provision and publish sections if original version == v1.3", async () => {
+    const teamsAppYaml = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.3/yaml.schema.json
+  version: v1.3
+  provision:
+    - uses: apiKey/register
+      with:
+        # Name of the API Key
+        name: apiKey
+        # Teams app ID
+        appId: xxxx
+        # Path to OpenAPI description document
+        apiSpecPath: ./appPackage/apiSpecificationFile/openapi.yaml
+        # Client secret for the API Key
+        clientSecret: xxxx
+      # Write the registration information of API Key into environment file for
+      # the specified environment variable(s).
+      writeToEnvironmentFile:
+        registrationId: APIKEY_REGISTRATION_ID`;
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readFile").resolves(teamsAppYaml as any);
+    const writeFileStub = sinon.stub(fs, "writeFile");
+
+    await updateVersionForTeamsAppYamlFile("fake-project-path");
+
+    const writtenContent = writeFileStub.getCall(0).args[1] as string;
+    expect(writtenContent).to.include("version: v1.8");
+    expect(writtenContent).to.include("https://aka.ms/teams-toolkit/v1.8/yaml.schema.json");
+    expect(writtenContent).to.include("primaryClientSecret: xxxx");
+    expect(writtenContent).to.not.include("clientSecret");
+    expect(writtenContent).to.include("# Path to OpenAPI description document");
+  });
 });
