@@ -67,6 +67,13 @@ describe("WebSocketEventHandler", () => {
   describe("selectBotTextMessages", () => {
     it("happy", () => {
       const res = WebSocketEventHandler.selectBotTextMessages({
+        item: { messages: [{ messageType: "DeveloperLogs" }] },
+      } as any);
+      chai.assert.deepEqual(res, [{ messageType: "DeveloperLogs" }] as any);
+    });
+
+    it("with prompt", () => {
+      const res = WebSocketEventHandler.selectBotTextMessages({
         item: {
           messages: [
             { messageType: "DeveloperLogs" },
@@ -85,6 +92,7 @@ describe("WebSocketEventHandler", () => {
         text: JSON.stringify({
           functionExecutions: [{ requestUrl: "" }],
         }),
+        prompt: "listRepairs",
       } as any);
       chai.assert.isTrue(stub.calledOnce);
     });

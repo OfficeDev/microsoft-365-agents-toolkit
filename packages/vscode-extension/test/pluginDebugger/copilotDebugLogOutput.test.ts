@@ -202,6 +202,21 @@ describe("copilotDebugLogOutput", () => {
       );
     });
 
+    it("write with 0 matched function candidates", () => {
+      const logJson = JSON.stringify({
+        enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
+        matchedFunctionCandidates: [],
+        functionsSelectedForInvocation: [],
+        functionExecutions: [],
+      });
+
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      copilotDebugLog.write();
+
+      chai.assert.isTrue(appendLineStub.calledWith(""));
+    });
+
     it("write with plugins enabled", () => {
       const logJson = JSON.stringify({
         enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
