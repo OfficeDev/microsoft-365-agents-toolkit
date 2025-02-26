@@ -75,6 +75,7 @@ export function languageNode(): IQTreeNode {
       dynamicOptions: getLanguageOptions,
       default: getDefaultLanguage,
       skipSingleOption: true,
+      placeholder: getLocalizedString("core.ProgrammingLanguageQuestion.placeholder"),
     },
   };
 }
