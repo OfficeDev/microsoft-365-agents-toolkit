@@ -7262,7 +7262,10 @@ describe("addAuthAction", async () => {
 
 describe("addKnowledge", async () => {
   const sandbox = sinon.createSandbox();
-  afterEach(() => {
+  afterEach(async () => {
+    if (await fs.pathExists("fakeAgentManifest.json")) {
+      await fs.unlink("fakeAgentManifest.json");
+    }
     sandbox.restore();
   });
 
@@ -7444,7 +7447,7 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isOk());
   });
 
-  it("happy path: add OneDrive & Sharepoint(search by url)", async () => {
+  it("happy path: add OneDrive & Sharepoint(create by url)", async () => {
     const appName = await mockV3Project();
     const searchUrl = "https://fakeUrl.com";
     const inputs: Inputs = {
@@ -7496,6 +7499,78 @@ describe("addKnowledge", async () => {
           items_by_url: [
             {
               url: searchUrl,
+            },
+          ],
+        },
+      ]);
+    } else {
+      assert.fail("Add OneDriveSharePoint Capability failed");
+    }
+    assert.isTrue(result.isOk());
+  });
+
+  it("happy path: add OneDrive & Sharepoint(create by id)", async () => {
+    const appName = await mockV3Project();
+    const searchUrl = "https://fakeUrl.com";
+    const siteId = "fakeSiteId";
+    const webId = "fakeWebId";
+    const listId = "fakeListId";
+    const uniqueId = "fakeUniqueId";
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url().id,
+      oneDriveSharePointURL: searchUrl,
+      oneDriveSharePointItem: [
+        {
+          siteId: siteId,
+          webId: webId,
+          listId: listId,
+          uniqueId: uniqueId,
+        },
+      ],
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addOneDriveSharepointRes = sandbox.spy(
+      copilotGptManifestUtils,
+      "addOneDriveSharePointCapability"
+    );
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addOneDriveSharepointResCapRes = await addOneDriveSharepointRes.returnValues[0];
+    if (addOneDriveSharepointResCapRes.isOk()) {
+      const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          items_by_sharepoint_ids: [
+            {
+              site_id: siteId,
+              web_id: webId,
+              list_id: listId,
+              unique_id: uniqueId,
             },
           ],
         },
