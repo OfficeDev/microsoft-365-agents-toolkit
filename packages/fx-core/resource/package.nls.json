@@ -824,7 +824,7 @@
   "driver.teamsApp.summary.validateWithTestCases.result.detail": "%s Validation title: %s. Message: %s",
   "driver.teamsApp.validate.result": "Teams Toolkit has completed checking your app package against validation rules. %s.",
   "driver.teamsApp.validate.result.display": "Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel](command:fx-extension.showOutputChannel) for details.",
-  "driver.shareToOthers.description": "Share your app to others",
+  "driver.shareToOthers.description": "share your app to others",
   "driver.shareToOthers.progress.message": "Sharing your app...",
   "driver.shareToOthers.summary": "Shared apps successfully (%s).",
   "error.teamsApp.validate.apiFailed": "Teams app package validation failed due to  %s",

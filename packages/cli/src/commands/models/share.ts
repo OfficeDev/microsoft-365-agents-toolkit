@@ -6,7 +6,7 @@ import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { EnvOption, IgnoreLoadEnvOption, ProjectFolderOption } from "../common";
 
-export const publishCommand: CLICommand = {
+export const shareCommand: CLICommand = {
   name: "share",
   description: commands.share.description,
   options: [EnvOption, ProjectFolderOption, IgnoreLoadEnvOption],
