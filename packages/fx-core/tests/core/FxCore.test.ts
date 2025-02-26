@@ -12,6 +12,7 @@ import {
 } from "@microsoft/m365-spec-parser";
 import {
   CLIPlatforms,
+  DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
   IQTreeNode,
@@ -43,16 +44,13 @@ import {
   getUuid,
   teamsDevPortalClient,
 } from "../../src";
-import { ConstantString } from "../../src/common/constants";
 import { FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
-import * as projectHelper from "../../src/common/projectSettingsHelper";
 import {
   TeamsfxConfigType,
   TeamsfxVersionState,
   projectTypeChecker,
 } from "../../src/common/projectTypeChecker";
-import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import {
   DriverDefinition,
   DriverInstance,
@@ -71,8 +69,6 @@ import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
-import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
-import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
@@ -81,11 +77,8 @@ import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/vali
 import { ValidateAppPackageDriver } from "../../src/component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../../src/component/driver/util/utils";
-import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
 import * as CopilotPluginHelper from "../../src/component/generator/apiSpec/helper";
-import * as pluginGeneratorHelper from "../../src/component/generator/apiSpec/helper";
-import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -94,9 +87,6 @@ import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
-import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
-import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
-import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
   InputValidationError,
@@ -7276,7 +7266,7 @@ describe("addKnowledge", async () => {
     sandbox.restore();
   });
 
-  it("happy path: add knowledge for Web Content(search all)", async () => {
+  it("happy path: add Web Content(search all)", async () => {
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -7318,12 +7308,12 @@ describe("addKnowledge", async () => {
         },
       ]);
     } else {
-      assert.fail("addWebSearchCapability failed");
+      assert.fail("Add Web Search Capability failed");
     }
     assert.isTrue(result.isOk());
   });
 
-  it("happy path: add knowledge for Web Content(search by url)", async () => {
+  it("happy path: add Web Content(search by url)", async () => {
     const appName = await mockV3Project();
     const searchUrl = "https://fakeUrl.com";
     const inputs: Inputs = {
@@ -7372,7 +7362,7 @@ describe("addKnowledge", async () => {
         },
       ]);
     } else {
-      assert.fail("addWebSearchCapability failed");
+      assert.fail("Add Web Search Capability failed");
     }
     assert.isTrue(result.isOk());
   });
@@ -7404,16 +7394,14 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isOk());
   });
 
-  it("happy path: add knowledge for Web Content(search by url)", async () => {
+  it("happy path: add OneDrive & Sharepoint(search all)", async () => {
     const appName = await mockV3Project();
-    const searchUrl = "https://fakeUrl.com";
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
-      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url(),
-      webSearchUrl: searchUrl,
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.AllOneDriveSharepoint().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -7436,16 +7424,76 @@ describe("addKnowledge", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
+    const addOneDriveSharepointRes = sandbox.spy(
+      copilotGptManifestUtils,
+      "addOneDriveSharePointCapability"
+    );
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
-    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
-    if (addWebSearchCapabilityRes.isOk()) {
-      const capabilities = addWebSearchCapabilityRes.value.capabilities;
+    const addOneDriveSharepointResCapRes = await addOneDriveSharepointRes.returnValues[0];
+    if (addOneDriveSharepointResCapRes.isOk()) {
+      const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
       assert.deepEqual(capabilities, [
         {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
-          sites: [
+          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+        },
+      ]);
+    } else {
+      assert.fail("Add OneDriveSharePoint Capability failed");
+    }
+    assert.isTrue(result.isOk());
+  });
+
+  it("happy path: add OneDrive & Sharepoint(search by url)", async () => {
+    const appName = await mockV3Project();
+    const searchUrl = "https://fakeUrl.com";
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url().id,
+      oneDriveSharePointURL: searchUrl,
+      oneDriveSharePointItem: [
+        {
+          url: searchUrl,
+        },
+      ],
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addOneDriveSharepointRes = sandbox.spy(
+      copilotGptManifestUtils,
+      "addOneDriveSharePointCapability"
+    );
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addOneDriveSharepointResCapRes = await addOneDriveSharepointRes.returnValues[0];
+    if (addOneDriveSharepointResCapRes.isOk()) {
+      const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+          items_by_url: [
             {
               url: searchUrl,
             },
@@ -7453,7 +7501,7 @@ describe("addKnowledge", async () => {
         },
       ]);
     } else {
-      assert.fail("addWebSearchCapability failed");
+      assert.fail("Add OneDriveSharePoint Capability failed");
     }
     assert.isTrue(result.isOk());
   });
