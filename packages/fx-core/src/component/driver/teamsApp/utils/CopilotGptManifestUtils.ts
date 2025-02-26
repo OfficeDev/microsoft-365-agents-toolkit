@@ -594,14 +594,15 @@ export class CopilotGptManifestUtils {
         connections.push({ connection_id: id });
       }
     });
-    const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
-      agentManifest,
-      agentManifestPath
+
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      DeclarativeCopilotCapabilityName.GraphConnectors,
+      manifestRes,
+      {
+        connections,
+      }
     );
-    if (updateGptManifestRes.isErr()) {
-      return err(updateGptManifestRes.error);
-    }
-    return ok(agentManifest);
   }
 
   /**
