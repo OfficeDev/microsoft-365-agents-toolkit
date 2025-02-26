@@ -511,6 +511,29 @@ export class ApiPluginStartOptions {
       data: TemplateNames.BasicGpt,
     };
   }
+  static staticAll(doesProjectExists?: boolean): OptionItem[] {
+    return doesProjectExists
+      ? [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()]
+      : [
+          ApiPluginStartOptions.newApi(),
+          ApiPluginStartOptions.apiSpec(),
+          ApiPluginStartOptions.existingPlugin(),
+        ];
+  }
+
+  static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
+    if (doesProjectExists) {
+      return [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()];
+    } else if (inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) {
+      return [
+        ApiPluginStartOptions.newApi(),
+        ApiPluginStartOptions.apiSpec(),
+        ApiPluginStartOptions.existingPlugin(),
+      ];
+    } else {
+      return [ApiPluginStartOptions.newApi(), ApiPluginStartOptions.apiSpec()];
+    }
+  }
 }
 
 export class ApiAuthOptions {
@@ -560,5 +583,42 @@ export class ApiAuthOptions {
 export function setTemplateName(selected: string | OptionItem, inputs: Inputs): void {
   if ((selected as OptionItem).data) {
     inputs[QuestionNames.TemplateName] = (selected as OptionItem).data as string;
+  }
+}
+
+export class TdpCapabilityOptions {
+  static me(): OptionItem {
+    return {
+      id: "message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      description: getLocalizedString("core.MessageExtensionOption.description"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.MessageExtension,
+    };
+  }
+  static botAndMe(): OptionItem {
+    return {
+      id: "BotAndMessageExtension",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.BotAndMessageExtension,
+    };
+  }
+  static nonSsoTabAndBot(): OptionItem {
+    return {
+      id: "TabNonSsoAndBot",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.TabAndDefaultBot,
+    };
+  }
+  static nonSsoTab(): OptionItem {
+    return {
+      id: "tab-non-sso",
+      label: `${getLocalizedString("core.TabNonSso.label")}`,
+      detail: getLocalizedString("core.TabNonSso.detail"),
+      description: getLocalizedString(
+        "core.createProjectQuestion.option.description.worksInOutlookM365"
+      ),
+      data: TemplateNames.Tab,
+    };
   }
 }

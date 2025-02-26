@@ -19,12 +19,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import path from "path";
-import {
-  ApiAuthOptions,
-  ApiPluginStartOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../question";
+import { ProgrammingLanguage, QuestionNames } from "../../../question";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
@@ -34,6 +29,10 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
+import {
+  ApiAuthOptions,
+  ApiPluginStartOptions,
+} from "../../../question/scaffold/vsc/CapabilityOptions";
 
 const enum telemetryProperties {
   templateName = "template-name",

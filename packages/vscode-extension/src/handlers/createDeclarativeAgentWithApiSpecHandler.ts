@@ -1,34 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  CreateProjectResult,
-  err,
-  FxError,
-  ok,
-  Result,
-  Stage,
-  UserError,
-} from "@microsoft/teamsfx-api";
-import { getSystemInputs } from "../utils/systemEnvUtils";
-import {
-  ApiPluginStartOptions,
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-} from "@microsoft/teamsfx-core";
-import { runCommand } from "./sharedOpts";
-import * as vscode from "vscode";
-import { openFolder } from "../utils/workspaceUtils";
+import { err, FxError, ok, Result, UserError } from "@microsoft/teamsfx-api";
+import { ApiPluginStartOptions, ProjectTypeOptions, QuestionNames } from "@microsoft/teamsfx-core";
 import { ExtensionSource } from "../error/error";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
+import { getSystemInputs } from "../utils/systemEnvUtils";
+import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { createNewProjectHandler } from "./lifecycleHandlers";
 
 export async function createDeclarativeAgentWithApiSpec(
@@ -53,9 +37,9 @@ export async function createDeclarativeAgentWithApiSpec(
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
   inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
-  inputs.capabilities = CapabilityOptions.declarativeAgent().id;
+  inputs.capabilities = DACapabilityOptions.declarativeAgent().id;
   inputs[QuestionNames.WithPlugin] = "yes";
-  inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
+  inputs[QuestionNames.ProjectType] = ProjectTypeOptions.declarativeAgent().id;
 
   const result = await createNewProjectHandler("", inputs);
 

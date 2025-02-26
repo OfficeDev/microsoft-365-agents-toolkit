@@ -28,12 +28,8 @@ import {
 } from "../../src";
 import { coordinator } from "../../src/component/coordinator";
 import { setTools } from "../../src/common/globalVars";
-import {
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-  ScratchOptions,
-} from "../../src/question/constants";
+import { CapabilityOptions, QuestionNames, ScratchOptions } from "../../src/question/constants";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
 describe("FxCore.createProject", () => {

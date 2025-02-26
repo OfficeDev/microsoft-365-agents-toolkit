@@ -28,7 +28,6 @@ import {
   MissingEnvironmentVariablesError,
   ReadFileError,
 } from "../../../../error/common";
-import { CapabilityOptions } from "../../../../question/constants";
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
 import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";
@@ -53,6 +52,10 @@ import {
 import { AppStudioError } from "../errors";
 import { AppStudioResultFactory } from "../results";
 import { getResolvedManifest } from "./utils";
+import {
+  BotCapabilityOptions,
+  TabCapabilityOptions,
+} from "../../../../question/scaffold/vsc/CapabilityOptions";
 
 export class ManifestUtils {
   async readAppManifest(projectPath: string): Promise<Result<TeamsAppManifest, FxError>> {
@@ -160,7 +163,7 @@ export class ManifestUtils {
               appManifest.staticTabs.push(template);
             } else {
               const tabManifest =
-                inputs.features === CapabilityOptions.dashboardTab().id
+                inputs.features === TabCapabilityOptions.dashboardTab().id
                   ? STATIC_TABS_TPL_V3[1]
                   : STATIC_TABS_TPL_V3[0];
               const template = cloneDeep(tabManifest);
@@ -202,14 +205,14 @@ export class ManifestUtils {
               if (inputs.features) {
                 const feature = inputs.features;
                 if (
-                  feature === CapabilityOptions.commandBot().id ||
-                  feature == CapabilityOptions.workflowBot().id
+                  feature === BotCapabilityOptions.commandBot().id ||
+                  feature == BotCapabilityOptions.workflowBot().id
                 ) {
                   // command and response bot or workflow bot
                   appManifest.bots = appManifest.bots.concat(
                     getBotsTplForCommandAndResponseBasedOnVersion(manifestVersion)
                   );
-                } else if (feature === CapabilityOptions.notificationBot().id) {
+                } else if (feature === BotCapabilityOptions.notificationBot().id) {
                   // notification
                   appManifest.bots = appManifest.bots.concat(
                     getBotsTplForNotificationBasedOnVersion(manifestVersion)

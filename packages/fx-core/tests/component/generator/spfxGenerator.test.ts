@@ -25,13 +25,9 @@ import {
 import { getShellOptionValue, Utils } from "../../../src/component/generator/spfx/utils/utils";
 import { envUtil } from "../../../src/component/utils/envUtil";
 import { FileNotFoundError, UserCancelError } from "../../../src/error";
-import {
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-  SPFxVersionOptionIds,
-} from "../../../src/question";
+import { CapabilityOptions, QuestionNames, SPFxVersionOptionIds } from "../../../src/question";
 import { MockTools } from "../../core/utils";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("SPFxGenerator", function () {
   const testFolder = path.resolve("./tmp");

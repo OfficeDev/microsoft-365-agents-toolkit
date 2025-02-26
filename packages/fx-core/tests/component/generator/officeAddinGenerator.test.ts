@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 /**
- * @author yefuwang@microsoft.com
+ * @author huajiezhang@microsoft.com
  */
 
 import {
@@ -38,19 +38,14 @@ import { HelperMethods } from "../../../src/component/generator/officeAddin/help
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
-import {
-  CapabilityOptions,
-  ProgrammingLanguage,
-  ProjectTypeOptions,
-  QuestionNames,
-} from "../../../src/question";
+import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools } from "../../core/utils";
 
 describe("OfficeAddinGenerator for Outlook Addin", function () {
   const testFolder = path.resolve("./tmp");
   let context: Context;
   let mockedEnvRestore: RestoreFn;
-  const mockedError = new SystemError("mockedSource", "mockedError", "mockedMessage");
 
   beforeEach(async () => {
     mockedEnvRestore = mockedEnv({ TEAMSFX_V3: "true" }, { clear: true });

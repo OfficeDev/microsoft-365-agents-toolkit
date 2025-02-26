@@ -35,25 +35,17 @@ import { environmentNameManager } from "../../core/environmentName";
 import { ResourceGroupConflictError, SelectSubscriptionError } from "../../error/azure";
 import {
   InputValidationError,
-  InternalError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
   assembleError,
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
-import {
-  ApiPluginStartOptions,
-  AppNamePattern,
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-  ScratchOptions,
-} from "../../question/constants";
+import { AppNamePattern, QuestionNames, ScratchOptions } from "../../question/constants";
+import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
 import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
 import { deployUtils } from "../deployUtils";
-import { developerPortalScaffoldUtils } from "../developerPortalScaffoldUtils";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { updateTeamsAppV3ForPublish } from "../driver/teamsApp/appStudio";
 import { Constants } from "../driver/teamsApp/constants";
@@ -68,6 +60,10 @@ import { metadataUtil } from "../utils/metadataUtil";
 import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
 import { SummaryReporter } from "./summary";
+import {
+  ApiPluginStartOptions,
+  DACapabilityOptions,
+} from "../../question/scaffold/vsc/CapabilityOptions";
 
 const M365Actions = [
   "botAadApp/create",
@@ -102,13 +98,9 @@ class Coordinator {
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
       inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
       !inputs[QuestionNames.ApiPluginManifestPath] &&
-      (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
-        inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
+      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id
     ) {
-      const lastCommand =
-        inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id
-          ? KiotaLastCommands.createPluginWithManifest
-          : KiotaLastCommands.createDeclarativeCopilotWithManifest;
+      const lastCommand = KiotaLastCommands.createDeclarativeCopilotWithManifest;
       return ok({ projectPath: "", lastCommand: lastCommand });
     }
 
@@ -168,8 +160,8 @@ class Coordinator {
         [TelemetryProperty.IsFromTdp]: (!!inputs.teamsAppFromTdp).toString(),
       });
       if (
-        projectType === ProjectTypeOptions.customCopilot().id ||
-        (projectType === ProjectTypeOptions.bot().id && inputs.platform === Platform.VS)
+        projectType === ProjectTypeOptions.customCopilotOptionId ||
+        (projectType === ProjectTypeOptions.botOptionId && inputs.platform === Platform.VS)
       ) {
         merge(actionContext?.telemetryProps, {
           [TelemetryProperty.CustomCopilotRAG]: inputs["custom-copilot-rag"] ?? "",

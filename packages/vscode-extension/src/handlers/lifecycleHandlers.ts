@@ -15,7 +15,6 @@ import {
   AppStudioScopes,
   assembleError,
   AuthSvcScopes,
-  CapabilityOptions,
   featureFlagManager,
   FeatureFlags,
   isUserCancelError,

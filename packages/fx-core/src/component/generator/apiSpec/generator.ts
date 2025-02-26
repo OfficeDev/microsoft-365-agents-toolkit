@@ -23,10 +23,8 @@ import {
   Inputs,
   ManifestTemplateFileName,
   Platform,
-  PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
-  RuntimeObjectOpenapi,
   SystemError,
   TeamsAppManifest,
   Warning,
@@ -37,17 +35,16 @@ import * as fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
 import { FeatureFlags, featureFlagManager } from "../../../common/featureFlags";
-import { getLocalizedString } from "../../../common/localizeUtils";
 import { isValidHttpUrl } from "../../../common/stringUtils";
 import { isJsonSpecFile } from "../../../common/utils";
 import { assembleError } from "../../../error";
+import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import {
   ApiPluginStartOptions,
-  CapabilityOptions,
+  DACapabilityOptions,
   MeArchitectureOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../question/constants";
+} from "../../../question/scaffold/vsc/CapabilityOptions";
+import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
@@ -62,11 +59,9 @@ import {
   generateScaffoldingSummary,
   getEnvName,
   getParserOptions,
-  listOperations,
   parseAndUpdatePluginManifestForKiota,
   updateForCustomApi,
 } from "./helper";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 const defaultDeclarativeCopilotActionId = "action_1";
 // const fromApiSpecComponentName = "copilot-plugin-existing-api";
@@ -351,11 +346,11 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id) {
       getTemplateInfosState.isPlugin = true;
       authData = inputs.apiAuthData;
-    } else if (meArchitecture === MeArchitectureOptions.apiSpec().id) {
+    } else if (meArchitecture === MeArchitectureOptions.openApiSpec().id) {
       authData = inputs.apiAuthData;
     }
     const isDeclarativeCopilot =
-      inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id;
+      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id;
     merge(actionContext?.telemetryProps, {
       [telemetryProperties.templateName]: getTemplateInfosState.templateName,
       [telemetryProperties.isDeclarativeCopilot]: isDeclarativeCopilot.toString(),
@@ -477,7 +472,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
     try {
       const getTemplateInfosState = inputs.getTemplateInfosState as TemplateInfosState;
       const isDeclarativeCopilot =
-        inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id;
+        inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id;
       const isKiotaIntegration =
         featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
         !!inputs[QuestionNames.ApiPluginManifestPath];

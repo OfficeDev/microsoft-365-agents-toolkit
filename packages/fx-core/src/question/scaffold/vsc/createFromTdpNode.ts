@@ -27,43 +27,7 @@ import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
-
-export class TdpCapabilityOptions {
-  static me(): OptionItem {
-    return {
-      id: "message-extension",
-      label: getLocalizedString("core.MessageExtensionOption.label"),
-      description: getLocalizedString("core.MessageExtensionOption.description"),
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
-      data: TemplateNames.MessageExtension,
-    };
-  }
-  static botAndMe(): OptionItem {
-    return {
-      id: "BotAndMessageExtension",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.BotAndMessageExtension,
-    };
-  }
-  static nonSsoTabAndBot(): OptionItem {
-    return {
-      id: "TabNonSsoAndBot",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.TabAndDefaultBot,
-    };
-  }
-  static nonSsoTab(): OptionItem {
-    return {
-      id: "tab-non-sso",
-      label: `${getLocalizedString("core.TabNonSso.label")}`,
-      detail: getLocalizedString("core.TabNonSso.detail"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
-      data: TemplateNames.Tab,
-    };
-  }
-}
+import { TdpCapabilityOptions } from "./CapabilityOptions";
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {

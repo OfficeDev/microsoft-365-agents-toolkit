@@ -11,6 +11,7 @@ import {
   CustomCopilotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
+  TdpCapabilityOptions,
 } from "../vsc/CapabilityOptions";
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
 import {
@@ -20,7 +21,6 @@ import {
 } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { m365SearchMeSubNode, notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
-import { TdpCapabilityOptions } from "../vsc/createFromTdpNode";
 
 export class VSCapabilityOptions {
   // empty

@@ -160,11 +160,9 @@ import { YamlFieldMissingError } from "../error/yml";
 import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
   AddAuthActionAuthTypeOptions,
-  ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
   KnowledgeSourceOptions,
-  ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
@@ -189,6 +187,8 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
+import { ApiPluginStartOptions } from "../question/scaffold/vsc/CapabilityOptions";
 
 export class FxCore {
   constructor(tools: Tools) {

@@ -9,13 +9,15 @@ import * as sinon from "sinon";
 import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
-import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
+import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
+import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
+import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { FxCore } from "../../../src/core/FxCore";
@@ -27,17 +29,13 @@ import {
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  MeArchitectureOptions,
-  ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../../src/question/constants";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
-import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
-import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -499,7 +497,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -519,7 +517,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
@@ -539,7 +537,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
@@ -580,7 +578,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -601,7 +599,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -619,7 +617,7 @@ describe("coordinator create", () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
       };
@@ -640,7 +638,7 @@ describe("coordinator create", () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",

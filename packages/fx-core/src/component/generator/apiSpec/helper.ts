@@ -54,7 +54,6 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { assembleError, MissingRequiredInputError } from "../../../error";
 import {
   apiPluginApiSpecOptionId,
-  CustomCopilotRagOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question/constants";
@@ -75,6 +74,7 @@ import * as util from "util";
 import { SpecParserSource } from "../../../common/constants";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ActionInjector, AuthActionInjectResult } from "../../configManager/actionInjector";
+import { CustomCopilotRagOptions } from "../../../question/scaffold/vsc/CapabilityOptions";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",

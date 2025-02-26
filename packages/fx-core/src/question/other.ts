@@ -31,7 +31,6 @@ import { environmentNameManager } from "../core/environmentName";
 import { TOOLS } from "../common/globalVars";
 import {
   AddAuthActionAuthTypeOptions,
-  ApiPluginStartOptions,
   HubOptions,
   KnowledgeSourceOptions,
   QuestionNames,
@@ -50,6 +49,7 @@ import {
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
+import { ApiPluginStartOptions } from "./scaffold/vsc/CapabilityOptions";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
