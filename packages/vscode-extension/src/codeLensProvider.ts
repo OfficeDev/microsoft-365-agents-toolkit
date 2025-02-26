@@ -639,7 +639,6 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
     });
   }
 
-  // todo: hit!!!!
   private getCommand(match: string): vscode.Command | undefined {
     if (match.startsWith("provision")) {
       return {
@@ -657,6 +656,12 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
       return {
         title: "🔄" + localize("teamstoolkit.commands.publish.title"),
         command: "fx-extension.publish",
+        arguments: [TelemetryTriggerFrom.CodeLens],
+      };
+    } else if (match.startsWith("share")) {
+      return {
+        title: "🔄" + localize("teamstoolkit.commands.share.title"),
+        command: "fx-extension.share",
         arguments: [TelemetryTriggerFrom.CodeLens],
       };
     } else {
