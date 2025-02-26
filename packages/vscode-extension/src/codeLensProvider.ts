@@ -639,6 +639,7 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
     });
   }
 
+  // todo: hit!!!!
   private getCommand(match: string): vscode.Command | undefined {
     if (match.startsWith("provision")) {
       return {

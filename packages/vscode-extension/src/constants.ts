@@ -56,6 +56,7 @@ export enum CommandKey {
   Provision = "fx-extension.provision",
   Deploy = "fx-extension.deploy",
   Publish = "fx-extension.publish",
+  Share = "fx-extension.share",
   Preview = "fx-extension.preview",
   installDependency = "fx-extension.installDependency",
   publishToAppSource = "fx-extension.publishToAppSource",

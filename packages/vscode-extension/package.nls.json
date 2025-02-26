@@ -164,6 +164,8 @@
   "teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle": "Publish to Store in Developer Portal",
   "teamstoolkit.commandsTreeViewProvider.publishInDevPortalDescription": "Before publishing your app, we recommend to validate all integration test cases.",
   "teamstoolkit.commandsTreeViewProvider.publishTitle": "Publish to Organization",
+  "teamstoolkit.commandsTreeViewProvider.shareTitle": "Share",
+  "teamstoolkit.commandsTreeViewProvider.shareDescription": "Run the 'share' lifecycle stage in teamsapp.yml file.",
   "teamstoolkit.commandsTreeViewProvider.getStartedTitle": "Get Started",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesDescription": "Report any issues and let us know your feedback",
   "teamstoolkit.commandsTreeViewProvider.reportIssuesTitle": "Report Issues on GitHub",

@@ -81,6 +81,9 @@ export enum TelemetryEvent {
   PublishStart = "publish-start",
   Publish = "publish",
 
+  ShareStart = "share-start",
+  Share = "share",
+
   PublishInDeveloperPortalStart = "publish-in-developer-portal-start",
   PublishInDeveloperPortal = "publish-in-developer-portal",
 
