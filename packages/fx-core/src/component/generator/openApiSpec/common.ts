@@ -35,7 +35,7 @@ import { ActionContext } from "../../middleware/actionExecutionMW";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import {
-  copilotPluginExistingApiSpecUrlTelemetryEvent,
+  declarativeAgentExistingApiSpecUrlTelemetryEvent,
   defaultDeclarativeCopilotActionId,
   defaultDeclarativeCopilotManifestFileName,
   failedToUpdateCustomApiTemplateErrorName,
@@ -157,7 +157,7 @@ export async function getTemplateInfosFromApiSpec(
     convertedAuthData ?? [],
     llmServiceData
   );
-  context.telemetryReporter.sendTelemetryEvent(copilotPluginExistingApiSpecUrlTelemetryEvent, {
+  context.telemetryReporter.sendTelemetryEvent(declarativeAgentExistingApiSpecUrlTelemetryEvent, {
     [telemetryProperties.isRemoteUrlTelemetryProperty]: isValidHttpUrl(url).toString(),
     [telemetryProperties.generateType]: projectType.toString(),
     [telemetryProperties.authType]: authData?.map((item) => item.authType).join(",") ?? "None",
