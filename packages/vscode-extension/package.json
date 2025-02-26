@@ -1839,7 +1839,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
     "dompurify": "^3.0.6",
-    "esbuild": "^0.23.0",
+    "esbuild": "^0.25.0",
     "esbuild-copy-static-files": "^0.1.0",
     "eslint": "^8.1.0",
     "eslint-plugin-header": "^3.1.1",
