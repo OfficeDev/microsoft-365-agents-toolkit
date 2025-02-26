@@ -26,7 +26,7 @@ import axios from "axios";
 import { createContext } from "vm";
 import { GCScopes } from "../../../common/constants";
 import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
-import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, ItemMetadata } from "./oneDriveSharePointHandler";
+import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, getSharePointSiteByRelativePath, ItemMetadata } from "./oneDriveSharePointHandler";
 
 const logMessageKeys = {
   failValidateOneDriveSharePointItem: "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
@@ -234,9 +234,6 @@ export function validateSourcePluginManifest(
 export async function getODSPItemInfo(
   context: Context,
   itemUrl: string | undefined,
-  inputs: Inputs,
-  shouldLogWarning: boolean,
-  existingCorrelationId?: string
 ): Promise<Result<ItemMetadata[], UserError>> {
   if (!itemUrl) {
     return err(
@@ -251,11 +248,25 @@ export async function getODSPItemInfo(
     }
     const graphClient = graphClientResult.value;
 
+    const siteResult = await getSharePointSiteByRelativePath(graphClient, itemUrl);
+    if (siteResult.isOk()) {
+      const site = siteResult.value;
+      return ok([
+        {
+          id: site.id,
+          name: site.name,
+          webId: site.webId,
+          siteId: site.siteId,
+        },
+      ]);
+    }
+
     const encodedUrl = encodeSharePointUrl(itemUrl);
     const driveItem = await getDriveItemInfo(graphClient, encodedUrl);
 
     return ok([
       {
+        id: driveItem.id,
         name: driveItem.name,
         uniqueId: driveItem.uniqueId,
         listId: driveItem.listId,
@@ -314,7 +325,7 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
   try {
     const res = await instance.get(`/external/connections?$select=id,name`);
     const data = res.data;
-    return data.value.map((item: any) => {
+    return data.value.map((item: { id: string, name: string }) => {
       return { id: item.id, label: item.name };
     });
   } catch (error) {

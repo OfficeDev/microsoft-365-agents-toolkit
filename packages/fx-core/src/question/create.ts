@@ -1386,13 +1386,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
         throw new Error("inputs is undefined"); // should never happen
       }
       const context = createContext();
-      const res = await getODSPItemInfo(
-        context,
-        input.trim(),
-        inputs,
-        false,
-        inputs.platform === Platform.VSCode ? Correlator.getId() : undefined
-      );
+      const res = await getODSPItemInfo(context, input.trim());
       if (res.isOk()) {
         inputs.oneDriveSharePointItem = res.value;
       } else {
@@ -1433,7 +1427,7 @@ export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
       const icon = inputs.oneDriveSharePointItem[0].itemType === OneDriveSharePointItemType.Folder ? "$(folder)" : "$(file)";
       return [
         {
-          id: inputs.oneDriveSharePointItem[0].uniqueId,
+          id: inputs.oneDriveSharePointItem[0].id,
           label: `${icon} ${inputs.oneDriveSharePointItem[0].name}`,
         },
       ];
@@ -1803,13 +1797,13 @@ export function createProjectQuestionNode(): IQTreeNode {
         children: [
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.websiteUrl) || []).length >
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.websiteUrl) || []).length >
               0,
             data: selectTabWebsiteUrlQuestion(),
           },
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.contentUrl) || []).length >
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.contentUrl) || []).length >
               0,
             data: selectTabsContentUrlQuestion(),
           },

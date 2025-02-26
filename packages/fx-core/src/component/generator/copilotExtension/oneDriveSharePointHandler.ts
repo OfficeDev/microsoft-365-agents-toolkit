@@ -12,10 +12,11 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { GraphScopes } from "../../../common/constants";
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { OneDriveSharePointItemType } from "../constant";
 
 export interface ItemMetadata {
+  id: string;
   name: string;
   uniqueId?: string;
   listId?: string;
@@ -30,7 +31,7 @@ export interface ItemMetadata {
  * @param context The context
  * @returns The graph client
  */
-export async function createGraphClientWithToken(context: Context): Promise<Result<any, FxError>> {
+export async function createGraphClientWithToken(context: Context): Promise<Result<AxiosInstance, FxError>> {
   const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
     scopes: GraphScopes,
   });
@@ -50,6 +51,35 @@ export async function createGraphClientWithToken(context: Context): Promise<Resu
     headers: { Authorization: `Bearer ${graphTokenRes.value}` },
   });
   return ok(client);
+}
+
+/**
+ * Get the SharePoint site by relative path
+ * @param graphClient The graph client
+ * @param url The share point url
+ * @returns The SharePoint site
+ */
+export async function getSharePointSiteByRelativePath(graphClient: AxiosInstance, url: string): Promise<Result<ItemMetadata, FxError>> {
+  // Extract the hostname and relative path from the url
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+  const relativePath = urlObj.pathname;
+  try {
+    const res = await graphClient.get(`/sites/${hostname}:${relativePath}?$select=id,name,sharepointIds`);
+    return ok({
+      id: res.data.id,
+      name: res.data.name,
+      webId: res.data.sharepointIds.webId,
+      siteId: res.data.sharepointIds.siteId,
+    });
+  } catch (error) {
+    return err(new UserError({
+      source: "copilotPlugin",
+      name: "GetSharePointSiteFailed",
+      message: "Failed to get SharePoint site",
+      displayMessage: "Failed to get SharePoint site",
+    }));
+  }
 }
 
 /**
@@ -74,6 +104,7 @@ export async function getDriveItemInfo(
 ): Promise<ItemMetadata> {
   const res = await graphClient.get(`/shares/${encodedUrl}/driveItem?$select=id,name,sharepointIds,webUrl,file,folder`);
   return {
+    id: res.data.id,
     name: res.data.name,
     uniqueId: res.data.sharepointIds.listItemUniqueId,
     listId: res.data.sharepointIds.listId,

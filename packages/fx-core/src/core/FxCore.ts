@@ -2653,8 +2653,8 @@ export class FxCore {
         oneDriveSharePointIds = {
           site_id: sharePointItem.siteId,
           web_id: sharePointItem.webId,
-          list_id: sharePointItem.listId,
-          unique_id: sharePointItem.uniqueId,
+          ...(sharePointItem.listId && { list_id: sharePointItem.listId }),
+          ...(sharePointItem.uniqueId && { unique_id: sharePointItem.uniqueId }),
         };
       }
     }
