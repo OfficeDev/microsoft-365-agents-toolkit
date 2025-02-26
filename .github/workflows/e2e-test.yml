@@ -367,6 +367,7 @@ jobs:
 
   report:
     needs: execute-case
+    if: ${{always()}}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
