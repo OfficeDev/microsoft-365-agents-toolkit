@@ -177,6 +177,27 @@ describe("copilotDebugLogOutput", () => {
       );
     });
 
+    it("should skip if matched function plugin id not equal to enabled plugin id", () => {
+      const logJson = JSON.stringify({
+        enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
+        matchedFunctionCandidates: [
+          {
+            plugin: { name: "plugin2", id: "2", version: "1.0" },
+            functionDisplayName: "function1",
+          },
+        ],
+      });
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      copilotDebugLog.write();
+
+      chai.assert.isFalse(
+        appendLineStub.calledWith(
+          `${ANSIColors.GREEN}   (√) ${ANSIColors.WHITE}Matched functions: ${ANSIColors.MAGENTA}plugin2`
+        )
+      );
+    });
+
     it("write with 0 enabled plugin(s)", () => {
       const logJson = JSON.stringify({
         enabledPlugins: [],
@@ -520,6 +541,11 @@ describe("copilotDebugLogOutput", () => {
                   scopeName: "scope1",
                 },
               },
+            },
+            {
+              capabilityIcon: "iconUrl",
+              capabilityName: "WebSearch",
+              scopes: {},
             },
           ],
           capabilityExecutions: [
