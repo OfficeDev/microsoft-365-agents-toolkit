@@ -23,8 +23,10 @@ import {
   Inputs,
   ManifestTemplateFileName,
   Platform,
+  PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
+  RuntimeObjectOpenapi,
   SystemError,
   TeamsAppManifest,
   Warning,
@@ -55,11 +57,13 @@ import { TemplateNames } from "../templates/templateNames";
 import {
   convertSpecParserErrorToFxError,
   copyKiotaFolder,
+  generateAdaptiveCardInPluginManifestForKiota,
   generateFromApiSpec,
   generateScaffoldingSummary,
   getEnvName,
   getParserOptions,
   listOperations,
+  parseAndUpdatePluginManifestForKiota,
   updateForCustomApi,
 } from "./helper";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
@@ -343,7 +347,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
       isPlugin: false,
       type: ProjectType.SME,
     };
-    let authData = undefined;
+    let authData: any = undefined;
     if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id) {
       getTemplateInfosState.isPlugin = true;
       authData = inputs.apiAuthData;
@@ -362,22 +366,8 @@ export class SpecGenerator extends DefaultTemplateGenerator {
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
       inputs[QuestionNames.ApiPluginManifestPath];
     if (isKiotaIntegration) {
-      const operationsResult = await listOperations(
-        context,
-        inputs[QuestionNames.ApiSpecLocation],
-        inputs
-      );
-      if (operationsResult.isErr()) {
-        const errorMsg = getLocalizedString("error.kiota.FailedToGenerateAuthActions");
-        void context.userInteraction.showMessage("warn", errorMsg, false);
-        context.logProvider.warning(errorMsg);
-      } else {
-        const operations = operationsResult.value;
-        const authApi = operations.filter((api) => !!api.data.authName);
-        if (authApi.length > 0) {
-          authData = authApi.map((api) => api.data);
-        }
-      }
+      const pluginManifestPath = inputs[QuestionNames.ApiPluginManifestPath] as string;
+      authData = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, false);
     }
 
     const appName = inputs[QuestionNames.AppName];
@@ -430,7 +420,7 @@ export class SpecGenerator extends DefaultTemplateGenerator {
 
     if (authData && authData.length > 0) {
       for (const auth of authData) {
-        const envName = getEnvName(auth.authName!);
+        const envName = auth.registrationId ?? getEnvName(auth.authName!);
         auths.push({
           authName: auth.authName!,
           openapiSpecPath: openapiSpecPath,
@@ -462,7 +452,8 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         getTemplateInfosState.url
       ).toString(),
       [telemetryProperties.generateType]: getTemplateInfosState.type.toString(),
-      [telemetryProperties.authType]: authData?.map((item) => item.authType).join(",") ?? "None",
+      [telemetryProperties.authType]:
+        authData?.map((item: any) => item.authType).join(",") ?? "None",
     });
     inputs.getTemplateInfosState = getTemplateInfosState;
     return ok([
@@ -545,6 +536,9 @@ export class SpecGenerator extends DefaultTemplateGenerator {
         // 2. Copy plugin manifest file
         await fs.copyFile(inputs[QuestionNames.ApiPluginManifestPath], pluginManifestPath!);
 
+        // 2.1 Need to update the plugin manifest file
+        await parseAndUpdatePluginManifestForKiota(pluginManifestPath!, true);
+
         // 3. Update teams app manifest
         const manifest: TeamsAppManifest = await fs.readJSON(manifestPath);
         const apiPluginRelativePath = path.relative(manifestPath, pluginManifestPath!);
@@ -567,22 +561,12 @@ export class SpecGenerator extends DefaultTemplateGenerator {
           return err(addActionResult.error);
         }
 
-        // 5. Update plugin manifest to add auth info (optional)
-        try {
-          const specParser = new SpecParser(
-            openapiSpecPath,
-            getParserOptions(getTemplateInfosState.type, isDeclarativeCopilot)
-          );
-          const operation = (await specParser.list()).APIs.filter((value) => value.isValid).map(
-            (value) => value.api
-          );
-          await specParser.generateAdaptiveCardInPlugin(pluginManifestPath!, operation, undefined);
-        } catch (error) {
-          // create ac error, should not block the whole process
-          const errorMsg = getLocalizedString("error.kiota.FailedToCreateAdaptiveCard");
-          void context.userInteraction.showMessage("warn", errorMsg, false);
-          context.logProvider.warning(errorMsg);
-        }
+        // 5. Update plugin manifest to add ac info (optional)
+        await generateAdaptiveCardInPluginManifestForKiota(
+          pluginManifestPath!,
+          openapiSpecPath,
+          context
+        );
 
         // 5. Copy .kiota folder
         await copyKiotaFolder(inputs[QuestionNames.ApiPluginManifestPath], destinationPath);

@@ -118,6 +118,7 @@ import { ApiPluginStartOptions, HubOptions } from "../../src/question/constants"
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
+import * as helper from "../../src/component/generator/apiSpec/helper";
 
 const tools = new MockTools();
 
@@ -6126,19 +6127,19 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        serverUrl: "",
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
+    sandbox
+      .stub(CopilotPluginHelper, "injectAuthAction")
+      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
+    sandbox.stub(fs, "copyFile").resolves();
+    sandbox.stub(helper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
@@ -6396,26 +6397,14 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        serverUrl: "",
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
     sandbox
       .stub(CopilotPluginHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
@@ -6493,26 +6482,14 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        serverUrl: "",
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
     sandbox
       .stub(CopilotPluginHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });

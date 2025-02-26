@@ -21,6 +21,7 @@ import {
   IComposeExtension,
   Inputs,
   Platform,
+  PluginManifestSchema,
   ResponseTemplatesFolderName,
   SystemError,
   TeamsAppManifest,
@@ -51,9 +52,11 @@ import * as helper from "../../../src/component/generator/apiSpec/helper";
 import * as pluginGeneratorHelper from "../../../src/component/generator/apiSpec/helper";
 import {
   formatValidationErrors,
+  generateAdaptiveCardInPluginManifestForKiota,
   generateScaffoldingSummary,
   injectAuthAction,
   listPluginExistingOperations,
+  parseAndUpdatePluginManifestForKiota,
 } from "../../../src/component/generator/apiSpec/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import {
@@ -2079,20 +2082,14 @@ describe("SpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        ok([
-          {
-            id: "operation1",
-            label: "operation1",
-            groupName: "1",
-            data: {
-              serverUrl: "https://server1",
-              authName: "auth",
-              authType: "apiKey",
-            },
-          },
-        ])
-      );
+      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+        {
+          serverUrl: "",
+          authName: "mockedAuthName",
+          authType: "apiKey",
+          registrationId: "MOCKED_REGISTRATION_ID",
+        },
+      ]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -2118,18 +2115,7 @@ describe("SpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        ok([
-          {
-            id: "operation1",
-            label: "operation1",
-            groupName: "1",
-            data: {
-              serverUrl: "https://server1",
-            },
-          },
-        ])
-      );
+      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -2137,34 +2123,6 @@ describe("SpecGenerator", async () => {
         assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap!["DeclarativeCopilot"], "");
       }
-    });
-
-    it("should not throw error parse failed for kiota integration", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      const generator = new SpecGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
-        [QuestionNames.AppName]: "testapp",
-        [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-      };
-      inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "listOperations").resolves(
-        err([
-          {
-            type: ErrorType.SpecNotValid,
-            content: "test",
-          },
-        ])
-      );
-      const res = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res.isOk());
     });
   });
 
@@ -3147,5 +3105,202 @@ describe("SpecGenerator", async () => {
       assert.isTrue(result.isOk());
       assert.isTrue(copyKiotaFolder.calledOnce);
     });
+  });
+});
+
+describe("parseAndUpdatePluginManifestForKiota", async () => {
+  const tools = new MockTools();
+  setTools(tools);
+  const sandbox = sinon.createSandbox();
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  afterEach(async () => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+  });
+
+  it("happy path: update plugin manifest", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "ApiKeyPluginVault",
+            reference_id: "{test_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
+      const dataJson = JSON.parse(data);
+      assert.isTrue(dataJson.runtimes.length === 2);
+      assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
+    });
+
+    const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", true);
+    assert.deepEqual(result, [
+      {
+        serverUrl: "",
+        authName: "test",
+        authType: "apiKey",
+        registrationId: "TEST_REIGSTRATION_ID",
+      },
+    ]);
+  });
+
+  it("happy path: skip update plugin manifest", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "ApiKeyPluginVault",
+            reference_id: "{test_REIGSTRATION_ID}",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", false);
+    assert.deepEqual(result, [
+      {
+        serverUrl: "",
+        authName: "test",
+        authType: "apiKey",
+        registrationId: "TEST_REIGSTRATION_ID",
+      },
+    ]);
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+
+  it("happy path: skip update plugin manifest if no auth", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const result = await parseAndUpdatePluginManifestForKiota("pluginManifestPath", true);
+    assert.isTrue(result.length === 0);
+    assert.isTrue(writeJsonStub.notCalled);
+  });
+});
+
+describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
+  const tools = new MockTools();
+  setTools(tools);
+  const context = createContext();
+  const sandbox = sinon.createSandbox();
+  let mockedEnvRestore: RestoreFn | undefined;
+
+  afterEach(async () => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+  });
+
+  it("happy path", async () => {
+    sandbox.stub(SpecParser.prototype, "list").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "mockedApi1",
+          server: "mockedSever1",
+          operationId: "mockedOperationId1",
+          isValid: true,
+          reason: [],
+          auth: {
+            name: "mockedAuthName1",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+        },
+      ],
+    });
+    sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
+    const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
+    await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);
+    assert.isTrue(warningStub.notCalled);
+  });
+
+  it("happy path: should not throw error if error occurs", async () => {
+    sandbox.stub(SpecParser.prototype, "list").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "mockedApi1",
+          server: "mockedSever1",
+          operationId: "mockedOperationId1",
+          isValid: true,
+          reason: [],
+          auth: {
+            name: "mockedAuthName1",
+            authScheme: {
+              type: "http",
+              scheme: "bearer",
+            },
+          },
+        },
+      ],
+    });
+    sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").throws(new Error("test"));
+    const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
+    await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);
+    assert.isTrue(warningStub.calledOnce);
   });
 });
