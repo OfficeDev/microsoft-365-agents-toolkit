@@ -614,7 +614,8 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
   private provisionRegex = /^provision:/m;
   private deployRegex = /^deploy:/m;
   private publishRegex = /^publish:/m;
-  private regexes = [this.provisionRegex, this.deployRegex, this.publishRegex];
+  private shareRegex = /^share:/m;
+  private regexes = [this.provisionRegex, this.deployRegex, this.publishRegex, this.shareRegex];
 
   public provideCodeLenses(
     document: vscode.TextDocument
