@@ -17,6 +17,9 @@ import {
   File,
   Site,
   DeclarativeCopilotCapabilityName,
+  OneDriveAndSharePointCapability,
+  WebSearchCapability,
+  GraphConnectorsCapability,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
@@ -484,24 +487,19 @@ export class CopilotGptManifestUtils {
     if (manifestRes.isErr()) {
       return err(manifestRes.error);
     }
-    interface oneDriveSharePointCapability {
-      name: string;
-      items_by_sharepoint_ids?: File[] | null;
-      items_by_url?: Site[] | null;
-    }
 
     const agentManifest = manifestRes.value;
     if (!agentManifest.capabilities) {
       agentManifest.capabilities = [];
     }
 
-    const newCapabilityData: oneDriveSharePointCapability = {
+    const newCapabilityData: OneDriveAndSharePointCapability = {
       name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
     };
 
     const capability = agentManifest.capabilities.find(
       (cap) => cap.name === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint
-    ) as oneDriveSharePointCapability | undefined;
+    ) as OneDriveAndSharePointCapability | undefined;
 
     if (items_by_url) {
       newCapabilityData.items_by_url = capability ? capability.items_by_url || [] : [];
@@ -529,10 +527,6 @@ export class CopilotGptManifestUtils {
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
     if (manifestRes.isErr()) {
       return err(manifestRes.error);
-    }
-    interface WebSearchCapability {
-      name: string;
-      sites?: Site[];
     }
 
     const agentManifest = manifestRes.value;

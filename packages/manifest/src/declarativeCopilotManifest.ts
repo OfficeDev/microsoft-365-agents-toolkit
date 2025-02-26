@@ -14,7 +14,7 @@ export enum DeclarativeCopilotCapabilityName {
 
 export interface WebSearchCapability {
   name: DeclarativeCopilotCapabilityName.WebSearch;
-  [k: string]: unknown;
+  sites?: Site[];
 }
 
 export interface GraphicArtCapability {

@@ -130,9 +130,7 @@ import {
   listOperations,
   listPluginExistingOperations,
 } from "../component/generator/apiSpec/helper";
-import { 
-  addExistingPlugin,
-} from "../component/generator/copilotExtension/helper";
+import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -192,7 +190,10 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
-import { getODSPItemDetailById, ItemMetadata } from "../component/generator/copilotExtension/oneDriveSharePointHandler";
+import {
+  getODSPItemDetailById,
+  ItemMetadata,
+} from "../component/generator/copilotExtension/oneDriveSharePointHandler";
 export class FxCore {
   constructor(tools: Tools) {
     setTools(tools);
@@ -2747,11 +2748,7 @@ export class FxCore {
   private async addEmbeddedKnowledge(inputs: Inputs): Promise<Result<undefined, FxError>> {
     const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
     const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
-    const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
-      manifestFilePath,
-      filePath
-    );    
+    const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
     return res;
   }
-
 }

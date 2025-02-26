@@ -136,7 +136,7 @@ export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
               inputs.platform === Platform.VSCode && // confirm question only works for VSC
               inputs.projectPath !== undefined &&
               path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-              path.join(inputs.projectPath, "aad.manifest.json"),
+                path.join(inputs.projectPath, "aad.manifest.json"),
             data: confirmManifestQuestion(false, false),
             cliOptionDisabled: "self",
             inputsDisabled: "self",
@@ -160,7 +160,7 @@ export function deployAadManifestQuestionNode(): IQTreeNode {
               inputs.platform === Platform.VSCode && // confirm question only works for VSC
               inputs.projectPath !== undefined &&
               path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-              path.join(inputs.projectPath, "aad.manifest.json"),
+                path.join(inputs.projectPath, "aad.manifest.json"),
             data: confirmManifestQuestion(false, false),
             cliOptionDisabled: "self",
             inputsDisabled: "self",
@@ -221,7 +221,7 @@ export function selectAadAppManifestQuestionNode(): IQTreeNode {
           inputs.projectPath &&
           inputs[QuestionNames.AadAppManifestFilePath] &&
           path.resolve(inputs[QuestionNames.AadAppManifestFilePath]) !==
-          path.join(inputs.projectPath, "aad.manifest.json"),
+            path.join(inputs.projectPath, "aad.manifest.json"),
         data: confirmManifestQuestion(false, false),
         cliOptionDisabled: "self",
         inputsDisabled: "self",
@@ -235,20 +235,20 @@ function confirmCondition(inputs: Inputs, isLocal: boolean): boolean {
     inputs.platform === Platform.VSCode && // confirm question only works for VSC
     inputs.projectPath &&
     inputs[
-    isLocal ? QuestionNames.LocalTeamsAppManifestFilePath : QuestionNames.TeamsAppManifestFilePath
+      isLocal ? QuestionNames.LocalTeamsAppManifestFilePath : QuestionNames.TeamsAppManifestFilePath
     ] &&
     path.resolve(
       inputs[
-      isLocal
-        ? QuestionNames.LocalTeamsAppManifestFilePath
-        : QuestionNames.TeamsAppManifestFilePath
+        isLocal
+          ? QuestionNames.LocalTeamsAppManifestFilePath
+          : QuestionNames.TeamsAppManifestFilePath
       ]
     ) !==
-    path.join(
-      inputs.projectPath,
-      AppPackageFolderName,
-      isLocal ? "manifest.local.json" : "manifest.json"
-    )
+      path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        isLocal ? "manifest.local.json" : "manifest.json"
+      )
   );
 }
 
@@ -377,10 +377,10 @@ function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSele
     name: name,
     title: isTeamsApp
       ? getLocalizedString(
-        isLocal
-          ? "core.selectLocalTeamsAppManifestQuestion.title"
-          : "core.selectTeamsAppManifestQuestion.title"
-      )
+          isLocal
+            ? "core.selectLocalTeamsAppManifestQuestion.title"
+            : "core.selectTeamsAppManifestQuestion.title"
+        )
       : getLocalizedString("core.selectAadAppManifestQuestion.title"),
     type: "singleSelect",
     staticOptions: [],
@@ -393,19 +393,19 @@ function confirmManifestQuestion(isTeamsApp = true, isLocal = false): SingleSele
           label: `$(file) ${path.basename(
             isTeamsApp
               ? inputs[
-              isLocal
-                ? QuestionNames.LocalTeamsAppManifestFilePath
-                : QuestionNames.TeamsAppManifestFilePath
-              ]
+                  isLocal
+                    ? QuestionNames.LocalTeamsAppManifestFilePath
+                    : QuestionNames.TeamsAppManifestFilePath
+                ]
               : inputs[QuestionNames.AadAppManifestFilePath]
           )}`,
           description: path.dirname(
             isTeamsApp
               ? inputs[
-              isLocal
-                ? QuestionNames.LocalTeamsAppManifestFilePath
-                : QuestionNames.TeamsAppManifestFilePath
-              ]
+                  isLocal
+                    ? QuestionNames.LocalTeamsAppManifestFilePath
+                    : QuestionNames.TeamsAppManifestFilePath
+                ]
               : inputs[QuestionNames.AadAppManifestFilePath]
           ),
         },
@@ -829,27 +829,25 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
     children: [
       // Web Content
       {
-        data: selectTeamsAppManifestQuestion(),
+        data: searchTypeQuestion(),
         condition: (inputs: Inputs) => {
           return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id;
         },
         children: [
           {
-            data: searchTypeQuestion(),
-            children: [
-              {
-                data: webContentQuestion(),
-                condition: (inputs: Inputs) => {
-                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-                },
-              },
-            ],
-          }
-        ]
+            data: webContentQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
       },
       // OneDrive SharePoint
       {
-        data: selectTeamsAppManifestQuestion(),
+        data: searchTypeQuestion(),
         condition: (inputs: Inputs) => {
           return (
             inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
@@ -857,24 +855,21 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
         },
         children: [
           {
-            data: searchTypeQuestion(),
-            children: [
-              {
-                data: oneDriveSharePointItemQuestion(),
-                condition: (inputs: Inputs) => {
-                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-                },
-              },
-              {
-                data: oneDriveSharePointItemConfirmQuestion(),
-                condition: (inputs: Inputs) => {
-                  return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
-                },
-              }
-            ],
-          }
-          
-        ]
+            data: oneDriveSharePointItemQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: oneDriveSharePointItemConfirmQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
       },
       // Graph Connector
       {
@@ -904,7 +899,9 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
       {
         data: selectTeamsAppManifestQuestion(),
         condition: (inputs: Inputs) => {
-          return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.embeddedKnowledge().id;
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.embeddedKnowledge().id
+          );
         },
         children: [
           {
