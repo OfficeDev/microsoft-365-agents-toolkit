@@ -109,7 +109,6 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             VSCapabilityOptions.SearchMeVS(),
             MeCapabilityOptions.linkUnfurling(),
             TdpCapabilityOptions.me(),
-            TdpCapabilityOptions.nonSsoTab(),
           ],
           onDidSelection: setTemplateName,
         },
