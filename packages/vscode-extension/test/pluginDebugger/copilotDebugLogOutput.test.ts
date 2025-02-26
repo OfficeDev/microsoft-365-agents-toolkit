@@ -198,6 +198,19 @@ describe("copilotDebugLogOutput", () => {
       );
     });
 
+    it("should return if no enabledCapabilities", () => {
+      const logJson = JSON.stringify({
+        capabilitiesDeveloperInfo: {
+          enabledCapabilities: [],
+        },
+      });
+      const copilotDebugLog = new CopilotDebugLog(logJson);
+      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+
+      copilotDebugLog["logCapabilities"](vscode.debug.activeDebugConsole);
+      chai.assert.isFalse(appendLineStub.calledOnce);
+    });
+
     it("write with 0 enabled plugin(s)", () => {
       const logJson = JSON.stringify({
         enabledPlugins: [],
