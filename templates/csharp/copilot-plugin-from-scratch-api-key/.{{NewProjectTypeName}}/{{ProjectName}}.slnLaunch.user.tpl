@@ -21,5 +21,28 @@
         "DebugTarget": "Start Project"
       }
     ]
+  },
+  {
+    "Name": "Microsoft Teams (browser) (skip update Teams App)",
+    "Projects": [
+      {
+        "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
+        "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "Microsoft Teams (browser) (skip update Teams App)"
+      },
+      {
+{{#PlaceProjectFileInSolutionDir}}
+        "Path": "{{ProjectName}}.csproj",
+        "Name": "{{ProjectName}}.csproj",
+{{/PlaceProjectFileInSolutionDir}}
+{{^PlaceProjectFileInSolutionDir}}
+        "Path": "{{ProjectName}}\\{{ProjectName}}.csproj",
+        "Name": "{{ProjectName}}\\{{ProjectName}}.csproj",
+{{/PlaceProjectFileInSolutionDir}}
+        "Action": "Start",
+        "DebugTarget": "Start Project"
+      }
+    ]
   }
 ]

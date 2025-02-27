@@ -20,6 +20,7 @@ import {
 } from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { m365SearchMeSubNode, notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
+import { TdpCapabilityOptions } from "../vsc/createFromTdpNode";
 
 export class VSCapabilityOptions {
   // empty
@@ -107,6 +108,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             MeCapabilityOptions.collectFormMe(),
             VSCapabilityOptions.SearchMeVS(),
             MeCapabilityOptions.linkUnfurling(),
+            TdpCapabilityOptions.me(),
           ],
           onDidSelection: setTemplateName,
         },

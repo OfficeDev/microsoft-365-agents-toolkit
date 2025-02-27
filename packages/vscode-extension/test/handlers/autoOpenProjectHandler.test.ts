@@ -1,19 +1,19 @@
-import * as sinon from "sinon";
-import * as chai from "chai";
-import * as vscode from "vscode";
-import path from "path";
-import * as globalVariables from "../../src/globalVariables";
-import * as vsc_ui from "../../src/qm/vsc_ui";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import VsCodeLogInstance from "../../src/commonlib/log";
-import { ok, ManifestUtil, err, UserError, SystemError } from "@microsoft/teamsfx-api";
+import { err, ManifestUtil, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
+import * as chai from "chai";
+import path from "path";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import VsCodeLogInstance from "../../src/commonlib/log";
 import { GlobalKey } from "../../src/constants";
+import * as globalVariables from "../../src/globalVariables";
+import { autoOpenProjectHandler } from "../../src/handlers/autoOpenProjectHandler";
+import * as vsc_ui from "../../src/qm/vsc_ui";
 import { VsCodeUI } from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
-import { autoOpenProjectHandler } from "../../src/handlers/autoOpenProjectHandler";
-import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/apiSpec/helper";
 
 describe("autoOpenProjectHandler", () => {
   const sandbox = sinon.createSandbox();

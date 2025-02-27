@@ -9,13 +9,15 @@ import * as sinon from "sinon";
 import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
-import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
+import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
+import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
+import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
+import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { FxCore } from "../../../src/core/FxCore";
@@ -27,7 +29,6 @@ import {
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  MeArchitectureOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -35,9 +36,6 @@ import {
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
-import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
-import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -407,7 +405,7 @@ describe("coordinator create", () => {
         [QuestionNames.LLMService]: "llm-service-openAI",
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
-      sandbox.stub(SpecGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -433,7 +431,7 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -483,7 +481,7 @@ describe("coordinator create", () => {
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run")
         .resolves(err(new SystemError("test", "test", "test")));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
@@ -596,7 +594,7 @@ describe("coordinator create", () => {
       v3ctx.userInteraction = new MockedUserInteraction();
 
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run")
         .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage", "")));
       const inputs: Inputs = {
         platform: Platform.VSCode,
