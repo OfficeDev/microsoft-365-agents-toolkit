@@ -28,10 +28,14 @@ import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdef
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { CommandScope, MeetingsContext } from "../../src/component/driver/teamsApp/utils/utils";
 import { DotenvOutput, envUtil } from "../../src/component/utils/envUtil";
-import { CapabilityOptions, QuestionNames } from "../../src/question/constants";
+import { QuestionNames } from "../../src/question/constants";
 import { getProjectTypeAndCapability } from "../../src/question/create";
 import { MockedAzureAccountProvider, MockedM365Provider, MockTools } from "../core/utils";
 import { InputValidationError } from "../../src/error";
+import {
+  BotCapabilityOptions,
+  TdpCapabilityOptions,
+} from "../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());
@@ -1376,7 +1380,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, CapabilityOptions.nonSsoTabAndBot().id);
+      chai.assert.equal(res?.templateId, TdpCapabilityOptions.nonSsoTabAndBot().id);
       chai.assert.equal(res?.projectType, "tab-bot-type");
     });
 
@@ -1387,7 +1391,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, CapabilityOptions.nonSsoTab().id);
+      chai.assert.equal(res?.templateId, TdpCapabilityOptions.nonSsoTab().id);
       chai.assert.equal(res?.projectType, "tab-type");
     });
 
@@ -1399,7 +1403,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, CapabilityOptions.botAndMe().id);
+      chai.assert.equal(res?.templateId, TdpCapabilityOptions.botAndMe().id);
       chai.assert.equal(res?.projectType, "bot-me-type");
     });
 
@@ -1410,7 +1414,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, CapabilityOptions.me().id);
+      chai.assert.equal(res?.templateId, TdpCapabilityOptions.me().id);
       chai.assert.equal(res?.projectType, "me-type");
     });
 
@@ -1421,7 +1425,7 @@ describe("developPortalScaffoldUtils", () => {
       };
 
       const res = getProjectTypeAndCapability(appDefinition);
-      chai.assert.equal(res?.templateId, CapabilityOptions.basicBot().id);
+      chai.assert.equal(res?.templateId, BotCapabilityOptions.basicBot().id);
       chai.assert.equal(res?.projectType, "bot-type");
     });
 
