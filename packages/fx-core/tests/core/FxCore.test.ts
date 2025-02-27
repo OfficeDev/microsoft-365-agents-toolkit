@@ -82,7 +82,7 @@ import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp
 import { createDriverContext } from "../../src/component/driver/util/utils";
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
-import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
+import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
@@ -5653,7 +5653,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
-      .stub(copilotExtensionHelper, "addExistingPlugin")
+      .stub(declarativeAgentHelper, "addExistingPlugin")
       .resolves(ok({ destinationPluginManifestPath: "ai-plugin.json", warnings: [] }));
 
     const core = new FxCore(tools);
@@ -5700,7 +5700,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
-      .stub(copilotExtensionHelper, "addExistingPlugin")
+      .stub(declarativeAgentHelper, "addExistingPlugin")
       .resolves(err(new SystemError("fakeError", "fakeError", "", "")));
 
     sandbox.stub(tools.ui, "showMessage").resolves(ok("Add"));

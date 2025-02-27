@@ -16,7 +16,7 @@ export enum TemplateNames {
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",
   CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
-  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api", // TODO: handled by xxx generator
+  CustomCopilotRagCustomApi = "custom-copilot-rag-custom-api", // handled by CustomEngineAgentWithExistingApiSpecGenerator
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
