@@ -61,7 +61,7 @@ describe("telemetry", () => {
         k1: "v1",
       };
       telemetryUtils.fillInErrorProperties(props, fxError);
-      assert.isUndefined(props[TelemetryProperty.ErrorData]);
+      assert.equal(props[TelemetryProperty.ErrorData], "");
     });
   });
 });
