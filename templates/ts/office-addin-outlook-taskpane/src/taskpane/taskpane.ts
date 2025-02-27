@@ -3,6 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 
+// eslint-disable-next-line no-redeclare
 /* global document, Office */
 
 Office.onReady((info) => {
@@ -19,8 +20,8 @@ export async function run() {
    */
 
   const item = Office.context.mailbox.item;
-  let insertAt = document.getElementById("item-subject");
-  let label = document.createElement("b").appendChild(document.createTextNode("Subject: "));
+  const insertAt = document.getElementById("item-subject");
+  const label = document.createElement("b").appendChild(document.createTextNode("Subject: "));
   insertAt.appendChild(label);
   insertAt.appendChild(document.createElement("br"));
   insertAt.appendChild(document.createTextNode(item.subject));
