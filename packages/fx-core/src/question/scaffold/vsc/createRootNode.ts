@@ -8,10 +8,10 @@ import { getAllTemplatesOnPlatform } from "../../../component/generator/template
 import { ProgrammingLanguage, QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
 import {
-  ApiPluginStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
   DACapabilityOptions,
+  DeclarativeAgentStartOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
@@ -83,10 +83,10 @@ export function folderAndAppNameCondition(inputs: Inputs): boolean {
   // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
   return !(
     featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+    inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id &&
     (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
       inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
-    !inputs[QuestionNames.ApiPluginManifestPath]
+    !inputs[QuestionNames.DeclarativeAgentManifestPath]
   );
 }
 

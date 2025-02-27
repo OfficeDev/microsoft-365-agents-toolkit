@@ -26,8 +26,8 @@ import * as helper from "../../../../src/component/generator/openApiSpec/helper"
 import { MessageExtensionWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/messageExtensionGenerator";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
-  ApiPluginStartOptions,
   CapabilityOptions,
+  DeclarativeAgentStartOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../../src/question";
@@ -74,7 +74,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
       };
@@ -135,7 +135,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -179,7 +179,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
           },
         ],
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -213,7 +213,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -280,7 +280,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -318,7 +318,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -353,7 +353,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -387,7 +387,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -420,7 +420,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,
@@ -444,7 +444,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "copilot-plugin-existing-api",
+          templateName: "message-extension-with-existing-api",
           isPlugin: false,
           uri: "https://test.com",
           isYaml: false,

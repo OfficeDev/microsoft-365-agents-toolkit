@@ -11,7 +11,7 @@ import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
+import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
@@ -25,10 +25,10 @@ import { InputValidationError, MissingRequiredInputError } from "../../../src/er
 import { CreateSampleProjectInputs } from "../../../src/question";
 import {
   ApiAuthOptions,
-  ApiPluginStartOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
+  DeclarativeAgentStartOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -493,18 +493,18 @@ describe("coordinator create", () => {
     it("create API Plugin with No authentication (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -513,18 +513,18 @@ describe("coordinator create", () => {
     it("create API Plugin with api-key auth (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchBearer,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -533,18 +533,18 @@ describe("coordinator create", () => {
     it("create API Plugin with OAuth (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchOAuth,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -580,10 +580,10 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -601,7 +601,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
       };
@@ -619,7 +619,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);
@@ -640,7 +640,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",
       };
       const context = createContext();

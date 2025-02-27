@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CopilotExtensionGenerator } from "./copilotExtension/generator";
+import { DeclarativeAgentGenerator } from "./declarativeAgent/generator";
 import { DefaultTemplateGenerator } from "./defaultGenerator";
 import { OfficeAddinGeneratorNew } from "./officeAddin/generator";
 import { CustomEngineAgentWithExistingApiSpecGenerator } from "./openApiSpec/customEngineAgentGenerator";
@@ -21,5 +21,5 @@ export const Generators = [
   new DeclarativeAgentWithExistingApiSpecGenerator(),
   new CustomEngineAgentWithExistingApiSpecGenerator(),
   new MessageExtensionWithExistingApiSpecGenerator(),
-  new CopilotExtensionGenerator(),
+  new DeclarativeAgentGenerator(),
 ];

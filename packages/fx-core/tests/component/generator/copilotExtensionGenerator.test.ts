@@ -7,27 +7,25 @@
 
 import { err, Inputs, ok, Platform, PluginManifestSchema, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
+import fs from "fs-extra";
 import "mocha";
+import { RestoreFn } from "mocked-env";
+import path from "path";
+import sinon from "sinon";
 import { createContext } from "../../../src/common/globalVars";
+import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
+import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
+import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import * as commons from "../../../src/component/utils/common";
 import {
   ApiAuthOptions,
-  ApiPluginStartOptions,
   CapabilityOptions,
-  DeclarativeCopilotTypeOptions,
+  DeclarativeAgentStartOptions,
   QuestionNames,
 } from "../../../src/question";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
-import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import sinon from "sinon";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
-import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import * as generatorHelper from "../../../src/component/generator/copilotExtension/helper";
-import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import fs from "fs-extra";
-import path from "path";
 import { MockLogProvider } from "../../core/utils";
-import * as commons from "../../../src/component/utils/common";
 
 describe("copilotExtension", async () => {
   let mockedEnvRestore: RestoreFn | undefined;
@@ -40,86 +38,109 @@ describe("copilotExtension", async () => {
   });
   describe("activate and get template name", async () => {
     it("api plugin", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",
       };
       let res = await generator.activate(context, inputs);
       let info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch"
+      );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
+      inputs[QuestionNames.TemplateName] =
+        TemplateNames.DeclarativeAgentWithActionFromScratchBearer;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch-bearer"
+      );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch-oauth"
+      );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.microsoftEntra().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch-oauth"
+      );
     });
 
     it("declarative Copilot: Env func enabled", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
+        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",
       };
       let res = await generator.activate(context, inputs);
       let info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch"
+      );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
+      inputs[QuestionNames.TemplateName] =
+        TemplateNames.DeclarativeAgentWithActionFromScratchBearer;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch-bearer"
+      );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratch;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
+      assert.equal(
+        info.isOk() && info.value[0].templateName,
+        "declarative-agent-with-action-from-scratch-oauth"
+      );
     });
   });
 
   describe("post", async () => {
     it("add plugin success", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
 
@@ -141,14 +162,14 @@ describe("copilotExtension", async () => {
     });
 
     it("add plugin success with warnings", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
 
@@ -176,13 +197,13 @@ describe("copilotExtension", async () => {
       assert.isTrue(res.isOk());
     });
     it("get manifest path error", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
 
@@ -195,14 +216,14 @@ describe("copilotExtension", async () => {
     });
 
     it("add plugin errror", async () => {
-      const generator = new CopilotExtensionGenerator();
+      const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
         [QuestionNames.AppName]: "app",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
 
       sandbox

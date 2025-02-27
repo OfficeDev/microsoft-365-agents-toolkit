@@ -61,8 +61,8 @@ import {
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { assembleError, MissingRequiredInputError } from "../../../error";
 import {
-  apiPluginApiSpecOptionId,
   CustomCopilotRagOptions,
+  DeclarativeAgentApiSpecOptionId,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question/constants";
@@ -100,12 +100,12 @@ const enum telemetryEvents {
 
 export function getParserOptions(
   type: ProjectType,
-  isDeclarativeCopilot?: boolean,
+  isDeclarativeAgent?: boolean,
   platform?: string
 ): ParseOptions {
   return type === ProjectType.Copilot
     ? {
-        isGptPlugin: isDeclarativeCopilot,
+        isGptPlugin: isDeclarativeAgent,
         allowAPIKeyAuth: false,
         allowBearerTokenAuth: !!platform && platform === Platform.VS ? false : true,
         allowMultipleParameters: true,
@@ -184,7 +184,7 @@ export async function listOperations(
   shouldLogWarning = true,
   existingCorrelationId?: string
 ): Promise<Result<ApiOperation[], ErrorResult[]>> {
-  const isPlugin = inputs[QuestionNames.ApiPluginType] === apiPluginApiSpecOptionId;
+  const isPlugin = inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentApiSpecOptionId;
   const isCustomApi =
     inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id;
   const projectType = isPlugin
@@ -1045,7 +1045,7 @@ function mapInvalidReasonToMessage(reason: ErrorType): string {
 }
 
 function formatValidationErrorContent(error: ApiSpecErrorResult, inputs: Inputs): string {
-  const isPlugin = inputs[QuestionNames.ApiPluginType] === apiPluginApiSpecOptionId;
+  const isPlugin = inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentApiSpecOptionId;
   try {
     switch (error.type) {
       case ErrorType.SpecNotValid: {

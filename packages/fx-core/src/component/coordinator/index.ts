@@ -35,16 +35,15 @@ import { environmentNameManager } from "../../core/environmentName";
 import { ResourceGroupConflictError, SelectSubscriptionError } from "../../error/azure";
 import {
   InputValidationError,
-  InternalError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
   assembleError,
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
 import {
-  ApiPluginStartOptions,
   AppNamePattern,
   CapabilityOptions,
+  DeclarativeAgentStartOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -53,7 +52,6 @@ import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/in
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
 import { deployUtils } from "../deployUtils";
-import { developerPortalScaffoldUtils } from "../developerPortalScaffoldUtils";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { updateTeamsAppV3ForPublish } from "../driver/teamsApp/appStudio";
 import { Constants } from "../driver/teamsApp/constants";
@@ -100,8 +98,8 @@ class Coordinator {
     if (
       inputs.platform === Platform.VSCode &&
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
-      !inputs[QuestionNames.ApiPluginManifestPath] &&
+      inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id &&
+      !inputs[QuestionNames.DeclarativeAgentManifestPath] &&
       (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
         inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
     ) {

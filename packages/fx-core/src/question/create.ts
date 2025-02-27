@@ -50,7 +50,7 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
-import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
+import { validateSourcePluginManifest } from "../component/generator/declarativeAgent/helper";
 import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
@@ -64,12 +64,12 @@ import {
 } from "../error";
 import {
   ApiAuthOptions,
-  ApiPluginStartOptions,
   AppNamePattern,
   CapabilityOptions,
   CliQuestionName,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
+  DeclarativeAgentStartOptions,
   DeclarativeCopilotTypeOptions,
   KnowledgeSourceOptions,
   MeArchitectureOptions,
@@ -943,7 +943,9 @@ export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
       const options: OptionItem[] = excludeNone ? [] : [ApiAuthOptions.none()];
       if (inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.newApi().id) {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
-      } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {
+      } else if (
+        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.newApi().id
+      ) {
         options.push(ApiAuthOptions.apiKey());
         options.push(ApiAuthOptions.microsoftEntra());
         options.push(ApiAuthOptions.oauth());
@@ -964,7 +966,8 @@ export function apiOperationQuestion(
   const isPlugin = (inputs?: Inputs): boolean => {
     return (
       isAddPlugin ||
-      (!!inputs && inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id)
+      (!!inputs &&
+        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id)
     );
   };
 
@@ -981,7 +984,8 @@ export function apiOperationQuestion(
       : "Select operation(s) Teams can interact with.",
     cliShortName: "o",
     placeholder: (inputs: Inputs) => {
-      const isPlugin = inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id;
+      const isPlugin =
+        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id;
       if (!includeExistingAPIs) {
         placeholder = getLocalizedString(
           "core.createProjectQuestion.apiSpec.operation.placeholder.skipExisting"
@@ -1196,7 +1200,7 @@ function declarativeCopilotPluginQuestion(): SingleSelectQuestion {
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",
-    name: QuestionNames.ApiPluginType,
+    name: QuestionNames.DeclarativeAgentType,
     title: (inputs: Inputs) => {
       return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id ||
         doesProjectExists
@@ -1210,11 +1214,11 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
         : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
     },
     cliDescription: "API plugin type.",
-    staticOptions: ApiPluginStartOptions.staticAll(doesProjectExists),
+    staticOptions: DeclarativeAgentStartOptions.staticAll(doesProjectExists),
     dynamicOptions: (inputs: Inputs) => {
-      return ApiPluginStartOptions.all(inputs, doesProjectExists);
+      return DeclarativeAgentStartOptions.all(inputs, doesProjectExists);
     },
-    default: ApiPluginStartOptions.newApi().id,
+    default: DeclarativeAgentStartOptions.newApi().id,
   };
 }
 
@@ -1444,7 +1448,10 @@ export function capabilitySubTree(): IQTreeNode {
       },
       {
         condition: (inputs: Inputs) => {
-          return inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.existingPlugin().id;
+          return (
+            inputs[QuestionNames.DeclarativeAgentType] ===
+            DeclarativeAgentStartOptions.existingPlugin().id
+          );
         },
         data: { type: "group", name: QuestionNames.ImportPlugin },
         children: [
@@ -1460,7 +1467,7 @@ export function capabilitySubTree(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             inputs[QuestionNames.MeArchitectureType] == MeArchitectureOptions.newApi().id ||
-            inputs[QuestionNames.ApiPluginType] == ApiPluginStartOptions.newApi().id
+            inputs[QuestionNames.DeclarativeAgentType] == DeclarativeAgentStartOptions.newApi().id
           );
         },
         data: apiAuthQuestion(),
@@ -1475,14 +1482,16 @@ export function capabilitySubTree(): IQTreeNode {
         // from API spec
         condition: (inputs: Inputs) => {
           return (
-            (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id ||
+            (inputs[QuestionNames.DeclarativeAgentType] ===
+              DeclarativeAgentStartOptions.apiSpec().id ||
               inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.apiSpec().id ||
               inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id) &&
             !(
               // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec
               (
                 featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+                inputs[QuestionNames.DeclarativeAgentType] ===
+                  DeclarativeAgentStartOptions.apiSpec().id &&
                 (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
                   inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
               )
@@ -1497,7 +1506,7 @@ export function capabilitySubTree(): IQTreeNode {
           {
             data: apiOperationQuestion(),
             condition: (inputs: Inputs) => {
-              return !inputs[QuestionNames.ApiPluginManifestPath];
+              return !inputs[QuestionNames.DeclarativeAgentManifestPath];
             },
           },
         ],
@@ -1517,8 +1526,10 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             (!!inputs[QuestionNames.Capabilities] &&
               inputs[QuestionNames.WithPlugin] !== DeclarativeCopilotTypeOptions.noPlugin().id &&
-              inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.apiSpec().id &&
-              inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.existingPlugin().id &&
+              inputs[QuestionNames.DeclarativeAgentType] !==
+                DeclarativeAgentStartOptions.apiSpec().id &&
+              inputs[QuestionNames.DeclarativeAgentType] !==
+                DeclarativeAgentStartOptions.existingPlugin().id &&
               inputs[QuestionNames.MeArchitectureType] !== MeArchitectureOptions.apiSpec().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.officeMetaOS().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.outlookAddin().id) ||
@@ -1569,10 +1580,11 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+            inputs[QuestionNames.DeclarativeAgentType] ===
+              DeclarativeAgentStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.ApiPluginManifestPath]
+            !inputs[QuestionNames.DeclarativeAgentManifestPath]
           );
         },
       },
@@ -1583,10 +1595,11 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+            inputs[QuestionNames.DeclarativeAgentType] ===
+              DeclarativeAgentStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.ApiPluginManifestPath]
+            !inputs[QuestionNames.DeclarativeAgentManifestPath]
           );
         },
       },

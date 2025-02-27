@@ -36,8 +36,8 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import {
   declarativeAgentExistingApiSpecUrlTelemetryEvent,
-  defaultDeclarativeCopilotActionId,
-  defaultDeclarativeCopilotManifestFileName,
+  defaultDeclarativeAgentActionId,
+  defaultDeclarativeAgentManifestFileName,
   failedToUpdateCustomApiTemplateErrorName,
 } from "./const";
 import {
@@ -105,7 +105,7 @@ export async function getTemplateInfosFromApiSpec(
 
   merge(actionContext?.telemetryProps, {
     [telemetryProperties.templateName]: templateName,
-    [telemetryProperties.isDeclarativeCopilot]:
+    [telemetryProperties.isDeclarativeAgent]:
       projectType === ProjectType.Copilot ? "true" : "false",
   });
 
@@ -189,7 +189,7 @@ export async function generateFilesFromApiSpec(
   componentName: string
 ): Promise<Result<GeneratorResult, FxError>> {
   const templateState = inputs.templateState as TemplateState;
-  const isDeclarativeCopilot = projectType === ProjectType.Copilot;
+  const isDeclarativeAgent = projectType === ProjectType.Copilot;
   const isKiotaIntegration = isKiotaIntegrated(inputs);
   const manifestPath = path.join(destinationPath, AppPackageFolderName, ManifestTemplateFileName);
   const apiSpecFolderPath = path.join(
@@ -220,7 +220,7 @@ export async function generateFilesFromApiSpec(
           destinationPath,
           AppPackageFolderName,
           isKiotaIntegration
-            ? path.basename(inputs[QuestionNames.ApiPluginManifestPath])
+            ? path.basename(inputs[QuestionNames.DeclarativeAgentManifestPath])
             : DefaultPluginManifestFileName
         )
       : undefined;
@@ -238,13 +238,13 @@ export async function generateFilesFromApiSpec(
       pluginManifestPath || "",
       manifestPath,
       templateState.type,
-      isDeclarativeCopilot
+      isDeclarativeAgent
     );
   }
 
   const specParser = new SpecParser(
     templateState.url,
-    getParserOptions(templateState.type, isDeclarativeCopilot)
+    getParserOptions(templateState.type, isDeclarativeAgent)
   );
   const generateResult = await generateFromApiSpec(
     specParser,
@@ -265,11 +265,11 @@ export async function generateFilesFromApiSpec(
   } else {
     warnings = generateResult.value.warnings;
   }
-  if (isDeclarativeCopilot) {
+  if (isDeclarativeAgent) {
     const addActionResult = await copilotGptManifestUtils.updateDeclarativeAgentManifest(
       manifestPath,
-      defaultDeclarativeCopilotManifestFileName,
-      defaultDeclarativeCopilotActionId,
+      defaultDeclarativeAgentManifestFileName,
+      defaultDeclarativeAgentActionId,
       pluginManifestPath || ""
     );
     if (addActionResult.isErr()) {
