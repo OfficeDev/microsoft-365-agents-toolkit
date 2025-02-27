@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, OptionItem, Platform, ok } from "@microsoft/teamsfx-api";
-import { CapabilityOptions } from "@microsoft/teamsfx-core";
+import { CLICommand, OptionItem, ok } from "@microsoft/teamsfx-api";
+import { allCapabilities } from "@microsoft/teamsfx-core";
 import chalk from "chalk";
 import Table from "cli-table3";
 import { logger } from "../../commonlib/logger";
@@ -18,9 +18,9 @@ export const listTemplatesCommand: CLICommand = {
     const format = ctx.optionValues.format;
     let result;
     if (format === "table") {
-      result = jsonToTable(CapabilityOptions.all({ platform: Platform.CLI }));
+      result = jsonToTable(allCapabilities());
     } else {
-      result = JSON.stringify(CapabilityOptions.all({ platform: Platform.CLI }), null, 2);
+      result = JSON.stringify(allCapabilities(), null, 2);
     }
     logger.info(result);
     return ok(undefined);

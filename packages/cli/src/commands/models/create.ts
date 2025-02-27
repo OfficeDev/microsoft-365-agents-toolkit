@@ -4,13 +4,11 @@ import {
   CLICommand,
   CLICommandOption,
   CLIContext,
-  OptionItem,
-  Platform,
   err,
   ok,
+  Platform,
 } from "@microsoft/teamsfx-api";
 import {
-  CapabilityOptions,
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
@@ -21,6 +19,7 @@ import {
   MeArchitectureOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
+import { allCapabilities } from "@microsoft/teamsfx-core/src";
 import chalk from "chalk";
 import { assign } from "lodash";
 import * as path from "path";
@@ -35,7 +34,7 @@ function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = CapabilityOptions.all({ platform: Platform.CLI }).map((o) => o.id);
+      option.choices = allCapabilities().map((i) => i.id);
       break;
     }
   }
@@ -43,7 +42,11 @@ function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === QuestionNames.MeArchitectureType.toString()) {
       // use dynamic options for ME architecture question
-      option.choices = MeArchitectureOptions.all().map((o: OptionItem) => o.id);
+      option.choices = [
+        MeArchitectureOptions.newApi().id,
+        MeArchitectureOptions.openApiSpec().id,
+        MeArchitectureOptions.botMe().id,
+      ];
       break;
     }
   }
