@@ -1,31 +1,55 @@
 {
-    "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "id": "{{manifestId}}",
-    "manifestVersion": "1.19",
-    "version": "1.0.0",
+    "$schema": "https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/DevPreview/MicrosoftTeams.schema.json",
+    "manifestVersion": "devPreview",
+    "version": "1.0.1",
+    "id": "11c1111f-5b07-111e-bad5-14d111a1111b",
+    "packageName": "com.microsoft.teams.extension",
+    "developer": {
+        "name": "Contoso App, Inc.",
+        "websiteUrl": "https://test",
+        "privacyUrl": "https://test/index.html#/privacy",
+        "termsOfUseUrl": "https://test/index.html#/termsofuse"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
     "name": {
         "short": "{{appName}}",
         "full": "Full name for {{appName}}"
     },
     "description": {
-        "short": "A template to get started.",
-        "full": "This is the template to get started."
+        "short": "Short description of Contoso",
+        "full": "Full description of Contoso"
     },
-    "developer": {
-        "name": "Contoso",
-        "websiteUrl": "https://www.contoso.com",
-        "privacyUrl": "https://www.contoso.com/privacy",
-        "termsOfUseUrl": "https://www.contoso.com/servicesagreement"
-    },
-    "icons": {
-        "outline": "assets/outline.png",
-        "color": "assets/color.png"
-    },
-    "accentColor": "#230201",
-    "localizationInfo": {
-        "defaultLanguageTag": "en-us",
-        "additionalLanguages": []
-    },
+    "accentColor": "#FFFFFF",
+    "bots": [],
+    "composeExtensions": [],
+    "configurableTabs": [
+        {
+            "configurationUrl": "https://test/index.html#/config",
+            "canUpdateConfiguration": true,
+            "scopes": [
+                "team",
+                "groupChat"
+            ]
+        }
+    ],
+    "staticTabs": [
+        {
+            "entityId": "index0",
+            "name": "Personal Tab",
+            "contentUrl": "https://test/index.html#/tab",
+            "websiteUrl": "https://test/index.html#/tab",
+            "scopes": [
+                "personal"
+            ]
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
     "authorization": {
         "permissions": {
             "resourceSpecific": [
@@ -37,6 +61,7 @@
         }
     },
     "validDomains": [
+        "test.com",
         "contoso.com"
     ],
     "extensions": [
@@ -65,7 +90,7 @@
                     "id": "TaskPaneRuntime",
                     "type": "general",
                     "code": {
-                        "page": "https://localhost:3000/taskpane.html"
+                        "page": "https://localhost:53000/taskpane.html"
                     },
                     "lifetime": "short",
                     "actions": [
@@ -81,14 +106,15 @@
                     "id": "CommandsRuntime",
                     "type": "general",
                     "code": {
-                        "page": "https://localhost:3000/commands.html",
-                        "script": "https://localhost:3000/commands.js"
+                        "page": "https://localhost:53000/commands.html",
+                        "script": "https://localhost:53000/commands.js"
                     },
                     "lifetime": "short",
                     "actions": [
                         {
                             "id": "action",
-                            "type": "executeFunction"
+                            "type": "executeFunction",
+                            "displayName": "action"
                         }
                     ]
                 }
@@ -108,38 +134,38 @@
                                     "icons": [
                                         {
                                             "size": 16,
-                                            "url": "https://localhost:3000/assets/icon-16.png"
+                                            "url": "https://localhost:53000/assets/icon-16.png"
                                         },
                                         {
                                             "size": 32,
-                                            "url": "https://localhost:3000/assets/icon-32.png"
+                                            "url": "https://localhost:53000/assets/icon-32.png"
                                         },
                                         {
                                             "size": 80,
-                                            "url": "https://localhost:3000/assets/icon-80.png"
+                                            "url": "https://localhost:53000/assets/icon-80.png"
                                         }
                                     ],
                                     "controls": [
                                         {
                                             "id": "msgReadOpenPaneButton",
                                             "type": "button",
-                                            "label": "Show Task Pane",
+                                            "label": "Show Taskpane",
                                             "icons": [
                                                 {
                                                     "size": 16,
-                                                    "url": "https://localhost:3000/assets/icon-16.png"
+                                                    "url": "https://localhost:53000/assets/icon-16.png"
                                                 },
                                                 {
                                                     "size": 32,
-                                                    "url": "https://localhost:3000/assets/icon-32.png"
+                                                    "url": "https://localhost:53000/assets/icon-32.png"
                                                 },
                                                 {
                                                     "size": 80,
-                                                    "url": "https://localhost:3000/assets/icon-80.png"
+                                                    "url": "https://localhost:53000/assets/icon-80.png"
                                                 }
                                             ],
                                             "supertip": {
-                                                "title": "Show Task Pane",
+                                                "title": "Show Taskpane",
                                                 "description": "Opens a pane displaying all available properties."
                                             },
                                             "actionId": "TaskPaneRuntimeShow"
@@ -151,15 +177,15 @@
                                             "icons": [
                                                 {
                                                     "size": 16,
-                                                    "url": "https://localhost:3000/assets/icon-16.png"
+                                                    "url": "https://localhost:53000/assets/icon-16.png"
                                                 },
                                                 {
                                                     "size": 32,
-                                                    "url": "https://localhost:3000/assets/icon-32.png"
+                                                    "url": "https://localhost:53000/assets/icon-32.png"
                                                 },
                                                 {
                                                     "size": 80,
-                                                    "url": "https://localhost:3000/assets/icon-80.png"
+                                                    "url": "https://localhost:53000/assets/icon-80.png"
                                                 }
                                             ],
                                             "supertip": {
