@@ -17,7 +17,7 @@ import {
   DeclarativeCopilotCapabilityName,
   OneDriveAndSharePointCapability,
   WebSearchCapability,
-  GraphConnectorsCapability,
+  SharePointIDs,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { EOL } from "os";
@@ -477,7 +477,7 @@ export class CopilotGptManifestUtils {
 
   public async addOneDriveSharePointCapability(
     agentManifestPath: string,
-    items_by_sharepoint_ids: File | null,
+    items_by_sharepoint_ids: SharePointIDs | null,
     items_by_url: Site | null,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
   ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {

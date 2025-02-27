@@ -32,6 +32,7 @@ import {
   PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
+  SharePointIDs,
   Site,
   Stage,
   TeamsAppInputs,
@@ -2673,7 +2674,7 @@ export class FxCore {
       return err(manifestRes.error);
     }
 
-    let oneDriveSharePointIds: File | null = null;
+    let oneDriveSharePointIds: SharePointIDs | null = null;
     let oneDriveSharePointUrls: Site | null = null;
 
     const sharePointItem = inputs.oneDriveSharePointItem?.[0];
