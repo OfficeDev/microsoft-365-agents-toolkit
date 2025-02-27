@@ -121,7 +121,7 @@ describe("copilotExtension", async () => {
       );
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratch;
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
