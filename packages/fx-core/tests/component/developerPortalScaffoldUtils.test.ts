@@ -1494,6 +1494,23 @@ describe("developPortalScaffoldUtils", () => {
       );
     });
 
+    it("writes to .env.local when cannot find env path", async () => {
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok(undefined));
+      sandbox.stub(fs, "pathExists").resolves(true);
+
+      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+      // Use the private method for testing
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
+
+      chai.assert.isTrue(result.isOk());
+      chai.assert.isTrue(
+        writeEnvStub.calledOnceWith("project-path", "local", {
+          TEAMS_APP_ID: "mock-app-id",
+        })
+      );
+    });
+
     it("writes to .env.dev when .env.local doesn't exist", async () => {
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
       sandbox.stub(fs, "pathExists").resolves(false);
