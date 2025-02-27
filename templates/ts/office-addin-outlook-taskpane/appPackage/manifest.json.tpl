@@ -2,14 +2,13 @@
     "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
     "id": "{{manifestId}}",
     "manifestVersion": "1.17",
-    "version": "1.0.0",
     "name": {
-      "short": "Contoso Task Pane Add-in",
-      "full": "Contoso Task Pane Add-in"
+        "short": "{{appName}}",
+        "full": "Full name for {{appName}}"
     },
     "description": {
-      "short": "{{appName}}",
-      "full": "Full name for {{appName}}"
+        "short": "A template to get started.",
+        "full": "This is the template to get started."
     },
     "developer": {
       "name": "Contoso",
