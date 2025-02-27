@@ -73,7 +73,7 @@ export class ManifestUtils {
     let content;
     try {
       content = fs.readFileSync(filePath, { encoding: "utf-8" });
-    } catch (e) {
+    } catch (e: any) {
       return err(new ReadFileError(e, "ManifestUtils"));
     }
     content = stripBom(content);

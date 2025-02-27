@@ -46,7 +46,7 @@ export class YoChecker implements DependencyChecker {
       void this._logger.info(`Successfully installed ${displayName}@${targetVersion}`);
 
       telemetryHelper.sendSuccessEvent(ctx, TelemetryEvents.EnsureYo);
-    } catch (error) {
+    } catch (error: any) {
       telemetryHelper.sendErrorEvent(
         ctx,
         TelemetryEvents.EnsureYo,
@@ -165,7 +165,7 @@ export class YoChecker implements DependencyChecker {
           }
         })
       );
-    } catch (err) {
+    } catch (err: any) {
       this._logger.error(
         `Failed to clean up path: ${this.getDefaultInstallPath()}, error: ${
           err.toString() as string

@@ -94,7 +94,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
         doingTask = undefined;
       }
       break;
-    } catch (e) {
+    } catch (e: any) {
       if (e["code"] === "ELOCKED") {
         await waitSeconds(1);
         ++retryNum;

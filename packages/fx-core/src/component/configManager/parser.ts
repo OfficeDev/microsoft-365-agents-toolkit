@@ -27,7 +27,7 @@ const environmentFolderPath = "environmentFolderPath";
 const writeToEnvironmentFile = "writeToEnvironmentFile";
 const versionNotSupportedKey = "error.yaml.VersionNotSupported";
 
-function parseRawProjectModel(obj: Record<string, unknown>): Result<RawProjectModel, FxError> {
+function parseRawProjectModel(obj: Record<string, any>): Result<RawProjectModel, FxError> {
   const result: RawProjectModel = { version: "" };
   if (environmentFolderPath in obj) {
     if (typeof obj[environmentFolderPath] !== "string") {

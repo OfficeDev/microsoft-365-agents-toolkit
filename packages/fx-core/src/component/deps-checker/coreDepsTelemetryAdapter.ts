@@ -35,10 +35,10 @@ export class CoreDepsTelemetryAdapter implements DepsTelemetry {
     eventName: DepsCheckerEvent,
     action: () => Promise<void>
   ): Promise<void> {
-    const start = performance.now();
+    const start = Date.now();
     await action();
     // use seconds instead of milliseconds
-    const timecost = Number(((performance.now() - start) / 1000).toFixed(2));
+    const timecost = Number(((Date.now() - start) / 1000).toFixed(2));
     this.sendEvent(eventName, {}, timecost);
   }
 

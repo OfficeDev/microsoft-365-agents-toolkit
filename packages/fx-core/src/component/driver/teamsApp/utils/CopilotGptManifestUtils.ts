@@ -87,7 +87,7 @@ export class CopilotGptManifestUtils {
     const content = JSON.stringify(manifest, undefined, 4);
     try {
       await fs.writeFile(path, content);
-    } catch (e) {
+    } catch (e: any) {
       return err(new WriteFileError(e, "copilotGptManifestUtils"));
     }
     return ok(undefined);

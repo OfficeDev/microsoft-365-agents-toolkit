@@ -23,6 +23,7 @@ import { MosServiceEndpoint } from "./serviceConstant";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import stripBom from "strip-bom";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { URL } from "url";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";

@@ -1211,7 +1211,7 @@ async function updateAdaptiveCardForCustomApi(
             data: item.item.operationId,
           });
         });
-      } catch (err) {
+      } catch (err: any) {
         warnings.push({
           type: WarningType.GenerateCardFailed,
           content: getLocalizedString(

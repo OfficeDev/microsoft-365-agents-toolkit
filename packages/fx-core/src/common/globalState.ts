@@ -40,7 +40,7 @@ export async function globalStateGet(key: string, defaultValue?: any): Promise<a
         await properLock.unlock(filePath, { lockfilePath: lockfilePath });
       }
       return value;
-    } catch (e) {
+    } catch (e: any) {
       if (e["code"] === "ELOCKED") {
         await waitSeconds(1);
         continue;
@@ -76,7 +76,7 @@ export async function globalStateUpdate(key: string, value: any): Promise<void> 
         await properLock.unlock(filePath, { lockfilePath: lockfilePath });
       }
       break;
-    } catch (e) {
+    } catch (e: any) {
       if (e["code"] === "ELOCKED") {
         await waitSeconds(1);
         continue;

@@ -40,6 +40,7 @@ import { LocalCrypto } from "../../../crypto";
 import * as os from "os";
 import * as path from "path";
 import { NodeChecker } from "../../../../component/deps-checker/internal/nodeChecker";
+import { URL } from "url";
 
 export async function migrateTransparentPrerequisite(
   context: DebugMigrationContext

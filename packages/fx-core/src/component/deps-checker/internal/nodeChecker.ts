@@ -91,7 +91,7 @@ export abstract class NodeChecker implements DepsChecker {
         );
       }
       return await this.getDepsInfo(true, supportedVersions, currentVersion.version);
-    } catch (error) {
+    } catch (error: any) {
       return await this.getDepsInfo(
         false,
         supportedVersions,

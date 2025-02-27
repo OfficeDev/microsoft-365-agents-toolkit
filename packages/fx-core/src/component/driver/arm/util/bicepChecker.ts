@@ -96,7 +96,7 @@ class BicepChecker {
   private async cleanup() {
     try {
       await fs.emptyDir(this.getBicepInstallDir());
-    } catch (err) {
+    } catch (err: any) {
       this._logger?.debug(
         `Failed to clean up path: ${this.getBicepInstallDir()}, error: ${err.toString() as string}`
       );
@@ -116,7 +116,7 @@ class BicepChecker {
           ),
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       sendSystemErrorEvent(
         DepsCheckerEvent.bicepInstallScriptError,
         TelemtryMessages.failedToInstallBicep,
@@ -184,7 +184,7 @@ class BicepChecker {
     try {
       privateVersion = await this.queryVersion(this.getBicepExecPath());
       isVersionSupported = this.isVersionSupported(privateVersion);
-    } catch (err) {
+    } catch (err: any) {
       sendSystemErrorEvent(
         DepsCheckerEvent.bicepValidationError,
         TelemtryMessages.failedToValidateBicep,

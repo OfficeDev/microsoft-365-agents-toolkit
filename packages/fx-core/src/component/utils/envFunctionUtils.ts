@@ -150,7 +150,7 @@ async function readFileContent(
       let processedFileContent = expandEnvironmentVariable(fileContent, envs);
       processedFileContent = processedFileContent.replace(/\r\n/g, "\n");
       return ok(processedFileContent);
-    } catch (e) {
+    } catch (e: any) {
       ctx.logProvider.error(
         getLocalizedString("core.envFunc.readFile.errorLog", absolutePath, e?.toString())
       );

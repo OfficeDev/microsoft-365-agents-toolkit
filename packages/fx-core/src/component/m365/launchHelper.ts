@@ -21,7 +21,7 @@ import { NotExtendedToM365Error } from "./errors";
 import { PackageService } from "./packageService";
 import { MosServiceEndpoint, MosServiceScope } from "./serviceConstant";
 import { officeBaseUrl, outlookBaseUrl, outlookCopilotAppId } from "./constants";
-import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { URL } from "url";
 
 export class LaunchHelper {
   private readonly m365TokenProvider: M365TokenProvider;

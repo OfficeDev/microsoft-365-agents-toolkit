@@ -102,7 +102,7 @@ export class DotnetChecker implements DepsChecker {
         installationInfo = await this.getInstallationInfo();
       }
       return installationInfo;
-    } catch (error) {
+    } catch (error: any) {
       this._logger.printDetailLog();
       this._logger.error(`${error.message as string}, error = '${error.toString() as string}'`);
       if (error instanceof UserError) {
@@ -187,7 +187,7 @@ export class DotnetChecker implements DepsChecker {
         return config.dotnetExecutablePath;
       }
       this._logger.debug(`invalid dotnet config file format, config: '${JSON.stringify(config)}' `);
-    } catch (error) {
+    } catch (error: any) {
       this._logger.debug(`get dotnet path failed, error: '${error.toString() as string}'`);
     }
     return null;
@@ -209,7 +209,7 @@ export class DotnetChecker implements DepsChecker {
       this._logger.info(
         Messages.finishInstallDotnet().replace("@NameVersion", installedNameWithVersion)
       );
-    } catch (error) {
+    } catch (error: any) {
       this._logger.error(
         `${getLocalizedString(
           "error.common.InstallSoftwareError",
@@ -282,7 +282,7 @@ export class DotnetChecker implements DepsChecker {
       } else {
         this._telemetry.sendEvent(DepsCheckerEvent.dotnetInstallScriptCompleted, {}, timecost);
       }
-    } catch (error) {
+    } catch (error: any) {
       const timecost = Number(((performance.now() - start) / 1000).toFixed(2));
       const errorMessage =
         `${getLocalizedString(
@@ -315,7 +315,7 @@ export class DotnetChecker implements DepsChecker {
         .map((sdk) => DotnetChecker.parseDotnetVersion(sdk.version))
         .filter((version) => version !== null) as string[];
       return this.isDotnetVersionsInstalled(installedVersions);
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = `validate private install failed, error = '${
         error.toString() as string
       }'`;
@@ -334,7 +334,7 @@ export class DotnetChecker implements DepsChecker {
       const validVersions = DotnetChecker.arrayIntersection(installedVersions, supportedVersions);
       // return validVersions.length > 0;
       return Promise.resolve(validVersions.length > 0);
-    } catch (error) {
+    } catch (error: any) {
       this._logger.error(
         `failed to check .NET, installedVersions = '${installedVersions.toString()}', supportedVersions = '${supportedVersions.toString()}', error = '${
           error.toString() as string
@@ -393,7 +393,7 @@ export class DotnetChecker implements DepsChecker {
           }
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = `Failed to search dotnet sdk by dotnetPath = '${dotnetExecPath}', error = '${
         error.toString() as string
       }'`;
@@ -506,7 +506,7 @@ export class DotnetChecker implements DepsChecker {
         "--force"
       );
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this._telemetry.sendSystemErrorEvent(
         DepsCheckerEvent.dotnetValidationError,
         TelemtryMessages.failedToValidateDotnet,
@@ -538,7 +538,7 @@ export class DotnetChecker implements DepsChecker {
       );
       await DotnetChecker.persistDotnetExecPath(dotnetExecPath);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this._logger.debug(
         `Failed to acquire global dotnet sdk, error = '${error.toString() as string}'`
       );

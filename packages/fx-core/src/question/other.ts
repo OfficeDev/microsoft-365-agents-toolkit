@@ -8,7 +8,6 @@ import {
   DynamicPlatforms,
   IQTreeNode,
   Inputs,
-  ManifestUtil,
   MultiSelectQuestion,
   Platform,
   SingleFileQuestion,
@@ -50,6 +49,7 @@ import {
 import { UninstallInputs } from "./inputs";
 import * as os from "os";
 import { ApiPluginStartOptions } from "./scaffold/vsc/CapabilityOptions";
+import { URL } from "url";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();

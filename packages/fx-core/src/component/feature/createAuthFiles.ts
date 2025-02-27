@@ -46,7 +46,7 @@ export async function createAuthFiles(input: Inputs): Promise<Result<unknown, Fx
     sampleZip.addLocalFolder(v3TemplateFolder);
     await unzip(sampleZip, authFolder);
     return ok(undefined);
-  } catch (error) {
+  } catch (error: any) {
     if (await fs.pathExists(authFolder)) {
       await fs.remove(authFolder);
     }

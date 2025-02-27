@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 
 import { err, FxError, ok, Result, UserError } from "@microsoft/teamsfx-api";
-import { ApiPluginStartOptions, ProjectTypeOptions, QuestionNames } from "@microsoft/teamsfx-core";
+import {
+  ApiPluginStartOptions,
+  DACapabilityOptions,
+  ProjectTypeOptions,
+  QuestionNames,
+} from "@microsoft/teamsfx-core";
 import { ExtensionSource } from "../error/error";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
