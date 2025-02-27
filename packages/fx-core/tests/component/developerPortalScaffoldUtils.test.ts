@@ -13,6 +13,7 @@ import {
   adjustScopeBasedOnVersion,
   developerPortalScaffoldUtils,
 } from "../../src/component/developerPortalScaffoldUtils";
+import * as tdpUtils from "../../src/component/developerPortalScaffoldUtils";
 import * as appStudio from "../../src/component/driver/teamsApp/appStudio";
 import {
   BOTS_TPL_V3,
@@ -33,6 +34,7 @@ import { getProjectTypeAndCapability } from "../../src/question/create";
 import { MockedAzureAccountProvider, MockedM365Provider, MockTools } from "../core/utils";
 import { InputValidationError } from "../../src/error";
 import { pathUtils } from "../../src/component/utils/pathUtils";
+import { toFormData } from "axios";
 
 describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());
@@ -285,6 +287,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateOutline = false;
       let updatedManifestData = "";
 
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -403,6 +407,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -553,6 +559,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -687,6 +695,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -824,6 +834,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -934,6 +946,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(
@@ -1070,6 +1084,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1203,6 +1219,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1309,7 +1327,6 @@ describe("developPortalScaffoldUtils", () => {
           },
         ],
       };
-
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1467,10 +1484,7 @@ describe("developPortalScaffoldUtils", () => {
       const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
 
       // Use the private method for testing
-      const result = await (developerPortalScaffoldUtils as any).constructor.prototype.updateEnv(
-        "mock-app-id",
-        "project-path"
-      );
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isOk());
       chai.assert.isTrue(
@@ -1487,10 +1501,7 @@ describe("developPortalScaffoldUtils", () => {
       const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
 
       // Use the private method for testing
-      const result = await (developerPortalScaffoldUtils as any).constructor.prototype.updateEnv(
-        "mock-app-id",
-        "project-path"
-      );
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isOk());
       chai.assert.isTrue(
@@ -1505,13 +1516,12 @@ describe("developPortalScaffoldUtils", () => {
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(err(error));
 
       // Use the private method for testing
-      const result = await (developerPortalScaffoldUtils as any).constructor.prototype.updateEnv(
-        "mock-app-id",
-        "project-path"
-      );
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isErr());
-      chai.assert.equal(result.error, error);
+      if (result.isErr()) {
+        chai.assert.equal(result.error, error);
+      }
     });
   });
 });

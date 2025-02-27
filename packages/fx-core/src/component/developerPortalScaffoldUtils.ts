@@ -287,7 +287,10 @@ async function updateManifest(
 }
 
 // If the template does not have .env.local, write to .env.dev instead.
-async function updateEnv(appId: string, projectPath: string): Promise<Result<undefined, FxError>> {
+export async function updateEnv(
+  appId: string,
+  projectPath: string
+): Promise<Result<undefined, FxError>> {
   const localEnvFilePathRes = await pathUtils.getEnvFilePath(projectPath, "local");
   if (localEnvFilePathRes.isErr()) return err(localEnvFilePathRes.error);
   const localEnvFileExists = await fs.pathExists(
