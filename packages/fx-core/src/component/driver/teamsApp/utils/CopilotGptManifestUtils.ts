@@ -18,6 +18,7 @@ import {
   OneDriveAndSharePointCapability,
   WebSearchCapability,
   GraphConnectorsCapability,
+  File,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { EOL } from "os";
