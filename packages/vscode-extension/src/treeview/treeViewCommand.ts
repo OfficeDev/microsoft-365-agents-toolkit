@@ -74,6 +74,21 @@ export class TreeViewCommand extends vscode.TreeItem {
     }
   }
 
+  public toJSON(): unknown {
+    return {
+      label: this.label,
+      tooltip: this.tooltip?.toString(),
+      command: {
+        id: this.commandId,
+        title: this.readyLabel,
+      },
+      status: {
+        isRunning: this.runningLabelKey !== undefined,
+        category: this.category,
+      },
+    };
+  }
+
   private setImagetoIcon() {
     if (this.image !== undefined) {
       if (!this.image.custom) {

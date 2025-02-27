@@ -1,21 +1,21 @@
-import * as sinon from "sinon";
-import * as chai from "chai";
-import * as vscode from "vscode";
-import fs from "fs-extra";
-import * as globalVariables from "../../src/globalVariables";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as runIconHandlers from "../../src/debug/runIconHandler";
-import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
+import * as chai from "chai";
+import fs from "fs-extra";
+import * as sinon from "sinon";
+import * as vscode from "vscode";
+import VscodeLogInstance from "../../src/commonlib/log";
+import * as runIconHandlers from "../../src/debug/runIconHandler";
+import * as globalVariables from "../../src/globalVariables";
+import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
 import {
   showLocalDebugMessage,
   ShowScaffoldingWarningSummary,
 } from "../../src/utils/autoOpenHelper";
-import VscodeLogInstance from "../../src/commonlib/log";
-import * as readmeHandlers from "../../src/handlers/readmeHandlers";
-import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
-import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/apiSpec/helper";
 
 describe("autoOpenHelper", () => {
   const sandbox = sinon.createSandbox();

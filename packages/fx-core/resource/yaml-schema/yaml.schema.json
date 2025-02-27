@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.7"
+      "const": "v1.8"
     },
     "additionalMetadata": {
       "type": "object",
@@ -38,6 +38,10 @@
     "publish": {
       "$ref": "#/definitions/lifeCycleArray",
       "description": "Called by `teamsfx publish`"
+    },
+    "share": {
+      "$ref": "#/definitions/lifeCycleArray",
+      "description": "Called by `teamsfx share`"
     }
   },
   "required": ["version"],
@@ -76,7 +80,8 @@
           { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey"},
           { "$ref": "#/definitions/apiKeyUpdate"},
           { "$ref": "#/definitions/oauthRegister"},
-          { "$ref": "#/definitions/oauthUpdate"}
+          { "$ref": "#/definitions/oauthUpdate"},
+          { "$ref": "#/definitions/shareToOthers"}
         ]
       }
     },
@@ -1380,6 +1385,62 @@
             },
             "appId": {
               "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "shareToOthers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Share apps to others.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Share apps to others.",
+          "const": "teamsApp/shareToOthers"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "path to Teams app package"
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["titleId", "appId", "shareLink"],
+          "properties": {
+            "titleId": {
+              "description": "Required. The ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "appId": {
+              "description": "Required. The app ID of M365 title.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "shareLink": {
+              "description": "Required. The share link of the app.",
               "$ref": "#/definitions/envVarName"
             }
           }

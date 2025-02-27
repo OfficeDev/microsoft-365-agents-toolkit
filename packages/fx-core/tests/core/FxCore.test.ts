@@ -78,7 +78,7 @@ import { ValidateAppPackageDriver } from "../../src/component/driver/teamsApp/va
 import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../../src/component/driver/util/utils";
 import "../../src/component/feature/sso";
-import * as CopilotPluginHelper from "../../src/component/generator/apiSpec/helper";
+import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -2397,7 +2397,7 @@ describe("copilotPlugin", async () => {
     });
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sinon.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     const showMessage = sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
     const result = await core.copilotPluginAddAPI(inputs);
     assert.isTrue(result.isOk());
@@ -2461,9 +2461,9 @@ describe("copilotPlugin", async () => {
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(manifestUtils, "getPluginFilePath").resolves(ok("ai-plugin.json"));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(CopilotPluginHelper, "listPluginExistingOperations").resolves([]);
+    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
-    sinon.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sinon.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     const result = await core.copilotPluginAddAPI(inputs);
     if (result.isErr()) {
       console.log(result.error);
@@ -2520,7 +2520,7 @@ describe("copilotPlugin", async () => {
     sinon.stub(SpecParser.prototype, "list").resolves(listResult);
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(CopilotPluginHelper, "listPluginExistingOperations").resolves([]);
+    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
     const result = await core.copilotPluginAddAPI(inputs);
     assert.isTrue(result.isErr());
@@ -2582,7 +2582,7 @@ describe("copilotPlugin", async () => {
       .stub(manifestUtils, "getPluginFilePath")
       .resolves(err(new SystemError("testError", "testError", "", "")));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(CopilotPluginHelper, "listPluginExistingOperations").resolves([]);
+    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
     const result = await core.copilotPluginAddAPI(inputs);
 
@@ -2684,7 +2684,7 @@ describe("copilotPlugin", async () => {
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
-    sinon.stub(pluginGeneratorHelper, "injectAuthAction").resolves(undefined as any);
+    sinon.stub(openApiSpecHelper, "injectAuthAction").resolves(undefined as any);
     const result = await core.copilotPluginAddAPI(inputs);
     assert.isTrue(result.isOk());
   });
@@ -4524,7 +4524,7 @@ describe("copilotPlugin", async () => {
     });
     sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("warning message");
+    sinon.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("warning message");
     sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
     const logSpy = sinon.spy(tools.logProvider, "info");
     const result = await core.copilotPluginAddAPI(inputs);
@@ -4907,7 +4907,7 @@ describe("copilotPlugin", async () => {
         data: { serverUrl: "https://server2" },
       },
     ];
-    sinon.stub(CopilotPluginHelper, "listOperations").returns(Promise.resolve(ok(expectedResult)));
+    sinon.stub(openApiSpecHelper, "listOperations").returns(Promise.resolve(ok(expectedResult)));
     const result = await core.copilotPluginListOperations(inputs as any);
     assert.isTrue(result.isOk());
     if (result.isOk()) {
@@ -4922,7 +4922,7 @@ describe("copilotPlugin", async () => {
       apiSpecUrl: "https://example.com/api-spec",
       shouldLogWarning: true,
     };
-    sinon.stub(CopilotPluginHelper, "listOperations").returns(Promise.resolve(err([])));
+    sinon.stub(openApiSpecHelper, "listOperations").returns(Promise.resolve(err([])));
     const result = await core.copilotPluginListOperations(inputs as any);
     assert.isTrue(result.isErr());
   });
@@ -5031,7 +5031,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -5056,7 +5056,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -5123,7 +5123,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
     sandbox.stub(fs, "readFile").resolves("{{test}}" as any);
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
@@ -5153,9 +5153,9 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test2" });
 
     sandbox.stub(SpecParser.prototype, "list").resolves({
@@ -5232,7 +5232,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
     sandbox.stub(fs, "readFile").resolves("{{test}}" as any);
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
@@ -5262,9 +5262,9 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test2" });
 
     sandbox.stub(SpecParser.prototype, "list").resolves({
@@ -5342,7 +5342,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -5367,7 +5367,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
 
     const showMessageStub = sandbox
       .stub(tools.ui, "showMessage")
@@ -5410,7 +5410,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -5435,7 +5435,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
 
     const showMessageStub = sandbox
       .stub(tools.ui, "showMessage")
@@ -5483,7 +5483,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -5508,7 +5508,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -5575,7 +5575,7 @@ describe("addPlugin", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("warning message");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("warning message");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -5614,7 +5614,7 @@ describe("addPlugin", async () => {
 
     const core = new FxCore(tools);
     sandbox
-      .stub(CopilotPluginHelper, "generateFromApiSpec")
+      .stub(openApiSpecHelper, "generateFromApiSpec")
       .resolves(
         ok({ warnings: [{ type: WarningType.OperationOnlyContainsOptionalParam, content: "" }] })
       );
@@ -5760,7 +5760,7 @@ describe("addPlugin", async () => {
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
     sandbox.stub(tools.ui, "showMessage").resolves(ok("Add"));
     sandbox
-      .stub(CopilotPluginHelper, "generateFromApiSpec")
+      .stub(openApiSpecHelper, "generateFromApiSpec")
       .resolves(err(new SystemError("", "", "", "")));
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
@@ -5834,7 +5834,7 @@ describe("addPlugin", async () => {
       .resolves(err(new SystemError("addActionError", "addActionError", "", "")));
 
     const core = new FxCore(tools);
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
 
     sandbox.stub(tools.ui, "showMessage").resolves(ok("Add"));
     const result = await core.addPlugin(inputs);
@@ -6134,23 +6134,22 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
+    sandbox
+      .stub(openApiSpecHelper, "injectAuthAction")
+      .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
+    sandbox.stub(fs, "copyFile").resolves();
+    sandbox.stub(openApiSpecHelper, "generateAdaptiveCardInPluginManifestForKiota").resolves();
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
-    sandbox.stub(pluginGeneratorHelper, "generateScaffoldingSummary").resolves("");
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
     sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
       if (path.endsWith("openapi_1.yaml")) {
         return true;
@@ -6188,7 +6187,7 @@ describe("addPlugin", async () => {
 
     const core = new FxCore(tools);
     sandbox
-      .stub(CopilotPluginHelper, "generateFromApiSpec")
+      .stub(openApiSpecHelper, "generateFromApiSpec")
       .callsFake(
         async (
           specParser,
@@ -6404,28 +6403,15 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
 
     sandbox.stub(SpecParser.prototype, "validate").resolves({
@@ -6501,33 +6487,20 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "GET /user/{userId}",
-          server: "https://example.com",
-          operationId: "getExample",
-          isValid: true,
-          reason: [],
-          auth: {
-            name: "bearerAuth",
-            authScheme: {
-              type: "http",
-              scheme: "bearer",
-            },
-          },
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        authType: "apiKey",
+        registrationId: "MOCKED_REGISTRATION_ID",
+      },
+    ]);
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(CopilotPluginHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
 
     const core = new FxCore(tools);
     const result = await core.kiotaRegenerate(inputs);
@@ -6588,10 +6561,10 @@ describe("kiotaRegenerate", async () => {
       validAPICount: 1,
     });
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
     sandbox
-      .stub(CopilotPluginHelper, "generateFromApiSpec")
+      .stub(openApiSpecHelper, "generateFromApiSpec")
       .resolves(err(new UserError("fake-error-source", "fake-error-name", "fake-error-message")));
 
     const core = new FxCore(tools);
@@ -6784,7 +6757,7 @@ describe("kiotaRegenerate", async () => {
       validAPICount: 1,
     });
     sandbox
-      .stub(CopilotPluginHelper, "injectAuthAction")
+      .stub(openApiSpecHelper, "injectAuthAction")
       .resolves({ defaultRegistrationIdEnvName: "test", registrationIdEnvName: "test" });
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
@@ -6842,7 +6815,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -6896,7 +6869,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -6950,7 +6923,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7004,7 +6977,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7055,7 +7028,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7104,7 +7077,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7153,7 +7126,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves(undefined);
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves(undefined);
     sandbox.stub(path, "normalize").returns("normalizedPath");
     sandbox.stub(path, "join").returns("joinedPath");
     sandbox.stub(fs, "readJson").resolves(pluginManifest);
@@ -7195,7 +7168,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });
@@ -7244,7 +7217,7 @@ describe("addAuthAction", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
-    sandbox.stub(pluginGeneratorHelper, "injectAuthAction").resolves({
+    sandbox.stub(openApiSpecHelper, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "test",
       registrationIdEnvName: "test",
     });

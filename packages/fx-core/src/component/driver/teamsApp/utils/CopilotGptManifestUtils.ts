@@ -1,20 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  Colors,
+  DeclarativeCopilotManifestSchema,
+  DefaultPluginManifestFileName,
   FxError,
+  IDeclarativeCopilot,
+  ManifestUtil,
+  Platform,
   Result,
   err,
   ok,
-  DeclarativeCopilotManifestSchema,
-  ManifestUtil,
-  IDeclarativeCopilot,
-  Platform,
-  Colors,
-  DefaultPluginManifestFileName,
-  AppPackageFolderName,
-  ManifestTemplateFileName,
-  File,
   Site,
   DeclarativeCopilotCapabilityName,
   OneDriveAndSharePointCapability,
@@ -22,23 +20,22 @@ import {
   GraphConnectorsCapability,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
-import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
-import stripBom from "strip-bom";
-import { getResolvedManifest } from "./utils";
-import { AppStudioResultFactory } from "../results";
-import { AppStudioError } from "../errors";
-import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
-import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
-import path from "path";
-import { pluginManifestUtils } from "./PluginManifestUtils";
-import { SummaryConstant } from "../../../configManager/constant";
 import { EOL } from "os";
+import path from "path";
+import stripBom from "strip-bom";
+import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
+import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
+import { SummaryConstant } from "../../../configManager/constant";
+import { getParserOptions } from "../../../generator/openApiSpec/helper";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
-import { manifestUtils } from "./ManifestUtils";
-import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
-import { getParserOptions } from "../../../generator/apiSpec/helper";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../constants";
+import { AppStudioError } from "../errors";
+import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
+import { AppStudioResultFactory } from "../results";
+import { manifestUtils } from "./ManifestUtils";
+import { pluginManifestUtils } from "./PluginManifestUtils";
+import { getResolvedManifest } from "./utils";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
