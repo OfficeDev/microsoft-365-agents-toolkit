@@ -10,26 +10,26 @@ import {
   Stage,
   UserError,
 } from "@microsoft/teamsfx-api";
-import { getSystemInputs } from "../utils/systemEnvUtils";
 import {
-  ApiPluginStartOptions,
   CapabilityOptions,
+  DeclarativeAgentStartOptions,
   KiotaLastCommands,
   ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
-import { runCommand } from "./sharedOpts";
 import * as vscode from "vscode";
-import { openFolder } from "../utils/workspaceUtils";
 import { ExtensionSource } from "../error/error";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
+import { getSystemInputs } from "../utils/systemEnvUtils";
+import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import { openFolder } from "../utils/workspaceUtils";
+import { runCommand } from "./sharedOpts";
 
 export async function createPluginWithManifest(args?: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
@@ -59,8 +59,8 @@ export async function createPluginWithManifest(args?: any[]): Promise<Result<any
 
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
-  inputs[QuestionNames.ApiPluginManifestPath] = pluginManifestPath;
-  inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = pluginManifestPath;
+  inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
   inputs[QuestionNames.ApiOperation] = pluginManifestPath;
   let result;
 

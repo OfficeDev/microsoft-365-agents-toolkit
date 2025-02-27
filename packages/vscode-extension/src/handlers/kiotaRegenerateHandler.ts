@@ -2,18 +2,18 @@
 // Licensed under the MIT license.
 
 import { err, FxError, ok, Result, Stage, UserError } from "@microsoft/teamsfx-api";
-import { ExtensionSource } from "../error/error";
-import { localize } from "../utils/localizeUtils";
-import { getSystemInputs } from "../utils/systemEnvUtils";
 import { QuestionNames } from "@microsoft/teamsfx-core";
-import { runCommand } from "./sharedOpts";
+import { ExtensionSource } from "../error/error";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
+import { localize } from "../utils/localizeUtils";
+import { getSystemInputs } from "../utils/systemEnvUtils";
+import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import { runCommand } from "./sharedOpts";
 
 export async function kiotaRegenerate(args?: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
@@ -33,7 +33,7 @@ export async function kiotaRegenerate(args?: any[]): Promise<Result<any, FxError
   const pluginManifestPath = args[1];
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
-  inputs[QuestionNames.ApiPluginManifestPath] = pluginManifestPath;
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = pluginManifestPath;
 
   const result = await runCommand(Stage.kiotaRegenerate, inputs);
   if (result.isErr()) {

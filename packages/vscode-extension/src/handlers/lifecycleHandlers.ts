@@ -11,10 +11,10 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import {
-  ApiPluginStartOptions,
   AppStudioScopes,
   assembleError,
   AuthSvcScopes,
+  DeclarativeAgentStartOptions,
   featureFlagManager,
   FeatureFlags,
   isUserCancelError,
@@ -253,7 +253,7 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
       // Codelens for API ME. Trigger from manifest.json
       inputs[QuestionNames.ManifestPath] = filePath;
     } else {
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+      inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
       inputs[QuestionNames.DestinationApiSpecFilePath] = filePath;
       inputs[QuestionNames.ManifestPath] = args[0].manifestPath;
     }
