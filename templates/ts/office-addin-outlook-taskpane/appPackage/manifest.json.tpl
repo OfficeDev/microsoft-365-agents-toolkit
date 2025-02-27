@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/OfficeDev/microsoft-teams-app-schema/preview/DevPreview/MicrosoftTeams.schema.json",
     "manifestVersion": "devPreview",
     "version": "1.0.1",
-    "id": "11c1111f-5b07-111e-bad5-14d111a1111b",
+    "id": "{{manifestId}}",
     "packageName": "com.microsoft.teams.extension",
     "developer": {
         "name": "Contoso App, Inc.",
