@@ -1,5 +1,6 @@
 import os, argparse
 from azure.core.credentials import AzureKeyCredential
+from azure.core.exceptions import ServiceRequestError
 from azure.search.documents.indexes import SearchIndexClient
 
 from dotenv import load_dotenv
@@ -21,6 +22,9 @@ args = load_keys_from_args()
 search_api_key = args.ai_search_key
 search_api_endpoint = os.getenv('AZURE_SEARCH_ENDPOINT')
 credentials = AzureKeyCredential(search_api_key)
-
-search_index_client = SearchIndexClient(search_api_endpoint, credentials)
-delete_index(search_index_client, index)
+try:
+    search_index_client = SearchIndexClient(search_api_endpoint, credentials)
+    delete_index(search_index_client, index)
+except ServiceRequestError as e:
+    print(e.message)
+    print(f"Delete index failed due to ServiceRequestError: {e.message}.\nPlease check your keys, models and enpoints in {os.getcwd()}/env/.env.local.user.")
