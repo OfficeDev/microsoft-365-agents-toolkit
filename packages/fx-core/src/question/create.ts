@@ -1424,11 +1424,14 @@ export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     staticOptions: [],
     dynamicOptions: (inputs: Inputs) => {
-      const icon = inputs.oneDriveSharePointItem[0].itemType === OneDriveSharePointItemType.Folder ? "$(folder)" : "$(file)";
+      const icon =
+        inputs.oneDriveSharePointItem[0].itemType === OneDriveSharePointItemType.Folder
+          ? "$(folder)"
+          : "$(file)";
       return [
         {
           id: inputs.oneDriveSharePointItem[0].id,
-          label: `${icon} ${inputs.oneDriveSharePointItem[0].name}`,
+          label: `${icon} ${(inputs.oneDriveSharePointItem as { name: string }[])[0].name}`,
         },
       ];
     },
@@ -1535,7 +1538,7 @@ export function searchTypeQuestion(): SingleSelectQuestion {
       } else if (
         inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
       ) {
-        options.push(KnowledgeSearchTypeOptions.AllOneDriveSharepoint());
+        options.push(KnowledgeSearchTypeOptions.allOneDriveSharepoint());
       }
       return options;
     },
@@ -1797,14 +1800,14 @@ export function createProjectQuestionNode(): IQTreeNode {
         children: [
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.websiteUrl) || []).length >
-              0,
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.websiteUrl) || [])
+                .length > 0,
             data: selectTabWebsiteUrlQuestion(),
           },
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.contentUrl) || []).length >
-              0,
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.contentUrl) || [])
+                .length > 0,
             data: selectTabsContentUrlQuestion(),
           },
         ],

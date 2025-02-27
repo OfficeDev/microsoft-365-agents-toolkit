@@ -7404,7 +7404,7 @@ describe("addKnowledge", async () => {
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.ManifestPath]: "manifest.json",
       [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
-      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.AllOneDriveSharepoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allOneDriveSharepoint().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();

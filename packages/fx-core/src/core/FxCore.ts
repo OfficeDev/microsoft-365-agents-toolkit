@@ -2645,7 +2645,7 @@ export class FxCore {
     const sharePointItem = inputs.oneDriveSharePointItem?.[0];
     if (
       sharePointItem &&
-      inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.AllOneDriveSharepoint().id
+      inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allOneDriveSharepoint().id
     ) {
       if (sharePointItem.url) {
         oneDriveSharePointUrls = { url: sharePointItem.url };

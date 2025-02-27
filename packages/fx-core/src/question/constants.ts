@@ -1363,11 +1363,10 @@ export class KnowledgeSearchTypeOptions {
       label: getLocalizedString("core.addKnowledgeQuestion.searchType.web"),
     };
   }
-  static AllOneDriveSharepoint(): OptionItem {
+  static allOneDriveSharepoint(): OptionItem {
     return {
       id: "all-oneDrive-sharePoint",
       label: getLocalizedString("core.addKnowledgeQuestion.searchType.oneDriveSharepoint"),
     };
   }
 }
-
