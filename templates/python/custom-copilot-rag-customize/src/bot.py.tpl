@@ -59,6 +59,10 @@ bot_app = Application[TurnState](
     )
 )
 
+@bot_app.ai.action(ActionTypes.SAY_COMMAND)
+async def on_say(_context: ActionTurnContext, _state: TurnState):
+    return await say_command(_context, _state, _context.data, feedback_loop_enabled=True)
+
 @bot_app.error
 async def on_error(context: TurnContext, error: Exception):
     # This check writes out errors to console log .vs. app insights.
