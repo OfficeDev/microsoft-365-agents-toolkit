@@ -29,7 +29,7 @@ export interface CodeInterpreterCapability {
 
 export interface OneDriveAndSharePointCapability {
   name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint;
-  items_by_sharepoint_ids?: File[];
+  items_by_sharepoint_ids?: SharePointIDs[];
   items_by_url?: Site[];
 }
 
@@ -62,11 +62,14 @@ export interface DeclarativeCopilotManifestSchema {
   [k: string]: unknown;
 }
 
-export interface File {
+export interface SharePointIDs {
   site_id?: string;
   web_id?: string;
   list_id?: string;
   unique_id?: string;
+}
+
+export interface File {
   file_name?: string;
   file?: string;
 }
