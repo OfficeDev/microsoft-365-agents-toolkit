@@ -28,7 +28,7 @@ import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
 import "mocha";
-import { RestoreFn } from "mocked-env";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import { OpenAPIV3 } from "openapi-types";
 import path from "path";
 import * as sinon from "sinon";
@@ -50,6 +50,7 @@ import {
 import { QuestionNames, apiPluginApiSpecOptionId } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 
 const tools = new MockTools();
 
@@ -864,8 +865,13 @@ describe("updateForCustomApi", async () => {
     validDomains: ["valid-domain"],
   };
 
+  let mockedEnvRestore: RestoreFn | undefined;
+
   afterEach(async () => {
     sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
   });
 
   it("happy path: ts", async () => {
@@ -892,6 +898,48 @@ describe("updateForCustomApi", async () => {
       .stub(manifestUtils, "_writeAppManifest")
       .callsFake(async (updatedManifest, manifestPath) => {
         expect(manifestPath.replace(/\\/g, "/")).to.be.equal("path/appPackage/manifest.json");
+        expect(updatedManifest.bots![0].commandLists![0].commands[0].title).to.be.equal(
+          "Returns a greeting"
+        );
+        expect(updatedManifest.bots![0].commandLists![0].commands[1].title).to.be.equal(
+          "Create a pet"
+        );
+        return ok(undefined);
+      });
+    await openApiSpecHelper.updateForCustomApi(spec, "typescript", "path", "openapi.yaml");
+  });
+
+  it("happy path: ts with cea enabled", async () => {
+    mockedEnvRestore = mockedEnv({
+      [FeatureFlagName.CEAEnabled]: "true",
+    });
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").callsFake((file, data) => {
+      if (file === path.join("path", "src", "prompts", "chat", "skprompt.txt")) {
+        expect(data).to.contains("The following is a conversation with an AI assistant.");
+      } else if (file === path.join("path", "src", "adaptiveCard", "hello.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "prompts", "chat", "actions.json")) {
+        expect(data).to.contains("getHello");
+      } else if (file === path.join("path", "src", "app", "app.ts")) {
+        expect(data).to.contains(`app.ai.action("getHello"`);
+        expect(data).not.to.contains("{{");
+        expect(data).not.to.contains("// Replace with action code");
+      }
+    });
+    sandbox
+      .stub(fs, "readFile")
+      .resolves(Buffer.from("test code // Replace with action code {{OPENAPI_SPEC_PATH}}"));
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+
+    sandbox
+      .stub(manifestUtils, "_writeAppManifest")
+      .callsFake(async (updatedManifest, manifestPath) => {
+        expect(manifestPath.replace(/\\/g, "/")).to.be.equal("path/appPackage/manifest.json");
+        expect(updatedManifest.bots![0].commandLists![0].scopes).deep.equal([
+          "personal",
+          "copilot",
+        ]);
         expect(updatedManifest.bots![0].commandLists![0].commands[0].title).to.be.equal(
           "Returns a greeting"
         );

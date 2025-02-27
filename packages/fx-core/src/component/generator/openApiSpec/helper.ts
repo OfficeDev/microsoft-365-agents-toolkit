@@ -1630,7 +1630,12 @@ async function updatePromptSuggestions(specItems: SpecObject[], manifestPath: st
     const manifest = manifestRes.value;
     manifest.bots![0].commandLists = [
       {
-        scopes: ["personal"],
+        scopes: [
+          "personal",
+          ...(featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
+            ? ["copilot" as const]
+            : []),
+        ],
         commands: [
           ...descriptions.map((des) => {
             return {
