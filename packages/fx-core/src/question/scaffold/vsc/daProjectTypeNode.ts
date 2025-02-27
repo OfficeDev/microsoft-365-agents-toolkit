@@ -10,6 +10,7 @@ import {
   ApiAuthOptions,
   ApiPluginStartOptions,
   DACapabilityOptions,
+  DAWithPluginOptions,
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
@@ -38,7 +39,7 @@ export function daProjectTypeNode(
           title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
           cliDescription: "Whether to add API plugin for your declarative Copilot.",
           type: "singleSelect",
-          staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
+          staticOptions: [DAWithPluginOptions.noPlugin(), DAWithPluginOptions.withPlugin()],
           placeholder: getLocalizedString(
             "core.createProjectQuestion.declarativeCopilot.placeholder"
           ),
@@ -46,7 +47,7 @@ export function daProjectTypeNode(
         },
         children: [
           {
-            condition: { equals: DACapabilityOptions.withPlugin().id },
+            condition: { equals: DAWithPluginOptions.withPlugin().id },
             data: {
               type: "singleSelect",
               name: QuestionNames.ApiPluginType,

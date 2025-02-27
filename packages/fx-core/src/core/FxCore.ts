@@ -187,6 +187,7 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { ApiPluginStartOptions } from "../question/scaffold/vsc/CapabilityOptions";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 
 export class FxCore {
   constructor(tools: Tools) {

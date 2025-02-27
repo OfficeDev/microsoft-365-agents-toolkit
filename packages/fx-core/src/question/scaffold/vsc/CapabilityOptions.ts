@@ -460,6 +460,9 @@ export class DACapabilityOptions {
       detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
     };
   }
+}
+
+export class DAWithPluginOptions {
   static noPlugin(): OptionItem {
     return {
       id: "no",

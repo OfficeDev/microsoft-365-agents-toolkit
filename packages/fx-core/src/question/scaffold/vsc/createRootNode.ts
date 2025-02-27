@@ -15,12 +15,14 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
+  TdpCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
+import { VSCapabilityOptions } from "../vs/CapabilityOptions";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -209,4 +211,40 @@ export function getProjectTypeByCapability(capability: string): string {
   }
 
   return "";
+}
+
+export function allCapabilities(): string[] {
+  return [
+    DACapabilityOptions.declarativeAgent().id,
+    CustomCopilotCapabilityOptions.aiAgent().id,
+    CustomCopilotCapabilityOptions.basicChatbot().id,
+    CustomCopilotCapabilityOptions.customCopilotRag().id,
+    BotCapabilityOptions.aiBot().id,
+    BotCapabilityOptions.basicBot().id,
+    BotCapabilityOptions.commandBot().id,
+    BotCapabilityOptions.notificationBot().id,
+    BotCapabilityOptions.workflowBot().id,
+    TabCapabilityOptions.nonSsoTab().id,
+    TabCapabilityOptions.SPFxTab().id,
+    TabCapabilityOptions.dashboardTab().id,
+    TabCapabilityOptions.m365SsoLaunchPage().id,
+    MeCapabilityOptions.collectFormMe().id,
+    MeCapabilityOptions.linkUnfurling().id,
+    MeCapabilityOptions.m365SearchMe().id,
+    OfficeAddinCapabilityOptions.officeAddinImport().id,
+    OfficeAddinCapabilityOptions.officeContentAddin().id,
+    OfficeAddinCapabilityOptions.outlookAddinImport().id,
+    OfficeAddinCapabilityOptions.outlookTaskPane().id,
+    OfficeAddinCapabilityOptions.wxpTaskPane().id,
+    VSCapabilityOptions.SearchMeVS().id,
+    VSCapabilityOptions.aiAssistantBot().id,
+    VSCapabilityOptions.declarativeAgent().id,
+    VSCapabilityOptions.empty().id,
+    VSCapabilityOptions.nonSsoTab().id,
+    VSCapabilityOptions.tab().id,
+    TdpCapabilityOptions.me().id,
+    TdpCapabilityOptions.botAndMe().id,
+    TdpCapabilityOptions.nonSsoTab().id,
+    TdpCapabilityOptions.nonSsoTabAndBot().id,
+  ];
 }
