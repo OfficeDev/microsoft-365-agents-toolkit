@@ -24,11 +24,12 @@ import {
   featureFlagManager,
   FxCore,
   InputValidationError,
+  TabCapabilityOptions,
   UserCancelError,
 } from "../../src";
 import { coordinator } from "../../src/component/coordinator";
 import { setTools } from "../../src/common/globalVars";
-import { CapabilityOptions, QuestionNames, ScratchOptions } from "../../src/question/constants";
+import { QuestionNames, ScratchOptions } from "../../src/question/constants";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
@@ -46,7 +47,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -63,7 +64,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.startWithGithubCopilot().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -84,7 +85,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -143,7 +144,7 @@ describe("createProjectFromTdp", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -192,7 +193,7 @@ describe("createProjectFromTdp", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),

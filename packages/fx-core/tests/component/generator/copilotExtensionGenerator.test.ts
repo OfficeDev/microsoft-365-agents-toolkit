@@ -7,27 +7,24 @@
 
 import { err, Inputs, ok, Platform, PluginManifestSchema, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
+import fs from "fs-extra";
 import "mocha";
+import { RestoreFn } from "mocked-env";
+import path from "path";
+import sinon from "sinon";
 import { createContext } from "../../../src/common/globalVars";
+import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
+import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
+import * as generatorHelper from "../../../src/component/generator/copilotExtension/helper";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import * as commons from "../../../src/component/utils/common";
+import { QuestionNames } from "../../../src/question";
 import {
   ApiAuthOptions,
   ApiPluginStartOptions,
-  CapabilityOptions,
-  DeclarativeCopilotTypeOptions,
-  QuestionNames,
-} from "../../../src/question";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
-import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import sinon from "sinon";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
-import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import * as generatorHelper from "../../../src/component/generator/copilotExtension/helper";
-import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import fs from "fs-extra";
-import path from "path";
-import { MockLogProvider } from "../../core/utils";
-import * as commons from "../../../src/component/utils/common";
+  DACapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("copilotExtension", async () => {
   let mockedEnvRestore: RestoreFn | undefined;
@@ -39,52 +36,13 @@ describe("copilotExtension", async () => {
     }
   });
   describe("activate and get template name", async () => {
-    it("api plugin", async () => {
-      const generator = new CopilotExtensionGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
-        [QuestionNames.AppName]: "app",
-      };
-      let res = await generator.activate(context, inputs);
-      let info = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
-
-      inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchBearer;
-      res = await generator.activate(context, inputs);
-      info = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
-
-      inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
-      res = await generator.activate(context, inputs);
-      info = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-
-      inputs[QuestionNames.ApiAuth] = ApiAuthOptions.microsoftEntra().id;
-      inputs[QuestionNames.TemplateName] = TemplateNames.ApiPluginFromScratchOAuth;
-      res = await generator.activate(context, inputs);
-      info = await generator.getTemplateInfos(context, inputs, ".");
-      assert.isTrue(res);
-      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-    });
-
     it("declarative Copilot: Env func enabled", async () => {
       const generator = new CopilotExtensionGenerator();
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -108,112 +66,6 @@ describe("copilotExtension", async () => {
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
-    });
-  });
-
-  describe("post", async () => {
-    it("add plugin success", async () => {
-      const generator = new CopilotExtensionGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
-        [QuestionNames.AppName]: "app",
-      };
-
-      sandbox
-        .stub(copilotGptManifestUtils, "getManifestPath")
-        .resolves(ok("declarativeAgent.json"));
-      sandbox
-        .stub(generatorHelper, "addExistingPlugin")
-        .resolves(ok({ destinationPluginManifestPath: "test.json", warnings: [] }));
-
-      let res = await generator.post(context, inputs, "");
-      assert.isTrue(res.isOk());
-
-      res = await generator.post(context, { ...inputs, platform: Platform.CLI }, "");
-      assert.isTrue(res.isOk());
-
-      res = await generator.post(context, { ...inputs, platform: Platform.VS }, "");
-      assert.isTrue(res.isOk());
-    });
-
-    it("add plugin success with warnings", async () => {
-      const generator = new CopilotExtensionGenerator();
-      const context = createContext();
-
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
-        [QuestionNames.AppName]: "app",
-      };
-
-      const logStub = sandbox.stub(MockLogProvider.prototype, "info").resolves();
-      sandbox
-        .stub(copilotGptManifestUtils, "getManifestPath")
-        .resolves(ok("declarativeAgent.json"));
-      sandbox.stub(generatorHelper, "addExistingPlugin").resolves(
-        ok({
-          destinationPluginManifestPath: "test.json",
-          warnings: [{ type: "test", content: "warningContent" }],
-        })
-      );
-
-      let res = await generator.post(context, inputs, "");
-      assert.isFalse(logStub.called);
-      assert.isTrue(res.isOk());
-
-      res = await generator.post(context, { ...inputs, platform: Platform.CLI }, "");
-      assert.isTrue(res.isOk());
-      assert.isTrue(logStub.called);
-
-      res = await generator.post(context, { ...inputs, platform: Platform.VS }, "");
-      assert.isTrue(logStub.called);
-      assert.isTrue(res.isOk());
-    });
-    it("get manifest path error", async () => {
-      const generator = new CopilotExtensionGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
-        [QuestionNames.AppName]: "app",
-      };
-
-      sandbox
-        .stub(copilotGptManifestUtils, "getManifestPath")
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
-
-      const res = await generator.post(context, inputs, "");
-      assert.isTrue(res.isErr() && res.error.name === "fakeError");
-    });
-
-    it("add plugin errror", async () => {
-      const generator = new CopilotExtensionGenerator();
-      const context = createContext();
-      const inputs: Inputs = {
-        platform: Platform.CLI,
-        projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.existingPlugin().id,
-        [QuestionNames.AppName]: "app",
-      };
-
-      sandbox
-        .stub(copilotGptManifestUtils, "getManifestPath")
-        .resolves(ok("declarativeAgent.json"));
-      sandbox
-        .stub(generatorHelper, "addExistingPlugin")
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
-
-      const res = await generator.post(context, inputs, "");
-      assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
   });
 });

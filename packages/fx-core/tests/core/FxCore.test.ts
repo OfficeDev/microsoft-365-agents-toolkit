@@ -36,8 +36,10 @@ import * as os from "os";
 import * as path from "path";
 import sinon from "sinon";
 import {
+  ApiPluginStartOptions,
   FxCore,
   PackageService,
+  TabCapabilityOptions,
   getLocalizedString,
   getUuid,
   teamsDevPortalClient,
@@ -106,18 +108,13 @@ import {
 } from "../../src/error/common";
 import { NoNeedUpgradeError } from "../../src/error/upgrade";
 import {
-  CapabilityOptions,
   QuestionNames,
   ScratchOptions,
   SyncManifestInputs,
   UninstallInputs,
   questionNodes,
 } from "../../src/question";
-import {
-  ApiPluginStartOptions,
-  HubOptions,
-  KnowledgeSourceOptions,
-} from "../../src/question/constants";
+import { HubOptions, KnowledgeSourceOptions } from "../../src/question/constants";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
@@ -765,7 +762,7 @@ describe("Core basic APIs", () => {
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.ProjectType]: ProjectTypeOptions.tabOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,

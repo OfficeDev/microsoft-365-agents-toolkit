@@ -13,14 +13,13 @@ import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/M
 import { DeclarativeAgentWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/declarativeAgentGenerator";
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
-import {
-  ApiPluginStartOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../../src/question";
+import { ProgrammingLanguage, QuestionNames } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
+import {
+  ApiPluginStartOptions,
+  DACapabilityOptions,
+} from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 
 const tools = new MockTools();
 
@@ -62,7 +61,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
@@ -113,7 +112,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
@@ -145,7 +144,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
@@ -202,7 +201,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -242,7 +241,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         supportedApisFromApiSpec: [
           {
@@ -287,7 +286,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -324,7 +323,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -367,7 +366,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiPluginManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -429,7 +428,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiPluginManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -488,7 +487,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiPluginManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -547,7 +546,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.ApiPluginManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",

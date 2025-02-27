@@ -49,9 +49,13 @@ import {
   simplifyAxiosError,
 } from "../../../src/component/generator/utils";
 import { ActionContext } from "../../../src/component/middleware/actionExecutionMW";
-import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
+import {
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
 
 const mockedSampleInfo: SampleConfig = {
   id: "test-id",
@@ -514,7 +518,7 @@ describe("Generator error", async () => {
     platform: Platform.VSCode,
     [QuestionNames.AppName]: randomAppName(),
     [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.JS,
-    [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+    [QuestionNames.Capabilities]: BotCapabilityOptions.basicBot().id,
   } as Inputs;
   const sandbox = createSandbox();
   const tmpDir = path.join(__dirname, "tmp");
@@ -809,7 +813,7 @@ describe("render template", () => {
         platform: Platform.VSCode,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
-        [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+        [QuestionNames.Capabilities]: BotCapabilityOptions.basicBot().id,
         [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
       } as Inputs;
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: "true" });
@@ -1251,16 +1255,19 @@ describe("render template", () => {
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
-      assert.equal(CapabilityOptions.customCopilotBasic().description, descriptionAnswer);
-      assert.equal(CapabilityOptions.customCopilotRag().description, descriptionAnswer);
-      assert.equal(CapabilityOptions.customCopilotAssistant().description, descriptionAnswer);
+      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, descriptionAnswer);
+      assert.equal(
+        CustomCopilotCapabilityOptions.customCopilotRag().description,
+        descriptionAnswer
+      );
+      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
     it("CEA works in M365 tag doesn't show when CEA disabled", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
-      assert.equal(CapabilityOptions.customCopilotBasic().description, undefined);
-      assert.equal(CapabilityOptions.customCopilotRag().description, undefined);
-      assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
     });
   });
 });

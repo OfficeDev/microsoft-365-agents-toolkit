@@ -41,7 +41,7 @@ import {
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
-import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
+import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/CapabilityOptions";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();

@@ -10,12 +10,11 @@ import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/M
 import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
+import { ProgrammingLanguage, QuestionNames } from "../../../../src/question";
 import {
   ApiPluginStartOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../../src/question";
+  CustomCopilotCapabilityOptions,
+} from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
 
@@ -57,7 +56,7 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: CustomCopilotCapabilityOptions.customCopilotRag().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.AppName]: "testapp",

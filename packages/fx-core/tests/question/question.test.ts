@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { ResourceManagementClient } from "@azure/arm-resources";
+import { TokenCredential } from "@azure/identity";
 import {
   ConditionFunc,
   FuncValidation,
   Inputs,
   ManifestUtil,
-  MultiSelectQuestion,
-  OptionItem,
   Platform,
   Question,
   SingleSelectQuestion,
@@ -24,7 +23,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import sinon from "sinon";
-import { FeatureFlagName } from "../../src/common/featureFlags";
+import { setTools } from "../../src/common/globalVars";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import {
   newResourceGroupOption,
@@ -34,13 +33,11 @@ import {
 } from "../../src/component/utils/ResourceGroupHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
-import { setTools } from "../../src/common/globalVars";
-import { AddKnowledgeOptions, SPFxImportFolderQuestion, questionNodes } from "../../src/question";
+import { SPFxImportFolderQuestion, questionNodes } from "../../src/question";
 import {
-  ApiPluginStartOptions,
+  KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
-  KnowledgeSourceOptions,
 } from "../../src/question/constants";
 import {
   apiSpecApiKeyQuestion,
@@ -55,9 +52,9 @@ import {
   selectTeamsAppManifestQuestion,
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
-import { MockedAzureAccountProvider, MockTools, MockUserInteraction } from "../core/utils";
+import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
 import { callFuncs } from "./create.test";
-import { TokenCredential } from "@azure/identity";
+import { ApiPluginStartOptions } from "../../src";
 
 const ui = new MockUserInteraction();
 

@@ -81,9 +81,6 @@ export async function createPluginWithManifest(args?: any[]): Promise<Result<any
     if (lastCommand === KiotaLastCommands.createDeclarativeCopilotWithManifest) {
       inputs.capabilities = DACapabilityOptions.declarativeAgent().id;
       inputs[QuestionNames.WithPlugin] = "yes";
-    } else {
-      // inputs.capabilities = CapabilityOptions.apiPlugin().id; // TODO API plugin is retired?
-      inputs.capabilities = DACapabilityOptions.declarativeAgent().id;
     }
     inputs[QuestionNames.ProjectType] = ProjectTypeOptions.copilotAgentOptionId;
     inputs[QuestionNames.Folder] = outputFolder;

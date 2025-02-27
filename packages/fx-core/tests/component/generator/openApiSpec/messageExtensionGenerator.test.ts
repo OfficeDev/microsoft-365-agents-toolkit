@@ -25,14 +25,13 @@ import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/M
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { MessageExtensionWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/messageExtensionGenerator";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
-import {
-  ApiPluginStartOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../../src/question";
+import { ProgrammingLanguage, QuestionNames } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
+import {
+  ApiPluginStartOptions,
+  MeCapabilityOptions,
+} from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 
 const tools = new MockTools();
 
@@ -73,7 +72,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: MeCapabilityOptions.m365SearchMe().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
