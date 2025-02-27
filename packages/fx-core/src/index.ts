@@ -18,16 +18,16 @@ export {
   AppStudioScopes,
   AuthSvcScopes,
   AzureScopes,
-  getAllowedAppMaps,
   GraphReadUserScopes,
   GraphScopes,
   SPFxScopes,
+  getAllowedAppMaps,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
-  featureFlagManager,
   FeatureFlagName,
   FeatureFlags,
+  featureFlagManager,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
@@ -36,14 +36,15 @@ export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {
-  projectTypeChecker,
   ProjectTypeResult,
   TeamsfxConfigType,
   TeamsfxVersionState,
+  projectTypeChecker,
 } from "./common/projectTypeChecker";
 export { sendRequestWithRetry, sendRequestWithTimeout } from "./common/requestUtils";
-export { SampleConfig, sampleProvider, SampleUrlInfo } from "./common/samples";
+export { SampleConfig, SampleUrlInfo, sampleProvider } from "./common/samples";
 export {
+  MaskSecretOptions,
   convertToAlphanumericOnly,
   getHashedEnv,
   getResourceGroupNameFromResourceId,
@@ -52,11 +53,10 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
-  MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
 export { telemetryUtils } from "./common/telemetry";
-export { getSideloadingStatus, getSPFxTenant, listDevTunnels } from "./common/tools";
+export { getSPFxTenant, getSideloadingStatus, listDevTunnels } from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";
 export { SummaryConstant } from "./component/configManager/constant";
 export { KiotaLastCommands } from "./component/constants";
@@ -77,9 +77,9 @@ export { getPermissionMap } from "./component/driver/aad/permissions/index";
 export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
-export { generateScaffoldingSummary } from "./component/generator/apiSpec/helper";
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
+export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
 export { TemplateInfo } from "./component/generator/templates/templateInfo";
 export { getSampleFileInfo, runWithLimitedConcurrency } from "./component/generator/utils";
 export * from "./component/local/constants";

@@ -23,19 +23,19 @@ import { TemplateNames } from "../../../src/component/generator/templates/templa
 import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
-import {
-  ApiAuthOptions,
-  ApiPluginStartOptions,
-  CapabilityOptions,
-  CustomCopilotAssistantOptions,
-  CustomCopilotRagOptions,
-  QuestionNames,
-  ScratchOptions,
-} from "../../../src/question/constants";
+import { QuestionNames, ScratchOptions } from "../../../src/question/constants";
 import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
+import {
+  ApiPluginStartOptions,
+  CustomCopilotAssistantOptions,
+  CustomCopilotRagOptions,
+  DACapabilityOptions,
+  TabCapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -186,7 +186,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -205,7 +205,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -223,7 +223,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -405,7 +405,7 @@ describe("coordinator create", () => {
         [QuestionNames.LLMService]: "llm-service-openAI",
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
-      sandbox.stub(SpecGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -431,7 +431,7 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
@@ -481,73 +481,13 @@ describe("coordinator create", () => {
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run")
         .resolves(err(new SystemError("test", "test", "test")));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
       const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isErr() && res.error.name === "test");
-    });
-
-    it("create API Plugin with No authentication (feature flag enabled)", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-    });
-
-    it("create API Plugin with api-key auth (feature flag enabled)", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchBearer,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-    });
-
-    it("create API Plugin with OAuth (feature flag enabled)", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox.stub(CopilotExtensionGenerator.prototype, "run").resolves(ok({}));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratchOAuth,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
     });
 
     it("should scaffold taskpane successfully", async () => {
@@ -567,48 +507,6 @@ describe("coordinator create", () => {
       assert.isTrue(res.isOk());
     });
 
-    it("should scaffold from API spec successfully", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-
-      sandbox
-        .stub(DefaultTemplateGenerator.prototype, "run")
-        .resolves(ok({ warnings: [{ type: "", content: "", data: {} } as any] }));
-
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginFromScratch,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-    });
-
-    it("scaffold from API spec error", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-
-      sandbox
-        .stub(SpecGenerator.prototype, "run")
-        .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage", "")));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isErr());
-    });
-
     it("success for kiota integration: plugin", async () => {
       mockedEnvRestore = mockedEnv({
         [FeatureFlagName.KiotaIntegration]: "true",
@@ -618,7 +516,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
       };
       const context = createContext();
@@ -639,7 +537,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",
       };

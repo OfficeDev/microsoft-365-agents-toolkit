@@ -31,7 +31,6 @@ import {
   PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
-  RuntimeObjectOpenapi,
   Stage,
   TeamsAppInputs,
   Tools,
@@ -48,6 +47,7 @@ import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
@@ -120,6 +120,7 @@ import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/valida
 import { createDriverContext } from "../component/driver/util/utils";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
+import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import {
   convertSpecParserErrorToFxError,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -130,8 +131,7 @@ import {
   listOperations,
   listPluginExistingOperations,
   parseAndUpdatePluginManifestForKiota,
-} from "../component/generator/apiSpec/helper";
-import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
+} from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -186,8 +186,6 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
-import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 import { ApiPluginStartOptions } from "../question/scaffold/vsc/CapabilityOptions";
 
 export class FxCore {

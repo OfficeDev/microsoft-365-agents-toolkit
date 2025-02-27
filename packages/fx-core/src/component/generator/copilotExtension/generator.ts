@@ -23,7 +23,6 @@ import { ProgrammingLanguage, QuestionNames } from "../../../question";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
-import { SpecGenerator } from "../apiSpec/generator";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
@@ -160,5 +159,3 @@ export class CopilotExtensionGenerator extends DefaultTemplateGenerator {
     }
   }
 }
-
-export const specGenerator = new SpecGenerator();
