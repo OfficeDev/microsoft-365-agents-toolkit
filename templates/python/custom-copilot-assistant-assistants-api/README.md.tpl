@@ -57,7 +57,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 {{#useOpenAI}}
 1. Run command `python src/utils/creator.py`. Remember to input your **OpenAI key** in command parameter.
    ```
-   > python src/utils/creator.py --api-key <your-openai-api-key>
+   python src/utils/creator.py --api-key <your-openai-api-key>
    ```
 1. The above command will output something like "*Created a new assistant with an ID of: **asst_xxx...***".
 1. Fill in both OpenAI API Key and the created Assistant ID into `env/.env.local.user`.
@@ -77,7 +77,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 {{#useAzureOpenAI}}
 1. Run command `python src/utils/creator.py`. Remember to input your **Azure OpenAI key** in command parameter.
    ```
-   > python src/utils/creator.py --api-key <your-azure-openai-api-key>
+   python src/utils/creator.py --api-key <your-azure-openai-api-key>
    ```
 1. The above command will output something like "*Created a new assistant with an ID of: **asst_xxx...***".
 1. Fill in both Azure OpenAI API Key, endpoint, deployment name and the created Assistant ID into `env/.env.local.user`.

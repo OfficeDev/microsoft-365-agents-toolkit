@@ -245,6 +245,7 @@ mockedVSCode.commands = {
 (mockedVSCode as any).authentication = {
   getSession: () => {},
   onDidChangeSessions: () => {},
+  getAccounts: () => {},
 };
 
 function generateNotebookMocks() {

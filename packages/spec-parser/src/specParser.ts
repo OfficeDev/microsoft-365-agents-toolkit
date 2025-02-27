@@ -9,6 +9,7 @@ import jsyaml from "js-yaml";
 import fs from "fs-extra";
 import path from "path";
 import {
+  AdaptiveCardUpdateStrategy,
   APIInfo,
   APIMap,
   ErrorResult,
@@ -172,6 +173,51 @@ export class SpecParser {
     throw new Error("Method not implemented.");
   }
 
+  async addAuthScheme(
+    authName: string,
+    authType: string,
+    authParameters: any,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      await this.loadSpec();
+      const spec = this.spec!;
+      if (signal?.aborted) {
+        throw new SpecParserError(ConstantString.CancelledMessage, ErrorType.Cancelled);
+      }
+
+      if (!spec.components) {
+        spec.components = {};
+      }
+
+      if (!spec.components.securitySchemes) {
+        spec.components.securitySchemes = {};
+      }
+
+      spec.components.securitySchemes[authName] = Utils.getAuthSchemaObject(
+        authType,
+        authParameters
+      );
+
+      const paths = spec.paths;
+      for (const path in paths) {
+        const methods = paths[path];
+        for (const method in methods) {
+          const operationId = (methods as any)[method].operationId;
+          if (authParameters.apis.includes(operationId)) {
+            (methods as any)[method].security = [{ [authName]: [] }];
+          }
+        }
+      }
+      await this.saveFilterSpec(this.pathOrSpec as string, this.spec!);
+    } catch (err) {
+      if (err instanceof SpecParserError) {
+        throw err;
+      }
+      throw new SpecParserError((err as Error).toString(), ErrorType.AddAuthFailed);
+    }
+  }
+
   /**
    * Lists all the OpenAPI operations in the specification file.
    * @returns A string array that represents the HTTP method and path of each operation, such as ['GET /pets/{petId}', 'GET /user/{userId}']
@@ -200,6 +246,8 @@ export class SpecParser {
           operationId: operationId,
           isValid: isValid,
           reason: reason,
+          description: operation.description,
+          summary: operation.summary,
         };
 
         // Try best to parse server url and auth type
@@ -305,7 +353,8 @@ export class SpecParser {
     outputSpecPath: string,
     pluginFilePath: string,
     existingPluginFilePath?: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    adaptiveCardUpdateStrategy?: AdaptiveCardUpdateStrategy
   ): Promise<GenerateResult> {
     const result: GenerateResult = {
       allSuccess: true,
@@ -363,7 +412,7 @@ export class SpecParser {
         : undefined;
 
       const authMap = Utils.getAuthMap(newSpec);
-      const [updatedManifest, apiPlugin, warnings] =
+      const [updatedManifest, apiPlugin, warnings, jsonDataSet] =
         await ManifestUpdater.updateManifestWithAiPlugin(
           manifestPath,
           outputSpecPath,
@@ -373,6 +422,13 @@ export class SpecParser {
           authMap,
           existingPluginManifestInfo
         );
+
+      await this.separateAdaptiveCards(
+        apiPlugin,
+        pluginFilePath,
+        jsonDataSet,
+        adaptiveCardUpdateStrategy
+      );
 
       result.warnings.push(...warnings);
 
@@ -494,6 +550,8 @@ export class SpecParser {
     const newSpec = newSpecs[1];
     const apiPlugin = (await fs.readJSON(pluginFilePath)) as PluginManifestSchema;
 
+    const jsonDataSet: Record<string, any> = {};
+
     const paths = newSpec.paths;
     for (const pathUrl in paths) {
       const pathItem = paths[pathUrl];
@@ -514,11 +572,17 @@ export class SpecParser {
 
                 const { json } = Utils.getResponseJson(operationItem);
                 if (json.schema) {
-                  const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
+                  const [card, jsonPath, jsonData] = AdaptiveCardGenerator.generateAdaptiveCard(
                     operationItem,
                     false,
                     5
                   );
+
+                  if (jsonPath === "$") {
+                    jsonDataSet[safeFunctionName] = jsonData;
+                  } else {
+                    jsonDataSet[safeFunctionName] = jsonData[jsonPath];
+                  }
 
                   const responseSemantic = wrapResponseSemantics(card, jsonPath);
                   apiPlugin.functions!.find(
@@ -539,7 +603,52 @@ export class SpecParser {
       }
     }
 
+    await this.separateAdaptiveCards(apiPlugin, pluginFilePath, jsonDataSet);
+
     await fs.outputJSON(pluginFilePath, apiPlugin, { spaces: 4 });
+  }
+
+  private async separateAdaptiveCards(
+    apiPlugin: PluginManifestSchema,
+    pluginFilePath: string,
+    jsonDataSet: Record<string, any> = {},
+    adaptiveCardUpdateStrategy?: AdaptiveCardUpdateStrategy
+  ): Promise<void> {
+    const functions = apiPlugin.functions;
+    if (!adaptiveCardUpdateStrategy) {
+      adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.CreateNew;
+    }
+    if (functions) {
+      const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
+      for (const func of functions) {
+        if (func.capabilities?.response_semantics) {
+          const responseSemantic = func.capabilities.response_semantics;
+          const card = responseSemantic.static_template;
+          if (card && Object.keys(card).length !== 0) {
+            let cardName = func.name;
+
+            if (adaptiveCardUpdateStrategy === AdaptiveCardUpdateStrategy.CreateNew) {
+              cardName = this.findUniqueCardName(func.name, adaptiveCardFolder);
+            } else {
+              if (
+                adaptiveCardUpdateStrategy === AdaptiveCardUpdateStrategy.KeepExisting &&
+                fs.existsSync(path.join(adaptiveCardFolder, `${cardName}.json`))
+              ) {
+                responseSemantic.static_template = { file: `adaptiveCards/${cardName}.json` };
+                continue;
+              }
+            }
+
+            const cardPath = path.join(adaptiveCardFolder, `${cardName}.json`);
+            const dataPath = path.join(adaptiveCardFolder, `${cardName}.data.json`);
+            responseSemantic.static_template = { file: `adaptiveCards/${cardName}.json` };
+            await fs.outputJSON(cardPath, card, { spaces: 4 });
+            const data = jsonDataSet[cardName] ?? {};
+            await fs.outputJSON(dataPath, data, { spaces: 4 });
+          }
+        }
+      }
+    }
   }
 
   private async loadSpec(): Promise<void> {
@@ -591,5 +700,18 @@ export class SpecParser {
     const specString = JSON.stringify(spec);
     const specResolved = Utils.resolveEnv(specString);
     return JSON.parse(specResolved) as OpenAPIV3.Document;
+  }
+
+  private findUniqueCardName(defaultName: string, cardFolder: string) {
+    let cardName = defaultName;
+    let counter = 1;
+    while (true) {
+      if (!fs.existsSync(path.join(cardFolder, cardName + ".json"))) {
+        break;
+      }
+      cardName = `${defaultName}${counter}`;
+      counter++;
+    }
+    return cardName;
   }
 }

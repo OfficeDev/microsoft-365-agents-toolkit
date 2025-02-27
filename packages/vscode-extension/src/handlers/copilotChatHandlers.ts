@@ -164,18 +164,6 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
   }
 }
 
-export async function markGitHubCopilotSetupDone(args?: any[]) {
-  const startEventName = TelemetryEvent.MarkGitHubCopilotSetupDoneStart;
-  const eventName = TelemetryEvent.MarkGitHubCopilotSetupDone;
-  ExtTelemetry.sendTelemetryEvent(startEventName);
-  try {
-    await globalStateUpdate(GlobalKey.GitHubCopilotSetupAlready, true);
-    ExtTelemetry.sendTelemetryEvent(eventName);
-  } catch (e) {
-    ExtTelemetry.sendTelemetryErrorEvent(eventName, assembleError(e));
-  }
-}
-
 export async function openTeamsAgentWalkthrough(args?: any[]) {
   const triggerFromProperty = getTriggerFromProperty(args);
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTeamsAgentWalkthrough, triggerFromProperty);
@@ -208,16 +196,11 @@ async function invoke(
     }
   }
 
-  let hasGitHubCopilotInstalledOnce = await globalStateGet(GlobalKey.GithubCopilotInstalled, false);
-  if (!hasGitHubCopilotInstalledOnce && githubCopilotInstalled()) {
-    await globalStateUpdate(GlobalKey.GithubCopilotInstalled, true);
-    hasGitHubCopilotInstalledOnce = true;
-  }
-
+  const hasGitHubCopilotInstalled = githubCopilotInstalled();
   const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
-  const hasGitHubCopilotSetup = await globalStateGet(GlobalKey.GitHubCopilotSetupAlready, false);
+  const hasGitHubCopilotSetup = await isGithubLoggedIn();
 
-  if (hasGitHubCopilotInstalledOnce && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
+  if (hasGitHubCopilotInstalled && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
     if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
       await openOutputInEditor();
     }
@@ -255,26 +238,21 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       query =
         "@teamsapp Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
       break;
-    case TelemetryTriggerFrom.WalkThroughIntroduction:
-      query = "@teamsapp What is notification bot in Teams?";
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
       shouldSkipPreCheck = true;
+      query = "@teamsapp What's the difference between declarative and custom agents?";
       break;
-    case TelemetryTriggerFrom.WalkThroughCreate:
-      query = "@teamsapp How to create notification bot with Teams Toolkit?";
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
       shouldSkipPreCheck = true;
+      query = "@teamsapp I want to create a ToDo Teams app.";
       break;
-    case TelemetryTriggerFrom.WalkThroughWhatIsNext:
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
-      query =
-        "@teamsapp How do I customize and extend the notification bot app template created by Teams Toolkit?";
+      query = "@teamsapp My Teams app doesn't sideload when debugging with Teams Toolkit.";
       break;
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
+    case TelemetryTriggerFrom.WalkThrough:
       shouldSkipPreCheck = true;
-      query = "@teamsapp What is declarative agent for Microsoft 365 Copilot?";
-      break;
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
-      shouldSkipPreCheck = true;
-      query = "@teamsapp How to create declarative agent with Teams Toolkit?";
+      query = "@teamsapp What can you do?";
       break;
     default:
       query =
@@ -293,6 +271,15 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     });
   }
   return res;
+}
+
+async function isGithubLoggedIn(): Promise<boolean> {
+  try {
+    const accounts = await vscode.authentication.getAccounts("github");
+    return accounts.length > 0;
+  } catch (e) {
+    return true;
+  }
 }
 
 /**

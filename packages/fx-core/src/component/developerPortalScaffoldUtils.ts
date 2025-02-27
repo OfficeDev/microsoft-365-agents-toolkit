@@ -51,7 +51,7 @@ export class DeveloperPortalScaffoldUtils {
     appDefinition: AppDefinition,
     inputs: Inputs
   ): Promise<Result<undefined, FxError>> {
-    if (!ctx.projectPath) {
+    if (!inputs.projectPath) {
       return err(new InputValidationError("projectPath", "undefined"));
     }
 
@@ -64,7 +64,7 @@ export class DeveloperPortalScaffoldUtils {
       return err(manifestRes.error);
     }
 
-    const envRes = await updateEnv(appDefinition.teamsAppId!, ctx.projectPath);
+    const envRes = await updateEnv(appDefinition.teamsAppId!, inputs.projectPath);
     if (envRes.isErr()) {
       return err(envRes.error);
     }
@@ -101,10 +101,14 @@ async function updateManifest(
     return err(new UserError(CoordinatorSource, "CouldNotFoundManifest", msg, msg));
   }
 
-  const colorFilePath = path.join(ctx.projectPath!, appPackageFolderName, colorFileName);
-  const outlineFilePath = path.join(ctx.projectPath!, appPackageFolderName, outlineFileName);
+  const colorFilePath = path.join(inputs.projectPath!, appPackageFolderName, colorFileName);
+  const outlineFilePath = path.join(inputs.projectPath!, appPackageFolderName, outlineFileName);
 
-  const manifestTemplatePath = path.join(ctx.projectPath!, appPackageFolderName, manifestFileName);
+  const manifestTemplatePath = path.join(
+    inputs.projectPath!,
+    appPackageFolderName,
+    manifestFileName
+  );
   const manifestRes = await manifestUtils._readAppManifest(manifestTemplatePath);
   if (manifestRes.isErr()) {
     return err(manifestRes.error);
@@ -274,7 +278,7 @@ async function updateManifest(
   if (languages) {
     for (const code in languages) {
       const content = JSON.parse(languages[code].toString("utf8"));
-      const languageFilePath = path.join(ctx.projectPath!, appPackageFolderName, `${code}.json`);
+      const languageFilePath = path.join(inputs.projectPath!, appPackageFolderName, `${code}.json`);
       await fs.writeFile(languageFilePath, JSON.stringify(content, null, "\t"), "utf-8");
     }
   }

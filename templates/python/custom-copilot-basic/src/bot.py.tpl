@@ -26,6 +26,9 @@ model = OpenAIModel(
         api_key=config.AZURE_OPENAI_API_KEY,
         default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
+        {{#CEAEnabled}} 
+        stream=True,
+        {{/CEAEnabled}}
     )
 )
 {{/useAzureOpenAI}}    
@@ -34,14 +37,17 @@ model = OpenAIModel(
     OpenAIModelOptions(
         api_key=config.OPENAI_API_KEY,
         default_model=config.OPENAI_MODEL_NAME,
+        {{#CEAEnabled}} 
+        stream=True,
+        {{/CEAEnabled}}
     )
 )
 {{/useOpenAI}}
-    
+
 prompts = PromptManager(PromptManagerOptions(prompts_folder=f"{os.getcwd()}/prompts"))
 
 planner = ActionPlanner(
-    ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat")
+    ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat", enable_feedback_loop=True)
 )
 
 # Define storage and application

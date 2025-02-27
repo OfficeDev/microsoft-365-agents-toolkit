@@ -14,6 +14,10 @@ import {
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
+  featureFlagManager,
+  FeatureFlags,
+  getProjectTypeByCapability,
+  isTdpTemplate,
   MeArchitectureOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -70,7 +74,21 @@ export function getCreateCommand(): CLICommand {
       const inputs = ctx.optionValues as CreateProjectInputs;
       inputs.projectId = inputs.projectId ?? uuid.v4();
       const core = getFxCore();
-      const res = await core.createProject(inputs);
+      if (inputs.nonInteractive) {
+        if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
+          // this feature is used in e2e test to scaffold VS project in non-interactive mode
+          inputs.platform = Platform.VS;
+        } else {
+          // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
+          const capability = inputs.capabilities as string;
+          const projectType = getProjectTypeByCapability(capability);
+          inputs["project-type"] = projectType as any;
+        }
+      }
+      const isTdp = isTdpTemplate(inputs);
+      const res = isTdp
+        ? await core.createProjectFromTdp(inputs)
+        : await core.createProject(inputs);
       assign(ctx.telemetryProperties, {
         [TelemetryProperty.NewProjectId]: inputs.projectId,
         [TelemetryProperty.IsCreatingM365]: inputs.isM365 + "",

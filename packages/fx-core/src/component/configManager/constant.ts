@@ -23,3 +23,7 @@ export enum TelemetryProperty {
   UnresolvedPlaceholders = "unresolved",
   FailedAction = "failed-action",
 }
+
+export const MicrosoftEntraAuthType = "MicrosoftEntra";
+export const OAuthAuthType = "OAuthPluginVault";
+export const APIKeyAuthType = "ApiKeyPluginVault";

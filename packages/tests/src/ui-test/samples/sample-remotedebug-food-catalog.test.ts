@@ -11,6 +11,7 @@ import fs from "fs";
 import { TemplateProject } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
+import { Executor } from "../../utils/executor";
 
 class FoodCatalogTestCase extends CaseFactory {
   override async onAfterCreate(
@@ -18,37 +19,21 @@ class FoodCatalogTestCase extends CaseFactory {
     env: "local" | "dev"
   ): Promise<void> {
     console.log("pre provision project");
-    try {
-      await sampledebugContext.provisionProject(
-        sampledebugContext.appName,
-        sampledebugContext.projectPath,
-        true,
-        "cli",
-        "",
-        "dev",
-        process.env,
-        "lifecycle provision because there are unresolved placeholders"
-      );
-    } catch (error) {}
-    console.log("[start] update env file.");
-    const envFilePath = path.resolve(
-      sampledebugContext.projectPath,
-      "env",
-      `.env.${env}.user`
+    await Executor.execute(
+      `node ./scripts/env.js`,
+      sampledebugContext.projectPath
     );
-    let envContent = fs.readFileSync(envFilePath, "utf-8");
-    console.log(`envContent: ${envContent}`);
-    const storageConnectionString = fs
-      .readFileSync(envFilePath, "utf-8")
-      .split("\n")
-      .find((line) =>
-        line.startsWith("SECRET_STORAGE_ACCOUNT_CONNECTION_STRING")
-      )
-      ?.split("=")[1];
-    console.log(`storageConnectionString: ${storageConnectionString}`);
-    envContent += `\nSECRET_TABLE_STORAGE_CONNECTION_STRING=${storageConnectionString}`;
-    fs.writeFileSync(envFilePath, envContent, { encoding: "utf-8" });
-    console.log("[finish] env file updated.");
+    console.log("env file created");
+    const { success } = await Executor.execute(
+      `npm install`,
+      sampledebugContext.projectPath,
+      process.env,
+      undefined,
+      "npm warn"
+    );
+    if (!success) {
+      throw new Error("Failed to install packages");
+    }
   }
 }
 
@@ -60,7 +45,6 @@ new FoodCatalogTestCase(
   [],
   {
     skipInit: true,
-    skipDeploy: true,
     repoPath: "./resource/samples",
     testRootFolder: path.resolve(os.homedir(), "resource"),
   }

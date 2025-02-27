@@ -265,7 +265,7 @@ export class WebviewPanel {
     }
     if (this.panel && this.panel.webview) {
       let readme = this.replaceRelativeImagePaths(htmlContent, sample);
-      readme = this.replaceRelativeMarkdownPaths(htmlContent, sample);
+      readme = this.replaceRelativeMarkdownPaths(readme, sample);
       readme = this.replaceMermaidRelatedContent(readme);
       readme = this.addTabIndex(readme);
       await this.panel.webview.postMessage({
@@ -287,7 +287,9 @@ export class WebviewPanel {
     const urlInfo = sample.downloadUrlInfo;
     const imageUrl = `https://github.com/${urlInfo.owner}/${urlInfo.repository}/blob/${urlInfo.ref}/${urlInfo.dir}/`;
     const imageRegex = /img\s+src="(?!https:\/\/camo\.githubusercontent\.com\/.)([^"]+)"/gm;
-    return htmlContent.replace(imageRegex, `img src="${imageUrl}$1?raw=1"`);
+    const newContent = htmlContent.replace(imageRegex, `img src="${imageUrl}$1?raw=1"`);
+    const hrefRegex = /href="([^"]+\.(jpg|png|gif|jpeg))"/gm;
+    return newContent.replace(hrefRegex, `href="${imageUrl}$1"`);
   }
 
   private replaceMermaidRelatedContent(htmlContent: string): string {

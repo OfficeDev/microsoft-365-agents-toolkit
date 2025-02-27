@@ -32,6 +32,11 @@ import { generateDriverContext } from "../../../../src/common/utils";
 import { MockTools } from "../../../core/utils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import path from "path";
+import { SpecParser } from "@microsoft/m365-spec-parser";
+import {
+  EmbeddedKnowledgeCapabilityName,
+  EmbeddedKnowledgeLocalDirectoryName,
+} from "../../../../src/component/driver/teamsApp/constants";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -84,7 +89,7 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("add plugin success", async () => {
+    it("add plugin success - use conversation_starters in action file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
       sandbox.stub(fs, "writeFile").resolves();
@@ -116,7 +121,176 @@ describe("copilotGptManifestUtils", () => {
       }
     });
 
-    it("add plugin and append conversation starters success", async () => {
+    it("add plugin success - parse conversation_starters in open api spec file", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(fs, "readJson").resolves({
+        capabilities: {
+          conversation_starters: [],
+        },
+        runtimes: [
+          {
+            type: "OpenApi",
+            auth: {
+              type: "None",
+            },
+            spec: {
+              url: "apiSpecificationFile/openapi.json",
+            },
+            run_for_functions: ["deleteRepairs", "listRepairs", "patchRepairs", "createRepair"],
+          },
+        ],
+        functions: [
+          {
+            name: "listRepairs",
+            description: "List all repairs",
+          },
+          {
+            name: "deleteRepairs",
+            description: "Delete repairs",
+          },
+          {
+            name: "patchRepairs",
+            description: "Patch repairs",
+          },
+          {
+            name: "createRepair",
+            description: "Create repairs",
+          },
+        ],
+      } as any);
+
+      sandbox.stub(SpecParser.prototype, "list").resolves({
+        APIs: [
+          {
+            api: "GET /repairs",
+            server: "https://example.com",
+            operationId: "listRepairs",
+            isValid: true,
+            reason: [],
+            summary: "List all repairs",
+            description: "It is used to list all repairs",
+          },
+          {
+            api: "POST /repairs",
+            server: "https://example.com",
+            operationId: "createRepair",
+            isValid: true,
+            reason: [],
+          },
+          {
+            api: "DELETE /repairs",
+            server: "https://example.com",
+            operationId: "deleteRepairs",
+            isValid: true,
+            reason: [],
+            description: "It is used to delete a repair",
+          },
+          {
+            api: "PATCH /repairs",
+            server: "https://example.com",
+            operationId: "patchRepairs",
+            isValid: false,
+            reason: [],
+            summary: "Patch a repair",
+            description: "It is used to patch a repair",
+          },
+          {
+            api: "Put /repairs",
+            server: "https://example.com",
+            operationId: "putRepairs",
+            isValid: true,
+            reason: [],
+            summary: "Put a repair",
+            description: "It is used to put a repair",
+          },
+        ],
+        allAPICount: 1,
+        validAPICount: 1,
+      });
+
+      const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        const updatedManifest = res.value;
+        chai.assert.deepEqual(updatedManifest.actions![0], {
+          id: "testId",
+          file: "testFile",
+        });
+
+        chai.assert.deepEqual(updatedManifest.conversation_starters, [
+          {
+            text: "List all repairs",
+          },
+          {
+            text: "It is used to delete a repair",
+          },
+        ]);
+      }
+    });
+
+    it("add plugin success - parse conversation_starters in open api spec file with undefined existing conversation starter", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
+      sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(fs, "readJson").resolves({
+        capabilities: {},
+        runtimes: [
+          {
+            type: "OpenApi",
+            auth: {
+              type: "None",
+            },
+            spec: {
+              url: "apiSpecificationFile/openapi.json",
+            },
+            run_for_functions: ["listRepairs"],
+          },
+        ],
+        functions: [
+          {
+            name: "listRepairs",
+            description: "List all repairs",
+          },
+        ],
+      } as any);
+
+      sandbox.stub(SpecParser.prototype, "list").resolves({
+        APIs: [
+          {
+            api: "GET /repairs",
+            server: "https://example.com",
+            operationId: "listRepairs",
+            isValid: true,
+            reason: [],
+            summary: "List all repairs",
+          },
+        ],
+        allAPICount: 1,
+        validAPICount: 1,
+      });
+
+      const res = await copilotGptManifestUtils.addAction("testPath", "testId", "testFile");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        const updatedManifest = res.value;
+        chai.assert.deepEqual(updatedManifest.actions![0], {
+          id: "testId",
+          file: "testFile",
+        });
+
+        chai.assert.deepEqual(updatedManifest.conversation_starters, [
+          {
+            text: "List all repairs",
+          },
+        ]);
+      }
+    });
+
+    it("add plugin and append conversation starters success - use conversation_starters in action file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves(
         JSON.stringify({
@@ -791,6 +965,143 @@ describe("copilotGptManifestUtils", () => {
       sandbox.stub(fs, "pathExists").onFirstCall().resolves(true).onSecondCall().resolves(false);
       const res = await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath("test");
       chai.assert.equal(res, path.join("test", "ai-plugin_1.json"));
+    });
+  });
+
+  describe("addEmbeddedKnowledgeFiles", () => {
+    setTools(new MockTools());
+    const context = generateDriverContext(createContext(), {
+      platform: Platform.VSCode,
+      projectPath: "",
+    });
+    it("should add embedded knowledge files successfully - empty declarative agent manifest", async () => {
+      const manifestFilePath = "test/manifest.json";
+      const resolvedManifestPath = "test/resolvedManifest.json";
+      const manifest: any = {};
+
+      sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok(resolvedManifestPath));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
+      const writeStub = sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(ok(undefined));
+      const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
+      const copyFileStub = sandbox.stub(fs, "copyFile").resolves();
+
+      const filePathList = ["dummy.txt"];
+      const result = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
+        manifestFilePath,
+        filePathList
+      );
+      chai.assert.isTrue(result.isOk());
+
+      const expectedDir = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName
+      );
+      sinon.assert.calledWith(ensureDirStub, expectedDir);
+
+      const expectedSavedPath = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName,
+        path.basename("dummy.txt")
+      );
+
+      chai.assert.isArray(manifest.capabilities);
+      const capability = manifest.capabilities.find(
+        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+      );
+      chai.assert.exists(capability);
+      chai.assert.isArray(capability.files);
+      const expectedRelativePath = path
+        .relative(path.dirname(manifestFilePath), expectedSavedPath)
+        .replace(/\\/g, "/");
+      chai.assert.equal(capability.files[0].file, expectedRelativePath);
+
+      sinon.assert.calledWith(writeStub, manifest, resolvedManifestPath);
+    });
+
+    it("should add embedded knowledge files successfully - declarative agent manifest with knowledge", async () => {
+      const manifestFilePath = "test/manifest.json";
+      const resolvedManifestPath = "test/resolvedManifest.json";
+      const manifest: any = {
+        capabilities: [
+          {
+            name: EmbeddedKnowledgeCapabilityName,
+            files: [{ file: "existing.txt" }],
+          },
+        ],
+      };
+
+      sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok(resolvedManifestPath));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok(manifest));
+      const writeStub = sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(ok(undefined));
+      const ensureDirStub = sandbox.stub(fs, "ensureDir").resolves();
+      const copyFileStub = sandbox.stub(fs, "copyFile").resolves();
+
+      const filePathList = ["dummy.txt"];
+      const result = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
+        manifestFilePath,
+        filePathList
+      );
+      chai.assert.isTrue(result.isOk());
+
+      const expectedDir = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName
+      );
+      sinon.assert.calledWith(ensureDirStub, expectedDir);
+
+      const expectedSavedPath = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName,
+        path.basename("dummy.txt")
+      );
+
+      chai.assert.isArray(manifest.capabilities);
+      const capability = manifest.capabilities.find(
+        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+      );
+      chai.assert.exists(capability);
+      chai.assert.isArray(capability.files);
+      chai.assert.equal(capability.files.length, 2);
+      chai.assert.isTrue(capability.files[0].file == "existing.txt");
+      const expectedRelativePath = path
+        .relative(path.dirname(manifestFilePath), expectedSavedPath)
+        .replace(/\\/g, "/");
+      chai.assert.equal(capability.files[1].file, expectedRelativePath);
+      sinon.assert.calledWith(writeStub, manifest, resolvedManifestPath);
+    });
+
+    it("should return error if getManifestPath fails", async () => {
+      const fackeErr = new SystemError("FakeError", "getManifestPath failed", "test", "");
+      sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(err(fackeErr));
+      const result = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles("test/manifest.json", [
+        "dummy.txt",
+      ]);
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.deepEqual(result.error, fackeErr);
+      }
+    });
+    it("should return error if readCopilotGptManifestFile fails", async () => {
+      const resolvedManifestPath = "test/resolvedManifest.json";
+      sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok(resolvedManifestPath));
+      const fackeErr = new SystemError(
+        "FakeError",
+        "readCopilotGptManifestFile failed",
+        "test",
+        ""
+      );
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(err(fackeErr));
+      const result = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles("test/manifest.json", [
+        "dummy.txt",
+      ]);
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.deepEqual(result.error, fackeErr);
+      }
     });
   });
 });

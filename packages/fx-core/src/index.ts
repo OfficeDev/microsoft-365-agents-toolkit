@@ -25,12 +25,13 @@ export {
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
+  FeatureFlagName,
   FeatureFlags,
   featureFlagManager,
   isFeatureFlagEnabled,
-  FeatureFlagName,
 } from "./common/featureFlags";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
+export { AadSet } from "./common/globalVars";
 export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
@@ -58,6 +59,7 @@ export { telemetryUtils } from "./common/telemetry";
 export { getSPFxTenant, getSideloadingStatus, listDevTunnels } from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";
 export { SummaryConstant } from "./component/configManager/constant";
+export { KiotaLastCommands } from "./component/constants";
 export { CheckerFactory } from "./component/deps-checker/checkerFactory";
 export {
   DepsCheckerEvent,
@@ -75,9 +77,10 @@ export { getPermissionMap } from "./component/driver/aad/permissions/index";
 export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
-export { generateScaffoldingSummary } from "./component/generator/apiSpec/helper";
+export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
-export { DefaultTemplateGenerator } from "./component/generator/templates/templateGenerator";
+export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
+export { TemplateInfo } from "./component/generator/templates/templateInfo";
 export { getSampleFileInfo, runWithLimitedConcurrency } from "./component/generator/utils";
 export * from "./component/local/constants";
 export { LocalCertificateManager } from "./component/local/localCertificateManager";
@@ -87,6 +90,7 @@ export { loadTeamsFxDevScript } from "./component/local/packageJsonHelper";
 export { Hub } from "./component/m365/constants";
 export { PackageService } from "./component/m365/packageService";
 export { MosServiceEndpoint, MosServiceScope } from "./component/m365/serviceConstant";
+export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
 export { metadataUtil } from "./component/utils/metadataUtil";
@@ -102,7 +106,5 @@ export * from "./error/index";
 export * from "./question/constants";
 export * from "./question/inputs";
 export * from "./question/options";
-export * from "./component/middleware/actionExecutionMW";
-export { TemplateInfo } from "./component/generator/templates/templateInfo";
-export { AadSet } from "./common/globalVars";
-export { KiotaLastCommands } from "./component/constants";
+export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
+export { getProjectTypeByCapability } from "./question/scaffold/vsc/createRootNode";

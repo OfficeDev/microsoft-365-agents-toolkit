@@ -46,7 +46,10 @@ import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
-import { VSCodeExtensionCommand, AppStudioScopes } from "../common/constants";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
+import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -66,9 +69,14 @@ import {
   ProjectTypeResult,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
-import { TelemetryEvent, telemetryUtils } from "../common/telemetry";
+import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
+import { generateDriverContext } from "../common/utils";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
-import { ActionInjector } from "../component/configManager/actionInjector";
+import {
+  APIKeyAuthType,
+  MicrosoftEntraAuthType,
+  OAuthAuthType,
+} from "../component/configManager/constant";
 import { ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
 import {
@@ -80,6 +88,7 @@ import {
 import { coordinator } from "../component/coordinator";
 import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadAppArgs";
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
+import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
@@ -90,10 +99,12 @@ import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
 import { CreateAppPackageArgs } from "../component/driver/teamsApp/interfaces/CreateAppPackageArgs";
+import { SyncManifestArgs } from "../component/driver/teamsApp/interfaces/SyncManifest";
 import { ValidateAppPackageArgs } from "../component/driver/teamsApp/interfaces/ValidateAppPackageArgs";
 import { ValidateManifestArgs } from "../component/driver/teamsApp/interfaces/ValidateManifestArgs";
 import { ValidateWithTestCasesArgs } from "../component/driver/teamsApp/interfaces/ValidateWithTestCasesArgs";
 import { AppStudioResultFactory } from "../component/driver/teamsApp/results";
+import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
@@ -109,16 +120,21 @@ import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/valida
 import { createDriverContext } from "../component/driver/util/utils";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
+import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import {
   convertSpecParserErrorToFxError,
+  generateAdaptiveCardInPluginManifestForKiota,
   generateFromApiSpec,
   generateScaffoldingSummary,
   getParserOptions,
   injectAuthAction,
   listOperations,
   listPluginExistingOperations,
-} from "../component/generator/apiSpec/helper";
+  parseAndUpdatePluginManifestForKiota,
+} from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
+import { PackageService } from "../component/m365/packageService";
+import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
 import {
@@ -134,7 +150,6 @@ import {
   InputValidationError,
   InvalidProjectError,
   MissingRequiredInputError,
-  MultipleAuthError,
   MultipleServerError,
   UnhandledError,
   UserCancelError,
@@ -142,10 +157,13 @@ import {
 } from "../error/common";
 import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
+import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
+  AddAuthActionAuthTypeOptions,
   ApiPluginStartOptions,
   AppNamePattern,
   HubTypes,
+  KnowledgeSourceOptions,
   ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
@@ -169,18 +187,8 @@ import {
   getTrackingIdFromPath,
   getVersionState,
 } from "./middleware/utils/v3MigrationUtils";
-import { CoreTelemetryComponentName, CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
+import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { SyncManifestInputs, UninstallInputs } from "../question";
-import { PackageService } from "../component/m365/packageService";
-import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
-import { SyncManifestArgs } from "../component/driver/teamsApp/interfaces/SyncManifest";
-import { SyncManifestDriver } from "../component/driver/teamsApp/syncManifest";
-import { generateDriverContext } from "../common/utils";
-import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
-import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
-import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -206,8 +214,24 @@ export class FxCore {
       return ok({ projectPath: "", shouldInvokeTeamsAgent: true });
     }
     inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
+    TOOLS.logProvider?.debug(`Scaffold inputs after question model: ${JSON.stringify(inputs)}`);
+    const res = await coordinator.create(context, inputs);
+    if (res.isOk()) {
+      inputs.projectPath = res.value.projectPath;
+    }
+    return res;
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "createProjectFromTdp", reset: true }),
+    ErrorHandlerMW,
+    QuestionMW("createFromTdp"),
+  ])
+  async createProjectFromTdp(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    const context = createContext();
+    inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
+    // should never happen as we do same check on Developer Portal.
     if (inputs.teamsAppFromTdp) {
-      // should never happen as we do same check on Developer Portal.
       if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
         return err(
           new InputValidationError("manifest.json", "Teams app contains unsupported features")
@@ -221,6 +245,7 @@ export class FxCore {
         });
       }
     }
+    TOOLS.logProvider?.debug(`Scaffold inputs after question model: ${JSON.stringify(inputs)}`);
     const res = await coordinator.create(context, inputs);
     inputs.projectPath = context.projectPath;
     return res;
@@ -1934,7 +1959,7 @@ export class FxCore {
     let specParser: SpecParser | undefined = undefined;
     let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
 
-    if (isGenerateFromApiSpec) {
+    if (isGenerateFromApiSpec && !isKiotaIntegration) {
       specParser = new SpecParser(
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
@@ -1997,50 +2022,39 @@ export class FxCore {
     }
 
     let destinationPluginManifestPath: string;
-    // generate files
-    if (isGenerateFromApiSpec && specParser) {
-      destinationPluginManifestPath = isKiotaIntegration
-        ? inputs[QuestionNames.ApiPluginManifestPath].trim()
-        : await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
-            appPackageFolder,
-            undefined
-          );
-      const destinationApiSpecPath = isKiotaIntegration
-        ? inputs[QuestionNames.ApiSpecLocation].trim()
-        : await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
-            inputs[QuestionNames.ApiSpecLocation].trim(),
-            path.join(appPackageFolder, DefaultApiSpecFolderName),
-            undefined
-          );
+    if (isKiotaIntegration) {
+      // 1. Copy openapi spec file
+      const openapiSpecFileName = path.basename(inputs[QuestionNames.ApiSpecLocation]);
+      const openapiSpecPath = path.join(appPackageFolder, openapiSpecFileName);
+      await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
 
-      const generateRes = await generateFromApiSpec(
-        specParser,
-        teamsManifestPath,
-        inputs,
-        context,
-        Stage.addPlugin,
-        ProjectType.Copilot,
-        {
-          destinationApiSpecFilePath: destinationApiSpecPath,
-          pluginManifestFilePath: destinationPluginManifestPath,
-        }
+      // 2. Copy plugin manifest file
+      const pluginManifestPath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        path.basename(inputs[QuestionNames.ApiPluginManifestPath])
       );
-      if (generateRes.isErr()) {
-        return err(generateRes.error);
-      }
+      destinationPluginManifestPath = pluginManifestPath;
+      await fs.copyFile(inputs[QuestionNames.ApiPluginManifestPath], pluginManifestPath);
 
-      const warnings = generateRes.value.warnings;
-      if (warnings && warnings.length > 0) {
-        const warnSummary = await generateScaffoldingSummary(
-          warnings,
-          manifestRes.value,
-          path.relative(inputs.projectPath, destinationApiSpecPath),
-          path.relative(inputs.projectPath, destinationPluginManifestPath),
-          inputs.projectPath
+      // 2.1 Need to update the plugin manifest file
+      const authData: any[] = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
+
+      // 3. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
+      for (const authInfo of authData) {
+        await injectAuthAction(
+          inputs.projectPath,
+          authInfo.authName,
+          undefined,
+          openapiSpecPath,
+          false,
+          authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
+          false,
+          authInfo.registrationId
         );
-        context.logProvider.info(warnSummary + "\n");
       }
 
+      // 4. Add action in plugin manifest
       const addActionRes = await copilotGptManifestUtils.addAction(
         declarativeCopilotManifestPath,
         actionId,
@@ -2050,31 +2064,89 @@ export class FxCore {
         return err(addActionRes.error);
       }
 
-      for (const authNameAndScheme of authNameAndSchemes) {
-        await this.updateAuthActionInYaml(
-          authNameAndScheme.authName,
-          authNameAndScheme.authScheme,
-          inputs.projectPath,
-          destinationApiSpecPath,
-          destinationPluginManifestPath
-        );
-      }
-    } else {
-      const addPluginRes = await addExistingPlugin(
-        declarativeCopilotManifestPath,
-        inputs[QuestionNames.PluginManifestFilePath].trim(),
-        inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
-        actionId,
-        context,
-        Stage.addPlugin
+      // 5. Update plugin manifest to add ac info (optional)
+      await generateAdaptiveCardInPluginManifestForKiota(
+        pluginManifestPath,
+        openapiSpecPath,
+        context
       );
+    } else {
+      // generate files
+      if (isGenerateFromApiSpec && specParser) {
+        destinationPluginManifestPath =
+          await copilotGptManifestUtils.getDefaultNextAvailablePluginManifestPath(
+            appPackageFolder,
+            undefined
+          );
+        const destinationApiSpecPath = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath(
+          inputs[QuestionNames.ApiSpecLocation].trim(),
+          path.join(appPackageFolder, DefaultApiSpecFolderName),
+          undefined
+        );
 
-      if (addPluginRes.isErr()) {
-        return err(addPluginRes.error);
+        const generateRes = await generateFromApiSpec(
+          specParser,
+          teamsManifestPath,
+          inputs,
+          context,
+          Stage.addPlugin,
+          ProjectType.Copilot,
+          {
+            destinationApiSpecFilePath: destinationApiSpecPath,
+            pluginManifestFilePath: destinationPluginManifestPath,
+          }
+        );
+        if (generateRes.isErr()) {
+          return err(generateRes.error);
+        }
+
+        const warnings = generateRes.value.warnings;
+        if (warnings && warnings.length > 0) {
+          const warnSummary = await generateScaffoldingSummary(
+            warnings,
+            manifestRes.value,
+            path.relative(inputs.projectPath, destinationApiSpecPath),
+            path.relative(inputs.projectPath, destinationPluginManifestPath),
+            inputs.projectPath
+          );
+          context.logProvider.info(warnSummary + "\n");
+        }
+
+        const addActionRes = await copilotGptManifestUtils.addAction(
+          declarativeCopilotManifestPath,
+          actionId,
+          normalizePath(path.relative(appPackageFolder, destinationPluginManifestPath), true)
+        );
+        if (addActionRes.isErr()) {
+          return err(addActionRes.error);
+        }
+
+        for (const authNameAndScheme of authNameAndSchemes) {
+          await this.updateAuthActionInYaml(
+            authNameAndScheme.authName,
+            authNameAndScheme.authScheme,
+            inputs.projectPath,
+            destinationApiSpecPath,
+            destinationPluginManifestPath
+          );
+        }
+      } else {
+        const addPluginRes = await addExistingPlugin(
+          declarativeCopilotManifestPath,
+          inputs[QuestionNames.PluginManifestFilePath].trim(),
+          inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
+          actionId,
+          context,
+          Stage.addPlugin
+        );
+
+        if (addPluginRes.isErr()) {
+          return err(addPluginRes.error);
+        }
+        destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
+        const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
+        context.logProvider.info(warningMessage);
       }
-      destinationPluginManifestPath = addPluginRes.value.destinationPluginManifestPath;
-      const warningMessage = outputScaffoldingWarningMessage(addPluginRes.value.warnings);
-      context.logProvider.info(warningMessage);
     }
 
     if (inputs.platform === Platform.VSCode) {
@@ -2113,7 +2185,26 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    return ok(undefined);
+    const konwledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
+    switch (konwledgeSource) {
+      case KnowledgeSourceOptions.embeddedKnowledge().id:
+        const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
+        const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
+        const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
+          manifestFilePath,
+          filePath
+        );
+        if (res.isOk()) {
+          void TOOLS.ui.showMessage(
+            "info",
+            getLocalizedString("core.addEmbeddedKnowledge.success"),
+            false
+          );
+        }
+        return res;
+      default:
+        return ok(undefined);
+    }
   }
 
   /**
@@ -2203,42 +2294,39 @@ export class FxCore {
       }
     }
 
-    // Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
-    const specPath = inputs[QuestionNames.ApiSpecLocation].trim();
-    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
-    const listResult = await specParser.list();
-    inputs[QuestionNames.ApiOperation] = listResult.APIs.filter((value) => value.isValid).map(
-      (value) => value.api
-    );
+    // 1. Get registration id and update plugin manifest
+    const pluginManifestPath = inputs[QuestionNames.ApiPluginManifestPath].trim() as string;
+    const authData = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
 
-    const authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
-    for (const authInfo of authNameAndSchemes) {
-      await this.updateAuthActionInYaml(
-        authInfo.authName,
-        authInfo.authScheme,
+    // 2. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
+    const specPath = inputs[QuestionNames.ApiSpecLocation].trim();
+    for (const authInfo of authData) {
+      await injectAuthAction(
         inputs.projectPath,
+        authInfo.authName,
+        undefined,
         specPath,
-        pluginManifestFilePath,
-        false
+        false,
+        authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
+        false,
+        authInfo.registrationId
       );
     }
 
-    // Add dc to plugin manifest
-    const generateRes = await generateFromApiSpec(
-      specParser,
-      teamsManifestPath,
-      inputs,
-      context,
-      Stage.kiotaRegenerate,
-      ProjectType.Copilot,
-      {
-        destinationApiSpecFilePath: inputs[QuestionNames.ApiSpecLocation].trim(),
-        pluginManifestFilePath: inputs[QuestionNames.ApiPluginManifestPath].trim(),
-      }
-    );
-    if (generateRes.isErr()) {
-      return err(generateRes.error);
+    // 3. Update plugin manifest to add ac info (optional)
+    await generateAdaptiveCardInPluginManifestForKiota(pluginManifestFilePath, specPath, context);
+
+    for (const action of declarativeCopilotManifest.actions!) {
+      const actionPath = path.normalize(path.join(appPackageFolder, action.file));
+      await copilotGptManifestUtils.updateConversationStarters(
+        actionPath,
+        declarativeCopilotManifest
+      );
     }
+    await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeCopilotManifest,
+      declarativeCopilotManifestPath
+    );
 
     return ok(undefined);
   }
@@ -2254,46 +2342,142 @@ export class FxCore {
       throw new Error("projectPath is undefined"); // should never happen
     }
 
-    const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
-    const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
-    const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
-    const authName = inputs[QuestionNames.AuthName] as string;
-    const apiSpecPath = path.normalize(path.join(pluginManifestPath, apiSpecRelativePath));
-    let authType;
-    switch (inputs[QuestionNames.ApiAuth] as string) {
-      case "api-key":
-      default:
-        authType = "ApiKeyPluginVault";
-        break;
-      case "oauth":
-        authType = "OAuthPluginVault";
-        break;
-    }
+    const context = createContext();
 
-    const addAuthActionRes = await injectAuthAction(
-      inputs.projectPath,
-      authName,
-      undefined,
-      apiSpecPath,
-      true,
-      authType
-    );
+    try {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath] as string;
+      const apiSpecRelativePath = inputs[QuestionNames.ApiSpecLocation] as string;
+      const apiOperation = inputs[QuestionNames.ApiOperation] as string[];
+      const authName = inputs[QuestionNames.AuthName] as string;
+      const apiSpecPath = path.normalize(
+        path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
+      );
+      const authType = inputs[QuestionNames.ApiAuth] as string;
 
-    if (addAuthActionRes?.registrationIdEnvName) {
-      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
-      pluginManifest.runtimes?.push({
-        type: "OpenApi",
-        auth: {
-          type: authType as "None" | "OAuthPluginVault" | "ApiKeyPluginVault",
-          reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
-        },
-        spec: {
-          url: apiSpecRelativePath,
-          progress_style: "ShowUsageWithInputAndOutput",
-        },
-        run_for_functions: apiOperation,
+      let authParameters: AuthParameters = {
+        apis: apiOperation,
+      };
+      if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
+        const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
+        const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
+        const oauthRefreshUrl = inputs[QuestionNames.OAuthRefreshUrl] as string;
+        const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+        const enablePKCEStr = inputs[QuestionNames.OauthPKCE] as string;
+        const scopeArr = this.parseScope(oauthScopes);
+
+        authParameters = {
+          ...authParameters,
+          authorizationUrl: oauthAuthorizationUrl,
+          tokenUrl: oauthTokenUrl,
+          refreshUrl: oauthRefreshUrl ? oauthRefreshUrl : undefined,
+          scopes: scopeArr,
+          enablePKCE: enablePKCEStr === "true",
+        } as OAuthParameters;
+      } else if (authType === AddAuthActionAuthTypeOptions.apiKey().id) {
+        const apiKeyIn = inputs[QuestionNames.ApiKeyIn] as string;
+        const apiKeyName = inputs[QuestionNames.ApiKeyName] as string;
+        authParameters = {
+          ...authParameters,
+          in: apiKeyIn,
+          name: apiKeyName,
+        } as ApiKeyParameters;
+      } else if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+        const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
+        const scopeArr = this.parseScope(oauthScopes);
+        authParameters = {
+          ...authParameters,
+          authorizationUrl:
+            "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/authorize",
+          tokenUrl: "https://login.microsoftonline.com/${{TEAMS_APP_TENANT_ID}}/oauth2/v2.0/token",
+          refreshUrl: undefined,
+          scopes: scopeArr,
+        } as OAuthParameters;
+      }
+
+      // Update openapi spec
+      const specParser = new SpecParser(apiSpecPath, getParserOptions(ProjectType.Copilot, true));
+      await specParser.addAuthScheme(authName, authType, authParameters);
+
+      let authTypeScheme;
+      switch (authType) {
+        case AddAuthActionAuthTypeOptions.apiKey().id:
+        case AddAuthActionAuthTypeOptions.bearerToken().id:
+        default:
+          authTypeScheme = APIKeyAuthType;
+          break;
+        case AddAuthActionAuthTypeOptions.oauth().id:
+          authTypeScheme = OAuthAuthType;
+          break;
+        case AddAuthActionAuthTypeOptions.microsoftEntra().id:
+          authTypeScheme = MicrosoftEntraAuthType;
+          break;
+      }
+
+      const addAuthActionRes = await injectAuthAction(
+        inputs.projectPath,
+        authName,
+        undefined,
+        apiSpecPath,
+        true,
+        authTypeScheme,
+        "enablePKCE" in authParameters ? authParameters.enablePKCE : undefined
+      );
+
+      if (addAuthActionRes?.registrationIdEnvName) {
+        const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+        pluginManifest.runtimes?.forEach((runtime) => {
+          if (
+            runtime.type === "OpenApi" &&
+            runtime.auth?.type === "None" &&
+            runtime.spec?.url === apiSpecRelativePath
+          ) {
+            runtime.run_for_functions = runtime.run_for_functions?.filter(
+              (value) => !!!apiOperation.includes(value)
+            );
+          }
+        });
+        pluginManifest.runtimes = pluginManifest.runtimes?.filter((runtime) => {
+          return !!runtime.run_for_functions && runtime.run_for_functions?.length > 0;
+        });
+        pluginManifest.runtimes?.push({
+          type: "OpenApi",
+          auth: {
+            type:
+              authTypeScheme === MicrosoftEntraAuthType
+                ? OAuthAuthType
+                : (authTypeScheme as "None" | "OAuthPluginVault" | "ApiKeyPluginVault"),
+            reference_id: `\$\{\{${addAuthActionRes.registrationIdEnvName}\}\}`,
+          },
+          spec: {
+            url: apiSpecRelativePath,
+            progress_style: "ShowUsageWithInputAndOutput",
+          },
+          run_for_functions: apiOperation,
+        });
+        await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+      }
+
+      if (authType === AddAuthActionAuthTypeOptions.microsoftEntra().id) {
+        const appIdUriPlaceholder = Utils.getSafeRegistrationIdEnvName(
+          `${authName}_APPLICATION_ID_URI`
+        );
+        void context.userInteraction.showMessage(
+          "warn",
+          getLocalizedString("core.addAuthAction.microsoftEntra.message", appIdUriPlaceholder),
+          false
+        );
+      }
+
+      context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.AddAuthAction, {
+        [TelemetryProperty.AddAuthType]: authType,
       });
-      await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+    } catch (err: any) {
+      const error = assembleError(err);
+      context.telemetryReporter.sendTelemetryErrorEvent(TelemetryEvent.AddAuthAction, {
+        [TelemetryProperty.ErrorCode]: error.name,
+        [TelemetryProperty.ErrorMessage]: error.message,
+      });
+      return err(error);
     }
 
     return ok(undefined);
@@ -2354,6 +2538,19 @@ export class FxCore {
       }
     }
     return result;
+  }
+
+  private parseScope(scope: string): { [scope: string]: string } {
+    const scopeArr: { [scope: string]: string } = {};
+    scope.split(";").forEach((scopeStr) => {
+      const lastIndex = scopeStr.lastIndexOf(":");
+      if (lastIndex !== -1) {
+        const key = scopeStr.substring(0, lastIndex).trim();
+        const value = scopeStr.substring(lastIndex + 1).trim();
+        scopeArr[key] = value;
+      }
+    });
+    return scopeArr;
   }
 
   async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {

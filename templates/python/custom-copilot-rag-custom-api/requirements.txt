@@ -1,6 +1,6 @@
 python-dotenv
 aiohttp
-teams-ai>=1.4.0,<2.0.0
+teams-ai>=1.6.0,<2.0.0
 requests~=2.32.3
 pyyaml~=6.0.1
 openapi-pydantic~=0.4.1

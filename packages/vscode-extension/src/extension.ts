@@ -289,6 +289,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
   );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isAddKnowledgeEnabled",
+    featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
+  );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
@@ -508,16 +514,10 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(markTeamsAgentInstallationDone);
 
   const openGitHubCopilotChat = vscode.commands.registerCommand(
-    "fx-extension.openGithubCopilotChat",
+    "fx-extension.openGitHubCopilotChat",
     (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
   );
   context.subscriptions.push(openGitHubCopilotChat);
-
-  const markGithubCopilotSetupDone = vscode.commands.registerCommand(
-    "fx-extension.markGitHubCopilotLoginDone",
-    (...args) => Correlator.run(copilotChatHandlers.markGitHubCopilotSetupDone, args)
-  );
-  context.subscriptions.push(markGithubCopilotSetupDone);
 
   const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
     "fx-extension.openTeamsAgentWalkthrough",

@@ -5,12 +5,6 @@
     "resourceBaseName": {
       "value": "bot${{RESOURCE_SUFFIX}}"
     },
-    "botAadAppClientId": {
-      "value": "${{BOT_ID}}"
-    },
-    "botAadAppClientSecret": {
-      "value": "${{SECRET_BOT_PASSWORD}}"
-    },
     {{#useOpenAI}}
     "openAIKey": {
       "value": "${{SECRET_OPENAI_API_KEY}}"

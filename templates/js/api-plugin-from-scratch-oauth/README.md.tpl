@@ -45,10 +45,12 @@ The following files can be customized and demonstrate an example implementation 
 | `src/functions/middleware/utils.js`             | Utility functions for authentication, including retrieving JWKS URIs for different cloud environments.                        |
 | `src/functions/middleware/config.js`            | Configuration file that exports Microsoft Entra app settings from environment variables.                                      |
 | `src/repairsData.json`                          | The data source for the repair API.                                                                                           |
-| `appPackage/apiSpecificationFile/repairs.yml`    | A file that describes the structure and behavior of the repair API.                                                           |
+| `appPackage/apiSpecificationFile/repairs.yml`   | A file that describes the structure and behavior of the repair API.                                                           |
 | `appPackage/manifest.json`                      | Teams application manifest that defines metadata for your plugin inside Microsoft Teams.                                      |
 | `appPackage/ai-plugin.json`                     | The manifest file for your API Plugin that contains information for your API and used by LLM.                                 |
 | `appPackage/repairDeclarativeAgent.json`        | Define the behaviour and configurations of the declarative agent.                                                             |
+| `appPackage/adaptiveCards/listRepairs.json`     | Adaptive Card file used to render a result from the plugin response.                                                          |
+| `appPackage/adaptiveCards/listRepairs.data.json`| Sample mock data file for adaptive card.                                                                                      |
 
 The following are Teams Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Teams Toolkit works.
 

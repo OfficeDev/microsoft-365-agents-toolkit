@@ -7,7 +7,13 @@ import { expect } from "chai";
 import sinon from "sinon";
 import converter from "swagger2openapi";
 import { SpecParser } from "../src/specParser";
-import { ErrorType, ProjectType, ValidationStatus, WarningType } from "../src/interfaces";
+import {
+  AdaptiveCardUpdateStrategy,
+  ErrorType,
+  ProjectType,
+  ValidationStatus,
+  WarningType,
+} from "../src/interfaces";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { SpecParserError } from "../src/specParserError";
 import { ConstantString } from "../src/constants";
@@ -22,6 +28,7 @@ import { SMEValidator } from "../src/validators/smeValidator";
 import { ValidatorFactory } from "../src/validators/validatorFactory";
 import { createHash } from "crypto";
 import { JsonDataGenerator } from "../src/jsonDataGenerator";
+import path from "path";
 
 describe("SpecParser", () => {
   afterEach(() => {
@@ -1409,6 +1416,224 @@ describe("SpecParser", () => {
       expect(outputFileStub.firstCall.args[0]).to.equal(outputSpecPath);
       expect(outputJSONStub.calledTwice).to.be.true;
     });
+
+    it("should generate adaptive card and data files for functions with valid static_template", async () => {
+      const manifestPath = "path/to/manifest.json";
+      const outputSpecPath = "path/to/spec.json";
+      const pluginFilePath = "C:\\fakepath\\ai-plugin.json";
+      const filter = ["get /hello"];
+
+      const fakeSpec = { openapi: "3.0.0", paths: {} };
+      const fakeUnresolvedSpec = { paths: {} };
+
+      const adaptiveCardContent = { foo: "bar" };
+      const adaptiveCardData = { key: "value" };
+      const fakeApiPlugin = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json",
+        schema_version: "v2.2",
+        name_for_human: "testsep22",
+        description_for_human: "A simple service to manage repairs",
+        functions: [
+          {
+            name: "testFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "testFunc1",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "skipFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: {},
+              },
+            },
+          },
+          {
+            name: "noCapability",
+          },
+        ],
+      };
+
+      const fakeWarnings: any[] = [];
+      const fakeJsonDataSet = {
+        testFunc: adaptiveCardData,
+      };
+
+      sinon
+        .stub(ManifestUpdater, "updateManifestWithAiPlugin")
+        .resolves([{} as any, fakeApiPlugin, fakeWarnings, fakeJsonDataSet]);
+
+      sinon
+        .stub(SpecParser.prototype, "getFilteredSpecs")
+        .resolves([fakeUnresolvedSpec as any, fakeSpec as any]);
+
+      // Stub fs.outputJSON to capture calls
+      const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
+
+      // Stub fs.existsSync to only return true for testFunc1
+      const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
+        return path.toString().endsWith("testFunc1.json");
+      });
+
+      // Use a dummy instance (other flows will be stubbed so they are not executed)
+      const specParser = new SpecParser("path/to/spec.yaml");
+
+      await specParser.generateForCopilot(manifestPath, filter, outputSpecPath, pluginFilePath);
+
+      const adaptiveCardFolder = path.join(path.dirname(pluginFilePath), "adaptiveCards");
+      const expectedCardPath = path.join(adaptiveCardFolder, "testFunc.json");
+      const expectedDataPath = path.join(adaptiveCardFolder, "testFunc.data.json");
+
+      expect(fakeApiPlugin?.functions).to.deep.equal([
+        {
+          name: "testFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+        {
+          name: "testFunc1",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc11.json",
+              },
+            },
+          },
+        },
+        {
+          name: "skipFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {},
+            },
+          },
+        },
+        {
+          name: "noCapability",
+        },
+      ]);
+
+      sinon.assert.calledWith(outputJSONStub, expectedCardPath, adaptiveCardContent, { spaces: 4 });
+      sinon.assert.calledWith(outputJSONStub, expectedDataPath, adaptiveCardData, { spaces: 4 });
+    });
+
+    it("should generate adaptive card and not override if AdaptiveCardUpdateStrategy is KeepExisting", async () => {
+      const manifestPath = "path/to/manifest.json";
+      const outputSpecPath = "path/to/spec.json";
+      const pluginFilePath = "C:\\fakepath\\ai-plugin.json";
+      const filter = ["get /hello"];
+
+      const fakeSpec = { openapi: "3.0.0", paths: {} };
+      const fakeUnresolvedSpec = { paths: {} };
+
+      const adaptiveCardContent = { foo: "bar" };
+      const adaptiveCardData = { key: "value" };
+      const fakeApiPlugin = {
+        $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json",
+        schema_version: "v2.2",
+        name_for_human: "testsep22",
+        description_for_human: "A simple service to manage repairs",
+        functions: [
+          {
+            name: "testFunc",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+          {
+            name: "testFunc2",
+            capabilities: {
+              response_semantics: {
+                data_path: "$.results",
+                static_template: adaptiveCardContent,
+              },
+            },
+          },
+        ],
+      };
+
+      const fakeWarnings: any[] = [];
+      const fakeJsonDataSet = {
+        testFunc: adaptiveCardData,
+      };
+
+      sinon
+        .stub(ManifestUpdater, "updateManifestWithAiPlugin")
+        .resolves([{} as any, fakeApiPlugin, fakeWarnings, fakeJsonDataSet]);
+
+      sinon
+        .stub(SpecParser.prototype, "getFilteredSpecs")
+        .resolves([fakeUnresolvedSpec as any, fakeSpec as any]);
+
+      const outputJSONStub = sinon.stub(fs, "outputJSON").resolves();
+
+      const fsExistsSyncStub = sinon.stub(fs, "existsSync").callsFake((path) => {
+        return path.toString().endsWith("testFunc.json");
+      });
+
+      const specParser = new SpecParser("path/to/spec.yaml");
+
+      await specParser.generateForCopilot(
+        manifestPath,
+        filter,
+        outputSpecPath,
+        pluginFilePath,
+        undefined,
+        undefined,
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      expect(fakeApiPlugin?.functions).to.deep.equal([
+        {
+          name: "testFunc",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc.json",
+              },
+            },
+          },
+        },
+        {
+          name: "testFunc2",
+          capabilities: {
+            response_semantics: {
+              data_path: "$.results",
+              static_template: {
+                file: "adaptiveCards/testFunc2.json",
+              },
+            },
+          },
+        },
+      ]);
+
+      sinon.assert.callCount(outputJSONStub, 4);
+    });
   });
 
   describe("generate", () => {
@@ -2408,12 +2633,16 @@ describe("SpecParser", () => {
           "/pets": {
             get: {
               operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
               security: [{ api_key: [], BearerAuth: [] }],
             },
           },
           "/user/{userId}": {
             get: {
               operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
               parameters: [
                 {
                   name: "userId",
@@ -2472,6 +2701,8 @@ describe("SpecParser", () => {
             },
             reason: ["auth-type-is-not-supported", "response-json-is-empty", "no-parameter"],
             isValid: false,
+            description: "Get pet by id",
+            summary: "Get pet",
           },
           {
             api: "GET /user/{userId}",
@@ -2480,6 +2711,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: "Get user by id",
+            summary: "Get user",
           },
           {
             api: "POST /user/{userId}",
@@ -2495,6 +2728,8 @@ describe("SpecParser", () => {
             operationId: "createUser",
             reason: ["auth-type-is-not-supported", "response-json-is-empty", "no-parameter"],
             isValid: false,
+            description: undefined,
+            summary: undefined,
           },
           {
             api: "POST /store/order",
@@ -2502,6 +2737,8 @@ describe("SpecParser", () => {
             operationId: "placeOrder",
             reason: ["response-json-is-empty", "no-parameter"],
             isValid: false,
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 4,
@@ -2564,6 +2801,8 @@ describe("SpecParser", () => {
             operationId: "getUserUserId",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -2645,6 +2884,8 @@ describe("SpecParser", () => {
             server: "https://server5",
             operationId: "getUserById",
             isValid: true,
+            description: undefined,
+            summary: undefined,
             reason: [],
           },
         ],
@@ -2723,6 +2964,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -2801,6 +3044,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -2938,6 +3183,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
           {
             api: "POST /user/{userId}",
@@ -2953,6 +3200,8 @@ describe("SpecParser", () => {
             operationId: "postUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 2,
@@ -3084,6 +3333,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
           {
             api: "POST /user/{userId}",
@@ -3099,6 +3350,8 @@ describe("SpecParser", () => {
             operationId: "postUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 2,
@@ -3171,6 +3424,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -3233,6 +3488,8 @@ describe("SpecParser", () => {
             operationId: "getUserUserId",
             isValid: false,
             reason: ["missing-operation-id"],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -3311,6 +3568,8 @@ describe("SpecParser", () => {
             operationId: "getPetById",
             isValid: false,
             reason: ["no-server-information", "response-json-is-empty", "no-parameter"],
+            description: undefined,
+            summary: undefined,
           },
           {
             api: "GET /user/{userId}",
@@ -3318,6 +3577,8 @@ describe("SpecParser", () => {
             operationId: "getUserUserId",
             isValid: false,
             reason: ["no-server-information"],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 2,
@@ -3407,6 +3668,8 @@ describe("SpecParser", () => {
             operationId: "getUserById",
             isValid: true,
             reason: [],
+            description: undefined,
+            summary: undefined,
           },
         ],
         allAPICount: 1,
@@ -3849,6 +4112,258 @@ describe("SpecParser", () => {
         expect(err).to.be.instanceOf(SpecParserError);
         expect(err.errorType).to.equal(ErrorType.GenerateAdaptiveCardFailed);
         expect(err.message).to.equal("Error: generate ac error");
+      }
+    });
+  });
+
+  describe("addAuthScheme", () => {
+    it("should add auth scheme to spec for api key auth", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon
+        .stub(Utils, "getAuthSchemaObject")
+        .returns(authScheme as OpenAPIV3.ApiKeySecurityScheme);
+      sinon.stub(fs, "outputFile").callsFake((path, data) => {
+        expect(path).to.equal(specPath);
+        const dataJson = JSON.parse(data as string);
+        expect(dataJson.components.securitySchemes["authName"]).to.deep.equal(authScheme);
+        const paths = dataJson.paths;
+        for (const path in paths) {
+          const methods = paths[path];
+          for (const method in methods) {
+            const operationId = (methods as any)[method].operationId;
+            if (operationId === "getUserById") {
+              expect((methods as any)[method].security).to.deep.equal([
+                {
+                  authName: [],
+                },
+              ]);
+            }
+          }
+        }
+      });
+      await specParser.addAuthScheme("authName", "api-key", {
+        apis: ["getUserById"],
+      });
+    });
+
+    it("should throw error if failed", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      sinon.stub(Utils, "getAuthSchemaObject").throws(new Error("error"));
+      try {
+        await specParser.addAuthScheme("authName", "api-key", {
+          apis: ["getUserById"],
+        });
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.AddAuthFailed);
+      }
+    });
+
+    it("should throw error if aborted", async () => {
+      const specPath = "valid-spec.json";
+      const specParser = new SpecParser(specPath);
+      const signal = { aborted: true } as AbortSignal;
+      const spec = {
+        servers: [
+          {
+            url: "https://server1",
+          },
+        ],
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "getPetById",
+              description: "Get pet by id",
+              summary: "Get pet",
+            },
+          },
+          "/user/{userId}": {
+            get: {
+              operationId: "getUserById",
+              description: "Get user by id",
+              summary: "Get user",
+              parameters: [
+                {
+                  name: "userId",
+                  in: "path",
+                  schema: {
+                    type: "string",
+                  },
+                },
+              ],
+              responses: {
+                200: {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            post: {
+              operationId: "createUser",
+            },
+          },
+          "/store/order": {
+            post: {
+              operationId: "placeOrder",
+            },
+          },
+        },
+      };
+      const authScheme = {
+        type: "apiKey",
+        in: "header",
+        name: "name",
+      };
+      const parseStub = sinon.stub(specParser.parser, "parse").resolves(spec as any);
+      const dereferenceStub = sinon.stub(specParser.parser, "dereference").resolves(spec as any);
+      try {
+        await specParser.addAuthScheme(
+          "authName",
+          "api-key",
+          {
+            apis: ["getUserById"],
+          },
+          signal
+        );
+      } catch (error) {
+        expect((error as SpecParserError).errorType).to.equal(ErrorType.Cancelled);
       }
     });
   });

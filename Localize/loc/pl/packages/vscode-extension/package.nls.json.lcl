@@ -19,6 +19,171 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamsagent.walkthrough.copilotChat.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[With the GitHub Copilot Chat extension in Visual Studio Code, you can have AI-powered chat conversations to generate code, increase your code understanding, and even configure your editor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dzięki rozszerzeniu GitHub Copilot Chat w Visual Studio Code możesz prowadzić konwersacje na czacie obsługiwane przez sztuczną inteligencję, aby generować kod, zwiększać zrozumienie kodu, a nawet konfigurować edytor.]A;[Install GitHub Copilot Chat]5D;(command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.copilotChat.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[⚠️Install GitHub Copilot Chat for Visual Studio Code]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[⚠️Zainstaluj czat GitHub Copilot dla Visual Studio Code]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install GitHub Copilot Chat for Visual Studio Code]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.copilotPlan.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[**GitHub Copilot Free** is available to individual GitHub customers by default, with limited access to select features. You could also use Copilot through other organization or enterprise plan. Learn more about [GitHub Copilot plans]5D;(https://aka.ms/teams-agent-github-copilot-plan) and [GitHub Copilot free plan]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[**GitHub Copilot Bezpłatny** jest domyślnie dostępny dla indywidualnych klientów GitHub z ograniczonym dostępem do wybranych funkcji. Możesz także korzystać z rozwiązania Copilot w ramach innej organizacji lub planu przedsiębiorstwa. Dowiedz się więcej o [planach GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-plan) oraz [bezpłatnym planie GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-free).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.copilotPlan.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Get access to GitHub Copilot]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uzyskaj dostęp do GitHub Copilot]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wykonaj obowiązkowe kroki (z ⚠️ ) w celu skonfigurowania rozszerzenia GitHub Copilot dla zestawu narzędzi teams.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[[GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) upraszcza tworzenie aplikacji Teams i umożliwia dostosowywanie Microsoft 365 Copilot za pomocą funkcji czatu.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.install.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[⚠️Zainstaluj rozszerzenie GitHub Copilot dla zestawu narzędzi teams]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install GitHub Copilot extension for Teams Toolkit]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.installConfirm.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Oznacz instalację jako ukończoną po zainstalowaniu [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.installConfirm.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[⚠️Potwierdź instalację @teamsapp]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Rozszerzenie GitHub Copilot dla zestawu narzędzi teams (@teamsapp) upraszcza tworzenie aplikacji Teams i umożliwia dostosowywanie Microsoft 365 Copilot za pomocą funkcji czatu. Dowiedz się więcej o [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.introduction.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Introduction]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wprowadzenie]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.setup.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zaloguj się do konta usługi GitHub i rozpocznij pracę. Dowiedz się więcej o [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot]5D;(https://aka.ms/teams-agent-github-copilot-setup).]A;[Open GitHub Copilot Chat]5D;(command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)]A;[Mark login completed]5D;(command:fx-extension.markGitHubCopilotLoginDone)]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.setup.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[⚠️Set up GitHub Copilot in Visual Studio Code]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[⚠️Skonfiguruj GitHub Copilot w Visual Studio Code]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Set up GitHub Copilot in Visual Studio Code]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wprowadzenie z rozszerzeniem GitHub Copilot dla zestawu narzędzi teams]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Getting Started of the GitHub Copilot Extension for Teams Toolkit]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Czatuj z rozszerzeniem GitHub Copilot dla zestawu narzędzi teams (@teamsapp), aby tworzyć aplikacje Teams lub dostosowywać i rozszerzać Microsoft 365 Copilot.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamsagent.walkthrough.use.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Start to use @teamsapp]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zacznij używać @teamsapp]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.accountTree.azureAccountTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[AZURE ACCOUNT  ]A;The Teams Toolkit requires Azure subscription to deploy the Azure resources for your project.]]></Val>
@@ -1639,6 +1804,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledge.running" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Adding knowledge...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Trwa dodawanie wiedzy...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add knowledge in declarative agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dodaj wiedzę w agencie deklaratywnym]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add Knowledge]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Dodaj wiedzę]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.addPlugin.running" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Adding action...]]></Val>
@@ -1719,10 +1911,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+          <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zbuduj aplikację Teams w pakiecie do publikacji]]></Val>
+            <Val><![CDATA[Zbuduj aplikację Teams w pakiecie do publikacji.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1845,12 +2040,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
+          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Wykonaj etap cyklu życia wdrażania w pliku teamsapp.yml]]></Val>
+            <Val><![CDATA[Wykonaj etap cyklu życia „wdrażanie” w pliku teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Deploy your Teams app to the provisioned resources in Azure]]></Val>
+            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2235,12 +2430,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
+          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Uruchamianie etapu cyklu życia „aprowizacja” w pliku teamsapp.yml]]></Val>
+            <Val><![CDATA[Uruchamianie etapu cyklu życia „aprowizacja” w pliku teamsapp.yml.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'provision' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2325,24 +2520,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to store in developer portal]]></Val>
+          <Val><![CDATA[Publish to Store in Developer Portal]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Opublikuj w sklepie w portalu deweloperów]]></Val>
+            <Val><![CDATA[Publikuj w sklepie Store w portalu deweloperów]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Open Developer Portal to Publish]]></Val>
+            <Val><![CDATA[Publish to store in developer portal]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publish to org]]></Val>
+          <Val><![CDATA[Publish to Organization]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Publikowanie w organizacji]]></Val>
+            <Val><![CDATA[Opublikuj w organizacji]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publish]]></Val>
+            <Val><![CDATA[Publish to org]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2439,10 +2634,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.validateApplicationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate against manifest schema and app package]]></Val>
+          <Val><![CDATA[Validate against manifest schema and app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Weryfikowanie pod kątem schematu manifestu i pakietu aplikacji]]></Val>
+            <Val><![CDATA[Weryfikowanie pod kątem schematu manifestu i pakietu aplikacji.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate against manifest schema and app package]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3199,6 +3397,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid parameter in the createDeclarativeAgentWithApiSpec command. Usage: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nieprawidłowy parametr w poleceniu createDeclarativeAgentWithApiSpec. Sposób użycia: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.handler.createPluginWithManifest.error.missingParameter" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Invalid parameter in the createPluginWithManifest command. Usage: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Valid values for LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.]]></Val>
@@ -3486,9 +3693,21 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installCopilotAndAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and Github Copilot Extension for Teams Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aby używać rozszerzenia GitHub Copilot dla zestawu narzędzi teams podczas tworzenia aplikacji Teams lub dostosowywania Microsoft 365 Copilot, zainstaluj GitHub Copilot z "%s" i rozszerzenia Github Copilot dla zestawu narzędzi Teams z "%s".]]></Val>
+            <Val><![CDATA[Aby używać rozszerzenia GitHub Copilot dla zestawu narzędzi teams podczas tworzenia aplikacji Teams lub dostosowywania Microsoft 365 Copilot, zainstaluj GitHub Copilot z "%s" i rozszerzenia GitHub Copilot dla zestawu narzędzi Teams z "%s".]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and Github Copilot Extension for Teams Toolkit from "%s".]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.handlers.installCopilotChatExtensionAlreadyInstalled" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[GitHub Copilot Chat extension is already installed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[rozszerzenie czatu GitHub Copilot jest już zainstalowane.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5718,6 +5937,24 @@
           <Val><![CDATA[Select a Tutorial to Get Started]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Wybierz samouczek, aby Rozpocznij]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Potrzebujesz dodatkowej pomocy? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D), aby poznać programowanie aplikacji Teams lub agenta Microsoft 365 Copilot.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Chat with GitHub Copilot]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Czat z GitHub Copilot]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

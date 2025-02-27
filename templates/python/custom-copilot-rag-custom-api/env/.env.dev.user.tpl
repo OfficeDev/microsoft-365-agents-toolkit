@@ -2,7 +2,6 @@
 
 # If you're adding a secret value, add SECRET_ prefix to the name so Teams Toolkit can handle them properly
 # Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.
-SECRET_BOT_PASSWORD=
 {{#useOpenAI}}
 {{#openAIKey}}
 SECRET_OPENAI_API_KEY={{{openAIKey}}}

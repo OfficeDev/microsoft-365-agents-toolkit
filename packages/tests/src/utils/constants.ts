@@ -482,7 +482,7 @@ export class CreateProjectQuestion {
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
-  static readonly OfficeAddin = "Outlook Add-in";
+  static readonly OfficeAddin = "Office Add-in";
   static readonly NewTeamsApp = "Start with a Teams capability";
   static readonly SpfxSharepointFrameworkInTtk = "Install the latest SPFx";
   static readonly SpfxSharepointFrameworkGlobalEnvInTtk =

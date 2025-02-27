@@ -51,16 +51,16 @@
     "adaptive-expressions": "^4.23.1",
     "adaptivecards-templating": "^2.3.1",
     "axios": "^1.7.5",
-    "botbuilder": "^4.23.1",
-    "botbuilder-dialogs": "^4.23.1",
-    "botframework-connector": "^4.23.1",
-    "botframework-schema": "^4.23.1",
+    "botbuilder": "^4.23.2",
+    "botbuilder-dialogs": "^4.23.2",
+    "botframework-connector": "^4.23.2",
+    "botframework-schema": "^4.23.2",
     "jwt-decode": "^4.0.0",
     "uuid": "^10.0.0"
   },
   "peerDependencies": {
     "@microsoft/teams-js": "^2.31.1",
-    "botbuilder": "^4.23.1"
+    "botbuilder": "^4.23.2"
   },
   "devDependencies": {
     "@azure/core-auth": "^1.8.0",
@@ -87,7 +87,7 @@
     "adm-zip": "^0.5.9",
     "assertion-error": "^2.0.0",
     "axios-mock-adapter": "^1.20.0",
-    "botbuilder-core": "^4.23.1",
+    "botbuilder-core": "^4.23.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "check-error": "^2.0.0",

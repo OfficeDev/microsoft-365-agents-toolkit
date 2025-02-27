@@ -3,13 +3,6 @@
 @description('Used to generate names for all resources in this file')
 param resourceBaseName string
 
-@description('Required when create Azure Bot service')
-param botAadAppClientId string
-
-@secure()
-@description('Required by Bot Framework package in your bot project')
-param botAadAppClientSecret string
-
 {{#useAzureOpenAI}}
 @secure()
 @description('Required in your bot project to access Azure OpenAI service. You can get it from Azure Portal > OpenAI > Keys > Key1 > Resource Management > Endpoint')  
@@ -32,8 +25,14 @@ param botDisplayName string
 
 param serverfarmsName string = resourceBaseName
 param webAppName string = resourceBaseName
+param identityName string = resourceBaseName
 param location string = resourceGroup().location
 param pythonVersion string = linuxFxVersion
+
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  location: location
+  name: identityName
+}
 
 // Compute resources for your Web App
 resource serverfarm 'Microsoft.Web/serverfarms@2021-02-01' = {
@@ -70,11 +69,7 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'BOT_ID'
-          value: botAadAppClientId
-        }
-        {
-          name: 'BOT_PASSWORD'
-          value: botAadAppClientSecret
+          value: identity.properties.clientId
         }
         {{#useOpenAI}}
         {
@@ -104,8 +99,22 @@ resource webApp 'Microsoft.Web/sites@2021-02-01' = {
           value: assistantId
         }
         {{/useAzureOpenAI}}
+        {
+          name: 'BOT_TENANT_ID'
+          value: identity.properties.tenantId
+        }
+        { 
+          name: 'BOT_TYPE'
+          value: 'UserAssignedMsi' 
+        }
       ]
       ftpsState: 'FtpsOnly'
+    }
+  }
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
     }
   }
 }
@@ -115,7 +124,9 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
   name: 'Azure-Bot-registration'
   params: {
     resourceBaseName: resourceBaseName
-    botAadAppClientId: botAadAppClientId
+    identityClientId: identity.properties.clientId
+    identityResourceId: identity.id
+    identityTenantId: identity.properties.tenantId
     botAppDomain: webApp.properties.defaultHostName
     botDisplayName: botDisplayName
   }
@@ -124,3 +135,5 @@ module azureBotRegistration './botRegistration/azurebot.bicep' = {
 // The output will be persisted in .env.{envName}. Visit https://aka.ms/teamsfx-actions/arm-deploy for more details.
 output BOT_AZURE_APP_SERVICE_RESOURCE_ID string = webApp.id
 output BOT_DOMAIN string = webApp.properties.defaultHostName
+output BOT_ID string = identity.properties.clientId
+output BOT_TENANT_ID string = identity.properties.tenantId

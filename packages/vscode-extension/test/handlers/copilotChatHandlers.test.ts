@@ -11,7 +11,7 @@ import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { err, ok, SystemError } from "@microsoft/teamsfx-api";
 import { GlobalKey } from "../../src/constants";
-import { TelemetryProperty, TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
+import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 
 after(() => {
   sinon.restore();
@@ -192,26 +192,6 @@ describe("copilotChatHandler", async () => {
     });
   });
 
-  describe("markGitHubCopilotSetupDone", () => {
-    it("should update global state successfully", async () => {
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate").resolves();
-      await handlers.markGitHubCopilotSetupDone();
-      chai.assert.isTrue(
-        globalStateUpdateStub.calledOnceWith(GlobalKey.GitHubCopilotSetupAlready, true)
-      );
-    });
-
-    it("should handle global state update failure", async () => {
-      const error = new SystemError("test", "test", "test", "test");
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate").rejects(error);
-      await handlers.markGitHubCopilotSetupDone();
-      chai.assert.isTrue(
-        globalStateUpdateStub.calledOnceWith(GlobalKey.GitHubCopilotSetupAlready, true)
-      );
-      chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
-    });
-  });
-
   describe("openTeamsAgentWalkthrough", () => {
     it("should execute command successfully", async () => {
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
@@ -225,10 +205,59 @@ describe("copilotChatHandler", async () => {
   });
 
   describe("invokeTeamsAgent", () => {
-    it("open walkthrough successfully from treeview", async () => {
+    it("open walkthrough successfully from treeview if GitHub copilot is not installed", async () => {
+      const args = [TelemetryTriggerFrom.TreeView];
+      sandbox.stub(globalState, "globalStateGet").resolves(true);
+      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
+      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+
+      const res = await handlers.invokeTeamsAgent(args);
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.isFalse(res.value);
+      }
+      chai.assert.isTrue(executeCommandStub.calledOnce);
+      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+    });
+
+    it("open walkthrough successfully from treeview if not logged in", async () => {
+      const args = [TelemetryTriggerFrom.TreeView];
+      sandbox.stub(globalState, "globalStateGet").resolves(true);
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([]);
+      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+
+      const res = await handlers.invokeTeamsAgent(args);
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.isFalse(res.value);
+      }
+      chai.assert.isTrue(executeCommandStub.calledOnce);
+      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+    });
+
+    it("open walkthrough successfully from treeview if @teamsapp not installed", async () => {
       const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(false);
-      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const res = await handlers.invokeTeamsAgent(args);
@@ -244,8 +273,15 @@ describe("copilotChatHandler", async () => {
     it("invoke chat successfully from command palette", async () => {
       const args = [TelemetryTriggerFrom.CommandPalette];
       sandbox.stub(globalState, "globalStateGet").resolves(true);
-      sandbox.stub(globalState, "globalStateUpdate").resolves();
-      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const res = await handlers.invokeTeamsAgent(args);
@@ -260,18 +296,16 @@ describe("copilotChatHandler", async () => {
 
     it("invoke chat successfully from unknown", async () => {
       const args = [TelemetryTriggerFrom.Unknow];
-      sandbox
-        .stub(globalState, "globalStateGet")
-        .onFirstCall()
-        .resolves(false)
-        .onSecondCall()
-        .resolves(true)
-        .onThirdCall()
-        .resolves(true);
-      const updateStub = sandbox.stub(globalState, "globalStateUpdate").resolves();
+      sandbox.stub(globalState, "globalStateGet").resolves(true);
       sandbox
         .stub(vscode.extensions, "getExtension")
         .returns({ name: "github.copilot-chat" } as any);
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
       const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const res = await handlers.invokeTeamsAgent(args);
@@ -281,12 +315,11 @@ describe("copilotChatHandler", async () => {
         chai.assert.isTrue(res.value);
       }
       chai.assert.isTrue(executeCommandStub.called);
-      chai.assert.isTrue(updateStub.calledOnce);
       chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
-    it("skip precheck and invoke chat error from WalkThroughIntroduction", async () => {
-      const args = [TelemetryTriggerFrom.WalkThroughIntroduction];
+    it("skip precheck and invoke chat error from WalkThrough", async () => {
+      const args = [TelemetryTriggerFrom.WalkThrough];
 
       sandbox.stub(vscode.commands, "executeCommand").callsFake(async (command: string) => {
         if (command === "workbench.action.chat.open") {
@@ -307,11 +340,9 @@ describe("copilotChatHandler", async () => {
 
     describe("invoke chat successfully from WalkThrough", async () => {
       const walkthroughTriggers = [
-        TelemetryTriggerFrom.WalkThroughIntroduction,
-        TelemetryTriggerFrom.WalkThroughCreate,
-        TelemetryTriggerFrom.WalkThroughWhatIsNext,
-        TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction,
-        TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate,
+        TelemetryTriggerFrom.TeamsAgentWalkthroughCreate,
+        TelemetryTriggerFrom.TeamsAgentWalkthroughExplore,
+        TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot,
       ];
 
       walkthroughTriggers.forEach((trigger) => {
@@ -331,6 +362,14 @@ describe("copilotChatHandler", async () => {
   });
 
   describe("troubleshootSelectedText", async () => {
+    beforeEach(() => {
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
+    });
     it("can invoke teams agent", async () => {
       sandbox.stub(vscode.window, "activeTextEditor").value({
         selection: "current select",
@@ -362,6 +401,9 @@ describe("copilotChatHandler", async () => {
         },
       } as any);
       sandbox.stub(globalState, "globalStateGet").resolves(true);
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
       const error = new SystemError("test", "test", "test", "test");
       sandbox.stub(vscode.commands, "executeCommand").rejects(error);
 
@@ -371,9 +413,19 @@ describe("copilotChatHandler", async () => {
   });
 
   describe("troubleshootError", async () => {
-    it("can invoke teams agent", async () => {
+    beforeEach(() => {
+      sandbox.stub(vscode.authentication, "getAccounts").resolves([
+        {
+          id: "someid",
+          label: "",
+        },
+      ]);
       sandbox.stub(globalState, "globalStateGet").resolves(true);
-      sandbox.stub(vscode.extensions, "getExtension").returns({ name: "github.copilot" } as any);
+    });
+    it("can invoke teams agent", async () => {
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
       sandbox.stub(vscode.commands, "executeCommand").resolves();
 
       const currentError = new SystemError("test", "test", "test", "test");
@@ -389,9 +441,11 @@ describe("copilotChatHandler", async () => {
     });
 
     it("error", async () => {
-      sandbox.stub(globalState, "globalStateGet").resolves(true);
       const error = new SystemError("test", "test", "test", "test");
       sandbox.stub(vscode.commands, "executeCommand").rejects(error);
+      sandbox
+        .stub(vscode.extensions, "getExtension")
+        .returns({ name: "github.copilot-chat" } as any);
 
       const currentError = new SystemError("test", "test", "test", "test");
       const res = await handlers.troubleshootError(["triggerFrom", currentError]);

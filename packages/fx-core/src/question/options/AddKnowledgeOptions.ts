@@ -19,5 +19,19 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     default: "web-search",
     choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
   },
+  {
+    name: "teams-manifest-file",
+    questionName: "manifest-path",
+    type: "string",
+    shortName: "t",
+    description:
+      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    default: "./appPackage/manifest.json",
+  },
+  {
+    name: "embedded-knowledge-files",
+    type: "string",
+    description: "Select your embedded knowledge files.",
+  },
 ];
 export const AddKnowledgeArguments: CLICommandArgument[] = [];

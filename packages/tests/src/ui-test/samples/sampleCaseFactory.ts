@@ -434,7 +434,9 @@ export abstract class CaseFactory {
               await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
               const { success: provisionSuccess } = await Executor.provision(
                 sampledebugContext.projectPath,
-                "local"
+                "local",
+                true,
+                "DeprecationWarning"
               );
               expect(provisionSuccess).to.be.true;
               if (!options.container) {

@@ -50,8 +50,8 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
-import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
 import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
+import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
@@ -71,6 +71,7 @@ import {
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   DeclarativeCopilotTypeOptions,
+  KnowledgeSourceOptions,
   MeArchitectureOptions,
   NotificationTriggerOptions,
   ProgrammingLanguage,
@@ -80,7 +81,6 @@ import {
   SPFxVersionOptionIds,
   capabilitiesHavePythonOption,
   getRuntime,
-  KnowledgeSourceOptions,
 } from "./constants";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
@@ -283,7 +283,7 @@ export function meArchitectureQuestion(): SingleSelectQuestion {
   };
 }
 
-function botTriggerQuestion(): SingleSelectQuestion {
+export function botTriggerQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.BotTrigger,
     title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
@@ -310,7 +310,7 @@ function botTriggerQuestion(): SingleSelectQuestion {
   };
 }
 
-function SPFxSolutionQuestion(): SingleSelectQuestion {
+export function SPFxSolutionQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.SPFxSolution,
@@ -754,17 +754,14 @@ function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
   return [];
 }
 
-function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
+export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceWebsiteUrl,
     title: getLocalizedString("core.updateWebsiteUrlQuestion.title"),
     staticOptions: [],
     dynamicOptions: getTabWebsiteOptions,
-    default: (inputs: Inputs) => {
-      const options = getTabWebsiteOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateUrlQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -781,17 +778,14 @@ function getTabContentUrlOptions(inputs: Inputs): OptionItem[] {
   return [];
 }
 
-const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
+export const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceContentUrl,
     title: getLocalizedString("core.updateContentUrlQuestion.title"),
     staticOptions: [],
     dynamicOptions: getTabContentUrlOptions,
-    default: (inputs: Inputs) => {
-      const options = getTabContentUrlOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateUrlQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -835,20 +829,14 @@ function getBotOptions(inputs: Inputs): OptionItem[] {
   return options;
 }
 
-function selectBotIdsQuestion(): MultiSelectQuestion {
-  // const statcOptions: OptionItem[] = [];
-  // statcOptions.push(botOptionItem(false, "000000-0000-0000"));
-  // statcOptions.push(botOptionItem(true, "000000-0000-0000"));
+export function selectBotIdsQuestion(): MultiSelectQuestion {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceBotIds,
     title: getLocalizedString("core.updateBotIdsQuestion.title"),
     staticOptions: [],
     dynamicOptions: getBotOptions,
-    default: (inputs: Inputs) => {
-      const options = getBotOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateBotIdsQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -1375,6 +1363,9 @@ export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSe
     cliDescription: "Knowledge source.",
     staticOptions: KnowledgeSourceOptions.all(),
     default: KnowledgeSourceOptions.webSearch().id,
+    dynamicOptions: (inputs: Inputs) => {
+      return KnowledgeSourceOptions.allWithFeatureFlags();
+    },
   };
 }
 

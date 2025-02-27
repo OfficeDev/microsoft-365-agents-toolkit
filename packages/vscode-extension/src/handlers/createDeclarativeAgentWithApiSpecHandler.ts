@@ -29,6 +29,7 @@ import {
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
+import { createNewProjectHandler } from "./lifecycleHandlers";
 
 export async function createDeclarativeAgentWithApiSpec(
   args?: any[]
@@ -56,7 +57,7 @@ export async function createDeclarativeAgentWithApiSpec(
   inputs[QuestionNames.WithPlugin] = "yes";
   inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
 
-  const result = await runCommand(Stage.create, inputs);
+  const result = await createNewProjectHandler("", inputs);
 
   if (result.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(
@@ -66,9 +67,6 @@ export async function createDeclarativeAgentWithApiSpec(
     return err(result.error);
   }
 
-  const res = result.value as CreateProjectResult;
-  const projectPathUri = vscode.Uri.file(res.projectPath);
-  await openFolder(projectPathUri, true, res.warnings);
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateDeclarativeAgentWithApiSpec, {
     [TelemetryProperty.Success]: TelemetrySuccess.Yes,
   });

@@ -22,6 +22,7 @@ import { NotExtendedToM365Error } from "./errors";
 import { MosServiceEndpoint } from "./serviceConstant";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import stripBom from "strip-bom";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -156,7 +157,10 @@ export class PackageService {
       throw new Error("Invalid app package zip. manifest.json is missing");
     }
     const isDelcarativeAgentApp = IsDeclarativeAgentManifest(manifest);
-    if (isDelcarativeAgentApp) {
+    if (
+      isDelcarativeAgentApp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
+    ) {
       const res = await this.sideLoadingV2(token, packagePath, appScope);
       let shareLink = "";
       if (appScope == AppScope.Shared) {

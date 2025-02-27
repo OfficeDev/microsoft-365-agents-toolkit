@@ -227,7 +227,7 @@ class TreeViewManager {
             ),
           ]
         : []),
-      ...(isDeclarativeCopilotApp
+      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
         ? [
             new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle"),
