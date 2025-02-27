@@ -11,11 +11,10 @@ import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
-import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
+import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
 import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
 import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
@@ -24,10 +23,6 @@ import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
 import { QuestionNames, ScratchOptions } from "../../../src/question/constants";
-import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
-import { validationUtils } from "../../../src/ui/validationUtils";
-import { MockTools, randomAppName } from "../../core/utils";
-import { MockedUserInteraction } from "../../plugins/solution/util";
 import {
   ApiPluginStartOptions,
   CustomCopilotAssistantOptions,
@@ -35,7 +30,10 @@ import {
   DACapabilityOptions,
   TabCapabilityOptions,
 } from "../../../src/question/scaffold/vsc/CapabilityOptions";
-import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { validationUtils } from "../../../src/ui/validationUtils";
+import { MockTools, randomAppName } from "../../core/utils";
+import { MockedUserInteraction } from "../../plugins/solution/util";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
