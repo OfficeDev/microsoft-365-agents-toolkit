@@ -61,10 +61,7 @@ describe("Env support for localization.json", function () {
       );
       const zip = new AdmZip(appPackageZipPath);
       const zipEntries = zip.getEntries();
-      for (const entry of zipEntries) {
-        console.log(entry.entryName);
-      }
-      const enFile = zipEntries.find((x) => x.entryName === "en.json");
+      const enFile = zipEntries.find((x) => x.entryName.includes("en.json"));
       console.log("verify file successfully");
       if (!enFile) {
         assert.fail("en file not found error");
