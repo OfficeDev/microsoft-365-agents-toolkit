@@ -55,13 +55,15 @@ app.http("repairs", {
   authLevel: "anonymous",
   handler: async (req: HttpRequest, context: InvocationContext) => {
     // Check if the request is authenticated
-    const isAuthenticated = await authMiddleware(req);
-    if (!isAuthenticated) {
+    const entraIdClaims = await authMiddleware(req, "repairs_read");
+    if (!entraIdClaims) {
       return {
         status: 401,
         body: "Unauthorized",
       };
     }
+    console.log(`Authenticated ${req.method} request for ${entraIdClaims.name} (${entraIdClaims.oid})`);
+
     // Call the actual handler function
     return repairs(req, context);
   },
