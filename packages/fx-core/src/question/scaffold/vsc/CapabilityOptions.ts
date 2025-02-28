@@ -465,7 +465,7 @@ export class DACapabilityOptions {
       id: "no",
       label: getLocalizedString("core.createProjectQuestion.noPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.noPlugin.detail"),
-      data: TemplateNames.BasicGpt,
+      data: TemplateNames.DeclarativeAgentBasic,
     };
   }
   static withPlugin(): OptionItem {
@@ -477,7 +477,7 @@ export class DACapabilityOptions {
   }
 }
 
-export class ApiPluginStartOptions {
+export class ActionStartOptions {
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -499,7 +499,7 @@ export class ApiPluginStartOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
       ),
-      data: TemplateNames.ApiPluginWithExistingApiSpec,
+      data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
     };
   }
 
@@ -508,7 +508,7 @@ export class ApiPluginStartOptions {
       id: "existing-plugin",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
-      data: TemplateNames.BasicGpt,
+      data: TemplateNames.DeclarativeAgentWithExistingAction,
     };
   }
 }
@@ -520,15 +520,15 @@ export class ApiAuthOptions {
       label: "None",
       data: isME
         ? TemplateNames.MessageExtensionWithNewApiFromScratch
-        : TemplateNames.ApiPluginFromScratch,
+        : TemplateNames.DeclarativeAgentWithActionFromScratch,
     };
   }
   static apiKey(): OptionItem {
     return {
       id: "api-key",
       label: "API Key",
-      // TODO: Update the name because the ApiPluginFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey.
-      data: TemplateNames.ApiPluginFromScratchBearer,
+      // TODO: Update the name because the DeclarativeAgentWithActionFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey.
+      data: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
     };
   }
   static bearerToken(): OptionItem {
@@ -544,7 +544,7 @@ export class ApiAuthOptions {
       label: "Microsoft Entra",
       data: isME
         ? TemplateNames.MessageExtensionWithNewApiFromScratchUsingOAuth
-        : TemplateNames.ApiPluginFromScratchOAuth,
+        : TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
     };
   }
 
@@ -552,7 +552,7 @@ export class ApiAuthOptions {
     return {
       id: "oauth",
       label: "OAuth",
-      data: TemplateNames.ApiPluginFromScratchOAuth,
+      data: TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
     };
   }
 }

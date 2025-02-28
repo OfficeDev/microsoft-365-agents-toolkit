@@ -18,10 +18,7 @@ import path from "path";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { QuestionNames } from "../../../question";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
-import {
-  defaultDeclarativeCopilotActionId,
-  defaultDeclarativeCopilotManifestFileName,
-} from "./const";
+import { defaultDeclarativeAgentActionId, defaultDeclarativeAgentManifestFileName } from "./const";
 import {
   copyKiotaFolder,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -31,7 +28,7 @@ import {
 export function isKiotaIntegrated(inputs: Inputs): boolean {
   return (
     featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ApiPluginManifestPath]
+    inputs[QuestionNames.ActionManifestPath]
   );
 }
 
@@ -43,7 +40,7 @@ export async function getAuthDataFromKiota(
 > {
   // For Kiota integration, we need to get auth info here
   if (isKiotaIntegrated(inputs)) {
-    const pluginManifestPath = inputs[QuestionNames.ApiPluginManifestPath] as string;
+    const pluginManifestPath = inputs[QuestionNames.ActionManifestPath] as string;
     return await parseAndUpdatePluginManifestForKiota(pluginManifestPath, false);
   }
   return undefined;
@@ -64,7 +61,7 @@ export async function kiotaPostProcess(
   await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
 
   // 2. Copy plugin manifest file
-  await fs.copyFile(inputs[QuestionNames.ApiPluginManifestPath], pluginManifestPath);
+  await fs.copyFile(inputs[QuestionNames.ActionManifestPath], pluginManifestPath);
 
   // 2.1 Need to update the plugin manifest file
   await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
@@ -83,8 +80,8 @@ export async function kiotaPostProcess(
   // 4. add action in da manifest
   const addActionResult = await copilotGptManifestUtils.updateDeclarativeAgentManifest(
     manifestPath,
-    defaultDeclarativeCopilotManifestFileName,
-    defaultDeclarativeCopilotActionId,
+    defaultDeclarativeAgentManifestFileName,
+    defaultDeclarativeAgentActionId,
     pluginManifestPath
   );
   if (addActionResult.isErr()) {
@@ -95,6 +92,6 @@ export async function kiotaPostProcess(
   await generateAdaptiveCardInPluginManifestForKiota(pluginManifestPath, openapiSpecPath, context);
 
   // 5. Copy .kiota folder
-  await copyKiotaFolder(inputs[QuestionNames.ApiPluginManifestPath], destinationPath);
+  await copyKiotaFolder(inputs[QuestionNames.ActionManifestPath], destinationPath);
   return ok({ warnings: undefined });
 }

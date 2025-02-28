@@ -40,6 +40,7 @@
         "run",
         "start",
         "--",
+        "desktop",
         "--app",
         "excel"
       ],
@@ -57,6 +58,7 @@
         "run",
         "start",
         "--",
+        "desktop",
         "--app",
         "outlook"
       ],
@@ -79,6 +81,7 @@
         "run",
         "start",
         "--",
+        "desktop",
         "--app",
         "powerpoint"
       ],
@@ -96,6 +99,7 @@
         "run",
         "start",
         "--",
+        "desktop",
         "--app",
         "word"
       ],

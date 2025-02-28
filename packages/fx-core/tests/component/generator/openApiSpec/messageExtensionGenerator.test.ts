@@ -26,7 +26,7 @@ import * as helper from "../../../../src/component/generator/openApiSpec/helper"
 import { MessageExtensionWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/messageExtensionGenerator";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
@@ -74,7 +74,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
       };

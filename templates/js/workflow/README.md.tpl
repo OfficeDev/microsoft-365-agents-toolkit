@@ -10,7 +10,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 >
 > To run the workflow bot template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}

@@ -13,7 +13,7 @@ export const oldPlaceholderDelimiters: [string, string] = ["{%", "%}"];
 export const sampleConcurrencyLimits = 20;
 export const sampleDefaultRetryLimits = 2;
 
-export const declarativeCopilotInstructionFileName = "instruction.txt";
+export const declarativeAgentInstructionFileName = "instruction.txt";
 
 export enum OneDriveSharePointItemType {
   File = "File",

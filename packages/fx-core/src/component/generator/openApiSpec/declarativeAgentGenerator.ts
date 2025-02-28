@@ -19,7 +19,10 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
   componentName = "da-with-existing-api-generator";
 
   public override activate(context: Context, inputs: Inputs): boolean {
-    return TemplateNames.ApiPluginWithExistingApiSpec == inputs[QuestionNames.TemplateName];
+    return (
+      TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec ==
+      inputs[QuestionNames.TemplateName]
+    );
   }
 
   public override async getTemplateInfos(

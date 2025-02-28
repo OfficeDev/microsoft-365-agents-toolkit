@@ -10,6 +10,8 @@ interface BotTextMessage {
   messageType: string | undefined;
   text: string;
   createdAt: string;
+  prompt: string;
+  contentOrigin: string;
 }
 
 export class WebSocketEventHandler {
@@ -60,11 +62,23 @@ export class WebSocketEventHandler {
   }
 
   static selectBotTextMessages(object: { item: { messages: BotTextMessage[] } }): BotTextMessage[] {
-    return object.item.messages.filter((message) => message.messageType === "DeveloperLogs");
+    const messages = object.item.messages.filter(
+      (message) => message.messageType === "DeveloperLogs"
+    );
+    const queryObject = object.item.messages.filter(
+      (message) => message.contentOrigin === "officeweb"
+    );
+    if (queryObject.length > 0) {
+      const query = queryObject[0].text;
+      messages.forEach((message) => {
+        message.prompt = query;
+      });
+    }
+    return messages;
   }
 
   static convertBotMessageToChannelOutput(botTextMessage: BotTextMessage): void {
-    new CopilotDebugLog(botTextMessage.text).write();
+    new CopilotDebugLog(botTextMessage.text, botTextMessage.prompt).write();
   }
 
   static convertBotMessageToChannelOutputJson(botTextMessage: BotTextMessage): CopilotDebugLog {

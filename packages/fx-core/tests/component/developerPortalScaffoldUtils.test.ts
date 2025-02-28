@@ -13,6 +13,7 @@ import {
   adjustScopeBasedOnVersion,
   developerPortalScaffoldUtils,
 } from "../../src/component/developerPortalScaffoldUtils";
+import * as tdpUtils from "../../src/component/developerPortalScaffoldUtils";
 import * as appStudio from "../../src/component/driver/teamsApp/appStudio";
 import {
   BOTS_TPL_V3,
@@ -32,6 +33,8 @@ import { CapabilityOptions, QuestionNames } from "../../src/question/constants";
 import { getProjectTypeAndCapability } from "../../src/question/create";
 import { MockedAzureAccountProvider, MockedM365Provider, MockTools } from "../core/utils";
 import { InputValidationError } from "../../src/error";
+import { pathUtils } from "../../src/component/utils/pathUtils";
+import { toFormData } from "axios";
 
 describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());
@@ -284,6 +287,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateOutline = false;
       let updatedManifestData = "";
 
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -402,6 +407,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -552,6 +559,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -686,6 +695,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -823,6 +834,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -933,6 +946,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(
@@ -1069,6 +1084,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1202,6 +1219,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
+      sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1308,7 +1327,6 @@ describe("developPortalScaffoldUtils", () => {
           },
         ],
       };
-
       sandbox.stub(appStudio, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1449,6 +1467,78 @@ describe("developPortalScaffoldUtils", () => {
     it("1.16", () => {
       const res = adjustScopeBasedOnVersion(["groupChat", "team"], "1.16");
       chai.assert.deepEqual(res, ["groupchat", "team"]);
+    });
+  });
+
+  describe("updateEnv", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("writes to .env.local when it exists", async () => {
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
+      sandbox.stub(fs, "pathExists").resolves(true);
+
+      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+      // Use the private method for testing
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
+
+      chai.assert.isTrue(result.isOk());
+      chai.assert.isTrue(
+        writeEnvStub.calledOnceWith("project-path", "local", {
+          TEAMS_APP_ID: "mock-app-id",
+        })
+      );
+    });
+
+    it("writes to .env.dev when cannot find env path", async () => {
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok(undefined));
+      sandbox.stub(fs, "pathExists").resolves(true);
+
+      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+      // Use the private method for testing
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
+
+      chai.assert.isTrue(result.isOk());
+      chai.assert.isTrue(
+        writeEnvStub.calledOnceWith("project-path", "dev", {
+          TEAMS_APP_ID: "mock-app-id",
+        })
+      );
+    });
+
+    it("writes to .env.dev when .env.local doesn't exist", async () => {
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
+      sandbox.stub(fs, "pathExists").resolves(false);
+
+      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+
+      // Use the private method for testing
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
+
+      chai.assert.isTrue(result.isOk());
+      chai.assert.isTrue(
+        writeEnvStub.calledOnceWith("project-path", "dev", {
+          TEAMS_APP_ID: "mock-app-id",
+        })
+      );
+    });
+
+    it("returns error when getEnvFilePath fails", async () => {
+      const error = new UserError("source", "name", "msg", "msg");
+      sandbox.stub(pathUtils, "getEnvFilePath").resolves(err(error));
+
+      // Use the private method for testing
+      const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
+
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.equal(result.error, error);
+      }
     });
   });
 });

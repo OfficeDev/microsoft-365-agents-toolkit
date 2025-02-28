@@ -14,7 +14,7 @@ import { DeclarativeAgentWithExistingApiSpecGenerator } from "../../../../src/co
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
@@ -39,7 +39,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
       };
       const res = await generator.activate(context, inputs);
       assert.isTrue(res);
@@ -63,8 +63,8 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "testapp",
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
@@ -75,7 +75,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, TemplateNames.ApiPluginWithExistingApiSpec);
+        assert.equal(res.value[0].templateName, TemplateNames.DeclarativeAgentWithExistingAction);
         assert.equal(res.value[0].replaceMap?.["DeclarativeCopilot"], "true");
       }
     });
@@ -88,7 +88,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         projectPath: "./",
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       inputs.apiAuthData = [
@@ -99,7 +99,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, TemplateNames.ApiPluginWithExistingApiSpec);
+        assert.equal(res.value[0].templateName, TemplateNames.DeclarativeAgentWithExistingAction);
         assert.equal(res.value[0].language, ProgrammingLanguage.CSharp);
       }
     });
@@ -114,10 +114,10 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
-        [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
+        [QuestionNames.ActionManifestPath]: "ai-plugin.json",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
@@ -146,10 +146,10 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
-        [QuestionNames.ApiPluginManifestPath]: "ai-plugin.json",
-        [QuestionNames.TemplateName]: TemplateNames.ApiPluginWithExistingApiSpec,
+        [QuestionNames.ActionManifestPath]: "ai-plugin.json",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
       sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([]);
@@ -203,7 +203,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.VSCode,
         projectPath: "path",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
@@ -243,7 +243,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         supportedApisFromApiSpec: [
           {
             id: "operation1",
@@ -288,7 +288,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.VSCode,
         projectPath: "path",
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
@@ -325,7 +325,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.VSCode,
         projectPath: "path",
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
@@ -368,8 +368,8 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.ApiPluginManifestPath]: "test.json",
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
           templateName: "api-plugin-existing-api",
@@ -430,8 +430,8 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.ApiPluginManifestPath]: "test.json",
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
           templateName: "api-plugin-existing-api",
@@ -489,8 +489,8 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.ApiPluginManifestPath]: "test.json",
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
           templateName: "api-plugin-existing-api",
@@ -548,8 +548,8 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
-        [QuestionNames.ApiPluginManifestPath]: "test.json",
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
           templateName: "api-plugin-existing-api",

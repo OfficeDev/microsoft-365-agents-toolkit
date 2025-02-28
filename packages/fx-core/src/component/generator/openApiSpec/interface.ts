@@ -19,5 +19,5 @@ export const enum telemetryProperties {
   generateType = "generate-type",
   isRemoteUrlTelemetryProperty = "remote-url",
   authType = "auth-type",
-  isDeclarativeCopilot = "is-declarative-copilot",
+  isDeclarativeAgent = "is-declarative-copilot",
 }

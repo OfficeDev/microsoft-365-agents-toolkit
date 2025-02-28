@@ -4,34 +4,34 @@
 import {
   AppPackageFolderName,
   BuildFolderName,
+  CLIPlatforms,
   ConfirmQuestion,
   DynamicPlatforms,
+  FolderQuestion,
   IQTreeNode,
   Inputs,
-  ManifestUtil,
+  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
+  PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
   TextInputQuestion,
-  FolderQuestion,
-  CLIPlatforms,
-  PluginManifestSchema,
-  MultiFileQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import * as os from "os";
 import * as path from "path";
 import { AppStudioScopes, ConstantString } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
+import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
 import { envUtil } from "../component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
-import { TOOLS } from "../common/globalVars";
 import {
+  ActionStartOptions,
   AddAuthActionAuthTypeOptions,
-  ApiPluginStartOptions,
   GCSelectOptions,
   HubOptions,
   KnowledgeSourceOptions,
@@ -43,13 +43,12 @@ import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
-  apiAuthQuestion,
+  addKnowledgeStartQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
-  addKnowledgeStartQuestion,
   oneDriveSharePointItemQuestion,
   oneDriveSharePointItemConfirmQuestion,
   GCItemQuestion,
@@ -59,7 +58,6 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import * as os from "os";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -788,13 +786,13 @@ export function addPluginQuestionNode(): IQTreeNode {
       {
         data: pluginManifestQuestion(),
         condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
         data: pluginApiSpecQuestion(),
         condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
@@ -802,7 +800,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -811,7 +809,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -1234,7 +1232,7 @@ export function authNameQuestion(): TextInputQuestion {
         if (!inputs) {
           throw new Error("inputs is undefined"); // should never happen
         }
-        inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+        inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
         return;
       },
     },

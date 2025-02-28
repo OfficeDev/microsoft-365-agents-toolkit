@@ -8,7 +8,9 @@ import {
   TextInputQuestion,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
+import fs from "fs-extra";
 import "mocha";
+import * as sinon from "sinon";
 import { environmentNameManager } from "../../src/core/environmentName";
 import { QuestionNames } from "../../src/question/constants";
 import {
@@ -23,8 +25,6 @@ import {
   oauthTokenUrlQuestion,
   selectTargetEnvQuestion,
 } from "../../src/question/other";
-import * as sinon from "sinon";
-import fs from "fs-extra";
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -376,7 +376,7 @@ describe("addAuthActionQuestion", () => {
         .additionalValidationOnAccept as FuncValidation<string>
     ).validFunc;
     const res = await validation("input", inputs);
-    assert.equal(inputs[QuestionNames.ApiPluginType], "new-api");
+    assert.equal(inputs[QuestionNames.ActionType], "new-api");
   });
 
   it("authname: should fail if no inputs when validate auth name", async () => {

@@ -6,7 +6,7 @@
     },
     "description": "Microsoft Teams Toolkit RAG Bot Sample with customize data source and Teams AI Library",
     "engines": {
-        "node": "18 || 20"
+        "node": "18 || 20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",

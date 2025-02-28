@@ -15,7 +15,7 @@ It showcases how to build an intelligent chat bot in Teams capable of helping us
 >
 > To run the AI Assistant Bot template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
