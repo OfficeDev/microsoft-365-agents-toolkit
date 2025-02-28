@@ -5,7 +5,6 @@ import {
   DefaultApiSpecFolderName,
   err,
   FxError,
-  Inputs,
   ok,
   PluginManifestSchema,
   Result,
@@ -22,14 +21,21 @@ import { getDefaultString, getLocalizedString } from "../../../common/localizeUt
 import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { createContext } from "vm";
 import { GCScopes } from "../../../common/constants";
 import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
-import { createGraphClientWithToken, encodeSharePointUrl, getDriveItemInfo, getSharePointSiteByRelativePath, ItemMetadata } from "./oneDriveSharePointHandler";
+import {
+  createGraphClientWithToken,
+  encodeSharePointUrl,
+  getDriveItemInfo,
+  getSharePointSiteByRelativePath,
+  ItemMetadata,
+} from "./oneDriveSharePointHandler";
 
 const logMessageKeys = {
-  failValidateOneDriveSharePointItem: "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
+  failValidateOneDriveSharePointItem:
+    "core.createProjectQuestion.log.fail.validateOneDriveSharePointItem",
   invalidOneDriveSharePointURL: "core.createProjectQuestion.log.fail.invalidOneDriveSharePointURL",
 };
 export interface AddExistingPluginResult {
@@ -230,10 +236,9 @@ export function validateSourcePluginManifest(
   return ok(undefined);
 }
 
-
 export async function getODSPItemInfo(
   context: Context,
-  itemUrl: string | undefined,
+  itemUrl: string | undefined
 ): Promise<Result<ItemMetadata[], UserError>> {
   if (!itemUrl) {
     return err(
@@ -276,17 +281,19 @@ export async function getODSPItemInfo(
       },
     ]);
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      if (error.response!.status >= 400 && error.response!.status < 510) {
+    if (isAxiosError(error) && error.response) {
+      if (error.response.status >= 400 && error.response.status < 510) {
         context.logProvider?.error(
           getLocalizedString(logMessageKeys.failValidateOneDriveSharePointItem, error.message)
         );
-        return err(new UserError(
-          "ValidateOneDriveSharePointURL",
-          "GraphApiError",
-          error.message,
-          error.message
-        ));
+        return err(
+          new UserError(
+            "ValidateOneDriveSharePointURL",
+            "GraphApiError",
+            error.message,
+            error.message
+          )
+        );
       }
     }
 
@@ -294,12 +301,7 @@ export async function getODSPItemInfo(
     context.logProvider?.error(
       getLocalizedString(logMessageKeys.failValidateOneDriveSharePointItem, message)
     );
-    return err(new SystemError(
-      "ValidateOneDriveSharePointURL",
-      "GraphApiError",
-      message,
-      message
-    ));
+    return err(new SystemError("ValidateOneDriveSharePointURL", "GraphApiError", message, message));
   }
 }
 
@@ -319,13 +321,13 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
 
   const instance = axios.create({
     baseURL: "https://graph.microsoft.com/v1.0",
-    headers: { Authorization: `Bearer ${graphToken}` },
+    headers: { Authorization: `Bearer ${graphToken.token as string}` },
   });
 
   try {
     const res = await instance.get(`/external/connections?$select=id,name`);
     const data = res.data;
-    return data.value.map((item: { id: string, name: string }) => {
+    return data.value.map((item: { id: string; name: string }) => {
       return { id: item.id, label: item.name };
     });
   } catch (error) {
@@ -340,4 +342,4 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
       )
     );
   }
-} 
+}

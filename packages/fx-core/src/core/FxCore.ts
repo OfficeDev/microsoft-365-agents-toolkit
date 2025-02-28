@@ -121,7 +121,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/copilotExtension/helper";
 import {
@@ -2297,10 +2296,7 @@ export class FxCore {
     ErrorContextMW({ component: "FxCore", stage: "getODSPItemDetails", reset: true }),
     ErrorHandlerMW,
   ])
-  async getODSPItemDetails(
-    siteId: string,
-    itemId: string,
-  ): Promise<Result<ItemMetadata, FxError>> {
+  async getODSPItemDetails(siteId: string, itemId: string): Promise<Result<ItemMetadata, FxError>> {
     const context = createContext();
     const res = await getODSPItemDetailById(context, siteId, itemId);
     if (res.isErr()) {

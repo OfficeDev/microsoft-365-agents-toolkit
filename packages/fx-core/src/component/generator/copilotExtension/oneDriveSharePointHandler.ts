@@ -1,15 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  Context,
-  FxError,
-  Result,
-  SystemError,
-  UserError,
-  err,
-  ok,
-} from "@microsoft/teamsfx-api";
+import { Context, FxError, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import { GraphScopes } from "../../../common/constants";
 import axios, { AxiosInstance } from "axios";
 import { OneDriveSharePointItemType } from "../constant";
@@ -30,7 +22,9 @@ export interface ItemMetadata {
  * @param context The context
  * @returns The graph client
  */
-export async function createGraphClientWithToken(context: Context): Promise<Result<AxiosInstance, FxError>> {
+export async function createGraphClientWithToken(
+  context: Context
+): Promise<Result<AxiosInstance, FxError>> {
   const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
     scopes: GraphScopes,
   });
@@ -57,13 +51,18 @@ export async function createGraphClientWithToken(context: Context): Promise<Resu
  * @param url The share point url
  * @returns The SharePoint site
  */
-export async function getSharePointSiteByRelativePath(graphClient: AxiosInstance, url: string): Promise<Result<ItemMetadata, FxError>> {
+export async function getSharePointSiteByRelativePath(
+  graphClient: AxiosInstance,
+  url: string
+): Promise<Result<ItemMetadata, FxError>> {
   // Extract the hostname and relative path from the url
   const urlObj = new URL(url);
   const hostname = urlObj.hostname;
   const relativePath = urlObj.pathname;
   try {
-    const res = await graphClient.get(`/sites/${hostname}:${relativePath}?$select=id,name,sharepointIds`);
+    const res = await graphClient.get(
+      `/sites/${hostname}:${relativePath}?$select=id,name,sharepointIds`
+    );
     return ok({
       id: res.data.id,
       name: res.data.name,
@@ -71,12 +70,14 @@ export async function getSharePointSiteByRelativePath(graphClient: AxiosInstance
       siteId: res.data.sharepointIds.siteId,
     });
   } catch (error) {
-    return err(new UserError({
-      source: "copilotPlugin",
-      name: "GetSharePointSiteFailed",
-      message: "Failed to get SharePoint site",
-      displayMessage: "Failed to get SharePoint site",
-    }));
+    return err(
+      new UserError({
+        source: "copilotPlugin",
+        name: "GetSharePointSiteFailed",
+        message: "Failed to get SharePoint site",
+        displayMessage: "Failed to get SharePoint site",
+      })
+    );
   }
 }
 
@@ -100,7 +101,9 @@ export async function getDriveItemInfo(
   graphClient: any,
   encodedUrl: string
 ): Promise<ItemMetadata> {
-  const res = await graphClient.get(`/shares/${encodedUrl}/driveItem?$select=id,name,sharepointIds,webUrl,file,folder`);
+  const res = await graphClient.get(
+    `/shares/${encodedUrl}/driveItem?$select=id,name,sharepointIds,webUrl,file,folder`
+  );
   return {
     id: res.data.id,
     name: res.data.name,
@@ -116,7 +119,7 @@ export async function getDriveItemInfo(
 export async function getODSPItemDetailById(
   context: Context,
   siteId: string,
-  itemId: string,
+  itemId: string
 ): Promise<Result<ItemMetadata[], UserError>> {
   const graphClientResult = await createGraphClientWithToken(context);
   if (graphClientResult.isErr()) {
@@ -135,20 +138,19 @@ export async function getODSPItemDetailById(
     ]);
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      if (error.response!.status >= 400 && error.response!.status < 510) {
-        return err(new UserError(
-          "getODSPItemDetailById",
-          "GraphApiError",
-          error.response.data.error.message,
-          error.response.data.error.message
-        ));
+      if (error.response.status >= 400 && error.response.status < 510) {
+        return err(
+          new UserError(
+            "getODSPItemDetailById",
+            "GraphApiError",
+            error.response.data.error.message,
+            error.response.data.error.message
+          )
+        );
       }
     }
-    return err(new SystemError(
-      "getODSPItemDetailById",
-      "GraphApiError",
-      error.message,
-      error.message
-    ));
+    return err(
+      new SystemError("getODSPItemDetailById", "GraphApiError", error.message, error.message)
+    );
   }
 }

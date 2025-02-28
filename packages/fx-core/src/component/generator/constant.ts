@@ -18,5 +18,5 @@ export const declarativeCopilotInstructionFileName = "instruction.txt";
 export enum OneDriveSharePointItemType {
   File = "File",
   Folder = "Folder",
-  Site = "Site"
+  Site = "Site",
 }
