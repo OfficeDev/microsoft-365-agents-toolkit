@@ -20,7 +20,7 @@ import * as parser from "jsonc-parser";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
-import { commandIsRunning } from "./globalVariables";
+import { commandIsRunning, core } from "./globalVariables";
 import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
@@ -90,6 +90,38 @@ export class PlaceholderCodeLens extends vscode.CodeLens {
     command?: vscode.Command | undefined
   ) {
     super(range, command);
+  }
+}
+
+export class SharePointIdCodeLens extends vscode.CodeLens {
+  constructor(
+    public readonly ids: string,
+    range: vscode.Range,
+    command?: vscode.Command | undefined
+  ) {
+    super(range, command);
+  }
+
+  static extractSharePointIds(text: string): { [key: string]: string | null } {
+    const keys = ["site_id", "web_id", "list_id", "unique_id"];
+    const result: { [key: string]: string | null } = {};
+
+    try {
+      const jsonObj = JSON.parse(text);
+
+      // Initialize each key with either the found value or null
+      keys.forEach((key) => {
+        result[key] = jsonObj[key] || null;
+      });
+
+      return result;
+    } catch (e) {
+      // If JSON parsing fails, return all null values
+      keys.forEach((key) => {
+        result[key] = null;
+      });
+      return result;
+    }
   }
 }
 
@@ -700,10 +732,13 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
   private sharePointIdsRegex: RegExp;
 
   constructor() {
-    // Regular expression to match SharePoint resource IDs in JSON:
-    // - Matches opening curly brace with optional whitespace/newlines
-    // - Followed by one of: web_id, list_id, unique_id, or site_id property names
-    this.sharePointIdsRegex = /\s*{[\s\n]*"(?:web_id|list_id|unique_id|site_id)"/g;
+    // This regex matches JSON objects containing SharePoint IDs with the following pattern:
+    // - Matches whitespace and opening curly brace: \s*{\s*
+    // - Matches any of these property names: "site_id", "web_id", "list_id", "unique_id"
+    // - [\s\S]*? matches any characters (including newlines) non-greedily until closing brace
+    // - Matches closing curly brace: }
+    // - /g flag for global matching (find all occurrences)
+    this.sharePointIdsRegex = /{\s*(?:"site_id"|"web_id"|"list_id"|"unique_id")[\s\S]*?}/g;
   }
 
   public provideCodeLenses(
@@ -741,51 +776,56 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
     return [];
   }
 
+  public async resolveCodeLens(
+    lens: vscode.CodeLens,
+    _token: vscode.CancellationToken
+  ): Promise<vscode.CodeLens> {
+    if (lens instanceof SharePointIdCodeLens) {
+      const ids = SharePointIdCodeLens.extractSharePointIds(lens.ids);
+
+      let title = `👉`;
+      if (ids.site_id && ids.unique_id) {
+        const details = await core.getODSPItemDetails(ids.site_id, ids.unique_id);
+        if (details.isOk()) {
+          title = `${title} ${details.value.name}`;
+          lens.command = {
+            title: title,
+            command: "fx-extension.openOneDriveSharePointUrl",
+            arguments: [details.value.webUrl],
+          };
+        } else {
+          lens.command = {
+            title: `${title} ${details.error.message}`,
+            command: "",
+          };
+        }
+      } else {
+        lens.command = {
+          title: `${title} Missing required SharePoint IDs`,
+          command: "",
+        };
+      }
+    }
+    return lens;
+  }
+
   private computeCodeLenses(
     document: vscode.TextDocument
   ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
     const codeLenses: vscode.CodeLens[] = [];
     const text = document.getText();
-
-    try {
-      const jsonContent = JSON.parse(text);
-      const capabilities = jsonContent.capabilities;
-      if (!Array.isArray(capabilities)) return codeLenses;
-
-      const oneDriveCapability = capabilities.find((c) => c.name === "OneDriveAndSharePoint");
-      if (!oneDriveCapability?.items_by_sharepoint_ids) return codeLenses;
-
-      let matches;
-      while ((matches = this.sharePointIdsRegex.exec(text)) !== null) {
-        const position = document.positionAt(matches.index);
-        const lineNumber = position.line;
-
-        // Parse the object containing the IDs
-        const objectStartIndex = text.indexOf("{", matches.index);
-        const objectText = text.slice(objectStartIndex);
-        try {
-          const idObject = JSON.parse(objectText.substring(0, objectText.indexOf("}") + 1));
-
-          const range = new vscode.Range(
-            new vscode.Position(lineNumber + 1, 0),
-            new vscode.Position(lineNumber + 1, 0)
-          );
-
-          const command = {
-            title: "🔍 Get Item Name",
-            command: "fx-extension.fetchOneDriveSharePointDetail",
-            arguments: [idObject.site_id, idObject.unique_id],
-          };
-
-          codeLenses.push(new vscode.CodeLens(range, command));
-        } catch (parseError) {
-          console.error("Failed to parse ID object:", parseError);
-        }
+    const regex = new RegExp(this.sharePointIdsRegex);
+    let matches;
+    while ((matches = regex.exec(text)) !== null) {
+      const match = matches[0];
+      const line = document.lineAt(document.positionAt(matches.index).line);
+      const indexOf = line.text.indexOf("{");
+      const position = new vscode.Position(line.lineNumber, indexOf);
+      const range = new vscode.Range(position, new vscode.Position(line.lineNumber, indexOf + 1));
+      if (range) {
+        codeLenses.push(new SharePointIdCodeLens(match, range, undefined));
       }
-    } catch (e) {
-      console.error("Failed to parse JSON:", e);
     }
-
     return codeLenses;
   }
 }

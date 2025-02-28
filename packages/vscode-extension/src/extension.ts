@@ -211,7 +211,7 @@ import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/swi
 import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
-import { obtainOneDriveSharePointDetailHandler } from "./handlers/obtainOneDriveSharePointDetailHandler";
+import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -796,11 +796,11 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(addAuthActionCmd);
 
-  const fetchODSPItemDetailsCmd = vscode.commands.registerCommand(
-    "fx-extension.fetchOneDriveSharePointDetail",
-    (...args) => Correlator.run(obtainOneDriveSharePointDetailHandler, args)
+  const openOneDriveSharePointUrlCmd = vscode.commands.registerCommand(
+    "fx-extension.openOneDriveSharePointUrl",
+    (...args) => Correlator.run(openOneDriveSharePointUrlHandler, args)
   );
-  context.subscriptions.push(fetchODSPItemDetailsCmd);
+  context.subscriptions.push(openOneDriveSharePointUrlCmd);
 }
 
 /**

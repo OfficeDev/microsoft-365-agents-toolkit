@@ -45,7 +45,6 @@ export async function createGraphClientWithToken(context: Context): Promise<Resu
       })
     );
   }
-
   const client = axios.create({
     baseURL: "https://graph.microsoft.com/v1.0",
     headers: { Authorization: `Bearer ${graphTokenRes.value}` },
@@ -119,7 +118,6 @@ export async function getODSPItemDetailById(
   context: Context,
   siteId: string,
   itemId: string,
-  inputs: Inputs
 ): Promise<Result<ItemMetadata[], UserError>> {
   const graphClientResult = await createGraphClientWithToken(context);
   if (graphClientResult.isErr()) {
@@ -127,14 +125,31 @@ export async function getODSPItemDetailById(
   }
   const graphClient = graphClientResult.value;
 
-  const itemRes = await graphClient.get(`/sites/${siteId}/drive/items/${itemId}`);
-
-  return ok([
-    {
-      id: itemRes.data.id,
-      label: itemRes.data.name,
-      name: itemRes.data.name,
-      url: itemRes.data.webUrl,
-    },
-  ]);
+  try {
+    const itemRes = await graphClient.get(`/sites/${siteId}/drive/items/${itemId}`);
+    return ok([
+      {
+        id: itemRes.data.id,
+        name: itemRes.data.name,
+        url: itemRes.data.webUrl,
+      },
+    ]);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response!.status >= 400 && error.response!.status < 510) {
+        return err(new UserError(
+          "getODSPItemDetailById",
+          "GraphApiError",
+          error.response.data.error.message,
+          error.response.data.error.message
+        ));
+      }
+    }
+    return err(new SystemError(
+      "getODSPItemDetailById",
+      "GraphApiError",
+      error.message,
+      error.message
+    ));
+  }
 }

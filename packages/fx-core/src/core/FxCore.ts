@@ -2300,10 +2300,9 @@ export class FxCore {
   async getODSPItemDetails(
     siteId: string,
     itemId: string,
-    inputs: Inputs
   ): Promise<Result<ItemMetadata, FxError>> {
     const context = createContext();
-    const res = await getODSPItemDetailById(context, siteId, itemId, inputs);
+    const res = await getODSPItemDetailById(context, siteId, itemId);
     if (res.isErr()) {
       return err(res.error);
     }
