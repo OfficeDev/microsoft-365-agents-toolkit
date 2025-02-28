@@ -4,13 +4,14 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import {
   Context,
+  err,
   FxError,
   GeneratorResult,
   IGenerator,
   Inputs,
-  Result,
-  err,
   ok,
+  Platform,
+  Result,
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
@@ -20,7 +21,7 @@ import { ActionContext, ActionExecutionMW } from "../middleware/actionExecutionM
 import { commonTemplateName, componentName } from "./constant";
 import { Generator, templateDefaultOnActionError } from "./generator";
 import { GeneratorContext, TemplateActionSeq } from "./generatorAction";
-import { getDefaultTemplatesOnPlatform } from "./templates/metadata";
+import { getAllTemplatesOnPlatform, getDefaultTemplatesOnPlatform } from "./templates/metadata";
 import { TemplateInfo } from "./templates/templateInfo";
 import { getTemplateReplaceMap } from "./templates/templateReplaceMap";
 import { convertToLangKey, renderTemplateFileData, renderTemplateFileName } from "./utils";
@@ -73,7 +74,6 @@ export class DefaultTemplateGenerator implements IGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<TemplateInfo[], FxError>> {
-    // const templateName = getTemplateName(inputs);
     const templateName = inputs[QuestionNames.TemplateName];
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     return Promise.resolve(ok([{ templateName, language }]));
@@ -104,19 +104,23 @@ export class DefaultTemplateGenerator implements IGenerator {
       [TelemetryProperty.TemplateName]: templateName,
     });
 
+    const templateMetadata = getAllTemplatesOnPlatform(Platform.CLI).find((t) => t.name === name);
+    const folderName =
+      templateMetadata?.id.substring(0, templateMetadata.id.lastIndexOf("-")) ?? "";
+
     const generatorContext: GeneratorContext = {
-      name: name,
+      name: folderName,
       language: language,
       destination: destinationPath,
       logProvider: context.logProvider,
       fileNameReplaceFn: (fileName, fileData) =>
         renderTemplateFileName(fileName, fileData, replaceMap)
           .replace(/\\/g, "/")
-          .replace(`${name}/`, ""),
+          .replace(`${folderName}/`, ""),
       fileDataReplaceFn: (fileName, fileData) =>
         renderTemplateFileData(fileName, fileData, replaceMap),
       filterFn: (fileName) =>
-        fileName.replace(/\\/g, "/").startsWith(`${name}/`) && filterFn(fileName),
+        fileName.replace(/\\/g, "/").startsWith(`${folderName}/`) && filterFn(fileName),
       onActionError: templateDefaultOnActionError,
     };
 
