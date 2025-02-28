@@ -173,7 +173,8 @@
       "localdebug-chatdata-customapi-py-azureopenai",
       "localdebug-chatdata-customapi-py-openai",
       "testtooldebug-command-and-response",
-      "testtooldebug-msgsa"
+      "testtooldebug-msgsa",
+      "localization-succeed"
     ],
     "node-20": ["localdebug-obo-tab"]
   },

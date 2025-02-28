@@ -1,6 +1,9 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
+    "engines": {
+        "node": "18 || 20 || 22"
+    },
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev": "func start --javascript --language-worker=\"--inspect=9229\" --port \"7071\" --cors \"*\"",

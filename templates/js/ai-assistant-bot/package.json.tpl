@@ -6,7 +6,7 @@
     },
     "description": "Microsoft Teams Toolkit AI Assistant Bot Sample",
     "engines": {
-        "node": "18 || 20"
+        "node": "18 || 20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",

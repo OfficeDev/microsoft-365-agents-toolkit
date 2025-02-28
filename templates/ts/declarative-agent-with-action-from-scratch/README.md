@@ -13,7 +13,7 @@ You can extend declarative agents using plugins to retrieve data and execute tas
 >
 > To run this app template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teams-toolkit-cli)
 > - [Microsoft 365 Copilot license](https://learn.microsoft.com/microsoft-365-copilot/extensibility/prerequisites#prerequisites)

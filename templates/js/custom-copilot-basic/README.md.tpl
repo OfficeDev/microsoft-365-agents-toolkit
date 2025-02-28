@@ -9,7 +9,7 @@ It showcases a bot app that responds to user questions like ChatGPT, which enabl
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20.
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts).
 {{/enableTestToolByDefault}}

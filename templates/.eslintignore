@@ -2,3 +2,4 @@ tab/csharp/default/*
 tab/csharp/non-sso/*
 **/*.css
 ts/office-addin-wxpo-taskpane/*
+ts/office-addin-outlook-taskpane/*

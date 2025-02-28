@@ -459,6 +459,12 @@ jobs:
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
 
+      - name: Extract Zip files
+        working-directory: packages/tests
+        run: |
+          7z x "src/ui-test/case-resources/localization-agent-succeed.zip" -o"src/ui-test/case-resources/localization-agent-succeed" -y
+          7z x "src/ui-test/case-resources/localization-agent-unresolved.zip" -o"src/ui-test/case-resources/localization-agent-unresolved" -y
+
       - name: Run UI Test(ubuntu)
         if: matrix.os == 'ubuntu-latest'
         working-directory: packages/tests

@@ -13,7 +13,7 @@ This template showcases an app that unfurls a link into an adaptive card when UR
 
 > **Prerequisites**
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 {{^enableMETestToolByDefault}}
 > - A Microsoft 365 account. If you do not have Microsoft 365 account, apply one from [Microsoft 365 developer program](https://developer.microsoft.com/microsoft-365/dev-program)
 {{/enableMETestToolByDefault}}
