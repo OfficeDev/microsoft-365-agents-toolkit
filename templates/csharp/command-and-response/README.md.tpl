@@ -8,11 +8,12 @@
 ## Debug in Teams
 
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
-2. Right-click your project in Solution Explorer and select Teams Toolkit > Prepare Teams App Dependencies
-3. If prompted, sign in to Visual Studio with a Microsoft 365 work or school account
+1. Right-click the 'TeamsApp' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
+2. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
 4. In Startup Item, select "Microsoft Teams (browser)"
-5. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
-6. In the opened web browser, select Add button to test the app in Teams
+3. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+</br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
+4. In the opened web browser, select Add button to install the app in Teams
 7. In the message input field, type and send "helloWorld" to your app to get a response
 
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
