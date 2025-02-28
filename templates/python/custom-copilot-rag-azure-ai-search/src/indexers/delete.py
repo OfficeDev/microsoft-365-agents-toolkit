@@ -26,4 +26,4 @@ try:
     search_index_client = SearchIndexClient(search_api_endpoint, credentials)
     delete_index(search_index_client, index)
 except ServiceRequestError as e:
-    print(f"Delete index failed due to ServiceRequestError: {e.message}.\nPlease check your keys, models and enpoints in {os.getcwd()}/env/.env.local.user.")
+    print(f"Delete index failed due to ServiceRequestError: {e.message}.\nPlease check your keys, models and endpoints in {os.getcwd()}/env/.env.local.user.")
