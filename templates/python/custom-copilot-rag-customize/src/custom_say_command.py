@@ -35,14 +35,13 @@ async def say_command(context: TurnContext, state: Any, data: Dict[str, Any], fe
         # If not valid JSON, fallback to sending raw text with AI metadata
         print(f"Response is not valid JSON, sending the raw text. error: {error}")
         message = MessageFactory.text(data.response.content)
-        # Add schema.org metadata to identify this as AI-generated content
-        message.entities = [{
-            "type": "https://schema.org/Message",
-            "@type": "Message",
-            "@context": "https://schema.org",
-            "@id": "",
-            "additionalType": ["AIGeneratedContent"]
-        }]
+        # Add identify this as AI-generated content
+        message.entities = [
+            AIEntity(
+                citation=None,
+                additional_type=["AIGeneratedContent"]
+            )
+        ]
         # Add Teams-specific channel data if needed
         if is_teams_channel:
             message.channel_data = {"feedbackLoopEnabled": feedback_loop_enabled}
