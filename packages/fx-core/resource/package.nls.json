@@ -512,7 +512,6 @@
   "core.GCListQuestion.title": "Select one or more Graph Connectors as knowledge source",
   "core.GCListQuestion.placeholder": "List all existing Graph Connectors",
   "core.GCInputQuestion.title": "Connection ID",
-  "core.GCInputQuestion.placeholder": "Input a connection ID for Graph Connector",
   "core.GCListQuestion.invalidMessage": "%s API(s) selected. You need select at least one APIs.",
   "core.confirmManifestQuestion.placeholder": "Confirm you've selected the correct manifest file",
   "core.aadAppQuestion.label": "Microsoft Entra app",
