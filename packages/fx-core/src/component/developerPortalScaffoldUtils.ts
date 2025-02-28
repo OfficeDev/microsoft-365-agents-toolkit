@@ -293,10 +293,7 @@ export async function updateEnv(
 ): Promise<Result<undefined, FxError>> {
   const localEnvFilePathRes = await pathUtils.getEnvFilePath(projectPath, "local");
   if (localEnvFilePathRes.isErr()) return err(localEnvFilePathRes.error);
-  const localEnvFileExists = await fs.pathExists(
-    localEnvFilePathRes.value || path.resolve(projectPath, "env", "local")
-  );
-  if (localEnvFileExists) {
+  if (!!localEnvFilePathRes.value && (await fs.pathExists(localEnvFilePathRes.value))) {
     return await envUtil.writeEnv(projectPath, "local", {
       TEAMS_APP_ID: appId,
     });

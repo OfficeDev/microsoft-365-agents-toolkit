@@ -1494,7 +1494,7 @@ describe("developPortalScaffoldUtils", () => {
       );
     });
 
-    it("writes to .env.local when cannot find env path", async () => {
+    it("writes to .env.dev when cannot find env path", async () => {
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok(undefined));
       sandbox.stub(fs, "pathExists").resolves(true);
 
@@ -1505,7 +1505,7 @@ describe("developPortalScaffoldUtils", () => {
 
       chai.assert.isTrue(result.isOk());
       chai.assert.isTrue(
-        writeEnvStub.calledOnceWith("project-path", "local", {
+        writeEnvStub.calledOnceWith("project-path", "dev", {
           TEAMS_APP_ID: "mock-app-id",
         })
       );
