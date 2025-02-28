@@ -196,6 +196,7 @@ import {
   getODSPItemDetailById,
   ItemMetadata,
 } from "../component/generator/copilotExtension/oneDriveSharePointHandler";
+
 export class FxCore {
   constructor(tools: Tools) {
     setTools(tools);
@@ -203,6 +204,7 @@ export class FxCore {
 
   /**
    * @todo this's a really primitive implement. Maybe could use Subscription Model to
+// Copyright (c) Microsoft Corporation.
    * refactor later.
    */
   public on(event: CoreCallbackEvent, callback: CoreCallbackFunc): void {
@@ -2245,7 +2247,8 @@ export class FxCore {
     }
 
     let result: Result<undefined, FxError>;
-    switch (inputs[QuestionNames.KnowledgeSource] as string) {
+    const knowledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
+    switch (knowledgeSource) {
       case KnowledgeSourceOptions.webSearch().id:
         result = await this.addWebSearchKnowledge(inputs, agentManifestPath);
         break;
@@ -2268,23 +2271,7 @@ export class FxCore {
       return ok(undefined);
     }
 
-    if (inputs.platform === Platform.VSCode) {
-      const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
-      const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
-      void context.userInteraction
-        .showMessage("info", successMessage, false, viewAgentManifest)
-        .then((userRes) => {
-          if (userRes.isOk() && userRes.value === viewAgentManifest) {
-            context.telemetryReporter.sendTelemetryEvent(
-              TelemetryEvent.ViewAgentManifestAfterAdded
-            );
-            void TOOLS?.ui?.openFile?.(agentManifestPath);
-          }
-        });
-    } else {
-      const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
-      void context.userInteraction.showMessage("info", successMessage, false);
-    }
+    showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
 
     return ok(undefined);
   }
@@ -2780,5 +2767,37 @@ export class FxCore {
     const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
     const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
     return res;
+  }
+}
+
+export function showAddKnowledgeSuccessMessage(
+  context: Context,
+  inputs: Inputs,
+  agentManifestPath: string,
+  knowledgeSource: string
+): void {
+  if (knowledgeSource === KnowledgeSourceOptions.embeddedKnowledge().id) {
+    void TOOLS.ui.showMessage(
+      "info",
+      getLocalizedString("core.addEmbeddedKnowledge.success"),
+      false
+    );
+    return;
+  }
+
+  if (inputs.platform === Platform.VSCode) {
+    const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
+    const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+    void context.userInteraction
+      .showMessage("info", successMessage, false, viewAgentManifest)
+      .then((userRes) => {
+        if (userRes.isOk() && userRes.value === viewAgentManifest) {
+          context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.ViewAgentManifestAfterAdded);
+          void TOOLS?.ui?.openFile?.(agentManifestPath);
+        }
+      });
+  } else {
+    const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
+    void context.userInteraction.showMessage("info", successMessage, false);
   }
 }
