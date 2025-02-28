@@ -9,9 +9,8 @@ import {
   err,
   ok,
   PluginManifestSchema,
-  File,
   DeclarativeCopilotCapabilityName,
-  EmbeddedKnowledgeCapability
+  EmbeddedKnowledgeCapability,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -25,10 +24,7 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { WrapDriverContext } from "../util/wrapUtil";
-import {
-  Constants,
-  EmbeddedKnowledgeLocalDirectoryName,
-} from "./constants";
+import { Constants } from "./constants";
 import { CreateAppPackageArgs } from "./interfaces/CreateAppPackageArgs";
 import { manifestUtils } from "./utils/ManifestUtils";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
