@@ -37,10 +37,7 @@ import { MockTools } from "../../../core/utils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import path from "path";
 import { SpecParser } from "@microsoft/m365-spec-parser";
-import {
-  EmbeddedKnowledgeCapabilityName,
-  EmbeddedKnowledgeLocalDirectoryName,
-} from "../../../../src/component/driver/teamsApp/constants";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -1072,7 +1069,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);
@@ -1090,7 +1087,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         capabilities: [
           {
-            name: EmbeddedKnowledgeCapabilityName,
+            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
             files: [{ file: "existing.txt" }],
           },
         ],
@@ -1125,7 +1122,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);

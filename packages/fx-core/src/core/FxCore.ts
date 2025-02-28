@@ -2273,7 +2273,7 @@ export class FxCore {
 
     showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
 
-    return ok(undefined);
+    return ok(result);
   }
 
   /**

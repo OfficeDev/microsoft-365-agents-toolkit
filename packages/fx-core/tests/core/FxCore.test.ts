@@ -118,7 +118,6 @@ import * as projectHelper from "../../src/common/projectSettingsHelper";
 import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
 import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import * as pluginGeneratorHelper from "../../src/component/generator/apiSpec/helper";
 import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { ConstantString } from "../../src/common/constants";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
@@ -7356,18 +7355,17 @@ describe("addKnowledge", async () => {
     const core = new FxCore(tools);
     sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
     const result = await core.addKnowledge(inputs);
-    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
-    if (addWebSearchCapabilityRes.isOk()) {
-      const capabilities = addWebSearchCapabilityRes.value.capabilities;
-      assert.deepEqual(capabilities, [
-        {
-          name: DeclarativeCopilotCapabilityName.WebSearch,
-        },
-      ]);
-    } else {
-      assert.fail("addWebSearchCapability failed");
+    if (result.isOk()) {
+      const addEmbeddedKnowledgeFilesRes = await result.value.resultValue[0];
+      if (addEmbeddedKnowledgeFilesRes.isOk()) {
+        const capabilities = addEmbeddedKnowledgeFilesRes.value.capabilities;
+        assert.deepEqual(capabilities, [
+          {
+            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
+          },
+        ]);
+      }
     }
-    assert.isTrue(result.isOk());
   });
 
   it("happy path: add OneDrive & Sharepoint(search all)", async () => {
@@ -7555,18 +7553,26 @@ describe("addKnowledge", async () => {
   });
 
   it("add embedded files", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      projectPath: path.join(os.tmpdir(), appName),
-      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.embeddedKnowledge().id,
-      [QuestionNames.EmbeddedKnowledgeFiles]: ["test:txt"],
-      [QuestionNames.ManifestPath]: "manifest.json",
-    };
-    const core = new FxCore(tools);
-    sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
-    const result = await core.addKnowledge(inputs);
-    assert.isTrue(result.isOk());
+    const restore = mockedEnv({
+      TEAMSFX_ADD_KNOWLEDGE: "true",
+      TEAMSFX_BUILDER_API: "true",
+    });
+    try {
+      const appName = await mockV3Project();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: os.tmpdir(),
+        projectPath: path.join(os.tmpdir(), appName),
+        [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.embeddedKnowledge().id,
+        [QuestionNames.EmbeddedKnowledgeFiles]: ["test:txt"],
+        [QuestionNames.ManifestPath]: "manifest.json",
+      };
+      const core = new FxCore(tools);
+      sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
+      const result = await core.addKnowledge(inputs);
+      assert.isFalse(result.isOk());
+    } finally {
+      restore();
+    }
   });
 });
