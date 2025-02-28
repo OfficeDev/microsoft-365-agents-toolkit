@@ -32,6 +32,42 @@ interface FunctionExecution {
   errorMessage: string;
 }
 
+interface CapabilitiesDeveloperInfo {
+  enabledCapabilities: EnabledCapability[];
+  capabilityExecutions: CapabilityExecution[];
+}
+
+interface EnabledCapability {
+  capabilityIcon: string;
+  capabilityName: string;
+  scopes: {
+    [key: string]: object;
+  };
+}
+
+interface CapabilityExecution {
+  name: string;
+  status: string;
+  errorMessage?: string;
+  additionalDebugInfo?: {
+    [key: string]: object;
+  };
+}
+
+interface AgentMetadata {
+  agentId: string;
+  conversationId: string;
+  agentVersion: string;
+  requestId: string;
+}
+
+interface PluginDeveloperInfo {
+  enabledPlugins: Plugin[];
+  matchedFunctionCandidates: FunctionDescriptor[];
+  functionsSelectedForInvocation: FunctionDescriptor[];
+  functionExecutions: FunctionExecution[];
+}
+
 /**
  * @Sample [2021-03-15T03:41:04.961Z] - 0 plugin enabled.
  */
@@ -71,18 +107,32 @@ export class CopilotDebugLog {
   matchedFunctionCandidates?: FunctionDescriptor[];
   functionsSelectedForInvocation?: FunctionDescriptor[];
   functionExecutions?: FunctionExecution[];
+  capabilitiesDeveloperInfo?: CapabilitiesDeveloperInfo;
+  pluginDeveloperInfo?: PluginDeveloperInfo;
+  prompt?: string;
+  agentMetadata?: AgentMetadata;
 
-  constructor(logAsJson: string) {
+  constructor(logAsJson: string, prompt?: string) {
     let message: this;
     try {
       message = JSON.parse(logAsJson) as this;
+      if (prompt) {
+        this.prompt = prompt;
+      }
     } catch (error) {
       throw new Error(`Error parsing logAsJson: ${(error as Error).message}`);
     }
-    this.enabledPlugins = message.enabledPlugins;
-    this.matchedFunctionCandidates = message.matchedFunctionCandidates;
-    this.functionsSelectedForInvocation = message.functionsSelectedForInvocation;
-    this.functionExecutions = message.functionExecutions;
+    this.enabledPlugins = message.enabledPlugins ?? message.pluginDeveloperInfo?.enabledPlugins;
+    this.matchedFunctionCandidates =
+      message.matchedFunctionCandidates ?? message.pluginDeveloperInfo?.matchedFunctionCandidates;
+    this.functionsSelectedForInvocation =
+      message.functionsSelectedForInvocation ??
+      message.pluginDeveloperInfo?.functionsSelectedForInvocation;
+    this.functionExecutions =
+      message.functionExecutions ?? message.pluginDeveloperInfo?.functionExecutions;
+    this.capabilitiesDeveloperInfo = message.capabilitiesDeveloperInfo;
+    this.pluginDeveloperInfo = message.pluginDeveloperInfo;
+    this.agentMetadata = message.agentMetadata;
 
     if (this.functionExecutions) {
       this.functionExecutions.forEach((functionExecution) => {
@@ -101,14 +151,27 @@ export class CopilotDebugLog {
 
   write(): void {
     const debugConsole = vscode.debug.activeDebugConsole;
+    this.logExecutionDetailCounts(debugConsole);
+    this.logAgentHeaderDetails(debugConsole);
+    debugConsole.appendLine("");
+    debugConsole.appendLine(ANSIColors.WHITE + "CAPABILITIES");
+    if ((this.capabilitiesDeveloperInfo?.enabledCapabilities?.length ?? 0) > 0) {
+      this.logCapabilities(debugConsole);
+    } else {
+      debugConsole.appendLine(
+        `${ANSIColors.RED} (×) ${ANSIColors.WHITE}Enabled capabilities: None.`
+      );
+      debugConsole.appendLine(
+        `   ${ANSIColors.RED} (×) Execution status: ${ANSIColors.WHITE}None.`
+      );
+    }
+
     if (this.enabledPlugins && this.enabledPlugins.length > 0) {
       debugConsole.appendLine("");
-      logToDebugConsole(LogLevel.Info, `${this.enabledPlugins.length} enabled plugin(s).`);
-      debugConsole.appendLine(ANSIColors.WHITE + "Copilot plugin developer info:");
-      debugConsole.appendLine("");
+      debugConsole.appendLine(ANSIColors.WHITE + "ACTIONS");
       this.enabledPlugins.forEach((plugin) => {
         debugConsole.appendLine(
-          `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled plugin: ${ANSIColors.MAGENTA}${plugin.name} ${ANSIColors.GRAY}• version ${plugin.version} • ${plugin.id}`
+          `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled action: ${ANSIColors.MAGENTA}${plugin.name} ${ANSIColors.GRAY}• version ${plugin.version} • ${plugin.id}`
         );
 
         if (this.matchedFunctionCandidates && this.matchedFunctionCandidates.length > 0) {
@@ -124,11 +187,131 @@ export class CopilotDebugLog {
       });
     } else {
       debugConsole.appendLine("");
-      logToDebugConsole(LogLevel.Info, `0 enabled plugin(s).`);
-      debugConsole.appendLine(ANSIColors.WHITE + "Copilot plugin developer info:");
+      debugConsole.appendLine(ANSIColors.WHITE + "ACTIONS");
+      logToDebugConsole(LogLevel.Info, `0 enabled action(s).`);
+      debugConsole.appendLine(ANSIColors.WHITE + "Copilot agent developer info:");
       debugConsole.appendLine("");
       this.logNoPlugins(debugConsole);
     }
+  }
+
+  private logCapabilities(debugConsole: vscode.DebugConsole): void {
+    const capabilities = this.capabilitiesDeveloperInfo?.enabledCapabilities;
+    if (capabilities && capabilities.length == 0) {
+      return;
+    }
+
+    const capabilityExecutions = this.capabilitiesDeveloperInfo?.capabilityExecutions;
+    const capabilityNamesExecuted = capabilityExecutions?.map((execution) => execution.name);
+
+    capabilities?.forEach((capability) => {
+      if (capabilityNamesExecuted?.includes(capability.capabilityName)) {
+        this.logCapabilitiesWithExecutions(debugConsole, capability);
+      } else {
+        debugConsole.appendLine(
+          `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}${capability.capabilityName}`
+        );
+        if (Object.keys(capability.scopes).length > 0) {
+          Object.entries(capability.scopes).forEach(([key, value]) => {
+            debugConsole.appendLine(`       ${ANSIColors.WHITE}${key} - ${JSON.stringify(value)}`);
+          });
+        }
+      }
+    });
+  }
+
+  private logCapabilitiesWithExecutions(
+    debugConsole: vscode.DebugConsole,
+    capability: EnabledCapability
+  ): void {
+    debugConsole.appendLine(
+      `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}${capability.capabilityName}`
+    );
+    const capabilitiesOfThisTpe = this.capabilitiesDeveloperInfo?.capabilityExecutions?.filter(
+      (execution) => execution.name === capability.capabilityName
+    );
+
+    const capabilitiesContainAdditionalInfo = capabilitiesOfThisTpe?.some(
+      (execution) => execution.additionalDebugInfo
+    );
+
+    const logFileName = `Copilot-debug-${new Date().toISOString().replace(/-|:|\.\d+Z$/g, "")}.txt`;
+    const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
+
+    if (capabilitiesContainAdditionalInfo) {
+      capabilitiesOfThisTpe?.forEach((execution, index) => {
+        const logFileName = `Copilot-debug-${new Date()
+          .toISOString()
+          .replace(/-|:|\.\d+Z$/g, "")}-${index}.txt`;
+        const logFilePath = `${defaultExtensionLogPath}/${logFileName}`;
+        writeExecutionDetailsToFile(logFilePath, JSON.stringify(execution, null, 2));
+        debugConsole.appendLine(
+          `       ${ANSIColors.WHITE} ${execution.name} ${index} ${
+            ANSIColors.WHITE
+          }• ${CopilotDebugLog.getExecutionStatusColor(
+            execution.status
+          )} Execution status ${CopilotDebugLog.getExecutionStatusText(execution.status)} ${
+            ANSIColors.WHITE
+          }refer to ${ANSIColors.BLUE}${logFilePath}${ANSIColors.WHITE} for all details.` // Replace execution.name with actual name
+        );
+      });
+    } else {
+      const finalExecution = capabilitiesOfThisTpe?.[capabilitiesOfThisTpe.length - 1];
+      writeExecutionDetailsToFile(logFilePath, JSON.stringify(finalExecution, null, 2));
+      debugConsole.appendLine(
+        ` ${ANSIColors.WHITE}• ${CopilotDebugLog.getExecutionStatusColor(
+          finalExecution?.status ?? ""
+        )} Execution status: ${CopilotDebugLog.getExecutionStatusText(
+          finalExecution?.status ?? ""
+        )}${ANSIColors.WHITE}, refer to ${ANSIColors.BLUE}${logFilePath}${
+          ANSIColors.WHITE
+        } for all details.`
+      );
+    }
+  }
+
+  private static getExecutionStatusColor(executionStatus: string): ANSIColors {
+    if (executionStatus === "1") {
+      return ANSIColors.GREEN;
+    } else {
+      return ANSIColors.RED;
+    }
+  }
+
+  private static getExecutionStatusText(executionStatus: string): string {
+    if (executionStatus === "1") {
+      return "Success";
+    }
+    return "Failed";
+  }
+
+  private logAgentHeaderDetails(debugConsole: vscode.DebugConsole): void {
+    debugConsole.appendLine(ANSIColors.WHITE + "Execution summary");
+    debugConsole.appendLine("");
+    debugConsole.appendLine(`${ANSIColors.WHITE}User's input prompt: ${this.prompt ?? ""}`); // pull from search query - action/capability execution
+    debugConsole.appendLine(
+      `${ANSIColors.WHITE}Agent ID (${this.agentMetadata?.agentId ?? ""}). Conversation ID (${
+        this.agentMetadata?.conversationId ?? ""
+      }). Request ID (${this.agentMetadata?.requestId ?? ""})`
+    );
+  }
+
+  private logExecutionDetailCounts(debugConsole: vscode.DebugConsole): void {
+    const enabledCapabilitiesCount =
+      this.capabilitiesDeveloperInfo?.enabledCapabilities?.length ?? 0;
+    const enabledPluginsCount = this.enabledPlugins?.length ?? 0;
+    const matchedFunctionCandidatesCount = this.matchedFunctionCandidates?.length ?? 0;
+    const functionsSelectedForInvocationCount = this.functionsSelectedForInvocation?.length ?? 0;
+    const failedActionExecutionsCount =
+      this.functionExecutions?.filter(
+        (execution) => execution.executionStatus.responseStatus >= 400
+      )?.length ?? 0;
+    const successfulActionExecutionsCount =
+      (this.functionExecutions?.length ?? 0) - failedActionExecutionsCount;
+
+    debugConsole.appendLine(
+      `${ANSIColors.GREEN}${enabledCapabilitiesCount} enabled capabilities, ${enabledPluginsCount} enabled actions, ${failedActionExecutionsCount} failed function executions, ${successfulActionExecutionsCount} successful function executions, ${matchedFunctionCandidatesCount} matched function candidates, ${functionsSelectedForInvocationCount} functions selected for invocation.`
+    );
   }
 
   private logNoPlugins(debugConsole: vscode.DebugConsole): void {
