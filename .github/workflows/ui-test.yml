@@ -464,7 +464,7 @@ jobs:
         run: |
           7z x "src/ui-test/case-resources/localization-agent-succeed.zip" -o"src/ui-test/case-resources/localization-agent-succeed" -y
           7z x "src/ui-test/case-resources/localization-agent-unresolved.zip" -o"src/ui-test/case-resources/localization-agent-unresolved" -y
-
+          7z x "src/ui-test/case-resources/localization-agent-same-level.zip" -o"src/ui-test/case-resources/localization-agent-same-level" -y
       - name: Run UI Test(ubuntu)
         if: matrix.os == 'ubuntu-latest'
         working-directory: packages/tests
