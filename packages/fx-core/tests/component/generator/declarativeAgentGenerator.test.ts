@@ -20,9 +20,9 @@ import * as generatorHelper from "../../../src/component/generator/declarativeAg
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as commons from "../../../src/component/utils/common";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   QuestionNames,
 } from "../../../src/question";
 import { MockLogProvider } from "../../core/utils";
@@ -44,7 +44,7 @@ describe("copilotExtension", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",
@@ -96,7 +96,7 @@ describe("copilotExtension", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.AppName]: "app",

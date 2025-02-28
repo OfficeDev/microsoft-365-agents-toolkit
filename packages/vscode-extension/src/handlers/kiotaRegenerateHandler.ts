@@ -33,7 +33,7 @@ export async function kiotaRegenerate(args?: any[]): Promise<Result<any, FxError
   const pluginManifestPath = args[1];
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
-  inputs[QuestionNames.DeclarativeAgentManifestPath] = pluginManifestPath;
+  inputs[QuestionNames.ActionManifestPath] = pluginManifestPath;
 
   const result = await runCommand(Stage.kiotaRegenerate, inputs);
   if (result.isErr()) {

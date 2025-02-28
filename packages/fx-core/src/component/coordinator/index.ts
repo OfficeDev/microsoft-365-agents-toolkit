@@ -41,9 +41,9 @@ import {
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
 import {
+  ActionStartOptions,
   AppNamePattern,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -98,8 +98,8 @@ class Coordinator {
     if (
       inputs.platform === Platform.VSCode &&
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id &&
-      !inputs[QuestionNames.DeclarativeAgentManifestPath] &&
+      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+      !inputs[QuestionNames.ActionManifestPath] &&
       (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
         inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
     ) {

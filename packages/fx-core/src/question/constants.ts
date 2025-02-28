@@ -39,7 +39,7 @@ export enum QuestionNames {
   FromExistingApi = "from-existing-api", // group name for creating an App from existing api
   ApiSpecLocation = "openapi-spec-location",
   ApiOperation = "api-operation",
-  DeclarativeAgentManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
+  ActionManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
   MeArchitectureType = "me-architecture",
   ApiSpecApiKey = "api-key",
   ApiSpecApiKeyConfirm = "api-key-confirm",
@@ -100,7 +100,7 @@ export enum QuestionNames {
   DestinationApiSpecFilePath = "destination-api-spec-location",
 
   SyncManifest = "sync-manifest",
-  DeclarativeAgentType = "api-plugin-type",
+  ActionType = "api-plugin-type",
   WithPlugin = "with-plugin",
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
@@ -1201,7 +1201,7 @@ export class DeclarativeCopilotTypeOptions {
   }
 }
 
-export class DeclarativeAgentStartOptions {
+export class ActionStartOptions {
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -1236,28 +1236,25 @@ export class DeclarativeAgentStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [DeclarativeAgentStartOptions.apiSpec(), DeclarativeAgentStartOptions.existingPlugin()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()]
       : [
-          DeclarativeAgentStartOptions.newApi(),
-          DeclarativeAgentStartOptions.apiSpec(),
-          DeclarativeAgentStartOptions.existingPlugin(),
+          ActionStartOptions.newApi(),
+          ActionStartOptions.apiSpec(),
+          ActionStartOptions.existingPlugin(),
         ];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [
-        DeclarativeAgentStartOptions.apiSpec(),
-        DeclarativeAgentStartOptions.existingPlugin(),
-      ];
+      return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
     } else if (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) {
       return [
-        DeclarativeAgentStartOptions.newApi(),
-        DeclarativeAgentStartOptions.apiSpec(),
-        DeclarativeAgentStartOptions.existingPlugin(),
+        ActionStartOptions.newApi(),
+        ActionStartOptions.apiSpec(),
+        ActionStartOptions.existingPlugin(),
       ];
     } else {
-      return [DeclarativeAgentStartOptions.newApi(), DeclarativeAgentStartOptions.apiSpec()];
+      return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
     }
   }
 }

@@ -63,13 +63,13 @@ import {
   assembleError,
 } from "../error";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   AppNamePattern,
   CapabilityOptions,
   CliQuestionName,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  DeclarativeAgentStartOptions,
   DeclarativeCopilotTypeOptions,
   KnowledgeSourceOptions,
   MeArchitectureOptions,
@@ -943,9 +943,7 @@ export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
       const options: OptionItem[] = excludeNone ? [] : [ApiAuthOptions.none()];
       if (inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.newApi().id) {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
-      } else if (
-        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.newApi().id
-      ) {
+      } else if (inputs[QuestionNames.ActionType] === ActionStartOptions.newApi().id) {
         options.push(ApiAuthOptions.apiKey());
         options.push(ApiAuthOptions.microsoftEntra());
         options.push(ApiAuthOptions.oauth());
@@ -966,8 +964,7 @@ export function apiOperationQuestion(
   const isPlugin = (inputs?: Inputs): boolean => {
     return (
       isAddPlugin ||
-      (!!inputs &&
-        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id)
+      (!!inputs && inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id)
     );
   };
 
@@ -984,8 +981,7 @@ export function apiOperationQuestion(
       : "Select operation(s) Teams can interact with.",
     cliShortName: "o",
     placeholder: (inputs: Inputs) => {
-      const isPlugin =
-        inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id;
+      const isPlugin = inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
       if (!includeExistingAPIs) {
         placeholder = getLocalizedString(
           "core.createProjectQuestion.apiSpec.operation.placeholder.skipExisting"
@@ -1200,7 +1196,7 @@ function declarativeCopilotPluginQuestion(): SingleSelectQuestion {
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",
-    name: QuestionNames.DeclarativeAgentType,
+    name: QuestionNames.ActionType,
     title: (inputs: Inputs) => {
       return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id ||
         doesProjectExists
@@ -1214,11 +1210,11 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
         : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
     },
     cliDescription: "API plugin type.",
-    staticOptions: DeclarativeAgentStartOptions.staticAll(doesProjectExists),
+    staticOptions: ActionStartOptions.staticAll(doesProjectExists),
     dynamicOptions: (inputs: Inputs) => {
-      return DeclarativeAgentStartOptions.all(inputs, doesProjectExists);
+      return ActionStartOptions.all(inputs, doesProjectExists);
     },
-    default: DeclarativeAgentStartOptions.newApi().id,
+    default: ActionStartOptions.newApi().id,
   };
 }
 
@@ -1448,10 +1444,7 @@ export function capabilitySubTree(): IQTreeNode {
       },
       {
         condition: (inputs: Inputs) => {
-          return (
-            inputs[QuestionNames.DeclarativeAgentType] ===
-            DeclarativeAgentStartOptions.existingPlugin().id
-          );
+          return inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id;
         },
         data: { type: "group", name: QuestionNames.ImportPlugin },
         children: [
@@ -1467,7 +1460,7 @@ export function capabilitySubTree(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             inputs[QuestionNames.MeArchitectureType] == MeArchitectureOptions.newApi().id ||
-            inputs[QuestionNames.DeclarativeAgentType] == DeclarativeAgentStartOptions.newApi().id
+            inputs[QuestionNames.ActionType] == ActionStartOptions.newApi().id
           );
         },
         data: apiAuthQuestion(),
@@ -1482,16 +1475,14 @@ export function capabilitySubTree(): IQTreeNode {
         // from API spec
         condition: (inputs: Inputs) => {
           return (
-            (inputs[QuestionNames.DeclarativeAgentType] ===
-              DeclarativeAgentStartOptions.apiSpec().id ||
+            (inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id ||
               inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.apiSpec().id ||
               inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id) &&
             !(
               // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec
               (
                 featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                inputs[QuestionNames.DeclarativeAgentType] ===
-                  DeclarativeAgentStartOptions.apiSpec().id &&
+                inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                 (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
                   inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
               )
@@ -1506,7 +1497,7 @@ export function capabilitySubTree(): IQTreeNode {
           {
             data: apiOperationQuestion(),
             condition: (inputs: Inputs) => {
-              return !inputs[QuestionNames.DeclarativeAgentManifestPath];
+              return !inputs[QuestionNames.ActionManifestPath];
             },
           },
         ],
@@ -1526,10 +1517,8 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             (!!inputs[QuestionNames.Capabilities] &&
               inputs[QuestionNames.WithPlugin] !== DeclarativeCopilotTypeOptions.noPlugin().id &&
-              inputs[QuestionNames.DeclarativeAgentType] !==
-                DeclarativeAgentStartOptions.apiSpec().id &&
-              inputs[QuestionNames.DeclarativeAgentType] !==
-                DeclarativeAgentStartOptions.existingPlugin().id &&
+              inputs[QuestionNames.ActionType] !== ActionStartOptions.apiSpec().id &&
+              inputs[QuestionNames.ActionType] !== ActionStartOptions.existingPlugin().id &&
               inputs[QuestionNames.MeArchitectureType] !== MeArchitectureOptions.apiSpec().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.officeMetaOS().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.outlookAddin().id) ||
@@ -1580,11 +1569,10 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.DeclarativeAgentType] ===
-              DeclarativeAgentStartOptions.apiSpec().id &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.DeclarativeAgentManifestPath]
+            !inputs[QuestionNames.ActionManifestPath]
           );
         },
       },
@@ -1595,11 +1583,10 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.DeclarativeAgentType] ===
-              DeclarativeAgentStartOptions.apiSpec().id &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.DeclarativeAgentManifestPath]
+            !inputs[QuestionNames.ActionManifestPath]
           );
         },
       },

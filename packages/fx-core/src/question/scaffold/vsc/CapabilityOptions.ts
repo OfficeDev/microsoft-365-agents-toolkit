@@ -477,7 +477,7 @@ export class DACapabilityOptions {
   }
 }
 
-export class DeclarativeAgentStartOptions {
+export class ActionStartOptions {
   static newApi(): OptionItem {
     return {
       id: "new-api",

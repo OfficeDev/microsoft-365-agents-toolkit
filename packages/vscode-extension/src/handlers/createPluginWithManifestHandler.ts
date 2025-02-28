@@ -11,8 +11,8 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import {
+  ActionStartOptions,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   KiotaLastCommands,
   ProjectTypeOptions,
   QuestionNames,
@@ -59,8 +59,8 @@ export async function createPluginWithManifest(args?: any[]): Promise<Result<any
 
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
-  inputs[QuestionNames.DeclarativeAgentManifestPath] = pluginManifestPath;
-  inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
+  inputs[QuestionNames.ActionManifestPath] = pluginManifestPath;
+  inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
   inputs[QuestionNames.ApiOperation] = pluginManifestPath;
   let result;
 

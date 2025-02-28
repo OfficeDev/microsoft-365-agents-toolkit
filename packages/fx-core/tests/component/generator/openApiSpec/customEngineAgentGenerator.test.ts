@@ -11,8 +11,8 @@ import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../../src/c
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
+  ActionStartOptions,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../../src/question";
@@ -58,7 +58,7 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.AppName]: "testapp",
       };

@@ -552,7 +552,7 @@ describe("formatValidationErrors", () => {
 
     const res = formatValidationErrors(errors, {
       platform: Platform.VSCode,
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentApiSpecOptionId,
+      [QuestionNames.ActionType]: DeclarativeAgentApiSpecOptionId,
     });
 
     const errorMessage1 = [

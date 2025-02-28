@@ -35,7 +35,7 @@ import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import { SPFxImportFolderQuestion, questionNodes } from "../../src/question";
 import {
-  DeclarativeAgentStartOptions,
+  ActionStartOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
@@ -1274,11 +1274,11 @@ describe("addPluginQuestionNode", async () => {
           type: "success",
           result: "manifest.json",
         });
-      } else if (question.name == QuestionNames.DeclarativeAgentType) {
+      } else if (question.name == QuestionNames.ActionType) {
         const select = question as SingleSelectQuestion;
         const options = await select.dynamicOptions!(inputs);
         //assert.isTrue(options.length === 2);
-        return ok({ type: "success", result: DeclarativeAgentStartOptions.apiSpec().id });
+        return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
       } else if (question.name === QuestionNames.ApiSpecLocation) {
         return ok({ type: "success", result: "test.yaml" });
       } else if (question.name === QuestionNames.ApiOperation) {
@@ -1290,7 +1290,7 @@ describe("addPluginQuestionNode", async () => {
 
     await traverse(node, inputs, ui, undefined, visitor);
     assert.deepEqual(questionNames, [
-      QuestionNames.DeclarativeAgentType,
+      QuestionNames.ActionType,
       QuestionNames.ApiSpecLocation,
       QuestionNames.ApiOperation,
       QuestionNames.TeamsAppManifestFilePath,
@@ -1328,11 +1328,11 @@ describe("addPluginQuestionNode", async () => {
           type: "success",
           result: "manifest.json",
         });
-      } else if (question.name == QuestionNames.DeclarativeAgentType) {
+      } else if (question.name == QuestionNames.ActionType) {
         const select = question as SingleSelectQuestion;
         const options = await select.dynamicOptions!(inputs);
         assert.isTrue(options.length === 2);
-        return ok({ type: "success", result: DeclarativeAgentStartOptions.existingPlugin().id });
+        return ok({ type: "success", result: ActionStartOptions.existingPlugin().id });
       } else if (question.name === QuestionNames.PluginManifestFilePath) {
         return ok({ type: "success", result: "test.yaml" });
       } else if (question.name === QuestionNames.PluginOpenApiSpecFilePath) {
@@ -1344,7 +1344,7 @@ describe("addPluginQuestionNode", async () => {
 
     await traverse(node, inputs, ui, undefined, visitor);
     assert.deepEqual(questionNames, [
-      QuestionNames.DeclarativeAgentType,
+      QuestionNames.ActionType,
       QuestionNames.PluginManifestFilePath,
       QuestionNames.PluginOpenApiSpecFilePath,
       QuestionNames.TeamsAppManifestFilePath,

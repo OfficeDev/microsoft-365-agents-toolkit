@@ -24,11 +24,11 @@ import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  DeclarativeAgentStartOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -499,7 +499,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
@@ -519,7 +519,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
@@ -539,7 +539,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
@@ -580,7 +580,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
@@ -601,7 +601,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
       };
@@ -619,7 +619,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);
@@ -640,7 +640,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",
       };
       const context = createContext();

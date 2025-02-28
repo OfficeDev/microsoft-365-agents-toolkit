@@ -20,10 +20,10 @@ import { TemplateNames } from "../../src/component/generator/templates/templateN
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import {
+  ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
   DACapabilityOptions,
-  DeclarativeAgentStartOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
@@ -324,7 +324,7 @@ describe("folderAndAppNameCondition", () => {
   it("ApiPluginManifestPath", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.DeclarativeAgentManifestPath]: "test",
+      [QuestionNames.ActionManifestPath]: "test",
     };
     const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
@@ -332,7 +332,7 @@ describe("folderAndAppNameCondition", () => {
   it("false", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
     };
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);

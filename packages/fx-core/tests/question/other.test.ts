@@ -376,7 +376,7 @@ describe("addAuthActionQuestion", () => {
         .additionalValidationOnAccept as FuncValidation<string>
     ).validFunc;
     const res = await validation("input", inputs);
-    assert.equal(inputs[QuestionNames.DeclarativeAgentType], "new-api");
+    assert.equal(inputs[QuestionNames.ActionType], "new-api");
   });
 
   it("authname: should fail if no inputs when validate auth name", async () => {

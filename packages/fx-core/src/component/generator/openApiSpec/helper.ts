@@ -184,7 +184,7 @@ export async function listOperations(
   shouldLogWarning = true,
   existingCorrelationId?: string
 ): Promise<Result<ApiOperation[], ErrorResult[]>> {
-  const isPlugin = inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentApiSpecOptionId;
+  const isPlugin = inputs[QuestionNames.ActionType] === DeclarativeAgentApiSpecOptionId;
   const isCustomApi =
     inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id;
   const projectType = isPlugin
@@ -1045,7 +1045,7 @@ function mapInvalidReasonToMessage(reason: ErrorType): string {
 }
 
 function formatValidationErrorContent(error: ApiSpecErrorResult, inputs: Inputs): string {
-  const isPlugin = inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentApiSpecOptionId;
+  const isPlugin = inputs[QuestionNames.ActionType] === DeclarativeAgentApiSpecOptionId;
   try {
     switch (error.type) {
       case ErrorType.SpecNotValid: {

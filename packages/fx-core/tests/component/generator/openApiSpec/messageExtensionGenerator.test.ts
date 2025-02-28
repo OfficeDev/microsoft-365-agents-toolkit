@@ -26,8 +26,8 @@ import * as helper from "../../../../src/component/generator/openApiSpec/helper"
 import { MessageExtensionWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/messageExtensionGenerator";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
+  ActionStartOptions,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../../src/question";
@@ -74,7 +74,7 @@ describe("MessageExtensionWithExistingApiSpecGenerator", async () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.MessageExtensionWithExistingApiSpec,
         [QuestionNames.AppName]: "testapp",
       };

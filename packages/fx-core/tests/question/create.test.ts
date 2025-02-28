@@ -36,11 +36,11 @@ import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/P
 import { convertToLangKey } from "../../src/component/generator/utils";
 import { FileNotFoundError } from "../../src/error";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  DeclarativeAgentStartOptions,
   DeclarativeCopilotTypeOptions,
   MeArchitectureOptions,
   NotificationTriggerOptions,
@@ -1659,11 +1659,11 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
+          } else if (question.name === QuestionNames.ActionType) {
             const select = question as SingleSelectQuestion;
             const options = select.staticOptions;
             assert.isTrue(options.length === 3);
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.newApi().id });
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ApiAuth) {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
@@ -1685,7 +1685,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -1699,8 +1699,8 @@ describe("scaffold question", () => {
         };
         inputs[QuestionNames.Capabilities] = CapabilityOptions.apiPlugin().id;
         inputs[QuestionNames.ApiSpecLocation] = "api-spec-path";
-        inputs[QuestionNames.DeclarativeAgentManifestPath] = "api-plugin-manifest-path";
-        inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
+        inputs[QuestionNames.ActionManifestPath] = "api-plugin-manifest-path";
+        inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
         inputs[QuestionNames.ApiOperation] = "api-plugin-manifest-path";
         inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
         const questions: string[] = [];
@@ -1736,8 +1736,8 @@ describe("scaffold question", () => {
         };
         inputs[QuestionNames.Capabilities] = CapabilityOptions.declarativeAgent().id;
         inputs[QuestionNames.ApiSpecLocation] = "api-spec-path";
-        inputs[QuestionNames.DeclarativeAgentManifestPath] = "api-plugin-manifest-path";
-        inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
+        inputs[QuestionNames.ActionManifestPath] = "api-plugin-manifest-path";
+        inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
         inputs[QuestionNames.ApiOperation] = "api-plugin-manifest-path";
         inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
         const questions: string[] = [];
@@ -1792,8 +1792,8 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           }
           return ok({ type: "success", result: undefined });
         };
@@ -1801,7 +1801,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
         ]);
       });
 
@@ -1832,8 +1832,8 @@ describe("scaffold question", () => {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
             return ok({ type: "success", result: CapabilityOptions.declarativeAgent().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           } else if (question.name === QuestionNames.WithPlugin) {
             return ok({ type: "success", result: "yes" });
           }
@@ -1844,7 +1844,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
         ]);
       });
 
@@ -1869,8 +1869,8 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.newApi().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ApiAuth) {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
@@ -1892,7 +1892,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -1929,8 +1929,8 @@ describe("scaffold question", () => {
               getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.title")
             );
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           } else if (question.name === QuestionNames.ApiSpecLocation) {
             const validRes = await (question as any).inputBoxConfig.validation!.validFunc(
               "https://test.com"
@@ -1955,7 +1955,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.ApiSpecLocation,
           QuestionNames.ApiOperation,
           QuestionNames.Folder,
@@ -1983,8 +1983,8 @@ describe("scaffold question", () => {
           await callFuncs(question, inputs);
           if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
-            return ok({ type: "success", result: DeclarativeAgentStartOptions.newApi().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ProgrammingLanguage) {
             return ok({ type: "success", result: "javascript" });
           } else if (question.name === QuestionNames.AppName) {
@@ -2000,7 +2000,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -2061,7 +2061,7 @@ describe("scaffold question", () => {
           const inputs: Inputs = {
             platform: Platform.VSCode,
             [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-            [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+            [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
             [QuestionNames.ApiSpecLocation]: "apispec",
             supportedApisFromApiSpec: [
               {
@@ -3130,7 +3130,7 @@ describe("scaffold question", () => {
           const inputs: Inputs = {
             platform: Platform.VSCode,
             "manifest-path": "fakePath",
-            [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+            [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
             [QuestionNames.DestinationApiSpecFilePath]: "openapi.yaml",
           };
 
@@ -3309,7 +3309,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
           QuestionNames.AppName,
@@ -3348,10 +3348,10 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: CapabilityOptions.declarativeAgent().id });
           } else if (question.name === QuestionNames.WithPlugin) {
             return ok({ type: "success", result: DeclarativeCopilotTypeOptions.withPlugin().id });
-          } else if (question.name === QuestionNames.DeclarativeAgentType) {
+          } else if (question.name === QuestionNames.ActionType) {
             return ok({
               type: "success",
-              result: DeclarativeAgentStartOptions.existingPlugin().id,
+              result: ActionStartOptions.existingPlugin().id,
             });
           } else if (question.name === QuestionNames.PluginManifestFilePath) {
             const select = question as SingleFileQuestion;
@@ -3417,7 +3417,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.DeclarativeAgentType,
+          QuestionNames.ActionType,
           QuestionNames.PluginManifestFilePath,
           QuestionNames.PluginOpenApiSpecFilePath,
           QuestionNames.Folder,
@@ -4109,7 +4109,7 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.newApi().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
       assert.isDefined(question.dynamicOptions);
       if (question.dynamicOptions) {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];
@@ -4127,7 +4127,7 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.newApi().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
       assert.isDefined(question.dynamicOptions);
       if (question.dynamicOptions) {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];
@@ -4158,7 +4158,7 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.newApi().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
       assert.isDefined(question.dynamicOptions);
       if (question.dynamicOptions) {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];

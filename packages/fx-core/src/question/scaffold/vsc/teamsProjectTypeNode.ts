@@ -40,7 +40,7 @@ export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTree
       },
       {
         condition: (inputs: Inputs) => {
-          return !inputs[QuestionNames.DeclarativeAgentManifestPath];
+          return !inputs[QuestionNames.ActionManifestPath];
         },
         data: apiOperationQuestion(),
       },

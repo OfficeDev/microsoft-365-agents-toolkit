@@ -3,8 +3,8 @@
 
 import { err, FxError, ok, Result, UserError } from "@microsoft/teamsfx-api";
 import {
+  ActionStartOptions,
   CapabilityOptions,
-  DeclarativeAgentStartOptions,
   ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -41,7 +41,7 @@ export async function createDeclarativeAgentWithApiSpec(
 
   const inputs = getSystemInputs();
   inputs[QuestionNames.ApiSpecLocation] = specPath;
-  inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.apiSpec().id;
+  inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
   inputs.capabilities = CapabilityOptions.declarativeAgent().id;
   inputs[QuestionNames.WithPlugin] = "yes";
   inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;

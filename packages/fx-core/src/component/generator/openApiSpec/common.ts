@@ -220,7 +220,7 @@ export async function generateFilesFromApiSpec(
           destinationPath,
           AppPackageFolderName,
           isKiotaIntegration
-            ? path.basename(inputs[QuestionNames.DeclarativeAgentManifestPath])
+            ? path.basename(inputs[QuestionNames.ActionManifestPath])
             : DefaultPluginManifestFileName
         )
       : undefined;

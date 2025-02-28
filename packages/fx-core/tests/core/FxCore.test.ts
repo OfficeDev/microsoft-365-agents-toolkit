@@ -114,7 +114,7 @@ import {
   questionNodes,
 } from "../../src/question";
 import {
-  DeclarativeAgentStartOptions,
+  ActionStartOptions,
   HubOptions,
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
@@ -2407,7 +2407,7 @@ describe("copilotPlugin", async () => {
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
       [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.DestinationApiSpecFilePath]: "destination.json",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -2474,7 +2474,7 @@ describe("copilotPlugin", async () => {
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
       [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -2532,7 +2532,7 @@ describe("copilotPlugin", async () => {
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
       [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.DestinationApiSpecFilePath]: "destination.json",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -5011,7 +5011,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5103,7 +5103,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5212,7 +5212,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5329,7 +5329,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5395,7 +5395,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5463,7 +5463,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5555,7 +5555,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.yaml",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5632,7 +5632,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.PluginManifestFilePath]: "ai-plugin.json",
       [QuestionNames.PluginOpenApiSpecFilePath]: "openapi.json",
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.existingPlugin().id,
+      [QuestionNames.ActionType]: ActionStartOptions.existingPlugin().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5679,7 +5679,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.PluginManifestFilePath]: "ai-plugin.json",
       [QuestionNames.PluginOpenApiSpecFilePath]: "openapi.json",
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.existingPlugin().id,
+      [QuestionNames.ActionType]: ActionStartOptions.existingPlugin().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5726,7 +5726,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5783,7 +5783,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5850,7 +5850,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5882,7 +5882,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5918,7 +5918,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5955,7 +5955,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -5981,7 +5981,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -6032,7 +6032,7 @@ describe("addPlugin", async () => {
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       [QuestionNames.ApiSpecLocation]: "test.json",
       [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       projectPath: path.join(os.tmpdir(), appName),
     };
     const manifest = new TeamsAppManifest();
@@ -6086,7 +6086,7 @@ describe("addPlugin", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6112,9 +6112,9 @@ describe("addPlugin", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.DeclarativeAgentType]: DeclarativeAgentStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "aiplugin-apiplugin.json",
+      [QuestionNames.ActionManifestPath]: "aiplugin-apiplugin.json",
       [QuestionNames.ApiSpecLocation]: "spec-apimanifest.yaml",
       [QuestionNames.ApiOperation]: "aiplugin-apiplugin.json",
       projectPath: path.join(os.tmpdir(), appName),
@@ -6347,7 +6347,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6431,7 +6431,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6508,7 +6508,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6573,7 +6573,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
     };
 
@@ -6588,7 +6588,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6612,7 +6612,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6635,7 +6635,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6669,7 +6669,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };
@@ -6704,7 +6704,7 @@ describe("kiotaRegenerate", async () => {
       platform: Platform.VSCode,
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
-      [QuestionNames.DeclarativeAgentManifestPath]: "test-aiplugin.json",
+      [QuestionNames.ActionManifestPath]: "test-aiplugin.json",
       [QuestionNames.ApiSpecLocation]: "test-openapi.yaml",
       projectPath: path.join(os.tmpdir(), appName),
     };

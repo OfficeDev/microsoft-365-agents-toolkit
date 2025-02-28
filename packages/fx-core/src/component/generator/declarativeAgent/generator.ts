@@ -20,8 +20,8 @@ import {
 import { merge } from "lodash";
 import path from "path";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
-  DeclarativeAgentStartOptions,
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
@@ -87,8 +87,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       [telemetryProperties.isMicrosoftEntra]:
         auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
       [telemetryProperties.needAddPluginFromExisting]:
-        inputs[QuestionNames.DeclarativeAgentType] ===
-        DeclarativeAgentStartOptions.existingPlugin().id.toString(),
+        inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id.toString(),
     });
 
     return Promise.resolve(

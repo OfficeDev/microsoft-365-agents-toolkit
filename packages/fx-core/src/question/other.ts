@@ -30,8 +30,8 @@ import { envUtil } from "../component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
 import {
+  ActionStartOptions,
   AddAuthActionAuthTypeOptions,
-  DeclarativeAgentStartOptions,
   HubOptions,
   KnowledgeSourceOptions,
   QuestionNames,
@@ -777,13 +777,13 @@ export function addPluginQuestionNode(): IQTreeNode {
       {
         data: pluginManifestQuestion(),
         condition: {
-          equals: DeclarativeAgentStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
         data: pluginApiSpecQuestion(),
         condition: {
-          equals: DeclarativeAgentStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
@@ -791,7 +791,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -800,7 +800,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.DeclarativeAgentType] === DeclarativeAgentStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -1152,7 +1152,7 @@ export function authNameQuestion(): TextInputQuestion {
         if (!inputs) {
           throw new Error("inputs is undefined"); // should never happen
         }
-        inputs[QuestionNames.DeclarativeAgentType] = DeclarativeAgentStartOptions.newApi().id;
+        inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
         return;
       },
     },

@@ -28,7 +28,7 @@ import {
 export function isKiotaIntegrated(inputs: Inputs): boolean {
   return (
     featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.DeclarativeAgentManifestPath]
+    inputs[QuestionNames.ActionManifestPath]
   );
 }
 
@@ -40,7 +40,7 @@ export async function getAuthDataFromKiota(
 > {
   // For Kiota integration, we need to get auth info here
   if (isKiotaIntegrated(inputs)) {
-    const pluginManifestPath = inputs[QuestionNames.DeclarativeAgentManifestPath] as string;
+    const pluginManifestPath = inputs[QuestionNames.ActionManifestPath] as string;
     return await parseAndUpdatePluginManifestForKiota(pluginManifestPath, false);
   }
   return undefined;
@@ -61,7 +61,7 @@ export async function kiotaPostProcess(
   await fs.copyFile(inputs[QuestionNames.ApiSpecLocation].trim(), openapiSpecPath);
 
   // 2. Copy plugin manifest file
-  await fs.copyFile(inputs[QuestionNames.DeclarativeAgentManifestPath], pluginManifestPath);
+  await fs.copyFile(inputs[QuestionNames.ActionManifestPath], pluginManifestPath);
 
   // 2.1 Need to update the plugin manifest file
   await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
@@ -92,6 +92,6 @@ export async function kiotaPostProcess(
   await generateAdaptiveCardInPluginManifestForKiota(pluginManifestPath, openapiSpecPath, context);
 
   // 5. Copy .kiota folder
-  await copyKiotaFolder(inputs[QuestionNames.DeclarativeAgentManifestPath], destinationPath);
+  await copyKiotaFolder(inputs[QuestionNames.ActionManifestPath], destinationPath);
   return ok({ warnings: undefined });
 }
