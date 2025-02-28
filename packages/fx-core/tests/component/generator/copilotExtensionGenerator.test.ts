@@ -8,26 +8,29 @@
 import { err, Inputs, ok, Platform, PluginManifestSchema, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
-import { createContext } from "../../../src/common/globalVars";
+import { createContext, setTools, TOOLS } from "../../../src/common/globalVars";
 import {
   ApiAuthOptions,
   ApiPluginStartOptions,
   CapabilityOptions,
-  DeclarativeCopilotTypeOptions,
   QuestionNames,
 } from "../../../src/question";
 import { CopilotExtensionGenerator } from "../../../src/component/generator/copilotExtension/generator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import mockedEnv, { RestoreFn } from "mocked-env";
+import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import * as generatorHelper from "../../../src/component/generator/copilotExtension/helper";
 import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import fs from "fs-extra";
 import path from "path";
-import { MockLogProvider } from "../../core/utils";
+import { MockLogProvider, MockTools } from "../../core/utils";
 import * as commons from "../../../src/component/utils/common";
+import * as oneDriveHandler from "../../../src/component/generator/copilotExtension/oneDriveSharePointHandler";
+import { ItemMetadata } from "../../../src/component/generator/copilotExtension/oneDriveSharePointHandler";
+import { OneDriveSharePointItemType } from "../../../src/component/generator/constant";
+import { AxiosInstance } from "axios";
+import { SystemError } from "@microsoft/teamsfx-api";
 
 describe("copilotExtension", async () => {
   let mockedEnvRestore: RestoreFn | undefined;
@@ -40,6 +43,8 @@ describe("copilotExtension", async () => {
   });
   describe("activate and get template name", async () => {
     it("api plugin", async () => {
+      const tools = new MockTools();
+      setTools(tools);
       const generator = new CopilotExtensionGenerator();
       const context = createContext();
       const inputs: Inputs = {
@@ -448,5 +453,154 @@ describe("helper", async () => {
       res = generatorHelper.validateSourcePluginManifest(manifest as any, "source");
       assert.isTrue(res.isErr() && res.error.name === "MissingApiSpec");
     });
+  });
+});
+
+describe("getODSPItemInfo", () => {
+  let mockedEnvRestore: RestoreFn | undefined;
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+    if (mockedEnvRestore) {
+      mockedEnvRestore();
+    }
+  });
+
+  beforeEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return error for undefined URL", async () => {
+    const context = createContext();
+    const result = await generatorHelper.getODSPItemInfo(context, undefined);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "InvalidInput");
+      assert.equal(result.error.message, "Item URL is required");
+    }
+  });
+
+  it("should handle SharePoint site path successfully", async () => {
+    const context = createContext();
+    const mockGraphClient = {} as AxiosInstance;
+    const mockSite = {
+      id: "site-id",
+      name: "site-name",
+      webId: "web-id",
+      siteId: "site-id-value",
+    };
+
+    sandbox
+      .stub(oneDriveHandler, "createGraphClientWithToken")
+      .callsFake(async () => ok(mockGraphClient));
+    sandbox
+      .stub(oneDriveHandler, "getSharePointSiteByRelativePath")
+      .callsFake(async () => ok(mockSite));
+
+    const result = await generatorHelper.getODSPItemInfo(context, "https://sharepoint.site/path");
+
+    assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      assert.deepEqual(result.value[0], {
+        id: mockSite.id,
+        name: mockSite.name,
+        webId: mockSite.webId,
+        siteId: mockSite.siteId,
+      });
+    }
+  });
+
+  it("should handle drive item path successfully", async () => {
+    const mockGraphClient = {} as AxiosInstance;
+    const mockDriveItem: ItemMetadata = {
+      id: "drive-id",
+      name: "drive-name",
+      uniqueId: "unique-id",
+      listId: "list-id",
+      webId: "web-id",
+      siteId: "site-id",
+      itemType: OneDriveSharePointItemType.File,
+    };
+
+    sandbox
+      .stub(oneDriveHandler, "createGraphClientWithToken")
+      .callsFake(async () => ok(mockGraphClient));
+    sandbox
+      .stub(oneDriveHandler, "getSharePointSiteByRelativePath")
+      .callsFake(async () => err(new SystemError("test", "test", "test")));
+    sandbox.stub(oneDriveHandler, "getDriveItemInfo").callsFake(async () => mockDriveItem);
+    const context = createContext();
+    const result = await generatorHelper.getODSPItemInfo(
+      context,
+      "https://sharepoint.site/drive/path"
+    );
+
+    assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      assert.deepEqual(result.value[0], mockDriveItem);
+    }
+  });
+
+  it("should handle Graph API error", async () => {
+    const mockGraphClient = {} as AxiosInstance;
+    const axiosError = {
+      isAxiosError: true,
+      response: {
+        status: 404,
+        data: { message: "Not Found" },
+      },
+      message: "Not Found",
+    };
+
+    sandbox
+      .stub(oneDriveHandler, "createGraphClientWithToken")
+      .callsFake(async () => ok(mockGraphClient));
+    sandbox.stub(oneDriveHandler, "getSharePointSiteByRelativePath").throws(axiosError);
+    sandbox.stub(oneDriveHandler, "getDriveItemInfo").throws(axiosError);
+    const context = createContext();
+    sandbox.stub(context.logProvider!, "error").resolves();
+
+    const result = await generatorHelper.getODSPItemInfo(context, "https://sharepoint.site/path");
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "GraphApiError");
+      assert.equal(result.error.source, "ValidateOneDriveSharePointURL");
+    }
+  });
+
+  it("should handle system error", async () => {
+    const mockGraphClient = {} as AxiosInstance;
+    const systemError = new Error("System error occurred");
+    const context = createContext();
+    sandbox
+      .stub(oneDriveHandler, "createGraphClientWithToken")
+      .callsFake(async () => ok(mockGraphClient));
+    sandbox.stub(oneDriveHandler, "getSharePointSiteByRelativePath").throws(systemError);
+    sandbox.stub(oneDriveHandler, "getDriveItemInfo").throws(systemError);
+    sandbox.stub(context.logProvider!, "error").resolves();
+
+    const result = await generatorHelper.getODSPItemInfo(context, "https://sharepoint.site/path");
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "GraphApiError");
+      assert.equal(result.error.source, "ValidateOneDriveSharePointURL");
+    }
+  });
+
+  it("should handle graph client creation failure", async () => {
+    const context = createContext();
+    sandbox
+      .stub(oneDriveHandler, "createGraphClientWithToken")
+      .callsFake(async () => err(new UserError("source", "name", "message")));
+
+    const result = await generatorHelper.getODSPItemInfo(context, "https://sharepoint.site/path");
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "name");
+      assert.equal(result.error.message, "message");
+    }
   });
 });
