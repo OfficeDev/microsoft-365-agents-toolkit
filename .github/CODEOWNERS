@@ -149,11 +149,15 @@
 /packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/feature/sso.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/src/component/generator/apiSpec @yuqizhou77 @nliu-ms @Alive-Fish @anchenyi @jayzhang
+/packages/fx-core/src/component/generator/declarativeAgent @yuqizhou77 @tecton
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @huimiu @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/officeAddin @jayzhang @tecton
-/packages/fx-core/src/component/generator/officeXMLAddin @jayzhang @tecton
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @anchenyi @jayzhang @SLdragon @KennethBWSong
+/packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
+/packages/fx-core/src/component/generator/other/tdpGenerator.ts @jayzhang @tecton
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms
+/packages/fx-core/src/component/generator/templates @tecton @jayzhang 
+/packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/local @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /packages/fx-core/src/component/m365 @kimizhu @swatDong @kuojianlu
 /packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
@@ -203,11 +207,10 @@
 /packages/fx-core/tests/component/envUtil.test.ts @jayzhang @xzf0587 @LongOddCode
 /packages/fx-core/tests/component/error @jayzhang @xzf0587 @LongOddCode
 /packages/fx-core/tests/component/feature @KennethBWSong @xzf0587
+/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @anchenyi
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/generator/copilotExtensionGenerator.test.ts @yuqizhou77 @huimiu @jayzhang @anchenyi
-/packages/fx-core/tests/component/generator/apiSpecGenerator.test.ts @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @anchenyi
+/packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @yuqizhou77 @huimiu @jayzhang @anchenyi
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @jayzhang @tecton
-/packages/fx-core/tests/component/generator/officeXMLAddinGenerator.test.ts @jayzhang @tecton
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/tests/component/local @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /packages/fx-core/tests/component/m365 @kimizhu @swatDong @kuojianlu
@@ -296,18 +299,18 @@
 /templates/* @hund030 @eriolchan @huimiu
 /templates/**/ai-assistant-bot @kimizhu @swatDong @kuojianlu
 /templates/**/ai-bot @kimizhu @swatDong @kuojianlu
-/templates/**/api-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
-/templates/**/api-plugin-from-scratch @eriolchan @huimiu @Yimin-Jin
-/templates/**/api-plugin-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin
-/templates/**/api-plugin-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin
-/templates/**/copilot-gpt-basic @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
+/templates/**/declarative-agent-with-action-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin
 /templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin
 /templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin
 /templates/**/command-and-response @kimizhu @dooriya @swatDong
-/templates/**/copilot-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang
+/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang
-/templates/**/copilot-plugin-from-scratch @eriolchan @huimiu @Yimin-Jin
-/templates/**/copilot-plugin-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin
+/templates/**/message-extension-with-api-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/message-extension-with-api-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin
 /templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang
