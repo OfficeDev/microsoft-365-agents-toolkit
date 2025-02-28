@@ -31,6 +31,7 @@ export class FeatureFlagName {
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly AddKnowledge = "TEAMSFX_ADD_KNOWLEDGE";
+  static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
 }
 
 export interface FeatureFlag {
@@ -95,6 +96,10 @@ export class FeatureFlags {
   };
   static readonly AddKnowledge = {
     name: FeatureFlagName.AddKnowledge,
+    defaultValue: "false",
+  };
+  static readonly AddODSPKnowledge = {
+    name: FeatureFlagName.AddODSPKnowledge,
     defaultValue: "false",
   };
 }

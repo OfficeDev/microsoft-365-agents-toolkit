@@ -9,9 +9,11 @@ import {
   TemplateFolderName,
 } from "@microsoft/teamsfx-api";
 import {
+  FeatureFlags,
   MetadataV3,
   envUtil,
   environmentNameManager,
+  featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
 } from "@microsoft/teamsfx-core";
@@ -744,6 +746,10 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
   public provideCodeLenses(
     document: vscode.TextDocument
   ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)) {
+      return [];
+    }
+
     const inputs = getSystemInputs();
 
     if (inputs.projectPath) {
