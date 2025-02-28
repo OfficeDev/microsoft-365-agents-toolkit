@@ -52,10 +52,7 @@ describe("copilotExtension", async () => {
       let res = await generator.activate(context, inputs);
       let info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
       inputs[QuestionNames.TemplateName] =
@@ -63,30 +60,21 @@ describe("copilotExtension", async () => {
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch-bearer"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch-oauth"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.microsoftEntra().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch-oauth"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
     });
 
     it("declarative Copilot: Env func enabled", async () => {
@@ -104,10 +92,7 @@ describe("copilotExtension", async () => {
       let res = await generator.activate(context, inputs);
       let info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.apiKey().id;
       inputs[QuestionNames.TemplateName] =
@@ -115,20 +100,14 @@ describe("copilotExtension", async () => {
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch-bearer"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-bearer");
 
       inputs[QuestionNames.ApiAuth] = ApiAuthOptions.oauth().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithActionFromScratchOAuth;
       res = await generator.activate(context, inputs);
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
-      assert.equal(
-        info.isOk() && info.value[0].templateName,
-        "declarative-agent-with-action-from-scratch-oauth"
-      );
+      assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
     });
   });
 

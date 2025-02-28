@@ -5,12 +5,12 @@
 // @author Ning Tang
 export enum TemplateNames {
   // declarative agent
-  DeclarativeAgentBasic = "declarative-agent-basic", // handled by DeclarativeAgentGenerator
-  DeclarativeAgentWithActionFromScratch = "declarative-agent-with-action-from-scratch", // handled by DeclarativeAgentGenerator
-  DeclarativeAgentWithActionFromScratchBearer = "declarative-agent-with-action-from-scratch-bearer", // handled by DeclarativeAgentGenerator (The DeclarativeAgentWithActionFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
-  DeclarativeAgentWithActionFromScratchOAuth = "declarative-agent-with-action-from-scratch-oauth", // handled by DeclarativeAgentGenerator
-  DeclarativeAgentWithActionFromExistingApiSpec = "declarative-agent-with-action-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
-  DeclarativeAgentWithExistingAction = "declarative-agent-with-existing-action", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentBasic = "copilot-gpt-basic", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithActionFromScratch = "api-plugin-from-scratch", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithActionFromScratchBearer = "api-plugin-from-scratch-bearer", // handled by DeclarativeAgentGenerator (The DeclarativeAgentWithActionFromScratchBearer template is currently actually ApiPluginFromScratchAPIKey)
+  DeclarativeAgentWithActionFromScratchOAuth = "api-plugin-from-scratch-oauth", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithActionFromExistingApiSpec = "api-plugin-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
+  DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
 
   // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
@@ -39,10 +39,10 @@ export enum TemplateNames {
   Workflow = "workflow",
 
   // messaging extension
-  MessageExtensionWithNewApiFromScratch = "message-extension-with-api-from-scratch",
-  MessageExtensionWithNewApiFromScratchUsingApiKey = "message-extension-with-api-from-scratch-api-key",
-  MessageExtensionWithNewApiFromScratchUsingOAuth = "message-extension-with-api-from-scratch-sso",
-  MessageExtensionWithExistingApiSpec = "message-extension-with-existing-api", // handled by MessageExtensionWithExistingApiSpecGenerator
+  MessageExtensionWithNewApiFromScratch = "copilot-plugin-from-scratch",
+  MessageExtensionWithNewApiFromScratchUsingApiKey = "copilot-plugin-from-scratch-api-key",
+  MessageExtensionWithNewApiFromScratchUsingOAuth = "api-message-extension-sso",
+  MessageExtensionWithExistingApiSpec = "copilot-plugin-existing-api", // handled by MessageExtensionWithExistingApiSpecGenerator
   MessageExtensionM365 = "m365-message-extension",
   MessageExtensionAction = "message-extension-action",
   LinkUnfurling = "link-unfurling",

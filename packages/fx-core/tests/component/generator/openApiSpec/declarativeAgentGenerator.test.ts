@@ -131,7 +131,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "declarative-agent-with-existing-action");
+        assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap?.["DeclarativeCopilot"], "true");
       }
     });
@@ -157,7 +157,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.length, 1);
-        assert.equal(res.value[0].templateName, "declarative-agent-with-existing-action");
+        assert.equal(res.value[0].templateName, "api-plugin-existing-api");
         assert.equal(res.value[0].replaceMap?.["DeclarativeCopilot"], "true");
       }
     });
@@ -208,7 +208,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -257,7 +257,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
           },
         ] as ApiOperation[],
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -293,7 +293,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -330,7 +330,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ApiOperation]: ["operation1"],
         supportedApisFromApiSpec: apiOperations,
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -372,7 +372,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -434,7 +434,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -493,7 +493,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
@@ -552,7 +552,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
         templateState: {
-          templateName: "declarative-agent-with-existing-action",
+          templateName: "api-plugin-existing-api",
           isPlugin: true,
           uri: "https://test.com",
           isYaml: true,
