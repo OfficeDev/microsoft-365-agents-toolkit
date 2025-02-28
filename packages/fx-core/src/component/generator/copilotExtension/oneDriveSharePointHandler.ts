@@ -4,7 +4,6 @@
 import {
   Context,
   FxError,
-  Inputs,
   Result,
   SystemError,
   UserError,
