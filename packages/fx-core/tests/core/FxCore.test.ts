@@ -123,7 +123,6 @@ import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncMani
 import { ConstantString } from "../../src/common/constants";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
-import * as copilotExtensionHelper from "../../src/component/generator/copilotExtension//helper";
 import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 
