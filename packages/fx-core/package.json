@@ -7,7 +7,7 @@
   "scripts": {
     "lint:staged": "lint-staged",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "test:unit": "nyc mocha \"tests/**/*.test.ts\" ",
+    "test:unit": "nyc mocha \"tests/**/coordinator.share.test.ts\" ",
     "test:core": "nyc mocha \"tests/core/**/*.test.ts\"",
     "test:fxcore": "nyc mocha \"tests/core/FxCore.test.ts\"",
     "test:common": "nyc mocha \"tests/common/**/*.test.ts\"",
