@@ -107,7 +107,7 @@ export class DefaultTemplateGenerator implements IGenerator {
     const templateMetadata = getAllTemplatesOnPlatform(Platform.CLI).find((t) => t.name === name);
     const folderName =
       templateMetadata?.language === "common"
-        ? templateMetadata?.id
+        ? templateMetadata.id
         : templateMetadata?.id.substring(0, templateMetadata.id.lastIndexOf("-")) ?? "";
 
     const generatorContext: GeneratorContext = {

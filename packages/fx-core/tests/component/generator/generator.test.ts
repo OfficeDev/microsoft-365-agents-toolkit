@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, Platform, ok } from "@microsoft/teamsfx-api";
+import { Inputs, Platform } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import axios, { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import { assert } from "chai";
@@ -36,6 +36,7 @@ import {
   TemplateActionSeq,
   fetchSampleInfoAction,
 } from "../../../src/component/generator/generatorAction";
+import * as templateMetadata from "../../../src/component/generator/templates/metadata";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { getTemplateReplaceMap } from "../../../src/component/generator/templates/templateReplaceMap";
 import * as generatorUtils from "../../../src/component/generator/utils";
@@ -1264,23 +1265,10 @@ describe("render template", () => {
     });
 
     it("template name with language 'common' uses full id as folderName", async () => {
-      const inputDir = path.join(tmpDir, "input");
-      const folderName = "declarative-agent-basic"; // For common templates, folderName should be the full id
-
-      await fs.ensureDir(path.join(inputDir, folderName));
-      const fileData = "{{appName}}";
-      await fs.writeFile(path.join(inputDir, folderName, "test.txt.tpl"), fileData);
-      const zip = new AdmZip();
-      zip.addLocalFolder(inputDir);
-      zip.writeZip(path.join(tmpDir, "test.zip"));
-
-      sandbox.stub(generatorUtils, "getTemplateZipUrlByVersion").resolves("test.zip");
-      sandbox
-        .stub(generatorUtils, "fetchZipFromUrl")
-        .resolves(new AdmZip(path.join(tmpDir, "test.zip")));
-
-      // Mock metadata to simulate a template with language "common"
-      sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
+      let folderName = "";
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
 
       context.templateVariables = Generator.getDefaultVariables("test");
       const daTemplateInput = {
@@ -1291,8 +1279,26 @@ describe("render template", () => {
       const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
 
       assert.isTrue(result.isOk());
-      // Check that file is created in the root directory, proving that folderName path was correctly processed
-      assert.isTrue(await fs.pathExists(path.join(tmpDir, "test.txt")));
+      assert.equal(folderName, "declarative-agent-basic");
+    });
+
+    it("template name doesn't exist", async () => {
+      let folderName = "";
+      sandbox.stub(templateMetadata, "getAllTemplatesOnPlatform").returns([]);
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: "not exist",
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      assert.equal(folderName, "");
     });
   });
 });
