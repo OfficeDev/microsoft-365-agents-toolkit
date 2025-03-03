@@ -27,7 +27,7 @@ import {
 } from "../../src/error/common";
 import { BaseComponentInnerError } from "../../src/component/error/componentError";
 import { InvalidYamlSchemaError } from "../../src/error/yml";
-import { getLocalizedString } from "../../src/common/localizeUtils";
+import { getDefaultString, getLocalizedString } from "../../src/common/localizeUtils";
 import {
   CopilotDisabledError,
   FindProcessError,
@@ -41,6 +41,8 @@ import {
   DeveloperPortalAPIFailedSystemError,
   DeveloperPortalAPIFailedUserError,
 } from "../../src/error/teamsApp";
+import { ScriptExecutionError } from "../../src/error/script";
+import { maskSecret } from "../../src/common/stringUtils";
 
 describe("Middleware - ErrorHandlerMW", () => {
   const inputs: Inputs = { platform: Platform.VSCode };
@@ -341,6 +343,31 @@ describe("DeveloperPortalAPIFailed error", function () {
     it("happy no source", () => {
       const err = new FindProcessError(new Error());
       assert.deepEqual(err.source, "core");
+    });
+  });
+
+  describe("ScriptExecutionError", () => {
+    it("empty message", () => {
+      const err = new ScriptExecutionError(new Error(""), "test");
+      const maskedScript = maskSecret("test", { replace: "***" });
+      const maskedError = "";
+      const message = getDefaultString(
+        "error.script.ScriptExecutionError",
+        maskedScript,
+        maskedError
+      );
+      assert.equal(err.message, message);
+    });
+    it("none empty message", () => {
+      const err = new ScriptExecutionError(new Error("test"), "test");
+      const maskedScript = maskSecret("test", { replace: "***" });
+      const maskedError = "";
+      const message = getDefaultString(
+        "error.script.ScriptExecutionError",
+        maskedScript,
+        maskedError
+      );
+      assert.equal(err.message, message);
     });
   });
 });
