@@ -6,7 +6,6 @@ import { assign } from "lodash";
 import { TOOLS, globalVars } from "./globalVars";
 import { ProjectTypeResult } from "./projectTypeChecker";
 import { maskSecret } from "./stringUtils";
-import { ScriptExecutionError, ScriptTimeoutError } from "../error";
 
 export enum TelemetryProperty {
   TriggerFrom = "trigger-from",
