@@ -18,6 +18,7 @@ import {
   FxError,
   DeclarativeCopilotCapabilityName,
   Ok,
+  Err,
 } from "@microsoft/teamsfx-api";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import {
@@ -1026,6 +1027,91 @@ describe("copilotGptManifestUtils", () => {
           ],
         });
       }
+    });
+
+    it("duplicated id", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["123"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            connections: [
+              {
+                connection_id: "123",
+              },
+            ],
+          },
+        ],
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+              ],
+            },
+          ],
+        });
+      }
+    });
+
+    it("empty capability", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["123"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+              ],
+            },
+          ],
+        });
+      }
+    });
+
+    it("error manifest", async () => {
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        ["123"],
+        new Err("manifest") as any
+      );
+      chai.assert.isFalse(res.isOk());
     });
   });
 
