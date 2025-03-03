@@ -830,7 +830,7 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    inputs.stage = Stage.publish;
+    inputs.stage = Stage.share;
     const context = createDriverContext(inputs);
     const res = await coordinator.share(context, inputs as InputsWithProjectPath);
     if (res.isOk()) {
