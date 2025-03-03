@@ -17,7 +17,7 @@ namespace {{SafeProjectName}}.Models
         {
             get
             {
-                TurnStateEntry? scope = GetScope(CONVERSATION_SCOPE);
+                TurnStateEntry scope = GetScope(CONVERSATION_SCOPE);
 
                 if (scope == null)
                 {
@@ -28,7 +28,7 @@ namespace {{SafeProjectName}}.Models
             }
             set
             {
-                TurnStateEntry? scope = GetScope(CONVERSATION_SCOPE);
+                TurnStateEntry scope = GetScope(CONVERSATION_SCOPE);
 
                 if (scope == null)
                 {

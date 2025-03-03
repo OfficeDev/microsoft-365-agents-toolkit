@@ -184,7 +184,7 @@ export interface IWebApplicationInfo {
   applicationPermissions?: string[];
 }
 
-export type BotOrMeScopes = ("team" | "personal" | "groupchat" | "groupChat")[];
+export type BotOrMeScopes = ("team" | "personal" | "groupchat" | "groupChat" | "copilot")[];
 
 export interface IComposeExtension {
   objectId?: string;

@@ -7,8 +7,8 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../constants";
 import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
-  ApiPluginStartOptions,
   DACapabilityOptions,
   setTemplateName,
 } from "./CapabilityOptions";
@@ -49,23 +49,23 @@ export function daProjectTypeNode(
             condition: { equals: DACapabilityOptions.withPlugin().id },
             data: {
               type: "singleSelect",
-              name: QuestionNames.ApiPluginType,
+              name: QuestionNames.ActionType,
               title: getLocalizedString("core.createProjectQuestion.createApiPlugin.title"),
               cliDescription: "API plugin type.",
               placeholder: getLocalizedString(
                 "core.createProjectQuestion.addApiPlugin.placeholder"
               ),
               staticOptions: [
-                ApiPluginStartOptions.newApi(),
-                ApiPluginStartOptions.apiSpec(),
-                ApiPluginStartOptions.existingPlugin(),
+                ActionStartOptions.newApi(),
+                ActionStartOptions.apiSpec(),
+                ActionStartOptions.existingPlugin(),
               ],
-              default: ApiPluginStartOptions.newApi().id,
+              default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
             },
             children: [
               {
-                condition: { equals: ApiPluginStartOptions.newApi().id },
+                condition: { equals: ActionStartOptions.newApi().id },
                 data: {
                   type: "singleSelect",
                   name: QuestionNames.ApiAuth,
@@ -88,11 +88,11 @@ export function daProjectTypeNode(
               },
               apiSpecNode(
                 (inputs: Inputs) =>
-                  inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                   !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
               ),
               {
-                condition: { equals: ApiPluginStartOptions.existingPlugin().id },
+                condition: { equals: ActionStartOptions.existingPlugin().id },
                 data: { type: "group", name: QuestionNames.ImportPlugin },
                 children: [
                   {

@@ -2,5 +2,6 @@
 <Project ToolsVersion="15.0" Sdk="Microsoft.TeamsFx.Sdk">
   <ItemGroup>
     <ProjectCapability Include="ProjectConfigurationsDeclaredDimensions" />
+    <ProjectCapability Include="Copilot" />
   </ItemGroup>
 </Project>

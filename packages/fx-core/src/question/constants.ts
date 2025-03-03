@@ -39,7 +39,7 @@ export enum QuestionNames {
   FromExistingApi = "from-existing-api", // group name for creating an App from existing api
   ApiSpecLocation = "openapi-spec-location",
   ApiOperation = "api-operation",
-  ApiPluginManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
+  ActionManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
   MeArchitectureType = "me-architecture",
   ApiSpecApiKey = "api-key",
   ApiSpecApiKeyConfirm = "api-key-confirm",
@@ -100,7 +100,7 @@ export enum QuestionNames {
   DestinationApiSpecFilePath = "destination-api-spec-location",
 
   SyncManifest = "sync-manifest",
-  ApiPluginType = "api-plugin-type",
+  ActionType = "api-plugin-type",
   WithPlugin = "with-plugin",
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
@@ -141,7 +141,7 @@ export enum ProgrammingLanguage {
   None = "none",
 }
 
-export const apiPluginApiSpecOptionId = "api-spec";
+export const DeclarativeAgentApiSpecOptionId = "api-spec";
 export const capabilitiesHavePythonOption = [
   "custom-copilot-basic",
   "custom-copilot-rag-azureAISearch",
@@ -1201,7 +1201,7 @@ export class DeclarativeCopilotTypeOptions {
   }
 }
 
-export class ApiPluginStartOptions {
+export class ActionStartOptions {
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -1236,25 +1236,25 @@ export class ApiPluginStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()]
       : [
-          ApiPluginStartOptions.newApi(),
-          ApiPluginStartOptions.apiSpec(),
-          ApiPluginStartOptions.existingPlugin(),
+          ActionStartOptions.newApi(),
+          ActionStartOptions.apiSpec(),
+          ActionStartOptions.existingPlugin(),
         ];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()];
+      return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
     } else if (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) {
       return [
-        ApiPluginStartOptions.newApi(),
-        ApiPluginStartOptions.apiSpec(),
-        ApiPluginStartOptions.existingPlugin(),
+        ActionStartOptions.newApi(),
+        ActionStartOptions.apiSpec(),
+        ActionStartOptions.existingPlugin(),
       ];
     } else {
-      return [ApiPluginStartOptions.newApi(), ApiPluginStartOptions.apiSpec()];
+      return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
     }
   }
 }

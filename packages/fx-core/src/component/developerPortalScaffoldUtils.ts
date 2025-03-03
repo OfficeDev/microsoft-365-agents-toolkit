@@ -36,6 +36,7 @@ import { AppDefinition } from "./driver/teamsApp/interfaces/appdefinitions/appDe
 import { manifestUtils } from "./driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "./utils/envUtil";
 import semver from "semver";
+import { pathUtils } from "./utils/pathUtils";
 
 const appPackageFolderName = "appPackage";
 const colorFileName = "color.png";
@@ -285,10 +286,22 @@ async function updateManifest(
   return ok(undefined);
 }
 
-async function updateEnv(appId: string, projectPath: string): Promise<Result<undefined, FxError>> {
-  return await envUtil.writeEnv(projectPath, "local", {
-    TEAMS_APP_ID: appId,
-  });
+// If the template does not have .env.local, write to .env.dev instead.
+export async function updateEnv(
+  appId: string,
+  projectPath: string
+): Promise<Result<undefined, FxError>> {
+  const localEnvFilePathRes = await pathUtils.getEnvFilePath(projectPath, "local");
+  if (localEnvFilePathRes.isErr()) return err(localEnvFilePathRes.error);
+  if (!!localEnvFilePathRes.value && (await fs.pathExists(localEnvFilePathRes.value))) {
+    return await envUtil.writeEnv(projectPath, "local", {
+      TEAMS_APP_ID: appId,
+    });
+  } else {
+    return await envUtil.writeEnv(projectPath, "dev", {
+      TEAMS_APP_ID: appId,
+    });
+  }
 }
 
 function updateTabUrl(

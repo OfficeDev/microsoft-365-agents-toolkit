@@ -84,7 +84,8 @@ export class ActionInjector {
     specRelativePath: string,
     forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
     isMicrosoftEntra: boolean,
-    enablePKCE?: boolean
+    enablePKCE?: boolean,
+    registrationId?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -124,10 +125,9 @@ export class ActionInjector {
         const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
           `${authName}_${ConstantString.RegistrationIdPostfix}`
         );
-        const registrationIdEnvName = this.findNextAvailableEnvName(
-          defaultEnvName,
-          existingConfigurationIdEnvNames
-        );
+        const registrationIdEnvName =
+          registrationId ??
+          this.findNextAvailableEnvName(defaultEnvName, existingConfigurationIdEnvNames);
         const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
@@ -167,7 +167,8 @@ export class ActionInjector {
     ymlPath: string,
     authName: string,
     specRelativePath: string,
-    forceToAddNew: boolean // If it from add plugin, then we will add another CreateApiKeyAction
+    forceToAddNew: boolean, // If it from add plugin, then we will add another CreateApiKeyAction
+    registrationId?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "apiKey/register";
@@ -210,10 +211,9 @@ export class ActionInjector {
         const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
           `${authName}_${ConstantString.RegistrationIdPostfix}`
         );
-        const registrationIdEnvName = this.findNextAvailableEnvName(
-          defaultEnvName,
-          existingRegistrationIdEnvNames
-        );
+        const registrationIdEnvName =
+          registrationId ??
+          this.findNextAvailableEnvName(defaultEnvName, existingRegistrationIdEnvNames);
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
             (item: any) => item.get("uses") === "teamsApp/create"

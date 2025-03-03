@@ -10,6 +10,7 @@ import {
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
+import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 import { featureFlagManager } from "../../src/common/featureFlags";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
@@ -19,7 +20,7 @@ import { TemplateNames } from "../../src/component/generator/templates/templateN
 import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
 import { scaffoldQuestionForVS } from "../../src/question/scaffold/vs/createRootNode";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
   DACapabilityOptions,
@@ -41,7 +42,6 @@ import {
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
-import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -307,7 +307,7 @@ describe("languageNode", () => {
     const condition = node.condition as ConditionFunc;
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.TemplateName]: TemplateNames.BasicGpt,
+      [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
     };
     const res = condition(inputs);
     assert.isTrue(res);
@@ -324,7 +324,7 @@ describe("folderAndAppNameCondition", () => {
   it("ApiPluginManifestPath", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.ApiPluginManifestPath]: "test",
+      [QuestionNames.ActionManifestPath]: "test",
     };
     const res = folderAndAppNameCondition(inputs);
     assert.isTrue(res);
@@ -332,7 +332,7 @@ describe("folderAndAppNameCondition", () => {
   it("false", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
-      [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
     };
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);

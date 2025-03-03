@@ -33,6 +33,10 @@ export class ConfigManager {
       ConfigurationKey.EnableMicrosoftKiota,
       false
     ).toString();
+    process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
+      ConfigurationKey.EnableCEA,
+      false
+    ).toString();
   }
   loadLogLevel() {
     const logLevel = this.getConfiguration(ConfigurationKey.LogLevel, "Info") as string;

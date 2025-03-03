@@ -11,11 +11,10 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   AppStudioScopes,
   assembleError,
   AuthSvcScopes,
-  CapabilityOptions,
   featureFlagManager,
   FeatureFlags,
   isUserCancelError,
@@ -23,8 +22,12 @@ import {
   QuestionNames,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
+import * as stringUtil from "util";
 import * as vscode from "vscode";
+import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
+import { KiotaExtensionId, KiotaMinVersion } from "../constants";
+import { ExtensionSource } from "../error/error";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -36,14 +39,10 @@ import envTreeProviderInstance from "../treeview/environmentTreeViewProvider";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
-import { ExtensionSource } from "../error/error";
-import VsCodeLogInstance from "../commonlib/log";
-import * as versionUtil from "../utils/versionUtil";
-import { KiotaExtensionId, KiotaMinVersion } from "../constants";
-import * as stringUtil from "util";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
@@ -55,7 +54,7 @@ export async function createNewProjectHandler(...args: any[]): Promise<Result<an
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
       stage = Stage.createTdp;
     }
-  } else if (args?.length === 2) {
+  } else if (args?.length === 2 && args[0] !== TelemetryTriggerFrom.TreeView) {
     // from copilot chat or createDeclarativeAgentWithApiSpec
     inputs = { ...getSystemInputs(), ...args[1] };
   }
@@ -259,7 +258,7 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
       // Codelens for API ME. Trigger from manifest.json
       inputs[QuestionNames.ManifestPath] = filePath;
     } else {
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
       inputs[QuestionNames.DestinationApiSpecFilePath] = filePath;
       inputs[QuestionNames.ManifestPath] = args[0].manifestPath;
     }
