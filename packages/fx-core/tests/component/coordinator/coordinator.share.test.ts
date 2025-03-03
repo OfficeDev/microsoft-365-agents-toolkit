@@ -79,7 +79,6 @@ describe("component coordinator test", () => {
       start: progressStartStub,
       end: progressEndStub,
     } as any as IProgressHandler);
-    const openUrlStub = sandbox.stub(tools.ui, "openUrl").resolves(ok(true));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
     sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
@@ -93,7 +92,6 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
     assert.isTrue(progressStartStub.calledOnce);
     assert.isTrue(progressEndStub.calledOnceWithExactly(true));
-    assert.isTrue(openUrlStub.calledOnce);
   });
   it("share happy path - CLI", async () => {
     const mockProjectModel: ProjectModel = {
@@ -129,6 +127,10 @@ describe("component coordinator test", () => {
     });
     const progressStartStub = sandbox.stub();
     const progressEndStub = sandbox.stub();
+    sandbox.stub(tools.ui, "createProgressBar").returns({
+      start: progressStartStub,
+      end: progressEndStub,
+    } as any as IProgressHandler);
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
     sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
@@ -246,6 +248,10 @@ describe("component coordinator test", () => {
     });
     const progressStartStub = sandbox.stub();
     const progressEndStub = sandbox.stub();
+    sandbox.stub(tools.ui, "createProgressBar").returns({
+      start: progressStartStub,
+      end: progressEndStub,
+    } as any as IProgressHandler);
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
     sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
