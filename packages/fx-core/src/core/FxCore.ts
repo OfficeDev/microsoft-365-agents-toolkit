@@ -835,7 +835,7 @@ export class FxCore {
     if (!featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
       return err(new SystemError("FxCore", "", "share is not enabled"));
     }
-    inputs.stage = Stage.publish;
+    inputs.stage = Stage.share;
     const context = createDriverContext(inputs);
     const res = await coordinator.share(context, inputs as InputsWithProjectPath);
     if (res.isOk()) {

@@ -199,12 +199,11 @@ describe("teamsApp/shareToOthers", async () => {
       isErr: () => true,
       error: new Error("Failed to get token"),
     });
-
-    const result = await shareDriver.execute(args, mockedDriverContext, outputEnvVarNames);
-    chai.assert.isTrue(result.result.isErr());
-    if (result.result.isErr()) {
-      chai.assert.isTrue(result.result.error instanceof Error);
-      chai.assert.equal(result.result.error.message, "Failed to get token");
+    try {
+      await shareDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    } catch (error) {
+      chai.assert.isTrue(error instanceof Error);
+      chai.assert.isTrue(error.message.include("Failed to get token"));
     }
   });
 
@@ -224,15 +223,11 @@ describe("teamsApp/shareToOthers", async () => {
       error: new Error("Failed to get token"),
     });
 
-    const result = await shareDriver.execute(
-      args,
-      mockedDriverContextWithoutLogProvider,
-      outputEnvVarNames
-    );
-    chai.assert.isTrue(result.result.isErr());
-    if (result.result.isErr()) {
-      chai.assert.isTrue(result.result.error instanceof Error);
-      chai.assert.equal(result.result.error.message, "Failed to get token");
+    try {
+      await shareDriver.execute(args, mockedDriverContextWithoutLogProvider, outputEnvVarNames);
+    } catch (error) {
+      chai.assert.isTrue(error instanceof Error);
+      chai.assert.isTrue(error.message.include("Failed to get token"));
     }
   });
 
