@@ -125,6 +125,7 @@ import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
+import axios from "axios";
 
 const tools = new MockTools();
 
@@ -7342,6 +7343,53 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isOk());
   });
 
+  it("happy path: add Web Content(from VS)", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VS,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
+    if (addWebSearchCapabilityRes.isOk()) {
+      const capabilities = addWebSearchCapabilityRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.WebSearch,
+        },
+      ]);
+    } else {
+      assert.fail("Add Web Search Capability failed");
+    }
+    assert.isTrue(result.isOk());
+  });
+
   it("add embedded files", async () => {
     const appName = await mockV3Project();
     const inputs: Inputs = {
@@ -8005,5 +8053,27 @@ describe("addKnowledge", async () => {
     } finally {
       restore();
     }
+  });
+
+  it("happy path: get ODSP item details", async () => {
+    const core = new FxCore(tools);
+    const fakeAxiosInstance = axios.create();
+    sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+    sandbox.stub(fakeAxiosInstance, "get").resolves({
+      status: 200,
+      data: {
+        id: "fakeId",
+        name: "fakeName",
+        url: "fakeUrl",
+      },
+    });
+    const result = await core.getODSPItemDetails("fake siteId", "fake itemId");
+    assert.isTrue(result.isOk());
+  });
+
+  it("error path: get ODSP item details", async () => {
+    const core = new FxCore(tools);
+    const result = await core.getODSPItemDetails("fake siteId", "fake itemId");
+    assert.isTrue(result.isErr());
   });
 });
