@@ -15,11 +15,11 @@ the notification(replace \<endpoint\> with real endpoint, for example localhost:
 {{^enableTestToolByDefault}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/create-devtunnel-button.png)
-1. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
-2. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
-3. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+2. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
+3. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
+4. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
-4. In the opened web browser, select Add button to install the app in Teams
+5. In the opened web browser, select Add button to install the app in Teams
 6. [If you selected http trigger] Open Windows PowerShell and post a HTTP request to trigger 
 the notification(replace \<endpoint\> with real endpoint, for example localhost:5130):
 

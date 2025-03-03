@@ -63,13 +63,13 @@ This app template also demonstrates usage of techniques like:
     ```
 {{/useAzureOpenAI}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel.
-1. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
-2. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
-1. Set `Startup Item` as `Microsoft Teams (browser)`.
-3. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+2. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
+3. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
+4. Set `Startup Item` as `Microsoft Teams (browser)`.
+5. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
-4. In the opened web browser, select Add button to install the app in Teams
-1. In the chat bar, type and send anything to your bot to trigger a response.
+6. In the opened web browser, select Add button to install the app in Teams
+7. In the chat bar, type and send anything to your bot to trigger a response.
 
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
