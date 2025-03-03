@@ -115,7 +115,7 @@ export async function publishHandler(...args: unknown[]): Promise<Result<null, F
   return await runCommand(Stage.publish);
 }
 
-export async function shareHander(...args: unknown[]): Promise<Result<null, FxError>> {
+export async function shareHandler(...args: unknown[]): Promise<Result<null, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareStart, getTriggerFromProperty(args));
   return await runCommand(Stage.share);
 }
