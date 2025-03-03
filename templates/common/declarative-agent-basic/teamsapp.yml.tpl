@@ -79,6 +79,7 @@ publish:
     writeToEnvironmentFile:
       publishedAppId: TEAMS_APP_PUBLISHED_APP_ID
 
+{{ShareEnabled}}
 # Triggered when `teamsapp share` is executed
 share:
   # Build Teams app package with latest env value
@@ -111,3 +112,4 @@ share:
       titleId: SHARED_M365_TITLE_ID
       appId: SHARED_M365_APP_ID
       shareLink: SHARE_LINK
+{{/ShareEnabled}}
