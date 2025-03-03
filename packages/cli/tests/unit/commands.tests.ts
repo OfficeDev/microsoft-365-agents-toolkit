@@ -68,6 +68,7 @@ import { envResetCommand } from "../../src/commands/models/envReset";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addKnowledgeCommand } from "../../src/commands/models/addKnowledge";
+import { shareCommand } from "../../src/commands/models/share";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -532,6 +533,20 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await publishCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+  describe("shareCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });
