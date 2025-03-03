@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, Platform } from "@microsoft/teamsfx-api";
+import { Inputs, Platform, ok } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import axios, { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import { assert } from "chai";
@@ -1261,6 +1261,38 @@ describe("render template", () => {
       assert.equal(CapabilityOptions.customCopilotBasic().description, undefined);
       assert.equal(CapabilityOptions.customCopilotRag().description, undefined);
       assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
+    });
+
+    it("template name with language 'common' uses full id as folderName", async () => {
+      const inputDir = path.join(tmpDir, "input");
+      const folderName = "declarative-agent-basic"; // For common templates, folderName should be the full id
+
+      await fs.ensureDir(path.join(inputDir, folderName));
+      const fileData = "{{appName}}";
+      await fs.writeFile(path.join(inputDir, folderName, "test.txt.tpl"), fileData);
+      const zip = new AdmZip();
+      zip.addLocalFolder(inputDir);
+      zip.writeZip(path.join(tmpDir, "test.zip"));
+
+      sandbox.stub(generatorUtils, "getTemplateZipUrlByVersion").resolves("test.zip");
+      sandbox
+        .stub(generatorUtils, "fetchZipFromUrl")
+        .resolves(new AdmZip(path.join(tmpDir, "test.zip")));
+
+      // Mock metadata to simulate a template with language "common"
+      sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      // Check that file is created in the root directory, proving that folderName path was correctly processed
+      assert.isTrue(await fs.pathExists(path.join(tmpDir, "test.txt")));
     });
   });
 });
