@@ -1001,6 +1001,5 @@
   "core.addKnowledgeQuestion.searchType.title": "Select Search Type",
   "core.addKnowledgeQuestion.searchType.web": "Search all content on the web",
   "core.addKnowledgeQuestion.searchType.oneDriveSharepoint": "Search all content within your organization",
-  "core.addKnowledgeQuestion.searchType.url": "Search by URL",
-  "error.appstudio.knowledgeWebSearchLength": "The URL array exceeds the maximum length limit of 4 items. Please reduce the number of URLs and try again."
+  "core.addKnowledgeQuestion.searchType.url": "Search by URL"
 }

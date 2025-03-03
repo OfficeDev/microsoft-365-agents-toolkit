@@ -186,12 +186,4 @@ export class AppStudioError {
       getLocalizedString("error.appstudio.teamsAppRequiredPropertyMissing", property, path),
     ],
   };
-
-  public static readonly KnowledgeWebSearchLengthError = {
-    name: "KnowledgeWebSearchLength",
-    message: (): [string, string] => [
-      getDefaultString("error.appstudio.knowledgeWebSearchLength"),
-      getLocalizedString("error.appstudio.knowledgeWebSearchLength"),
-    ],
-  };
 }

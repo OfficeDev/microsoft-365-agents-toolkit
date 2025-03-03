@@ -2705,15 +2705,6 @@ export class FxCore {
 
     let webSearchUrl: Site | null = null;
     if (inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allWeb().id) {
-      if (webSearchCapability?.sites && webSearchCapability.sites.length >= 4) {
-        return err(
-          AppStudioResultFactory.UserError(
-            AppStudioError.KnowledgeWebSearchLengthError.name,
-            AppStudioError.KnowledgeWebSearchLengthError.message()
-          )
-        );
-      }
-
       webSearchUrl = {
         url: inputs.webSearchUrl,
       };
