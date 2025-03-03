@@ -361,7 +361,7 @@ describe("DeveloperPortalAPIFailed error", function () {
     it("none empty message", () => {
       const err = new ScriptExecutionError(new Error("test"), "test");
       const maskedScript = maskSecret("test", { replace: "***" });
-      const maskedError = "";
+      const maskedError = "test";
       const message = getDefaultString(
         "error.script.ScriptExecutionError",
         maskedScript,
