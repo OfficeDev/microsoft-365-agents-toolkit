@@ -2698,11 +2698,6 @@ export class FxCore {
       return err(manifestRes.error);
     }
 
-    const { capabilities = [] } = manifestRes.value;
-    const webSearchCapability = capabilities.find((cap) => cap.name === "WebSearch") as
-      | { name: string; sites?: Site[] }
-      | undefined;
-
     let webSearchUrl: Site | null = null;
     if (inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allWeb().id) {
       webSearchUrl = {

@@ -7816,8 +7816,10 @@ describe("addKnowledge", async () => {
       ],
     };
 
+    const readAppManifestStub = sandbox.stub(manifestUtils, "_readAppManifest");
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    readAppManifestStub.onCall(0).resolves(ok(manifest));
+    readAppManifestStub.onCall(1).resolves(err(new UserError("test", "test", "test")));
 
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
@@ -7847,7 +7849,9 @@ describe("addKnowledge", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
-    sandbox.stub(MockUserInteraction.prototype, "showMessage").throws(new Error());
+    sandbox
+      .stub(MockUserInteraction.prototype, "showMessage")
+      .resolves(err(new UserError("test", "test", "test")));
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
@@ -7929,16 +7933,31 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isErr());
   });
 
-  it("error path: manifest result error", async () => {
+  it("error path: manifest result error(FxCore)", async () => {
     const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
-      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
-      projectPath: path.join(os.tmpdir(), appName),
-    };
+    const inputsList: Inputs[] = [
+      {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: os.tmpdir(),
+        [QuestionNames.ManifestPath]: "manifest.json",
+        [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+        projectPath: path.join(os.tmpdir(), appName),
+      },
+      {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: os.tmpdir(),
+        [QuestionNames.ManifestPath]: "manifest.json",
+        [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+        projectPath: path.join(os.tmpdir(), appName),
+      },
+      {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: os.tmpdir(),
+        [QuestionNames.ManifestPath]: "manifest.json",
+        [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.graphConnector().id,
+        projectPath: path.join(os.tmpdir(), appName),
+      },
+    ];
     const manifest = new TeamsAppManifest();
     manifest.copilotAgents = {
       declarativeAgents: [
@@ -7952,12 +7971,16 @@ describe("addKnowledge", async () => {
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
-    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Cancel"));
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").throws(new Error());
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(err(new UserError("test", "test", "test")));
 
     const core = new FxCore(tools);
-    const result = await core.addKnowledge(inputs);
-    assert.isTrue(result.isErr());
+    for (const inputs of inputsList) {
+      const result = await core.addKnowledge(inputs);
+      assert.isTrue(result.isOk());
+    }
   });
 
   it("add embedded files", async () => {
