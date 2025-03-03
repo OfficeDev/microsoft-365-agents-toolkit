@@ -270,7 +270,7 @@ describe("component coordinator test", () => {
   it("share without progress bar", async () => {
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
-      publish: {
+      share: {
         name: "share",
         driverDefs: [],
         resolvePlaceholders: () => {
