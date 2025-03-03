@@ -61,7 +61,10 @@ describe("telemetry", () => {
         k1: "v1",
       };
       telemetryUtils.fillInErrorProperties(props, fxError);
-      assert.equal(props[TelemetryProperty.ErrorData], "");
+      assert.equal(
+        props[TelemetryProperty.ErrorData],
+        maskSecret(JSON.stringify(error, Object.getOwnPropertyNames(error)), { replace: "***" })
+      );
     });
   });
 });
