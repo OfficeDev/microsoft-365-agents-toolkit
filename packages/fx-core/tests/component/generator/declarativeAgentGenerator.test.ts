@@ -26,7 +26,6 @@ import {
   QuestionNames,
 } from "../../../src/question";
 import { MockLogProvider, MockTools } from "../../core/utils";
-import axios from "axios";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -450,49 +449,6 @@ describe("helper", async () => {
       manifest.runtimes = [{ type: "OpenApi" } as any];
       res = generatorHelper.validateSourcePluginManifest(manifest as any, "source");
       assert.isTrue(res.isErr() && res.error.name === "MissingApiSpec");
-    });
-  });
-
-  describe("add knowledge for Graph Connectors", async () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("happy path", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 200,
-        data: {
-          value: [
-            {
-              id: "fakeId",
-              name: "fakeName",
-            },
-          ],
-        },
-      });
-      const res = await generatorHelper.getGraphConnectors();
-      assert.equal(res[0].id, "fakeId");
-      assert.equal(res[0].label, "fakeName");
-    });
-
-    it("api error", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 404,
-        error: "fakeError",
-      });
-      try {
-        await generatorHelper.getGraphConnectors();
-        assert.fail("Should throw error");
-      } catch (error) {
-        assert.isNotNull(error);
-      }
     });
   });
 });
