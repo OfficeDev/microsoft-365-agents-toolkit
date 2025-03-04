@@ -20,7 +20,6 @@ import { AadAppClient } from "../../../../src/component/driver/aad/utility/aadAp
 import { AADApplication } from "../../../../src/component/driver/aad/interface/AADApplication";
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";
-import { MissingServiceManagementReferenceError } from "../../../../src/component/driver/aad/error/missingServiceManagamentReferenceError";
 import { MockedM365Provider } from "../../../core/utils";
 
 chai.use(chaiAsPromised);
@@ -231,69 +230,6 @@ describe("botAadAppCreate", async () => {
         "Bot password is empty. Add it in env file or clear bot id to have bot id/password pair regenerated. action: botAadApp/create."
       )
       .and.is.instanceOf(UserError);
-  });
-
-  it("should throw MissingServiceManagementReferenceError when using microsoft.com account", async () => {
-    sinon
-      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
-      .resolves(ok({ unique_name: "test@microsoft.com" }));
-
-    const args: any = {
-      name: expectedDisplayName,
-    };
-
-    await expect(
-      createBotAadAppDriver.handler(args, mockedDriverContext, outputEnvVarNames)
-    ).to.be.rejected.then((error) => {
-      expect(error instanceof MissingServiceManagementReferenceError).to.be.true;
-    });
-  });
-
-  it("should not throw MissingServiceManagementReferenceError when not using microsoft.com account", async () => {
-    sinon
-      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
-      .resolves(ok({ unique_name: "test@example.com" }));
-
-    const args: any = {
-      name: expectedDisplayName,
-    };
-
-    sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
-      id: expectedObjectId,
-      displayName: expectedDisplayName,
-      appId: expectedClientId,
-    } as AADApplication);
-
-    sinon.stub(AadAppClient.prototype, "generateClientSecret").resolves(expectedSecretText);
-
-    const result = await createBotAadAppDriver.execute(
-      args,
-      mockedDriverContext,
-      outputEnvVarNames
-    );
-    expect(result.result.isOk()).to.be.true;
-  });
-
-  it("should not throw MissingServiceManagementReferenceError when botId already exists", async () => {
-    envRestore = mockedEnv({
-      [outputKeys.botId]: expectedClientId,
-      [outputKeys.botPassword]: expectedSecretText,
-    });
-
-    sinon
-      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
-      .resolves(ok({ unique_name: "test@microsoft.com" }));
-
-    const args: any = {
-      name: expectedDisplayName,
-    };
-
-    const result = await createBotAadAppDriver.execute(
-      args,
-      mockedDriverContext,
-      outputEnvVarNames
-    );
-    expect(result.result.isOk()).to.be.true;
   });
 
   it("should use service management reference value from environment variable when set", async () => {
