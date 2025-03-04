@@ -36,6 +36,7 @@ import {
   TemplateActionSeq,
   fetchSampleInfoAction,
 } from "../../../src/component/generator/generatorAction";
+import * as templateMetadata from "../../../src/component/generator/templates/metadata";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { getTemplateReplaceMap } from "../../../src/component/generator/templates/templateReplaceMap";
 import * as generatorUtils from "../../../src/component/generator/utils";
@@ -1261,6 +1262,43 @@ describe("render template", () => {
       assert.equal(CapabilityOptions.customCopilotBasic().description, undefined);
       assert.equal(CapabilityOptions.customCopilotRag().description, undefined);
       assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
+    });
+
+    it("template name with language 'common' uses full id as folderName", async () => {
+      let folderName = "";
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      assert.equal(folderName, "declarative-agent-basic");
+    });
+
+    it("template name doesn't exist", async () => {
+      let folderName = "";
+      sandbox.stub(templateMetadata, "getAllTemplatesOnPlatform").returns([]);
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: "not exist",
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      assert.equal(folderName, "");
     });
   });
 });

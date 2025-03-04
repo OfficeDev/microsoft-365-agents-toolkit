@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
- * @author yuqzho@microsoft.com, KennethBWSong, Ning Tang
+ * @author yuqzho@microsoft.com, KennethBWSong, SLdragon, Ning Tang
  */
 
 import { ProjectType } from "@microsoft/m365-spec-parser";
