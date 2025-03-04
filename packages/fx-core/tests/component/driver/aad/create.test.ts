@@ -20,7 +20,7 @@ import {
   HttpServerError,
   InvalidActionInputError,
 } from "../../../../src/error/common";
-import { err, ok, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";
 import { MissingServiceManagementReferenceError } from "../../../../src/component/driver/aad/error/missingServiceManagamentReferenceError";
@@ -28,6 +28,9 @@ import { MockedM365Provider } from "../../../core/utils";
 import { UserCancelError } from "../../../../src/error/common";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { constants } from "../../../../src/component/driver/aad/utility/constants";
+import { pathUtils } from "../../../../src/component/utils/pathUtils";
+import { metadataUtil } from "../../../../src/component/utils/metadataUtil";
+import { ProjectModel } from "../../../../src/component/configManager/interface";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -952,6 +955,10 @@ describe("aadAppCreate", async () => {
       generateClientSecret: false,
     };
 
+    envRestore = mockedEnv({
+      ["TEAMSFX_ENV"]: "local",
+    });
+
     const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isOk()).to.be.true;
   });
@@ -978,6 +985,10 @@ describe("aadAppCreate", async () => {
       generateClientSecret: false,
     };
 
+    envRestore = mockedEnv({
+      ["TEAMSFX_ENV"]: "local",
+    });
+
     const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isErr()).to.be.true;
     if (result.result.isErr()) {
@@ -992,6 +1003,36 @@ describe("askForAADAppIdAndSecret", () => {
     ui: new MockedUserInteraction(),
     logProvider: new MockedLogProvider(),
     m365TokenProvider: new MockedM365Provider(),
+    addTelemetryProperties: () => {},
+  } as any;
+  const env = "local";
+
+  const mockProjectModel: ProjectModel = {
+    version: "1.0.0",
+    provision: {
+      name: "configureApp",
+      driverDefs: [
+        {
+          uses: "teamsApp/create",
+          with: undefined,
+        },
+      ],
+    },
+    environmentFolderPath: "./envs",
+  } as any;
+
+  const mockProjectModelWithUpdate: ProjectModel = {
+    version: "1.0.0",
+    provision: {
+      name: "configureApp",
+      driverDefs: [
+        {
+          uses: "aadApp/update",
+          with: undefined,
+        },
+      ],
+    },
+    environmentFolderPath: "./envs",
   } as any;
 
   let aadAppState: any;
@@ -1009,15 +1050,59 @@ describe("askForAADAppIdAndSecret", () => {
   it("should return user input when user proceeds", async () => {
     sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
     sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
     expect(result.isOk()).to.be.true;
+  });
+
+  it("should remind user to manual remove aadApp/update action", async () => {
+    sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon.stub(metadataUtil, "parse").resolves(ok(mockProjectModelWithUpdate));
+
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
+    expect(result.isErr()).to.be.true;
+  });
+
+  it("should return error if yaml is invalid", async () => {
+    sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
+    sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon
+      .stub(metadataUtil, "parse")
+      .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage")));
+
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
+    expect(result.isErr()).to.be.true;
   });
 
   it("should return UserCancelError when user cancels", async () => {
     sinon.stub(context.ui!, "showMessage").resolves(ok("Cancel"));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
 
     expect(result.isErr()).to.be.true;
     if (result.isErr()) {
@@ -1029,7 +1114,12 @@ describe("askForAADAppIdAndSecret", () => {
     sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
     sinon.stub(context.ui!, "inputText").resolves(err(new UserCancelError("test")));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
 
     expect(result.isErr()).to.be.true;
     if (result.isErr()) {
@@ -1047,7 +1137,12 @@ describe("askForAADAppIdAndSecret", () => {
       .onSecondCall()
       .resolves(err(new UserCancelError("test")));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
 
     expect(result.isErr()).to.be.true;
     if (result.isErr()) {
@@ -1066,7 +1161,12 @@ describe("askForAADAppIdAndSecret", () => {
       }
     });
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
 
     expect(result.isErr()).to.be.true;
     if (result.isErr()) {
@@ -1083,8 +1183,15 @@ describe("askForAADAppIdAndSecret", () => {
       }
       return ok({ result: "test-input" });
     });
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
     expect(result.isOk()).to.be.true;
   });
 
@@ -1099,8 +1206,15 @@ describe("askForAADAppIdAndSecret", () => {
       }
       return ok({ result: "test-input" });
     });
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
     expect(result.isOk()).to.be.true;
   });
 
@@ -1115,8 +1229,15 @@ describe("askForAADAppIdAndSecret", () => {
       }
       return ok({ result: "test-input" });
     });
+    sinon.stub(pathUtils, "getYmlFilePath").resolves("");
+    sinon.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
 
-    const result = await driver.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+    const result = await driver.askForAADAppIdAndSecret(
+      context,
+      aadAppState,
+      outputEnvVarNames,
+      env
+    );
     expect(result.isOk()).to.be.true;
   });
 });
