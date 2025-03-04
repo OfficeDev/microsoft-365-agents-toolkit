@@ -63,6 +63,7 @@ import {
   pluginApiSpecQuestion,
   pluginManifestQuestion,
   programmingLanguageQuestion,
+  webContentQuestion,
 } from "../../src/question";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
@@ -4184,172 +4185,213 @@ describe("scaffold question", () => {
       sandbox.restore();
     });
 
-    it("happy path: get oneDrive sharePoint ODSP item (site)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-      };
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 200,
-        data: {
-          id: "fakeId",
-          name: "fakeName",
-          sharepointIds: {
-            webId: "fakeWebId",
-            siteId: "fakeSiteId",
-          },
-        },
+    describe("Web Content", () => {
+      it("happy path", async () => {
+        const question = webContentQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.isUndefined(res);
       });
 
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      const res = await validationSchema.validFunc?.("https://test.com", inputs);
-      assert.deepEqual(inputs.oneDriveSharePointItem, [
-        {
-          id: "fakeId",
-          name: "fakeName",
-          siteId: "fakeSiteId",
-          webId: "fakeWebId",
-        },
-      ]);
-      assert.isUndefined(res);
-    });
-
-    it("happy path: get oneDrive sharePoint ODSP item (drive)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-      };
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub
-        .onCall(0)
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
-      axiosGetStub.onCall(1).resolves({
-        status: 200,
-        data: {
-          id: "fakeId",
-          name: "fakeName",
-          sharepointIds: {
-            listItemUniqueId: "fakeUniqueId",
-            listId: "fakeListId",
-            webId: "fakeWebId",
-            siteId: "fakeSiteId",
-          },
-          webUrl: "fakeWebUrl",
-          file: "fakeFile",
-        },
+      it("happy path", async () => {
+        const question = webContentQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.isUndefined(res);
       });
 
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      const res = await validationSchema.validFunc?.("https://test.com", inputs);
-      assert.deepEqual(inputs.oneDriveSharePointItem, [
-        {
-          id: "fakeId",
-          itemType: OneDriveSharePointItemType.File,
-          listId: "fakeListId",
-          name: "fakeName",
-          siteId: "fakeSiteId",
-          uniqueId: "fakeUniqueId",
-          webId: "fakeWebId",
-        },
-      ]);
-      assert.isUndefined(res);
+      it("error path: invalid url", async () => {
+        const question = webContentQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("fakeUrl", inputs);
+        assert.equal(res, "Invalid web content. Please provide a valid URL.");
+      });
+
+      it("error path: no inputs", async () => {
+        const question = webContentQuestion();
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        try {
+          await validationSchema.validFunc?.("http://fakeUrl.com", undefined);
+          assert.fail("Should throw error");
+        } catch (err) {
+          assert.isNotNull(err);
+        }
+      });
     });
 
-    it("error path: get oneDrive sharePoint ODSP item (no url)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-      };
-
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      const res = await validationSchema.validFunc?.("", inputs);
-      assert.equal(res, "Please input a valid URL");
-    });
-
-    it("error path: get oneDrive sharePoint ODSP item (no item url)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-      };
-      sandbox.stub(stringUtils, "isValidHttpUrl").returns(true);
-
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      const res = await validationSchema.validFunc?.("", inputs);
-      assert.isUndefined(res);
-    });
-
-    it("error path: get oneDrive sharePoint ODSP item (graph client result error)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-      };
-      sandbox
-        .stub(tools.tokenProvider.m365TokenProvider, "getAccessToken")
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
-
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      const res = await validationSchema.validFunc?.("http://fakeUrl.com", inputs);
-      assert.equal(res, "Failed to get Graph token");
-    });
-
-    it("error path: get oneDrive sharePoint ODSP item (no inputs)", async () => {
-      const question = oneDriveSharePointItemQuestion();
-
-      const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
-      try {
-        await validationSchema.validFunc?.("http://fakeUrl.com", undefined);
-        assert.fail("Should throw error");
-      } catch (err) {
-        assert.isNotNull(err);
-      }
-    });
-  });
-
-  describe("add knowledge for Graph Connectors", async () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("happy path", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 200,
-        data: {
-          value: [
-            {
-              id: "fakeId",
-              name: "fakeName",
+    describe("OneDrive & SharePoint", () => {
+      it("happy path: get ODSP item (site)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const fakeAxiosInstance = axios.create();
+        sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+        const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+        axiosGetStub.onCall(0).resolves({
+          status: 200,
+          data: {
+            id: "fakeId",
+            name: "fakeName",
+            sharepointIds: {
+              webId: "fakeWebId",
+              siteId: "fakeSiteId",
             },
-          ],
-        },
+          },
+        });
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.deepEqual(inputs.oneDriveSharePointItem, [
+          {
+            id: "fakeId",
+            name: "fakeName",
+            siteId: "fakeSiteId",
+            webId: "fakeWebId",
+          },
+        ]);
+        assert.isUndefined(res);
       });
-      const res = await generatorHelper.getGraphConnectors();
-      assert.equal(res[0].id, "fakeId");
-      assert.equal(res[0].label, "fakeName");
+
+      it("happy path: get ODSP item (drive)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const fakeAxiosInstance = axios.create();
+        sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+        const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+        axiosGetStub
+          .onCall(0)
+          .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+        axiosGetStub.onCall(1).resolves({
+          status: 200,
+          data: {
+            id: "fakeId",
+            name: "fakeName",
+            sharepointIds: {
+              listItemUniqueId: "fakeUniqueId",
+              listId: "fakeListId",
+              webId: "fakeWebId",
+              siteId: "fakeSiteId",
+            },
+            webUrl: "fakeWebUrl",
+            file: "fakeFile",
+          },
+        });
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.deepEqual(inputs.oneDriveSharePointItem, [
+          {
+            id: "fakeId",
+            itemType: OneDriveSharePointItemType.File,
+            listId: "fakeListId",
+            name: "fakeName",
+            siteId: "fakeSiteId",
+            uniqueId: "fakeUniqueId",
+            webId: "fakeWebId",
+          },
+        ]);
+        assert.isUndefined(res);
+      });
+
+      it("error path: get ODSP item (invalid url)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("", inputs);
+        assert.equal(res, "Please input a valid URL");
+      });
+
+      it("error path: get ODSP item (no item url)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox.stub(stringUtils, "isValidHttpUrl").returns(true);
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("", inputs);
+        assert.isUndefined(res);
+      });
+
+      it("error path: get ODSP item (graph client result error)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox
+          .stub(tools.tokenProvider.m365TokenProvider, "getAccessToken")
+          .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("http://fakeUrl.com", inputs);
+        assert.equal(res, "Failed to get Graph token");
+      });
+
+      it("error path: get ODSP item (no inputs)", async () => {
+        const question = oneDriveSharePointItemQuestion();
+
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        try {
+          await validationSchema.validFunc?.("http://fakeUrl.com", undefined);
+          assert.fail("Should throw error");
+        } catch (err) {
+          assert.isNotNull(err);
+        }
+      });
     });
 
-    it("api error", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 404,
-        error: "fakeError",
+    describe("Graph Connectors", () => {
+      it("happy path", async () => {
+        const fakeAxiosInstance = axios.create();
+        sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+        const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+        axiosGetStub.onCall(0).resolves({
+          status: 200,
+          data: {
+            value: [
+              {
+                id: "fakeId",
+                name: "fakeName",
+              },
+            ],
+          },
+        });
+        const res = await generatorHelper.getGraphConnectors();
+        assert.equal(res[0].id, "fakeId");
+        assert.equal(res[0].label, "fakeName");
       });
-      try {
-        await generatorHelper.getGraphConnectors();
-        assert.fail("Should throw error");
-      } catch (error) {
-        assert.isNotNull(error);
-      }
+
+      it("api error", async () => {
+        const fakeAxiosInstance = axios.create();
+        sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+        const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+        axiosGetStub.onCall(0).resolves({
+          status: 404,
+          error: "fakeError",
+        });
+        try {
+          await generatorHelper.getGraphConnectors();
+          assert.fail("Should throw error");
+        } catch (error) {
+          assert.isNotNull(error);
+        }
+      });
     });
   });
 });
