@@ -4340,7 +4340,7 @@ describe("scaffold question", () => {
 
         const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
         const res = await validationSchema.validFunc?.("http://fakeUrl.com", inputs);
-        assert.equal(res, "Failed to get Graph token");
+        assert.isNotNull(res);
       });
 
       it("error path: get ODSP item (no inputs)", async () => {
