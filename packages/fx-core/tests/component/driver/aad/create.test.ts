@@ -1048,6 +1048,11 @@ describe("askForAADAppIdAndSecret", () => {
   });
 
   it("should return user input when user proceeds", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      environmentFolderPath: "./envs",
+    } as any;
+
     sinon.stub(context.ui!, "inputText").resolves(ok({ result: "test-input" }));
     sinon.stub(context.ui!, "showMessage").resolves(ok("Proceed"));
     sinon.stub(pathUtils, "getYmlFilePath").resolves("");
