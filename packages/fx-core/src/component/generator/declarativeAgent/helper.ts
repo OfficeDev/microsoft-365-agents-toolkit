@@ -22,9 +22,7 @@ import { getEnvironmentVariables } from "../../utils/common";
 import { sendTelemetryErrorEvent } from "../../../common/telemetry";
 import { assembleError } from "../../../error";
 import axios, { isAxiosError } from "axios";
-import { createContext } from "vm";
 import { GCScopes } from "../../../common/constants";
-import { GetGraphTokenFailedError } from "../../driver/deploy/spfx/error/getGraphTokenFailedError";
 import {
   createGraphClientWithToken,
   encodeSharePointUrl,
@@ -32,6 +30,7 @@ import {
   getSharePointSiteByRelativePath,
   ItemMetadata,
 } from "./oneDriveSharePointHandler";
+import { createContext } from "../../../common/globalVars";
 
 const logMessageKeys = {
   failValidateOneDriveSharePointItem:
@@ -311,17 +310,17 @@ export interface GCItem {
 }
 export async function getGraphConnectors(): Promise<GCItem[]> {
   const context = createContext();
-  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+  const graphTokenRes = await context.tokenProvider!.m365TokenProvider.getAccessToken({
     scopes: GCScopes,
   });
-  if (!graphTokenRes?.isOk()) {
-    throw err(new GetGraphTokenFailedError());
+  if (graphTokenRes.isErr()) {
+    throw graphTokenRes.error;
   }
   const graphToken = graphTokenRes.value;
 
   const instance = axios.create({
     baseURL: "https://graph.microsoft.com/v1.0",
-    headers: { Authorization: `Bearer ${graphToken.token as string}` },
+    headers: { Authorization: `Bearer ${graphToken}` },
   });
 
   try {

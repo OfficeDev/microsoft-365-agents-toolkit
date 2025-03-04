@@ -1484,7 +1484,6 @@ export function GCInputQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.GCInput,
-    // cliShortName: "i",
     title: getLocalizedString("core.GCInputQuestion.title"),
     cliDescription: "a connection ID for Graph Connector",
     forgetLastValue: true,
