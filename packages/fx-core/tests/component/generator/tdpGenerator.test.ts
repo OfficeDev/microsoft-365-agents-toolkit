@@ -55,13 +55,19 @@ describe("TdpGenerator", function () {
         platform: Platform.CLI,
         projectPath: ".",
         teamsAppFromTdp: {},
-        [QuestionNames.TemplateName]: "templateName",
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.JS,
+        [QuestionNames.TemplateName]: "non-sso-tab-ssr",
+        [QuestionNames.AppName]: "test",
+        [QuestionNames.SafeProjectName]: "safeprojectname",
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+        ["targetFramework"]: "net8.0",
       };
       const context = createContext();
       const generator = new TdpGenerator();
       const res = await generator.getTemplateInfos(context, inputs, ".");
       chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.equal(res.value[0].replaceMap?.["IsNet8Framework"], "true");
+      }
     });
   });
   describe("post()", () => {
