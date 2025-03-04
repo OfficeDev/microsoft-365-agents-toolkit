@@ -976,5 +976,6 @@
   "core.addAuthAction.microsoftEntra.message": "Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.",
   "core.addAuthAction.validation.url": "Invalid URL format. Please enter a valid URL.",
   "core.oauthScopeQuestion.validation.scope": "Invalid scope format. Please enter a valid scope. Samle: scope1: description for scope1; scope2: description for scope2",
-  "core.authNameQuestion.validation.empty": "Auth name cannot be empty."
+  "core.authNameQuestion.validation.empty": "Auth name cannot be empty.",
+  "driver.oauth.microsoftEntraWarning": "If you are using your own Microsoft Entra app, please: 1. Update the application id uri of your Microsoft Entra app to %s, 2. Add %s to redirect uri of your Microsoft Entra app."
 }

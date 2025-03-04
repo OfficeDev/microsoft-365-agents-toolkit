@@ -23,7 +23,7 @@ import { loadStateFromEnv } from "../util/utils";
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { CreateOauthArgs } from "./interface/createOauthArgs";
 import { CreateOauthOutputs, OutputKeys } from "./interface/createOauthOutputs";
-import { logMessageKeys, maxSecretLength, minSecretLength } from "./utility/constants";
+import { defaultRedirectUri, logMessageKeys } from "./utility/constants";
 import { OauthInfo, getandValidateOauthInfoFromSpec, validateSecret } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
 
@@ -123,6 +123,16 @@ export class CreateOauthDriver implements StepDriver {
           outputs.set(
             outputEnvVarNames.get(OutputKeys.applicationIdUri)!,
             oauthRegistrationRes.resourceIdentifierUri
+          );
+
+          void context.ui?.showMessage(
+            "warn",
+            getLocalizedString(
+              logMessageKeys.microsoftEntraWarning,
+              oauthRegistrationRes.resourceIdentifierUri,
+              defaultRedirectUri
+            ),
+            false
           );
         }
 
