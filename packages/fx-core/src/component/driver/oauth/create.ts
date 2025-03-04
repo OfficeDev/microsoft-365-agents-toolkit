@@ -125,7 +125,7 @@ export class CreateOauthDriver implements StepDriver {
             oauthRegistrationRes.resourceIdentifierUri
           );
 
-          void context.ui?.showMessage(
+          void context.ui!.showMessage(
             "warn",
             getLocalizedString(
               logMessageKeys.microsoftEntraWarning,
