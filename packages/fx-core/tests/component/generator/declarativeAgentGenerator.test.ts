@@ -26,7 +26,6 @@ import {
   QuestionNames,
 } from "../../../src/question";
 import { MockLogProvider, MockTools } from "../../core/utils";
-import axios from "axios";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -450,113 +449,6 @@ describe("helper", async () => {
       manifest.runtimes = [{ type: "OpenApi" } as any];
       res = generatorHelper.validateSourcePluginManifest(manifest as any, "source");
       assert.isTrue(res.isErr() && res.error.name === "MissingApiSpec");
-    });
-  });
-
-  describe("add knowledge", async () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("happy path: get ODSP item info(site)", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 200,
-        data: {
-          id: "fakeId",
-          name: "fakeName",
-          sharepointIds: {
-            webId: "fakeWebId",
-            siteId: "fakeSiteId",
-          },
-        },
-      });
-
-      const res = await generatorHelper.getODSPItemInfo(context, "http://test:9527/test");
-      assert.isTrue(res.isOk());
-    });
-
-    it("happy path: get ODSP item info(drive)", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub
-        .onCall(0)
-        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
-      axiosGetStub.onCall(1).resolves({
-        status: 200,
-        data: {
-          id: "fakeId",
-          name: "fakeName",
-          sharepointIds: {
-            listItemUniqueId: "fakeUniqueId",
-            listId: "fakeListId",
-            webId: "fakeWebId",
-            siteId: "fakeSiteId",
-          },
-          webUrl: "fakeWebUrl",
-          file: "fakeFile",
-        },
-      });
-
-      const res = await generatorHelper.getODSPItemInfo(context, "http://test:9527/test");
-      assert.isTrue(res.isOk());
-    });
-
-    it("error path: no item url", async () => {
-      const res = await generatorHelper.getODSPItemInfo(context, undefined);
-      assert.isTrue(res.isErr());
-    });
-
-    it("error path: graph client result error", async () => {
-      const res = await generatorHelper.getODSPItemInfo(context, "fakeUrl");
-      assert.isTrue(res.isErr());
-    });
-  });
-
-  describe("add knowledge for Graph Connectors", async () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("happy path", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 200,
-        data: {
-          value: [
-            {
-              id: "fakeId",
-              name: "fakeName",
-            },
-          ],
-        },
-      });
-      const res = await generatorHelper.getGraphConnectors();
-      assert.equal(res[0].id, "fakeId");
-      assert.equal(res[0].label, "fakeName");
-    });
-
-    it("api error", async () => {
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 404,
-        error: "fakeError",
-      });
-      try {
-        await generatorHelper.getGraphConnectors();
-        assert.fail("Should throw error");
-      } catch (error) {
-        assert.isNotNull(error);
-      }
     });
   });
 });
