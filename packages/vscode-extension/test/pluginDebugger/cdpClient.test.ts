@@ -230,6 +230,10 @@ describe("cdpClient", () => {
 });
 
 describe("isM365CopilotChatDebugConfiguration", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
   it("true", async () => {
     const config: any = {
       request: "launch",
@@ -300,6 +304,21 @@ describe("isM365CopilotChatDebugConfiguration", () => {
     };
     const res = isM365CopilotChatDebugConfiguration(config);
     chai.assert.isUndefined(res);
+  });
+
+  it("Mac OS remove user-data-dir", async () => {
+    const config: any = {
+      request: "launch",
+      url: "https://www.office.com/chat?auth=2&developerMode=Basic",
+      runtimeArgs: [
+        "--remote-debugging-port=9222",
+        "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir",
+      ],
+    };
+    sandbox.stub(process, "platform").value("darwin");
+    const res = isM365CopilotChatDebugConfiguration(config);
+    chai.assert.equal(res, 9222);
+    chai.assert.equal(config.runtimeArgs.length, 1);
   });
 });
 

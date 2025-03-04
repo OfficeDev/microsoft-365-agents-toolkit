@@ -201,6 +201,11 @@ export function isM365CopilotChatDebugConfiguration(
   if (!portArg) return undefined;
   const port = Number(portArg.substring("--remote-debugging-port=".length));
   if (isNaN(port)) return undefined;
+  const userDir = runtimeArgs.find((arg) => arg.startsWith("--user-data-dir="));
+  if (userDir && process.platform === "darwin" && userDir.includes("${env:TEMP}")) {
+    // remove "--user-data-dir=" for macOS
+    configuration.runtimeArgs = runtimeArgs.filter((arg) => arg !== userDir);
+  }
   return port;
 }
 
