@@ -15,6 +15,7 @@ export const logMessageKeys = {
   successUpdateAadAppManifest: "driver.aadApp.log.successUpdateAadAppManifest",
   deleteAadAfterDebugging: "driver.aadApp.log.deleteAadAfterDebugging",
   insufficientPermission: "driver.aadApp.log.insufficientPermission",
+  needManualRemoveAadUpdate: "driver.aadApp.log.needManualRemoveAadUpdate",
 };
 
 export const descriptionMessageKeys = {
@@ -58,4 +59,5 @@ export const telemetryKeys = {
   newAadApp: "new-aad-app",
   userInputAadApp: "user-input-aad-app",
   insufficientPermissionAadApp: "insufficient-permission-aad-app",
+  needManualRemoveAadUpdate: "need-manual-remove-aad-update",
 };

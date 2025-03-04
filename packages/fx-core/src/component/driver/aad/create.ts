@@ -44,6 +44,10 @@ import {
 import { AadSet } from "../../../common/globalVars";
 import { MissingServiceManagementReferenceError } from "./error/missingServiceManagamentReferenceError";
 import { isTestToolEnabledProject } from "../../../common/tools";
+import { pathUtils } from "../../utils/pathUtils";
+import { metadataUtil } from "../../utils/metadataUtil";
+import { environmentNameManager } from "../../../core/environmentName";
+import { envUtil } from "../../utils/envUtil";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -217,12 +221,18 @@ export class CreateAadAppDriver implements StepDriver {
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !isTestToolEnabledProject(context.projectPath)
+            !isTestToolEnabledProject(context.projectPath) &&
+            process.env.TEAMSFX_ENV == environmentNameManager.getLocalEnvName()
           ) {
             context.addTelemetryProperties({
               [telemetryKeys.insufficientPermissionAadApp]: "true",
             });
-            const res = await this.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
+            const res = await this.askForAADAppIdAndSecret(
+              context,
+              aadAppState,
+              outputEnvVarNames,
+              environmentNameManager.getLocalEnvName()
+            );
             if (res.isOk()) {
               context.addTelemetryProperties({ [telemetryKeys.userInputAadApp]: "true" });
               return {
@@ -270,7 +280,8 @@ export class CreateAadAppDriver implements StepDriver {
   async askForAADAppIdAndSecret(
     context: WrapDriverContext,
     aadAppState: CreateAadAppOutput,
-    outputEnvVarNames: Map<string, string>
+    outputEnvVarNames: Map<string, string>,
+    env: string
   ): Promise<Result<Map<string, string>, FxError>> {
     const res = await context.ui!.showMessage(
       "error",
@@ -321,6 +332,28 @@ export class CreateAadAppDriver implements StepDriver {
       aadAppState.clientSecret = aadAppSecret.value.result;
       aadAppState.objectId = aadAppObjectId.value.result;
       const outputs = mapStateToEnv(aadAppState, outputEnvVarNames);
+
+      await envUtil.writeEnv(context.projectPath, env, envUtil.map2object(outputs));
+
+      // Remind user to manually remove aadApp/update action from teamsapp.yml file, or they will fail at aadApp/update action
+      const teamsappYamlPath = pathUtils.getYmlFilePath(context.projectPath, env);
+      const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath, env);
+      if (yamlProjectModel.isErr()) {
+        return err(yamlProjectModel.error);
+      }
+      const teamsAppUpdate = yamlProjectModel.value.provision?.driverDefs.find(
+        (d: any) => d.uses === "aadApp/update"
+      );
+      if (teamsAppUpdate) {
+        const message = getLocalizedString(
+          logMessageKeys.needManualRemoveAadUpdate,
+          teamsappYamlPath
+        );
+        await context.ui!.showMessage("warn", message, true);
+        context.logProvider?.error(message);
+        context.addTelemetryProperties({ [telemetryKeys.needManualRemoveAadUpdate]: "true" });
+        return err(new UserCancelError(actionName));
+      }
       return ok(outputs);
     } else {
       return err(new UserCancelError(actionName));
