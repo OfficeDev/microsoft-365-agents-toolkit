@@ -68,10 +68,11 @@ import {
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig, isAxiosError } from "axios";
 import * as generatorHelper from "../../src/component/generator/declarativeAgent/helper";
 import { OneDriveSharePointItemType } from "../../src/component/generator/constant";
 import * as stringUtils from "../../src/common/stringUtils";
+import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
   try {
@@ -4229,8 +4230,8 @@ describe("scaffold question", () => {
       });
     });
 
-    describe("OneDrive & SharePoint", () => {
-      it("happy path: get ODSP item (site)", async () => {
+    describe("OneDrive & SharePoint get ODSP item ", () => {
+      it("happy path: site", async () => {
         const question = oneDriveSharePointItemQuestion();
         const inputs: Inputs = {
           platform: Platform.VSCode,
@@ -4263,7 +4264,7 @@ describe("scaffold question", () => {
         assert.isUndefined(res);
       });
 
-      it("happy path: get ODSP item (drive)", async () => {
+      it("happy path: drive", async () => {
         const question = oneDriveSharePointItemQuestion();
         const inputs: Inputs = {
           platform: Platform.VSCode,
@@ -4306,7 +4307,7 @@ describe("scaffold question", () => {
         assert.isUndefined(res);
       });
 
-      it("error path: get ODSP item (invalid url)", async () => {
+      it("error path: invalid input url", async () => {
         const question = oneDriveSharePointItemQuestion();
         const inputs: Inputs = {
           platform: Platform.VSCode,
@@ -4317,7 +4318,7 @@ describe("scaffold question", () => {
         assert.equal(res, "Please input a valid URL");
       });
 
-      it("error path: get ODSP item (no item url)", async () => {
+      it("error path: no item url", async () => {
         const question = oneDriveSharePointItemQuestion();
         const inputs: Inputs = {
           platform: Platform.VSCode,
@@ -4329,7 +4330,7 @@ describe("scaffold question", () => {
         assert.isUndefined(res);
       });
 
-      it("error path: get ODSP item (graph client result error)", async () => {
+      it("error path: graph client result error", async () => {
         const question = oneDriveSharePointItemQuestion();
         const inputs: Inputs = {
           platform: Platform.VSCode,
@@ -4343,7 +4344,7 @@ describe("scaffold question", () => {
         assert.isNotNull(res);
       });
 
-      it("error path: get ODSP item (no inputs)", async () => {
+      it("error path: no inputs", async () => {
         const question = oneDriveSharePointItemQuestion();
 
         const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
@@ -4353,6 +4354,51 @@ describe("scaffold question", () => {
         } catch (err) {
           assert.isNotNull(err);
         }
+      });
+
+      it("error path: axios error", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        const config: InternalAxiosRequestConfig = {
+          url: "/test",
+          method: "get",
+          headers: new axios.AxiosHeaders({
+            "Content-Type": "application/json",
+          }),
+          baseURL: "https://test.com",
+          timeout: 1000,
+        };
+
+        const request = {};
+        const response: AxiosResponse = {
+          data: { message: "Fake error" },
+          status: 500,
+          statusText: "Fake error",
+          headers: {},
+          config: config,
+          request: request,
+        };
+        sandbox
+          .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+          .throws(new AxiosError("fake error", "FAKE_ERROR", config, request, response));
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.isNotNull(res);
+      });
+
+      it("error path: non-axios error", async () => {
+        const question = oneDriveSharePointItemQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox
+          .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+          .throws(new UserError("test", "test", "test", "test"));
+        const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
+        const res = await validationSchema.validFunc?.("https://test.com", inputs);
+        assert.isNotNull(res);
       });
     });
 
