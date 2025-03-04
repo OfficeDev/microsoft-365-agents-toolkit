@@ -1,5 +1,13 @@
-import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
-import { envUtil } from "@microsoft/teamsfx-core";
+import {
+  TeamsAppManifest,
+  ok,
+  err,
+  FxError,
+  Result,
+  SystemError,
+  SystemErrorOptions,
+} from "@microsoft/teamsfx-api";
+import { envUtil, FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
@@ -14,10 +22,13 @@ import {
   PermissionsJsonFileCodeLensProvider,
   PlaceholderCodeLens,
   TeamsAppYamlCodeLensProvider,
+  OneDriveSharePointCodeLensProvider,
+  SharePointIdCodeLens,
 } from "../../src/codeLensProvider";
 import * as globalVariables from "../../src/globalVariables";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
-import path = require("path");
+import * as path from "path";
+import { describe, afterEach } from "mocha";
 
 describe("CodeLens Provider", () => {
   afterEach(() => {
@@ -609,6 +620,296 @@ publish:
       chai
         .expect(codelens[0].command?.arguments?.[0])
         .deep.eq("518f978a-6cf4-46f8-8f1e-10881613fe54");
+    });
+  });
+
+  describe("OneDriveSharePointCodeLensProvider", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should not provide codelens when feature flag is disabled", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            site_id: "test-site-id",
+            web_id: "test-web-id",
+            list_id: "test-list-id",
+            unique_id: "test-unique-id",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should not provide codelens when manifest file does not exist", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "existsSync").returns(false);
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            site_id: "test-site-id",
+            web_id: "test-web-id",
+            list_id: "test-list-id",
+            unique_id: "test-unique-id",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should not provide codelens when not a copilot project", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "existsSync").returns(true);
+      const manifest = new TeamsAppManifest();
+      manifest.copilotAgents = {};
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            site_id: "test-site-id",
+            web_id: "test-web-id",
+            list_id: "test-list-id",
+            unique_id: "test-unique-id",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should provide codelens for SharePoint IDs", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "existsSync").returns(true);
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              id: "test-agent",
+              file: "agent.json",
+            },
+          ],
+        },
+        capabilities: ["copilotGpt"],
+      };
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            site_id: "test-site-id",
+            web_id: "test-web-id",
+            list_id: "test-list-id",
+            unique_id: "test-unique-id",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "{",
+          };
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      chai.assert.isTrue((codelens as vscode.CodeLens[])[0] instanceof SharePointIdCodeLens);
+    });
+
+    it("should resolve codelens with item details", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new SharePointIdCodeLens(
+        JSON.stringify({
+          site_id: "test-site-id",
+          unique_id: "test-unique-id",
+        }),
+        range
+      );
+
+      const mockCore = {
+        getODSPItemDetails: sinon.stub(),
+      };
+      mockCore.getODSPItemDetails.resolves(
+        ok({
+          id: "test-id",
+          name: "Test Item",
+          webUrl: "https://test.sharepoint.com",
+          type: "file",
+          lastModifiedDateTime: new Date().toISOString(),
+          createdDateTime: new Date().toISOString(),
+          size: 0,
+        })
+      );
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      chai.assert.isDefined(resolvedLens.command);
+      chai.assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
+      chai.assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
+      chai.assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
+    });
+
+    it("should handle error when resolving codelens", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new SharePointIdCodeLens(
+        JSON.stringify({
+          site_id: "test-site-id",
+          unique_id: "test-unique-id",
+        }),
+        range
+      );
+
+      const errorOptions: SystemErrorOptions = {
+        source: "test",
+        name: "TestError",
+        message: "Test error",
+        error: new Error("Test error"),
+      };
+      const error = new SystemError(errorOptions);
+      const mockCore = {
+        getODSPItemDetails: sinon.stub(),
+      };
+      mockCore.getODSPItemDetails.resolves(err(error));
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      chai.assert.isDefined(resolvedLens.command);
+      chai.assert.equal(resolvedLens.command?.command, "");
+      chai.assert.isTrue(resolvedLens.command?.title.includes("Test error"));
+    });
+
+    it("should handle missing required IDs when resolving codelens", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new SharePointIdCodeLens(
+        JSON.stringify({
+          site_id: "test-site-id",
+          // missing unique_id
+        }),
+        range
+      );
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      chai.assert.isDefined(resolvedLens.command);
+      chai.assert.equal(resolvedLens.command?.command, "");
+      chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
+    });
+
+    it("should return unmodified lens when not a SharePointIdCodeLens", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new vscode.CodeLens(range, {
+        title: "Original command",
+        command: "test.command",
+      });
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      // Explicitly verify that the original lens is returned without modification
+      chai.assert.strictEqual(resolvedLens, lens);
+      chai.assert.deepEqual(resolvedLens.command, {
+        title: "Original command",
+        command: "test.command",
+      });
+      chai.assert.deepEqual(resolvedLens.range, range);
+    });
+
+    it("should handle undefined SharePoint IDs when resolving codelens", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new SharePointIdCodeLens(
+        JSON.stringify({
+          // both site_id and unique_id are undefined
+        }),
+        range
+      );
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      chai.assert.isDefined(resolvedLens.command);
+      chai.assert.equal(resolvedLens.command?.command, "");
+      chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
     });
   });
 });
