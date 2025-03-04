@@ -4,7 +4,7 @@
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import { VS_CODE_UI } from "../../src/qm/vsc_ui";
+import * as vsc_ui from "../../src/qm/vsc_ui";
 import { openOneDriveSharePointUrlHandler } from "../../src/handlers/openOneDriveSharePointUrlHandler";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
@@ -16,6 +16,10 @@ import {
 describe("openOneDriveSharePointUrlHandler", () => {
   const sandbox = sinon.createSandbox();
 
+  beforeEach(() => {
+    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+  });
+
   afterEach(() => {
     sandbox.restore();
   });
@@ -23,7 +27,7 @@ describe("openOneDriveSharePointUrlHandler", () => {
   it("should not open URL when no active editor", async () => {
     // Stub window.activeTextEditor to return null
     sandbox.stub(vscode.window, "activeTextEditor").value(undefined);
-    const openUrlStub = sandbox.stub(VS_CODE_UI, "openUrl");
+    const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
     const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 
     await openOneDriveSharePointUrlHandler(["https://example.com"]);
@@ -42,7 +46,7 @@ describe("openOneDriveSharePointUrlHandler", () => {
     // Mock active editor
     sandbox.stub(vscode.window, "activeTextEditor").value({} as vscode.TextEditor);
     const testUrl = "https://example.com";
-    const openUrlStub = sandbox.stub(VS_CODE_UI, "openUrl");
+    const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
     const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 
     await openOneDriveSharePointUrlHandler([testUrl]);
