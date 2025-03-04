@@ -126,6 +126,7 @@ import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import axios from "axios";
+import { TelemetryEvent } from "../../src/common/telemetry";
 
 const tools = new MockTools();
 
@@ -744,7 +745,7 @@ describe("Core basic APIs", () => {
       const showMessageStub = sandbox.stub(tools.ui, "showMessage");
 
       const result = await core.convertAadToNewSchema(inputs);
-      sandbox.assert.calledOnceWithExactly(
+      sinon.assert.calledOnceWithExactly(
         showMessageStub,
         "info",
         getLocalizedString("core.convertAadToNewSchema.alreadyNewSchema") as any,
@@ -4995,6 +4996,143 @@ describe("copilotPlugin", async () => {
     assert.isTrue(res3.isOk());
     assert.isTrue(res4.isOk());
   });
+
+  describe("showAddKnowledgeSuccessMessage", () => {
+    let core: FxCore;
+    let mockContext: any;
+    let mockTelemetryReporter: any;
+    let mockUserInteraction: any;
+    let mockTools: any;
+
+    beforeEach(() => {
+      core = new FxCore(tools);
+      mockTelemetryReporter = {
+        sendTelemetryEvent: sinon.stub(),
+      };
+      mockUserInteraction = {
+        showMessage: sinon.stub(),
+      };
+      mockTools = {
+        ui: {
+          showMessage: sinon.stub(),
+          openFile: sinon.stub(),
+        },
+      };
+      mockContext = {
+        userInteraction: mockUserInteraction,
+        telemetryReporter: mockTelemetryReporter,
+      };
+      setTools(mockTools);
+    });
+
+    afterEach(() => {
+      sinon.restore();
+      setTools(tools);
+    });
+
+    it("should show success message for embedded knowledge", async () => {
+      const inputs: Inputs = { platform: Platform.CLI };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = KnowledgeSourceOptions.embeddedKnowledge().id;
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockTools.ui.showMessage,
+        "info",
+        getLocalizedString("core.addEmbeddedKnowledge.success"),
+        false
+      );
+    });
+
+    it("should show success message and handle view manifest click for VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+      const viewManifestButton = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+
+      mockUserInteraction.showMessage.resolves(ok(viewManifestButton));
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success.vsc"),
+        false,
+        viewManifestButton
+      );
+
+      // Wait for the promise to resolve
+      await new Promise(process.nextTick);
+
+      sinon.assert.calledOnceWithExactly(
+        mockTelemetryReporter.sendTelemetryEvent,
+        TelemetryEvent.ViewAgentManifestAfterAdded
+      );
+      sinon.assert.calledOnceWithExactly(mockTools.ui.openFile, agentManifestPath);
+    });
+
+    it("should show success message without opening file when user doesn't click view manifest for VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+      const viewManifestButton = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+
+      mockUserInteraction.showMessage.resolves(ok("some other response"));
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success.vsc"),
+        false,
+        viewManifestButton
+      );
+
+      // Wait for the promise to resolve
+      await new Promise(process.nextTick);
+
+      sinon.assert.notCalled(mockTelemetryReporter.sendTelemetryEvent);
+      sinon.assert.notCalled(mockTools.ui.openFile);
+    });
+
+    it("should show success message for non-VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.CLI };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success", agentManifestPath),
+        false
+      );
+    });
+  });
 });
 
 describe("addPlugin", async () => {
@@ -6326,6 +6464,143 @@ describe("addPlugin", async () => {
         });
       const res = await core.syncManifest(inputs as SyncManifestInputs);
       assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("showAddKnowledgeSuccessMessage", () => {
+    let core: FxCore;
+    let mockContext: any;
+    let mockTelemetryReporter: any;
+    let mockUserInteraction: any;
+    let mockTools: any;
+
+    beforeEach(() => {
+      core = new FxCore(tools);
+      mockTelemetryReporter = {
+        sendTelemetryEvent: sinon.stub(),
+      };
+      mockUserInteraction = {
+        showMessage: sinon.stub(),
+      };
+      mockTools = {
+        ui: {
+          showMessage: sinon.stub(),
+          openFile: sinon.stub(),
+        },
+      };
+      mockContext = {
+        userInteraction: mockUserInteraction,
+        telemetryReporter: mockTelemetryReporter,
+      };
+      setTools(mockTools);
+    });
+
+    afterEach(() => {
+      sinon.restore();
+      setTools(tools);
+    });
+
+    it("should show success message for embedded knowledge", async () => {
+      const inputs: Inputs = { platform: Platform.CLI };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = KnowledgeSourceOptions.embeddedKnowledge().id;
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockTools.ui.showMessage,
+        "info",
+        getLocalizedString("core.addEmbeddedKnowledge.success"),
+        false
+      );
+    });
+
+    it("should show success message and handle view manifest click for VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+      const viewManifestButton = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+
+      mockUserInteraction.showMessage.resolves(ok(viewManifestButton));
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success.vsc"),
+        false,
+        viewManifestButton
+      );
+
+      // Wait for the promise to resolve
+      await new Promise(process.nextTick);
+
+      sinon.assert.calledOnceWithExactly(
+        mockTelemetryReporter.sendTelemetryEvent,
+        TelemetryEvent.ViewAgentManifestAfterAdded
+      );
+      sinon.assert.calledOnceWithExactly(mockTools.ui.openFile, agentManifestPath);
+    });
+
+    it("should show success message without opening file when user doesn't click view manifest for VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+      const viewManifestButton = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+
+      mockUserInteraction.showMessage.resolves(ok("some other response"));
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success.vsc"),
+        false,
+        viewManifestButton
+      );
+
+      // Wait for the promise to resolve
+      await new Promise(process.nextTick);
+
+      sinon.assert.notCalled(mockTelemetryReporter.sendTelemetryEvent);
+      sinon.assert.notCalled(mockTools.ui.openFile);
+    });
+
+    it("should show success message for non-VSCode platform", async () => {
+      const inputs: Inputs = { platform: Platform.CLI };
+      const agentManifestPath = "path/to/manifest.json";
+      const knowledgeSource = "other";
+
+      (core as any).showAddKnowledgeSuccessMessage(
+        mockContext,
+        inputs,
+        agentManifestPath,
+        knowledgeSource
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        mockUserInteraction.showMessage,
+        "info",
+        getLocalizedString("core.addKnowledge.success", agentManifestPath),
+        false
+      );
     });
   });
 });

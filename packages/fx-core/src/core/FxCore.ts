@@ -2269,7 +2269,7 @@ export class FxCore {
       return ok(undefined);
     }
 
-    showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
+    this.showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
 
     return ok(result);
   }
@@ -2752,36 +2752,38 @@ export class FxCore {
     const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
     return res;
   }
-}
 
-export function showAddKnowledgeSuccessMessage(
-  context: Context,
-  inputs: Inputs,
-  agentManifestPath: string,
-  knowledgeSource: string
-): void {
-  if (knowledgeSource === KnowledgeSourceOptions.embeddedKnowledge().id) {
-    void TOOLS.ui.showMessage(
-      "info",
-      getLocalizedString("core.addEmbeddedKnowledge.success"),
-      false
-    );
-    return;
-  }
+  private showAddKnowledgeSuccessMessage(
+    context: Context,
+    inputs: Inputs,
+    agentManifestPath: string,
+    knowledgeSource: string
+  ): void {
+    if (knowledgeSource === KnowledgeSourceOptions.embeddedKnowledge().id) {
+      void TOOLS.ui.showMessage(
+        "info",
+        getLocalizedString("core.addEmbeddedKnowledge.success"),
+        false
+      );
+      return;
+    }
 
-  if (inputs.platform === Platform.VSCode) {
-    const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
-    const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
-    void context.userInteraction
-      .showMessage("info", successMessage, false, viewAgentManifest)
-      .then((userRes) => {
-        if (userRes.isOk() && userRes.value === viewAgentManifest) {
-          context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.ViewAgentManifestAfterAdded);
-          void TOOLS?.ui?.openFile?.(agentManifestPath);
-        }
-      });
-  } else {
-    const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
-    void context.userInteraction.showMessage("info", successMessage, false);
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
+      const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewAgentManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewAgentManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewAgentManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(agentManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
   }
 }
