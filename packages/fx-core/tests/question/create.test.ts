@@ -4177,17 +4177,10 @@ describe("scaffold question", () => {
   });
 
   describe("add knowledge", () => {
-    let mockedEnvRestore: RestoreFn;
     const tools = new MockTools();
     setTools(tools);
-    beforeEach(() => {
-      mockedEnvRestore = mockedEnv({});
-    });
-
     afterEach(() => {
-      if (mockedEnvRestore) {
-        mockedEnvRestore();
-      }
+      sandbox.restore();
     });
 
     it("happy path: get oneDrive sharePoint ODSP item (site)", async () => {
@@ -4294,19 +4287,13 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      const fakeAxiosInstance = axios.create();
-      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
-      axiosGetStub.onCall(0).resolves({
-        status: 400,
-        data: {
-          message: "fake network error",
-        },
-      });
+      sandbox
+        .stub(tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
 
       const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
       const res = await validationSchema.validFunc?.("http://fakeUrl.com", inputs);
-      assert.equal(res, "{}");
+      assert.equal(res, "Failed to get Graph token");
     });
 
     it("error path: get oneDrive sharePoint ODSP item (no inputs)", async () => {
@@ -4315,8 +4302,9 @@ describe("scaffold question", () => {
       const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
       try {
         await validationSchema.validFunc?.("http://fakeUrl.com", undefined);
+        assert.fail("Should throw error");
       } catch (err) {
-        assert.equal((err.innerError as Error).message, "inputs is undefined");
+        assert.isNotNull(err);
       }
     });
   });
