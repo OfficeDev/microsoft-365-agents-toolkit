@@ -68,6 +68,7 @@ import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
 import axios from "axios";
+import * as generatorHelper from "../../src/component/generator/declarativeAgent/helper";
 import { OneDriveSharePointItemType } from "../../src/component/generator/constant";
 import * as stringUtils from "../../src/common/stringUtils";
 
@@ -4305,6 +4306,49 @@ describe("scaffold question", () => {
         assert.fail("Should throw error");
       } catch (err) {
         assert.isNotNull(err);
+      }
+    });
+  });
+
+  describe("add knowledge for Graph Connectors", async () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(async () => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+      axiosGetStub.onCall(0).resolves({
+        status: 200,
+        data: {
+          value: [
+            {
+              id: "fakeId",
+              name: "fakeName",
+            },
+          ],
+        },
+      });
+      const res = await generatorHelper.getGraphConnectors();
+      assert.equal(res[0].id, "fakeId");
+      assert.equal(res[0].label, "fakeName");
+    });
+
+    it("api error", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+      const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+      axiosGetStub.onCall(0).resolves({
+        status: 404,
+        error: "fakeError",
+      });
+      try {
+        await generatorHelper.getGraphConnectors();
+        assert.fail("Should throw error");
+      } catch (error) {
+        assert.isNotNull(error);
       }
     });
   });
