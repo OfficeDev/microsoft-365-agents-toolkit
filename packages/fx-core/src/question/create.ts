@@ -1512,11 +1512,10 @@ export function webContentQuestion(): TextInputQuestion {
         if (!inputs) {
           throw new Error("inputs is undefined"); // should never happen
         }
-        try {
-          new URL(input);
-          inputs.webSearchUrl = input;
-        } catch (e) {
+        if (!isValidHttpUrl(input.trim())) {
           return getLocalizedString("core.addKnowledgeQuestion.invalidWebContent.message");
+        } else {
+          inputs.webSearchUrl = input;
         }
         return;
       },
