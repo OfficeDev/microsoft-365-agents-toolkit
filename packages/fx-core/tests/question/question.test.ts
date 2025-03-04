@@ -33,13 +33,19 @@ import {
 } from "../../src/component/utils/ResourceGroupHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
-import { SPFxImportFolderQuestion, questionNodes } from "../../src/question";
+import {
+  GCInputQuestion,
+  GCListQuestion,
+  SPFxImportFolderQuestion,
+  questionNodes,
+} from "../../src/question";
 import {
   ActionStartOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
   KnowledgeSearchTypeOptions,
+  GCSelectOptions,
 } from "../../src/question/constants";
 import {
   apiSpecApiKeyQuestion,
@@ -1442,7 +1448,7 @@ describe("addKnowledgeQuestionNode", async () => {
     ]);
   });
 
-  it.skip("success: can add a knowledge from Graph Connector", async () => {
+  it("success: can add a knowledge from Graph Connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1466,6 +1472,44 @@ describe("addKnowledgeQuestionNode", async () => {
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+  });
+
+  it("GCInput validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCInputQuestion();
+    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc("test", inputs);
+  });
+
+  it("GCList validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.graphConnector().id,
+      [QuestionNames.GCContent]: GCSelectOptions.list().id,
+    };
+    const question = GCListQuestion();
+    question.dynamicOptions = async () => {
+      return [
+        {
+          id: "1",
+          label: "1",
+        },
+      ];
+    };
+    const validation = question.validation as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc([] as any, inputs);
   });
 
   it("success: can add a knowledge from Embedded Knowledge", async () => {
