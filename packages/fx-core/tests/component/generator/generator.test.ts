@@ -1264,7 +1264,7 @@ describe("render template", () => {
       assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
     });
 
-    it("template name with language 'common' uses full id as folderName", async () => {
+    it("template name with language 'common' or 'none' uses full id as folderName", async () => {
       let folderName = "";
       sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
         folderName = context.name;
@@ -1280,6 +1280,12 @@ describe("render template", () => {
 
       assert.isTrue(result.isOk());
       assert.equal(folderName, "declarative-agent-basic");
+
+      daTemplateInput[QuestionNames.TemplateName] =
+        TemplateNames.MessageExtensionWithExistingApiSpec;
+      await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.equal(folderName, "message-extension-with-existing-api");
     });
 
     it("template name doesn't exist", async () => {
