@@ -59,8 +59,6 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
   }
 
   public render() {
-    console.log(this.props.shouldShowChat);
-    console.log(this.props.shouldHideTeamsAgentPreviewTag);
     const titleSection = (
       <div id="title">
         <div className="logo">

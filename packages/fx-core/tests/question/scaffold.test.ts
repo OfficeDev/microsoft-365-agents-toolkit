@@ -258,6 +258,16 @@ describe("ProjectTypeOptions", () => {
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.outlookAddinOptionId);
   });
+  it("start with github copilot", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const option = ProjectTypeOptions.startWithGithubCopilot();
+    assert.notEqual(option.description, undefined);
+  });
+  it("start with github copilot with preview", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const option = ProjectTypeOptions.startWithGithubCopilot();
+    assert.isUndefined(option.description);
+  });
 });
 
 describe("officeAddinProjectTypeNode", () => {
