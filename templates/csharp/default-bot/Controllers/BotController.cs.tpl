@@ -1,5 +1,5 @@
-﻿using Microsoft.Agents.Hosting.AspNetCore;
-using Microsoft.Agents.Protocols.Primitives;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace {{SafeProjectName}}.Controllers;

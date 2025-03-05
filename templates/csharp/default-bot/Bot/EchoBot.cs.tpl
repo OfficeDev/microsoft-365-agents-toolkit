@@ -1,5 +1,6 @@
-﻿using Microsoft.Agents.Protocols.Adapter;
-using Microsoft.Agents.Protocols.Primitives;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Extensions.Teams.Compat;
 
 namespace {{SafeProjectName}}.Bot;
 

@@ -19,10 +19,10 @@
 
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
-    <PackageReference Include="Microsoft.Agents.Authentication" Version="0.2.3-alpha" />
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.3-alpha" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.3-alpha" />
-    <PackageReference Include="Microsoft.Agents.Protocols" Version="0.2.3-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication" Version="0.2.129-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.129-alpha" />
+    <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.129-alpha" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.129-alpha" />
   </ItemGroup>
 
 </Project>
