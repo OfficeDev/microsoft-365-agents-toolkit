@@ -128,6 +128,7 @@ import {
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
+  shareHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -699,6 +700,9 @@ function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
 
   // Publish to Teams
   registerInCommandController(context, CommandKeys.Publish, publishHandler, "publish");
+
+  // Share apps to others
+  registerInCommandController(context, CommandKeys.Share, shareHandler, "share");
 
   // Publish in Developer Portal
   registerInCommandController(

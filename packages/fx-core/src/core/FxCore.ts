@@ -821,6 +821,35 @@ export class FxCore {
       return err(res.error);
     }
   }
+
+  /**
+   * lifecycle command: share
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
+    ErrorHandlerMW,
+    ProjectMigratorMWV3,
+    EnvLoaderMW(false),
+    ConcurrentLockerMW,
+    ContextInjectorMW,
+    EnvWriterMW,
+  ])
+  async shareApplication(
+    inputs: Inputs,
+    ctx?: CoreHookContext
+  ): Promise<Result<undefined, FxError>> {
+    inputs.stage = Stage.share;
+    const context = createDriverContext(inputs);
+    const res = await coordinator.share(context, inputs as InputsWithProjectPath);
+    if (res.isOk()) {
+      ctx!.envVars = res.value;
+      return ok(undefined);
+    } else {
+      // for partial success scenario, output is set in inputs object
+      ctx!.envVars = inputs.envVars;
+      return err(res.error);
+    }
+  }
   /**
    * most commands will be deprecated in V3
    */

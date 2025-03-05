@@ -28,7 +28,6 @@ import { CreateBotAadAppOutput } from "./interface/createBotAadAppOutput";
 import { logMessageKeys, progressBarKeys } from "./utility/constants";
 import { GraphScopes } from "../../../common/constants";
 import { AadSet } from "../../../common/globalVars";
-import { MissingServiceManagementReferenceError } from "../aad/error/missingServiceManagamentReferenceError";
 
 const actionName = "botAadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/botaadapp-create";
@@ -111,9 +110,7 @@ export class CreateBotAadAppDriver implements StepDriver {
 
         // This hidden environment variable is for internal use only.
         const serviceManagementReference = process.env.TTK_DEFAULT_SERVICE_MANAGEMENT_REFERENCE;
-        if (isMsftAccount && !serviceManagementReference) {
-          throw new MissingServiceManagementReferenceError(actionName);
-        }
+
         const aadApp = await aadAppClient.createAadApp(
           args.name,
           SignInAudience.AzureADMultipleOrgs,

@@ -95,6 +95,10 @@ export async function runCommand(
         result = await core.publishApplication(inputs);
         break;
       }
+      case Stage.share: {
+        result = await core.shareApplication(inputs);
+        break;
+      }
       case Stage.debug: {
         inputs.ignoreEnvInfo = false;
         inputs.checkerInfo = {

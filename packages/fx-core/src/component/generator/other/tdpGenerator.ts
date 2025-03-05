@@ -11,6 +11,7 @@ import { ProgrammingLanguage, QuestionNames } from "../../../question/constants"
 import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
+import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 
 /**
@@ -21,6 +22,7 @@ export class TdpGenerator extends DefaultTemplateGenerator {
 
   // activation condition
   public override activate(context: Context, inputs: Inputs): boolean {
+    // Reuse some templates which are handled by other generators
     return inputs.teamsAppFromTdp !== undefined;
   }
 
@@ -36,13 +38,24 @@ export class TdpGenerator extends DefaultTemplateGenerator {
         new InputValidationError("teamsAppFromTdp", "Invalid App Definition", "TdpGenerator")
       );
     }
+    const appName = inputs[QuestionNames.AppName];
+    const safeProjectNameFromVS = inputs[QuestionNames.SafeProjectName];
+    const isNet8 = !inputs.targetFramework || inputs.targetFramework === "net8.0"; // used by SSR Tab
     const language = inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage;
     return Promise.resolve(
       ok([
         {
           templateName: templateName,
           language: language,
-          replaceMap: {},
+          replaceMap: {
+            ...Generator.getDefaultVariables(
+              appName,
+              safeProjectNameFromVS,
+              inputs.targetFramework,
+              inputs.placeProjectFileInSolutionDir === "true"
+            ),
+            IsNet8Framework: isNet8 ? "true" : "",
+          },
         },
       ])
     );

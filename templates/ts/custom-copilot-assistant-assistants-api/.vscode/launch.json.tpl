@@ -105,8 +105,7 @@
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
                 "--remote-debugging-port=9222",
-                "--no-first-run",
-                "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
+                "--no-first-run"
             ]
           },
           {
@@ -122,8 +121,8 @@
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
                 "--remote-debugging-port=9223",
-                "--no-first-run",
-                "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
+                "--no-first-run"
+                
             ]
         },
         {
@@ -139,8 +138,7 @@
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
                 "--remote-debugging-port=9222",
-                "--no-first-run",
-                "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
+                "--no-first-run"
             ]
         },
         {
@@ -156,8 +154,7 @@
             "internalConsoleOptions": "neverOpen",
             "runtimeArgs": [
                 "--remote-debugging-port=9223",
-                "--no-first-run",
-                "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
+                "--no-first-run"
             ]
         {{/CEAEnabled}}
         }

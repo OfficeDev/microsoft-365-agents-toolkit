@@ -49,8 +49,6 @@ export const constants = {
   aadAppPasswordDisplayName: "default",
   oauthAuthorityPrefix: "https://login.microsoftonline.com",
   defaultHelpLink: "https://aka.ms/teamsfx-actions/aadapp-create",
-  missingServiceManagementReferenceHelpLink:
-    "https://aka.ms/teamsfx/missing-service-management-reference-help",
   insufficientPermissionErrorMessage: "Insufficient privileges to complete the operation.",
 };
 

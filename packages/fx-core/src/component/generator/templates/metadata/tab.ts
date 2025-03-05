@@ -43,4 +43,10 @@ export const tabTemplates: Template[] = [
     description: "Dashboard Tab App",
     link: "https://aka.ms/teamsfx-dashboard-app",
   },
+  {
+    id: "spfx-tab-ts",
+    name: TemplateNames.TabSPFx,
+    language: "typescript",
+    description: "SPFx App",
+  },
 ];

@@ -12,7 +12,9 @@ import { SPFxGeneratorImport, SPFxGeneratorNew } from "./spfx/spfxGenerator";
 
 // When multiple generators are activated, only the top one will be executed.
 export const Generators = [
+  // TDP is the first generator because it reuses some templates from other generators.
   new TdpGenerator(),
+  // Generators below does not have overlapping templates.
   new DefaultTemplateGenerator(),
   new OfficeAddinGeneratorNew(),
   new SPFxGeneratorNew(),

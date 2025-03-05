@@ -648,7 +648,8 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
   private provisionRegex = /^provision:/m;
   private deployRegex = /^deploy:/m;
   private publishRegex = /^publish:/m;
-  private regexes = [this.provisionRegex, this.deployRegex, this.publishRegex];
+  private shareRegex = /^share:/m;
+  private regexes = [this.provisionRegex, this.deployRegex, this.publishRegex, this.shareRegex];
 
   public provideCodeLenses(
     document: vscode.TextDocument
@@ -690,6 +691,12 @@ export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
       return {
         title: "🔄" + localize("teamstoolkit.commands.publish.title"),
         command: "fx-extension.publish",
+        arguments: [TelemetryTriggerFrom.CodeLens],
+      };
+    } else if (match.startsWith("share")) {
+      return {
+        title: "🔄" + localize("teamstoolkit.commands.share.title"),
+        command: "fx-extension.share",
         arguments: [TelemetryTriggerFrom.CodeLens],
       };
     } else {

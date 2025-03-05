@@ -9,8 +9,12 @@ export const logMessageKeys = {
   successCreateOauth: "driver.oauth.log.successCreateOauth",
   skipUpdateOauth: "driver.oauth.log.skipUpdateOauth",
   successUpdateOauth: "driver.oauth.log.successUpdateOauth",
+  microsoftEntraWarning: "driver.oauth.microsoftEntraWarning",
 };
 
 export const maxSecretLength = 512;
 export const minSecretLength = 10;
 export const maxDomainPerOauth = 1;
+
+export const defaultRedirectUri =
+  "https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect";
