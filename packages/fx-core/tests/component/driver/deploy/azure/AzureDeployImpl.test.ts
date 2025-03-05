@@ -127,6 +127,45 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
       );
   });
 
+  it("Get zip deploy endpoint with error response", async () => {
+    const ar = {
+      subscriptionId: "aaa",
+      resourceGroupName: "bbb",
+      instanceId: "ccc",
+    } as AzureResourceInfo;
+    const config = {
+      headers: {
+        "Content-Type": "AAA",
+        "Cache-Control": "bbb",
+        Authorization: "ccc",
+      },
+      maxContentLength: 1,
+      maxBodyLength: 2,
+      timeout: 3,
+    } as AzureUploadConfig;
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.resolves(
+      new Response(
+        JSON.stringify({
+          properties: {
+            enabledHostNames: [
+              "ssssxx-h0gjdtbsa8bqhjhe.canadacentral-01.azurewebsites.net",
+              "ssssxx-h0gjdtbsa8bqhjhe.canadacentral-01.azurewebsites.net",
+            ],
+          },
+        }),
+        { status: 200 }
+      )
+    );
+    chai.expect(AzureZipDeployImpl.getZipDeployEndpoint(ar, config)).to.be.rejectedWith(Error);
+    chai.expect(fetchStub.calledOnce).to.be.true;
+    chai
+      .expect(fetchStub.firstCall.args[0])
+      .to.be.equal(
+        "https://management.azure.com/subscriptions/aaa/resourceGroups/bbb/providers/Microsoft.Web/sites/ccc?api-version=2024-04-01"
+      );
+  });
+
   it("checkDeployStatus empty response", async () => {
     sandbox.stub(AzureDeployImpl.AXIOS_INSTANCE, "get").resolves("");
     const config = {
