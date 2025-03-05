@@ -29,6 +29,29 @@ jobs:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
     steps:
+      - name: Validate CD branch
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
+        run: |
+          echo It's allowed to run CD on dev or release branch.
+          exit 1
+
+      - name: Validate inputs for release
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid == 'alpha' }}
+        run: |
+          echo It's not allowed to run CD on release branch for alpha.
+          exit 1
+
+      - name: Valiadte inputs for dev
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.event.inputs.preid != 'alpha' }}
+        run: |
+          echo It's only allowed to alpha on dev branch.
+          exit 1
+
+      - name: Validate schedule
+        if: ${{ github.event_name == 'schedule' && github.ref != 'refs/heads/dev' }}
+        run: |
+          echo It's not allowed to run schedule release except dev branch.
+          exit 1
 
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -57,6 +80,9 @@ jobs:
         run: |
           echo "${{ secrets.NPMRC }}" > ~/.npmrc
 
+      - name: manage pkgs to release
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.pkgs }}
+        run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
 
       - name: Setup project
         run: |
@@ -67,6 +93,77 @@ jobs:
           git config --global user.name 'MSFT-yiz'
           git config --global user.email 'yiz@microsoft.com'
 
+      - name: release alpha npm packages to npmjs.org
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          npx lerna version prerelease --preid=alpha.$(git rev-parse --short HEAD) --exact --no-push --allow-branch dev --yes
+
+      - name: release preview packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
+        run: |
+          npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --allow-branch ${GITHUB_REF#refs/*/} --yes
+
+      - name: version rc npm packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        run: |
+          npx lerna version prerelease --conventional-prerelease --preid=rc --no-changelog --allow-branch ${GITHUB_REF#refs/*/} --yes
+
+      - name: version stable npm packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && github.event.inputs.preid == 'stable' }}
+        run: |
+          npx lerna version --conventional-commits --conventional-graduate --no-changelog --allow-branch ${GITHUB_REF#refs/*/} --yes
+
+      - name: version change
+        id: version-change
+        run: |
+          echo "CHANGED=$(git tag --points-at HEAD | xargs)" >> $GITHUB_OUTPUT
+          echo "TEMPLATE_VERSION=$(git tag --points-at HEAD | grep templates)" >> $GITHUB_OUTPUT
+          echo "EXTENSION_VERSION=$(git tag --points-at HEAD | grep ms-teams-vscode-extension@)" >> $GITHUB_OUTPUT
+          git tag --points-at HEAD | grep templates | grep rc | xargs -r git push -d origin
+
+      - name: update template rc tag
+        uses: richardsimko/update-tag@v1.0.7
+        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        with:
+          tag_name: "templates@0.0.0-rc"
+        env:
+          GITHUB_TOKEN: ${{ secrets.CD_PAT }}
+
+      - name: release templates' RC version to github
+        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          token: ${{ secrets.CD_PAT }}
+          prerelease: true
+          tag: "templates@0.0.0-rc"
+          artifacts: ${{ github.workspace }}/templates/build/*.zip
+          allowUpdates: true
+          removeArtifacts: true
+
+      - name: Create Templates Stable Release
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          artifacts: ${{ github.workspace }}/templates/build/*.zip
+          name: "Release for ${{ steps.version-change.outputs.TEMPLATE_VERSION }}"
+          token: ${{ secrets.CD_PAT }}
+          tag: ${{ steps.version-change.outputs.TEMPLATE_VERSION }}
+          allowUpdates: true
+
+      - name: Generate Tag List
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        run: git tag | grep templates > ${{ runner.temp }}/template-tags.txt
+
+      - name: Update Template Tag list Release
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          artifacts: ${{ runner.temp }}/template-tags.txt
+          name: "Template Tag List"
+          body: "Release to maintain template tag list."
+          token: ${{ secrets.CD_PAT }}
+          tag: "template-tag-list"
+          allowUpdates: true
 
       - name: replace sideloading placeholders
         run: bash .github/scripts/sideloading-replace.sh
@@ -120,4 +217,105 @@ jobs:
           git add ./packages/vscode-extension/package.json ./packages/vscode-extension/src/chat/consts.ts
           git commit -m "build: disable chat participant"
 
-      
+      - name: update cli ai key
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: ./packages/cli/package.json
+          field: aiKey
+          value: ${{ secrets.CLI_PUBLIC_AIKEY }}
+
+      - name: update extension ai key
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: ./packages/vscode-extension/package.json
+          field: aiKey
+          value: ${{ secrets.EXT_PUBLIC_AIKEY }}
+
+      - name: commit change on local
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        run: |
+          git add ./packages/cli/package.json ./packages/vscode-extension/package.json
+          git commit -m "build: update ai key"
+
+      - name: publish alpha release to npm org
+        if: ${{ github.ref == 'refs/heads/dev'}}
+        run: |
+          npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev
+
+      - name: publish preview release to npm org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
+        run: |
+          npx lerna publish from-package --dist-tag=beta --yes
+
+      - name: publish rc npm packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        run: |
+          npx lerna publish from-package --dist-tag=rc --yes
+
+      - name: publish stable npm packages to npmjs.org
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        run: |
+          npx lerna publish from-package --yes
+
+      - name: pack server bits
+        if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') }}
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          retry_on: error
+          command: |
+            sleep 20
+            pnpm --filter @microsoft/teamsfx-server run package
+            [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
+
+      - name: pack vsix
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 10
+          retry_on: error
+          command: |
+            sleep 20
+            npm run build
+            cd ./packages/vscode-extension
+            if [ "$PREID" == "preview" ]; then
+              pnpm dlx vsce package --no-dependencies --pre-release
+            else
+              pnpm dlx vsce package --no-dependencies
+            fi
+
+      - name: release stable VSCode extension to github
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          token: ${{ secrets.CD_PAT }}
+          tag: ${{ steps.version-change.outputs.EXTENSION_VERSION }}
+          artifacts: ./packages/**/*.vsix
+          artifactErrorsFailBuild: true
+          bodyFile: ./CHANGELOG.md
+
+      - name: save release info
+        run: |
+          rm -f changed.txt
+          rm -f versions.json
+          echo ${{steps.version-change.outputs.CHANGED}} > changed.txt
+          npx lerna ls -all --json > versions.json
+          echo ${{ inputs.series }} > series.txt
+          find ./packages/vscode-extension -type f -name '*.vsix' -exec mv {} . \;
+
+      - name: upload release info to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: |
+            changed.txt
+            series.txt
+            versions.json
+            *.vsix
+            *.exe
