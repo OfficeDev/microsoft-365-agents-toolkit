@@ -175,7 +175,8 @@
       "testtooldebug-command-and-response",
       "testtooldebug-msgsa",
       "localization-succeed",
-      "samelevel-localization"
+      "samelevel-localization",
+      "different-level-localization"
     ],
     "node-20": ["localdebug-obo-tab"]
   },
