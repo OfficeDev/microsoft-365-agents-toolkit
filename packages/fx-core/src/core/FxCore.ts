@@ -2220,9 +2220,6 @@ export class FxCore {
     const konwledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
     switch (konwledgeSource) {
       case KnowledgeSourceOptions.embeddedKnowledge().id:
-        if (!featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
-          return err(new SystemError("FxCore", "", "embedded knowledge is not enabled"));
-        }
         const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
         const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
         const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(

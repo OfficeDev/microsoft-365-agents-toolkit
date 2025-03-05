@@ -1401,4 +1401,28 @@ describe("Generate sample using download directory", () => {
     assert.isTrue(rmStub.calledOnce);
     assert.isTrue(existsStub.calledOnce);
   });
+
+  it("template variables when embedded knowledge enabled", async () => {
+    sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "true" });
+    const vars = Generator.getDefaultVariables("test");
+    assert.equal(vars.EmbeddedKnowledgeEnabled, "true");
+  });
+
+  it("template variables when embedded knowledge disabled", async () => {
+    sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "false" });
+    const vars = Generator.getDefaultVariables("test");
+    assert.equal(vars.EmbeddedKnowledgeEnabled, "false");
+  });
+
+  it("template variables when share enabled", async () => {
+    sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "true" });
+    const vars = Generator.getDefaultVariables("test");
+    assert.equal(vars.ShareEnabled, "true");
+  });
+
+  it("template variables when share disabled", async () => {
+    sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "false" });
+    const vars = Generator.getDefaultVariables("test");
+    assert.equal(vars.ShareEnabled, "false");
+  });
 });
