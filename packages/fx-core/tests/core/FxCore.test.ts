@@ -8048,6 +8048,43 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isOk());
   });
 
+  it("error path: add OneDrive & Sharepoint capability", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allOneDriveSharepoint().id,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    sandbox
+      .stub(copilotGptManifestUtils, "addOneDriveSharePointCapability")
+      .resolves(err(new UserError("test", "test", "test")));
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isOk());
+  });
+
   it("error path: undefined projectPath", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -8055,6 +8092,7 @@ describe("addKnowledge", async () => {
       [QuestionNames.ManifestPath]: "manifest.json",
       [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
       [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
+      projectPath: undefined,
     };
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
