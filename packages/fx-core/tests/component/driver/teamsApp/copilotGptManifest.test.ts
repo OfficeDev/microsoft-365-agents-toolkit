@@ -1254,9 +1254,25 @@ describe("copilotGptManifestUtils", () => {
 
   describe("add knowledge for Web Content and OneDrive and Sharepoint", () => {
     setTools(new MockTools());
-    const context = generateDriverContext(createContext(), {
-      platform: Platform.VSCode,
-      projectPath: "",
+    afterEach(async () => {
+      if (await fs.pathExists("fake agent manifest path")) {
+        await fs.unlink("fake agent manifest path");
+      }
+      sandbox.restore();
+    });
+
+    it("happy path: manifestRes has no capabilities for addOrUpdateCapability ", async () => {
+      const agentManifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        ok(agentManifest),
+        {}
+      );
+      chai.assert.isTrue(res.isOk());
     });
 
     it("error path: manifestRes is error", async () => {
@@ -1272,6 +1288,39 @@ describe("copilotGptManifestUtils", () => {
         "fake agent manifest path",
         null,
         err(new UserError("fake error", "fake error", "fake error", "fake error"))
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+
+    it("error path: manifestRes error for addOrUpdateCapability ", async () => {
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        err(new UserError("fake error", "fake error", "fake error", "fake error")),
+        {}
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+
+    it("error path: updateGptManifestRes error for addOrUpdateCapability ", async () => {
+      const agentManifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+          },
+        ],
+      };
+
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(err(new UserError("fake error", "fake error", "fake error", "fake error")));
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        ok(agentManifest),
+        {}
       );
       chai.assert.isTrue(res.isErr());
     });
