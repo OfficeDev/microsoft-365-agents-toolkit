@@ -57,6 +57,22 @@ describe("Azure App Service Deploy Driver test", () => {
         on: sandbox.spy(() => true),
         destroy: sandbox.spy(() => true),
       } as any);
+  });
+
+  after(async () => {
+    if (fs.existsSync(testFolder)) {
+      if (fs.existsSync(path.join(testFolder, ".deployment"))) {
+        if (fs.existsSync(path.join(testFolder, ".deployment", "deployment.zip"))) {
+          fs.unlinkSync(path.join(testFolder, ".deployment", "deployment.zip"));
+        }
+        fs.rmSync(path.join(testFolder, ".deployment"), { recursive: true });
+      }
+      fs.rmSync(testFolder, { recursive: true });
+    }
+  });
+
+  beforeEach(async () => {
+    sandbox.stub(tools, "waitSeconds").resolves();
     const fetchStub = sandbox.stub(global, "fetch");
     fetchStub.callsFake((input: any) => {
       const url: string = typeof input === "string" ? input : input.url;
@@ -75,22 +91,6 @@ describe("Azure App Service Deploy Driver test", () => {
         )
       );
     });
-  });
-
-  after(async () => {
-    if (fs.existsSync(testFolder)) {
-      if (fs.existsSync(path.join(testFolder, ".deployment"))) {
-        if (fs.existsSync(path.join(testFolder, ".deployment", "deployment.zip"))) {
-          fs.unlinkSync(path.join(testFolder, ".deployment", "deployment.zip"));
-        }
-        fs.rmSync(path.join(testFolder, ".deployment"), { recursive: true });
-      }
-      fs.rmSync(testFolder, { recursive: true });
-    }
-  });
-
-  beforeEach(async () => {
-    sandbox.stub(tools, "waitSeconds").resolves();
   });
 
   afterEach(() => {

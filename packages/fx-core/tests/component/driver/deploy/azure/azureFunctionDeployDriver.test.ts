@@ -50,6 +50,14 @@ describe("Azure Function Deploy Driver test", () => {
       } as any);
     sandbox.stub(fs, "existsSync").returns(true);
     sandbox.stub(fs, "remove").resolves();
+  });
+
+  after(async () => {
+    fs.rmSync(testFolder, { recursive: true, force: true });
+  });
+
+  beforeEach(() => {
+    sandbox.stub(tools, "waitSeconds").resolves();
     const fetchStub = sandbox.stub(global, "fetch");
     fetchStub.callsFake((input: any) => {
       const url: string = typeof input === "string" ? input : input.url;
@@ -68,14 +76,6 @@ describe("Azure Function Deploy Driver test", () => {
         )
       );
     });
-  });
-
-  after(async () => {
-    fs.rmSync(testFolder, { recursive: true, force: true });
-  });
-
-  beforeEach(() => {
-    sandbox.stub(tools, "waitSeconds").resolves();
   });
 
   afterEach(() => {
