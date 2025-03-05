@@ -8,6 +8,7 @@ import {
   CLIOptionType,
   CLIStringOption,
   IQTreeNode,
+  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
   SingleSelectQuestion,
@@ -345,7 +346,7 @@ export async function generateInputs(
       if (data.isBoolean) {
         type = "boolean";
       } else if (options.length > 0) {
-        const optionStrings = options.map((o) => (typeof o === "string" ? o : o.id));
+        const optionStrings: string[] = options.map((o) => (typeof o === "string" ? o : o.id));
         type = selection.skipValidation ? "string" : optionStrings.map((i) => `"${i}"`).join(" | ");
       } else {
         type = "string";
@@ -354,6 +355,9 @@ export async function generateInputs(
       if (data.type === "multiSelect") {
         type += "[]";
       }
+    }
+    if (data.type === "multiFile") {
+      type = "string[]";
     }
     const inputPropName = questionName.includes("-") ? `"${questionName}"` : questionName;
     properties.push({
@@ -392,7 +396,7 @@ export async function generateInputs(
 
 function getOptionType(question: UserInputQuestion): CLIOptionType {
   if (question.isBoolean) return "boolean";
-  if (question.type === "multiSelect") {
+  if (question.type === "multiSelect" || question.type === "multiFile") {
     return "array";
   }
   return "string";
