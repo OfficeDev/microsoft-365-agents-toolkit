@@ -704,7 +704,7 @@
   "driver.aadApp.log.outputAadAppManifest": "Build Microsoft Entra app manifest completed, and app manifest content is written to %s",
   "driver.aadApp.log.successUpdateAadAppManifest": "Applied manifest %s to Microsoft Entra application with object id %s",
   "driver.aadApp.log.deleteAadAfterDebugging": " (Teams toolkit will delete the Microsoft Entra application after debugging)",
-  "driver.aadApp.log.insufficientPermission": "You don't have enough permission to create Microsoft Entra app. Please contact your administrator or click Proceed to enter the client ID and secret of an existing Microsoft Entra app.",
+  "driver.aadApp.log.insufficientPermission": "You don't have permission to create or update Microsoft Entra app. Please contact your administrator or click Proceed to enter the client ID and secret of an existing Microsoft Entra app.",
   "driver.aadApp.question.id.title": "Microsoft Entra App ID",
   "driver.aadApp.question.id.validation": "Microsoft Entra application ID cannot be empty.",
   "driver.aadApp.question.secret.title": "Microsoft Entra App Secret",

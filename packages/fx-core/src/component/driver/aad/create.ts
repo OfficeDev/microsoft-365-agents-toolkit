@@ -43,6 +43,7 @@ import {
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
 import { isTestToolEnabledProject } from "../../../common/tools";
+import { environmentNameManager } from "../../../core/environmentName";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -212,16 +213,19 @@ export class CreateAadAppDriver implements StepDriver {
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !isTestToolEnabledProject(context.projectPath)
+            !isTestToolEnabledProject(context.projectPath) &&
+            process.env.TEAMSFX_ENV == environmentNameManager.getLocalEnvName()
           ) {
             context.addTelemetryProperties({
               [telemetryKeys.insufficientPermissionAadApp]: "true",
             });
             const res = await this.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
             if (res.isOk()) {
+              await this.setAadEndpointInfo(context.m365TokenProvider, aadAppState);
+              const outputs = mapStateToEnv(aadAppState, outputEnvVarNames);
               context.addTelemetryProperties({ [telemetryKeys.userInputAadApp]: "true" });
               return {
-                result: ok(res.value),
+                result: ok(outputs),
                 summaries: summaries,
               };
             } else {
