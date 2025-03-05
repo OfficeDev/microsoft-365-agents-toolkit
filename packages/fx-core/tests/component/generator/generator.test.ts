@@ -1313,7 +1313,7 @@ describe("render template", () => {
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.EmbeddedKnowledgeEnabled, "false");
+      assert.equal(vars.EmbeddedKnowledgeEnabled, "");
     });
 
     it("template variables when share enabled", async () => {
@@ -1329,7 +1329,7 @@ describe("render template", () => {
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.ShareEnabled, "false");
+      assert.equal(vars.ShareEnabled, "");
     });
   });
 });
