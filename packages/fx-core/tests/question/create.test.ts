@@ -14,6 +14,7 @@ import {
   Question,
   SingleFileQuestion,
   SingleSelectQuestion,
+  TokenProvider,
   UserError,
   UserInteraction,
   err,
@@ -4421,6 +4422,24 @@ describe("scaffold question", () => {
         const res = await generatorHelper.getGraphConnectors();
         assert.equal(res[0].id, "fakeId");
         assert.equal(res[0].label, "fakeName");
+      });
+
+      it("getAccessToken error", async () => {
+        sandbox.stub(utils, "createContext").returns({
+          tokenProvider: {
+            m365TokenProvider: {
+              getAccessToken: async () => {
+                return Promise.resolve(err(new Error("fakeError")));
+              },
+            },
+          } as unknown as TokenProvider,
+        } as Context);
+        try {
+          await generatorHelper.getGraphConnectors();
+          assert.fail("Should throw error");
+        } catch (error) {
+          assert.isNotNull(error);
+        }
       });
 
       it("api error", async () => {
