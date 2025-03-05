@@ -49,7 +49,7 @@ describe("component coordinator test", () => {
     sandbox.stub(v3MigrationUtils, "getProjectVersion").resolves(versionInfo);
   });
   it("share happy path", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -96,7 +96,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(true));
   });
   it("share happy path - CLI", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -150,7 +150,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(false));
   });
   it("share happy path - no ui", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -185,7 +185,7 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
   });
   it("share happy path - VS - no ui", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -220,7 +220,7 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
   });
   it("share failed", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -274,7 +274,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(false));
   });
   it("share without progress bar", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -320,7 +320,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.notCalled);
   });
   it("share lifecycle undefined", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
     };
@@ -337,7 +337,7 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isErr() && res.error.name === "LifeCycleUndefinedError");
   });
   it("share not enabled", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(false);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {

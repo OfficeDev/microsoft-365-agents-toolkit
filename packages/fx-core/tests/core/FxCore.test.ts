@@ -7247,7 +7247,7 @@ describe("addKnowledge", async () => {
   });
 
   it("add embedded files", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -7264,7 +7264,7 @@ describe("addKnowledge", async () => {
   });
 
   it("add embedded files disabled", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(false);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
