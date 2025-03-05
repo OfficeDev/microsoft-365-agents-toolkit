@@ -194,6 +194,11 @@ class TreeViewManager {
     )
       ? localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle")
       : localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview");
+    const getHelpFromCopilotCommand: string = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    )
+      ? "fx-extension.invokeChat"
+      : "fx-extension.invokeChatWithPreviewTag";
     const treeviewCommands = [
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.createProjectTitle"),
@@ -263,7 +268,7 @@ class TreeViewManager {
             new TreeViewCommand(
               getHelpFromCopilotTitle,
               localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription"),
-              "fx-extension.invokeChat",
+              getHelpFromCopilotCommand,
               undefined,
               { name: "comment-discussion", custom: false }
             ),

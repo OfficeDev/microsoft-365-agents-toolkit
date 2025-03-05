@@ -388,9 +388,11 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     });
   };
 
-  private onInvokeTeamsAgent = () => {
+  private onInvokeTeamsAgent = (shouldHidePreviewTag: boolean) => {
     vscode.postMessage({
-      command: Commands.InvokeTeamsAgent,
+      command: shouldHidePreviewTag
+        ? Commands.InvokeTeamsAgent
+        : Commands.InvokeTeamsAgentWIthPreviewTag,
     });
   };
 }

@@ -188,6 +188,12 @@ export class WebviewPanel {
               TelemetryTriggerFrom.Webview
             );
             break;
+          case Commands.InvokeTeamsAgentWIthPreviewTag:
+            await vscode.commands.executeCommand(
+              "fx-extension.invokeChatWithPreviewTag",
+              TelemetryTriggerFrom.Webview
+            );
+            break;
           default:
             break;
         }

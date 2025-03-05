@@ -399,7 +399,12 @@
         {
           "command": "fx-extension.teamsAgentTroubleshootSelectedText",
           "group": "navigation",
-          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Teams Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output')))"
+          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Teams Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && fx-extension.hideTeamsAgentPreviewTag"
+        },
+        {
+          "command": "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
+          "group": "navigation",
+          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Teams Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && !fx-extension.hideTeamsAgentPreviewTag"
         }
       ],
       "editor/title/run": [
