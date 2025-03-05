@@ -58,7 +58,7 @@ export const specialTemplates: Template[] = [
   {
     id: "message-extension-with-existing-api",
     name: TemplateNames.MessageExtensionWithExistingApiSpec,
-    language: "none",
+    language: "common",
     description: "",
   },
   {
