@@ -452,17 +452,11 @@ describe("botAadAppCreate", async () => {
       appId: expectedClientId,
     } as AADApplication);
 
-    sinon.stub(AadAppClient.prototype, "generateClientSecret").rejects({
-      isAxiosError: true,
-      response: {
-        status: 400,
-        data: {
-          error: {
-            code: "CredentialTypeNotAllowedAsPerAppPolicy",
-          },
-        },
-      },
-    });
+    sinon
+      .stub(AadAppClient.prototype, "generateClientSecret")
+      .callsFake(async (objectId, days, description, isMicrosoftUser) => {
+        throw new ClientSecretNotAllowedError("botAadApp/create", isMicrosoftUser);
+      });
 
     const args: any = {
       name: expectedDisplayName,
@@ -491,17 +485,11 @@ describe("botAadAppCreate", async () => {
       appId: expectedClientId,
     } as AADApplication);
 
-    sinon.stub(AadAppClient.prototype, "generateClientSecret").rejects({
-      isAxiosError: true,
-      response: {
-        status: 400,
-        data: {
-          error: {
-            code: "CredentialTypeNotAllowedAsPerAppPolicy",
-          },
-        },
-      },
-    });
+    sinon
+      .stub(AadAppClient.prototype, "generateClientSecret")
+      .callsFake(async (objectId, days, description, isMicrosoftUser) => {
+        throw new ClientSecretNotAllowedError("botAadApp/create", isMicrosoftUser);
+      });
 
     const args: any = {
       name: expectedDisplayName,
@@ -524,19 +512,17 @@ describe("botAadAppCreate", async () => {
       .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
       .resolves(ok({ unique_name: "test@microsoft.com" }));
 
-    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
-      isAxiosError: true,
-      response: {
-        status: 400,
-        data: {
-          error: {
-            code: "signInAudienceNotAllowedAsPerAppPolicy",
-            message:
-              "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
-          },
-        },
-      },
-    });
+    sinon
+      .stub(AadAppClient.prototype, "createAadApp")
+      .callsFake(
+        async (displayName, signInAudience, serviceManagementReference, isMicrosoftUser) => {
+          throw new SignInAudienceNotAllowedError(
+            "botAadApp/create",
+            "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+            isMicrosoftUser
+          );
+        }
+      );
 
     const args: any = {
       name: expectedDisplayName,
@@ -559,19 +545,17 @@ describe("botAadAppCreate", async () => {
       .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
       .resolves(ok({ unique_name: "test@test.com" }));
 
-    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
-      isAxiosError: true,
-      response: {
-        status: 400,
-        data: {
-          error: {
-            code: "signInAudienceNotAllowedAsPerAppPolicy",
-            message:
-              "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
-          },
-        },
-      },
-    });
+    sinon
+      .stub(AadAppClient.prototype, "createAadApp")
+      .callsFake(
+        async (displayName, signInAudience, serviceManagementReference, isMicrosoftUser) => {
+          throw new SignInAudienceNotAllowedError(
+            "botAadApp/create",
+            "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+            isMicrosoftUser
+          );
+        }
+      );
 
     const args: any = {
       name: expectedDisplayName,

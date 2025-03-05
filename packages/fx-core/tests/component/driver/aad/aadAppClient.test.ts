@@ -222,7 +222,7 @@ describe("AadAppClient", async () => {
     it("should throw SignInAudienceNotAllowedError with proper help link for Microsoft user", async () => {
       const expectedError = {
         error: {
-          code: "signInAudienceNotAllowedAsPerAppPolicy",
+          code: "SignInAudienceNotAllowedAsPerAppPolicy",
           message:
             "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
         },
@@ -237,7 +237,9 @@ describe("AadAppClient", async () => {
         expect(err instanceof SignInAudienceNotAllowedError).to.be.true;
         expect(err.source).equals("AadAppClient");
         expect(err.name).equals("SignInAudienceNotAllowed");
-        expect(err.message).equals(expectedError.error.message);
+        expect(err.message).equals(
+          "Your tenant doesn't allow creating a Microsoft Entra app with specified signInAudience value. Error: The tenant admin has disabled creation of apps with multi-tenant sign-in audience."
+        );
         expect(err.helpLink).equals("https://aka.ms/teams-toolkit-sni-guide");
       });
     });
@@ -245,7 +247,7 @@ describe("AadAppClient", async () => {
     it("should throw SignInAudienceNotAllowedError with default help link for non-Microsoft user", async () => {
       const expectedError = {
         error: {
-          code: "signInAudienceNotAllowedAsPerAppPolicy",
+          code: "SignInAudienceNotAllowedAsPerAppPolicy",
           message:
             "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
         },
@@ -260,7 +262,9 @@ describe("AadAppClient", async () => {
         expect(err instanceof SignInAudienceNotAllowedError).to.be.true;
         expect(err.source).equals("AadAppClient");
         expect(err.name).equals("SignInAudienceNotAllowed");
-        expect(err.message).equals(expectedError.error.message);
+        expect(err.message).equals(
+          "Your tenant doesn't allow creating a Microsoft Entra app with specified signInAudience value. Error: The tenant admin has disabled creation of apps with multi-tenant sign-in audience."
+        );
         expect(err.helpLink).equals("https://aka.ms/teamsfx-actions/aadapp-create");
       });
     });
