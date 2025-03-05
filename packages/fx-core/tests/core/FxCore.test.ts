@@ -7279,7 +7279,7 @@ describe("addKnowledge", async () => {
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isErr());
     if (result.isErr()) {
-      assert.isTrue(result.error.name.includes("FeatureNotSupport"));
+      assert.isTrue(result.error.name.includes("embedded knowledge is not enabled"));
     }
   });
 });

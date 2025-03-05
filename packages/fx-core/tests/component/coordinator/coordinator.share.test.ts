@@ -381,7 +381,7 @@ describe("component coordinator test", () => {
     const res = await fxCore.shareApplication(inputs);
     assert.isTrue(res.isErr());
     if (res.isErr()) {
-      assert.isTrue(res.error.message.includes("Share feature is not enabled"));
+      assert.isTrue(res.error.message.includes("share is not enabled"));
     }
   });
 });
