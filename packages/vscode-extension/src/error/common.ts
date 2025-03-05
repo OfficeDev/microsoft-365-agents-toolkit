@@ -90,6 +90,11 @@ export async function showError(e: UserError | SystemError) {
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
     const buttons = recommendTestTool ? [runTestTool, help] : [help];
     if (shouldRecommendTeamsAgent) {
+      if (!featureFlagManager.getBooleanValue(CoreFeatureFlags.HideGitHubCopilotPreviewTag)) {
+        notificationMessage += localize(
+          "teamstoolkit.handlers.resolveWithTeamsAgent.preview.message"
+        );
+      }
       buttons.push(troubleshootErrorWithTeamsAgentButton);
     }
     void window
@@ -121,6 +126,11 @@ export async function showError(e: UserError | SystemError) {
     };
     const buttons = recommendTestTool ? [runTestTool, issue] : [issue];
     if (shouldRecommendTeamsAgent) {
+      if (!featureFlagManager.getBooleanValue(CoreFeatureFlags.HideGitHubCopilotPreviewTag)) {
+        notificationMessage += localize(
+          "teamstoolkit.handlers.resolveWithTeamsAgent.preview.message"
+        );
+      }
       if (buttons.length >= 2) {
         buttons.push(troubleshootErrorWithTeamsAgentButton);
         notificationMessage += util.format(
@@ -156,6 +166,11 @@ export async function showError(e: UserError | SystemError) {
         run: () => void;
       }[] = recommendTestTool ? [runTestTool] : [];
       if (shouldRecommendTeamsAgent) {
+        if (!featureFlagManager.getBooleanValue(CoreFeatureFlags.HideGitHubCopilotPreviewTag)) {
+          notificationMessage += localize(
+            "teamstoolkit.handlers.resolveWithTeamsAgent.preview.message"
+          );
+        }
         buttons.push(troubleshootErrorWithTeamsAgentButton);
       }
       void window

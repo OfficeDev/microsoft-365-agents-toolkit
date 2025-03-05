@@ -135,6 +135,11 @@
         "enablement": "fx-extension.initialized"
       },
       {
+        "view": "teamsfx-empty-project-with-chat-preview",
+        "contents": "%teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat-preview-tag.content%",
+        "enablement": "fx-extension.initialized"
+      },
+      {
         "view": "teamsfx-project-and-check-upgradeV3",
         "contents": "%teamstoolkit.viewsWelcome.teamsfx-project-and-check-upgradeV3.content%",
         "enablement": "fx-extension.initialized"
@@ -192,7 +197,12 @@
         {
           "id": "teamsfx-empty-project-with-chat",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn"
+          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && fx-extension.hideTeamsAgentPreviewTag"
+        },
+        {
+          "id": "teamsfx-empty-project-with-chat-preview",
+          "name": "Teams Toolkit",
+          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn&&  !fx-extension.hideTeamsAgentPreviewTag"
         },
         {
           "id": "teamsfx-officedev-development",
@@ -569,6 +579,10 @@
           "when": "false"
         },
         {
+          "command": "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
+          "when": "false"
+        },
+        {
           "command": "fx-extension.teamsAgentTroubleshootError",
           "when": "false"
         },
@@ -940,7 +954,13 @@
         "command": "fx-extension.invokeChat",
         "title": "%teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle%",
         "category": "Teams",
-        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled && fx-extension.hideTeamsAgentPreviewTag"
+      },
+      {
+        "command": "fx-extension.invokeChatWithPreviewTag",
+        "title": "%teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview%",
+        "category": "Teams",
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled && !fx-extension.hideTeamsAgentPreviewTag"
       },
       {
         "command": "fx-extension.syncManifest",
@@ -951,7 +971,13 @@
       {
         "command": "fx-extension.teamsAgentTroubleshootSelectedText",
         "title": "%teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title%",
-        "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled",
+        "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled && fx-extension.hideTeamsAgentPreviewTag",
+        "category": "Teams"
+      },
+      {
+        "command": "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
+        "title": "%teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title.preview%",
+        "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled && !fx-extension.hideTeamsAgentPreviewTag",
         "category": "Teams"
       },
       {
@@ -1509,12 +1535,22 @@
             }
           },
           {
-            "id": "teamsToolkitHelpWithGitHubCopilot",
-            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "id": "teamsToolkitHelpWithGitHubCopilotPreview",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.title%",
             "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
             "media": {
               "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
-            }
+            },
+            "when": "!fx-extension.hideTeamsAgentPreviewTag"
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilot",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
+            },
+            "when": "fx-extension.hideTeamsAgentPreviewTag"
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"
@@ -1644,7 +1680,17 @@
             "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
             "media": {
               "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
-            }
+            },
+            "when": "fx-extension.hideTeamsAgentPreviewTag"
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilotPreview",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
+            },
+            "when": "!fx-extension.hideTeamsAgentPreviewTag"
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"
@@ -1721,7 +1767,18 @@
             "media": {
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.use.title%"
-            }
+            },
+            "when": "fx-extension.shouldhideTeamsAgentPreviewTag"
+          },
+          {
+            "id": "teamsAgentUseWithPreviewTag",
+            "title": "%teamsagent.walkthrough.use.title%",
+            "description": "%teamsagent.walkthrough.use.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
+              "altText": "%teamsagent.walkthrough.use.title%"
+            },
+            "when": "!fx-extension.shouldhideTeamsAgentPreviewTag"
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"

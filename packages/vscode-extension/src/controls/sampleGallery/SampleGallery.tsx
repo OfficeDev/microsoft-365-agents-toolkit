@@ -24,6 +24,7 @@ import SampleListItem from "./sampleListItem";
 
 interface SampleGalleryProps {
   shouldShowChat: string;
+  shouldHideTeamsAgentPreviewTag: string;
 }
 
 export default class SampleGallery extends React.Component<SampleGalleryProps, SampleGalleryState> {
@@ -58,6 +59,8 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
   }
 
   public render() {
+    console.log(this.props.shouldShowChat);
+    console.log(this.props.shouldHideTeamsAgentPreviewTag);
     const titleSection = (
       <div id="title">
         <div className="logo">
@@ -65,7 +68,8 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
         </div>
         <div className="title">
           <h1>Samples</h1>
-          {this.props.shouldShowChat === "true" ? (
+          {this.props.shouldShowChat === "true" &&
+          this.props.shouldHideTeamsAgentPreviewTag === "true" ? (
             <h3>
               Explore our sample gallery filled with solutions that work seamlessly with Teams
               Toolkit. Need help choosing? Let{" "}
@@ -75,6 +79,20 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                 }}
               >
                 Github Copilot
+              </Link>{" "}
+              assists you in selecting the right sample to create your Teams app.
+            </h3>
+          ) : this.props.shouldShowChat === "true" &&
+            this.props.shouldHideTeamsAgentPreviewTag === "false" ? (
+            <h3>
+              Explore our sample gallery filled with solutions that work seamlessly with Teams
+              Toolkit. Need help choosing? Let{" "}
+              <Link
+                onClick={() => {
+                  this.onInvokeTeamsAgent();
+                }}
+              >
+                Github Copilot (preview)
               </Link>{" "}
               assists you in selecting the right sample to create your Teams app.
             </h3>

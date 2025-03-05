@@ -80,13 +80,19 @@ export function languageNode(): IQTreeNode {
 }
 
 export function folderAndAppNameCondition(inputs: Inputs): boolean {
-  // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
-  return !(
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-    (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
-      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
-    !inputs[QuestionNames.ActionManifestPath]
+  // skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
+  // or start with github copilot
+  console.log(
+    inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.startWithGithubCopilotOptionId
+  );
+  return (
+    !(
+      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+      (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
+        inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
+      !inputs[QuestionNames.ActionManifestPath]
+    ) && inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.startWithGithubCopilotOptionId
   );
 }
 

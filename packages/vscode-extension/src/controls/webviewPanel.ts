@@ -351,6 +351,9 @@ export class WebviewPanel {
     );
 
     const allowChat = featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries);
+    const shouldHideTeamsAgentPreviewTag = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    );
 
     // Use a nonce to to only allow specific scripts to be run
     const nonce = this.getNonce();
@@ -370,6 +373,9 @@ export class WebviewPanel {
               const vscode = acquireVsCodeApi();
               const panelType = '${panelType}';
               const shouldShowChat = '${allowChat ? "true" : "false"}';
+              const shouldHideTeamsAgentPreviewTag = '${
+                shouldHideTeamsAgentPreviewTag ? "true" : "false"
+              }';
             </script>
             <script nonce="${nonce}" type="module" src="${scriptUri.toString()}"></script>
             <script nonce="${nonce}" type="text/javascript" src="${dompurifyUri.toString()}"></script>

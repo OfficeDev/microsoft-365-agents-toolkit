@@ -189,6 +189,11 @@ class TreeViewManager {
   }
 
   private getDevelopmentCommands(): TreeViewCommand[] {
+    const getHelpFromCopilotTitle = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    )
+      ? localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle")
+      : localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview");
     const treeviewCommands = [
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.createProjectTitle"),
@@ -256,7 +261,7 @@ class TreeViewManager {
       ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
         ? [
             new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle"),
+              getHelpFromCopilotTitle,
               localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription"),
               "fx-extension.invokeChat",
               undefined,
