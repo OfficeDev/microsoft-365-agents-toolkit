@@ -690,6 +690,7 @@
   "driver.aadApp.error.appNameTooLong": "The name for this Microsoft Entra app is too long. The maximum length is 120.",
   "driver.aadApp.error.credentialInvalidLifetimeAsPerAppPolicy": "The client secret lifetime is too long for your tenant. Use a shorter value with the clientSecretExpireDays parameter.",
   "driver.aadApp.error.credentialTypeNotAllowedAsPerAppPolicy": "Your tenant doesn't allow creating a client secret for Microsoft Entra app. Create and configure the app manually.",
+  "driver.aadApp.error.signInAudienceNotAllowedAsPerAppPolicy": "Your tenant doesn't allow creating a Microsoft Entra app with specified signInAudience value. Error: %s.",
   "driver.aadApp.progressBar.createAadAppTitle": "Creating Microsoft Entra application...",
   "driver.aadApp.progressBar.updateAadAppTitle": "Updating Microsoft Entra application...",
   "driver.aadApp.log.startExecuteDriver": "Executing action %s",

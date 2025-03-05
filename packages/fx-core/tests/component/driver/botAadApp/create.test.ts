@@ -21,6 +21,8 @@ import { AADApplication } from "../../../../src/component/driver/aad/interface/A
 import { OutputEnvironmentVariableUndefinedError } from "../../../../src/component/driver/error/outputEnvironmentVariableUndefinedError";
 import { AadAppNameTooLongError } from "../../../../src/component/driver/aad/error/aadAppNameTooLongError";
 import { MockedM365Provider } from "../../../core/utils";
+import { ClientSecretNotAllowedError } from "../../../../src/component/driver/aad/error/clientSecretNotAllowedError";
+import { SignInAudienceNotAllowedError } from "../../../../src/component/driver/aad/error/signInAudienceNotAllowedError";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -437,5 +439,153 @@ describe("botAadAppCreate", async () => {
     expect(result.summaries[0]).not.includes(
       "Teams toolkit will delete the Microsoft Entra application after debugging"
     );
+  });
+
+  it("should throw ClientSecretNotAllowedError with proper help link for Microsoft user", async () => {
+    sinon
+      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
+      .resolves(ok({ unique_name: "test@microsoft.com" }));
+
+    sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    sinon.stub(AadAppClient.prototype, "generateClientSecret").rejects({
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: {
+          error: {
+            code: "CredentialTypeNotAllowedAsPerAppPolicy",
+          },
+        },
+      },
+    });
+
+    const args: any = {
+      name: expectedDisplayName,
+    };
+
+    await expect(createBotAadAppDriver.handler(args, mockedDriverContext, outputEnvVarNames))
+      .to.be.rejectedWith(
+        "Your tenant doesn't allow creating a client secret for Microsoft Entra app. Create and configure the app manually."
+      )
+      .then((error) => {
+        expect(error instanceof ClientSecretNotAllowedError).to.be.true;
+        expect(error.source).equals("botAadApp/create");
+        expect(error.name).equals("ClientSecretNotAllowed");
+        expect(error.helpLink).equals("https://aka.ms/teams-toolkit-sni-guide");
+      });
+  });
+
+  it("should throw ClientSecretNotAllowedError with default help link for non-Microsoft user", async () => {
+    sinon
+      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
+      .resolves(ok({ unique_name: "test@test.com" }));
+
+    sinon.stub(AadAppClient.prototype, "createAadApp").resolves({
+      id: expectedObjectId,
+      displayName: expectedDisplayName,
+      appId: expectedClientId,
+    } as AADApplication);
+
+    sinon.stub(AadAppClient.prototype, "generateClientSecret").rejects({
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: {
+          error: {
+            code: "CredentialTypeNotAllowedAsPerAppPolicy",
+          },
+        },
+      },
+    });
+
+    const args: any = {
+      name: expectedDisplayName,
+    };
+
+    await expect(createBotAadAppDriver.handler(args, mockedDriverContext, outputEnvVarNames))
+      .to.be.rejectedWith(
+        "Your tenant doesn't allow creating a client secret for Microsoft Entra app. Create and configure the app manually."
+      )
+      .then((error) => {
+        expect(error instanceof ClientSecretNotAllowedError).to.be.true;
+        expect(error.source).equals("botAadApp/create");
+        expect(error.name).equals("ClientSecretNotAllowed");
+        expect(error.helpLink).equals("https://aka.ms/teamsfx-actions/aadapp-create");
+      });
+  });
+
+  it("should throw SignInAudienceNotAllowedError with proper help link for Microsoft user", async () => {
+    sinon
+      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
+      .resolves(ok({ unique_name: "test@microsoft.com" }));
+
+    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: {
+          error: {
+            code: "signInAudienceNotAllowedAsPerAppPolicy",
+            message:
+              "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+          },
+        },
+      },
+    });
+
+    const args: any = {
+      name: expectedDisplayName,
+    };
+
+    await expect(createBotAadAppDriver.handler(args, mockedDriverContext, outputEnvVarNames))
+      .to.be.rejectedWith(
+        "The tenant admin has disabled creation of apps with multi-tenant sign-in audience"
+      )
+      .then((error) => {
+        expect(error instanceof SignInAudienceNotAllowedError).to.be.true;
+        expect(error.source).equals("botAadApp/create");
+        expect(error.name).equals("SignInAudienceNotAllowed");
+        expect(error.helpLink).equals("https://aka.ms/teams-toolkit-sni-guide");
+      });
+  });
+
+  it("should throw SignInAudienceNotAllowedError with default help link for non-Microsoft user", async () => {
+    sinon
+      .stub(mockedDriverContext.m365TokenProvider, "getJsonObject")
+      .resolves(ok({ unique_name: "test@test.com" }));
+
+    sinon.stub(AadAppClient.prototype, "createAadApp").rejects({
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: {
+          error: {
+            code: "signInAudienceNotAllowedAsPerAppPolicy",
+            message:
+              "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+          },
+        },
+      },
+    });
+
+    const args: any = {
+      name: expectedDisplayName,
+    };
+
+    await expect(createBotAadAppDriver.handler(args, mockedDriverContext, outputEnvVarNames))
+      .to.be.rejectedWith(
+        "The tenant admin has disabled creation of apps with multi-tenant sign-in audience"
+      )
+      .then((error) => {
+        expect(error instanceof SignInAudienceNotAllowedError).to.be.true;
+        expect(error.source).equals("botAadApp/create");
+        expect(error.name).equals("SignInAudienceNotAllowed");
+        expect(error.helpLink).equals("https://aka.ms/teamsfx-actions/aadapp-create");
+      });
   });
 });

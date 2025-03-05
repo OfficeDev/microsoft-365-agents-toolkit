@@ -20,6 +20,7 @@ import {
 import { CredentialInvalidLifetimeError } from "../../../../src/component/driver/aad/error/credentialInvalidLifetimeError";
 import { ClientSecretNotAllowedError } from "../../../../src/component/driver/aad/error/clientSecretNotAllowedError";
 import { MockedM365Provider } from "../../../core/utils";
+import { SignInAudienceNotAllowedError } from "../../../../src/component/driver/aad/error/signInAudienceNotAllowedError";
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -217,6 +218,52 @@ describe("AadAppClient", async () => {
       expect(debugLogs[0].includes("Sending API request")).to.be.true;
       expect(debugLogs[1].includes("Received API response")).to.be.true;
     });
+
+    it("should throw SignInAudienceNotAllowedError with proper help link for Microsoft user", async () => {
+      const expectedError = {
+        error: {
+          code: "signInAudienceNotAllowedAsPerAppPolicy",
+          message:
+            "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+        },
+      };
+
+      const mock = new MockAdapter(axiosInstance);
+      mock.onPost(`https://graph.microsoft.com/v1.0/applications`).reply(400, expectedError);
+
+      await expect(
+        aadAppClient.createAadApp("test", SignInAudience.AzureADMultipleOrgs, undefined, true)
+      ).to.eventually.be.rejected.then((err) => {
+        expect(err instanceof SignInAudienceNotAllowedError).to.be.true;
+        expect(err.source).equals("AadAppClient");
+        expect(err.name).equals("SignInAudienceNotAllowed");
+        expect(err.message).equals(expectedError.error.message);
+        expect(err.helpLink).equals("https://aka.ms/teams-toolkit-sni-guide");
+      });
+    });
+
+    it("should throw SignInAudienceNotAllowedError with default help link for non-Microsoft user", async () => {
+      const expectedError = {
+        error: {
+          code: "signInAudienceNotAllowedAsPerAppPolicy",
+          message:
+            "The tenant admin has disabled creation of apps with multi-tenant sign-in audience",
+        },
+      };
+
+      const mock = new MockAdapter(axiosInstance);
+      mock.onPost(`https://graph.microsoft.com/v1.0/applications`).reply(400, expectedError);
+
+      await expect(
+        aadAppClient.createAadApp("test", SignInAudience.AzureADMultipleOrgs, undefined, false)
+      ).to.eventually.be.rejected.then((err) => {
+        expect(err instanceof SignInAudienceNotAllowedError).to.be.true;
+        expect(err.source).equals("AadAppClient");
+        expect(err.name).equals("SignInAudienceNotAllowed");
+        expect(err.message).equals(expectedError.error.message);
+        expect(err.helpLink).equals("https://aka.ms/teamsfx-actions/aadapp-create");
+      });
+    });
   });
 
   describe("deleteAadApp", async () => {
@@ -354,6 +401,56 @@ describe("AadAppClient", async () => {
 
       await expect(
         aadAppClient.generateClientSecret(expectedObjectId)
+      ).to.eventually.be.rejected.then((err) => {
+        expect(err instanceof ClientSecretNotAllowedError).to.be.true;
+        expect(err.source).equals("AadAppClient");
+        expect(err.name).equals("ClientSecretNotAllowed");
+        expect(err.message).equals(
+          "Your tenant doesn't allow creating a client secret for Microsoft Entra app. Create and configure the app manually."
+        );
+        expect(err.helpLink).equals("https://aka.ms/teamsfx-actions/aadapp-create");
+      });
+    });
+
+    it("should throw ClientSecretNotAllowedError with proper help link when Microsoft user and CredentialTypeNotAllowedAsPerAppPolicy error happens", async () => {
+      const expectedError = {
+        error: {
+          code: "CredentialTypeNotAllowedAsPerAppPolicy",
+        },
+      };
+
+      const mock = new MockAdapter(axiosInstance);
+      mock
+        .onPost(`https://graph.microsoft.com/v1.0/applications/${expectedObjectId}/addPassword`)
+        .reply(400, expectedError);
+
+      await expect(
+        aadAppClient.generateClientSecret(expectedObjectId, undefined, undefined, true)
+      ).to.eventually.be.rejected.then((err) => {
+        expect(err instanceof ClientSecretNotAllowedError).to.be.true;
+        expect(err.source).equals("AadAppClient");
+        expect(err.name).equals("ClientSecretNotAllowed");
+        expect(err.message).equals(
+          "Your tenant doesn't allow creating a client secret for Microsoft Entra app. Create and configure the app manually."
+        );
+        expect(err.helpLink).equals("https://aka.ms/teams-toolkit-sni-guide");
+      });
+    });
+
+    it("should throw ClientSecretNotAllowedError with default help link when non-Microsoft user and CredentialTypeNotAllowedAsPerAppPolicy error happens", async () => {
+      const expectedError = {
+        error: {
+          code: "CredentialTypeNotAllowedAsPerAppPolicy",
+        },
+      };
+
+      const mock = new MockAdapter(axiosInstance);
+      mock
+        .onPost(`https://graph.microsoft.com/v1.0/applications/${expectedObjectId}/addPassword`)
+        .reply(400, expectedError);
+
+      await expect(
+        aadAppClient.generateClientSecret(expectedObjectId, undefined, undefined, false)
       ).to.eventually.be.rejected.then((err) => {
         expect(err instanceof ClientSecretNotAllowedError).to.be.true;
         expect(err.source).equals("AadAppClient");

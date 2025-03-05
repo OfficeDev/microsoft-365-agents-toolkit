@@ -101,8 +101,8 @@ export class CreateBotAadAppDriver implements StepDriver {
       const tokenJson = await context.m365TokenProvider.getJsonObject({ scopes: GraphScopes });
       const isMsftAccount =
         tokenJson.isOk() &&
-        tokenJson.value.unique_name &&
-        (tokenJson.value.unique_name as string).endsWith("@microsoft.com");
+        typeof tokenJson.value.unique_name == "string" &&
+        tokenJson.value.unique_name.endsWith("@microsoft.com");
 
       const startTime = performance.now();
       if (!botAadAppState.botId) {
@@ -114,11 +114,17 @@ export class CreateBotAadAppDriver implements StepDriver {
         const aadApp = await aadAppClient.createAadApp(
           args.name,
           SignInAudience.AzureADMultipleOrgs,
-          serviceManagementReference
+          serviceManagementReference,
+          isMsftAccount
         );
         botAadAppState.botId = aadApp.appId!;
         AadSet.add(aadApp.appId!);
-        botAadAppState.botPassword = await aadAppClient.generateClientSecret(aadApp.id!);
+        botAadAppState.botPassword = await aadAppClient.generateClientSecret(
+          aadApp.id!,
+          undefined,
+          undefined,
+          isMsftAccount
+        );
         context.logProvider?.info(getLocalizedString(logMessageKeys.successCreateBotAadApp));
       } else {
         context.logProvider?.info(getLocalizedString(logMessageKeys.skipCreateBotAadApp));
