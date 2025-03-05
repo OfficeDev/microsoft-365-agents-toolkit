@@ -339,7 +339,7 @@ class TreeViewManager {
               localize("teamstoolkit.commandsTreeViewProvider.shareDescription"),
               "fx-extension.share",
               "share",
-              { name: "export", custom: false }
+              { name: "share", custom: false }
             ),
           ]
         : []),
