@@ -1251,4 +1251,29 @@ describe("copilotGptManifestUtils", () => {
       }
     });
   });
+
+  describe("add knowledge for Web Content and OneDrive and Sharepoint", () => {
+    setTools(new MockTools());
+    const context = generateDriverContext(createContext(), {
+      platform: Platform.VSCode,
+      projectPath: "",
+    });
+
+    it("error path: manifestRes is error", async () => {
+      let res = await copilotGptManifestUtils.addOneDriveSharePointCapability(
+        "fake agent manifest path",
+        null,
+        null,
+        err(new UserError("fake error", "fake error", "fake error", "fake error"))
+      );
+      chai.assert.isTrue(res.isErr());
+
+      res = await copilotGptManifestUtils.addWebSearchCapability(
+        "fake agent manifest path",
+        null,
+        err(new UserError("fake error", "fake error", "fake error", "fake error"))
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+  });
 });

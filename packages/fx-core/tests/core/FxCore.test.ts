@@ -7481,6 +7481,65 @@ describe("addKnowledge", async () => {
     assert.isTrue(result.isOk());
   });
 
+  it("happy path: add Web Content(append by url)", async () => {
+    const appName = await mockV3Project();
+    const searchUrl = "https://fakeUrl.com";
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url(),
+      webSearchUrl: searchUrl,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+          },
+        ],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addWebSearchCapabilityRes = await addWebSearchRes.returnValues[0];
+    if (addWebSearchCapabilityRes.isOk()) {
+      const capabilities = addWebSearchCapabilityRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.WebSearch,
+          sites: [
+            {
+              url: searchUrl,
+            },
+          ],
+        },
+      ]);
+    } else {
+      assert.fail("Add Web Search Capability failed");
+    }
+    assert.isTrue(result.isOk());
+  });
+
   it("happy path: add Web Content(from VS)", async () => {
     const appName = await mockV3Project();
     const inputs: Inputs = {
