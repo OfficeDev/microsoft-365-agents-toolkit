@@ -1,5 +1,5 @@
 #!/bin/bash
-filePath=./feature.ts
+filePath=packages/vscode-extension/src/releaseBasedFeatureSettings.ts
 echo "Update feature settings in $filePath if alpha or preview release"
 varNames=$(grep -o "const [a-zA-Z0-9_]\+" $filePath | grep -v "releaseControlledFeatureSettings" | sed 's/const //')
 
