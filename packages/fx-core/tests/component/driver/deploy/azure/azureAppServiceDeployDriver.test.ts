@@ -57,6 +57,24 @@ describe("Azure App Service Deploy Driver test", () => {
         on: sandbox.spy(() => true),
         destroy: sandbox.spy(() => true),
       } as any);
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.callsFake((input: any) => {
+      const url: string = typeof input === "string" ? input : input.url;
+      const info = url.split(/[\/|?]/);
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            properties: {
+              enabledHostNames: [
+                `${info[info.length - 2]}.azurewebsites.net`,
+                `${info[info.length - 2]}.scm.azurewebsites.net`,
+              ],
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )
+      );
+    });
   });
 
   after(async () => {
