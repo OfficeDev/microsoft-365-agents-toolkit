@@ -718,6 +718,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Trousse de Teams a ajouté avec succès l'authentification Microsoft Entra aux API sélectionnées. Veuillez : 1. Trouver l'URI d'identifiant d'application avec l'espace réservé %s dans les fichiers .env et le mettre à jour vers l'application Microsoft Entra. 2. Ajouter https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect à l'URI de redirection de l'application Microsoft Entra.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addAuthAction.validation.url" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid URL format. Please enter a valid URL.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Format d’URL non valide. Entrez une URL valide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addAuthActionQuestion.ApiKeyIn.header" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Header]]></Val>
@@ -865,6 +883,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addEmbeddedKnowledge.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Embedded knowledge files successfully added to the project.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Les fichiers d’informations incorporés ont été ajoutés au projet.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addEmbeddedKnowledgeFilesQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select files]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sélectionner des fichiers]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addEmbeddedKnowledgeFilesQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add embedded knowledge files]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ajouter des fichiers d’informations intégrés]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addPlugin.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[API plugin "%s" added to the project successfully. View plugin manifest in "%s".]]></Val>
@@ -972,6 +1017,15 @@
           <Val><![CDATA[AI Chat Bot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Robot de conversation IA]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.authNameQuestion.validation.empty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auth name cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le nom d'authentification ne peut pas être vide.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3700,6 +3754,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.oauthScopeQuestion.validation.scope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid scope format. Please enter a valid scope. Samle: scope1: description for scope1; scope2: description for scope2]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Format d’étendue non valide. Entrez une étendue valide. Exemple : scope1 : description pour scope1; scope2: description pour scope2]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.officeContentAddin.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create new objects for Excel or PowerPoint]]></Val>
@@ -5155,6 +5218,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.aadApp.log.insufficientPermission" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[You don't have enough permission to create Microsoft Entra app. Please contact your administrator or click Proceed to enter the client ID and secret of an existing Microsoft Entra app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Désolé, vous n’avez pas les autorisations suffisantes pour créer une application Microsoft Entra. Veuillez contacter vos administrateurs ou cliquez sur Continuer pour entrer l’ID client et le secret d’une application Microsoft Entra existante.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.aadApp.log.outputAadAppManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Build Microsoft Entra app manifest completed, and app manifest content is written to %s]]></Val>
@@ -5290,6 +5362,60 @@
           <Prev Cat="Text">
             <Val><![CDATA[Updating Azure Active Directory application...]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.id.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra App ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID d’application Microsoft Entra]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.id.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra application ID cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L'ID de l'application Microsoft Entra ne peut pas être vide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.objectId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra App Object ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID d’objet de l’application Microsoft Entra]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.objectId.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra application object ID cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L'ID d’objet de l'application Microsoft Entra ne peut pas être vide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.secret.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra App Secret]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Entra App Secret]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.aadApp.question.secret.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft Entra apppplication secret cannot be empty.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le secret de l’application Microsoft Entra ne peut pas être vide.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8163,15 +8289,6 @@
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Impossible de générer des carte adaptatifs dans le manifeste du plug-in. Mettez à jour manuellement le fichier manifeste, si nécessaire.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";error.kiota.FailedToGenerateAuthActions" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to parse Open API spec and generate Auth actions in teamsapp.yml. Manually update the yml files, if required.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Impossible d’analyser la spécification Open API et de générer des actions d’authentification dans teamsapp.yml. Mettez à jour manuellement les fichiers YML, si nécessaire.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
