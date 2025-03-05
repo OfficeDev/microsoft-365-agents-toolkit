@@ -604,7 +604,7 @@ export class CopilotGptManifestUtils {
    * @param manifestRes - The result containing the agent manifest schema.
    * @param capabilityData - The data for the capability to update or add.
    */
-  private async addOrUpdateCapability(
+  async addOrUpdateCapability(
     agentManifestPath: string,
     capabilityName: DeclarativeCopilotCapabilityName,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>,
