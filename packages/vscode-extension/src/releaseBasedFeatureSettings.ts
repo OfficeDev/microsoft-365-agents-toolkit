@@ -6,7 +6,7 @@
 // During cd, we will modify the value of the feature flag settings in this file.
 // Please list each setting line by line. The default value should be the expected value in stable release, which is false usually.
 const shouldEnableTeamsCopilotChatUI = true;
-const shouldHideTeamsAgentPreviewTag = true;
+const shouldHideTeamsAgentPreviewTag = false;
 
 export const releaseControlledFeatureSettings = {
   shouldEnableTeamsCopilotChatUI,
