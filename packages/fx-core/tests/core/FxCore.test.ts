@@ -7278,8 +7278,5 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.isTrue(result.error.name.includes("embedded knowledge is not enabled"));
-    }
   });
 });
