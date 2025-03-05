@@ -346,7 +346,7 @@ export async function generateInputs(
       if (data.isBoolean) {
         type = "boolean";
       } else if (options.length > 0) {
-        const optionStrings: string[] = options.map((o) => (typeof o === "string" ? o : o.id));
+        const optionStrings = options.map((o) => (typeof o === "string" ? o : o.id));
         type = selection.skipValidation ? "string" : optionStrings.map((i) => `"${i}"`).join(" | ");
       } else {
         type = "string";
