@@ -248,6 +248,7 @@ describe("CreateOauthDriver", () => {
       allAPICount: 1,
       validAPICount: 1,
     });
+    const showMessageStub = sinon.stub(MockedUserInteraction.prototype, "showMessage").resolves();
 
     const args: any = {
       name: "test",
@@ -265,6 +266,7 @@ describe("CreateOauthDriver", () => {
       expect(result.result.value.get(outputKeys.configurationId)).to.equal("mockedRegistrationId");
       expect(result.result.value.get("APPLICATION_ID_URI")).to.equal("mockedResourceIdentifierUri");
       expect(result.summaries.length).to.equal(1);
+      expect(showMessageStub.calledOnce).to.be.true;
     }
   });
 

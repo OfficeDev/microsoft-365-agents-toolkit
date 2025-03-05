@@ -50,15 +50,11 @@
         },
         "cases": [
             "sample-localdebug-hello-world-tab-with-backend",
-            "sample-localdebug-graph-connector-bot",
-            "sample-localdebug-bot-sso",
             "sample-localdebug-dice-roller",
             "sample-localdebug-contact-exporter",
             "sample-localdebug-hello-world-meeting",
             "sample-localdebug-food-catalog",
-            "sample-remotedebug-food-catalog",
-            "sample-localdebug-intelligent-data-chart",
-            "sample-remotedebug-intelligent-data-chart"
+            "sample-remotedebug-food-catalog"
         ]
     },
     {
@@ -82,7 +78,9 @@
             "sample-remotedebug-assistant-dashboard",
             "sample-remotedebug-hello-world-tab-outlook",
             "sample-remotedebug-bot-sso",
-            "sample-remotedebug-sso-tab-via-apim-proxy"
+            "sample-remotedebug-sso-tab-via-apim-proxy",
+            "sample-localdebug-graph-connector-bot",
+            "sample-localdebug-bot-sso"
         ]
     },
     {
@@ -109,7 +107,9 @@
             "sample-remotedebug-hello-world-tab-docker",
             "sample-localdebug-todo-list-with-spfx",
             "sample-localdebug-todo-list-with-m365",
-            "sample-localdebug-react-retail-dashboard"
+            "sample-localdebug-react-retail-dashboard",
+            "sample-localdebug-intelligent-data-chart",
+            "sample-remotedebug-intelligent-data-chart"
         ]
     },
     {

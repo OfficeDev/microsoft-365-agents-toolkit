@@ -201,24 +201,29 @@ export function isM365CopilotChatDebugConfiguration(
   if (!portArg) return undefined;
   const port = Number(portArg.substring("--remote-debugging-port=".length));
   if (isNaN(port)) return undefined;
+  const userDir = runtimeArgs.find((arg) => arg.startsWith("--user-data-dir="));
+  if (userDir && process.platform === "darwin" && userDir.includes("${env:TEMP}")) {
+    // remove "--user-data-dir=" for macOS
+    configuration.runtimeArgs = runtimeArgs.filter((arg) => arg !== userDir);
+  }
   return port;
 }
 
 class CDPClientManager {
   sessions: Map<number, CDPClient> = new Map();
-  start(url: string, port: number, name: string): CDPClient {
+  async start(url: string, port: number, name: string): Promise<CDPClient> {
     const existing = this.sessions.get(port);
     if (existing) {
       // throw new PortsConflictError([port], [port], ExtensionSource);
       void VS_CODE_UI.showMessage(
-        "error",
+        "warn",
         `Debugging session already exists on this port: ${port}, the existing session will be replaced. Please change the runtimeArgs '--remote-debugging-port' in launch.json and relaunch again.`,
         false
       );
-      void existing.stop();
+      await this.stop(port);
     }
     const session = new CDPClient(url, port, name);
-    void session.start();
+    await session.start();
     this.sessions.set(port, session);
     return session;
   }
@@ -226,6 +231,7 @@ class CDPClientManager {
     const client = this.sessions.get(port);
     if (client) {
       await client.stop();
+      this.sessions.delete(port);
     }
   }
 }

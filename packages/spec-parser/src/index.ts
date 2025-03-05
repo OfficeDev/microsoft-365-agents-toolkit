@@ -18,6 +18,8 @@ export {
   ProjectType,
   InvalidAPIInfo,
   AuthType,
+  AdaptiveCardUpdateStrategy,
+  ListAPIInfo,
 } from "./interfaces";
 
 export { ConstantString } from "./constants";

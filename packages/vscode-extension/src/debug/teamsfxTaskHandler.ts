@@ -456,7 +456,7 @@ async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promis
   if (port) {
     const url = event.configuration.url;
     const name = event.configuration.name;
-    cdpClientManager.start(url, port, name);
+    await cdpClientManager.start(url, port, name);
   }
   if (globalVariables.workspaceUri && isValidProject(globalVariables.workspaceUri.fsPath)) {
     const debugConfig = event.configuration as TeamsfxDebugConfiguration;

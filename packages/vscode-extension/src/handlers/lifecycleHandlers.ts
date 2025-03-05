@@ -11,11 +11,10 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   AppStudioScopes,
   assembleError,
   AuthSvcScopes,
-  CapabilityOptions,
   featureFlagManager,
   FeatureFlags,
   isUserCancelError,
@@ -23,8 +22,12 @@ import {
   QuestionNames,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
+import * as stringUtil from "util";
 import * as vscode from "vscode";
+import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
+import { KiotaExtensionId, KiotaMinVersion } from "../constants";
+import { ExtensionSource } from "../error/error";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -36,28 +39,26 @@ import envTreeProviderInstance from "../treeview/environmentTreeViewProvider";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
-import { ExtensionSource } from "../error/error";
-import VsCodeLogInstance from "../commonlib/log";
-import * as versionUtil from "../utils/versionUtil";
-import { KiotaExtensionId, KiotaMinVersion } from "../constants";
-import * as stringUtil from "util";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
   let inputs: Inputs | undefined;
+  let stage = Stage.create;
   if (args?.length === 1) {
     if (!!args[0].teamsAppFromTdp) {
       inputs = getSystemInputs();
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
+      stage = Stage.createTdp;
     }
-  } else if (args?.length === 2) {
-    // from copilot chat
+  } else if (args?.length === 2 && args[0] !== TelemetryTriggerFrom.TreeView) {
+    // from copilot chat or createDeclarativeAgentWithApiSpec
     inputs = { ...getSystemInputs(), ...args[1] };
   }
-  const result = await runCommand(Stage.create, inputs);
+  const result = await runCommand(stage, inputs);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -114,6 +115,11 @@ export async function publishHandler(...args: unknown[]): Promise<Result<null, F
   return await runCommand(Stage.publish);
 }
 
+export async function shareHandler(...args: unknown[]): Promise<Result<null, FxError>> {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.share);
+}
+
 export async function addWebpartHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddWebpartStart, getTriggerFromProperty(args));
   return await runCommand(Stage.addWebpart);
@@ -132,6 +138,15 @@ export async function addPluginHandler(...args: unknown[]) {
   } else {
     return result;
   }
+}
+
+export async function addKnowledgeHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddKnowledgeStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.addKnowledge);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+  return result;
 }
 
 /**
@@ -243,12 +258,30 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
       // Codelens for API ME. Trigger from manifest.json
       inputs[QuestionNames.ManifestPath] = filePath;
     } else {
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
       inputs[QuestionNames.DestinationApiSpecFilePath] = filePath;
       inputs[QuestionNames.ManifestPath] = args[0].manifestPath;
     }
   }
   const result = await runCommand(Stage.copilotPluginAddAPI, inputs);
+  return result;
+}
+
+export async function addAuthActionHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
+  const inputs = getSystemInputs();
+  const result = await runCommand(Stage.addAuthAction, inputs);
+  void vscode.window
+    .showInformationMessage(
+      localize("teamstoolkit.handeler.addAuthConfig.notification"),
+      localize("teamstoolkit.handeler.addAuthConfig.notification.provision")
+    )
+    .then((selection) => {
+      if (selection === "Provision") {
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ProvisionFromAddAuthConfig);
+        void runCommand(Stage.provision);
+      }
+    });
   return result;
 }
 

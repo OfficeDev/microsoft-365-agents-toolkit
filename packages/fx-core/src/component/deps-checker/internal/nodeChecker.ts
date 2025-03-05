@@ -194,7 +194,7 @@ export class LtsNodeChecker extends NodeChecker {
   protected readonly _maxErrorVersion = Number.MAX_SAFE_INTEGER;
 
   protected getSupportedVersions(): Promise<string[]> {
-    return Promise.resolve(["16", "18", "20"]);
+    return Promise.resolve(["18", "20", "22"]);
   }
 
   protected isVersionSupported(supportedVersions: string[], version: NodeVersion): boolean {

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx-core",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
@@ -121,6 +121,7 @@
     "md5": "^2.3.0",
     "mime": "^2.5.2",
     "mustache": "^4.1.0",
+    "neverthrow": "^3.2.0",
     "node-fetch": "2.7.0",
     "node-forge": "^1.3.1",
     "office-addin-manifest": "^1.13.5",

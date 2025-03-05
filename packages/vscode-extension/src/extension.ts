@@ -18,6 +18,7 @@ import {
   FeatureFlags,
   VersionState,
   featureFlagManager,
+  globalStateGet,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
@@ -73,6 +74,7 @@ import {
   isTeamsFxProject,
   unsetIsTeamsFxProject,
   workspaceUri,
+  isDeclarativeCopilotApp,
 } from "./globalVariables";
 import {
   convertAadToNewSchemaHandler,
@@ -115,6 +117,7 @@ import {
   refreshEnvironment,
 } from "./handlers/envHandlers";
 import {
+  addAuthActionHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -123,6 +126,8 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  addKnowledgeHandler,
+  shareHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -205,6 +210,7 @@ import { manifestListener } from "./manifestListener";
 import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
 import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
+import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -277,6 +283,18 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isSyncManifestEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SyncManifest)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isDeclarativeCopilotApp",
+    isDeclarativeCopilotApp
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isAddKnowledgeEnabled",
+    featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
   );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
@@ -477,6 +495,36 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
   );
   context.subscriptions.push(troubleshootError);
+
+  const installCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.installCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.installGithubCopilotChatExtension, args)
+  );
+  context.subscriptions.push(installCopilotChat);
+
+  const openInstallTeamsAgent = vscode.commands.registerCommand(
+    "fx-extension.openInstallTeamsAgent",
+    (...args) => Correlator.run(copilotChatHandlers.openInstallTeamsAgent, args)
+  );
+  context.subscriptions.push(openInstallTeamsAgent);
+
+  const markTeamsAgentInstallationDone = vscode.commands.registerCommand(
+    "fx-extension.markInstallTeamsAgentDone",
+    (...args) => Correlator.run(copilotChatHandlers.markTeamsAgentInstallationDone, args)
+  );
+  context.subscriptions.push(markTeamsAgentInstallationDone);
+
+  const openGitHubCopilotChat = vscode.commands.registerCommand(
+    "fx-extension.openGitHubCopilotChat",
+    (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
+  );
+  context.subscriptions.push(openGitHubCopilotChat);
+
+  const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
+    "fx-extension.openTeamsAgentWalkthrough",
+    (...args) => Correlator.run(copilotChatHandlers.openTeamsAgentWalkthrough, args)
+  );
+  context.subscriptions.push(openTeamsAgentWalkthrough);
 }
 
 /**
@@ -553,6 +601,12 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 
   registerInCommandController(context, CommandKeys.SigninAzure, signinAzureCallback);
 
+  const createDeclarativeAgentWithApiSpecCommand = vscode.commands.registerCommand(
+    "fx-extension.createDeclarativeAgentWithApiSpec",
+    (...args) => Correlator.run(createDeclarativeAgentWithApiSpec, args)
+  );
+  context.subscriptions.push(createDeclarativeAgentWithApiSpecCommand);
+
   // Register createPluginWithManifest command
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {
     const createPluginWithManifestCommand = vscode.commands.registerCommand(
@@ -623,6 +677,13 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
   registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
+
+  registerInCommandController(
+    context,
+    "fx-extension.addKnowledge",
+    addKnowledgeHandler,
+    "addKnowledge"
+  );
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
@@ -637,6 +698,9 @@ function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
 
   // Publish to Teams
   registerInCommandController(context, CommandKeys.Publish, publishHandler, "publish");
+
+  // Share apps to others
+  registerInCommandController(context, CommandKeys.Share, shareHandler, "share");
 
   // Publish in Developer Portal
   registerInCommandController(
@@ -727,6 +791,12 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
   if (featureFlagManager.getBooleanValue(FeatureFlags.SyncManifest)) {
     registerInCommandController(context, "fx-extension.syncManifest", syncManifestHandler);
   }
+
+  const addAuthActionCmd = vscode.commands.registerCommand(
+    "fx-extension.addAuthAction",
+    (...args) => Correlator.run(addAuthActionHandler, args)
+  );
+  context.subscriptions.push(addAuthActionCmd);
 }
 
 /**

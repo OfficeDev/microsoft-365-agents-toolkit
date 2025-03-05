@@ -9,7 +9,7 @@ import fs from "fs-extra";
 import "mocha";
 import sinon from "sinon";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
-import { PackageService } from "../../../src/component/m365/packageService";
+import { AppScope, PackageService } from "../../../src/component/m365/packageService";
 import { setTools } from "../../../src/common/globalVars";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
@@ -71,6 +71,7 @@ describe("Package Service", () => {
     sandbox.stub(axios, "create").returns(testAxiosInstance);
 
     setTools({} as any);
+    process.env["TEAMSFX_BUILDER_API"] = "1";
   });
 
   it("GetSharedInstance happy path", () => {
@@ -344,6 +345,14 @@ describe("Package Service", () => {
         },
       },
     };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: {
+        statusId: "test-status-id-builder-api",
+        titlePreview: {
+          titleId: "test-title-id-preview-builder-api",
+        },
+      },
+    };
     axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
       data: {
         statusId: "test-status-id",
@@ -356,9 +365,60 @@ describe("Package Service", () => {
         appId: "test-app-id",
       },
     };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
+      status: 200,
+      data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id-builder-api/sharingInfo"] = {
+      data: {
+        unifiedStoreLink: "https://test-share-link",
+      },
+    };
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: Error | undefined;
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path");
+      chai.assert.equal(result[0], "test-title-id");
+      chai.assert.equal(result[1], "test-app-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+    packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      $schema:
+        "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: "1.0.0",
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "test-manifest",
+        full: "test-manifest full name",
+      },
+      description: {
+        short: "Short description for test-manifest",
+        full: "Full description for test-manifest",
+      },
+      accentColor: "#FFFFFF",
+      composeExtensions: [],
+      permissions: ["identity", "messageTeamMembers"],
+    } as any);
     try {
       const result = await packageService.sideLoading("test-token", "test-path");
       chai.assert.equal(result[0], "test-title-id");
@@ -370,8 +430,56 @@ describe("Package Service", () => {
     chai.assert.isUndefined(actualError);
 
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+      chai.assert.equal(result[0], "test-title-id-builder-api");
+      chai.assert.equal(result[1], "test-app-id-builder-api");
+      chai.assert.equal(result[2], "https://test-share-link");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+
+    // without logger
+    packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
     try {
       const result = await packageService.sideLoading("test-token", "test-path");
+      chai.assert.equal(result[0], "test-title-id-builder-api");
+      chai.assert.equal(result[1], "test-app-id-builder-api");
+      chai.assert.equal(result[2], "");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isUndefined(actualError);
+
+    packageService = new PackageService("https://test-endpoint");
+    try {
+      const result = await packageService.sideLoading(
+        "test-token",
+        "./tests/component/m365/success.zip"
+      );
       chai.assert.equal(result[0], "test-title-id");
       chai.assert.equal(result[1], "test-app-id");
     } catch (error: any) {
@@ -381,6 +489,60 @@ describe("Package Service", () => {
     chai.assert.isUndefined(actualError);
   });
 
+  it("sideloading throws error in get status", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: {
+        statusId: "test-status-id-builder-api",
+        titlePreview: {
+          titleId: "test-title-id-preview-builder-api",
+        },
+      },
+    };
+    let actualError: Error | undefined;
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+
+    const expectedError = new Error("test-status") as any;
+    expectedError.response = {
+      data: {
+        foo: "bar",
+      },
+      headers: {
+        traceresponse: "tracing-id",
+      },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] =
+      expectedError;
+    actualError = undefined;
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("test-status"));
+  });
   it("sideLoading throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -388,8 +550,10 @@ describe("Package Service", () => {
       },
     };
     axiosPostResponses["/dev/v1/users/packages"] = new Error("test-post");
+    axiosPostResponses["/builder/v1/users/packages"] = new Error("test-post-builder-api");
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: Error | undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
@@ -401,6 +565,8 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError?.message.includes("test-post"));
 
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    actualError = undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
@@ -409,6 +575,43 @@ describe("Package Service", () => {
 
     chai.assert.isDefined(actualError);
     chai.assert.isTrue(actualError?.message.includes("test-post"));
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    actualError = undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("test-post-builder-api"));
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    sandbox
+      .stub(packageService, "getManifestFromZip" as keyof PackageService)
+      .returns(undefined as any);
+    actualError = undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(
+      actualError?.message.includes("Invalid app package zip. manifest.json is missing")
+    );
   });
 
   it("sideLoading throws expected reponse error", async () => {
@@ -429,6 +632,7 @@ describe("Package Service", () => {
     axiosPostResponses["/dev/v1/users/packages"] = expectedError;
 
     let packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: any;
     try {
       await packageService.sideLoading("test-token", "test-path");
@@ -440,6 +644,8 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError.message.includes("test-post"));
 
     packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
+    actualError = undefined;
     try {
       await packageService.sideLoading("test-token", "test-path");
     } catch (error: any) {
@@ -469,6 +675,7 @@ describe("Package Service", () => {
     axiosPostResponses["/dev/v1/users/packages"] = expectedError;
 
     const packageService = new PackageService("https://test-endpoint");
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({} as any);
     let actualError: any;
     try {
       await packageService.sideLoading("test-token", "test-path");
@@ -479,6 +686,62 @@ describe("Package Service", () => {
     chai.assert.isDefined(actualError);
     chai.assert.isTrue(actualError.message.includes("test-post"));
     chai.assert.isTrue(actualError instanceof UserError);
+  });
+
+  it("sideLoading Builder API Feature Flag turned off", async () => {
+    process.env["TEAMSFX_BUILDER_API"] = "0";
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosPostResponses["/dev/v1/users/packages"] = {
+      data: {
+        operationId: "test-operation-id",
+        titlePreview: {
+          titleId: "test-title-id-preview",
+        },
+      },
+    };
+    axiosPostResponses["/dev/v1/users/packages/acquisitions"] = {
+      data: {
+        statusId: "test-status-id",
+      },
+    };
+    axiosGetResponses["/dev/v1/users/packages/status/test-status-id"] = {
+      status: 200,
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id-builder-api/sharingInfo"] = {
+      data: {
+        unifiedStoreLink: "https://test-share-link",
+      },
+    };
+
+    let actualError: Error | undefined;
+    const packageService = new PackageService("https://test-endpoint", logger);
+    sandbox.stub(packageService, "getManifestFromZip" as keyof PackageService).returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    } as any);
+    try {
+      const result = await packageService.sideLoading("test-token", "test-path", AppScope.Shared);
+      chai.assert.equal(result[0], "test-title-id");
+      chai.assert.equal(result[1], "test-app-id");
+      chai.assert.equal(result[2], "");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isUndefined(actualError);
   });
 
   it("retrieveTitleId happy path", async () => {
@@ -676,7 +939,6 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
   });
-
   it("unacquire throws expected error", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -685,8 +947,19 @@ describe("Package Service", () => {
     };
     axiosDeleteResponses["/catalog/v1/users/acquisitions/test-title-id"] = new Error("test-delete");
 
-    const packageService = new PackageService("https://test-endpoint");
+    let packageService = new PackageService("https://test-endpoint");
     let actualError: Error | undefined;
+    try {
+      await packageService.unacquire("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.isTrue(actualError?.message.includes("test-delete"));
+
+    packageService = new PackageService("https://test-endpoint", logger);
+    actualError = undefined;
     try {
       await packageService.unacquire("test-token", "test-title-id");
     } catch (error: any) {
@@ -1068,5 +1341,37 @@ describe("Package Service", () => {
 
     chai.assert.isUndefined(actualError);
     chai.assert.isUndefined(result);
+  });
+
+  it("get share link happy path", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/sharingInfo"] = {
+      data: {
+        unifiedStoreLink: "https://test-share-link",
+      },
+    };
+    const packageService = new PackageService("https://test-endpoint");
+    const shareLink = await packageService.getShareLink("test-token", "test-title-id");
+    chai.assert.equal(shareLink, "https://test-share-link");
+  });
+
+  it("get share link - failure", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const packageService = new PackageService("https://test-endpoint");
+    let actualError: boolean | undefined;
+    try {
+      const shareLink = await packageService.getShareLink("test-token", "test-title-id");
+    } catch (error: any) {
+      actualError = error;
+    }
+    chai.assert.isDefined(actualError);
   });
 });

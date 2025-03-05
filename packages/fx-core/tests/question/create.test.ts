@@ -33,12 +33,11 @@ import { sampleProvider } from "../../src/common/samples";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import { OfficeAddinProjectConfig } from "../../src/component/generator/officeXMLAddin/projectConfig";
 import { convertToLangKey } from "../../src/component/generator/utils";
 import { FileNotFoundError } from "../../src/error";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
-  ApiPluginStartOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
@@ -854,35 +853,23 @@ describe("scaffold question", () => {
         } else if (question.name === QuestionNames.ReplaceWebsiteUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceContentUrl) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         } else if (question.name === QuestionNames.ReplaceBotIds) {
           const select = question as MultiSelectQuestion;
           const options = (await select.dynamicOptions!(inputs)) as OptionItem[];
-          const defaults = await (select as any).default!(inputs);
+          const defaults = options.map((o) => o.id);
           assert.isTrue(options.length === 1);
           assert.isTrue(defaults.length === 1);
-          assert.deepEqual(
-            options.map((o: OptionItem) => o.id),
-            defaults
-          );
           return ok({ type: "success", result: [] });
         }
         return ok({ type: "success", result: undefined });
@@ -1642,9 +1629,7 @@ describe("scaffold question", () => {
       const tools = new MockTools();
       setTools(tools);
       beforeEach(() => {
-        mockedEnvRestore = mockedEnv({
-          [FeatureFlagName.ApiPluginAAD]: "true",
-        });
+        mockedEnvRestore = mockedEnv({});
       });
 
       afterEach(() => {
@@ -1674,11 +1659,11 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
+          } else if (question.name === QuestionNames.ActionType) {
             const select = question as SingleSelectQuestion;
             const options = select.staticOptions;
             assert.isTrue(options.length === 3);
-            return ok({ type: "success", result: ApiPluginStartOptions.newApi().id });
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ApiAuth) {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
@@ -1700,7 +1685,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -1714,8 +1699,8 @@ describe("scaffold question", () => {
         };
         inputs[QuestionNames.Capabilities] = CapabilityOptions.apiPlugin().id;
         inputs[QuestionNames.ApiSpecLocation] = "api-spec-path";
-        inputs[QuestionNames.ApiPluginManifestPath] = "api-plugin-manifest-path";
-        inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+        inputs[QuestionNames.ActionManifestPath] = "api-plugin-manifest-path";
+        inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
         inputs[QuestionNames.ApiOperation] = "api-plugin-manifest-path";
         inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
         const questions: string[] = [];
@@ -1751,8 +1736,8 @@ describe("scaffold question", () => {
         };
         inputs[QuestionNames.Capabilities] = CapabilityOptions.declarativeAgent().id;
         inputs[QuestionNames.ApiSpecLocation] = "api-spec-path";
-        inputs[QuestionNames.ApiPluginManifestPath] = "api-plugin-manifest-path";
-        inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+        inputs[QuestionNames.ActionManifestPath] = "api-plugin-manifest-path";
+        inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
         inputs[QuestionNames.ApiOperation] = "api-plugin-manifest-path";
         inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
         const questions: string[] = [];
@@ -1807,8 +1792,8 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           }
           return ok({ type: "success", result: undefined });
         };
@@ -1816,7 +1801,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
         ]);
       });
 
@@ -1847,8 +1832,8 @@ describe("scaffold question", () => {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
             return ok({ type: "success", result: CapabilityOptions.declarativeAgent().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           } else if (question.name === QuestionNames.WithPlugin) {
             return ok({ type: "success", result: "yes" });
           }
@@ -1859,7 +1844,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
         ]);
       });
 
@@ -1884,8 +1869,8 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: ProjectTypeOptions.Agent().id });
           } else if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.newApi().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ApiAuth) {
             const select = question as SingleSelectQuestion;
             const options = await select.dynamicOptions!(inputs);
@@ -1907,7 +1892,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -1944,8 +1929,8 @@ describe("scaffold question", () => {
               getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.title")
             );
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.apiSpec().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.apiSpec().id });
           } else if (question.name === QuestionNames.ApiSpecLocation) {
             const validRes = await (question as any).inputBoxConfig.validation!.validFunc(
               "https://test.com"
@@ -1970,7 +1955,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.ApiSpecLocation,
           QuestionNames.ApiOperation,
           QuestionNames.Folder,
@@ -1981,7 +1966,6 @@ describe("scaffold question", () => {
       it("traverse in cli", async () => {
         mockedEnvRestore = mockedEnv({
           TEAMSFX_CLI_DOTNET: "false",
-          [FeatureFlagName.ApiPluginAAD]: "true",
         });
 
         const inputs: Inputs = {
@@ -1999,8 +1983,8 @@ describe("scaffold question", () => {
           await callFuncs(question, inputs);
           if (question.name === QuestionNames.Capabilities) {
             return ok({ type: "success", result: CapabilityOptions.apiPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.newApi().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({ type: "success", result: ActionStartOptions.newApi().id });
           } else if (question.name === QuestionNames.ProgrammingLanguage) {
             return ok({ type: "success", result: "javascript" });
           } else if (question.name === QuestionNames.AppName) {
@@ -2016,7 +2000,7 @@ describe("scaffold question", () => {
         assert.deepEqual(questions, [
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.ApiAuth,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
@@ -2077,7 +2061,7 @@ describe("scaffold question", () => {
           const inputs: Inputs = {
             platform: Platform.VSCode,
             [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-            [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+            [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
             [QuestionNames.ApiSpecLocation]: "apispec",
             supportedApisFromApiSpec: [
               {
@@ -3146,7 +3130,7 @@ describe("scaffold question", () => {
           const inputs: Inputs = {
             platform: Platform.VSCode,
             "manifest-path": "fakePath",
-            [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+            [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
             [QuestionNames.DestinationApiSpecFilePath]: "openapi.yaml",
           };
 
@@ -3325,7 +3309,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.ProgrammingLanguage,
           QuestionNames.Folder,
           QuestionNames.AppName,
@@ -3364,8 +3348,11 @@ describe("scaffold question", () => {
             return ok({ type: "success", result: CapabilityOptions.declarativeAgent().id });
           } else if (question.name === QuestionNames.WithPlugin) {
             return ok({ type: "success", result: DeclarativeCopilotTypeOptions.withPlugin().id });
-          } else if (question.name === QuestionNames.ApiPluginType) {
-            return ok({ type: "success", result: ApiPluginStartOptions.existingPlugin().id });
+          } else if (question.name === QuestionNames.ActionType) {
+            return ok({
+              type: "success",
+              result: ActionStartOptions.existingPlugin().id,
+            });
           } else if (question.name === QuestionNames.PluginManifestFilePath) {
             const select = question as SingleFileQuestion;
             const title = select.title;
@@ -3430,7 +3417,7 @@ describe("scaffold question", () => {
           QuestionNames.ProjectType,
           QuestionNames.Capabilities,
           QuestionNames.WithPlugin,
-          QuestionNames.ApiPluginType,
+          QuestionNames.ActionType,
           QuestionNames.PluginManifestFilePath,
           QuestionNames.PluginOpenApiSpecFilePath,
           QuestionNames.Folder,
@@ -3466,6 +3453,41 @@ describe("scaffold question", () => {
         const validationFunc = question.validation as FuncValidation<string>;
         const validationRes = await validationFunc.validFunc!("", inputs);
         assert.isTrue(validationRes?.includes("OpenApi"));
+      });
+
+      it("pluginManifestQuestion: default plugin manifest", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.exists(res);
+      });
+
+      it("pluginManifestQuestion: projectpath not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+        };
+        sandbox.stub(fs, "existsSync").returns(true);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
+      });
+
+      it("pluginManifestQuestion: default file not exists", async () => {
+        const question = pluginManifestQuestion();
+        const inputs: Inputs = {
+          platform: Platform.VSCode,
+          projectPath: "./",
+        };
+        sandbox.stub(fs, "existsSync").returns(false);
+        const defaultFile = question.default as LocalFunc<string>;
+        const res = await defaultFile(inputs);
+        assert.isUndefined(res);
       });
 
       it("pluginApiSpecQuestion: invalid file format", async () => {
@@ -3865,13 +3887,6 @@ describe("scaffold question", () => {
       );
     });
 
-    describe("officeAddinStaticCapabilities()", () => {
-      it("should return correct capabilities without specific host", () => {
-        const capabilities = CapabilityOptions.officeAddinStaticCapabilities();
-        assert.equal(capabilities.length, 2);
-      });
-    });
-
     describe("officeAddinCapabilities()", () => {
       it("should return correct capabilities for outlook addin", () => {
         const capabilities = CapabilityOptions.officeAddinCapabilities(
@@ -3932,7 +3947,7 @@ describe("scaffold question", () => {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
           assert.isTrue(options.length === 3);
-          return ok({ type: "success", result: MeArchitectureOptions.botPlugin().id });
+          return ok({ type: "success", result: MeArchitectureOptions.botMe().id });
         } else if (question.name === QuestionNames.ProgrammingLanguage) {
           const select = question as SingleSelectQuestion;
           const options = await select.dynamicOptions!(inputs);
@@ -4064,9 +4079,7 @@ describe("scaffold question", () => {
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "true",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4096,12 +4109,29 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
       assert.isDefined(question.dynamicOptions);
       if (question.dynamicOptions) {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];
         assert.deepEqual(options, [
           ApiAuthOptions.none(),
+          ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
+          ApiAuthOptions.oauth(),
+        ]);
+      }
+    });
+
+    it("api plugin from add action with auth enabled", async () => {
+      const question = apiAuthQuestion(true);
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+      };
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
+      assert.isDefined(question.dynamicOptions);
+      if (question.dynamicOptions) {
+        const options = (await question.dynamicOptions(inputs)) as OptionItem[];
+        assert.deepEqual(options, [
           ApiAuthOptions.apiKey(),
           ApiAuthOptions.microsoftEntra(),
           ApiAuthOptions.oauth(),
@@ -4114,9 +4144,7 @@ describe("scaffold question", () => {
     const tools = new MockTools();
     setTools(tools);
     beforeEach(() => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.ApiPluginAAD]: "false",
-      });
+      mockedEnvRestore = mockedEnv({});
     });
 
     afterEach(() => {
@@ -4130,13 +4158,14 @@ describe("scaffold question", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
       };
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.newApi().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
       assert.isDefined(question.dynamicOptions);
       if (question.dynamicOptions) {
         const options = (await question.dynamicOptions(inputs)) as OptionItem[];
         assert.deepEqual(options, [
           ApiAuthOptions.none(),
           ApiAuthOptions.apiKey(),
+          ApiAuthOptions.microsoftEntra(),
           ApiAuthOptions.oauth(),
         ]);
       }

@@ -36,3 +36,4 @@ import "./apiKey/create";
 import "./apiKey/update";
 import "./oauth/create";
 import "./oauth/update";
+import "./share/shareToOthers";

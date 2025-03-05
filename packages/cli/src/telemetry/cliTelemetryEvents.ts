@@ -74,6 +74,9 @@ export enum TelemetryEvent {
   PublishStart = "publish-start",
   Publish = "publish",
 
+  ShareStart = "share-start",
+  Share = "share",
+
   Preview = "preview",
   PreviewNpmInstallStart = "preview-npm-install-start",
   PreviewNpmInstall = "preview-npm-install",
@@ -120,6 +123,8 @@ export enum TelemetryEvent {
   Doctor = "doctor",
 
   AddCopilotPlugin = "add-copilot-plugin",
+  AddAuthAction = "add-auth-action",
+  AddKnowledge = "add-knowledge",
 }
 
 export enum TelemetryProperty {

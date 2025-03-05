@@ -26,21 +26,21 @@ import { EOL } from "os";
 import * as path from "path";
 import semver from "semver";
 import * as util from "util";
-import { cpUtils } from "../../deps-checker";
 import { jsonUtils } from "../../../common/jsonUtils";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, UserCancelError } from "../../../error";
 import {
-  CapabilityOptions,
   ProgrammingLanguage,
   QuestionNames,
   SPFxVersionOptionIds,
 } from "../../../question/constants";
+import { TabCapabilityOptions } from "../../../question/scaffold/vsc/CapabilityOptions";
+import { cpUtils } from "../../deps-checker";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { ActionContext, ActionExecutionMW } from "../../middleware/actionExecutionMW";
 import { envUtil } from "../../utils/envUtil";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { GeneratorChecker } from "./depsChecker/generatorChecker";
 import { YoChecker } from "./depsChecker/yoChecker";
@@ -891,12 +891,12 @@ export class SPFxGenerator {
 
 export class SPFxGeneratorNew extends DefaultTemplateGenerator {
   componentName = "spfx-new-generator";
-  public activate(context: Context, inputs: Inputs): boolean {
+  public override activate(context: Context, inputs: Inputs): boolean {
     const capability = inputs[QuestionNames.Capabilities] as string;
     const spfxSolution = inputs[QuestionNames.SPFxSolution];
-    return capability === CapabilityOptions.SPFxTab().id && spfxSolution === "new";
+    return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution === "new";
   }
-  public async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -921,13 +921,13 @@ export class SPFxGeneratorNew extends DefaultTemplateGenerator {
 export class SPFxGeneratorImport extends DefaultTemplateGenerator {
   componentName = "spfx-import-generator";
   importDetails: string[] = [];
-  public activate(context: Context, inputs: Inputs): boolean {
+  public override activate(context: Context, inputs: Inputs): boolean {
     const capability = inputs[QuestionNames.Capabilities] as string;
     const spfxSolution = inputs[QuestionNames.SPFxSolution];
-    return capability === CapabilityOptions.SPFxTab().id && spfxSolution !== "new";
+    return capability === TabCapabilityOptions.SPFxTab().id && spfxSolution !== "new";
   }
 
-  public async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
@@ -1006,7 +1006,7 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
     }
   }
 
-  public async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

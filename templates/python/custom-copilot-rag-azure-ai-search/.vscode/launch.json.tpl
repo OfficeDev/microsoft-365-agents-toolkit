@@ -89,8 +89,7 @@
       "internalConsoleOptions": "neverOpen",
       "runtimeArgs": [
           "--remote-debugging-port=9222",
-          "--no-first-run",
-          "--user-data-dir=${env:TEMP}/copilot-msedge-user-data-dir"
+          "--no-first-run"
       ]
     },
     {
@@ -105,8 +104,38 @@
       "internalConsoleOptions": "neverOpen",
       "runtimeArgs": [
           "--remote-debugging-port=9223",
-          "--no-first-run",
-          "--user-data-dir=${env:TEMP}/copilot-chrome-user-data-dir"
+          "--no-first-run"
+          
+      ]
+    },
+    {
+      "name": "Local debug in Copilot (Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${local:agent-hint}?auth=2&${account-hint}&developerMode=Basic",
+      "presentation": {
+        "group": "all",
+        "hidden": true
+      },
+      "internalConsoleOptions": "neverOpen",
+      "runtimeArgs": [
+          "--remote-debugging-port=9222",
+          "--no-first-run"
+      ]
+    },
+    {
+      "name": "Local debug in Copilot (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${local:agent-hint}?auth=2&${account-hint}&developerMode=Basic",
+      "presentation": {
+        "group": "all",
+        "hidden": true
+      },
+      "internalConsoleOptions": "neverOpen",
+      "runtimeArgs": [
+          "--remote-debugging-port=9223",
+          "--no-first-run"
       ]
     {{/CEAEnabled}}
     }
@@ -163,7 +192,7 @@
     },
     {
       "name": "Debug in Copilot (Edge)",
-      "configurations": ["Launch Remote in Copilot (Edge)", "Start Python"],
+      "configurations": ["Local debug in Copilot (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
       "preLaunchTask": "Start Teams App Locally",
       "presentation": {
@@ -174,7 +203,7 @@
     },
     {
       "name": "Debug in Copilot (Chrome)",
-      "configurations": ["Launch Remote in Copilot (Chrome)", "Start Python"],
+      "configurations": ["Local debug in Copilot (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
       "preLaunchTask": "Start Teams App Locally",
       "presentation": {

@@ -20,16 +20,12 @@ import { convertProject } from "office-addin-project";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getUuid } from "../../../common/stringUtils";
 import { assembleError } from "../../../error";
-import {
-  CapabilityOptions,
-  ProgrammingLanguage,
-  ProjectTypeOptions,
-  QuestionNames,
-} from "../../../question/constants";
+import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { envUtil } from "../../utils/envUtil";
-import { DefaultTemplateGenerator } from "../templates/templateGenerator";
+import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
+import { TemplateNames } from "../templates/templateNames";
 import { HelperMethods } from "./helperMethods";
 
 /**
@@ -121,33 +117,22 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
   componentName = "office-addin-generator";
 
   // activation condition
-  public activate(context: Context, inputs: Inputs): boolean {
-    const projectType = inputs[QuestionNames.ProjectType];
-    return ProjectTypeOptions.officeAddinAllIds().includes(projectType);
+  public override activate(context: Context, inputs: Inputs): boolean {
+    const templateName = inputs[QuestionNames.TemplateName];
+    return [
+      TemplateNames.OutlookTaskpane,
+      TemplateNames.WXPTaskpane,
+      TemplateNames.OfficeAddinCommon,
+    ].includes(templateName);
   }
 
-  public async getTemplateInfos(
+  public override async getTemplateInfos(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<TemplateInfo[], FxError>> {
-    const projectType = inputs[QuestionNames.ProjectType];
-    const capability = inputs[QuestionNames.Capabilities];
-    let templateName;
-    if (projectType === ProjectTypeOptions.officeMetaOS().id) {
-      if (capability === CapabilityOptions.officeAddinImport().id) {
-        templateName = "office-addin-config";
-      } else {
-        templateName = "office-addin-wxpo-taskpane";
-      }
-    } else {
-      if (capability === CapabilityOptions.outlookAddinImport().id) {
-        templateName = "office-addin-config";
-      } else {
-        templateName = "office-addin-outlook-taskpane";
-      }
-    }
+    const templateName = inputs[QuestionNames.TemplateName];
     const res = await OfficeAddinGenerator.doScaffolding(context, inputs, destinationPath);
     if (res.isErr()) return err(res.error);
     return Promise.resolve(
@@ -161,7 +146,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     );
   }
 
-  async post(
+  public override async post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,

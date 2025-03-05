@@ -210,7 +210,7 @@ export class VSCodeUI implements UserInteraction {
                 }
               }
             } else result = getOptionItem(item);
-            resolve(ok({ type: isSkip ? "skip" : "success", result: result }));
+            resolve(ok({ type: isSkip ? "skip" : "success", result: result, options: options }));
           }
         };
 

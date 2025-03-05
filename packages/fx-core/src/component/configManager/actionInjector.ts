@@ -5,6 +5,7 @@ import { ConstantString, Utils } from "@microsoft/m365-spec-parser";
 import fs from "fs-extra";
 import { parseDocument } from "yaml";
 import { InjectAPIKeyActionFailedError, InjectOAuthActionFailedError } from "../../error/common";
+import { MicrosoftEntraAuthType } from "./constant";
 
 export class ActionInjector {
   static hasActionWithName(
@@ -39,7 +40,9 @@ export class ActionInjector {
     teamsAppIdEnvName: string,
     specRelativePath: string,
     envName: string,
-    flow?: string
+    flow?: string,
+    isMicrosoftEntra?: boolean,
+    enablePKCE?: boolean
   ): any {
     const result: any = {
       uses: actionName,
@@ -61,6 +64,17 @@ export class ActionInjector {
       };
     }
 
+    if (enablePKCE) {
+      result.with.isPKCEEnabled = true;
+    }
+
+    if (isMicrosoftEntra) {
+      result.with.identityProvider = MicrosoftEntraAuthType;
+      result.writeToEnvironmentFile.applicationIdUri = Utils.getSafeRegistrationIdEnvName(
+        `${authName}_APPLICATION_ID_URI`
+      );
+    }
+
     return result;
   }
 
@@ -68,7 +82,10 @@ export class ActionInjector {
     ymlPath: string,
     authName: string,
     specRelativePath: string,
-    forceToAddNew: boolean // If it from add plugin, then we will add another CreateOAuthAction
+    forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
+    isMicrosoftEntra: boolean,
+    enablePKCE?: boolean,
+    registrationId?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -108,10 +125,9 @@ export class ActionInjector {
         const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
           `${authName}_${ConstantString.RegistrationIdPostfix}`
         );
-        const registrationIdEnvName = this.findNextAvailableEnvName(
-          defaultEnvName,
-          existingConfigurationIdEnvNames
-        );
+        const registrationIdEnvName =
+          registrationId ??
+          this.findNextAvailableEnvName(defaultEnvName, existingConfigurationIdEnvNames);
         const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
@@ -125,7 +141,9 @@ export class ActionInjector {
             teamsAppIdEnvName,
             specRelativePath,
             registrationIdEnvName,
-            flow
+            flow,
+            isMicrosoftEntra,
+            enablePKCE
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {
@@ -149,7 +167,8 @@ export class ActionInjector {
     ymlPath: string,
     authName: string,
     specRelativePath: string,
-    forceToAddNew: boolean // If it from add plugin, then we will add another CreateApiKeyAction
+    forceToAddNew: boolean, // If it from add plugin, then we will add another CreateApiKeyAction
+    registrationId?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "apiKey/register";
@@ -192,10 +211,9 @@ export class ActionInjector {
         const defaultEnvName = Utils.getSafeRegistrationIdEnvName(
           `${authName}_${ConstantString.RegistrationIdPostfix}`
         );
-        const registrationIdEnvName = this.findNextAvailableEnvName(
-          defaultEnvName,
-          existingRegistrationIdEnvNames
-        );
+        const registrationIdEnvName =
+          registrationId ??
+          this.findNextAvailableEnvName(defaultEnvName, existingRegistrationIdEnvNames);
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
             (item: any) => item.get("uses") === "teamsApp/create"

@@ -237,6 +237,7 @@ describe("OfficeDevTerminal", () => {
 });
 
 class TerminalStub implements vscode.Terminal {
+  shellIntegration: vscode.TerminalShellIntegration | undefined;
   name!: string;
   processId!: Thenable<number | undefined>;
   creationOptions!: Readonly<vscode.TerminalOptions | vscode.ExtensionTerminalOptions>;

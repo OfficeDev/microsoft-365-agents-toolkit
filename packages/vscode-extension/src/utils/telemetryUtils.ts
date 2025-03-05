@@ -75,21 +75,16 @@ export function getTriggerFromProperty(args?: any[]) {
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.CreateAppQuestionFlow };
     case TelemetryTriggerFrom.EditorContextMenu:
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.EditorContextMenu };
-    case TelemetryTriggerFrom.WalkThroughCreate:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughCreate };
-    case TelemetryTriggerFrom.WalkThroughIntroduction:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughIntroduction };
-    case TelemetryTriggerFrom.WalkThroughWhatIsNext:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughWhatIsNext };
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction:
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
+      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughCreate };
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
+      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughExplore };
+    case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       return {
-        [TelemetryProperty.TriggerFrom]:
-          TelemetryTriggerFrom.WalkThroughIntelligentAppsIntroduction,
+        [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot,
       };
-    case TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate:
-      return {
-        [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.WalkThroughIntelligentAppsCreate,
-      };
+    case TelemetryTriggerFrom.TeamsAgentWalkthrough:
+      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthrough };
     default:
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Unknow };
   }

@@ -40,6 +40,9 @@ export enum TelemetryEvent {
   AddPluginStart = "add-plugin-start",
   AddPlugin = "add-plugin",
 
+  AddKnowledgeStart = "add-knowledge-start",
+  AddKnowledge = "add-knowledge",
+
   ValidateManifestStart = "validate-manifest-start",
   ValidateManifest = "validate-manifest",
   ValidateApplication = "validate-application",
@@ -77,6 +80,9 @@ export enum TelemetryEvent {
 
   PublishStart = "publish-start",
   Publish = "publish",
+
+  ShareStart = "share-start",
+  Share = "share",
 
   PublishInDeveloperPortalStart = "publish-in-developer-portal-start",
   PublishInDeveloperPortal = "publish-in-developer-portal",
@@ -289,6 +295,18 @@ export enum TelemetryEvent {
   TroubleshootErrorFromNotificationStart = "troubleshoot-error-from-notification-start",
   TroubleshootErrorFromNotification = "troubleshoot-error-from-notification",
 
+  OpenGitHubCopilotChatStart = "open-github-copilot-chat-start",
+  openGitHubCopilotChat = "open-github-copilot-chat",
+  InstallCopilotChatStart = "install-copilot-chat-start",
+  InstallCopilotChat = "install-copilot-chat",
+  OpenInstallTeamsAgentStart = "open-install-teams-agent-start",
+  OpenInstallTeamsAgent = "open-install-teams-agent",
+  MarkTeamsAgentInstallationDoneStart = "mark-teams-agent-installation-done-start",
+  MarkTeamsAgentInstallationDone = "mark-teams-agent-installation-done",
+  MarkGitHubCopilotSetupDoneStart = "mark-github-copilot-setup-done-start",
+  MarkGitHubCopilotSetupDone = "mark-github-copilot-setup-done",
+  OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
+
   // Copilot Chat
   CopilotChatStart = "copilot-chat-start",
   CopilotChat = "copilot-chat",
@@ -308,6 +326,9 @@ export enum TelemetryEvent {
   CreatePluginWithManifestStart = "create-plugin-with-manifest-start",
   CreatePluginWithManifest = "create-plugin-with-manifest",
 
+  CreateDeclarativeAgentWithApiSpecStart = "create-declarative-agent-with-api-spec-start",
+  CreateDeclarativeAgentWithApiSpec = "create-declarative-agent-with-api-spec",
+
   InstallKiota = "install-kiota",
   Configuration = "vsc-configuration",
 
@@ -317,6 +338,10 @@ export enum TelemetryEvent {
 
   KiotaRegenerateStart = "kiota-regenerate-start",
   KiotaRegenerate = "kiota-regenerate",
+
+  AddAuthActionStart = "add-auth-action-start",
+  AddAuthAction = "add-auth-action",
+  ProvisionFromAddAuthConfig = "provision-from-add-auth-config",
 }
 
 export enum TelemetryProperty {
@@ -394,6 +419,8 @@ export enum TelemetryProperty {
   TeamsFxVersion = "version-teamsfx",
   TeamsJSVersion = "version-teams-js",
   BotbuilderVersion = "version-botbuilder",
+  KiotaInstalled = "kiota-installed",
+  ShowAddPluginTreeView = "show-add-plugin-tree-view",
   // Used with OpenTutorial
   TutorialName = "tutorial-name",
   DocumentationName = "documentation-name",
@@ -436,8 +463,9 @@ export enum TelemetryProperty {
   CopilotChatResponseTokenPerSecond = "copilot-chat-response-token-per-second",
   CopilotChatRequestToken = "copilot-chat-request-token",
   CopilotChatResponseToken = "copilot-chat-response-token",
-  KiotaInstalled = "kiota-installed",
-  ShowAddPluginTreeView = "show-add-plugin-tree-view",
+  // Used in Copilot Chat UI
+  HasQueryForCopilotChat = "has-query-for-copilot-chat",
+  CopilotChatQuerySent = "copilot-chat-query-sent",
 }
 
 export enum TelemetryMeasurements {
@@ -461,11 +489,10 @@ export enum TelemetryTriggerFrom {
   EditorTitle = "EditorTitle",
   SideBar = "SideBar",
   WalkThrough = "WalkThrough",
-  WalkThroughIntroduction = "WalkThroughIntroduction",
-  WalkThroughCreate = "WalkThroughCreate",
-  WalkThroughWhatIsNext = "WalkThroughWhatIsNext",
-  WalkThroughIntelligentAppsIntroduction = "WalkThroughIntelligentAppsIntroduction",
-  WalkThroughIntelligentAppsCreate = "WalkThroughIntelligentAppsCreate",
+  TeamsAgentWalkthrough = "TeamsAgentWalkthrough",
+  TeamsAgentWalkthroughExplore = "TeamsAgentWalkthroughExplore",
+  TeamsAgentWalkthroughCreate = "TeamsAgentWalkthroughCreate",
+  TeamsAgentWalkthroughTroubleshoot = "TeamsAgentWalkthroughTroubleshoot",
   Notification = "Notification",
   QuickPick = "QuickPick",
   InProductDoc = "InProductDoc",

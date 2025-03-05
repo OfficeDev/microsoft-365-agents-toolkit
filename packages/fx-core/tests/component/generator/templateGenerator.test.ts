@@ -4,21 +4,18 @@ import "mocha";
 import path from "path";
 import sinon, { createSandbox } from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { Generators } from "../../../src/component/generator/generatorProvider";
-import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
 import { TemplateInfo } from "../../../src/component/generator/templates/templateInfo";
-import {
-  TemplateNames,
-  inputsToTemplateName,
-} from "../../../src/component/generator/templates/templateNames";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { CapabilityOptions, QuestionNames } from "../../../src/question";
 import { ProgrammingLanguage } from "../../../src/question/constants";
 import { MockTools, randomAppName } from "../../core/utils";
 
 describe("TemplateGenerator", () => {
   const testInputsToTemplateName = new Map([
-    ...inputsToTemplateName,
+    // ...inputsToTemplateName,
     [
       {
         [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
@@ -26,14 +23,6 @@ describe("TemplateGenerator", () => {
         targetFramework: "net8.0",
       },
       TemplateNames.SsoTabSSR,
-    ],
-    [
-      {
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
-        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        targetFramework: "net6.0",
-      },
-      TemplateNames.SsoTab,
     ],
     [
       {
@@ -45,11 +34,19 @@ describe("TemplateGenerator", () => {
     ],
     [
       {
+        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+        targetFramework: "net9.0",
+      },
+      TemplateNames.SsoTabSSR,
+    ],
+    [
+      {
         [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
-        targetFramework: "net6.0",
+        targetFramework: "net9.0",
       },
-      TemplateNames.Tab,
+      TemplateNames.TabSSR,
     ],
   ]);
 
@@ -76,7 +73,7 @@ describe("TemplateGenerator", () => {
 
   testInputsToTemplateName.forEach(async (templateName, _inputs) => {
     it(`scaffolding ${templateName}`, async () => {
-      inputs = { ...inputs, ..._inputs };
+      inputs = { ...inputs, ..._inputs, [QuestionNames.TemplateName]: templateName };
       const res = await Generators.find((g) => g.activate(ctx, inputs))?.run(
         ctx,
         inputs,

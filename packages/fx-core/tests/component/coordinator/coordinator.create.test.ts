@@ -4,27 +4,31 @@ import { err, Inputs, ok, Platform, SystemError, UserError } from "@microsoft/te
 import { assert } from "chai";
 import fs from "fs-extra";
 import { glob } from "glob";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
+import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { coordinator } from "../../../src/component/coordinator";
-import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { AppDefinition } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
-import { SpecGenerator } from "../../../src/component/generator/apiSpec/generator";
+import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
+import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { OfficeAddinGeneratorNew } from "../../../src/component/generator/officeAddin/generator";
+import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
+import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
+import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
-import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
-  ApiPluginStartOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  MeArchitectureOptions,
   ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
@@ -32,9 +36,6 @@ import {
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { FeatureFlagName } from "../../../src/common/featureFlags";
-import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -235,7 +236,7 @@ describe("coordinator create", () => {
 
     it("create project for app with tab features from Developer Portal", async () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
+      sandbox.stub(TdpGenerator.prototype, "run").resolves(ok({}));
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
         appId: "mock-id",
@@ -256,20 +257,18 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-type",
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.Tab);
     });
     it("create project for app with bot feature from Developer Portal with updating files failed", async () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       sandbox
-        .stub(developerPortalScaffoldUtils, "updateFilesForTdp")
+        .stub(TdpGenerator.prototype, "run")
         .resolves(err(new UserError("coordinator", "error", "msg", "msg")));
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
@@ -295,8 +294,7 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.bot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+        [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
         [QuestionNames.ReplaceBotIds]: ["bot"],
         teamsAppFromTdp: appDefinition,
       };
@@ -306,11 +304,10 @@ describe("coordinator create", () => {
       if (res.isErr()) {
         assert.equal(res.error.name, "error");
       }
-      assert.equal(generator.args[0][1].templateName, TemplateNames.DefaultBot);
     });
     it("create project for app with tab and bot features from Developer Portal", async () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
+      sandbox.stub(TdpGenerator.prototype, "run").resolves(ok({}));
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
         appId: "mock-id",
@@ -346,8 +343,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "javascript",
         teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-bot-type",
-        [QuestionNames.Capabilities]: "TabNonSsoAndBot",
+        [QuestionNames.TemplateName]: TemplateNames.TabAndDefaultBot,
         [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
         [QuestionNames.ReplaceContentUrl]: [],
         [QuestionNames.ReplaceBotIds]: ["bot"],
@@ -355,191 +351,12 @@ describe("coordinator create", () => {
       const context = createContext();
       const res = await coordinator.create(context, inputs);
       assert.isTrue(res.isOk());
-      assert.isTrue(generator.calledOnce);
-      assert.equal(generator.args[0][1].templateName, TemplateNames.TabAndDefaultBot);
-    });
-    it("create project for app with tab and message extension features from Developer Portal", async () => {
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
-      const appDefinition: AppDefinition = {
-        teamsAppId: "mock-id",
-        appId: "mock-id",
-        staticTabs: [
-          {
-            name: "tab1",
-            entityId: "tab1",
-            contentUrl: "mock-contentUrl",
-            websiteUrl: "mock-websiteUrl",
-            context: [],
-            scopes: [],
-          },
-        ],
-        messagingExtensions: [
-          {
-            botId: "mock-bot-id",
-            canUpdateConfiguration: false,
-            commands: [],
-            messageHandlers: [],
-          },
-        ],
-      };
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        teamsAppFromTdp: appDefinition,
-        [QuestionNames.ProjectType]: "tab-bot-type",
-        [QuestionNames.Capabilities]: "TabNonSsoAndBot",
-        [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
-        [QuestionNames.ReplaceContentUrl]: [],
-        [QuestionNames.ReplaceBotIds]: ["messageExtension"],
-      };
-      const context = createContext();
-      const res = await coordinator.create(context, inputs);
-      assert.isTrue(res.isOk());
-      assert.isTrue(generator.calledOnce);
-      assert.equal(generator.args[0][1].templateName, TemplateNames.TabAndDefaultBot);
-    });
-    it("create project for app with no features from Developer Portal - failed expecting inputs", async () => {
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
-      const appDefinition: AppDefinition = {
-        teamsAppId: "mock-id",
-        appId: "mock-id",
-        staticTabs: [],
-      };
-
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        teamsAppFromTdp: appDefinition,
-      };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
-      assert.isTrue(res.isErr());
-    });
-
-    it("create project for app from Developer Portal - not overwrite already set project type and capability", async () => {
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      sandbox.stub(developerPortalScaffoldUtils, "updateFilesForTdp").resolves(ok(undefined));
-      const appDefinition: AppDefinition = {
-        teamsAppId: "mock-id",
-        appId: "mock-id",
-      };
-
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "javascript",
-        teamsAppFromTdp: appDefinition,
-        [QuestionNames.ReplaceWebsiteUrl]: ["tab1"],
-        [QuestionNames.ReplaceContentUrl]: [],
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
-      };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
-      assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.Tab);
-    });
-
-    it("create API ME (no auth) from new api sucessfully", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
-        [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CopilotPluginFromScratch);
-    });
-
-    it("create API ME (key auth) from new api sucessfully", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
-        [QuestionNames.MeArchitectureType]: MeArchitectureOptions.newApi().id,
-        [QuestionNames.ApiAuth]: ApiAuthOptions.bearerToken().id,
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CopilotPluginFromScratchApiKey);
-    });
-
-    it("create API ME from existing api successfully", async () => {
-      const v3ctx = createContext();
-      v3ctx.userInteraction = new MockedUserInteraction();
-      sandbox
-        .stub(SpecGenerator.prototype, "run")
-        .resolves(ok({ warnings: [{ type: "", content: "", data: {} } as any] }));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.me().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.m365SearchMe().id,
-        [QuestionNames.MeArchitectureType]: MeArchitectureOptions.apiSpec().id,
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      };
-      const res = await coordinator.create(v3ctx, inputs);
-      assert.isTrue(res.isOk());
-    });
-
-    it("create non-sso tab earlier than .Net8", async () => {
-      const inputs: Inputs = {
-        platform: Platform.VS,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "csharp",
-        [QuestionNames.SafeProjectName]: "safeprojectname",
-        ["targetFramework"]: "net6.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
-      };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
-
-      assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.Tab);
-    });
-
-    it("create sso tab earlier than .Net8", async () => {
-      const inputs: Inputs = {
-        platform: Platform.VS,
-        folder: ".",
-        [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.ProgrammingLanguage]: "csharp",
-        [QuestionNames.SafeProjectName]: "safeprojectname",
-        ["targetFramework"]: "net6.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
-      };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
-
-      assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.SsoTab);
     });
 
     it("create non-sso tab from .NET 8", async () => {
+      sandbox.stub(SsrTabGenerator.prototype, "run").resolves(ok({}));
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VS,
         folder: ".",
@@ -547,17 +364,17 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "csharp",
         [QuestionNames.SafeProjectName]: "safeprojectname",
         ["targetFramework"]: "net8.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.TabSSR,
       };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.TabSSR);
     });
 
     it("create sso tab from .NET 8", async () => {
+      const v3ctx = createContext();
+      sandbox.stub(SsrTabGenerator.prototype, "run").resolves(ok({}));
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VS,
         folder: ".",
@@ -565,50 +382,47 @@ describe("coordinator create", () => {
         [QuestionNames.ProgrammingLanguage]: "csharp",
         [QuestionNames.SafeProjectName]: "safeprojectname",
         ["targetFramework"]: "net8.0",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.TemplateName]: TemplateNames.SsoTabSSR,
       };
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.SsoTabSSR);
     });
 
     it("create custom copilot rag custom api success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
         [QuestionNames.LLMService]: "llm-service-openAI",
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotRagCustomApi);
     });
 
     it("create custom copilot rag custom api with azure open ai success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -617,25 +431,24 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotRagCustomApi);
     });
 
     it("create custom agent api with azure open ai success", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotAssistant().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotAssistantNew,
         [QuestionNames.CustomCopilotAssistant]: CustomCopilotAssistantOptions.new().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -643,25 +456,24 @@ describe("coordinator create", () => {
         [QuestionNames.AzureOpenAIEndpoint]: "mockedAzureOpenAIEndpoint",
         [QuestionNames.AzureOpenAIDeploymentName]: "mockedAzureOpenAIDeploymentName",
       };
-      sandbox.stub(SpecGenerator.prototype, "post").resolves(ok({}));
+      sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
-      assert.equal(generator.args[0][1].templateName, TemplateNames.CustomCopilotAssistantNew);
     });
 
     it("create custom copilot rag custom api failed", async () => {
+      const v3ctx = createContext();
+      v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.customCopilot().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.customCopilotRag().id,
+        [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
         [QuestionNames.ApiOperation]: "test",
@@ -669,12 +481,11 @@ describe("coordinator create", () => {
         [QuestionNames.OpenAIKey]: "mockedopenaikey",
       };
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run")
         .resolves(err(new SystemError("test", "test", "test")));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
 
-      const fxCore = new FxCore(tools);
-      const res = await fxCore.createProject(inputs);
+      const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isErr() && res.error.name === "test");
     });
@@ -682,17 +493,18 @@ describe("coordinator create", () => {
     it("create API Plugin with No authentication (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -701,17 +513,18 @@ describe("coordinator create", () => {
     it("create API Plugin with api-key auth (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -720,17 +533,18 @@ describe("coordinator create", () => {
     it("create API Plugin with OAuth (feature flag enabled)", async () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
-
+      sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.newApi().id,
+        [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -747,6 +561,7 @@ describe("coordinator create", () => {
         [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddin().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.OutlookTaskpane,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -757,7 +572,7 @@ describe("coordinator create", () => {
       v3ctx.userInteraction = new MockedUserInteraction();
 
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(DefaultTemplateGenerator.prototype, "run")
         .resolves(ok({ warnings: [{ type: "", content: "", data: {} } as any] }));
 
       const inputs: Inputs = {
@@ -765,9 +580,10 @@ describe("coordinator create", () => {
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isOk());
@@ -778,14 +594,14 @@ describe("coordinator create", () => {
       v3ctx.userInteraction = new MockedUserInteraction();
 
       sandbox
-        .stub(SpecGenerator.prototype, "run")
+        .stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run")
         .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage", "")));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
       };
@@ -803,7 +619,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);
@@ -824,7 +640,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
-        [QuestionNames.ApiPluginType]: ApiPluginStartOptions.apiSpec().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",
       };
       const context = createContext();

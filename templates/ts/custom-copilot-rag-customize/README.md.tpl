@@ -11,7 +11,7 @@ This app template also demonstrates usage of techniques like:
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20
+> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/).

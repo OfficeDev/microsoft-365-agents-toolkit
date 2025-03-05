@@ -33,7 +33,13 @@ app.UseAntiforgery();
 app.UseAuthentication();
 app.UseAuthorization();
 
+{{#IsNet8Framework}}
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+{{/IsNet8Framework}}
+{{^IsNet8Framework}}
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode(o => o.ContentSecurityFrameAncestorsPolicy = "'self' *");
+{{/IsNet8Framework}}
 
 app.Run();

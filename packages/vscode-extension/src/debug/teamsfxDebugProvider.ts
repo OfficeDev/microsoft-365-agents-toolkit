@@ -109,7 +109,8 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
 
       const isLocal =
         (env && !environmentNameManager.isRemoteEnvironment(env)) ||
-        !debugConfiguration.name.startsWith("Launch Remote");
+        (!debugConfiguration.name.startsWith("Launch Remote") &&
+          !debugConfiguration.name.startsWith("Preview in Copilot"));
       telemetryIsRemote = !isLocal;
 
       // Put env and hub in `debugConfiguration` so debug handlers can retrieve it and send telemetry
@@ -207,7 +208,9 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
       await vscode.debug.stopDebugging();
       // not for undefined
       if (telemetryIsRemote === false) {
-        await sendDebugAllEvent(error);
+        await sendDebugAllEvent(error, {
+          [TelemetryProperty.DebugConfigName]: debugConfiguration.name,
+        });
       }
       endLocalDebugSession();
     }

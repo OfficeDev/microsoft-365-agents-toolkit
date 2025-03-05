@@ -1,35 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
+  Colors,
+  DeclarativeCopilotManifestSchema,
+  DefaultPluginManifestFileName,
   FxError,
+  IDeclarativeCopilot,
+  ManifestUtil,
+  Platform,
   Result,
   err,
   ok,
-  DeclarativeCopilotManifestSchema,
-  ManifestUtil,
-  IDeclarativeCopilot,
-  Platform,
-  Colors,
-  DefaultPluginManifestFileName,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
-import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
-import stripBom from "strip-bom";
-import { TelemetryPropertyKey } from "./telemetry";
-import { WrapDriverContext } from "../../util/wrapUtil";
-import { getResolvedManifest } from "./utils";
-import { AppStudioResultFactory } from "../results";
-import { AppStudioError } from "../errors";
-import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
-import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
-import path from "path";
-import { pluginManifestUtils } from "./PluginManifestUtils";
-import { SummaryConstant } from "../../../configManager/constant";
 import { EOL } from "os";
+import path from "path";
+import stripBom from "strip-bom";
+import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
+import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
+import { SummaryConstant } from "../../../configManager/constant";
+import { getParserOptions } from "../../../generator/openApiSpec/helper";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
+import { EmbeddedKnowledgeCapabilityName, EmbeddedKnowledgeLocalDirectoryName } from "../constants";
+import { AppStudioError } from "../errors";
+import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
+import { AppStudioResultFactory } from "../results";
 import { manifestUtils } from "./ManifestUtils";
+import { pluginManifestUtils } from "./PluginManifestUtils";
+import { getResolvedManifest } from "./utils";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -170,6 +171,67 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public async updateConversationStarters(
+    actionPath: string,
+    gptManifest: DeclarativeCopilotManifestSchema
+  ): Promise<void> {
+    const actionManifest = await fs.readJson(actionPath);
+    let conversationStarters = actionManifest.capabilities?.conversation_starters;
+
+    if (!conversationStarters || conversationStarters.length === 0) {
+      const openApiRuntimes = actionManifest.runtimes?.filter(
+        (runtime: any) => runtime.type === "OpenApi"
+      );
+
+      if (openApiRuntimes) {
+        for (const runtime of openApiRuntimes) {
+          const specPathRelativePath = runtime.spec.url;
+          const specPath = path.resolve(path.dirname(actionPath), specPathRelativePath);
+
+          if (await fs.pathExists(specPath)) {
+            const specParser = new SpecParser(
+              specPath,
+              getParserOptions(ProjectType.Copilot, true)
+            );
+            const listResult = await specParser.list();
+            const operationIds = actionManifest.functions?.map((func: any) => func.name);
+            const newStarters = listResult.APIs.filter(
+              (item) =>
+                item.isValid &&
+                operationIds?.includes(item.operationId) &&
+                (item.description || item.summary)
+            ).map((operation) => {
+              return {
+                text: operation.summary || operation.description,
+              };
+            });
+
+            conversationStarters = (conversationStarters || []).concat(newStarters);
+          }
+        }
+      }
+    }
+
+    if (conversationStarters) {
+      if (!gptManifest.conversation_starters) {
+        gptManifest.conversation_starters = [];
+      }
+
+      for (const starter of conversationStarters) {
+        if (gptManifest.conversation_starters.length >= 6) {
+          break;
+        }
+        if (
+          !gptManifest.conversation_starters.some(
+            (existingStarter) => existingStarter.text === starter.text
+          )
+        ) {
+          gptManifest.conversation_starters.push(starter);
+        }
+      }
+    }
+  }
+
   public async addAction(
     copilotGptPath: string,
     id: string,
@@ -189,30 +251,7 @@ export class CopilotGptManifestUtils {
       });
 
       const actionPath = path.join(path.dirname(copilotGptPath), pluginFile);
-      const actionManifest = await fs.readJson(actionPath);
-      const conversationStarters = actionManifest.capabilities?.conversation_starters;
-
-      if (conversationStarters) {
-        if (!gptManifest.conversation_starters) {
-          gptManifest.conversation_starters = [];
-        }
-
-        for (const starter of conversationStarters) {
-          if (gptManifest.conversation_starters.length >= 6) {
-            break;
-          }
-          if (
-            !gptManifest.conversation_starters.some(
-              (existingStarter) => existingStarter.text === starter.text
-            )
-          ) {
-            gptManifest.conversation_starters.push(starter);
-          }
-        }
-
-        delete actionManifest.capabilities.conversation_starters;
-        await fs.writeJson(actionPath, actionManifest, { spaces: 4 });
-      }
+      await this.updateConversationStarters(actionPath, gptManifest);
 
       const updateGptManifestRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
         gptManifest,
@@ -319,7 +358,7 @@ export class CopilotGptManifestUtils {
     folder: string,
     pluginManifestFileName = DefaultPluginManifestFileName,
     isKiotaIntegration = false
-  ) {
+  ): Promise<string> {
     if (!(await fs.pathExists(path.join(folder, pluginManifestFileName)))) {
       return path.join(folder, pluginManifestFileName);
     }
@@ -341,11 +380,67 @@ export class CopilotGptManifestUtils {
     return path.join(folder, pluginManifestName);
   }
 
+  public async addEmbeddedKnowledgeFiles(
+    manifestFilePath: string,
+    filePathList: string[]
+  ): Promise<Result<undefined, FxError>> {
+    const declarativeAgentManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+      manifestFilePath
+    );
+    if (declarativeAgentManifestPathRes.isErr()) {
+      return err(declarativeAgentManifestPathRes.error);
+    }
+
+    const declarativeAgentManifestPath = declarativeAgentManifestPathRes.value;
+    const declarativeAgentManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifesRes.isErr()) {
+      return err(declarativeAgentManifesRes.error);
+    }
+
+    const declarativeAgentManifest = declarativeAgentManifesRes.value;
+    if (!declarativeAgentManifest.capabilities) {
+      declarativeAgentManifest.capabilities = [];
+    }
+    let embeddedKnowledgeCapability: any;
+    embeddedKnowledgeCapability = declarativeAgentManifest.capabilities.find(
+      (capability) => capability.name === EmbeddedKnowledgeCapabilityName
+    );
+    if (!embeddedKnowledgeCapability) {
+      embeddedKnowledgeCapability = {
+        name: EmbeddedKnowledgeCapabilityName,
+        files: [],
+      };
+      declarativeAgentManifest.capabilities.push(embeddedKnowledgeCapability);
+    }
+    await fs.ensureDir(
+      path.resolve(path.dirname(manifestFilePath), EmbeddedKnowledgeLocalDirectoryName)
+    );
+    for (const filePath of filePathList) {
+      const savedAbsolutePath = path.resolve(
+        path.dirname(manifestFilePath),
+        EmbeddedKnowledgeLocalDirectoryName,
+        path.basename(filePath)
+      );
+      await fs.copyFile(filePath, savedAbsolutePath);
+      embeddedKnowledgeCapability.files.push({
+        file: path.relative(path.dirname(manifestFilePath), savedAbsolutePath).replace(/\\/g, "/"),
+      });
+    }
+    // save the updated declarativeCopilotManifestPath
+    await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    return ok(undefined);
+  }
+
   getPluginManifestFileName(
     pluginManifestNamePrefix: string,
     pluginFileNameSuffix: number,
     isKiotaIntegration: boolean
-  ) {
+  ): string {
     let pluginManifestName;
     if (isKiotaIntegration) {
       const pluginManifestNameSplit = pluginManifestNamePrefix.split("-");
@@ -354,6 +449,25 @@ export class CopilotGptManifestUtils {
       pluginManifestName = `${pluginManifestNamePrefix}_${pluginFileNameSuffix}.json`;
     }
     return pluginManifestName;
+  }
+
+  async updateDeclarativeAgentManifest(
+    manifestPath: string,
+    declarativeAgentManifestPath: string,
+    declarativeCopilotActionId: string,
+    pluginManifestPath: string
+  ): Promise<Result<any, FxError>> {
+    const gptManifestPath = path.join(path.dirname(manifestPath), declarativeAgentManifestPath);
+    const addAcionResult = await copilotGptManifestUtils.addAction(
+      gptManifestPath,
+      declarativeCopilotActionId,
+      path.basename(pluginManifestPath)
+    );
+    if (addAcionResult.isErr()) {
+      return err(addAcionResult.error);
+    }
+
+    return ok(undefined);
   }
 }
 

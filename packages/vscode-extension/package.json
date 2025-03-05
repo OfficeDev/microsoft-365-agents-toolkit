@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Teams Toolkit",
   "description": "Create, debug, and deploy Teams apps with Teams Toolkit",
-  "version": "5.12.0",
+  "version": "5.12.1",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -21,7 +21,7 @@
     ]
   },
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.93.0"
   },
   "license": "MIT",
   "keywords": [
@@ -57,7 +57,7 @@
     "onCommand:workbench.action.debug.start",
     "workspaceContains:/.fx/**/*",
     "workspaceContains:teamsapp.yml",
-    "onView:teamsfx-empty-project",
+    "onView:teamsfx-empty-project-with-chat",
     "onUri",
     "workspaceContains:/**/manifest.json",
     "workspaceContains:/manifest*.xml"
@@ -187,12 +187,12 @@
         {
           "id": "teamsfx-empty-project",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && !fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "false"
         },
         {
           "id": "teamsfx-empty-project-with-chat",
           "name": "Teams Toolkit",
-          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && fx-extension.isChatParticipantUIEntriesEnabled"
+          "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn"
         },
         {
           "id": "teamsfx-officedev-development",
@@ -381,7 +381,7 @@
         },
         {
           "command": "fx-extension.openDocumentLink",
-          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(build|publishInDeveloperPortal)$/",
+          "when": "view == teamsfx-utility && viewItem =~ /^fx-extension.(validateManifest|publishInDeveloperPortal)$/",
           "group": "inline"
         }
       ],
@@ -907,7 +907,13 @@
       {
         "command": "fx-extension.addPlugin",
         "title": "%teamstoolkit.commandsTreeViewProvider.addPluginTitle%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
+        "category": "Teams"
+      },
+      {
+        "command": "fx-extension.addKnowledge",
+        "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAddKnowledgeEnabled",
         "category": "Teams"
       },
       {
@@ -958,6 +964,18 @@
         "command": "fx-extension.findSimilarIssue",
         "title": "%teamstoolkit.handlers.similarIssues%",
         "category": "Teams"
+      },
+      {
+        "command": "fx-extension.addAuthAction",
+        "title": "%teamstoolkit.commands.addAuthAction%",
+        "category": "Teams",
+        "enablement": "true"
+      },
+      {
+        "command": "fx-extension.openTeamsAgentWalkthrough",
+        "title": "%teamsagent.walkthrough.title%",
+        "category": "Teams",
+        "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
     "taskDefinitions": [
@@ -1441,7 +1459,7 @@
           {
             "id": "intelligentAppsIntroductionWithChat",
             "title": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title%",
-            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroductionWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.description%",
             "media": {
               "svg": "media/walkthroughs/intelligent-apps/step1.svg",
               "altText": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsIntroduction.title%"
@@ -1459,7 +1477,7 @@
           {
             "id": "intelligentAppsBuildAppWithChat",
             "title": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.title%",
-            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildAppWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.description%",
             "media": {
               "markdown": "media/walkthroughs/intelligent-apps/create/create_with_chat.md"
             }
@@ -1488,6 +1506,14 @@
             "description": "%teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description%",
             "media": {
               "svg": "media/walkthroughs/intelligent-apps/step6.svg"
+            }
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilot",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
             }
           }
         ],
@@ -1561,11 +1587,11 @@
         "steps": [
           {
             "id": "teamsToolkitIntroductionWithChat",
-            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.description%",
+            "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.description%",
             "media": {
               "svg": "media/walkthroughs/get-started/introduction.svg",
-              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroductionWithChat.title%"
+              "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.title%"
             }
           },
           {
@@ -1580,9 +1606,9 @@
           {
             "id": "teamsToolkitBuildAppWithChat",
             "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildAppWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitBuildApp.description%",
             "media": {
-              "markdown": "media/walkthroughs/get-started/create/create_with_chat.md"
+              "markdown": "media/walkthroughs/get-started/create/create.md"
             }
           },
           {
@@ -1597,7 +1623,7 @@
           {
             "id": "teamsToolkitExploreMoreWithChat",
             "title": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%",
-            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMoreWithChat.description%",
+            "description": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.description%",
             "media": {
               "svg": "media/walkthroughs/get-started/whatisnext.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitExploreMore.title%"
@@ -1610,6 +1636,91 @@
             "media": {
               "svg": "media/walkthroughs/get-started/resources.svg",
               "altText": "%teamstoolkit.walkthroughs.steps.teamsToolkitResources.altText%"
+            }
+          },
+          {
+            "id": "teamsToolkitHelpWithGitHubCopilot",
+            "title": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title%",
+            "description": "%teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description%",
+            "media": {
+              "markdown": "media/walkthroughs/get-started/chatWithGitHubCopilot.md"
+            }
+          }
+        ],
+        "when": "fx-extension.isChatParticipantUIEntriesEnabled"
+      },
+      {
+        "id": "teamsAgentGetStarted",
+        "title": "%teamsagent.walkthrough.title%",
+        "description": "%teamsagent.walkthrough.description%",
+        "steps": [
+          {
+            "id": "teamsAgentIntroduction",
+            "title": "%teamsagent.walkthrough.introduction.title%",
+            "description": "%teamsagent.walkthrough.introduction.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/introduction.svg",
+              "altText": "%teamsagent.walkthrough.introduction.title%"
+            }
+          },
+          {
+            "id": "teamsAgentInstallCopilotPlan",
+            "title": "%teamsagent.walkthrough.copilotPlan.title%",
+            "description": "%teamsagent.walkthrough.copilotPlan.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/copilot-plan.png",
+              "altText": "%teamsagent.walkthrough.copilotPlan.title%"
+            }
+          },
+          {
+            "id": "teamsagentcopilotchatinstall",
+            "title": "%teamsagent.walkthrough.copilotChat.title%",
+            "description": "%teamsagent.walkthrough.copilotChat.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/install-github-copilot-chat.svg",
+              "altText": "%teamsagent.walkthrough.copilotChat.title%"
+            },
+            "completionEvents": [
+              "extensionInstalled:github.copilot-chat"
+            ]
+          },
+          {
+            "id": "teamsagentinstall",
+            "title": "%teamsagent.walkthrough.install.title%",
+            "description": "%teamsagent.walkthrough.install.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "altText": "%teamsagent.walkthrough.install.title%"
+            }
+          },
+          {
+            "id": "teamsagentinstallconfirm",
+            "title": "%teamsagent.walkthrough.installConfirm.title%",
+            "description": "%teamsagent.walkthrough.installConfirm.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "altText": "%teamsagent.walkthrough.installConfirm.title%"
+            },
+            "completionEvents": [
+              "onCommand:fx-extension.markInstallTeamsAgentDone"
+            ]
+          },
+          {
+            "id": "teamsagentgithubcopilotsetup",
+            "title": "%teamsagent.walkthrough.setup.title%",
+            "description": "%teamsagent.walkthrough.setup.description%",
+            "media": {
+              "image": "media/walkthroughs/teams-agent/sign-in-github-copilot-chat.png",
+              "altText": "%teamsagent.walkthrough.setup.title%"
+            }
+          },
+          {
+            "id": "teamsAgentUse",
+            "title": "%teamsagent.walkthrough.use.title%",
+            "description": "%teamsagent.walkthrough.use.description%",
+            "media": {
+              "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
+              "altText": "%teamsagent.walkthrough.use.title%"
             }
           }
         ],
@@ -1633,6 +1744,11 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota)"
+        },
+        "fx-extension.enableCustomEngineAgent": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable uploading the Custom Engine Agent in Microsoft 365 Copilot. For more information please refer to [this documentation](https://aka.ms/cea-feature-flag)."
         }
       }
     },
@@ -1695,7 +1811,7 @@
     "@types/chai-as-promised": "^7.1.3",
     "@types/chai-spies": "^1.0.3",
     "@types/chrome-remote-interface": "^0.31.14",
-    "@types/express": "^4.17.14",
+    "@types/express": "^5.0.0",
     "@types/fs-extra": "^9.0.5",
     "@types/jscodeshift": "^0.11.2",
     "@types/lodash": "^4.14.181",
@@ -1713,7 +1829,7 @@
     "@types/tmp": "^0.2.0",
     "@types/uuid": "^8.3.0",
     "@types/validator": "^13.1.1",
-    "@types/vscode": "^1.66.0",
+    "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -1785,7 +1901,7 @@
     "dotenv": "^8.2.0",
     "dree": "^4.7.0",
     "edge-paths": "^3.0.5",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "find-process": "^1.4.4",
     "fuse.js": "^6.6.2",
     "glob": "^10",

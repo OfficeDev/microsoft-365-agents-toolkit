@@ -163,6 +163,30 @@ export async function zipAppPackage(env = "dev") {
   const input = await InputBox.create();
   await input.selectQuickPick("manifest.json");
   await driver.sleep(Timeout.input);
-  await input.selectQuickPick(env);
+  try {
+    await input.selectQuickPick(env);
+    await driver.sleep(Timeout.input);
+  } catch {
+    console.log("No need to select env.");
+  }
+}
+
+export async function validateAppPackage(env = "dev") {
+  await execCommandIfExist(
+    CommandPaletteCommands.ManifestValidateCommand,
+    Timeout.webView
+  );
+  const driver = VSBrowser.instance.driver;
   await driver.sleep(Timeout.input);
+  const input = await InputBox.create();
+  await input.selectQuickPick("Validate Teams app manifest schema");
+  await driver.sleep(Timeout.input);
+  await input.selectQuickPick("manifest.json");
+  await driver.sleep(Timeout.input);
+  try {
+    await input.selectQuickPick(env);
+    await driver.sleep(Timeout.input);
+  } catch {
+    console.log("No need to select env.");
+  }
 }

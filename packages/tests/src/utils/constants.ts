@@ -330,7 +330,7 @@ export class CommandPaletteCommands {
   public static readonly SamplesCommand: string = "Teams: View Samples";
   public static readonly CreateProjectCommand: string = "Teams: Create New App";
   public static readonly ManifestValidateCommand: string =
-    "Teams: Validate manifest file";
+    "Teams: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
     "Teams: Zip Teams App Package";
   public static readonly ProvisionCommand: string = "Teams: Provision";
@@ -474,6 +474,7 @@ export class Notification {
   static readonly UnresolvedPlaceholderError =
     "MissingEnvironmentVariablesError";
   static readonly ZipAppPackageSucceeded = "successfully built";
+  static readonly appManifestSchemaSucceeded = "passed";
 }
 
 export class CreateProjectQuestion {
@@ -481,7 +482,7 @@ export class CreateProjectQuestion {
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
-  static readonly OfficeAddin = "Outlook Add-in";
+  static readonly OfficeAddin = "Office Add-in";
   static readonly NewTeamsApp = "Start with a Teams capability";
   static readonly SpfxSharepointFrameworkInTtk = "Install the latest SPFx";
   static readonly SpfxSharepointFrameworkGlobalEnvInTtk =
@@ -491,6 +492,7 @@ export class CreateProjectQuestion {
   static readonly ImportExistingSpfxSolution = "Import Existing SPFx Solution";
   static readonly BuildNotificationBot = "Build a Notification Bot";
   static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
+  static readonly StartWithNewApi = "Start with a New API";
 }
 
 export class ValidationContent {

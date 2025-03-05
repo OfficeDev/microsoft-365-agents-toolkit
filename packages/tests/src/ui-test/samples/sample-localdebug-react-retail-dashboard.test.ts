@@ -40,7 +40,7 @@ class RetailDashboardTestCase extends CaseFactory {
     page: Page,
     options?: { context: SampledebugContext }
   ): Promise<void> {
-    return await validateRetailDashboard(page);
+    return await validateRetailDashboard(page, "react-retail-dashboardlocal");
   }
 }
 

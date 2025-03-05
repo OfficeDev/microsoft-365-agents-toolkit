@@ -4,7 +4,9 @@
 import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
+  AppPackageFolderName,
   CLIPlatforms,
+  DefaultPluginManifestFileName,
   FolderQuestion,
   IQTreeNode,
   Inputs,
@@ -48,8 +50,8 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
-import { getParserOptions, listOperations } from "../component/generator/apiSpec/helper";
-import { validateSourcePluginManifest } from "../component/generator/copilotExtension/helper";
+import { validateSourcePluginManifest } from "../component/generator/declarativeAgent/helper";
+import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
@@ -61,14 +63,15 @@ import {
   assembleError,
 } from "../error";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
-  ApiPluginStartOptions,
   AppNamePattern,
   CapabilityOptions,
   CliQuestionName,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   DeclarativeCopilotTypeOptions,
+  KnowledgeSourceOptions,
   MeArchitectureOptions,
   NotificationTriggerOptions,
   ProgrammingLanguage,
@@ -280,7 +283,7 @@ export function meArchitectureQuestion(): SingleSelectQuestion {
   };
 }
 
-function botTriggerQuestion(): SingleSelectQuestion {
+export function botTriggerQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.BotTrigger,
     title: getLocalizedString("plugins.bot.questionHostTypeTrigger.title"),
@@ -307,7 +310,7 @@ function botTriggerQuestion(): SingleSelectQuestion {
   };
 }
 
-function SPFxSolutionQuestion(): SingleSelectQuestion {
+export function SPFxSolutionQuestion(): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.SPFxSolution,
@@ -751,17 +754,14 @@ function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
   return [];
 }
 
-function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
+export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceWebsiteUrl,
     title: getLocalizedString("core.updateWebsiteUrlQuestion.title"),
     staticOptions: [],
     dynamicOptions: getTabWebsiteOptions,
-    default: (inputs: Inputs) => {
-      const options = getTabWebsiteOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateUrlQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -778,17 +778,14 @@ function getTabContentUrlOptions(inputs: Inputs): OptionItem[] {
   return [];
 }
 
-const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
+export const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceContentUrl,
     title: getLocalizedString("core.updateContentUrlQuestion.title"),
     staticOptions: [],
     dynamicOptions: getTabContentUrlOptions,
-    default: (inputs: Inputs) => {
-      const options = getTabContentUrlOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateUrlQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -832,20 +829,14 @@ function getBotOptions(inputs: Inputs): OptionItem[] {
   return options;
 }
 
-function selectBotIdsQuestion(): MultiSelectQuestion {
-  // const statcOptions: OptionItem[] = [];
-  // statcOptions.push(botOptionItem(false, "000000-0000-0000"));
-  // statcOptions.push(botOptionItem(true, "000000-0000-0000"));
+export function selectBotIdsQuestion(): MultiSelectQuestion {
   return {
     type: "multiSelect",
     name: QuestionNames.ReplaceBotIds,
     title: getLocalizedString("core.updateBotIdsQuestion.title"),
     staticOptions: [],
     dynamicOptions: getBotOptions,
-    default: (inputs: Inputs) => {
-      const options = getBotOptions(inputs);
-      return options.map((o) => o.id);
-    },
+    default: "all",
     placeholder: getLocalizedString("core.updateBotIdsQuestion.placeholder"),
     forgetLastValue: true,
   };
@@ -938,7 +929,7 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
   };
 }
 
-export function apiAuthQuestion(): SingleSelectQuestion {
+export function apiAuthQuestion(excludeNone = false): SingleSelectQuestion {
   return {
     type: "singleSelect",
     name: QuestionNames.ApiAuth,
@@ -949,14 +940,12 @@ export function apiAuthQuestion(): SingleSelectQuestion {
     cliDescription: "The authentication type for the API.",
     staticOptions: ApiAuthOptions.all(),
     dynamicOptions: (inputs: Inputs) => {
-      const options: OptionItem[] = [ApiAuthOptions.none()];
+      const options: OptionItem[] = excludeNone ? [] : [ApiAuthOptions.none()];
       if (inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.newApi().id) {
         options.push(ApiAuthOptions.bearerToken(), ApiAuthOptions.microsoftEntra());
-      } else if (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.newApi().id) {
+      } else if (inputs[QuestionNames.ActionType] === ActionStartOptions.newApi().id) {
         options.push(ApiAuthOptions.apiKey());
-        if (featureFlagManager.getBooleanValue(FeatureFlags.ApiPluginAAD)) {
-          options.push(ApiAuthOptions.microsoftEntra());
-        }
+        options.push(ApiAuthOptions.microsoftEntra());
         options.push(ApiAuthOptions.oauth());
       }
       return options;
@@ -975,7 +964,7 @@ export function apiOperationQuestion(
   const isPlugin = (inputs?: Inputs): boolean => {
     return (
       isAddPlugin ||
-      (!!inputs && inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id)
+      (!!inputs && inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id)
     );
   };
 
@@ -992,7 +981,7 @@ export function apiOperationQuestion(
       : "Select operation(s) Teams can interact with.",
     cliShortName: "o",
     placeholder: (inputs: Inputs) => {
-      const isPlugin = inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id;
+      const isPlugin = inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id;
       if (!includeExistingAPIs) {
         placeholder = getLocalizedString(
           "core.createProjectQuestion.apiSpec.operation.placeholder.skipExisting"
@@ -1146,7 +1135,7 @@ function llmServiceQuestion(): SingleSelectQuestion {
   };
 }
 
-function openAIKeyQuestion(): TextInputQuestion {
+export function openAIKeyQuestion(): TextInputQuestion {
   return {
     type: "text",
     password: true,
@@ -1156,7 +1145,7 @@ function openAIKeyQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIKeyQuestion(): TextInputQuestion {
+export function azureOpenAIKeyQuestion(): TextInputQuestion {
   return {
     type: "text",
     password: true,
@@ -1168,7 +1157,7 @@ function azureOpenAIKeyQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIEndpointQuestion(): TextInputQuestion {
+export function azureOpenAIEndpointQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.AzureOpenAIEndpoint,
@@ -1179,7 +1168,7 @@ function azureOpenAIEndpointQuestion(): TextInputQuestion {
   };
 }
 
-function azureOpenAIDeploymentNameQuestion(): TextInputQuestion {
+export function azureOpenAIDeploymentNameQuestion(): TextInputQuestion {
   return {
     type: "text",
     name: QuestionNames.AzureOpenAIDeploymentName,
@@ -1207,7 +1196,7 @@ function declarativeCopilotPluginQuestion(): SingleSelectQuestion {
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",
-    name: QuestionNames.ApiPluginType,
+    name: QuestionNames.ActionType,
     title: (inputs: Inputs) => {
       return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id ||
         doesProjectExists
@@ -1221,11 +1210,11 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
         : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
     },
     cliDescription: "API plugin type.",
-    staticOptions: ApiPluginStartOptions.staticAll(doesProjectExists),
+    staticOptions: ActionStartOptions.staticAll(doesProjectExists),
     dynamicOptions: (inputs: Inputs) => {
-      return ApiPluginStartOptions.all(inputs, doesProjectExists);
+      return ActionStartOptions.all(inputs, doesProjectExists);
     },
-    default: ApiPluginStartOptions.newApi().id,
+    default: ActionStartOptions.newApi().id,
   };
 }
 
@@ -1244,6 +1233,22 @@ export function pluginManifestQuestion(): SingleFileQuestion {
     },
     defaultFolder: (inputs: Inputs) =>
       CLIPlatforms.includes(inputs.platform) ? "./" : os.homedir(),
+    default: (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        return undefined;
+      }
+
+      const ttkPluginFilePath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        DefaultPluginManifestFileName
+      );
+
+      if (fs.existsSync(ttkPluginFilePath)) {
+        return ttkPluginFilePath;
+      }
+      return undefined;
+    },
     validation: {
       validFunc: async (input: string) => {
         const manifestRes = await pluginManifestUtils.readPluginManifestFile(input.trim());
@@ -1349,6 +1354,21 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
   };
 }
 
+export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.KnowledgeSource,
+    title: getLocalizedString("core.createProjectQuestion.addKnowledge.title"),
+    placeholder: getLocalizedString("core.createProjectQuestion.addKnowledge.placeholder"),
+    cliDescription: "Knowledge source.",
+    staticOptions: KnowledgeSourceOptions.all(),
+    default: KnowledgeSourceOptions.webSearch().id,
+    dynamicOptions: (inputs: Inputs) => {
+      return KnowledgeSourceOptions.allWithFeatureFlags();
+    },
+  };
+}
+
 export function capabilitySubTree(): IQTreeNode {
   const node: IQTreeNode = {
     data: capabilityQuestion(),
@@ -1424,7 +1444,7 @@ export function capabilitySubTree(): IQTreeNode {
       },
       {
         condition: (inputs: Inputs) => {
-          return inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.existingPlugin().id;
+          return inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id;
         },
         data: { type: "group", name: QuestionNames.ImportPlugin },
         children: [
@@ -1440,7 +1460,7 @@ export function capabilitySubTree(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             inputs[QuestionNames.MeArchitectureType] == MeArchitectureOptions.newApi().id ||
-            inputs[QuestionNames.ApiPluginType] == ApiPluginStartOptions.newApi().id
+            inputs[QuestionNames.ActionType] == ActionStartOptions.newApi().id
           );
         },
         data: apiAuthQuestion(),
@@ -1455,14 +1475,14 @@ export function capabilitySubTree(): IQTreeNode {
         // from API spec
         condition: (inputs: Inputs) => {
           return (
-            (inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id ||
+            (inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id ||
               inputs[QuestionNames.MeArchitectureType] === MeArchitectureOptions.apiSpec().id ||
               inputs[QuestionNames.CustomCopilotRag] === CustomCopilotRagOptions.customApi().id) &&
             !(
               // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec
               (
                 featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+                inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
                 (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
                   inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
               )
@@ -1477,7 +1497,7 @@ export function capabilitySubTree(): IQTreeNode {
           {
             data: apiOperationQuestion(),
             condition: (inputs: Inputs) => {
-              return !inputs[QuestionNames.ApiPluginManifestPath];
+              return !inputs[QuestionNames.ActionManifestPath];
             },
           },
         ],
@@ -1497,8 +1517,8 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             (!!inputs[QuestionNames.Capabilities] &&
               inputs[QuestionNames.WithPlugin] !== DeclarativeCopilotTypeOptions.noPlugin().id &&
-              inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.apiSpec().id &&
-              inputs[QuestionNames.ApiPluginType] !== ApiPluginStartOptions.existingPlugin().id &&
+              inputs[QuestionNames.ActionType] !== ActionStartOptions.apiSpec().id &&
+              inputs[QuestionNames.ActionType] !== ActionStartOptions.existingPlugin().id &&
               inputs[QuestionNames.MeArchitectureType] !== MeArchitectureOptions.apiSpec().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.officeMetaOS().id &&
               inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.outlookAddin().id) ||
@@ -1549,10 +1569,10 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.ApiPluginManifestPath]
+            !inputs[QuestionNames.ActionManifestPath]
           );
         },
       },
@@ -1563,10 +1583,10 @@ export function capabilitySubTree(): IQTreeNode {
           // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
           return !(
             featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
             (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
               inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) &&
-            !inputs[QuestionNames.ApiPluginManifestPath]
+            !inputs[QuestionNames.ActionManifestPath]
           );
         },
       },

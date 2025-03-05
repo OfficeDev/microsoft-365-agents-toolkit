@@ -12,8 +12,8 @@ import Mustache from "mustache";
 import path from "path";
 import { createSandbox } from "sinon";
 import * as folderUtils from "../../../../fx-core/src/folder";
-import * as featurefalgs from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { getLocalizedString } from "../../../src/common/localizeUtils";
 import * as requestUtils from "../../../src/common/requestUtils";
 import { sendRequestWithRetry, sendRequestWithTimeout } from "../../../src/common/requestUtils";
 import { SampleConfig, SampleUrlInfo, sampleProvider } from "../../../src/common/samples";
@@ -22,6 +22,7 @@ import {
   commonTemplateName,
   placeholderDelimiters,
 } from "../../../src/component/generator/constant";
+import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import {
   DownloadSampleApiLimitError,
   DownloadSampleNetworkError,
@@ -35,7 +36,7 @@ import {
   TemplateActionSeq,
   fetchSampleInfoAction,
 } from "../../../src/component/generator/generatorAction";
-import { DefaultTemplateGenerator } from "../../../src/component/generator/templates/templateGenerator";
+import * as templateMetadata from "../../../src/component/generator/templates/metadata";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { getTemplateReplaceMap } from "../../../src/component/generator/templates/templateReplaceMap";
 import * as generatorUtils from "../../../src/component/generator/utils";
@@ -52,7 +53,6 @@ import { ActionContext } from "../../../src/component/middleware/actionExecution
 import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
-import { getLocalizedString } from "../../../src/common/localizeUtils";
 
 const mockedSampleInfo: SampleConfig = {
   id: "test-id",
@@ -811,6 +811,7 @@ describe("render template", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+        [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
       } as Inputs;
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: "true" });
     });
@@ -1261,6 +1262,49 @@ describe("render template", () => {
       assert.equal(CapabilityOptions.customCopilotBasic().description, undefined);
       assert.equal(CapabilityOptions.customCopilotRag().description, undefined);
       assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
+    });
+
+    it("template name with language 'common' or 'none' uses full id as folderName", async () => {
+      let folderName = "";
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      assert.equal(folderName, "declarative-agent-basic");
+
+      daTemplateInput[QuestionNames.TemplateName] =
+        TemplateNames.MessageExtensionWithExistingApiSpec;
+      await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.equal(folderName, "message-extension-with-existing-api");
+    });
+
+    it("template name doesn't exist", async () => {
+      let folderName = "";
+      sandbox.stub(templateMetadata, "getAllTemplatesOnPlatform").returns([]);
+      sandbox.stub(Generator, "generate").callsFake(async (context: GeneratorContext) => {
+        folderName = context.name;
+      });
+
+      context.templateVariables = Generator.getDefaultVariables("test");
+      const daTemplateInput = {
+        ...inputs,
+        [QuestionNames.TemplateName]: "not exist",
+      } as Inputs;
+
+      const result = await new DefaultTemplateGenerator().run(context, daTemplateInput, tmpDir);
+
+      assert.isTrue(result.isOk());
+      assert.equal(folderName, "");
     });
   });
 });

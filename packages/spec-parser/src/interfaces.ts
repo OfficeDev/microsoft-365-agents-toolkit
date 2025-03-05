@@ -126,6 +126,8 @@ export enum ErrorType {
 
   Cancelled = "cancelled",
   Unknown = "unknown",
+
+  AddAuthFailed = "add-auth-failed",
 }
 
 /**
@@ -274,6 +276,11 @@ export enum ProjectType {
   TeamsAi,
 }
 
+export enum AdaptiveCardUpdateStrategy {
+  CreateNew, // Add a new adaptive card with a new name
+  KeepExisting, // Do nothing with the existing adaptive card
+}
+
 export interface APIInfo {
   method: string;
   path: string;
@@ -291,6 +298,8 @@ export interface ListAPIInfo {
   isValid: boolean;
   reason: ErrorType[];
   auth?: AuthInfo;
+  summary?: string;
+  description?: string;
 }
 
 export interface APIMap {

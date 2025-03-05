@@ -2,11 +2,11 @@
 
 ## Quick Start
 
-1. Right-click your project and select Teams Toolkit > Prepare Teams App Dependencies
-2. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
-to install the app to
-3. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-4. In the launched browser, select the Add button to load the app in Teams
+1. Right-click the 'TeamsApp' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
+2. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
+3. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+</br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
+4. In the opened web browser, select Add button to install the app in Teams
 
 ## Learn more
 

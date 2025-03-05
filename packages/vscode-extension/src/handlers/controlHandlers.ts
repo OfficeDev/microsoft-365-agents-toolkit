@@ -51,8 +51,7 @@ export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unk
     const manifestRes = await manifestUtils.readAppManifest(workspaceUri?.fsPath);
     if (manifestRes.isOk()) {
       const capabilities = manifestUtils.getCapabilities(manifestRes.value);
-      // API plugin can be detected in manifest
-      isCopilotApp = capabilities.includes("extension") || capabilities.includes("plugin");
+      isCopilotApp = capabilities.includes("copilotGpt");
     }
     if (!isCopilotApp) {
       // Use dependency to determine if it is a copilot app for now.

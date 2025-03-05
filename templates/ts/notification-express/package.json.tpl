@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Microsoft Teams Toolkit Notification Bot Sample (Express)",
     "engines": {
-        "node": "18 || 20"
+        "node": "18 || 20 || 22"
     },
     "author": "Microsoft",
     "license": "MIT",

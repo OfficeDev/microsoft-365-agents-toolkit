@@ -28,8 +28,9 @@ export class FeatureFlagName {
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
-  static readonly ApiPluginAAD = "TEAMSFX_API_PLUGIN_AAD";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
+  static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
+  static readonly AddKnowledge = "TEAMSFX_ADD_KNOWLEDGE";
 }
 
 export interface FeatureFlag {
@@ -44,7 +45,7 @@ export class FeatureFlags {
   static readonly METestTool = { name: FeatureFlagName.METestTool, defaultValue: "true" };
   static readonly OfficeMetaOS = {
     name: FeatureFlagName.OfficeMetaOS,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly TdpTemplateCliTest = {
     name: FeatureFlagName.TdpTemplateCliTest,
@@ -84,12 +85,16 @@ export class FeatureFlags {
     name: FeatureFlagName.KiotaIntegration,
     defaultValue: "false",
   };
-  static readonly ApiPluginAAD = {
-    name: FeatureFlagName.ApiPluginAAD,
-    defaultValue: "false",
-  };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
+    defaultValue: "false",
+  };
+  static readonly BuilderAPIEnabled = {
+    name: FeatureFlagName.BuilderAPIEnabled,
+    defaultValue: "false",
+  };
+  static readonly AddKnowledge = {
+    name: FeatureFlagName.AddKnowledge,
     defaultValue: "false",
   };
 }

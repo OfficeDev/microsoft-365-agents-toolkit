@@ -46,7 +46,7 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet' // Set runtime to .NET
+          value: 'dotnet-isolated' // Use .NET isolated process
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'

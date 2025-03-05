@@ -12,6 +12,7 @@ import {
   QuestionNames,
   UserCancelError,
   envUtil,
+  featureFlagManager,
 } from "@microsoft/teamsfx-core";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { assert } from "chai";
@@ -65,6 +66,9 @@ import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate"
 import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
+import { addKnowledgeCommand } from "../../src/commands/models/addKnowledge";
+import { shareCommand } from "../../src/commands/models/share";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -84,22 +88,40 @@ describe("CLI commands", () => {
   });
 
   describe("getCreateCommand", async () => {
-    it("happy path", async () => {
+    it("happy path for donet", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
-
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
-        optionValues: {},
+        optionValues: {
+          capabilities: "bot",
+          nonInteractive: true,
+        },
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
       };
-
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
     });
-
+    it("happy path for cli", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "bot",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await getCreateCommand().handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
     it("core return error", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "createProject").resolves(err(new UserCancelError()));
@@ -244,10 +266,25 @@ describe("CLI commands", () => {
     });
   });
 
+  describe("addKnowledgeCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "addKnowledge").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addKnowledgeCommand, fullName: "add knowledge" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await addKnowledgeCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+
   describe("getAddCommand", async () => {
     it("customize GPT is enabled", async () => {
       const commands = addCommand();
-      assert.isTrue(commands.commands?.length === 2);
+      assert.isTrue(commands.commands?.length === 4);
     });
   });
 
@@ -499,6 +536,20 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
   });
+  describe("shareCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
   describe("previewCommand", async () => {
     it("success", async () => {
       sandbox.stub(localTelemetryReporter, "runWithTelemetryGeneric").resolves(ok(undefined));
@@ -717,6 +768,19 @@ describe("CLI commands", () => {
       const res = await m365SideloadingCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+    it("should success with zip package with Shared scope", async () => {
+      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
+      sandbox.stub(PackageService.prototype, "sideLoading").resolves();
+      const ctx: CLIContext = {
+        command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+        optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "Shared" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await m365SideloadingCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
     it("should success with xml", async () => {
       sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
       sandbox.stub(PackageService.prototype, "sideLoadXmlManifest").resolves();
@@ -881,6 +945,21 @@ describe("CLI commands", () => {
       };
       const res = await teamsappPublishCommand.handler!(ctx);
       assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("addAuthConfigCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "addAuthAction").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addAuthConfigCommand, fullName: "add auth-config" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await addAuthConfigCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
     });
   });
 });

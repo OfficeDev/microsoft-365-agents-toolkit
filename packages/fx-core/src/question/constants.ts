@@ -4,7 +4,6 @@
 import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
-import { OfficeAddinProjectConfig } from "../component/generator/officeXMLAddin/projectConfig";
 
 export enum QuestionNames {
   Scratch = "scratch",
@@ -40,7 +39,7 @@ export enum QuestionNames {
   FromExistingApi = "from-existing-api", // group name for creating an App from existing api
   ApiSpecLocation = "openapi-spec-location",
   ApiOperation = "api-operation",
-  ApiPluginManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
+  ActionManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
   MeArchitectureType = "me-architecture",
   ApiSpecApiKey = "api-key",
   ApiSpecApiKeyConfirm = "api-key-confirm",
@@ -101,11 +100,24 @@ export enum QuestionNames {
   DestinationApiSpecFilePath = "destination-api-spec-location",
 
   SyncManifest = "sync-manifest",
-  ApiPluginType = "api-plugin-type",
+  ActionType = "api-plugin-type",
   WithPlugin = "with-plugin",
   ImportPlugin = "import-plugin",
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
+  KnowledgeSource = "knowledge-source",
+
+  AuthName = "auth-name",
+  TemplateName = "template-name",
+
+  EmbeddedKnowledgeFiles = "embedded-knowledge-files",
+  OAuthAuthorizationUrl = "oauth-authorization-url",
+  OAuthTokenUrl = "oauth-token-url",
+  OAuthRefreshUrl = "oauth-refresh-url",
+  OAuthScope = "oauth-scope",
+  OauthPKCE = "oauth-pkce",
+  ApiKeyIn = "api-key-in",
+  ApiKeyName = "api-key-name",
 }
 
 export enum ProjectTypeGroup {
@@ -129,7 +141,7 @@ export enum ProgrammingLanguage {
   None = "none",
 }
 
-export const apiPluginApiSpecOptionId = "api-spec";
+export const DeclarativeAgentApiSpecOptionId = "api-spec";
 export const capabilitiesHavePythonOption = [
   "custom-copilot-basic",
   "custom-copilot-rag-azureAISearch",
@@ -550,23 +562,6 @@ export class CapabilityOptions {
         ];
   }
 
-  static officeAddinStaticCapabilities(host?: string): OptionItem[] {
-    const items: OptionItem[] = [];
-    for (const h of Object.keys(OfficeAddinProjectConfig)) {
-      if (host && h !== host) continue;
-      const hostValue = OfficeAddinProjectConfig[h];
-      for (const capability of Object.keys(hostValue)) {
-        const capabilityValue = hostValue[capability];
-        items.push({
-          id: capability,
-          label: getLocalizedString(capabilityValue.title),
-          detail: getLocalizedString(capabilityValue.detail),
-        });
-      }
-    }
-    return items;
-  }
-
   static officeAddinCapabilities(projectType: string): OptionItem[] {
     const items: OptionItem[] = [CapabilityOptions.officeAddinTaskpane()];
     const isOutlookAddin = projectType === ProjectTypeOptions.outlookAddin().id;
@@ -613,7 +608,6 @@ export class CapabilityOptions {
       ...CapabilityOptions.customCopilots(),
       ...CapabilityOptions.tdpIntegrationCapabilities(),
     ];
-    capabilityOptions.push(...CapabilityOptions.officeAddinStaticCapabilities());
     return capabilityOptions;
   }
 
@@ -819,6 +813,45 @@ export class ApiAuthOptions {
   }
 }
 
+export class AddAuthActionAuthTypeOptions {
+  static apiKey(): OptionItem {
+    return {
+      id: "api-key",
+      label: "API Key",
+    };
+  }
+
+  static bearerToken(): OptionItem {
+    return {
+      id: "bearer-token",
+      label: "API Key (Bearer Token Auth)",
+    };
+  }
+
+  static oauth(): OptionItem {
+    return {
+      id: "oauth",
+      label: "OAuth",
+    };
+  }
+
+  static microsoftEntra(): OptionItem {
+    return {
+      id: "microsoft-entra",
+      label: "Microsoft Entra",
+    };
+  }
+
+  static all(): OptionItem[] {
+    return [
+      AddAuthActionAuthTypeOptions.bearerToken(),
+      AddAuthActionAuthTypeOptions.apiKey(),
+      AddAuthActionAuthTypeOptions.oauth(),
+      AddAuthActionAuthTypeOptions.microsoftEntra(),
+    ];
+  }
+}
+
 export class MeArchitectureOptions {
   static botMe(): OptionItem {
     return {
@@ -829,19 +862,6 @@ export class MeArchitectureOptions {
       ),
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlook"
-      ),
-    };
-  }
-
-  static botPlugin(): OptionItem {
-    return {
-      id: "bot-plugin",
-      label: getLocalizedString("core.createProjectQuestion.capability.botMessageExtension.label"),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.botMessageExtension.detail"
-      ),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookCopilot"
       ),
     };
   }
@@ -874,7 +894,7 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
+      MeArchitectureOptions.botMe(),
     ];
   }
 
@@ -882,7 +902,6 @@ export class MeArchitectureOptions {
     return [
       MeArchitectureOptions.newApi(),
       MeArchitectureOptions.apiSpec(),
-      MeArchitectureOptions.botPlugin(),
       MeArchitectureOptions.botMe(),
     ];
   }
@@ -898,9 +917,9 @@ export const NotificationTriggers = {
   TIMER: "timer",
 } as const;
 
-type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
+export type NotificationTrigger = typeof NotificationTriggers[keyof typeof NotificationTriggers];
 
-interface HostTypeTriggerOptionItem extends OptionItem {
+export interface HostTypeTriggerOptionItem extends OptionItem {
   hostType: HostType;
   triggers?: NotificationTrigger[];
 }
@@ -936,17 +955,6 @@ export class NotificationTriggerOptions {
     };
   }
 
-  static functionsTimerTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "timer-functions-isolated",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.TIMER],
-      label: getLocalizedString("plugins.bot.triggers.timer-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.timer-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.timer-functions.detail"),
-    };
-  }
-
   static functionsHttpAndTimerTrigger(): HostTypeTriggerOptionItem {
     return {
       id: "http-and-timer-functions",
@@ -958,31 +966,9 @@ export class NotificationTriggerOptions {
     };
   }
 
-  static functionsHttpAndTimerTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "http-and-timer-functions-isolated",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.HTTP, NotificationTriggers.TIMER],
-      label: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.http-and-timer-functions.detail"),
-    };
-  }
-
   static functionsHttpTrigger(): HostTypeTriggerOptionItem {
     return {
       id: "http-functions",
-      hostType: HostType.Functions,
-      triggers: [NotificationTriggers.HTTP],
-      label: getLocalizedString("plugins.bot.triggers.http-functions.label"),
-      description: getLocalizedString("plugins.bot.triggers.http-functions.description"),
-      detail: getLocalizedString("plugins.bot.triggers.http-functions.detail"),
-    };
-  }
-
-  static functionsHttpTriggerIsolated(): HostTypeTriggerOptionItem {
-    return {
-      id: "http-functions-isolated",
       hostType: HostType.Functions,
       triggers: [NotificationTriggers.HTTP],
       label: getLocalizedString("plugins.bot.triggers.http-functions.label"),
@@ -1148,13 +1134,16 @@ export class TeamsAppValidationOptions {
     return {
       id: "validateAgainstPackage",
       label: getLocalizedString("core.selectValidateMethodQuestion.validate.appPackageOption"),
+      detail: getLocalizedString(
+        "core.selectValidateMethodQuestion.validate.appPackageOptionDescription"
+      ),
     };
   }
   static testCases(): OptionItem {
     return {
       id: "validateWithTestCases",
       label: getLocalizedString("core.selectValidateMethodQuestion.validate.testCasesOption"),
-      description: getLocalizedString(
+      detail: getLocalizedString(
         "core.selectValidateMethodQuestion.validate.testCasesOptionDescription"
       ),
     };
@@ -1212,7 +1201,7 @@ export class DeclarativeCopilotTypeOptions {
   }
 }
 
-export class ApiPluginStartOptions {
+export class ActionStartOptions {
   static newApi(): OptionItem {
     return {
       id: "new-api",
@@ -1247,25 +1236,91 @@ export class ApiPluginStartOptions {
 
   static staticAll(doesProjectExists?: boolean): OptionItem[] {
     return doesProjectExists
-      ? [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()]
+      ? [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()]
       : [
-          ApiPluginStartOptions.newApi(),
-          ApiPluginStartOptions.apiSpec(),
-          ApiPluginStartOptions.existingPlugin(),
+          ActionStartOptions.newApi(),
+          ActionStartOptions.apiSpec(),
+          ActionStartOptions.existingPlugin(),
         ];
   }
 
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
-      return [ApiPluginStartOptions.apiSpec(), ApiPluginStartOptions.existingPlugin()];
+      return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
     } else if (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) {
       return [
-        ApiPluginStartOptions.newApi(),
-        ApiPluginStartOptions.apiSpec(),
-        ApiPluginStartOptions.existingPlugin(),
+        ActionStartOptions.newApi(),
+        ActionStartOptions.apiSpec(),
+        ActionStartOptions.existingPlugin(),
       ];
     } else {
-      return [ApiPluginStartOptions.newApi(), ApiPluginStartOptions.apiSpec()];
+      return [ActionStartOptions.newApi(), ActionStartOptions.apiSpec()];
     }
+  }
+}
+
+export class KnowledgeSourceOptions {
+  static webSearch(): OptionItem {
+    return {
+      id: "web-search",
+      label: getLocalizedString("core.createProjectQuestion.capability.knowledgeWebSearch.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.knowledgeWebSearch.detail"),
+    };
+  }
+
+  static oneDriveSharePoint(): OptionItem {
+    return {
+      id: "oneDrive-sharePoint",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeOneDriveSharePoint.detail"
+      ),
+    };
+  }
+
+  static graphConnector(): OptionItem {
+    return {
+      id: "graph-connector",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeGraphConnector.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeGraphConnector.detail"
+      ),
+    };
+  }
+
+  static embeddedKnowledge(): OptionItem {
+    return {
+      id: "embedded-knowledge",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.knowledgeEmbeddedKnowledge.detail"
+      ),
+    };
+  }
+
+  static all(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSourceOptions.webSearch(),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
+      KnowledgeSourceOptions.embeddedKnowledge(),
+    ];
+    return items;
+  }
+
+  static allWithFeatureFlags(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSourceOptions.webSearch(),
+      KnowledgeSourceOptions.oneDriveSharePoint(),
+    ];
+    if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+      items.push(KnowledgeSourceOptions.embeddedKnowledge());
+    }
+    return items;
   }
 }

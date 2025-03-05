@@ -9,19 +9,19 @@
 # In each subsection folders are ordered first by depth, then alphabetically.
 # This should make it easy to add new rules without breaking existing ones.
 
-./lerna.json @wenytang-ms @qinezh @Siglud @LongOddCode
-./pnpm-workspace.yaml @wenytang-ms @qinezh @Siglud @LongOddCode
+./lerna.json @wenytang-ms @qinezh @Siglud @tecton
+./pnpm-workspace.yaml @wenytang-ms @qinezh @Siglud @tecton
 /.github/CODEOWNERS @adashen @eriolchan @kimizhu @MSFT-yiz @zhenjiao-ms
 /.github/actions @xzf0587 @wenytang-ms @blackchoey
-/.github/workflows/cd.yml @LongOddCode @Siglud @qinezh @wenytang-ms
+/.github/workflows/cd.yml @tecton @Siglud @qinezh @wenytang-ms
 /.github/workflows/templates-ci.yml @hund030 @eriolchan @huimiu
 
 /Localize @HuihuiWu-Microsoft @tecton @chagong
 
-/packages/api @jayzhang @LongOddCode @nliu-ms
+/packages/api @jayzhang @nliu-ms
 /packages/api/src/schemas @dooriya @qinezh @a1exwang @kimizhu
 
-/packages/cli @chagong @Alive-Fish @LongOddCode @jayzhang
+/packages/cli @chagong @Alive-Fish @jayzhang
 /packages/cli/src/cmds/m365 @swatDong @kuojianlu @kimizhu
 /packages/cli/src/cmds/preview @swatDong @kuojianlu @qinezh @a1exwang
 /packages/cli/src/commands @jayzhang @Alive-Fish
@@ -64,20 +64,20 @@
 
 /packages/function-extension @adashen @blackchoey
 
-/packages/fx-core/.eslintignore @LongOddCode @wenytang-ms
-/packages/fx-core/.eslintrc.js @LongOddCode @wenytang-ms
-/packages/fx-core/.gitignore @LongOddCode @wenytang-ms
-/packages/fx-core/.mocharc.js @LongOddCode @wenytang-ms
-/packages/fx-core/.nycrc @LongOddCode @wenytang-ms
-/packages/fx-core/.prettierignore @LongOddCode @wenytang-ms
-/packages/fx-core/.prettierrc.js @LongOddCode @wenytang-ms
-/packages/fx-core/.vscode/launch.json @LongOddCode @wenytang-ms
-/packages/fx-core/CONTRIBUTING.md @LongOddCode @wenytang-ms
-/packages/fx-core/LICENSE.txt @LongOddCode @wenytang-ms
-/packages/fx-core/NOTICE.txt @LongOddCode @wenytang-ms
-/packages/fx-core/README.md @LongOddCode @wenytang-ms
-/packages/fx-core/package-lock.json @LongOddCode @wenytang-ms
-/packages/fx-core/package.json @LongOddCode @wenytang-ms
+/packages/fx-core/.eslintignore @tecton @wenytang-ms
+/packages/fx-core/.eslintrc.js @tecton @wenytang-ms
+/packages/fx-core/.gitignore @tecton @wenytang-ms
+/packages/fx-core/.mocharc.js @tecton @wenytang-ms
+/packages/fx-core/.nycrc @tecton @wenytang-ms
+/packages/fx-core/.prettierignore @tecton @wenytang-ms
+/packages/fx-core/.prettierrc.js @tecton @wenytang-ms
+/packages/fx-core/.vscode/launch.json @tecton @wenytang-ms
+/packages/fx-core/CONTRIBUTING.md @tecton @wenytang-ms
+/packages/fx-core/LICENSE.txt @tecton @wenytang-ms
+/packages/fx-core/NOTICE.txt @tecton @wenytang-ms
+/packages/fx-core/README.md @tecton @wenytang-ms
+/packages/fx-core/package-lock.json @tecton @wenytang-ms
+/packages/fx-core/package.json @tecton @wenytang-ms
 /packages/fx-core/resource/deps-checker @qinezh @a1exwang @kimizhu @swatDong @XiaofuHuang
 /packages/fx-core/resource/package.nls.cs.json @HuihuiWu-Microsoft @chagong @jayzhang
 /packages/fx-core/resource/package.nls.de.json @HuihuiWu-Microsoft @chagong @jayzhang
@@ -99,27 +99,27 @@
 /packages/fx-core/scripts/delete-unused-strings.js @jayzhang
 /packages/fx-core/scripts/find-unused-strings.js @jayzhang
 /packages/fx-core/scripts/generate-appdef.ps1 @nliu-ms
-/packages/fx-core/src/common/azureUtil.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/constants.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/correlator.ts @chagong @jayzhang @LongOddCode
-/packages/fx-core/src/common/featureFlags.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/globalState.ts @tecton @jayzhang @LongOddCode
-/packages/fx-core/src/common/globalVars.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/jsonUtils.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/src/common/azureUtil.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/constants.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/correlator.ts @chagong @jayzhang
+/packages/fx-core/src/common/featureFlags.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/globalState.ts @tecton @jayzhang
+/packages/fx-core/src/common/globalVars.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/jsonUtils.ts @jayzhang @xzf0587
 /packages/fx-core/src/common/localizeUtils.ts @jayzhang @HuihuiWu-Microsoft @chagong
 /packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
-/packages/fx-core/src/common/projectSettingsHelper.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/projectSettingsHelperV3.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/src/common/projectSettingsHelper.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/projectSettingsHelperV3.ts @jayzhang @xzf0587
 /packages/fx-core/src/common/requestUtils.ts @jayzhang @hund030
 /packages/fx-core/src/common/samples.ts @HuihuiWu-Microsoft @wenytang-ms @jayzhang @tecton
-/packages/fx-core/src/common/stringUtils.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/telemetry.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/src/common/stringUtils.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/telemetry.ts @jayzhang @xzf0587
 /packages/fx-core/src/common/templates-config.json @hund030 @eriolchan @huimiu
-/packages/fx-core/src/common/tools.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/common/utils.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/src/common/tools.ts @jayzhang @xzf0587
+/packages/fx-core/src/common/utils.ts @jayzhang @xzf0587
 /packages/fx-core/src/common/versionMetadata.ts @xzf0587 @blackchoey
 /packages/fx-core/src/common/wrappedAxiosClient.ts @nliu-ms @anchenyi @jayzhang
-/packages/fx-core/src/component @jayzhang @xzf0587 @hund030 @LongOddCode
+/packages/fx-core/src/component @jayzhang @xzf0587 @hund030
 /packages/fx-core/src/component/configManager @jayzhang @wenytang-ms @kuojianlu @Siglud
 /packages/fx-core/src/component/debugHandler @swatDong @XiaofuHuang @kuojianlu @kimizhu
 /packages/fx-core/src/component/deps-checker @qinezh @a1exwang @kimizhu @swatDong @XiaofuHuang
@@ -136,7 +136,7 @@
 /packages/fx-core/src/component/driver/devTool @swatDong @XiaofuHuang @kuojianlu @kimizhu
 /packages/fx-core/src/component/driver/file @swatDong @XiaofuHuang @xiaolang124 @kuojianlu @kimizhu
 /packages/fx-core/src/component/driver/m365 @swatDong @XiaofuHuang @kuojianlu @kimizhu
-/packages/fx-core/src/component/driver/middleware @tecton @jayzhang @LongOddCode
+/packages/fx-core/src/component/driver/middleware @tecton @jayzhang
 /packages/fx-core/src/component/driver/script/baseBuildDriver.ts @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/script/baseBuildStepDriver.ts @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/script/dotnetBuildDriver.ts @Siglud @Yukun-dong @JerryYangKai @eriolchan
@@ -149,38 +149,42 @@
 /packages/fx-core/src/component/feature/createAuthFiles.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/feature/sso.ts @KennethBWSong @xzf0587
 /packages/fx-core/src/component/generator @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/src/component/generator/apiSpec @yuqizhou77 @nliu-ms @Alive-Fish @anchenyi @jayzhang
+/packages/fx-core/src/component/generator/declarativeAgent @yuqizhou77 @tecton @anchenyi
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @huimiu @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/officeAddin @jayzhang @tecton
-/packages/fx-core/src/component/generator/officeXMLAddin @jayzhang @tecton
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @anchenyi @jayzhang @SLdragon @KennethBWSong
+/packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
+/packages/fx-core/src/component/generator/other/tdpGenerator.ts @jayzhang @tecton @anchenyi
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms
+/packages/fx-core/src/component/generator/templates @tecton @jayzhang 
+/packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/local @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /packages/fx-core/src/component/m365 @kimizhu @swatDong @kuojianlu
 /packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
 /packages/fx-core/src/component/resource/botService @kimizhu @swatDong @kuojianlu
-/packages/fx-core/src/core @jayzhang @LongOddCode @jayzhang @nliu-ms @xzf0587 @hund030
+/packages/fx-core/src/core @jayzhang @jayzhang @nliu-ms @xzf0587 @hund030
 /packages/fx-core/src/core/middleware/projectMigrationV3 @xzf0587 @frankqianms @blackchoey
 /packages/fx-core/src/core/middleware/utils/debug @swatDong @XiaofuHuang @kuojianlu @kimizhu
-/packages/fx-core/src/error @jayzhang @xzf0587 @hund030 @LongOddCode
-/packages/fx-core/src/folder.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/index.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/src/question @jayzhang @xzf0587 @LongOddCode @yuqizhou77 @tecton
+/packages/fx-core/src/error @jayzhang @xzf0587 @hund030
+/packages/fx-core/src/folder.ts @jayzhang @xzf0587
+/packages/fx-core/src/index.ts @jayzhang @xzf0587
+/packages/fx-core/src/question @jayzhang @xzf0587 @yuqizhou77 @tecton
 /packages/fx-core/src/ui @jayzhang @yuqizhou77 @tecton
 /packages/fx-core/templates/core/v3Migration @xzf0587 @frankqianms @blackchoey
 /packages/fx-core/templates/plugins/resource/aad/ @KennethBWSong @xzf0587
 /packages/fx-core/templates/plugins/resource/appstudio @nliu-ms @anchenyi
-/packages/fx-core/test/component @jayzhang @xzf0587 @hund030 @LongOddCode
-/packages/fx-core/tests/common/featureFlags.test.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/common/globalState.test.ts @tecton @jayzhang @LongOddCode
-/packages/fx-core/tests/common/globalVars.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/common/projectTypeChecker.test.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/test/component @jayzhang @xzf0587 @hund030
+/packages/fx-core/tests/common/featureFlags.test.ts @jayzhang @xzf0587
+/packages/fx-core/tests/common/globalState.test.ts @tecton @jayzhang
+/packages/fx-core/tests/common/globalVars.ts @jayzhang @xzf0587
+/packages/fx-core/tests/common/projectTypeChecker.test.ts @jayzhang @xzf0587
 /packages/fx-core/tests/common/samples.test.ts @HuihuiWu-Microsoft @wenytang-ms @jayzhang @tecton
-/packages/fx-core/tests/common/stringUtils.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/common/tools.test.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/common/utils.test.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/common/stringUtils.ts @jayzhang @xzf0587
+/packages/fx-core/tests/common/tools.test.ts @jayzhang @xzf0587
+/packages/fx-core/tests/common/utils.test.ts @jayzhang @xzf0587
 /packages/fx-core/tests/common/wrappedAxiosClient.ts @nliu-ms @anchenyi
 /packages/fx-core/tests/component/configManager @jayzhang @wenytang-ms @kuojianlu @Siglud
-/packages/fx-core/tests/component/coordinator @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/component/coordinator @jayzhang @xzf0587
 /packages/fx-core/tests/component/deps-checker @qinezh @a1exwang @kimizhu @swatDong @XiaofuHuang
 /packages/fx-core/tests/component/developerPortalScaffoldUtils.test.ts @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/tests/component/driver/aad @blackchoey @wenytang-ms @KennethBWSong
@@ -195,32 +199,31 @@
 /packages/fx-core/tests/component/driver/devTool @swatDong @XiaofuHuang @kuojianlu @kimizhu
 /packages/fx-core/tests/component/driver/file @swatDong @XiaofuHuang @xiaolang124 @kuojianlu @kimizhu
 /packages/fx-core/tests/component/driver/m365 @swatDong @XiaofuHuang @kuojianlu @kimizhu
-/packages/fx-core/tests/component/driver/middleware/updateProgress.test.ts @tecton @jayzhang @LongOddCode
+/packages/fx-core/tests/component/driver/middleware/updateProgress.test.ts @tecton @jayzhang
 /packages/fx-core/tests/component/driver/script @Siglud @Yukun-dong @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/driver/script/scriptDriver.test.ts @jayzhang @LongOddCode
+/packages/fx-core/tests/component/driver/script/scriptDriver.test.ts @jayzhang
 /packages/fx-core/tests/component/driver/teamsApp @nliu-ms @jayzhang @yuqizhou77 @anchenyi
 /packages/fx-core/tests/component/driver/util/utils.test.ts @blackchoey @xzf0587
-/packages/fx-core/tests/component/envUtil.test.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/component/error @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/component/envUtil.test.ts @jayzhang @xzf0587
+/packages/fx-core/tests/component/error @jayzhang @xzf0587
 /packages/fx-core/tests/component/feature @KennethBWSong @xzf0587
+/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @anchenyi
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
-/packages/fx-core/tests/component/generator/copilotExtensionGenerator.test.ts @yuqizhou77 @huimiu @jayzhang @anchenyi
-/packages/fx-core/tests/component/generator/apiSpecGenerator.test.ts @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @anchenyi
+/packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @yuqizhou77 @huimiu @jayzhang @anchenyi
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @jayzhang @tecton
-/packages/fx-core/tests/component/generator/officeXMLAddinGenerator.test.ts @jayzhang @tecton
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/tests/component/local @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /packages/fx-core/tests/component/m365 @kimizhu @swatDong @kuojianlu
-/packages/fx-core/tests/component/jsonUtils.test.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/component/jsonUtils.test.ts @jayzhang @xzf0587
 /packages/fx-core/tests/component/resource/appManifest @nliu-ms @jayzhang @HuihuiWu-Microsoft @anchenyi
 /packages/fx-core/tests/component/resource/botService @kimizhu @swatDong @kuojianlu
 /packages/fx-core/tests/component/util/azureAccountMock.ts @Siglud @xiaolang124
 /packages/fx-core/tests/component/util/azureResourceOperation.test.ts @Siglud @Yukun-dong
 /packages/fx-core/tests/component/util/logProviderMock.ts @Siglud @Yukun-dong
 /packages/fx-core/tests/component/util/metadataUtil.test.ts @chagong @jayzhang
-/packages/fx-core/tests/core/FxCore.create.test.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/core/FxCore.test.ts @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tests/core/callback.test.ts @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/core/FxCore.create.test.ts @jayzhang @xzf0587
+/packages/fx-core/tests/core/FxCore.test.ts @jayzhang @xzf0587
+/packages/fx-core/tests/core/callback.test.ts @jayzhang @xzf0587
 /packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
 /packages/fx-core/tests/core/middleware/VideoFilterAppBlockerMW.test.ts @a1exwang
 /packages/fx-core/tests/core/middleware/debug @swatDong @XiaofuHuang @kuojianlu @kimizhu
@@ -229,11 +232,11 @@
 /packages/fx-core/tests/core/middleware/testAssets @xzf0587 @frankqianms @blackchoey
 /packages/fx-core/tests/plugins/resource/appstudio @nliu-ms @jayzhang @yuqizhou77 @anchenyi
 /packages/fx-core/tests/plugins/resource/spfx @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
-/packages/fx-core/tests/question @jayzhang @xzf0587 @LongOddCode @yuqizhou77 @tecton
+/packages/fx-core/tests/question @jayzhang @xzf0587 @yuqizhou77 @tecton
 /packages/fx-core/tests/samples/sampleV3 @xzf0587 @wenytang-ms @frankqianms @blackchoey
-/packages/fx-core/tests/ui @jayzhang @xzf0587 @LongOddCode
-/packages/fx-core/tsconfig.json @xzf0587 @LongOddCode
-/packages/fx-core/webpack.config.js @jayzhang @xzf0587 @LongOddCode
+/packages/fx-core/tests/ui @jayzhang @xzf0587
+/packages/fx-core/tsconfig.json @xzf0587 @jayzhang
+/packages/fx-core/webpack.config.js @jayzhang @xzf0587
 
 /packages/manifest/ @jayzhang @nliu-ms @anchenyi
 
@@ -259,7 +262,7 @@
 /packages/tests/src/e2e/m365/DeployLinkUnfurling.tests.ts @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /packages/tests/src/e2e/m365/ProvisionApiSpecMessageExtension.tests.ts @yuqizhou77 @Alive-Fish
 /packages/tests/src/e2e/multienv @a1exwang @dooriya @qinezh @xiaolang124 @kimizhu
-/packages/tests/src/e2e/samples @LongOddCode @ayachensiyuan
+/packages/tests/src/e2e/samples @tecton @ayachensiyuan
 /packages/tests/src/e2e/scaffold @hund030 @eriolchan @huimiu
 /packages/tests/src/e2e/scaffold/CopilotPluginFromScratch.tests.ts @yuqizhou77 @huimiu @SLdragon
 /packages/tests/src/e2e/scaffold/CopilotPluginFromExistingApi.tests.ts @yuqizhou77 @huimiu @SLdragon
@@ -296,25 +299,25 @@
 /templates/* @hund030 @eriolchan @huimiu
 /templates/**/ai-assistant-bot @kimizhu @swatDong @kuojianlu
 /templates/**/ai-bot @kimizhu @swatDong @kuojianlu
-/templates/**/api-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
-/templates/**/api-plugin-from-scratch @hund030 @eriolchan @huimiu
-/templates/**/api-plugin-from-scratch-bearer @hund030 @eriolchan @huimiu @Yimin-Jin
-/templates/**/api-plugin-from-scratch-oauth @hund030 @eriolchan @huimiu @Yimin-Jin
-/templates/**/copilot-gpt-basic @hund030 @eriolchan @huimiu
-/templates/**/copilot-gpt-existing-api @hund030 @eriolchan @huimiu
-/templates/**/copilot-gpt-from-scratch-plugin @hund030 @eriolchan @huimiu
+/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
+/templates/**/declarative-agent-with-action-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin
 /templates/**/command-and-response @kimizhu @dooriya @swatDong
-/templates/**/copilot-plugin-existing-api @yuqizhou77 @Alive-Fish @jayzhang
+/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang
-/templates/**/copilot-plugin-from-scratch @hund030 @eriolchan @huimiu
-/templates/**/copilot-plugin-from-scratch-api-key @hund030 @eriolchan @huimiu
+/templates/**/message-extension-with-api-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/message-extension-with-api-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin
 /templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang
 /templates/**/custom-copilot-rag-azure-ai-search @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
 /templates/**/custom-copilot-rag-customize @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
 /templates/**/custom-copilot-rag-microsoft365 @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
-/templates/**/dashboard-tab @hund030 @eriolchan @huimiu
+/templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin
 /templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong
@@ -322,7 +325,7 @@
 /templates/**/m365-message-extension @kimizhu @swatDong @kuojianlu
 /templates/**/message-extension @yuqizhou77 @Yukun-dong
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong
-/templates/**/message-extension-copilot @hund030 @eriolchan @huimiu
+/templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin
 /templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin
 /templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77

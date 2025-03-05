@@ -90,13 +90,13 @@ class TreeViewManager {
       utilityTreeviewProvider.refresh();
     }
     if (await hasAdaptiveCardInWorkspace()) {
-      // after "Validate application" command, the adaptive card will be shown
+      // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
-        "teamsfx-utility"
+        "teamsfx-development"
       ) as CommandsTreeViewProvider;
       const utilityCommands = utilityTreeviewProvider.getCommands();
       const validateCommandIndex = utilityCommands.findIndex(
-        (command) => command.commandId === "fx-extension.validateManifest"
+        (command) => command.commandId === "fx-extension.localdebug"
       );
       if (validateCommandIndex >= 0) {
         utilityCommands.splice(
@@ -227,6 +227,17 @@ class TreeViewManager {
             ),
           ]
         : []),
+      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription"),
+              "fx-extension.addKnowledge",
+              "addKnowledge",
+              { name: "teamsfx-add-feature", custom: false }
+            ),
+          ]
+        : []),
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.guideTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.guideDescription"),
@@ -321,6 +332,18 @@ class TreeViewManager {
         "publish",
         { name: "export", custom: false }
       ),
+      ...(isDeclarativeCopilotApp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.shareTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.shareDescription"),
+              "fx-extension.share",
+              "share",
+              { name: "export", custom: false }
+            ),
+          ]
+        : []),
     ];
 
     const deployProvider = new CommandsTreeViewProvider(deployCommand);

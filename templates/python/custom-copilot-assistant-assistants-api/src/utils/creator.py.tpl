@@ -81,11 +81,19 @@ async def main():
     )
 
     {{#useOpenAI}}
-    assistant = await AssistantsPlanner.create_assistant(api_key=args.api_key, api_version="", organization="", endpoint="", request=options)
+    assistant = await AssistantsPlanner.create_assistant(
+        api_key=args.api_key,
+        azure_ad_token_provider=None,
+        api_version="",
+        organization="",
+        endpoint="",
+        request=options
+    )
     {{/useOpenAI}}
     {{#useAzureOpenAI}}
     assistant = await AssistantsPlanner.create_assistant(
-        api_key=args.api_key, 
+        api_key=args.api_key,
+        azure_ad_token_provider=None,
         api_version="", 
         organization="", 
         endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"), 

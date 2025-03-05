@@ -36,6 +36,7 @@ import { AppDefinition } from "./driver/teamsApp/interfaces/appdefinitions/appDe
 import { manifestUtils } from "./driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "./utils/envUtil";
 import semver from "semver";
+import { pathUtils } from "./utils/pathUtils";
 
 const appPackageFolderName = "appPackage";
 const colorFileName = "color.png";
@@ -51,7 +52,7 @@ export class DeveloperPortalScaffoldUtils {
     appDefinition: AppDefinition,
     inputs: Inputs
   ): Promise<Result<undefined, FxError>> {
-    if (!ctx.projectPath) {
+    if (!inputs.projectPath) {
       return err(new InputValidationError("projectPath", "undefined"));
     }
 
@@ -64,7 +65,7 @@ export class DeveloperPortalScaffoldUtils {
       return err(manifestRes.error);
     }
 
-    const envRes = await updateEnv(appDefinition.teamsAppId!, ctx.projectPath);
+    const envRes = await updateEnv(appDefinition.teamsAppId!, inputs.projectPath);
     if (envRes.isErr()) {
       return err(envRes.error);
     }
@@ -101,10 +102,14 @@ async function updateManifest(
     return err(new UserError(CoordinatorSource, "CouldNotFoundManifest", msg, msg));
   }
 
-  const colorFilePath = path.join(ctx.projectPath!, appPackageFolderName, colorFileName);
-  const outlineFilePath = path.join(ctx.projectPath!, appPackageFolderName, outlineFileName);
+  const colorFilePath = path.join(inputs.projectPath!, appPackageFolderName, colorFileName);
+  const outlineFilePath = path.join(inputs.projectPath!, appPackageFolderName, outlineFileName);
 
-  const manifestTemplatePath = path.join(ctx.projectPath!, appPackageFolderName, manifestFileName);
+  const manifestTemplatePath = path.join(
+    inputs.projectPath!,
+    appPackageFolderName,
+    manifestFileName
+  );
   const manifestRes = await manifestUtils._readAppManifest(manifestTemplatePath);
   if (manifestRes.isErr()) {
     return err(manifestRes.error);
@@ -274,17 +279,29 @@ async function updateManifest(
   if (languages) {
     for (const code in languages) {
       const content = JSON.parse(languages[code].toString("utf8"));
-      const languageFilePath = path.join(ctx.projectPath!, appPackageFolderName, `${code}.json`);
+      const languageFilePath = path.join(inputs.projectPath!, appPackageFolderName, `${code}.json`);
       await fs.writeFile(languageFilePath, JSON.stringify(content, null, "\t"), "utf-8");
     }
   }
   return ok(undefined);
 }
 
-async function updateEnv(appId: string, projectPath: string): Promise<Result<undefined, FxError>> {
-  return await envUtil.writeEnv(projectPath, "local", {
-    TEAMS_APP_ID: appId,
-  });
+// If the template does not have .env.local, write to .env.dev instead.
+export async function updateEnv(
+  appId: string,
+  projectPath: string
+): Promise<Result<undefined, FxError>> {
+  const localEnvFilePathRes = await pathUtils.getEnvFilePath(projectPath, "local");
+  if (localEnvFilePathRes.isErr()) return err(localEnvFilePathRes.error);
+  if (!!localEnvFilePathRes.value && (await fs.pathExists(localEnvFilePathRes.value))) {
+    return await envUtil.writeEnv(projectPath, "local", {
+      TEAMS_APP_ID: appId,
+    });
+  } else {
+    return await envUtil.writeEnv(projectPath, "dev", {
+      TEAMS_APP_ID: appId,
+    });
+  }
 }
 
 function updateTabUrl(

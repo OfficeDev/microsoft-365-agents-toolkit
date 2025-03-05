@@ -237,6 +237,11 @@ export interface SingleSelectQuestion extends UserInputQuestion {
    * whether to skip validation against allowed list in non-interactive mode, default false
    */
   skipValidation?: boolean;
+
+  /**
+   * callback function which is triggered when the value is selected
+   */
+  onDidSelection?: (itemOrId: string | OptionItem, inputs: Inputs) => Promise<void> | void;
 }
 
 /**

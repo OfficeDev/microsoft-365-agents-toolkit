@@ -5,6 +5,7 @@ export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",
   EnableMicrosoftKiota = "enableMicrosoftKiota",
+  EnableCEA = "enableCustomEngineAgent",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";
@@ -36,6 +37,7 @@ export enum GlobalKey {
   SampleGalleryInitialSample = "teamsToolkit:sampleGallery:initialSample",
   AutoInstallDependency = "teamsToolkit:autoInstallDependency",
   DoNotRemindInstallTeamsAgent = "teamsToolkit:doNotRemindInstallTeamsAgent",
+  TeamsAgentInstalled = "teamsToolkit:teamsAgentInstalled",
 }
 
 export enum CommandKey {
@@ -55,6 +57,7 @@ export enum CommandKey {
   Provision = "fx-extension.provision",
   Deploy = "fx-extension.deploy",
   Publish = "fx-extension.publish",
+  Share = "fx-extension.share",
   Preview = "fx-extension.preview",
   installDependency = "fx-extension.installDependency",
   publishToAppSource = "fx-extension.publishToAppSource",
@@ -64,8 +67,7 @@ export enum CommandKey {
 
 export const environmentVariableRegex = /\${{[a-zA-Z-_]+}}/g;
 
-export const PublishAppLearnMoreLink =
-  "https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-publish-overview";
+export const PublishAppLearnMoreLink = "https://aka.ms/teamsfx-publish";
 
 export const DeveloperPortalHomeLink = "https://dev.teams.microsoft.com/home";
 

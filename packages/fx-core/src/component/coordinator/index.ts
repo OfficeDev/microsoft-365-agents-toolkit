@@ -11,6 +11,7 @@ import {
   InputsWithProjectPath,
   Platform,
   Result,
+  SystemError,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -40,7 +41,7 @@ import {
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   AppNamePattern,
   CapabilityOptions,
   ProjectTypeOptions,
@@ -51,7 +52,6 @@ import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/in
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
 import { deployUtils } from "../deployUtils";
-import { developerPortalScaffoldUtils } from "../developerPortalScaffoldUtils";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { updateTeamsAppV3ForPublish } from "../driver/teamsApp/appStudio";
 import { Constants } from "../driver/teamsApp/constants";
@@ -75,6 +75,7 @@ const M365Actions = [
   "aadApp/update",
   "botFramework/create",
   "teamsApp/extendToM365",
+  "teamsApp/shareToOthers",
 ];
 const AzureActions = ["arm/deploy"];
 const needTenantCheckActions = ["botAadApp/create", "aadApp/create", "botFramework/create"];
@@ -98,8 +99,8 @@ class Coordinator {
     if (
       inputs.platform === Platform.VSCode &&
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-      inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id &&
-      !inputs[QuestionNames.ApiPluginManifestPath] &&
+      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+      !inputs[QuestionNames.ActionManifestPath] &&
       (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
         inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
     ) {
@@ -187,7 +188,13 @@ class Coordinator {
       // refactored generator
       const generator = Generators.find((g) => g.activate(context, inputs));
       if (!generator) {
-        return err(new MissingRequiredInputError(QuestionNames.Capabilities, "coordinator"));
+        return err(
+          new SystemError(
+            "coordinator",
+            "NoActivatedGeneratorError",
+            `No activated generator by inputs: ${JSON.stringify(inputs)}`
+          )
+        );
       }
       const res = await generator.run(context, inputs, projectPath);
       if (res.isErr()) return err(res.error);
@@ -202,19 +209,6 @@ class Coordinator {
       const ensureRes = await this.ensureTrackingId(projectPath, inputs.projectId);
       if (ensureRes.isErr()) return err(ensureRes.error);
       inputs.projectId = ensureRes.value;
-    }
-
-    context.projectPath = projectPath;
-
-    if (inputs.teamsAppFromTdp) {
-      const res = await developerPortalScaffoldUtils.updateFilesForTdp(
-        context,
-        inputs.teamsAppFromTdp,
-        inputs
-      );
-      if (res.isErr()) {
-        return err(res.error);
-      }
     }
 
     const trimRes = await manifestUtils.trimManifestShortName(projectPath);
@@ -643,10 +637,8 @@ class Coordinator {
       }
     } else {
       if (ctx.platform === Platform.VS) {
-        void ctx.ui!.showMessage(
-          "info",
-          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp"),
-          false
+        void ctx.logProvider.info(
+          getLocalizedString("core.common.LifecycleComplete.prepareTeamsApp")
         );
       } else {
         void ctx.ui!.showMessage("info", msg, false);
@@ -818,6 +810,58 @@ class Coordinator {
       }
     } else {
       return err(new LifeCycleUndefinedError("publish"));
+    }
+    return ok(output);
+  }
+
+  @hooks([ErrorContextMW({ component: "Coordinator" })])
+  async share(
+    ctx: DriverContext,
+    inputs: InputsWithProjectPath
+  ): Promise<Result<DotenvParseOutput, FxError>> {
+    const output: DotenvParseOutput = {};
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    if (maybeProjectModel.isErr()) {
+      return err(maybeProjectModel.error);
+    }
+    const projectModel = maybeProjectModel.value;
+    let hasError = false;
+    if (projectModel.share) {
+      const summaryReporter = new SummaryReporter([projectModel.share], ctx.logProvider);
+      try {
+        const steps = projectModel.share.driverDefs.length;
+        ctx.progressBar = ctx.ui?.createProgressBar(
+          getLocalizedString("core.progress.share"),
+          steps
+        );
+        await ctx.progressBar?.start();
+        const maybeDescription = summaryReporter.getLifecycleDescriptions();
+        if (maybeDescription.isErr()) {
+          hasError = true;
+          return err(maybeDescription.error);
+        }
+        ctx.logProvider.info(`Executing share ${EOL}${EOL}${maybeDescription.value}${EOL}`);
+
+        const execRes = await projectModel.share.execute(ctx);
+        const result = this.convertExecuteResult(execRes.result, templatePath);
+        merge(output, result[0]);
+        summaryReporter.updateLifecycleState(0, execRes);
+        if (result[1]) {
+          hasError = true;
+          inputs.envVars = output;
+          return err(result[1]);
+        } else {
+          const msg = getLocalizedString("core.common.LifecycleComplete.share", steps, steps);
+          ctx.ui?.showMessage("info", msg, false);
+        }
+      } finally {
+        const summary = summaryReporter.getLifecycleSummary();
+        ctx.logProvider.info(`Execution summary:${EOL}${EOL}${summary}${EOL}`);
+        await ctx.progressBar?.end(!hasError);
+      }
+    } else {
+      return err(new LifeCycleUndefinedError("share"));
     }
     return ok(output);
   }

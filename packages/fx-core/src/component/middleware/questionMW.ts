@@ -13,7 +13,7 @@ export function QuestionMW(key: keyof QuestionNodes, fromAction = false): Middle
     if (fromAction) {
       inputs.outputEnvVarNames = ctx.arguments[2];
     }
-    const node = questionNodes[key]();
+    const node = questionNodes[key](inputs.platform);
     const askQuestionRes = await traverse(node, inputs, TOOLS.ui, TOOLS.telemetryReporter);
     if (askQuestionRes.isErr()) {
       if (fromAction) {

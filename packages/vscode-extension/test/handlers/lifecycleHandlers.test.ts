@@ -14,6 +14,7 @@ import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
 import {
+  addAuthActionHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -22,6 +23,8 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  addKnowledgeHandler,
+  shareHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -330,6 +333,14 @@ describe("Lifecycle handlers", () => {
     });
   });
 
+  describe("shareHandler", function () {
+    it("happy()", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      const res = await shareHandler();
+      assert.isTrue(res.isOk());
+    });
+  });
+
   describe("addWebpartHandler", function () {
     it("happy()", async () => {
       sandbox.stub(shared, "runCommand").resolves(ok(undefined));
@@ -479,7 +490,7 @@ describe("Lifecycle handlers", () => {
         .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
         .returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
-      const createProject = sandbox.spy(globalVariables.core, "createProject");
+      const createProject = sandbox.spy(globalVariables.core, "createProjectFromTdp");
       sandbox.stub(vscode.commands, "executeCommand");
       sandbox.stub(globalState, "globalStateUpdate");
       const appDefinition: AppDefinition = {
@@ -586,6 +597,45 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(executeCommand.calledOnce);
       assert.isTrue(logError.notCalled);
       mockedEnvRestore();
+    });
+  });
+
+  describe("AddAuthActionHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .callsFake((title: string, ...items: any[]) => {
+          return Promise.resolve(items[0]);
+        });
+      const addAuthAction = sandbox.spy(globalVariables.core, "addAuthAction");
+      const provisionction = sandbox.spy(globalVariables.core, "provisionResources");
+      await addAuthActionHandler();
+      sandbox.assert.calledOnce(addAuthAction);
+      sandbox.assert.calledOnce(provisionction);
+    });
+  });
+
+  describe("addKnowledgeHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
+
+      await addKnowledgeHandler();
+
+      sinon.assert.calledOnce(addKnowledge);
     });
   });
 });

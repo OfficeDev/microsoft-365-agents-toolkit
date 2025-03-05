@@ -20,6 +20,11 @@ export class MockCore {
   async createProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
+
+  async createProjectFromTdp(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    return ok({ projectPath: "" });
+  }
+
   async createSampleProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
@@ -161,6 +166,14 @@ export class MockCore {
   }
 
   async kiotaRegenerate(inputs: Inputs): Promise<Result<any, FxError>> {
+    return ok(undefined);
+  }
+
+  async addAuthAction(inputs: Inputs): Promise<Result<any, FxError>> {
+    return ok(undefined);
+  }
+
+  async addKnowledge(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }
 }

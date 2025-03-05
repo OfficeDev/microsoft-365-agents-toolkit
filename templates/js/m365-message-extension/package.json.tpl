@@ -6,7 +6,7 @@
   },
   "description": "Microsoft Teams Toolkit message extension search sample",
   "engines": {
-    "node": "18 || 20"
+    "node": "18 || 20 || 22"
   },
   "author": "Microsoft",
   "license": "MIT",

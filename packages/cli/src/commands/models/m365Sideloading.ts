@@ -7,6 +7,7 @@ import M365TokenProvider from "../../commonlib/m365Login";
 import { ArgumentConflictError, MissingRequiredOptionError } from "../../error";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
+import { AppScope } from "@microsoft/teamsfx-core/build/component/m365/packageService";
 
 export const sideloadingServiceEndpoint =
   process.env.SIDELOADING_SERVICE_ENDPOINT ?? MosServiceEndpoint;
@@ -61,12 +62,22 @@ export const m365SideloadingCommand: CLICommand = {
       description: commands.install.options["xml-path"],
       type: "string",
     },
+    {
+      name: "scope",
+      description: commands.install.options["scope"],
+      type: "string",
+    },
   ],
   examples: [
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} install --file-path appPackage.zip`,
       description:
         "Sideload the application package with JSON-based manifest to Teams, Outlook, and the Microsoft 365 app.",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} install --file-path appPackage.zip --scope Shared`,
+      description:
+        "Sideload the application package in Shared scope with JSON-based manifest to Teams, Outlook, and the Microsoft 365 app.",
     },
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} install --xml-path manifest.xml`,
@@ -81,7 +92,10 @@ export const m365SideloadingCommand: CLICommand = {
   handler: async (ctx) => {
     const zipAppPackagePath = ctx.optionValues["file-path"] as string;
     const xmlPath = ctx.optionValues["xml-path"] as string;
-
+    let appScope = ctx.optionValues["scope"] as AppScope;
+    if (!appScope) {
+      appScope = AppScope.Personal;
+    }
     if (zipAppPackagePath === undefined && xmlPath === undefined) {
       return err(new MissingRequiredOptionError(ctx.command.fullName, `--file-path or --xml-path`));
     }
@@ -94,7 +108,7 @@ export const m365SideloadingCommand: CLICommand = {
     const manifestPath = zipAppPackagePath ?? xmlPath;
     const tokenAndUpn = await m365utils.getTokenAndUpn();
     if (ctx.optionValues["file-path"] !== undefined) {
-      await packageService.sideLoading(tokenAndUpn[0], manifestPath);
+      await packageService.sideLoading(tokenAndUpn[0], manifestPath, appScope);
     } else {
       await packageService.sideLoadXmlManifest(tokenAndUpn[0], manifestPath);
     }

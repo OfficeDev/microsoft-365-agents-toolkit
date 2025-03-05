@@ -40,7 +40,7 @@ export class ManifestUpdater {
     options: ParseOptions,
     authMap: OperationAuthInfoMap,
     existingPluginManifestInfo?: ExistingPluginManifestInfo
-  ): Promise<[TeamsAppManifest, PluginManifestSchema, WarningResult[]]> {
+  ): Promise<[TeamsAppManifest, PluginManifestSchema, WarningResult[], Record<string, any>]> {
     const manifest: TeamsAppManifest = await fs.readJSON(manifestPath);
     const apiPluginRelativePath = ManifestUpdater.getRelativePath(manifestPath, apiPluginFilePath);
 
@@ -72,7 +72,7 @@ export class ManifestUpdater {
     const appName = this.removeEnvs(manifest.name.short);
 
     const specRelativePath = ManifestUpdater.getRelativePath(manifestPath, outputSpecPath);
-    const [apiPlugin, warnings] = await ManifestUpdater.generatePluginManifestSchema(
+    const [apiPlugin, warnings, jsonDataSet] = await ManifestUpdater.generatePluginManifestSchema(
       spec,
       specRelativePath,
       apiPluginFilePath,
@@ -82,7 +82,7 @@ export class ManifestUpdater {
       existingPluginManifestInfo
     );
 
-    return [manifest, apiPlugin, warnings];
+    return [manifest, apiPlugin, warnings, jsonDataSet];
   }
 
   static updateManifestDescription(manifest: TeamsAppManifest, spec: OpenAPIV3.Document): void {
@@ -120,10 +120,11 @@ export class ManifestUpdater {
     authMap: OperationAuthInfoMap,
     options: ParseOptions,
     existingPluginManifestInfo?: ExistingPluginManifestInfo
-  ): Promise<[PluginManifestSchema, WarningResult[]]> {
+  ): Promise<[PluginManifestSchema, WarningResult[], Record<string, any>]> {
     const warnings: WarningResult[] = [];
     const functions: FunctionObject[] = [];
     const functionNamesMap: FunctionClassificationMap = {};
+    const jsonDataSet: Record<string, any> = {};
 
     const conversationStarters: string[] = [];
 
@@ -169,7 +170,7 @@ export class ManifestUpdater {
                 try {
                   const { json } = Utils.getResponseJson(operationItem);
                   if (json.schema) {
-                    const [card, jsonPath] = AdaptiveCardGenerator.generateAdaptiveCard(
+                    const [card, jsonPath, jsonData] = AdaptiveCardGenerator.generateAdaptiveCard(
                       operationItem,
                       false,
                       5
@@ -179,6 +180,12 @@ export class ManifestUpdater {
                     funcObj.capabilities = {
                       response_semantics: responseSemantic,
                     };
+
+                    if (jsonPath === "$") {
+                      jsonDataSet[safeFunctionName] = jsonData;
+                    } else {
+                      jsonDataSet[safeFunctionName] = jsonData[jsonPath];
+                    }
                   }
                 } catch (err) {
                   warnings.push({
@@ -393,7 +400,7 @@ export class ManifestUpdater {
       }
     }
 
-    return [apiPlugin, warnings];
+    return [apiPlugin, warnings, jsonDataSet];
   }
 
   static async updateManifest(

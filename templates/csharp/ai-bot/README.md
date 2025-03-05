@@ -25,11 +25,11 @@ The app template is built using the Teams AI library, which provides the capabil
 
 2. If using Azure OpenAI, update "gpt-35-turbo" in `Program.cs` to your own model deployment name
 3. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
-4. Right-click your project and select Teams Toolkit > Prepare Teams App Dependencies
-5. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
-to install the app to
-6. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-7. In the launched browser, select the Add button to load the app in Teams
+4. Right-click the 'TeamsApp' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
+5. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
+6. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
+</br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
+7. In the opened web browser, select Add button to install the app in Teams
 8. In the chat bar, type and send anything to your bot to trigger a response
 
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).

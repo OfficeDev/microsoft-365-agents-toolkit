@@ -47,7 +47,7 @@ builder.Services.AddSingleton<OpenAIModel>(sp => new(
     {
         LogRequests = true,
 {{#CEAEnabled}}
-        Stream = true,
+        Stream = false,
 {{/CEAEnabled}}
     },
     sp.GetService<ILoggerFactory>()
@@ -121,9 +121,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.MapControllers();
 
 app.Run();

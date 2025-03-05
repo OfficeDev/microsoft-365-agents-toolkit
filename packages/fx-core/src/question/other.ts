@@ -4,32 +4,36 @@
 import {
   AppPackageFolderName,
   BuildFolderName,
+  CLIPlatforms,
   ConfirmQuestion,
   DynamicPlatforms,
+  FolderQuestion,
   IQTreeNode,
   Inputs,
-  ManifestUtil,
+  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
+  PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
   TextInputQuestion,
-  FolderQuestion,
-  CLIPlatforms,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import * as os from "os";
 import * as path from "path";
 import { AppStudioScopes, ConstantString } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
+import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
 import { envUtil } from "../component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
-import { TOOLS } from "../common/globalVars";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
+  AddAuthActionAuthTypeOptions,
   HubOptions,
+  KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
 } from "./constants";
@@ -37,6 +41,7 @@ import {
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
+  addKnowledgeStartQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
@@ -44,7 +49,6 @@ import {
   pluginManifestQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import * as os from "os";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -773,13 +777,13 @@ export function addPluginQuestionNode(): IQTreeNode {
       {
         data: pluginManifestQuestion(),
         condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
         data: pluginApiSpecQuestion(),
         condition: {
-          equals: ApiPluginStartOptions.existingPlugin().id,
+          equals: ActionStartOptions.existingPlugin().id,
         },
       },
       {
@@ -787,7 +791,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -796,7 +800,7 @@ export function addPluginQuestionNode(): IQTreeNode {
         condition: (inputs: Inputs) => {
           return (
             !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ApiPluginType] === ApiPluginStartOptions.apiSpec().id
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
           );
         },
       },
@@ -807,9 +811,351 @@ export function addPluginQuestionNode(): IQTreeNode {
   };
 }
 
+// add Knowledge to a declarative Copilot project
+export function addKnowledgeQuestionNode(): IQTreeNode {
+  return {
+    data: addKnowledgeStartQuestion(true),
+    children: [
+      {
+        data: selectTeamsAppManifestQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        },
+      },
+      {
+        data: addEmbeddedKnowledgeFilesQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        },
+      },
+    ],
+  };
+}
+export function addEmbeddedKnowledgeFilesQuestion(): MultiFileQuestion {
+  return {
+    name: QuestionNames.EmbeddedKnowledgeFiles,
+    title: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.title"),
+    type: "multiFile",
+    cliDescription: "Select your embedded knowledge files.",
+    placeholder: getLocalizedString("core.addEmbeddedKnowledgeFilesQuestion.placeholder"),
+  };
+}
+
 export function kiotaRegenerateQuestion(): IQTreeNode {
   return {
     data: selectTeamsAppManifestQuestion(),
+  };
+}
+
+export function addAuthActionQuestion(): IQTreeNode {
+  return {
+    data: pluginManifestQuestion(),
+    children: [
+      {
+        data: apiSpecFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          if (!!!pluginManifestPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
+          const specs = pluginManifest
+            .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+            .map((runtime) => runtime.spec.url);
+          const spesDedup = [...new Set(specs)];
+          if (spesDedup.length === 1) {
+            inputs[QuestionNames.ApiSpecLocation] = spesDedup[0];
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: apiFromPluginManifestQuestion(),
+        condition: async (inputs: Inputs) => {
+          const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+          const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+          if (!!!pluginManifestPath || !!!apiSpecPath) {
+            return false;
+          }
+          const pluginManifest = (await fs.readJson(
+            pluginManifestPath as string
+          )) as PluginManifestSchema;
+          const apis: string[] = [];
+          pluginManifest
+            .runtimes!.filter(
+              (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+            )
+            .forEach((runtime) => {
+              apis.push(...(runtime.run_for_functions as string[]));
+            });
+          const apisDedup = [...new Set(apis)];
+          if (apisDedup.length === 1) {
+            inputs[QuestionNames.ApiOperation] = apisDedup;
+            return false;
+          }
+          return true;
+        },
+      },
+      {
+        data: authNameQuestion(),
+      },
+      {
+        data: addAuthActionAuthTypeQuestion(),
+      },
+      oauthParametersQuestion(),
+      apiKeyParameterQuestion(),
+      microsoftEntraParameterQuestion(),
+    ],
+  };
+}
+
+export function urlValidation(input: string, allowEmpty = false): string | undefined {
+  if (input.trim() === "") {
+    return allowEmpty ? undefined : getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  try {
+    new URL(input);
+  } catch (error) {
+    return getLocalizedString("core.addAuthAction.validation.url");
+  }
+
+  return undefined;
+}
+
+export function addAuthActionAuthTypeQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.ApiAuth,
+    title: getLocalizedString("core.createProjectQuestion.apiMessageExtensionAuth.title"),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.apiMessageExtensionAuth.placeholder"
+    ),
+    cliDescription: "The authentication type for the API.",
+    staticOptions: AddAuthActionAuthTypeOptions.all(),
+    default: AddAuthActionAuthTypeOptions.bearerToken().id,
+  };
+}
+
+export function oauthParametersQuestion(): IQTreeNode {
+  return {
+    data: oauthAuthorizationUrlQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.oauth().id;
+    },
+    children: [
+      {
+        data: oauthTokenUrlQuestion(),
+      },
+      {
+        data: oauthRefreshUrlQuestion(),
+      },
+      {
+        data: oauthScopeQuestion(),
+      },
+      {
+        data: oauthPKCEQuestion(),
+      },
+    ],
+  };
+}
+
+export function oauthAuthorizationUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthAuthorizationUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthAuthorizationUrl.title"),
+    type: "text",
+    cliDescription: "Authorization Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
+  };
+}
+
+export function oauthTokenUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthTokenUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthTokenUrl.title"),
+    type: "text",
+    cliDescription: "Token Url for oauth.",
+    validation: {
+      validFunc: (input) => urlValidation(input, false),
+    },
+  };
+}
+
+export function oauthRefreshUrlQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthRefreshUrl,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthRefreshUrl.title"),
+    type: "text",
+    cliDescription: "Refresh Url for oauth. Leave it emplt if not needed.",
+    validation: {
+      validFunc: (input) => urlValidation(input, true),
+    },
+  };
+}
+
+export function oauthScopeQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.OAuthScope,
+    title: getLocalizedString("core.addAuthActionQuestion.OAuthScope.title"),
+    type: "text",
+    cliDescription: "Scope for oauth.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        const regExp =
+          /([-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)(\s*;\s*[-a-zA-Z1-9./:_]+:\s*[-a-zA-Z1-9./:_]+)*/g;
+        if (!regExp.test(input)) {
+          return getLocalizedString("core.oauthScopeQuestion.validation.scope");
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+export function oauthPKCEQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.OauthPKCE,
+    title: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "true",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.true"),
+      },
+      {
+        id: "false",
+        label: getLocalizedString("core.addAuthActionQuestion.OauthPKCE.false"),
+      },
+    ],
+    default: "false",
+  };
+}
+
+export function apiKeyParameterQuestion(): IQTreeNode {
+  return {
+    data: apiKeyInQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.apiKey().id;
+    },
+    children: [
+      {
+        data: apiKeyNameQuestion(),
+      },
+    ],
+  };
+}
+
+export function apiKeyInQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiKeyIn,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "header",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.header"),
+      },
+      {
+        id: "query",
+        label: getLocalizedString("core.addAuthActionQuestion.ApiKeyIn.query"),
+      },
+    ],
+    default: "header",
+  };
+}
+
+export function apiKeyNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.ApiKeyName,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiKeyName.title"),
+    type: "text",
+    cliDescription: "Name of the API key.",
+  };
+}
+
+export function microsoftEntraParameterQuestion(): IQTreeNode {
+  return {
+    data: oauthScopeQuestion(),
+    condition: (inputs: Inputs) => {
+      return inputs[QuestionNames.ApiAuth] === AddAuthActionAuthTypeOptions.microsoftEntra().id;
+    },
+  };
+}
+
+export function apiSpecFromPluginManifestQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ApiSpecLocation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.title"),
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiSpecLocation.placeholder"),
+    type: "singleSelect",
+    staticOptions: [],
+    cliDescription: "OpenAPI specification to add Auth configuration.",
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const specs = pluginManifest
+        .runtimes!.filter((runtime) => runtime.type === "OpenApi")
+        .map((runtime) => runtime.spec.url as string);
+      return [...new Set(specs)];
+    },
+  };
+}
+
+export function apiFromPluginManifestQuestion(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.ApiOperation,
+    title: getLocalizedString("core.addAuthActionQuestion.ApiOperation.title"),
+    type: "multiSelect",
+    staticOptions: [],
+    placeholder: getLocalizedString("core.addAuthActionQuestion.ApiOperation.placeholder"),
+    cliDescription: "API to add Auth configuration.",
+    dynamicOptions: async (inputs: Inputs) => {
+      const pluginManifestPath = inputs[QuestionNames.PluginManifestFilePath];
+      const apiSpecPath = inputs[QuestionNames.ApiSpecLocation];
+      const pluginManifest = (await fs.readJson(pluginManifestPath)) as PluginManifestSchema;
+      const apis: string[] = [];
+      pluginManifest
+        .runtimes!.filter(
+          (runtime) => runtime.type === "OpenApi" && runtime.spec.url === apiSpecPath
+        )
+        .forEach((runtime) => {
+          apis.push(...(runtime.run_for_functions as string[]));
+        });
+      return [...new Set(apis)];
+    },
+  };
+}
+
+export function authNameQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.AuthName,
+    title: getLocalizedString("core.addAuthActionQuestion.authName.title"),
+    type: "text",
+    cliDescription: "Name of Auth Configuration.",
+    validation: {
+      validFunc: (input: string): string | undefined => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.authNameQuestion.validation.empty");
+        }
+
+        return undefined;
+      },
+    },
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        inputs[QuestionNames.ActionType] = ActionStartOptions.newApi().id;
+        return;
+      },
+    },
   };
 }
 
@@ -828,6 +1174,7 @@ export function apiSpecApiKeyQuestion(): IQTreeNode {
       type: "text",
       name: QuestionNames.ApiSpecApiKey,
       cliShortName: "k",
+      password: true,
       title: getLocalizedString("core.createProjectQuestion.ApiKey"),
       cliDescription: "Api key for OpenAPI spec.",
       forgetLastValue: true,
@@ -1064,6 +1411,7 @@ function oauthClientSecretQuestion(): TextInputQuestion {
     type: "text",
     name: QuestionNames.OauthClientSecret,
     cliShortName: "c",
+    password: true,
     title: getLocalizedString("core.createProjectQuestion.OauthClientSecret"),
     cliDescription: "Oauth client secret for OpenAPI spec.",
     forgetLastValue: true,

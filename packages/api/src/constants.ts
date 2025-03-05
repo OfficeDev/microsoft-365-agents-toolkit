@@ -41,12 +41,14 @@ export enum VsCodeEnv {
 
 export enum Stage {
   create = "create",
+  createTdp = "createTdp",
   build = "build",
   debug = "debug",
   provision = "provision",
   deploy = "deploy",
   package = "package",
   publish = "publish",
+  share = "share",
   createEnv = "createEnv",
   listEnv = "listEnv",
   removeEnv = "removeEnv",
@@ -77,6 +79,8 @@ export enum Stage {
   syncManifest = "syncManifest",
   addPlugin = "addPlugin",
   kiotaRegenerate = "kiotaRegenerate",
+  addAuthAction = "addAuthAction",
+  addKnowledge = "addKnowledge",
 }
 
 export enum TelemetryEvent {
