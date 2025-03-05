@@ -7399,16 +7399,18 @@ describe("addKnowledge", async () => {
         },
       ],
     };
+    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
 
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
-    sandbox.stub(MockUserInteraction.prototype, "showMessage").resolves(ok("Add"));
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
       } as DeclarativeCopilotManifestSchema)
     );
+    uxStub.onCall(0).resolves(ok("Add"));
+    uxStub.onCall(1).resolves(ok("View agent manifest"));
 
     const addWebSearchRes = sandbox.spy(copilotGptManifestUtils, "addWebSearchCapability");
     const core = new FxCore(tools);
