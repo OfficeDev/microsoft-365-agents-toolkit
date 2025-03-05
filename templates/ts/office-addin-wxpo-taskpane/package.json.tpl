@@ -11,6 +11,9 @@
     "app_type_to_debug": "desktop",
     "dev_server_port": 3000
   },
+  "engines": {
+    "node": "18 || 20 || 22"
+  },
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",

@@ -48,6 +48,7 @@ export enum Stage {
   deploy = "deploy",
   package = "package",
   publish = "publish",
+  share = "share",
   createEnv = "createEnv",
   listEnv = "listEnv",
   removeEnv = "removeEnv",

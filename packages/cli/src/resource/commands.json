@@ -129,7 +129,8 @@
     "description": "Sideload a given application package across Microsoft 365.",
     "options": {
       "file-path": "Path to the App manifest zip package.",
-      "xml-path": "Path to the XML manifest xml file."
+      "xml-path": "Path to the XML manifest xml file.",
+      "scope": "App scope. Options: Personal, Shared."
     }
   },
   "provision": {
@@ -151,6 +152,9 @@
   },
   "publish": {
     "description": "Run the publish stage in teamsapp.yml."
+  },
+  "share": {
+    "description": "Run the share stage in teamsapp.yml."
   },
   "uninstall": {
     "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Teams Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",

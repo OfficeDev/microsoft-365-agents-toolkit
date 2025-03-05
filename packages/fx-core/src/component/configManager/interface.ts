@@ -19,6 +19,7 @@ export type RawProjectModel = {
   configureApp?: DriverDefinition[];
   deploy?: DriverDefinition[];
   publish?: DriverDefinition[];
+  share?: DriverDefinition[];
   environmentFolderPath?: string;
   version: string;
   additionalMetadata?: AdditionalMetadata;
@@ -30,6 +31,7 @@ export type ProjectModel = {
   configureApp?: ILifecycle;
   deploy?: ILifecycle;
   publish?: ILifecycle;
+  share?: ILifecycle;
   environmentFolderPath?: string;
   version: string;
   additionalMetadata?: AdditionalMetadata;
@@ -45,13 +47,21 @@ export type DriverDefinition = {
 
 export type DriverInstance = DriverDefinition & { instance: StepDriver };
 
-export type LifecycleNames = ["registerApp", "configureApp", "provision", "deploy", "publish"];
+export type LifecycleNames = [
+  "registerApp",
+  "configureApp",
+  "provision",
+  "deploy",
+  "publish",
+  "share"
+];
 export const LifecycleNames: LifecycleNames = [
   "registerApp",
   "configureApp",
   "provision",
   "deploy",
   "publish",
+  "share",
 ];
 type AnyElementOf<T extends unknown[]> = T[number];
 export type LifecycleName = AnyElementOf<LifecycleNames>;

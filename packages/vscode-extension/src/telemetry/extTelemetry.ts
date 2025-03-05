@@ -58,6 +58,8 @@ export namespace ExtTelemetry {
         return TelemetryEvent.Deploy;
       case Stage.publish:
         return TelemetryEvent.Publish;
+      case Stage.share:
+        return TelemetryEvent.Share;
       case Stage.createEnv:
         return TelemetryEvent.CreateNewEnvironment;
       case Stage.grantPermission:

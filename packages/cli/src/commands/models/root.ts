@@ -26,6 +26,7 @@ import { teamsappUpdateCommand } from "./teamsapp/update";
 import { teamsappValidateCommand } from "./teamsapp/validate";
 import { upgradeCommand } from "./upgrade";
 import { commands } from "../../resource";
+import { shareCommand } from "./share";
 
 export const helpCommand: CLICommand = {
   name: "help",
@@ -48,6 +49,7 @@ export const rootCommand: CLICommand = {
     addCommand(),
     provisionCommand,
     deployCommand,
+    shareCommand,
     previewCommand,
     envCommand,
     permissionCommand,

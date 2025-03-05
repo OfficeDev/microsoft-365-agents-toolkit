@@ -24,6 +24,7 @@ import {
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
+  shareHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -328,6 +329,14 @@ describe("Lifecycle handlers", () => {
     it("happy()", async () => {
       sandbox.stub(shared, "runCommand").resolves(ok(undefined));
       const res = await publishHandler();
+      assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("shareHandler", function () {
+    it("happy()", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      const res = await shareHandler();
       assert.isTrue(res.isOk());
     });
   });

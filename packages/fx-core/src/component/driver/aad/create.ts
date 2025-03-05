@@ -42,7 +42,6 @@ import {
   telemetryKeys,
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
-import { MissingServiceManagementReferenceError } from "./error/missingServiceManagamentReferenceError";
 import { isTestToolEnabledProject } from "../../../common/tools";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
@@ -113,10 +112,6 @@ export class CreateAadAppDriver implements StepDriver {
         // This hidden environment variable is for internal use only.
         const serviceManagementReference =
           args.serviceManagementReference || process.env.TTK_DEFAULT_SERVICE_MANAGEMENT_REFERENCE;
-
-        if (isMsftAccount && !serviceManagementReference) {
-          throw new MissingServiceManagementReferenceError(actionName);
-        }
 
         const aadApp = await aadAppClient.createAadApp(
           args.name,

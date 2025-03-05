@@ -332,6 +332,18 @@ class TreeViewManager {
         "publish",
         { name: "export", custom: false }
       ),
+      ...(isDeclarativeCopilotApp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.shareTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.shareDescription"),
+              "fx-extension.share",
+              "share",
+              { name: "export", custom: false }
+            ),
+          ]
+        : []),
     ];
 
     const deployProvider = new CommandsTreeViewProvider(deployCommand);
