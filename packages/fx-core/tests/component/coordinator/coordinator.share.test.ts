@@ -31,6 +31,7 @@ import { setTools } from "../../../src/common/globalVars";
 import * as v3MigrationUtils from "../../../src/core/middleware/utils/v3MigrationUtils";
 import { MockTools } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
+import { featureFlagManager } from "../../../src/common/featureFlags";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -48,6 +49,7 @@ describe("component coordinator test", () => {
     sandbox.stub(v3MigrationUtils, "getProjectVersion").resolves(versionInfo);
   });
   it("share happy path", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -94,6 +96,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(true));
   });
   it("share happy path - CLI", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -147,6 +150,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(false));
   });
   it("share happy path - no ui", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -181,6 +185,7 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
   });
   it("share happy path - VS - no ui", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -215,6 +220,7 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
   });
   it("share failed", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -268,6 +274,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.calledOnceWithExactly(false));
   });
   it("share without progress bar", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       share: {
@@ -313,6 +320,7 @@ describe("component coordinator test", () => {
     assert.isTrue(progressEndStub.notCalled);
   });
   it("share lifecycle undefined", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(true);
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
     };
@@ -327,5 +335,53 @@ describe("component coordinator test", () => {
     const context = createDriverContext(inputs);
     const res = await coordinator.share(context, inputs);
     assert.isTrue(res.isErr() && res.error.name === "LifeCycleUndefinedError");
+  });
+  it("share not enabled", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").resolves(false);
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      share: {
+        name: "share",
+        driverDefs: [],
+        resolvePlaceholders: () => {
+          return [];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(tools.ui, "selectOption").callsFake(async (config) => {
+      if (config.name === "env") {
+        return ok({ type: "success", result: "dev" });
+      } else {
+        return ok({ type: "success", result: "" });
+      }
+    });
+    const progressStartStub = sandbox.stub();
+    const progressEndStub = sandbox.stub();
+    sandbox.stub(tools.ui, "createProgressBar").returns({
+      start: progressStartStub,
+      end: progressEndStub,
+    } as any as IProgressHandler);
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.message, "Share feature is not enabled.");
+    }
   });
 });
