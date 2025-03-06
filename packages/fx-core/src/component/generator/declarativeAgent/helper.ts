@@ -327,7 +327,7 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
     const res = await instance.get(`/external/connections?$select=id,name`);
     const data = res.data;
     return data.value.map((item: { id: string; name: string }) => {
-      return { id: item.id, label: item.name };
+      return { id: item.id, label: item.id };
     });
   } catch (error) {
     throw err(
