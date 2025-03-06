@@ -8377,7 +8377,6 @@ describe("addKnowledge", async () => {
 
   it("add embedded files", async () => {
     const restore = mockedEnv({
-      TEAMSFX_ADD_KNOWLEDGE: "true",
       TEAMSFX_BUILDER_API: "true",
     });
     try {
@@ -8651,5 +8650,52 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isErr());
+  });
+
+  it("error path: add Web Content(double confirm error)", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
+    uxStub.onCall(0).resolves(ok("Add"));
+    uxStub.onCall(1).resolves(err(new UserError("fake error", "fake error", "fake error")));
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+            sites: [
+              {
+                url: "https://fakeUrl.com",
+              },
+            ],
+          },
+        ],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isOk());
   });
 });

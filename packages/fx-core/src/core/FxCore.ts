@@ -2299,7 +2299,7 @@ export class FxCore {
         );
     }
     if (result.isErr()) {
-      if (result.error.name === "UserCancelError") {
+      if (result.error.name === UserCancelError.name) {
         return err(new UserCancelError());
       }
       await context.userInteraction.showMessage("warn", result.error.message, true);
