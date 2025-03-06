@@ -31,8 +31,8 @@ on:
         type: string
 
       node-version:
-        default: "[18]"
-        description: "node version, e.g. [18]"
+        default: "[22]"
+        description: "node version, e.g. [22]"
         required: false
         type: string
 
@@ -410,7 +410,7 @@ jobs:
       - name: M365 Login
         working-directory: packages/tests
         run: | # rm -r -f ~/.fx/account
-          npx ts-node src/scripts/m365Login.ts -- '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
+          npx ts-node src/scripts/m365Login.ts '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
 
       - name: Build
         working-directory: packages/tests
