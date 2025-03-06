@@ -14,6 +14,7 @@ import { globalVars } from "../common/globalVars";
 import { ErrorCategory } from "./types";
 import path from "path";
 import { MetadataV3 } from "../common/versionMetadata";
+import { TelemetryProperty } from "../component/configManager/constant";
 
 export class FileNotFoundError extends UserError {
   constructor(source: string, filePath: string, helpLink?: string) {
@@ -55,6 +56,11 @@ export class MissingEnvironmentVariablesError extends UserError {
       ),
       helpLink: helpLink || "https://aka.ms/teamsfx-v5.0-guide#environments",
       categories: [ErrorCategory.Internal],
+      telemetryProperties: {
+        [TelemetryProperty.UnresolvedPlaceholders]: variableNames
+          .replace("SECRET", "S")
+          .replace("PASSWORD", "P"),
+      },
     };
     super(errorOptions);
   }
