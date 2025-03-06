@@ -332,15 +332,14 @@ class TreeViewManager {
         "publish",
         { name: "export", custom: false }
       ),
-      ...(isDeclarativeCopilotApp &&
-      featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)
+      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)
         ? [
             new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.shareTitle"),
               localize("teamstoolkit.commandsTreeViewProvider.shareDescription"),
               "fx-extension.share",
               "share",
-              { name: "export", custom: false }
+              { name: "share", custom: false }
             ),
           ]
         : []),

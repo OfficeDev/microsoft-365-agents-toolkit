@@ -1318,7 +1318,7 @@ export class KnowledgeSourceOptions {
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
     ];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+    if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
       items.push(KnowledgeSourceOptions.embeddedKnowledge());
     }
     return items;

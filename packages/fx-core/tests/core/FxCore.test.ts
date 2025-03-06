@@ -43,7 +43,7 @@ import {
   teamsDevPortalClient,
 } from "../../src";
 import { ConstantString } from "../../src/common/constants";
-import { FeatureFlagName } from "../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import {
@@ -7247,6 +7247,7 @@ describe("addKnowledge", async () => {
   });
 
   it("add embedded files", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -7260,5 +7261,22 @@ describe("addKnowledge", async () => {
     sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
     const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isOk());
+  });
+
+  it("add embedded files disabled", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      projectPath: path.join(os.tmpdir(), appName),
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.embeddedKnowledge().id,
+      [QuestionNames.EmbeddedKnowledgeFiles]: ["test:txt"],
+      [QuestionNames.ManifestPath]: "manifest.json",
+    };
+    const core = new FxCore(tools);
+    sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isErr());
   });
 });

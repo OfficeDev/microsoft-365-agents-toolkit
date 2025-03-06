@@ -16,5 +16,5 @@ export interface AddKnowledgeInputs extends Inputs {
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;
   /** @description Add embedded knowledge files */
-  "embedded-knowledge-files"?: string;
+  "embedded-knowledge-files"?: string[];
 }

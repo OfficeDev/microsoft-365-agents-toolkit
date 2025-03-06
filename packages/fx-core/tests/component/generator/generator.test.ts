@@ -1306,6 +1306,37 @@ describe("render template", () => {
       assert.isTrue(result.isOk());
       assert.equal(folderName, "");
     });
+    it("template variables when embedded knowledge enabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "true" });
+      const vars = newGeneratorFlag
+        ? getTemplateReplaceMap(inputs)
+        : Generator.getDefaultVariables("test");
+      assert.equal(vars.EmbeddedKnowledgeEnabled, "true");
+    });
+
+    it("template variables when embedded knowledge disabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_EMBEDDED_KNOWLEDGE: "false" });
+      const vars = newGeneratorFlag
+        ? getTemplateReplaceMap(inputs)
+        : Generator.getDefaultVariables("test");
+      assert.equal(vars.EmbeddedKnowledgeEnabled, "");
+    });
+
+    it("template variables when share enabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "true" });
+      const vars = newGeneratorFlag
+        ? getTemplateReplaceMap(inputs)
+        : Generator.getDefaultVariables("test");
+      assert.equal(vars.ShareEnabled, "true");
+    });
+
+    it("template variables when share disabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_SHARE: "false" });
+      const vars = newGeneratorFlag
+        ? getTemplateReplaceMap(inputs)
+        : Generator.getDefaultVariables("test");
+      assert.equal(vars.ShareEnabled, "");
+    });
   });
 });
 

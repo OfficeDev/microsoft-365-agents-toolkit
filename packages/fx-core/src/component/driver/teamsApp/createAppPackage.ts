@@ -343,7 +343,7 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+        if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
           if (getCopilotGptRes.value.capabilities) {
             const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
               (capability) => capability.name === EmbeddedKnowledgeCapabilityName
