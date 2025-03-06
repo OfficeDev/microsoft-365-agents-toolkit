@@ -30,6 +30,8 @@ export class FeatureFlagName {
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
+  static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
+  static readonly ShareEnabled = "TEAMSFX_SHARE";
   static readonly AddKnowledge = "TEAMSFX_ADD_KNOWLEDGE";
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly GCList = "TEAMSFX_GC_LIST";
@@ -93,6 +95,14 @@ export class FeatureFlags {
   };
   static readonly BuilderAPIEnabled = {
     name: FeatureFlagName.BuilderAPIEnabled,
+    defaultValue: "false",
+  };
+  static readonly EmbeddedKnowledgeEnabled = {
+    name: FeatureFlagName.EmbeddedKnowledgeEnabled,
+    defaultValue: "false",
+  };
+  static readonly ShareEnabled = {
+    name: FeatureFlagName.ShareEnabled,
     defaultValue: "false",
   };
   static readonly AddKnowledge = {

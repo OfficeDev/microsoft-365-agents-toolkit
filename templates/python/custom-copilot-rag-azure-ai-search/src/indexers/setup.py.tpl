@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from azure.core.credentials import AzureKeyCredential
+from azure.core.exceptions import ServiceRequestError
 from azure.search.documents import SearchClient
 from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
@@ -105,6 +106,9 @@ async def setup(search_api_key, search_api_endpoint, args):
 args = load_keys_from_args()
 search_api_key = args.ai_search_key
 search_api_endpoint = os.getenv('AZURE_SEARCH_ENDPOINT')
-asyncio.run(setup(search_api_key, search_api_endpoint, args))
-print("setup finished")
+try:
+    asyncio.run(setup(search_api_key, search_api_endpoint, args))
+    print("setup finished")
+except ServiceRequestError as e:
+    print(f"Setup index failed due to ServiceRequestError: {e.message}.\nPlease check your keys, models and enpoints in {os.getcwd()}/env/.env.local.user.")
 

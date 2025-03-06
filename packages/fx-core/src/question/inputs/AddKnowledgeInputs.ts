@@ -34,5 +34,5 @@ export interface AddKnowledgeInputs extends Inputs {
   /** @description Connection ID */
   "graph-connector-input"?: string;
   /** @description Add embedded knowledge files */
-  "embedded-knowledge-files"?: string;
+  "embedded-knowledge-files"?: string[];
 }

@@ -68,7 +68,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
   },
   {
     name: "embedded-knowledge-files",
-    type: "string",
+    type: "array",
     description: "Select your embedded knowledge files.",
   },
 ];

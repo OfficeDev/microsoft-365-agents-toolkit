@@ -8,6 +8,7 @@ import {
   CLIOptionType,
   CLIStringOption,
   IQTreeNode,
+  MultiFileQuestion,
   MultiSelectQuestion,
   Platform,
   SingleSelectQuestion,
@@ -355,6 +356,9 @@ export async function generateInputs(
         type += "[]";
       }
     }
+    if (data.type === "multiFile") {
+      type = "string[]";
+    }
     const inputPropName = questionName.includes("-") ? `"${questionName}"` : questionName;
     properties.push({
       name: inputPropName,
@@ -392,7 +396,7 @@ export async function generateInputs(
 
 function getOptionType(question: UserInputQuestion): CLIOptionType {
   if (question.isBoolean) return "boolean";
-  if (question.type === "multiSelect") {
+  if (question.type === "multiSelect" || question.type === "multiFile") {
     return "array";
   }
   return "string";

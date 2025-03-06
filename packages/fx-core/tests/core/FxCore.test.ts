@@ -44,7 +44,7 @@ import {
   getUuid,
   teamsDevPortalClient,
 } from "../../src";
-import { FeatureFlagName } from "../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
 import {
   TeamsfxConfigType,
@@ -7595,6 +7595,7 @@ describe("addKnowledge", async () => {
   });
 
   it("add embedded files", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const appName = await mockV3Project();
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -8522,6 +8523,85 @@ describe("addKnowledge", async () => {
       .resolves(err(new UserError("test", "test", "test")));
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
+    if (result.isOk()) {
+      const addEmbeddedKnowledgeFilesRes = await result.value.resultValue[0];
+      if (addEmbeddedKnowledgeFilesRes.isOk()) {
+        const capabilities = addEmbeddedKnowledgeFilesRes.value.capabilities;
+        assert.deepEqual(capabilities, [
+          {
+            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
+          },
+        ]);
+      }
+    }
+  });
+
+  it("happy path: add OneDrive & Sharepoint(search all)", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allOneDriveSharepoint().id,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
+    uxStub.onCall(0).resolves(ok("Add"));
+    uxStub.onCall(1).resolves(ok("View agent manifest"));
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const addOneDriveSharepointRes = sandbox.spy(
+      copilotGptManifestUtils,
+      "addOneDriveSharePointCapability"
+    );
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
+    const addOneDriveSharepointResCapRes = await addOneDriveSharepointRes.returnValues[0];
+    if (addOneDriveSharepointResCapRes.isOk()) {
+      const capabilities = addOneDriveSharepointResCapRes.value.capabilities;
+      assert.deepEqual(capabilities, [
+        {
+          name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+        },
+      ]);
+    } else {
+      assert.fail("Add OneDriveSharePoint Capability failed");
+    }
     assert.isTrue(result.isOk());
+  });
+
+  it("add embedded files disabled", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      projectPath: path.join(os.tmpdir(), appName),
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.embeddedKnowledge().id,
+      [QuestionNames.EmbeddedKnowledgeFiles]: ["test:txt"],
+      [QuestionNames.ManifestPath]: "manifest.json",
+    };
+    const core = new FxCore(tools);
+    sandbox.stub(copilotGptManifestUtils, "addEmbeddedKnowledgeFiles").resolves(ok(undefined));
+    const result = await core.addKnowledge(inputs);
+    assert.isTrue(result.isErr());
   });
 });
