@@ -1,11 +1,11 @@
-import { TeamsActivityHandler, TurnContext } from "botbuilder";
+import { ActivityHandler } from "@microsoft/agents-bot-hosting";
 
-export class TeamsBot extends TeamsActivityHandler {
+export class TeamsBot extends ActivityHandler {
   constructor() {
     super();
     this.onMessage(async (context, next) => {
       console.log("Running with Message Activity.");
-      const removedMentionText = TurnContext.removeRecipientMention(context.activity);
+      const removedMentionText = context.activity.removeRecipientMention();
       const txt = removedMentionText.toLowerCase().replace(/\n|\r/g, "").trim();
       await context.sendActivity(`Echo: ${txt}`);
       // By calling next() you ensure that the next BotHandler is run.

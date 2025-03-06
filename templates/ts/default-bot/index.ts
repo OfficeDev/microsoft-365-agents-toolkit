@@ -1,29 +1,21 @@
-// Import required packages
-import express from "express";
-
-// Import required bot services.
-// See https://aka.ms/bot-services to learn more about the different parts of a bot.
 import {
   CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
+  Request,
   TurnContext,
-} from "botbuilder";
+  authorizeJWT,
+  loadBotAuthConfigFromEnv,
+} from "@microsoft/agents-bot-hosting";
+import express, { Response } from "express";
+import rateLimit from "express-rate-limit";
 
-// This bot's main dialog.
+// This bot's main dialog
 import { TeamsBot } from "./teamsBot";
-import config from "./config";
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
-const credentialsFactory = new ConfigurationServiceClientCredentialFactory(config);
+// Create authentication configuration
+const authConfig = loadBotAuthConfigFromEnv();
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  credentialsFactory
-);
-
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+// Create adapter
+const adapter = new CloudAdapter(authConfig);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
@@ -54,17 +46,21 @@ adapter.onTurnError = onTurnErrorHandler;
 // Create the bot that will handle incoming messages.
 const bot = new TeamsBot();
 
-// Create express application.
-const expressApp = express();
-expressApp.use(express.json());
-
-const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
-});
+// Create express application with rate limiting
+const app = express();
+app.use(rateLimit({ validate: { xForwardedForHeader: false } }));
+app.use(express.json());
+app.use(authorizeJWT(authConfig));
 
 // Listen for incoming requests.
-expressApp.post("/api/messages", async (req, res) => {
+app.post("/api/messages", async (req: Request, res: Response) => {
   await adapter.process(req, res, async (context) => {
     await bot.run(context);
   });
+});
+
+// Start the server
+const port = process.env.PORT || 3978;
+app.listen(port, () => {
+  console.log(`\napp listening to port ${port} for appId ${authConfig.clientId}`);
 });
