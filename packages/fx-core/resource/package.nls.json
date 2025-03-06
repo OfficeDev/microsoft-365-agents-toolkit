@@ -1001,7 +1001,7 @@
   "core.authNameQuestion.validation.empty": "Auth name cannot be empty.",
   "driver.oauth.microsoftEntraWarning": "If you are using your own Microsoft Entra app, please: 1. Update the application id uri of your Microsoft Entra app to %s, 2. Add %s to redirect uri of your Microsoft Entra app.",
   "core.addKnowledgeQuestion.webContent.title": "Web Content",
-  "core.addKnowledgeQuestion.webContent.placeholder": "Input an absolute URL to a site to be searched for content.",
+  "core.addKnowledgeQuestion.webContent.placeholder": "Enter an absolute URL to a site to be searched for content.",
   "core.addKnowledgeQuestion.invalidWebContent.message": "Invalid web content. Please provide a valid URL.",
   "core.addKnowledgeQuestion.searchType.title": "Select Search Type",
   "core.addKnowledgeQuestion.searchType.web": "Search all content on the web",
