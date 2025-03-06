@@ -28,9 +28,7 @@ export interface AddKnowledgeInputs extends Inputs {
   /** @description OneDrive or SharePoint Content */
   oneDriveSharePointContent?: string;
   /** @description Graph Connector Content */
-  "graph-connector-content"?: "listConnections" | "inputConnectionId";
-  /** @description Select one or more Graph Connectors as knowledge source */
-  "graph-connector-list"?: string[];
+  "graph-connector-content"?: "inputConnectionId";
   /** @description Connection ID */
   "graph-connector-input"?: string;
   /** @description Add embedded knowledge files */

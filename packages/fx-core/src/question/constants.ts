@@ -1278,6 +1278,14 @@ export class GCSelectOptions {
       id: "inputConnectionId",
       label: getLocalizedString("core.GCSelectOptions.inputOption.title"),
       detail: getLocalizedString("core.GCSelectOptions.inputOption.description"),
+      data: "https://aka.ms/teamsfx-graph-connector-id",
+      buttons: [
+        {
+          iconPath: "file-symlink-file",
+          tooltip: getLocalizedString("core.option.tutorial"),
+          command: "fx-extension.openTutorial",
+        },
+      ],
     };
   }
 }
