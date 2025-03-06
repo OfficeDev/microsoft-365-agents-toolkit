@@ -469,7 +469,7 @@
   "core.addPlugin.success": "API plugin \"%s\" added to the project successfully. View plugin manifest in \"%s\".",
   "core.addPlugin.success.viewPluginManifest": "View action manifest",
   "core.addKnowledge.success.vsc": "Knowledge source added to the project successfully.",
-  "core.addKnowledge.success": "Knowledge added to the project successfully. View agent manifest in \"%s\".",
+  "core.addKnowledge.success": "Knowledge source added to the project successfully. View agent manifest in \"%s\".",
   "core.addKnowledge.success.viewAgentManifest": "View agent manifest",
   "core.scaffold.warning.summary": "We have detected following issues:\n%s",
   "core.addPlugin.warning.manifestVariables": "Environment variables \"%s\" found in manifest of the added plugin. Ensure the values are set in .env file or system environment variables.",
