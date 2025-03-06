@@ -538,6 +538,7 @@
   "teamsagent.walkthrough.setup.description": "Sign in to your GitHub account and get started. Learn more about how to [set up GitHub Copilot](https://aka.ms/teams-agent-github-copilot-setup).\n[Open GitHub Copilot Chat](command:fx-extension.openGitHubCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)",
   "teamsagent.walkthrough.use.title": "Start to use @teamsapp",
   "_teamsagent.walkthrough.use.title.comment": "@teamsapp is used to call Teams agent in GitHub Copilot Chat and should not be translated.",
+  "teamsagent.walkthrough.use.title.preview": "Start to use @teamsapp (preview)",
   "teamsagent.walkthrough.use.description": "Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.",
   "_teamsagent.walkthrough.use.description.comment": "@teamsapp is used to call Teams agent in GitHub Copilot Chat and should not be translated.",
   "teamstoolkit.handlers.installCopilotChatExtensionAlreadyInstalled": "GitHub Copilot Chat extension is already installed.",

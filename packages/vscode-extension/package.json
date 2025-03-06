@@ -1777,7 +1777,7 @@
           },
           {
             "id": "teamsAgentUseWithPreviewTag",
-            "title": "%teamsagent.walkthrough.use.title%",
+            "title": "%teamsagent.walkthrough.use.title.preview%",
             "description": "%teamsagent.walkthrough.use.description%",
             "media": {
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
