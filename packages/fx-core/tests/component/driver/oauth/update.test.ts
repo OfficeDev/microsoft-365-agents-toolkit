@@ -15,6 +15,7 @@ import { UpdateOauthDriver } from "../../../../src/component/driver/oauth/update
 import {
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
@@ -63,6 +64,7 @@ describe("UpdateOauthDriver", () => {
       authorizationEndpoint: "mockedAuthorizationEndpoint",
       tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
       scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.PostRequestBody,
       isPKCEEnabled: true,
     });
     sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
@@ -76,6 +78,7 @@ describe("UpdateOauthDriver", () => {
       authorizationEndpoint: "mockedAuthorizationEndpoint",
       tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
       scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.BasicAuthorizationHeader,
       isPKCEEnabled: false,
     });
     sinon.stub(SpecParser.prototype, "list").resolves({
@@ -139,6 +142,7 @@ describe("UpdateOauthDriver", () => {
       expect((config as ConfirmConfig).title.includes("tokenExchangeEndpoint")).to.be.true;
       expect((config as ConfirmConfig).title.includes("tokenRefreshEndpoint")).to.be.true;
       expect((config as ConfirmConfig).title.includes("scopes")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeMethodType")).to.be.true;
       return ok({ type: "success", value: true });
     });
 
@@ -149,6 +153,7 @@ describe("UpdateOauthDriver", () => {
       targetAudience: "HomeTenant",
       applicableToApps: "SpecificApp",
       configurationId: "mockedRegistrationId",
+      tokenExchangeMethodType: "PostRequestBody",
       isPKCEEnabled: true,
     };
 
@@ -727,18 +732,21 @@ describe("UpdateOauthDriver", () => {
     }
   });
 
-  it("should throw error if invalid applicableToApps", async () => {
+  it("should throw error if invalid applicableToApps and tokenExchangeMethodType", async () => {
     const args: any = {
       name: "name",
       appId: "mockedAppId",
       configurationId: "mockedRegistrationId",
       apiSpecPath: "mockedPath",
       applicableToApps: "test",
+      tokenExchangeMethodType: "Unknown",
     };
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
     expect(result.result.isErr()).to.be.true;
     if (result.result.isErr()) {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("applicableToApps");
+      expect(result.result.error.message).to.include("tokenExchangeMethodType");
     }
   });
 

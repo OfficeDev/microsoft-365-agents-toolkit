@@ -14,6 +14,7 @@ import { CreateOauthDriver } from "../../../../src/component/driver/oauth/create
 import {
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
@@ -621,7 +622,7 @@ describe("CreateOauthDriver", () => {
     }
   });
 
-  it("happy path: read applicableToApps, targetAudience from input", async () => {
+  it("happy path: read applicableToApps, tokenExchangeMethodType, targetAudience from input", async () => {
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -635,6 +636,7 @@ describe("CreateOauthDriver", () => {
         expect(oauthRegistration.tokenRefreshEndpoint).to.equal("mockedRefreshUrl");
         expect(oauthRegistration.applicableToApps).to.equals(OauthRegistrationAppType.SpecificApp);
         expect(oauthRegistration.m365AppId).to.equals("mockedAppId");
+        expect(oauthRegistration.tokenExchangeMethodType).to.equals("PostRequestBody");
         expect(oauthRegistration.targetAudience).to.equals(
           OauthRegistrationTargetAudience.HomeTenant
         );
@@ -684,6 +686,7 @@ describe("CreateOauthDriver", () => {
       refreshUrl: "mockedRefreshUrl",
       applicableToApps: "SpecificApp",
       targetAudience: "HomeTenant",
+      tokenExchangeMethodType: "PostRequestBody",
     };
     const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isOk()).to.be.true;
@@ -702,6 +705,7 @@ describe("CreateOauthDriver", () => {
       tokenExchangeEndpoint: "mockedTokenEndpoint",
       scopes: ["mockedScopes"],
       applicableToApps: OauthRegistrationAppType.AnyApp,
+      tokenExchangeMethodType: TokenExchangeMethodType.BasicAuthorizationHeader,
       targetUrlsShouldStartWith: ["mockedDomain"],
     });
     const args: any = {
@@ -712,6 +716,7 @@ describe("CreateOauthDriver", () => {
       clientSecret: "mockedClientSecret",
       flow: "authorizationCode",
       refreshUrl: "mockedRefreshUrl",
+      tokenExchangeMethodType: "BasicAuthorizationHeader",
     };
     envRestore = mockedEnv({
       [outputKeys.configurationId]: "existing value",
@@ -1311,7 +1316,7 @@ describe("CreateOauthDriver", () => {
     }
   });
 
-  it("should throw error if invalid applicableToApps and targetAudience", async () => {
+  it("should throw error if invalid applicableToApps, targetAudience and tokenExchangeMethodType", async () => {
     const args: any = {
       name: "test",
       appId: "mockedAppId",
@@ -1322,6 +1327,7 @@ describe("CreateOauthDriver", () => {
       refreshUrl: "mockedRefreshUrl",
       applicableToApps: "specificapp",
       targetAudience: "hometenant",
+      tokenExchangeMethodType: "Unknown",
     };
     const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isErr()).to.be.true;
@@ -1329,6 +1335,7 @@ describe("CreateOauthDriver", () => {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
       expect(result.result.error.message.includes("applicableToApps")).to.be.true;
       expect(result.result.error.message.includes("targetAudience")).to.be.true;
+      expect(result.result.error.message.includes("tokenExchangeMethodType")).to.be.true;
     }
   });
 
