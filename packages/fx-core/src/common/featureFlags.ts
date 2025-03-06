@@ -112,7 +112,7 @@ export class FeatureFlags {
   };
   static readonly AddKnowledge = {
     name: FeatureFlagName.AddKnowledge,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,
