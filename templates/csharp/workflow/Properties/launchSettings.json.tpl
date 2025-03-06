@@ -13,6 +13,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -41,6 +42,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -67,6 +69,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -90,6 +93,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },

@@ -4,6 +4,7 @@
     // Launch project within Teams App Test Tool
     "Teams App Test Tool (browser)": {
       "commandName": "Project",
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
@@ -34,6 +35,7 @@
     // Launch project within Teams App Test Tool
     "Teams App Test Tool (browser)": {
       "commandName": "Project",
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },

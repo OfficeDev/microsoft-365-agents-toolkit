@@ -14,6 +14,7 @@
         "AZURE_FUNCTIONS_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.." // Path to project folder $(MSBuildProjectDirectory)
+        "UPDATE_TEAMS_APP": "false"
       }
     },
 {{/enableTestToolByDefault}}
@@ -42,6 +43,7 @@
         "AZURE_FUNCTIONS_ENVIRONMENT": "TestTool",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.." // Path to project folder $(MSBuildProjectDirectory)
+        "UPDATE_TEAMS_APP": "false"
       }
     },
 {{/enableTestToolByDefault}}
@@ -69,6 +71,7 @@
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
         // Path to project folder $(MSBuildProjectDirectory), used in Microsoft.TeamsFx package.
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.."
+        "UPDATE_TEAMS_APP": "false"
       }
     },
 {{/enableTestToolByDefault}}
@@ -94,6 +97,7 @@
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
         // Path to project folder $(MSBuildProjectDirectory), used in Microsoft.TeamsFx package.
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.."
+        "UPDATE_TEAMS_APP": "false"
       }
     },
 {{/enableTestToolByDefault}}
