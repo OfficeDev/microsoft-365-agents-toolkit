@@ -71,4 +71,10 @@ export const declarativeAgentTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
+  {
+    id: "declarative-agent-typespec",
+    name: TemplateNames.DeclarativeAgentWithTypeSpec,
+    language: "common",
+    description: "",
+  },
 ];

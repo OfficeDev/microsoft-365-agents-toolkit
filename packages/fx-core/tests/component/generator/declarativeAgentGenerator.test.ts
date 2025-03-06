@@ -76,6 +76,12 @@ describe("copilotExtension", async () => {
       info = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res);
       assert.equal(info.isOk() && info.value[0].templateName, "api-plugin-from-scratch-oauth");
+
+      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentWithTypeSpec;
+      res = await generator.activate(context, inputs);
+      info = await generator.getTemplateInfos(context, inputs, ".");
+      assert.isTrue(res);
+      assert.equal(info.isOk() && info.value[0].templateName, "declarative-agent-typespec");
     });
 
     it("declarative Copilot: Env func enabled", async () => {

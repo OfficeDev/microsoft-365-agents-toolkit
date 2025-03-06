@@ -59,6 +59,9 @@ export function daProjectTypeNode(
                 ActionStartOptions.newApi(),
                 ActionStartOptions.apiSpec(),
                 ActionStartOptions.existingPlugin(),
+                ...(featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)
+                  ? [ActionStartOptions.typeSpec()]
+                  : []),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,

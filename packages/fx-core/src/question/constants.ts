@@ -124,6 +124,8 @@ export enum QuestionNames {
   OauthPKCE = "oauth-pkce",
   ApiKeyIn = "api-key-in",
   ApiKeyName = "api-key-name",
+
+  TypeSpecProjectType = "type-spec-project-type",
 }
 
 export enum ProjectTypeGroup {

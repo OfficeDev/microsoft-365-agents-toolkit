@@ -511,6 +511,15 @@ export class ActionStartOptions {
       data: TemplateNames.DeclarativeAgentWithExistingAction,
     };
   }
+
+  static typeSpec(): OptionItem {
+    return {
+      id: "type-spec",
+      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
+      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      data: TemplateNames.DeclarativeAgentWithTypeSpec,
+    };
+  }
 }
 
 export class ApiAuthOptions {

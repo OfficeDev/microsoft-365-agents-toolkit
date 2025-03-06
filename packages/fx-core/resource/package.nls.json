@@ -1006,5 +1006,7 @@
   "core.addKnowledgeQuestion.searchType.title": "Select Search Type",
   "core.addKnowledgeQuestion.searchType.web": "Search all content on the web",
   "core.addKnowledgeQuestion.searchType.oneDriveSharepoint": "Search all content within your organization",
-  "core.addKnowledgeQuestion.searchType.url": "Search by URL"
+  "core.addKnowledgeQuestion.searchType.url": "Search by URL",
+  "core.createProjectQuestion.apiPlugin.typeSpec.label": "Start with TypeSpec",
+  "core.createProjectQuestion.apiPlugin.typeSpec.detail": "Create your action with TypeSpec"
 }
