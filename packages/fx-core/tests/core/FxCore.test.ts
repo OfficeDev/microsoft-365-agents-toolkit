@@ -8523,17 +8523,7 @@ describe("addKnowledge", async () => {
       .resolves(err(new UserError("test", "test", "test")));
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
-    if (result.isOk()) {
-      const addEmbeddedKnowledgeFilesRes = await result.value.resultValue[0];
-      if (addEmbeddedKnowledgeFilesRes.isOk()) {
-        const capabilities = addEmbeddedKnowledgeFilesRes.value.capabilities;
-        assert.deepEqual(capabilities, [
-          {
-            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
-          },
-        ]);
-      }
-    }
+    assert.isTrue(result.isOk());
   });
 
   it("happy path: add OneDrive & Sharepoint(search all)", async () => {
