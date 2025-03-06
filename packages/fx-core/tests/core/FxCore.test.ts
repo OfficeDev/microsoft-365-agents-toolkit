@@ -7403,13 +7403,24 @@ describe("addKnowledge", async () => {
 
     const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
     uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("View agent manifest"));
+    uxStub.onCall(1).resolves(ok("Add"));
+    uxStub.onCall(2).resolves(ok("View agent manifest"));
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
     sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
       ok({
         actions: [{}],
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+            sites: [
+              {
+                url: "https://fakeUrl.com",
+              },
+            ],
+          },
+        ],
       } as DeclarativeCopilotManifestSchema)
     );
 
@@ -7427,6 +7438,53 @@ describe("addKnowledge", async () => {
     } else {
       assert.fail("Add Web Search Capability failed");
     }
+    assert.isTrue(result.isOk());
+  });
+
+  it("happy path: add Web Content(search all, cancel double confirm)", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.ManifestPath]: "manifest.json",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.webSearch().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.allWeb().id,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          id: "knowledege_1",
+          file: "test1.json",
+        },
+      ],
+    };
+
+    const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
+    uxStub.onCall(0).resolves(ok("Add"));
+    uxStub.onCall(1).resolves(ok("Cancel"));
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+            sites: [
+              {
+                url: "https://fakeUrl.com",
+              },
+            ],
+          },
+        ],
+      } as DeclarativeCopilotManifestSchema)
+    );
+
+    const core = new FxCore(tools);
+    const result = await core.addKnowledge(inputs);
     assert.isTrue(result.isOk());
   });
 

@@ -24,7 +24,12 @@ import { EOL } from "os";
 import path from "path";
 import stripBom from "strip-bom";
 import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
-import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
+import {
+  FileNotFoundError,
+  JSONSyntaxError,
+  UserCancelError,
+  WriteFileError,
+} from "../../../../error/common";
 import { SummaryConstant } from "../../../configManager/constant";
 import { getParserOptions } from "../../../generator/openApiSpec/helper";
 import { ManifestType } from "../../../utils/envFunctionUtils";
@@ -36,6 +41,7 @@ import { AppStudioResultFactory } from "../results";
 import { manifestUtils } from "./ManifestUtils";
 import { pluginManifestUtils } from "./PluginManifestUtils";
 import { getResolvedManifest } from "./utils";
+import { Context } from "vm";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -518,6 +524,7 @@ export class CopilotGptManifestUtils {
   }
 
   public async addWebSearchCapability(
+    context: Context,
     agentManifestPath: string,
     items_by_url: Site | null,
     manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
@@ -537,6 +544,22 @@ export class CopilotGptManifestUtils {
     const capability = agentManifest.capabilities.find(
       (cap) => cap.name === DeclarativeCopilotCapabilityName.WebSearch
     ) as WebSearchCapability | undefined;
+
+    // del capability warning
+    if (items_by_url === null && capability?.sites?.length) {
+      const confirmRes = await context.userInteraction.showMessage(
+        "warn",
+        getLocalizedString("core.addKnowledge.doubleConfirm"),
+        true,
+        getLocalizedString("core.addKnowledge.continue")
+      );
+
+      if (confirmRes.isErr()) {
+        return err(confirmRes.error);
+      } else if (confirmRes.value !== getLocalizedString("core.addKnowledge.continue")) {
+        return err(new UserCancelError());
+      }
+    }
 
     if (items_by_url) {
       newCapabilityData.sites = capability ? capability.sites || [] : [];

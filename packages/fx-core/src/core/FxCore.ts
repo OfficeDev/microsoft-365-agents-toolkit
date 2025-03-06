@@ -2282,7 +2282,7 @@ export class FxCore {
     const knowledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
     switch (knowledgeSource) {
       case KnowledgeSourceOptions.webSearch().id:
-        result = await this.addWebSearchKnowledge(inputs, agentManifestPath);
+        result = await this.addWebSearchKnowledge(context, inputs, agentManifestPath);
         break;
       case KnowledgeSourceOptions.oneDriveSharePoint().id:
         result = await this.addOneDriveSharePointKnowledge(inputs, agentManifestPath);
@@ -2299,6 +2299,9 @@ export class FxCore {
         );
     }
     if (result.isErr()) {
+      if (result.error.name === "UserCancelError") {
+        return err(new UserCancelError());
+      }
       await context.userInteraction.showMessage("warn", result.error.message, true);
       return ok(undefined);
     }
@@ -2724,6 +2727,7 @@ export class FxCore {
   }
 
   private async addWebSearchKnowledge(
+    context: Context,
     inputs: Inputs,
     agentManifestPath: string
   ): Promise<Result<undefined, FxError>> {
@@ -2740,6 +2744,7 @@ export class FxCore {
     }
 
     const addWebSearchCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
+      context,
       agentManifestPath,
       webSearchUrl,
       manifestRes
