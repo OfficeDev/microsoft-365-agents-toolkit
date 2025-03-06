@@ -659,6 +659,7 @@ export class CreateAppPackageDriver implements StepDriver {
     if (await fs.pathExists(jsonFileName)) {
       await fs.chmod(jsonFileName, 0o777);
     }
+    await fs.ensureDir(path.dirname(jsonFileName));
     await fs.writeFile(jsonFileName, content);
     await fs.chmod(jsonFileName, 0o444);
   }
