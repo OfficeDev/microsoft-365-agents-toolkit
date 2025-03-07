@@ -176,7 +176,7 @@ export class TypeSpecCompileDriver implements StepDriver {
 
       const message = JSON.stringify(error);
       ctx.logProvider?.error(
-        getLocalizedString("driver.aadApp.log.failExecuteDriver", actionName, error.displayMessage)
+        getLocalizedString("driver.aadApp.log.failExecuteDriver", actionName, message)
       );
       return {
         result: err(assembleError(error as Error, actionName)),
