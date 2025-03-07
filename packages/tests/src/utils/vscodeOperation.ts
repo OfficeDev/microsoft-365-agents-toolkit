@@ -555,6 +555,7 @@ export async function createNewProject(
       | "Azure AI Search"
       | "Custom API"
       | "Microsoft 365";
+    authOption?: "None" | "API Key" | "MicrosoftEntra" | "Oauth";
   }
 ): Promise<void> {
   const driver = VSBrowser.instance.driver;
@@ -575,6 +576,7 @@ export async function createNewProject(
     : "React";
   const lang = option?.lang ? option.lang : "JavaScript";
   const dataOption = option?.dataOption ? option.dataOption : "Customize";
+  const authOption = option?.authOption ? option.authOption : "None";
   await RetryHandler.retry(async () => {
     await execCommandIfExist(
       CommandPaletteCommands.CreateProjectCommand,
@@ -1003,6 +1005,19 @@ export async function createNewProject(
       const apiSpecFilePath =
         "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-bearer.yaml";
       await createNewProjectByApispec(apiSpecFilePath, driver, input);
+      break;
+    }
+    case "daAction": {
+      await input.selectQuickPick(CreateProjectQuestion.DeclarativeAgent);
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick("Add an Action");
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick("Start With a New API");
+      await driver.sleep(Timeout.input);
+      await input.selectQuickPick(authOption);
+      await driver.sleep(Timeout.input);
+      // Choose programming language
+      await input.selectQuickPick(lang);
       break;
     }
     default:
