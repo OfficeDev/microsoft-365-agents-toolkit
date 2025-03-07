@@ -1007,5 +1007,5 @@
   "core.addKnowledgeQuestion.searchType.web": "Search all content on the web",
   "core.addKnowledgeQuestion.searchType.oneDriveSharepoint": "Search all content within your organization",
   "core.addKnowledgeQuestion.searchType.url": "Search by URL",
-  "core.addKnowledge.doubleConfirm": "The operation you are about to perform will erase the contents you previously added to the manifest file. This action cannot be undone.\n\nIf you want to keep your existing data, please make a backup before proceeding.\n\nDo you want to add the new content or cancel the operation?"
+  "core.addKnowledge.doubleConfirm": "Performing this action will overwrite your existing manifest file and can't be undone. To keep your existing data, please back it up before proceeding. Would you like to add new content?"
 }
