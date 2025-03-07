@@ -318,10 +318,7 @@ export class CreateAppPackageDriver implements StepDriver {
           const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
-            const pluginFileAbsolutePath = path.resolve(
-              path.dirname(declarativeAgentManifestFile),
-              pluginFile
-            );
+            const pluginFileAbsolutePath = path.resolve(appDirectory, pluginFile);
 
             const pluginFileRelativePath = path.relative(appDirectory, pluginFileAbsolutePath);
             const useForwardSlash = declarativeCopilots[0].file.concat(pluginFile).includes("/");
@@ -593,7 +590,7 @@ export class CreateAppPackageDriver implements StepDriver {
     if (runtimes && runtimes.length > 0) {
       for (const runtime of runtimes) {
         if (runtime.type === "OpenApi" && runtime.spec?.url) {
-          const specFile = path.resolve(path.dirname(pluginFilePath), runtime.spec.url);
+          const specFile = path.resolve(appDirectory, runtime.spec.url);
           // add openapi spec
           const checkExistenceRes = await this.validateReferencedFile(specFile, appDirectory);
           if (checkExistenceRes.isErr()) {
