@@ -7463,7 +7463,7 @@ describe("addKnowledge", async () => {
 
     const uxStub = sandbox.stub(MockUserInteraction.prototype, "showMessage");
     uxStub.onCall(0).resolves(ok("Add"));
-    uxStub.onCall(1).resolves(ok("Cancel"));
+    uxStub.onCall(1).resolves(err(new UserCancelError("User cancelled")));
     sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("fakeAgentManifest.json"));
@@ -7485,7 +7485,7 @@ describe("addKnowledge", async () => {
 
     const core = new FxCore(tools);
     const result = await core.addKnowledge(inputs);
-    assert.isTrue(result.isOk());
+    assert.isTrue(result.isErr());
   });
 
   it("happy path: add Web Content(search by url)", async () => {

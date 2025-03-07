@@ -158,6 +158,7 @@ import {
   UnhandledError,
   UserCancelError,
   assembleError,
+  isUserCancelError,
 } from "../error/common";
 import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
@@ -2299,7 +2300,7 @@ export class FxCore {
         );
     }
     if (result.isErr()) {
-      if (result.error.name === UserCancelError.name) {
+      if (isUserCancelError(result.error)) {
         return err(new UserCancelError());
       }
       await context.userInteraction.showMessage("warn", result.error.message, true);
