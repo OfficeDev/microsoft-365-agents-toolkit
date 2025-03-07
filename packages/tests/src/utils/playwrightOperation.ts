@@ -263,6 +263,83 @@ export async function initPage(
   return page;
 }
 
+export async function initCopilotPage(
+  context: BrowserContext,
+  username: string,
+  password: string,
+  options?: {
+    teamsAppName?: string;
+    dashboardFlag?: boolean;
+  }
+): Promise<Page> {
+  let page = await context.newPage();
+  page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
+
+  // open teams app page
+  // https://github.com/puppeteer/puppeteer/issues/3338
+  await Promise.all([
+    page.goto(
+      `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
+    ),
+    page.waitForNavigation(),
+  ]);
+
+  // input username
+  await RetryHandler.retry(async () => {
+    await page.fill("input.input[type='email']", username);
+    console.log(`fill in username ${username}`);
+
+    // next
+    await Promise.all([
+      page.click("input.button[type='submit']"),
+      page.waitForNavigation(),
+    ]);
+    // input password
+    console.log(`fill in password`);
+    await page.fill("input.input[type='password'][name='passwd']", password);
+
+    // sign in
+    await Promise.all([
+      page.click("input.button[type='submit']"),
+      page.waitForNavigation(),
+    ]);
+
+    // stay signed in confirm page
+    console.log(`stay signed confirm`);
+    await Promise.all([
+      page.click("input.button[type='submit'][value='Yes']"),
+      page.waitForNavigation(),
+    ]);
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+  });
+
+  // add app
+  await RetryHandler.retry(async (retries: number) => {
+    if (retries > 0) {
+      console.log(`Retried to run copilot app for ${retries} times.`);
+    }
+    await page.close();
+    console.log(`open Copilot page`);
+    page = await context.newPage();
+    await Promise.all([
+      page.goto(
+        `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
+      ),
+      page.waitForNavigation(),
+    ]);
+    await page.waitForTimeout(Timeout.longTimeWait);
+    console.log("check copilot agent loaded");
+    const frameElementHandle = await page.waitForSelector(
+      `iframe[title="Copilot"]`
+    );
+    const frame = await frameElementHandle?.contentFrame();
+    await frame?.waitForSelector(`span:has-text("Agents")`);
+    console.log("[success] copilot loaded");
+  });
+
+  return page;
+}
+
 export async function reopenPage(
   context: BrowserContext,
   teamsAppId: string,
@@ -1497,6 +1574,50 @@ export async function validateBot(
       }
     }, 2);
     await page.waitForTimeout(Timeout.shortTimeLoading);
+  } catch (error) {
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("error"),
+      fullPage: true,
+    });
+    throw error;
+  }
+}
+
+export async function validatePrompt(
+  page: Page,
+  copilotAgentName: string,
+  options: {
+    prompt?: string;
+    expected?: ValidationContent;
+  }
+) {
+  try {
+    const frameElementHandle = await page.waitForSelector(
+      `iframe[title="Copilot"]`
+    );
+    const frame = await frameElementHandle?.contentFrame();
+    const copilotAgent = frame?.getByLabel(`${copilotAgentName}`).first();
+    await copilotAgent?.click();
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    console.log("start to verify prompt");
+    await frame?.getByRole("textbox").fill(options?.prompt || "list repairs");
+    const sendButton = await frame?.waitForSelector(
+      'button[aria-label="Send"]'
+    );
+    await sendButton?.click();
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    try {
+      const allowButton = await frame?.waitForSelector(
+        `button:has-text("Always allow")`
+      );
+      await allowButton?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      console.log("no allow button.");
+    }
+    await frame?.waitForSelector(`p:has-text("${options?.expected}")`);
+    console.log("verify prompt successfully!!!");
+    console.log(`${options?.expected}`);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),

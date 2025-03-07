@@ -378,7 +378,8 @@ export type AppType =
   | "msgmicroentra"
   | "importspfx"
   | "msgmulparams"
-  | "msgapikeyspec";
+  | "msgapikeyspec"
+  | "daAction";
 
 export class FeatureFlagName {
   static readonly InsiderPreview = "__TEAMSFX_INSIDER_PREVIEW";
@@ -493,6 +494,7 @@ export class CreateProjectQuestion {
   static readonly BuildNotificationBot = "Build a Notification Bot";
   static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
   static readonly StartWithNewApi = "Start with a New API";
+  static readonly DeclarativeAgent = "Declarative Agent";
 }
 
 export class ValidationContent {
