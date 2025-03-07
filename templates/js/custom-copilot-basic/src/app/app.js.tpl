@@ -20,6 +20,8 @@ const model = new OpenAIModel({
   useSystemMessages: true,
   logRequests: true,
   {{#CEAEnabled}} 
+  // The agent is currently not working in any Teams group chats or Teams channels
+  // when the stream response is enabled.
   stream: true,
   {{/CEAEnabled}}
 });

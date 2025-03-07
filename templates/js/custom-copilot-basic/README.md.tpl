@@ -99,3 +99,8 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+{{#CEAEnabled}}
+
+## Known issue
+- The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
+{{/CEAEnabled}}
