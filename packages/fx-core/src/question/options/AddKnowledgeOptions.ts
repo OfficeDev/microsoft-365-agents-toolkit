@@ -53,13 +53,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     name: "graph-connector-content",
     type: "string",
     description: "Graph Connector Content",
-    choices: ["listConnections", "inputConnectionId"],
-  },
-  {
-    name: "graph-connector-list",
-    type: "array",
-    description: "Select one or more Graph Connectors as knowledge source",
-    default: [],
+    choices: ["inputConnectionId"],
   },
   {
     name: "graph-connector-input",

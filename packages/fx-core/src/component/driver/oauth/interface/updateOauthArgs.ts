@@ -12,4 +12,5 @@ export interface UpdateOauthArgs {
   clientId?: string;
   clientSecret?: string;
   identityProvider?: string;
+  tokenExchangeMethodType?: string;
 }

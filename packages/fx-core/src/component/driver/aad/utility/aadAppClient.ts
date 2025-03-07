@@ -15,6 +15,7 @@ import {
 } from "../error/aadManifestError";
 import { ClientSecretNotAllowedError } from "../error/clientSecretNotAllowedError";
 import { CredentialInvalidLifetimeError } from "../error/credentialInvalidLifetimeError";
+import { SignInAudienceNotAllowedError } from "../error/signInAudienceNotAllowedError";
 import { AADApplication } from "../interface/AADApplication";
 import { AADManifest } from "../interface/AADManifest";
 import { IAADDefinition } from "../interface/IAADDefinition";
@@ -81,7 +82,8 @@ export class AadAppClient {
   public async createAadApp(
     displayName: string,
     signInAudience: SignInAudience = SignInAudience.AzureADMyOrg,
-    serviceManagementReference?: string
+    serviceManagementReference?: string,
+    isMicrosoftUser = false
   ): Promise<AADApplication> {
     const requestBody: IAADDefinition = {
       displayName: displayName,
@@ -89,9 +91,23 @@ export class AadAppClient {
       serviceManagementReference: serviceManagementReference,
     }; // Create a Microsoft Entra app and optionally set service tree id
 
-    const response = await this.axios.post("applications", requestBody);
-
-    return <AADApplication>response.data;
+    try {
+      const response = await this.axios.post("applications", requestBody);
+      return <AADApplication>response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        if (
+          err.response.data?.error?.code === aadErrorCode.signInAudienceNotAllowedAsPerAppPolicy
+        ) {
+          throw new SignInAudienceNotAllowedError(
+            AadAppClient.name,
+            err.response.data.error?.message,
+            isMicrosoftUser
+          );
+        }
+      }
+      throw err;
+    }
   }
 
   @hooks([ErrorContextMW({ source: "Graph", component: "AadAppClient" })])
@@ -103,7 +119,8 @@ export class AadAppClient {
   public async generateClientSecret(
     objectId: string,
     clientSecretExpireDays = 180, // Recommended lifetime from Azure Portal
-    clientSecretDescription = "default"
+    clientSecretDescription = "default",
+    isMicrosoftUser = false
   ): Promise<string> {
     const startDate = new Date();
     const endDate = new Date(startDate.getTime());
@@ -139,7 +156,7 @@ export class AadAppClient {
         if (
           err.response.data?.error?.code === aadErrorCode.credentialTypeNotAllowedAsPerAppPolicy
         ) {
-          throw new ClientSecretNotAllowedError(AadAppClient.name);
+          throw new ClientSecretNotAllowedError(AadAppClient.name, isMicrosoftUser);
         }
       }
       throw err;

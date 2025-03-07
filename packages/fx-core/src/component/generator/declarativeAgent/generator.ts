@@ -55,6 +55,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
       TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
       TemplateNames.DeclarativeAgentWithExistingAction,
+      TemplateNames.DeclarativeAgentWithTypeSpec,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 

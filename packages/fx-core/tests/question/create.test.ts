@@ -4421,7 +4421,7 @@ describe("scaffold question", () => {
         });
         const res = await generatorHelper.getGraphConnectors();
         assert.equal(res[0].id, "fakeId");
-        assert.equal(res[0].label, "fakeName");
+        assert.equal(res[0].label, "fakeId");
       });
 
       it("getAccessToken error", async () => {

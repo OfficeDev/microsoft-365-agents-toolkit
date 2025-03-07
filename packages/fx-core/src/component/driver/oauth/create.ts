@@ -18,6 +18,7 @@ import {
   OauthRegistration,
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
 import { loadStateFromEnv } from "../util/utils";
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
@@ -197,6 +198,14 @@ export class CreateOauthDriver implements StepDriver {
     }
 
     if (
+      args.tokenExchangeMethodType &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.BasicAuthorizationHeader &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.PostRequestBody
+    ) {
+      invalidParameters.push("tokenExchangeMethodType");
+    }
+
+    if (
       args.targetAudience &&
       args.targetAudience !== OauthRegistrationTargetAudience.AnyTenant &&
       args.targetAudience !== OauthRegistrationTargetAudience.HomeTenant
@@ -260,6 +269,10 @@ export class CreateOauthDriver implements StepDriver {
       ? (args.applicableToApps as OauthRegistrationAppType)
       : OauthRegistrationAppType.AnyApp;
 
+    const tokenExchangeMethodType = args.tokenExchangeMethodType
+      ? (args.tokenExchangeMethodType as TokenExchangeMethodType)
+      : TokenExchangeMethodType.BasicAuthorizationHeader;
+
     if (args.identityProvider === "MicrosoftEntra") {
       return {
         description: args.name,
@@ -269,6 +282,7 @@ export class CreateOauthDriver implements StepDriver {
         targetAudience: targetAudience,
         clientId: args.clientId,
         identityProvider: "MicrosoftEntra",
+        tokenExchangeMethodType: tokenExchangeMethodType,
       } as OauthRegistration;
     }
 
@@ -286,6 +300,7 @@ export class CreateOauthDriver implements StepDriver {
       tokenRefreshEndpoint: args.refreshUrl ?? authInfo.tokenRefreshEndpoint,
       scopes: authInfo.scopes,
       identityProvider: "Custom",
+      tokenExchangeMethodType: tokenExchangeMethodType,
       // TODO: add this part back after TDP update
       // manageableByUsers: [
       //   {

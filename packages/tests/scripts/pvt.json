@@ -96,7 +96,6 @@
       "remotedebug-chatdata-customapi-py-openai-win-only"
     ],
     "node-18": [
-      "localdebug-obo-tab",
       "treeview-newproject-spfx",
       "treeview-collaboration-spfx",
       "remotedebug-spfxreact-globalpkg",
@@ -107,10 +106,13 @@
       "remotedebug-spfx-none",
       "remotedebug-spfx-minimal",
       "remotedebug-spfx-react"
+    ],
+    "node-22": [
+      "localdebug-obo-tab"
     ]
   },
   "ubuntu-latest": {
-    "node-18": [
+    "node-22": [
       "treeview-invalidname",
       "localdebug-bot",
       "localdebug-command-and-response",
@@ -144,12 +146,6 @@
       "localdebug-link-unfurling-ts",
       "localdebug-msg-newapi",
       "localdebug-msg-newapi-ts",
-      "remotedebug-spfx-publish",
-      "treeview-spfx-manifest",
-      "localdebug-spfx-minimal",
-      "localdebug-spfx-none",
-      "localdebug-spfx",
-      "localdebug-spfx-import-multiple",
       "localdebug-msg-newapi-apikey-ts",
       "localdebug-msg-newapi-apikey",
       "localdebug-msg-newapi-microsoftentra-ts",
@@ -178,14 +174,24 @@
       "samelevel-localization",
       "different-level-localization"
     ],
-    "node-20": ["localdebug-obo-tab"]
+    "node-20": ["localdebug-obo-tab"],
+    "node-18": [      
+      "remotedebug-spfx-publish",
+      "treeview-spfx-manifest",
+      "localdebug-spfx-minimal",
+      "localdebug-spfx-none",
+      "localdebug-spfx",
+      "localdebug-spfx-import-multiple"
+    ]
   },
   "macos-latest": {
-    "node-18": [
+    "node-22": [
       "localdebug-bot",
       "localdebug-command-and-response",
       "localdebug-notification-func",
-      "localdebug-notification-express",
+      "localdebug-notification-express"
+    ],
+    "node-18": [
       "treeview-collaboration-spfx"
     ]
   }

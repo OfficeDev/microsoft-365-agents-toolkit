@@ -14,4 +14,5 @@ export interface CreateOauthArgs {
   refreshUrl?: string; // Refresh url
   isPKCEEnabled?: boolean; // Whether PKCE is enabled
   identityProvider?: string; // Identity provider
+  tokenExchangeMethodType?: string; // Token exchange method type
 }

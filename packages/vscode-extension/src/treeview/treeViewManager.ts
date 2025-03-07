@@ -335,13 +335,6 @@ class TreeViewManager {
         "deploy",
         { name: "cloud-upload", custom: false }
       ),
-      new TreeViewCommand(
-        localize("teamstoolkit.commandsTreeViewProvider.publishTitle"),
-        localize("teamstoolkit.commandsTreeViewProvider.publishDescription"),
-        "fx-extension.publish",
-        "publish",
-        { name: "export", custom: false }
-      ),
       ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)
         ? [
             new TreeViewCommand(
@@ -353,6 +346,13 @@ class TreeViewManager {
             ),
           ]
         : []),
+      new TreeViewCommand(
+        localize("teamstoolkit.commandsTreeViewProvider.publishTitle"),
+        localize("teamstoolkit.commandsTreeViewProvider.publishDescription"),
+        "fx-extension.publish",
+        "publish",
+        { name: "export", custom: false }
+      ),
     ];
 
     const deployProvider = new CommandsTreeViewProvider(deployCommand);
