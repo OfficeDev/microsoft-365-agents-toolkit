@@ -1009,5 +1009,10 @@
   "core.addKnowledgeQuestion.searchType.oneDriveSharepoint": "Search all content within your organization",
   "core.addKnowledgeQuestion.searchType.url": "Search by URL",
   "core.createProjectQuestion.apiPlugin.typeSpec.label": "Start with TypeSpec",
-  "core.createProjectQuestion.apiPlugin.typeSpec.detail": "Create your action with TypeSpec"
+  "core.createProjectQuestion.apiPlugin.typeSpec.detail": "Create your action with TypeSpec",
+  "driver.typeSpec.compile.start": "Executing action %s",
+  "driver.typespec.error.noSpecError": "No OpenApi spec found. Please make sure your TypeSpec files are valid and try again.",
+  "driver.typespec.error.noActionError": "No action found in declarativeAgent.json. Please make sure your TypeSpec files are valid and try again.",
+  "driver.typespec.error.multipleActionError": "More than one action found in declarativeAgent.json. Please make sure your TypeSpec files are valid and try again.",
+  "driver.typeSpec.progressBar": "Compiling TypeSpe files and generating files..."
 }

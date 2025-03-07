@@ -37,3 +37,4 @@ import "./apiKey/update";
 import "./oauth/create";
 import "./oauth/update";
 import "./share/shareToOthers";
+import "./typeSpec/compile";
