@@ -1012,7 +1012,7 @@ export async function createNewProject(
       await driver.sleep(Timeout.input);
       await input.selectQuickPick("Add an Action");
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Start With a New API");
+      await input.selectQuickPick("Start with a New API");
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(authOption);
       await driver.sleep(Timeout.input);
