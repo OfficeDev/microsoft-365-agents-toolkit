@@ -69,7 +69,16 @@ export class CreateAppPackageDriver implements StepDriver {
       return err(result.error);
     }
 
-    let manifestPath = args.manifestPath;
+    // TODO: use constant after previous pr merged
+    const generatedFolder = path.join(context.projectPath, "appPackage", ".generated");
+    const hasTTKGeneratedFolder =
+      featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec) &&
+      fs.existsSync(generatedFolder) &&
+      fs.existsSync(path.join(generatedFolder, "manifest.json"));
+
+    let manifestPath = hasTTKGeneratedFolder
+      ? path.join(generatedFolder, "manifest.json")
+      : args.manifestPath;
     if (!path.isAbsolute(manifestPath)) {
       manifestPath = path.join(context.projectPath, manifestPath);
     }
@@ -101,7 +110,7 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     await fs.mkdir(jsonFileDir, { recursive: true });
 
-    const appDirectory = path.dirname(manifestPath);
+    const appDirectory = path.dirname(hasTTKGeneratedFolder ? generatedFolder : manifestPath);
 
     const colorFile = path.resolve(appDirectory, manifest.icons.color);
     if (!(await fs.pathExists(colorFile))) {
@@ -286,7 +295,10 @@ export class CreateAppPackageDriver implements StepDriver {
       : manifest.copilotAgents?.declarativeAgents;
     // Copilot GPT
     if (declarativeCopilots?.length && declarativeCopilots[0].file) {
-      const declarativeAgentManifestFile = path.resolve(appDirectory, declarativeCopilots[0].file);
+      const declarativeAgentManifestFile = path.resolve(
+        hasTTKGeneratedFolder ? generatedFolder : appDirectory,
+        declarativeCopilots[0].file
+      );
       const checkExistenceRes = await this.validateReferencedFile(
         declarativeAgentManifestFile,
         appDirectory
@@ -323,13 +335,16 @@ export class CreateAppPackageDriver implements StepDriver {
               pluginFile
             );
 
-            const pluginFileRelativePath = path.relative(appDirectory, pluginFileAbsolutePath);
+            const pluginFileRelativePath = path.relative(
+              hasTTKGeneratedFolder ? generatedFolder : appDirectory,
+              pluginFileAbsolutePath
+            );
             const useForwardSlash = declarativeCopilots[0].file.concat(pluginFile).includes("/");
 
             const addPluginRes = await this.addPlugin(
               zip,
               normalizePath(pluginFileRelativePath, useForwardSlash),
-              appDirectory,
+              hasTTKGeneratedFolder ? generatedFolder : appDirectory,
               context,
               !shouldwriteAllManifest ? undefined : jsonFileDir
             );

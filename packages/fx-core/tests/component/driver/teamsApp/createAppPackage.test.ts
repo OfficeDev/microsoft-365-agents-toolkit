@@ -55,6 +55,51 @@ describe("teamsApp/createAppPackage", async () => {
     }
   });
 
+  it("happy path - with .generated folder", async () => {
+    mockedEnvRestore = mockedEnv({
+      TEAMSFX_TYPESPEC: "true",
+      ["CONFIG_TEAMS_APP_NAME"]: "fakeName",
+      [openapiServerPlaceholder]: fakeUrl,
+    });
+
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          file: "resources/declarativeAgent.json",
+          id: "dc1",
+        },
+      ],
+    };
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "chmod").callsFake(async () => {});
+    sinon.stub(fs, "readJSON").callsFake((filePath) => {
+      const data = fs.readFileSync(filePath.replace(/\/.generated/, ""), "utf-8");
+      return JSON.parse(data);
+    });
+    const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    if (result.isErr()) {
+      console.log(result.error);
+    }
+    chai.assert.isTrue(result.isOk());
+    delete process.env["APP_NAME_SUFFIX"];
+    await fs.remove(args.outputZipPath);
+  });
+
   it("should throw error if file not exists case 1", async () => {
     const args: CreateAppPackageArgs = {
       manifestPath: "fakepath",
