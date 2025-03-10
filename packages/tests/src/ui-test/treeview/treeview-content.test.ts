@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+/**
+ * @author Helly Zhang <v-helzha@microsoft.com>
+ */
 import { expect } from "chai";
 import { TreeViewTestContext, checkSectionContent } from "./treeviewContext";
 import { Timeout, TreeViewCommands } from "../../utils/constants";

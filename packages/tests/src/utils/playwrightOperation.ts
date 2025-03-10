@@ -1596,6 +1596,16 @@ export async function validatePrompt(
       `iframe[title="Copilot"]`
     );
     const frame = await frameElementHandle?.contentFrame();
+    try {
+      console.log("Click See more button:");
+      const seeMore = await frame?.waitForSelector(
+        `button:has-text("See more")`
+      );
+      await seeMore?.click();
+      console.log("Loaded more agents:");
+    } catch {
+      console.log("No See more button:");
+    }
     const copilotAgent = frame?.getByLabel(`${copilotAgentName}`).first();
     await copilotAgent?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
