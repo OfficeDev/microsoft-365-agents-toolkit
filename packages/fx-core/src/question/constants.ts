@@ -1381,4 +1381,12 @@ export class KnowledgeSearchTypeOptions {
       label: getLocalizedString("core.addKnowledgeQuestion.searchType.oneDriveSharepoint"),
     };
   }
+  static all(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSearchTypeOptions.url(),
+      KnowledgeSearchTypeOptions.allWeb(),
+      KnowledgeSearchTypeOptions.allOneDriveSharepoint(),
+    ];
+    return items;
+  }
 }

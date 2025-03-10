@@ -24,11 +24,13 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     type: "string",
     description: "Select Search Type",
     required: true,
+    default: "url",
+    choices: ["url", "all-web", "all-oneDrive-sharePoint"],
   },
   {
     name: "web-content",
     type: "string",
-    description: "Name of Web Content.",
+    description: "An absolute URL to a site to be searched for content.",
   },
   {
     name: "teams-manifest-file",

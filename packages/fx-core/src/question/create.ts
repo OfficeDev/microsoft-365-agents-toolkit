@@ -1509,7 +1509,7 @@ export function webContentQuestion(): TextInputQuestion {
     title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
     placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
     type: "text",
-    cliDescription: "Name of Web Content.",
+    cliDescription: "An absolute URL to a site to be searched for content.",
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!inputs) {
@@ -1530,9 +1530,10 @@ export function searchTypeQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.SearchType,
     title: getLocalizedString("core.addKnowledgeQuestion.searchType.title"),
-    staticOptions: [],
+    staticOptions: KnowledgeSearchTypeOptions.all(),
     type: "singleSelect",
     required: true,
+    default: KnowledgeSearchTypeOptions.url().id,
     dynamicOptions: (inputs: Inputs) => {
       const options = [KnowledgeSearchTypeOptions.url()];
       if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {

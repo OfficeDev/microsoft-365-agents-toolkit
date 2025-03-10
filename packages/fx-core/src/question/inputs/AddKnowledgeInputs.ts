@@ -18,7 +18,7 @@ export interface AddKnowledgeInputs extends Inputs {
     | "graph-connector"
     | "embedded-knowledge";
   /** @description Select Search Type */
-  "search-type"?: string;
+  "search-type"?: "url" | "all-web" | "all-oneDrive-sharePoint";
   /** @description Web Content */
   "web-content"?: string;
   /** @description Select Teams manifest.json File */
