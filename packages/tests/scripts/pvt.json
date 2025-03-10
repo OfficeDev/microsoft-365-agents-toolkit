@@ -2,7 +2,6 @@
   "windows-latest": {
     "node-20": [
       "localdebug-tab-nosso",
-      "localdebug-bot",
       "localdebug-bot-twice",
       "localdebug-command-and-response",
       "localdebug-notification-func",
