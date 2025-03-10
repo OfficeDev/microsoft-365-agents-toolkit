@@ -40,7 +40,7 @@ export const helpCommand: CLICommand = {
 export const rootCommand: CLICommand = {
   name: "teamsapp",
   fullName: "teamsapp",
-  description: "Microsoft 3 Toolkit CLI.",
+  description: "Microsoft 365 Agents Toolkit CLI.",
   version: getVersion(),
   footer: FooterText,
   commands: [
