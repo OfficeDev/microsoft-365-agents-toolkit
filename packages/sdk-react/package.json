@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx-react",
-  "version": "4.0.0",
+  "version": "4.0.1-rc.0",
   "description": "React helper functions for Microsoft TeamsFx",
   "main": "build/cjs/index.js",
   "module": "build/esm/index.js",

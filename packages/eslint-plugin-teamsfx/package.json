@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/eslint-plugin-teamsfx",
-  "version": "0.0.5",
+  "version": "0.0.6-rc.0",
   "description": "eslint for teamsfx",
   "keywords": [
     "eslint",
@@ -21,10 +21,10 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
-    "eslint-plugin-header": "^3.1.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-eslint-plugin": "^4.0.1",
+    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-no-secrets": "^0.8.9",

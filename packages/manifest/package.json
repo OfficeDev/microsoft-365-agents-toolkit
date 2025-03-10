@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams-manifest",
-  "version": "0.1.8",
+  "version": "0.1.9-rc.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
