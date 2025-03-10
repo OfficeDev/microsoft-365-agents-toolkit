@@ -90,6 +90,10 @@ export enum TelemetryProperty {
   MOSPATH = "mos-api-path",
 
   AddAuthType = "add-auth-type",
+
+  MosTitleId = "mos-title-id",
+  MosAppId = "mos-app-id",
+  IsDeclarativeAgent = "is-declarative-agent",
 }
 
 export const TelemetryConstants = {
@@ -167,6 +171,7 @@ export enum TelemetryEvent {
   ViewPluginManifestAfterAdded = "view-plugin-manifest-after-added",
   AddAuthAction = "add-auth-action",
   ViewAgentManifestAfterAdded = "view-agent-manifest-after-added",
+  MosSideloadEnd = "mos-sideload-end",
 }
 
 export enum ProjectTypeProps {
