@@ -110,7 +110,7 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     await fs.mkdir(jsonFileDir, { recursive: true });
 
-    const appDirectory = path.dirname(manifestPath);
+    const appDirectory = path.dirname(hasTTKGeneratedFolder ? generatedFolder : manifestPath);
 
     const colorFile = path.resolve(appDirectory, manifest.icons.color);
     if (!(await fs.pathExists(colorFile))) {
