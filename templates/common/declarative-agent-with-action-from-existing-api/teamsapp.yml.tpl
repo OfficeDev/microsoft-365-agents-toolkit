@@ -42,6 +42,8 @@ provision:
       appId: ${{TEAMS_APP_ID}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
+      # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
+      # tokenExchangeMethodType: BasicAuthorizationHeader
       # Uncomment below property to use proof key for code exchange (PKCE)
       # isPKCEEnabled: true
     writeToEnvironmentFile:
