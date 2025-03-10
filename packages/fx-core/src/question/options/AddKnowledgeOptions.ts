@@ -23,6 +23,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     name: "search-type",
     type: "string",
     description: "Select Search Type",
+    required: true,
   },
   {
     name: "web-content",
@@ -36,13 +37,13 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     shortName: "t",
     description:
       "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    required: true,
     default: "./appPackage/manifest.json",
   },
   {
     name: "oneDriveSharePointURL",
     type: "string",
     description: "OneDrive or SharePoint Content",
-    required: true,
   },
   {
     name: "oneDriveSharePointContent",

@@ -1370,6 +1370,7 @@ export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSe
     cliDescription: "Knowledge source.",
     staticOptions: KnowledgeSourceOptions.all(),
     default: KnowledgeSourceOptions.webSearch().id,
+    required: true,
     dynamicOptions: (inputs: Inputs) => {
       return KnowledgeSourceOptions.allWithFeatureFlags();
     },
@@ -1402,7 +1403,6 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
     name: QuestionNames.OneDriveSharePointURL,
     title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
     forgetLastValue: true,
-    required: true,
     additionalValidationOnAccept: {
       validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
         if (!isValidHttpUrl(input.trim())) {
@@ -1532,6 +1532,7 @@ export function searchTypeQuestion(): SingleSelectQuestion {
     title: getLocalizedString("core.addKnowledgeQuestion.searchType.title"),
     staticOptions: [],
     type: "singleSelect",
+    required: true,
     dynamicOptions: (inputs: Inputs) => {
       const options = [KnowledgeSearchTypeOptions.url()];
       if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {
