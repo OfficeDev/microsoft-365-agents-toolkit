@@ -1,6 +1,6 @@
 # VS Code UI
 
-The package implements shared capabilities for User Interactions of Teams Toolkit IDE Extensions through API contracts defined in the [api](/packages/api).
+The package implements shared capabilities for User Interactions of Microsoft 365 Agents Toolkit IDE Extensions through API contracts defined in the [api](/packages/api).
 
 ## Data Collection.
 

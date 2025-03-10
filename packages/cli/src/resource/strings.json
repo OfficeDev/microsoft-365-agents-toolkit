@@ -20,12 +20,12 @@
         "SignInSuccess": "Microsoft 365 Account (%s) is signed in and custom app upload permission is enabled."
       },
       "node" : {
-        "NotFound": "Cannot find Node.js. Node.js used for developing Teams apps with JavaScript or TypeScript using Teams Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
+        "NotFound": "Cannot find Node.js. Node.js used for developing Teams apps with JavaScript or TypeScript using Microsoft 365 Agents Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
         "NotSupported": "Node.js (%s) is not the officially supported version (%s). Your project may continue to work but we recommend to install the supported version.",
         "Success": "Node.js version (%s) is installed."
       },
       "dotnet" : {
-        "NotFound": "Cannot find .NET Core SDK. .NET Core SDK is used for developing Teams app in C# using Teams Toolkit for Visual Studio. Visit https://dotnet.microsoft.com/en-us/download to install the LTS version.",
+        "NotFound": "Cannot find .NET Core SDK. .NET Core SDK is used for developing Teams app in C# using Microsoft 365 Agents Toolkit for Visual Studio. Visit https://dotnet.microsoft.com/en-us/download to install the LTS version.",
         "NotSupported": ".NET Core SDK (%s) is not the officially supported version (%s).",
         "Success": ".NET Core SDK version (%s) is installed."
       },
@@ -42,7 +42,7 @@
     },
     "add":{
       "auth-config": {
-        "notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml) files with added action to support authentication flow. You can proceed to remote provision."
+        "notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml) files with added action to support authentication flow. You can proceed to remote provision."
       }
     }
   }

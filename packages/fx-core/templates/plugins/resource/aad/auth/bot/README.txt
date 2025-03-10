@@ -168,15 +168,15 @@ Debug your application
 -------------------------
 You can debug your application by:
 
-1. Right-click your project and select Teams Toolkit > Prepare Teams app dependencies
+1. Right-click your project and select Microsoft 365 Agents Toolkit > Prepare Teams app dependencies
 2. If prompted, sign in with an M365 account for the Teams organization you want 
 to install the app to
 3. Press F5, or select the Debug > Start Debugging menu in Visual Studio
 4. In the launched browser, select the Add button to load the app in Teams
 
-Teams Toolkit will use the Microsoft Entra manifest file to register a Microsoft Entra application registered for SSO.
+Microsoft 365 Agents Toolkit will use the Microsoft Entra manifest file to register a Microsoft Entra application registered for SSO.
 
-To learn more about Teams Toolkit local debug functionalities, refer to https://docs.microsoft.com/microsoftteams/platform/toolkit/debug-local.
+To learn more about Microsoft 365 Agents Toolkit local debug functionalities, refer to https://docs.microsoft.com/microsoftteams/platform/toolkit/debug-local.
 
 Customize Microsoft Entra applications
 -------------------------

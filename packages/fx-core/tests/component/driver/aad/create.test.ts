@@ -787,7 +787,7 @@ describe("aadAppCreate", async () => {
     expect(result.result._unsafeUnwrap().size).to.equal(6);
     expect(result.summaries.length).to.equal(2);
     expect(result.summaries[0]).includes(
-      `Teams toolkit will delete the Microsoft Entra application after debugging`
+      `Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging`
     );
   });
 
@@ -836,7 +836,7 @@ describe("aadAppCreate", async () => {
       `Generated client secret for Microsoft Entra application with object id ${expectedObjectId}`
     );
     expect(result.summaries).not.includes(
-      "Teams toolkit will delete the Microsoft Entra application after debugging"
+      "Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging"
     );
   });
 

@@ -19,7 +19,7 @@ const cachePathEnd = ".json";
 const azureSPPath = os.homedir + `/.${ConfigFolderName}/account/azure.sp`;
 
 // the friendly service name to store secret in keytar
-const serviceName = "Microsoft Teams Toolkit";
+const serviceName = "Microsoft Microsoft 365 Agents Toolkit";
 
 export const UTF8 = "utf8";
 

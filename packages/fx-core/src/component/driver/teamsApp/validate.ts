@@ -211,7 +211,7 @@ export class ValidateManifestDriver implements StepDriver {
         const outputMessage: Array<{ content: string; color: Colors }> = [
           {
             content:
-              "Teams Toolkit has checked manifest(s) with corresponding schema:\n\nSummary: \n",
+              "Microsoft 365 Agents Toolkit has checked manifest(s) with corresponding schema:\n\nSummary: \n",
             color: Colors.BRIGHT_WHITE,
           },
           {
@@ -368,7 +368,7 @@ export class ValidateManifestDriver implements StepDriver {
           const outputMessage: Array<{ content: string; color: Colors }> = [
             {
               content:
-                "Teams Toolkit has completed checking your app package against validation rules. " +
+                "Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. " +
                 summaryStr +
                 ".",
               color: Colors.BRIGHT_GREEN,

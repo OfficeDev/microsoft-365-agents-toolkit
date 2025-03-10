@@ -20,6 +20,6 @@ export const AddFeatureFunc = {
   method: Stage.addFeature,
 };
 
-export const FooterText = `For more information about the Teams Toolkit: ${chalk.cyanBright(
+export const FooterText = `For more information about the Microsoft 365 Agents Toolkit: ${chalk.cyanBright(
   "https://aka.ms/teamsfx-toolkit-cli"
 )}.`;

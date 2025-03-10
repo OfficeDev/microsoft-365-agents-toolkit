@@ -108,7 +108,8 @@ export class ValidateAppPackageDriver implements StepDriver {
       if (context.platform === Platform.CLI) {
         const outputMessage: Array<{ content: string; color: Colors }> = [
           {
-            content: "Teams Toolkit has checked against all validation rules:\n\nSummary: \n",
+            content:
+              "Microsoft 365 Agents Toolkit has checked against all validation rules:\n\nSummary: \n",
             color: Colors.BRIGHT_WHITE,
           },
         ];
@@ -201,7 +202,7 @@ export class ValidateAppPackageDriver implements StepDriver {
         });
         context.ui?.showMessage("info", outputMessage, false);
         if (validationResult.errors.length > 0) {
-          const message = `Teams Toolkit has completed checking your app package against validation rules. ${validationResult.errors.length} failed.`;
+          const message = `Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. ${validationResult.errors.length} failed.`;
           return err(
             AppStudioResultFactory.UserError(AppStudioError.ValidationFailedError.name, [
               message,

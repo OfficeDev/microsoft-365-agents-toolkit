@@ -30,7 +30,7 @@ export function validateProjectSettings(projectSettings: any): string | undefine
   }
 
   if (projectSettings?.solutionSettings?.migrateFromV1) {
-    return "The project created before v2.0.0 is only supported in the Teams Toolkit before v3.4.0.";
+    return "The project created before v2.0.0 is only supported in the Microsoft 365 Agents Toolkit before v3.4.0.";
   }
 
   return undefined;
