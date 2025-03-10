@@ -1,8 +1,8 @@
-# Contributing to Microsoft 365 Toolkit CLI 
+# Contributing to Microsoft 365 Agents Toolkit CLI 
 
-Welcome, and thank you for your interest in contributing to Microsoft 365 Toolkit CLI!
+Welcome, and thank you for your interest in contributing to Microsoft 365 Agents Toolkit CLI!
 
-Please review this document for setting up your development environment, debugging and run Microsoft 365 Toolkit CLI. If you have any questions, please raise your issue on github.
+Please review this document for setting up your development environment, debugging and run Microsoft 365 Agents Toolkit CLI. If you have any questions, please raise your issue on github.
 
 ## Prerequisites
 ---
@@ -11,10 +11,10 @@ Verify you have the right prerequisites for building Teams apps:
 
 ### M365 account
 
-The Microsoft 365 Toolkit CLI requires a Microsoft 365 organizationl account where Teams is running and has been registered.
+The Microsoft 365 Agents Toolkit CLI requires a Microsoft 365 organizationl account where Teams is running and has been registered.
 
 ### Azure account
-The Microsoft 365 Toolkit CLI may require an Azure account and subscription to deploy the Azure resources for your project.
+The Microsoft 365 Agents Toolkit CLI may require an Azure account and subscription to deploy the Azure resources for your project.
 
 **_NOTE:_** Don't have a M365 to experience building Teams app? Sign up for [M365 Developer Program](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant), which allows you to have a testing tenant with preconfigured permissions.
 

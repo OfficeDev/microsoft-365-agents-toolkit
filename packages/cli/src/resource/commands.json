@@ -1,9 +1,9 @@
 {
   "root": {
-    "description": "Microsoft 365 Toolkit CLI.",
+    "description": "Microsoft 365 Agents Toolkit CLI.",
     "options": {
-      "version": "Display Microsoft 365 Toolkit CLI version.",
-      "help": "Show Microsoft 365 Toolkit CLI help.",
+      "version": "Display Microsoft 365 Agents Toolkit CLI version.",
+      "help": "Show Microsoft 365 Agents Toolkit CLI help.",
       "interactive": "Run the command in interactive mode.",
       "debug": "Print debug information.",
       "verbose": "Print diagnostic information.",
@@ -11,7 +11,7 @@
     }
   },
   "help": {
-    "description": "Show Microsoft 365 Toolkit CLI help.",
+    "description": "Show Microsoft 365 Agents Toolkit CLI help.",
     "arguments": {
       "command": "The command to get help for."
     }
