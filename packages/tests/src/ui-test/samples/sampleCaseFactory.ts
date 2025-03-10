@@ -401,7 +401,13 @@ export abstract class CaseFactory {
               dev: async () => {
                 await sampledebugContext.provisionProject(
                   sampledebugContext.appName,
-                  sampledebugContext.projectPath
+                  sampledebugContext.projectPath,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  "DeprecationWarning"
                 );
                 if (options?.container) {
                   await Executor.login();
