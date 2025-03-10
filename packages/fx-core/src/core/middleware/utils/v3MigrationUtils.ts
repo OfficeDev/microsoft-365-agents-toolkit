@@ -140,11 +140,11 @@ export function outputCancelMessage(version: string, platform: Platform): void {
     );
   } else {
     TOOLS?.logProvider.warning(
-      `Notice upgrade to new configuration files is a must-have to continue to use current version Teams Toolkit CLI. Get more info at ${MetadataV3.v3UpgradeWikiLink}.`
+      `Notice upgrade to new configuration files is a must-have to continue to use current version Microsoft 365 Toolkit CLI. Get more info at ${MetadataV3.v3UpgradeWikiLink}.`
     );
     TOOLS?.logProvider.warning(`If you want to upgrade, please trigger this command again.`);
     TOOLS?.logProvider.warning(
-      `If you are not ready to upgrade, please continue to use the old version Teams Toolkit CLI ${MetadataV2.platformVersion[platform]}.`
+      `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Toolkit CLI ${MetadataV2.platformVersion[platform]}.`
     );
   }
 }

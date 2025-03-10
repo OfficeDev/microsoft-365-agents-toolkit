@@ -1,6 +1,6 @@
-# Teams Toolkit CLI (Command Line Tool)
+# Microsoft 365 Toolkit CLI (Command Line Tool)
 
-Teams Toolkit CLI is a text-based command line interface that can help scaffold, validate, and deploy applications for Microsoft Teams from the terminal or a CI/CD process.
+Microsoft 365 Toolkit CLI is a text-based command line interface that can help scaffold, validate, and deploy applications for Microsoft Teams from the terminal or a CI/CD process.
 
 ![CLI](https://aka.ms/cli-hero-image)
 
@@ -14,7 +14,7 @@ $ teamsapp -h
 ```
 
 > [!NOTE]
-> Please refer to [Teams Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
+> Please refer to [Microsoft 365 Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
 
 ## Feedback
 

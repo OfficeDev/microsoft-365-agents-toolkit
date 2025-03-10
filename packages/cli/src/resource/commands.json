@@ -1,9 +1,9 @@
 {
   "root": {
-    "description": "Microsoft Teams Toolkit CLI.",
+    "description": "Microsoft 365 Toolkit CLI.",
     "options": {
-      "version": "Display Microsoft Teams Toolkit CLI version.",
-      "help": "Show Microsoft Teams Toolkit CLI help.",
+      "version": "Display Microsoft 365 Toolkit CLI version.",
+      "help": "Show Microsoft 365 Toolkit CLI help.",
       "interactive": "Run the command in interactive mode.",
       "debug": "Print debug information.",
       "verbose": "Print diagnostic information.",
@@ -11,7 +11,7 @@
     }
   },
   "help": {
-    "description": "Show Microsoft Teams Toolkit CLI help.",
+    "description": "Show Microsoft 365 Toolkit CLI help.",
     "arguments": {
       "command": "The command to get help for."
     }

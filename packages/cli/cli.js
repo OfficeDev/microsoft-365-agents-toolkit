@@ -9,7 +9,7 @@ process.on("uncaughtException", (err) => {
   if (err.message.includes("async_hooks")) {
     console.error(
       chalk.redBright(
-        "Teams Toolkit CLI requires to use node version higher than 14.x, please update your node version."
+        "Microsoft 365 Toolkit CLI requires to use node version higher than 14.x, please update your node version."
       )
     );
   } else {
