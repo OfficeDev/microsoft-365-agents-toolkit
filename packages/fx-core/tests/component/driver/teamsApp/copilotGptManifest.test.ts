@@ -1285,6 +1285,7 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isErr());
 
       res = await copilotGptManifestUtils.addWebSearchCapability(
+        context,
         "fake agent manifest path",
         null,
         err(new UserError("fake error", "fake error", "fake error", "fake error"))

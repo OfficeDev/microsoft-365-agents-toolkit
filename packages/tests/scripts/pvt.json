@@ -2,7 +2,6 @@
   "windows-latest": {
     "node-20": [
       "localdebug-tab-nosso",
-      "localdebug-bot",
       "localdebug-bot-twice",
       "localdebug-command-and-response",
       "localdebug-notification-func",
@@ -93,7 +92,8 @@
       "remotedebug-chatdata-customapi-ts-azureopenai-win-only",
       "remotedebug-chatdata-customapi-ts-openai-win-only",
       "remotedebug-chatdata-customapi-py-azureopenai-win-only",
-      "remotedebug-chatdata-customapi-py-openai-win-only"
+      "remotedebug-chatdata-customapi-py-openai-win-only",
+      "remotedebug-da-action-none-ts"
     ],
     "node-18": [
       "treeview-newproject-spfx",
