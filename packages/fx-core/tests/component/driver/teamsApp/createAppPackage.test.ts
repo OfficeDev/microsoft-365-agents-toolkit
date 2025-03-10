@@ -85,13 +85,19 @@ describe("teamsApp/createAppPackage", async () => {
     };
     sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
     sinon.stub(fs, "chmod").callsFake(async () => {});
-    sinon.stub(fs, "readJSON").callsFake((filePath) => {
-      const data = fs.readFileSync(filePath.replace(/\/.generated/, ""), "utf-8");
-      return JSON.parse(data);
-    });
+    sinon.stub(fs, "existsSync").returns(true);
+    sinon.stub(fs, "pathExists").resolves(true);
     const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
-    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    const driverContext: any = {
+      m365TokenProvider: new MockedM365Provider(),
+      projectPath: "./tests/plugins/resource/appstudio/resources-multi-env/templates/",
+      platform: Platform.VSCode,
+      logProvider: new MockedLogProvider(),
+      ui: new MockedUserInteraction(),
+      addTelemetryProperties: () => {},
+    };
+    const result = (await teamsAppDriver.execute(args, driverContext)).result;
     if (result.isErr()) {
       console.log(result.error);
     }
