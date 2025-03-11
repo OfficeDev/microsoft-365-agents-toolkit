@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import {
@@ -113,7 +113,7 @@ export function isTdpTemplate(inputs: Inputs): boolean {
   return template !== undefined;
 }
 
-export function createFromTdpNode(): IQTreeNode {
+export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeNode {
   const node: IQTreeNode = {
     condition: isTdpTemplate,
     data: { type: "group" },
@@ -141,11 +141,11 @@ export function createFromTdpNode(): IQTreeNode {
           title: getLocalizedString("core.createProjectQuestion.title"),
           type: "singleSelect",
           staticOptions: [
-            ProjectTypeOptions.declarativeAgent(),
-            ProjectTypeOptions.customEngineAgent(),
-            ProjectTypeOptions.bot(),
-            ProjectTypeOptions.tab(),
-            ProjectTypeOptions.me(),
+            ProjectTypeOptions.declarativeAgent(platform),
+            ProjectTypeOptions.customEngineAgent(platform),
+            ProjectTypeOptions.bot(platform),
+            ProjectTypeOptions.tab(platform),
+            ProjectTypeOptions.me(platform),
           ],
         },
         children: [
