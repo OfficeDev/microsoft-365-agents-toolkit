@@ -7,10 +7,12 @@ import { hooks } from "@feathersjs/hooks";
 import { ErrorContextMW } from "../common/globalVars";
 import { getDefaultString } from "../common/localizeUtils";
 
+export const listSensitivityLabelScope = "InformationProtectionPolicy.Read";
+
 const graphAPIEndpoint = "https://graph.microsoft.com";
-const listSensitivityLabelScope = "InformationProtectionPolicy.Read";
 const listSensitivityLabelAPIPath = "/beta/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
+const GeneralLabelDisplayName = "General";
 
 export class SensitivityLabel {
   id?: string;
@@ -59,6 +61,12 @@ export class GraphAPIClient {
           description: undefined,
           displayName: "Public",
         },
+        {
+          id: "f42aa342-8706-4288-bd11-ebb85995028c",
+          name: "Internal",
+          description: "Billjo - Removed footer from label",
+          displayName: "General",
+        },
       ]);
     }
     try {
@@ -99,4 +107,30 @@ export class GraphAPIClient {
       );
     }
   }
+
+  async getGeneralSentivityLabelId(token: string, mock = false): Promise<Result<string, FxError>> {
+    const result = await this.listSensitivityLabels(token, mock);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+    const labels = result.value;
+    const generalLabel = labels.find((label) => label.displayName === GeneralLabelDisplayName);
+    if (generalLabel && generalLabel.id) {
+      return ok(generalLabel.id);
+    } else {
+      return err(
+        new SystemError({
+          name: "getGeneralSentivityLabelIdError",
+          message: getDefaultString(
+            "error.graphAPI.apiFailed.message",
+            "getGeneralSentivityLabelId",
+            "General label not found"
+          ),
+          source: errorSourceName,
+        })
+      );
+    }
+  }
 }
+
+export const graphAPIClient = new GraphAPIClient();

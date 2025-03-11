@@ -33,6 +33,13 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
+import {
+  graphAPIClient,
+  GraphAPIClient,
+  listSensitivityLabelScope,
+} from "../../../client/graphAPIClient";
+import { getSPFxToken } from "../../../common/tools";
+import { getDefaultString } from "../../../common/localizeUtils";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -120,6 +127,10 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       if (declarativeCopilotManifestPathRes.isErr()) {
         return err(declarativeCopilotManifestPathRes.error);
       }
+
+      // best-effort
+      await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value, false);
+
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],
@@ -142,6 +153,60 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       }
     } else {
       return ok({});
+    }
+  }
+
+  async setGeneralSensitivityLabel(
+    context: Context,
+    declarativeAgentManifestPath: string,
+    mock = false
+  ): Promise<void> {
+    let generalLabelId = "";
+    if (mock) {
+      const res = await graphAPIClient.getGeneralSentivityLabelId("", true);
+      if (res.isErr()) {
+        return;
+      }
+      generalLabelId = res.value;
+    } else {
+      const tokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+        scopes: [listSensitivityLabelScope],
+      });
+      if (!tokenRes || tokenRes.isErr()) {
+        context.logProvider?.info(
+          getDefaultString("error.listSensitivityLabel.tokenFailed", tokenRes?.error.message)
+        );
+        return;
+      }
+      const result = await graphAPIClient.getGeneralSentivityLabelId(tokenRes.value);
+      if (result.isErr()) {
+        throw result.error;
+      }
+      generalLabelId = result.value;
+    }
+    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifestRes.isErr()) {
+      context.logProvider?.info(
+        getDefaultString(
+          "error.readDeclarativeAgentManifest.failed",
+          declarativeAgentManifestRes.error
+        )
+      );
+      return;
+    }
+    const declarativeAgentManifest = declarativeAgentManifestRes.value;
+    declarativeAgentManifest.sensitivity_label = generalLabelId;
+    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    if (writeRes.isErr()) {
+      context.logProvider?.info(
+        getDefaultString("error.writeDeclarativeAgentManifest.failed", writeRes.error)
+      );
+      return;
     }
   }
 }
