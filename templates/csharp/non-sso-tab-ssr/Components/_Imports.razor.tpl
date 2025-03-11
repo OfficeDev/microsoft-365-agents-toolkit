@@ -9,6 +9,6 @@
 @using {{SafeProjectName}}
 @using {{SafeProjectName}}.Interop.TeamsSDK;
 @using {{SafeProjectName}}.Components
-@using Microsoft.Fast.Components.FluentUI;
+@using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.TeamsFx
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
