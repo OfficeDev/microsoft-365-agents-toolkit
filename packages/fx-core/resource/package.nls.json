@@ -1014,5 +1014,6 @@
   "driver.typespec.error.noSpecError": "No OpenApi spec found. Please make sure your TypeSpec files are valid and try again.",
   "driver.typespec.error.noActionError": "No action found in declarativeAgent.json. Please make sure your TypeSpec files are valid and try again.",
   "driver.typespec.error.multipleActionError": "More than one action found in declarativeAgent.json. Please make sure your TypeSpec files are valid and try again.",
-  "driver.typeSpec.progressBar": "Compiling and generating files..."
+  "driver.typeSpec.progressBar": "Compiling and generating files...",
+  "core.addKnowledge.doubleConfirm": "Performing this action will overwrite your existing manifest file and can't be undone. To keep your existing data, please back it up before proceeding. Would you like to add new content?"
 }
