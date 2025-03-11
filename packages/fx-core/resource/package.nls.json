@@ -221,6 +221,7 @@
   "_error.appstudio.BotProvisionReturnsConflictResult.comment": "This is to describe API call, no need to translate 'Botframework'.",
   "error.appstudio.localizationFile.pathNotDefined": "Localization file not found. Path: %s.",
   "error.appstudio.localizationFile.validationException": "Unable to validate localization file due to errors. File: %s. Error: %s",
+  "error.graphAPI.apiFailed.message": "Failed to call Graph API. API: %s. Error: %s",
   "error.generator.ScaffoldLocalTemplateError": "Unable to scaffold template based on local zip package.",
   "error.generator.TemplateNotFoundError": "Unable to find template: %s.",
   "error.generator.SampleNotFoundError": "Unable to find sample: %s.",
