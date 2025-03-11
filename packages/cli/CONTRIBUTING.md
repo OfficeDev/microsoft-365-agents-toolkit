@@ -7,7 +7,7 @@ Please review this document for setting up your development environment, debuggi
 ## Prerequisites
 ---
 
-Verify you have the right prerequisites for building Teams apps:
+Verify you have the right prerequisites for building Apps for Microsoft 365:
 
 ### M365 account
 

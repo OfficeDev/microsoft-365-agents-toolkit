@@ -83,7 +83,7 @@
     "description": "Run the deploy stage in teamsapp.yml or teamsapp.local.yml."
   },
   "doctor": {
-    "description": "Prerequiste checker for building Microsoft Teams apps."
+    "description": "Prerequiste checker for building Apps for Microsoft 365."
   },
   "entra-app": {
     "description": "Manage the Microsoft Entra app in the current application."

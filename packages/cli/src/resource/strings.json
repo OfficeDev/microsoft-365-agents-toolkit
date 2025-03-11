@@ -20,7 +20,7 @@
         "SignInSuccess": "Microsoft 365 Account (%s) is signed in and custom app upload permission is enabled."
       },
       "node" : {
-        "NotFound": "Cannot find Node.js. Node.js used for developing Teams apps with JavaScript or TypeScript using Microsoft 365 Agents Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
+        "NotFound": "Cannot find Node.js. Node.js used for developing Apps for Microsoft 365 with JavaScript or TypeScript using Microsoft 365 Agents Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
         "NotSupported": "Node.js (%s) is not the officially supported version (%s). Your project may continue to work but we recommend to install the supported version.",
         "Success": "Node.js version (%s) is installed."
       },
