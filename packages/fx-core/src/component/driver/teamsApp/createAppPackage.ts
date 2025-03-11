@@ -548,8 +548,23 @@ export class CreateAppPackageDriver implements StepDriver {
     let tmpPluginFile = pluginFile;
     let tempFolder: string | undefined;
 
+    let namespaceContainsUnderscore = false;
+    if (pluginFileContent.namespace?.includes("_")) {
+      pluginFileContent.namespace = pluginFileContent.namespace.replace(/_/g, "");
+      namespaceContainsUnderscore = true;
+      context.logProvider.warning(
+        getLocalizedString(
+          "plugins.appstudio.createPackage.aiPlugin.containsUnderscore",
+          pluginRelativePath
+        )
+      );
+    }
+
     if (containExternalAdaptiveCard) {
       await updateVersionForTeamsAppYamlFile(context.projectPath);
+    }
+
+    if (namespaceContainsUnderscore || containExternalAdaptiveCard) {
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
