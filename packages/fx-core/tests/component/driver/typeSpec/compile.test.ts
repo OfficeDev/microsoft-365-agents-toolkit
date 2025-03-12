@@ -319,7 +319,7 @@ describe("typeSpecCompilt", async () => {
     }
   });
 
-  it("shoult throw error if no action in da manifest", async () => {
+  it("shoult skip Kiota if no action in da manifest", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
@@ -332,7 +332,9 @@ describe("typeSpecCompilt", async () => {
 
     sandbox.stub(fs, "existsSync").returns(true);
     sandbox.stub(fs, "rmSync").returns();
-    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
+    const runCommandStub = sandbox
+      .stub(mockedDriverContext.ui, "runCommand")
+      .resolves(ok("mockedCommandResult"));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
     sandbox.stub(fs, "readJSON").resolves(pluginManifest);
     sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
@@ -340,38 +342,8 @@ describe("typeSpecCompilt", async () => {
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
-    expect(result.result.isErr()).to.be.true;
-    if (result.result.isErr()) {
-      expect(result.result.error.name).to.be.equal("NoActionError");
-    }
-  });
-
-  it("shoult throw error if action number = 0 in da manifest", async () => {
-    const args: TypeSpecCompileArgs = {
-      path: "mockedPath",
-      manifestPath: "mockedManifestPath",
-    };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
-      id: "mockedId",
-      name: "mockedName",
-      description: "mockedDescription",
-      actions: [],
-    };
-
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "rmSync").returns();
-    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
-    sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox.stub(fs, "readJSON").resolves(pluginManifest);
-    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
-      const dataToWrite = JSON.stringify(data);
-      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
-    });
-    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
-    expect(result.result.isErr()).to.be.true;
-    if (result.result.isErr()) {
-      expect(result.result.error.name).to.be.equal("NoActionError");
-    }
+    expect(result.result.isOk()).to.be.true;
+    expect(runCommandStub.calledOnce).to.be.true;
   });
 
   it("shoult throw error if action number > 1 in da manifest", async () => {

@@ -30,7 +30,6 @@ import {
   helpLink,
 } from "./constants";
 import { NoSpecError } from "./error/noSpecError";
-import { NoActionError } from "./error/noActionError";
 import { MultipleActionError } from "./error/multipleActionError";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
@@ -96,34 +95,15 @@ export class TypeSpecCompileDriver implements StepDriver {
           daManifestFilePath
         )) as DeclarativeCopilotManifestSchema;
         const actions = daManifest.actions;
-        if (!actions || actions.length === 0) {
-          throw new NoActionError(actionName);
-        }
-
-        if (openapiSpecs.length === 1) {
-          // only one openapi spec, the spac name should = openapi.yaml
-          const spec = openapiSpecs[0];
-          if (actions.length > 1) {
-            throw new MultipleActionError(actionName);
-          }
-
-          const pluginManifestName = actions[0].id;
-          await this.generatePluginManifestWithKiota(
-            ctx,
-            outputFolderPath,
-            openApiSpecsFolderPath,
-            spec,
-            pluginManifestName
-          );
-        } else {
-          for (const spec of openapiSpecs) {
-            const action = actions.find((action: any) =>
-              spec.toLowerCase().includes((action.id as string).toLowerCase())
-            );
-            if (!action) {
-              continue;
+        if (actions && actions.length > 0) {
+          if (openapiSpecs.length === 1) {
+            // only one openapi spec, the spac name should = openapi.yaml
+            const spec = openapiSpecs[0];
+            if (actions.length > 1) {
+              throw new MultipleActionError(actionName);
             }
-            const pluginManifestName = action.id;
+
+            const pluginManifestName = actions[0].id;
             await this.generatePluginManifestWithKiota(
               ctx,
               outputFolderPath,
@@ -131,6 +111,23 @@ export class TypeSpecCompileDriver implements StepDriver {
               spec,
               pluginManifestName
             );
+          } else {
+            for (const spec of openapiSpecs) {
+              const action = actions.find((action: any) =>
+                spec.toLowerCase().includes((action.id as string).toLowerCase())
+              );
+              if (!action) {
+                continue;
+              }
+              const pluginManifestName = action.id;
+              await this.generatePluginManifestWithKiota(
+                ctx,
+                outputFolderPath,
+                openApiSpecsFolderPath,
+                spec,
+                pluginManifestName
+              );
+            }
           }
         }
 
