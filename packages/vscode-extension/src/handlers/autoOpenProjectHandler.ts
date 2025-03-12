@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 
 import { ok } from "@microsoft/teamsfx-api";
-import { globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
+import {
+  featureFlagManager,
+  FeatureFlags,
+  globalStateGet,
+  globalStateUpdate,
+} from "@microsoft/teamsfx-core";
 import { GlobalKey, CommandKey } from "../constants";
 import { isSensitivityLabelSet, workspaceUri } from "../globalVariables";
 import { TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
@@ -22,6 +27,7 @@ export async function autoOpenProjectHandler(): Promise<void> {
   const isOpenSampleReadMe = (await globalStateGet(GlobalKey.OpenSampleReadMe, false)) as boolean;
   const createWarnings = (await globalStateGet(GlobalKey.CreateWarnings, "")) as string;
   const autoInstallDependency = (await globalStateGet(GlobalKey.AutoInstallDependency)) as boolean;
+
   if (isOpenWalkThrough) {
     await showLocalDebugMessage();
     await globalStateUpdate(GlobalKey.OpenWalkThrough, false);
@@ -48,8 +54,5 @@ export async function autoOpenProjectHandler(): Promise<void> {
   if (autoInstallDependency) {
     await autoInstallDependencyHandler();
     await globalStateUpdate(GlobalKey.AutoInstallDependency, false);
-  }
-  if (!isSensitivityLabelSet) {
-    showSetSensitivityLabelMessage();
   }
 }

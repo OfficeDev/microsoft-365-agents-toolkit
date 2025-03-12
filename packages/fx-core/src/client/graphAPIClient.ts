@@ -43,32 +43,7 @@ export class RetryHandler {
 
 export class GraphAPIClient {
   @hooks([ErrorContextMW({ source: "Graph", component: "GraphAPIClient" })])
-  async listSensitivityLabels(
-    token: string,
-    mock = false
-  ): Promise<Result<SensitivityLabel[], FxError>> {
-    if (mock) {
-      return ok([
-        {
-          id: "87ba5c36-b7cf-4793-bbc2-bd5b3a9f95ca",
-          name: "Personal",
-          description: undefined,
-          displayName: "Personal",
-        },
-        {
-          id: "87867195-f2b8-4ac2-b0b6-6bb73cb33afc",
-          name: "Not Restricted",
-          description: undefined,
-          displayName: "Public",
-        },
-        {
-          id: "f42aa342-8706-4288-bd11-ebb85995028c",
-          name: "Internal",
-          description: "Billjo - Removed footer from label",
-          displayName: "General",
-        },
-      ]);
-    }
+  async listSensitivityLabels(token: string): Promise<Result<SensitivityLabel[], FxError>> {
     try {
       const requester = WrappedAxiosClient.create({
         baseURL: graphAPIEndpoint,
@@ -108,8 +83,8 @@ export class GraphAPIClient {
     }
   }
 
-  async getGeneralSentivityLabelId(token: string, mock = false): Promise<Result<string, FxError>> {
-    const result = await this.listSensitivityLabels(token, mock);
+  async getGeneralSentivityLabelId(token: string): Promise<Result<string, FxError>> {
+    const result = await this.listSensitivityLabels(token);
     if (result.isErr()) {
       return err(result.error);
     }

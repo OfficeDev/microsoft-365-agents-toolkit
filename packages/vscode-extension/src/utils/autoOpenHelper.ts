@@ -20,13 +20,15 @@ import {
   globalStateGet,
   globalStateUpdate,
   outputScaffoldingWarningMessage,
+  featureFlagManager,
+  FeatureFlags,
 } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import VsCodeLogInstance from "../commonlib/log";
 import { GlobalKey, CommandKey } from "../constants";
 import { selectAndDebug } from "../debug/runIconHandler";
-import { workspaceUri } from "../globalVariables";
+import { isSensitivityLabelSet, workspaceUri } from "../globalVariables";
 import { getAppName } from "./appDefinitionUtils";
 import { getLocalDebugMessageTemplate } from "./commonUtils";
 import { localize } from "./localizeUtils";
@@ -53,6 +55,13 @@ export async function showLocalDebugMessage() {
   const isWindows = process.platform === "win32";
   const folderLink = encodeURI(workspaceUri!.toString());
   const openFolderCommand = `command:fx-extension.openFolder?%5B%22${folderLink}%22%5D`;
+
+  if (
+    featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled) &&
+    !isSensitivityLabelSet
+  ) {
+    showSetSensitivityLabelMessage();
+  }
 
   if (hasKeyGenJsFile || hasKeyGenTsFile) {
     const openReadMe = {
@@ -221,6 +230,6 @@ export async function autoInstallDependencyHandler() {
 }
 
 export function showSetSensitivityLabelMessage() {
-  const message = util.format("please set sensitivity label for the manifest file");
+  const message = localize("teamstoolkit.handlers.SetsensitivityLabel");
   void vscode.window.showInformationMessage(message);
 }

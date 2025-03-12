@@ -135,7 +135,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     }
 
     // best-effort
-    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value, true);
+    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
 
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(
@@ -165,44 +165,32 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
 
   async setGeneralSensitivityLabel(
     context: Context,
-    declarativeAgentManifestPath: string,
-    mock = false
+    declarativeAgentManifestPath: string
   ): Promise<void> {
     try {
-      let generalLabelId = "";
-      if (mock) {
-        const res = await graphAPIClient.getGeneralSentivityLabelId("", true);
-        if (res.isErr()) {
-          return;
-        }
-        generalLabelId = res.value;
-      } else {
-        const loginStatusRes = await context.tokenProvider?.m365TokenProvider.getStatus({
-          scopes: [listSensitivityLabelScope],
-        });
-        if (!loginStatusRes || loginStatusRes.isErr()) {
-          context.logProvider?.info(
-            getDefaultString(
-              "error.listSensitivityLabel.tokenFailed",
-              loginStatusRes?.error.message
-            )
-          );
-          return;
-        }
-        if (loginStatusRes.value.status != signedIn) {
-          context.logProvider?.info(getDefaultString("core.listSensitivityLabel.notLogin"));
-          return;
-        }
-        if (loginStatusRes.value.token == undefined) {
-          context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
-          return;
-        }
-        const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
-        if (result.isErr()) {
-          throw result.error;
-        }
-        generalLabelId = result.value;
+      const loginStatusRes = await context.tokenProvider?.m365TokenProvider.getStatus({
+        scopes: [listSensitivityLabelScope],
+      });
+      if (!loginStatusRes || loginStatusRes.isErr()) {
+        context.logProvider?.info(
+          getDefaultString("error.listSensitivityLabel.tokenFailed", loginStatusRes?.error.message)
+        );
+        return;
       }
+      if (loginStatusRes.value.status != signedIn) {
+        context.logProvider?.info(getDefaultString("core.listSensitivityLabel.notLogin"));
+        return;
+      }
+      if (loginStatusRes.value.token == undefined) {
+        context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
+        return;
+      }
+      const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
+      if (result.isErr()) {
+        throw result.error;
+      }
+      const generalLabelId = result.value;
+
       const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
         declarativeAgentManifestPath
       );
