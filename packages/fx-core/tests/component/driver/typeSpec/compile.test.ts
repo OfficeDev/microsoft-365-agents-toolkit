@@ -6,7 +6,7 @@ import * as sinon from "sinon";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { MockedM365Provider, MockTools } from "../../../core/utils";
+import { MockedM365Provider, MockLogProvider, MockTools } from "../../../core/utils";
 import { TypeSpecCompileArgs } from "../../../../src/component/driver/typeSpec/interface/typeSpecCompileArgs";
 import { MockedUserInteraction } from "../../../plugins/solution/util";
 import fs from "fs-extra";
@@ -14,6 +14,7 @@ import {
   DeclarativeCopilotManifestSchema,
   err,
   ok,
+  Platform,
   SystemError,
   TeamsAppManifest,
 } from "@microsoft/teamsfx-api";
@@ -26,6 +27,13 @@ const mockedDriverContext: any = {
   m365TokenProvider: new MockedM365Provider(),
   ui: new MockedUserInteraction(),
   projectPath: "test",
+  platform: Platform.VSCode,
+  logProvider: new MockLogProvider(),
+};
+mockedDriverContext.logProvider.outputChannel = {
+  show: () => {
+    return;
+  },
 };
 
 describe("typeSpecCompilt", async () => {
