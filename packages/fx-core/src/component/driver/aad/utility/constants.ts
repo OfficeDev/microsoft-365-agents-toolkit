@@ -58,4 +58,5 @@ export const telemetryKeys = {
   newAadApp: "new-aad-app",
   userInputAadApp: "user-input-aad-app",
   insufficientPermissionAadApp: "insufficient-permission-aad-app",
+  isNewAadSchema: "is-new-aad-schema",
 };
