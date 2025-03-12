@@ -72,6 +72,7 @@ describe("typeSpecCompilt", async () => {
   });
 
   afterEach(() => {
+    mockedDriverContext.platform = Platform.VSCode;
     sandbox.restore();
     if (envRestore) {
       envRestore();
@@ -109,6 +110,42 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
+    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+  });
+
+  it("happy path: with one action in cli", async () => {
+    const args: TypeSpecCompileArgs = {
+      path: "mockedPath",
+      manifestPath: "mockedManifestPath",
+    };
+    const pluginManifest: DeclarativeCopilotManifestSchema = {
+      id: "mockedId",
+      name: "mockedName",
+      description: "mockedDescription",
+      actions: [
+        {
+          id: "mockedActionId",
+          file: "mockedFile",
+        },
+      ],
+    };
+
+    sandbox.stub(fs, "existsSync").returns(true);
+    sandbox.stub(fs, "rmSync").returns();
+    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
+    sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
+    sandbox
+      .stub(fs, "readJSON")
+      .onFirstCall()
+      .resolves(pluginManifest)
+      .onSecondCall()
+      .resolves(manifest);
+    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
+      const dataToWrite = JSON.stringify(data);
+      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
+    });
+    mockedDriverContext.platform = Platform.CLI;
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isOk()).to.be.true;
   });
