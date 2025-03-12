@@ -11,6 +11,7 @@ import { setTools } from "../../src/common/globalVars";
 import { WrappedAxiosClient } from "../../src/common/wrappedAxiosClient";
 import { APP_STUDIO_API_NAMES } from "../../src/component/driver/teamsApp/constants";
 import { MockTools } from "../core/utils";
+import { MOS3ApiDefinitions } from "../../src/component/m365/serviceConstant";
 
 describe("Wrapped Axios Client Test", () => {
   const mockTools = new MockTools();
@@ -454,5 +455,78 @@ describe("Wrapped Axios Client Test", () => {
 
     apiName = WrappedAxiosClient.convertUrlToApiName("https://example.com", "GET");
     chai.assert.equal(apiName, "https:--example.com");
+  });
+
+  it("Convert API Definition for MOS API", async () => {
+    const fakeId = uuid();
+
+    let modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      "/config/v1/environment"
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetConfigEnv);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "POST",
+      "/dev/v1/users/packages/addins"
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostPackageAddin);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      `/dev/v1/users/packages/status/${fakeId}`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetDevStatus);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "POST",
+      "/builder/v1/users/packages"
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostBuilderPackage);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      `/builder/v1/users/packages/status/${fakeId}`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetBuilderStatus);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS("POST", "/dev/v1/users/packages");
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostDevPackage);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "POST",
+      "/dev/v1/users/packages/acquisitions"
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostDevPackageAcquisitions);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      `/marketplace/v1/users/titles/${fakeId}/sharingInfo`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetShareInfo);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      "/catalog/v1/users/titles/launchInfo"
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetCatalogLaunchInfo);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "DELETE",
+      `/catalog/v1/users/acquisitions/${fakeId}`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.DeleteCatalogAcquisitions);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      `/catalog/v1/users/titles/${fakeId}/launchInfo`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetLaunchInfoByTitle);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      "/catalog/v1/users/uitypes"
+    );
+    chai.assert.isUndefined(modApiDef);
   });
 });
