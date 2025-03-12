@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
+import { CLICommand, err, ok, signedIn } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
   AzureScopes,
@@ -11,7 +11,6 @@ import { TextType, colorize } from "../../colorize";
 import AzureTokenProvider, { getAzureProvider } from "../../commonlib/azureLogin";
 import AzureTokenCIProvider from "../../commonlib/azureLoginCI";
 import { checkIsOnline } from "../../commonlib/codeFlowLogin";
-import { signedIn } from "../../commonlib/common/constant";
 import { logger } from "../../commonlib/logger";
 import M365TokenProvider from "../../commonlib/m365Login";
 import { commands, strings } from "../../resource";
