@@ -118,26 +118,26 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
-    if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
-      const teamsManifestPath = path.join(
-        destinationPath,
-        AppPackageFolderName,
-        ManifestTemplateFileName
-      );
-      const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-        teamsManifestPath
-      );
-      if (declarativeCopilotManifestPathRes.isErr()) {
+    const teamsManifestPath = path.join(
+      destinationPath,
+      AppPackageFolderName,
+      ManifestTemplateFileName
+    );
+    const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+      teamsManifestPath
+    );
+    if (declarativeCopilotManifestPathRes.isErr()) {
+      // only return error in da existing action case
+      if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
         return err(declarativeCopilotManifestPathRes.error);
       }
+      return ok({});
+    }
 
-      // best-effort
-      await this.setGeneralSensitivityLabel(
-        context,
-        declarativeCopilotManifestPathRes.value,
-        false
-      );
+    // best-effort
+    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value, false);
 
+    if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],

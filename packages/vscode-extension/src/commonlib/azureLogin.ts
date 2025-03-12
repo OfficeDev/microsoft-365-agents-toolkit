@@ -17,19 +17,13 @@ import {
   Result,
   ok,
   err,
+  signedIn,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import { ExtensionErrors } from "../error/error";
 import { ConvertTokenToJson, LoginFailureError } from "./codeFlowLogin";
 import * as vscode from "vscode";
-import {
-  azureCacheName,
-  loggedIn,
-  loggedOut,
-  loggingIn,
-  signedIn,
-  signedOut,
-  signingIn,
-} from "./common/constant";
+import { azureCacheName, loggedIn, loggedOut, loggingIn, signingIn } from "./common/constant";
 import { login, LoginStatus } from "./common/login";
 import * as util from "util";
 import { ExtTelemetry } from "../telemetry/extTelemetry";

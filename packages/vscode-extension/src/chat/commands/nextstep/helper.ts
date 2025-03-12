@@ -3,8 +3,8 @@
 
 import * as core from "@microsoft/teamsfx-core";
 import { AzureAccountManager } from "../../../commonlib/azureLogin";
-import { signedIn } from "../../../commonlib/common/constant";
 import { M365Login } from "../../../commonlib/m365Login";
+import { signedIn } from "@microsoft/teamsfx-api";
 
 export async function checkCredential(): Promise<{
   m365LoggedIn: boolean;

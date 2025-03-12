@@ -3,10 +3,9 @@
 
 import * as vscode from "vscode";
 import M365TokenInstance from "../../commonlib/m365Login";
-import { signedIn } from "../../commonlib/common/constant";
 import { localize } from "../../utils/localizeUtils";
 import VsCodeLogInstance from "../../commonlib/log";
-import { FxError, Result, err, ok } from "@microsoft/teamsfx-api";
+import { FxError, Result, err, ok, signedIn } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
   MosServiceScope,
