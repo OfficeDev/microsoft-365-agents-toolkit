@@ -128,6 +128,7 @@
 /packages/fx-core/src/component/driver/add @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/src/component/driver/apiKey @KennethBWSong @SLdragon
 /packages/fx-core/src/component/driver/oauth @KennethBWSong @SLdragon
+/packages/fx-core/src/component/driver/typeSpec @KennethBWSong @SLdragon @adashen
 /packages/fx-core/src/component/driver/arm @xzf0587 @blackchoey
 /packages/fx-core/src/component/driver/botAadApp @blackchoey @wenytang-ms @KennethBWSong
 /packages/fx-core/src/component/driver/botFramework @swatDong @XiaofuHuang @kuojianlu @kimizhu
@@ -358,3 +359,4 @@
 /templates/python @adashen @blackchoey @frankqianms
 /templates/scripts @hund030 @eriolchan @huimiu
 /templates/csharp/custom-copilot-* @adashen @blackchoey @frankqianms @xzf0587 
+/templates/common/declarative-agent-typespec @KennethBWSong @SLdragon @adashen
