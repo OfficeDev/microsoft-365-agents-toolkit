@@ -12,6 +12,7 @@ import {
   DeclarativeCopilotManifestSchema,
   err,
   ok,
+  Platform,
   SystemError,
   TeamsAppManifest,
   UserError,
@@ -150,6 +151,10 @@ export class TypeSpecCompileDriver implements StepDriver {
           },
         ];
         await fs.writeJSON(generatedManifestFilePath, manifest, { spaces: 2 });
+      }
+
+      if (ctx.platform === Platform.VSCode) {
+        (ctx.logProvider as any).outputChannel.show();
       }
 
       ctx.logProvider?.info(
