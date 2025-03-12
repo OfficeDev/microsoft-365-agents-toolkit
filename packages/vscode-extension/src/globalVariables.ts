@@ -12,6 +12,7 @@ import {
   isValidOfficeAddInProject,
   isManifestOnlyOfficeAddinProject,
   manifestUtils,
+  copilotGptManifestUtils,
 } from "@microsoft/teamsfx-core";
 import { TeamsAppManifest, Tools } from "@microsoft/teamsfx-api";
 
@@ -25,6 +26,7 @@ export let isOfficeAddInProject = false;
 export let isOfficeManifestOnlyProject = false;
 export let isSPFxProject = false;
 export let isDeclarativeCopilotApp = false;
+export let isSensitivityLabelSet = false;
 export let isExistingUser = "no";
 export let defaultExtensionLogPath: string;
 export let commandIsRunning = false;
@@ -83,6 +85,7 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   if (isTeamsFxProject && workspaceUri?.fsPath) {
     isSPFxProject = checkIsSPFx(workspaceUri?.fsPath);
     isDeclarativeCopilotApp = checkIsDeclarativeCopilotApp(workspaceUri.fsPath);
+    isSensitivityLabelSet = checkIsSensitivityLabelSet(workspaceUri.fsPath);
   } else {
     isSPFxProject = fs.existsSync(path.join(workspaceUri?.fsPath ?? "./", "SPFx"));
   }
@@ -116,6 +119,23 @@ export function updateIsDeclarativeCopilotApp(manifest: TeamsAppManifest): boole
   const value = manifestUtils.getCapabilities(manifest).includes("copilotGpt");
   isDeclarativeCopilotApp = value;
   return isDeclarativeCopilotApp;
+}
+
+export function checkIsSensitivityLabelSet(directory: string): boolean {
+  const manifestRes = manifestUtils.readAppManifestSync(directory);
+  if (!manifestRes.isOk()) {
+    return false;
+  }
+  const declarativeAgentPath = manifestRes.value.copilotAgents?.declarativeAgents?.[0].file;
+  if (!declarativeAgentPath) {
+    return false;
+  }
+  const declarativeAgentRes =
+    copilotGptManifestUtils.readCopilotGptManifestFileSync(declarativeAgentPath);
+  if (!declarativeAgentRes.isOk()) {
+    return false;
+  }
+  return !!declarativeAgentRes.value.sensitivity_label;
 }
 
 export function setCommandIsRunning(isRunning: boolean) {

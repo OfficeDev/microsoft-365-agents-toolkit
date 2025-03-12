@@ -47,7 +47,7 @@ export class GraphAPIClient {
     token: string,
     mock = false
   ): Promise<Result<SensitivityLabel[], FxError>> {
-    if (!mock) {
+    if (mock) {
       return ok([
         {
           id: "87ba5c36-b7cf-4793-bbc2-bd5b3a9f95ca",

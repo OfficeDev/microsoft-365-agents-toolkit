@@ -4,12 +4,13 @@
 import { ok } from "@microsoft/teamsfx-api";
 import { globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
 import { GlobalKey, CommandKey } from "../constants";
-import { workspaceUri } from "../globalVariables";
+import { isSensitivityLabelSet, workspaceUri } from "../globalVariables";
 import { TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import {
   autoInstallDependencyHandler,
   showLocalDebugMessage,
   ShowScaffoldingWarningSummary,
+  showSetSensitivityLabelMessage,
 } from "../utils/autoOpenHelper";
 import { updateProjectStatus } from "../utils/projectStatusUtils";
 import { openWelcomeHandler } from "./controlHandlers";
@@ -47,5 +48,8 @@ export async function autoOpenProjectHandler(): Promise<void> {
   if (autoInstallDependency) {
     await autoInstallDependencyHandler();
     await globalStateUpdate(GlobalKey.AutoInstallDependency, false);
+  }
+  if (!isSensitivityLabelSet) {
+    showSetSensitivityLabelMessage();
   }
 }

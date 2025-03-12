@@ -219,3 +219,8 @@ export async function autoInstallDependencyHandler() {
     iconPath: "cloud-download",
   });
 }
+
+export function showSetSensitivityLabelMessage() {
+  const message = util.format("please set sensitivity label for the manifest file");
+  void vscode.window.showInformationMessage(message);
+}

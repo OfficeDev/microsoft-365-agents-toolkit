@@ -135,7 +135,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     }
 
     // best-effort
-    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value, false);
+    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value, true);
 
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(
