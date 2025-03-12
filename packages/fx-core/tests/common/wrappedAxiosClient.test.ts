@@ -527,6 +527,9 @@ describe("Wrapped Axios Client Test", () => {
       "GET",
       "/catalog/v1/users/uitypes"
     );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetCatalogUITypes);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS("GET", "/abcdef/v1/users/xxxxx");
     chai.assert.isUndefined(modApiDef);
   });
 });
