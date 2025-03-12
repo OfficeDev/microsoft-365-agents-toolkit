@@ -38,7 +38,6 @@ export enum GlobalKey {
   AutoInstallDependency = "teamsToolkit:autoInstallDependency",
   DoNotRemindInstallTeamsAgent = "teamsToolkit:doNotRemindInstallTeamsAgent",
   TeamsAgentInstalled = "teamsToolkit:teamsAgentInstalled",
-  SensitivityLabelNotification = "teamsToolkit:sensitivityLabelNotification",
 }
 
 export enum CommandKey {
