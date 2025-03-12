@@ -539,7 +539,7 @@ jobs:
         if: ${{ steps.list-jobs.outputs.has_mos_api_failure == 'true' }}
         uses: ./.github/actions/send-email-report
         env:
-          TO: "huajiezhang@microsoft.com;"
+          TO: "huajiezhang@microsoft.com;nliu@microsoft.com;huihuiwu@microsoft.com;Xiaofu.Huang@microsoft.com;zhaofengxu@microsoft.com;yukundong@microsoft.com;anchenyi@microsoft.com"
           BODY: '"${{ steps.list-jobs.outputs.mos_body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.mos_subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
