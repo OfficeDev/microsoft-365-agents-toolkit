@@ -2,20 +2,14 @@
 // Licensed under the MIT license.
 
 import { ok } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlags,
-  globalStateGet,
-  globalStateUpdate,
-} from "@microsoft/teamsfx-core";
+import { globalStateGet, globalStateUpdate } from "@microsoft/teamsfx-core";
 import { GlobalKey, CommandKey } from "../constants";
-import { isSensitivityLabelSet, workspaceUri } from "../globalVariables";
+import { workspaceUri } from "../globalVariables";
 import { TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import {
   autoInstallDependencyHandler,
   showLocalDebugMessage,
   ShowScaffoldingWarningSummary,
-  showSetSensitivityLabelMessage,
 } from "../utils/autoOpenHelper";
 import { updateProjectStatus } from "../utils/projectStatusUtils";
 import { openWelcomeHandler } from "./controlHandlers";
@@ -27,7 +21,6 @@ export async function autoOpenProjectHandler(): Promise<void> {
   const isOpenSampleReadMe = (await globalStateGet(GlobalKey.OpenSampleReadMe, false)) as boolean;
   const createWarnings = (await globalStateGet(GlobalKey.CreateWarnings, "")) as string;
   const autoInstallDependency = (await globalStateGet(GlobalKey.AutoInstallDependency)) as boolean;
-
   if (isOpenWalkThrough) {
     await showLocalDebugMessage();
     await globalStateUpdate(GlobalKey.OpenWalkThrough, false);
