@@ -246,9 +246,9 @@ describe("Wrapped Axios Client Test", () => {
   it("MOS API error response", async () => {
     const mockedError = {
       request: {
-        method: "GET",
+        method: "POST",
         host: "https://titles.prod.mos.microsoft.com",
-        path: "/users/packages",
+        path: "/dev/v1/users/packages",
       },
       config: {},
       response: {
