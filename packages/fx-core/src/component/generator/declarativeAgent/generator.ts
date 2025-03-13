@@ -34,15 +34,8 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
-import {
-  graphAPIClient,
-  GraphAPIClient,
-  listSensitivityLabelScope,
-} from "../../../client/graphAPIClient";
-import { getSPFxToken } from "../../../common/tools";
+import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
 import { getDefaultString } from "../../../common/localizeUtils";
-import { sign } from "crypto";
-import { log } from "console";
 
 const enum telemetryProperties {
   templateName = "template-name",
