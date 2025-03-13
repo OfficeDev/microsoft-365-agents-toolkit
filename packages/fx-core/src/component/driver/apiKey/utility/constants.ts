@@ -14,3 +14,7 @@ export const logMessageKeys = {
 export const maxDomainPerApiKey = 1;
 export const maxSecretLength = 512;
 export const minSecretLength = 10;
+
+export const telemetryKeys = {
+  isCustomAPIKey: "is-custom-api-key",
+};
