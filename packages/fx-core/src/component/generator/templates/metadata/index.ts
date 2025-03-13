@@ -10,6 +10,7 @@ import { specialTemplates } from "./special";
 import { tabTemplates } from "./tab";
 import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
+import { wxpTemplates } from "./wxp";
 
 const allTemplates: Template[] = [
   ...tabTemplates,
@@ -19,6 +20,7 @@ const allTemplates: Template[] = [
   ...tdpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
+  ...wxpTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [
