@@ -1,4 +1,4 @@
-import { CLIContext, SystemError, err, ok } from "@microsoft/teamsfx-api";
+import { CLIContext, SystemError, err, ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import {
   CollaborationStateResult,
   FeatureFlags,
@@ -56,7 +56,6 @@ import { teamsappPublishCommand } from "../../src/commands/models/teamsapp/publi
 import { teamsappUpdateCommand } from "../../src/commands/models/teamsapp/update";
 import { teamsappValidateCommand } from "../../src/commands/models/teamsapp/validate";
 import AzureTokenProvider from "../../src/commonlib/azureLogin";
-import { signedIn, signedOut } from "../../src/commonlib/common/constant";
 import { logger } from "../../src/commonlib/logger";
 import M365TokenProvider from "../../src/commonlib/m365Login";
 import { MissingRequiredOptionError } from "../../src/error";
