@@ -6,6 +6,7 @@ import { createSandbox } from "sinon";
 import { RetryHandler, GraphAPIClient, SensitivityLabel } from "../../src/client/graphAPIClient";
 import { ok } from "@microsoft/teamsfx-api";
 import axios from "axios";
+import "mocha";
 
 describe("GraphAPIClient Test", () => {
   const sandbox = createSandbox();
