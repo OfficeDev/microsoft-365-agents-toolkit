@@ -161,13 +161,13 @@ describe("generateScaffoldingSummary", async () => {
           type: WarningType.OperationIdContainsSpecialCharacters,
           content:
             "Operation id 'user/repo' contained special characters and was renamed to 'user_repo'.",
-          data: { operationId: "user/repo" },
+          data: "user/repo",
         },
         {
           type: WarningType.OperationIdContainsSpecialCharacters,
           content:
             "Operation id 'user/issue' contained special characters and was renamed to 'user_issue'.",
-          data: { operationId: "user/issue" },
+          data: "user/issue",
         },
       ],
       teamsManifest,

@@ -797,11 +797,12 @@ function formatApiSpecValidationWarningMessage(
 
   specialCharactersWarnings.forEach((warning) => {
     resultWarnings.push(
-      getLocalizedString(
-        "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
-        warning.data.operationId,
-        warning.data.operationId.replace(/[^a-zA-Z0-9]/g, "_")
-      )
+      `${SummaryConstant.NotExecuted} ` +
+        getLocalizedString(
+          "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
+          warning.data,
+          warning.data.replace(/[^a-zA-Z0-9]/g, "_")
+        )
     );
   });
 
