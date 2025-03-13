@@ -230,7 +230,6 @@ describe("GraphAPIClient Test", () => {
     it("listSensitivityLabels returns error", async () => {
       const graphAPIClient = new GraphAPIClient();
 
-      const error = new Error("API failed");
       const fakeError = {
         name: "listSensitivityLabelsError",
         message: "API failed",
