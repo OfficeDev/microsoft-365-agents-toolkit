@@ -34,7 +34,6 @@ import { getLocalDebugMessageTemplate } from "./commonUtils";
 import { localize } from "./localizeUtils";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { openReadMeHandler } from "../handlers/readmeHandlers";
-import { IsDeclarativeAgentManifest } from "@microsoft/teamsfx-core/build/common/projectTypeChecker";
 
 export async function showLocalDebugMessage() {
   const shouldShowLocalDebugMessage = (await globalStateGet(
