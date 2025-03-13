@@ -30,7 +30,7 @@ import { manifestUtils } from "./utils/ManifestUtils";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
 import { getResolvedManifest, normalizePath } from "./utils/utils";
 import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
-import { ManifestType } from "../../utils/envFunctionUtils";
+import { expandVariableWithFunction, ManifestType } from "../../utils/envFunctionUtils";
 import { getAbsolutePath } from "../../utils/common";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { updateVersionForTeamsAppYamlFile } from "../util/utils";
@@ -568,15 +568,18 @@ export class CreateAppPackageDriver implements StepDriver {
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
-      const expandedEnvVarResult = await CreateAppPackageDriver.expandEnvVars(
-        pluginFile,
+      const processedFunctionRes = await expandVariableWithFunction(
+        JSON.stringify(pluginFileContent),
         context,
-        ManifestType.PluginManifest
+        undefined,
+        true,
+        ManifestType.PluginManifest,
+        pluginFile
       );
-      if (expandedEnvVarResult.isErr()) {
-        return err(expandedEnvVarResult.error);
+      if (processedFunctionRes.isErr()) {
+        return err(processedFunctionRes.error);
       }
-      pluginFileContent = JSON.parse(expandedEnvVarResult.value);
+      pluginFileContent = JSON.parse(processedFunctionRes.value);
       await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
     }
 
