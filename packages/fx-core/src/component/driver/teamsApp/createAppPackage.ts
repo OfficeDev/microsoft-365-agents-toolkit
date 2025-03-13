@@ -568,6 +568,15 @@ export class CreateAppPackageDriver implements StepDriver {
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
+      const expandedEnvVarResult = await CreateAppPackageDriver.expandEnvVars(
+        pluginFile,
+        context,
+        ManifestType.PluginManifest
+      );
+      if (expandedEnvVarResult.isErr()) {
+        return err(expandedEnvVarResult.error);
+      }
+      pluginFileContent = JSON.parse(expandedEnvVarResult.value);
       await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
     }
 
