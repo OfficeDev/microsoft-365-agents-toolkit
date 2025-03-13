@@ -36,6 +36,7 @@ import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
 import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
 import { getDefaultString } from "../../../common/localizeUtils";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -127,8 +128,10 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       return ok({});
     }
 
-    // best-effort
-    await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+    if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+      // best-effort
+      await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+    }
 
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const addPluginRes = await addExistingPlugin(

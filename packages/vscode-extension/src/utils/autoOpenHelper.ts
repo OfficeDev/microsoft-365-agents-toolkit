@@ -28,12 +28,13 @@ import { TelemetryEvent, TelemetryTriggerFrom } from "../telemetry/extTelemetryE
 import VsCodeLogInstance from "../commonlib/log";
 import { GlobalKey, CommandKey } from "../constants";
 import { selectAndDebug } from "../debug/runIconHandler";
-import { isSensitivityLabelSet, workspaceUri } from "../globalVariables";
+import { isDeclarativeCopilotApp, isSensitivityLabelSet, workspaceUri } from "../globalVariables";
 import { getAppName } from "./appDefinitionUtils";
 import { getLocalDebugMessageTemplate } from "./commonUtils";
 import { localize } from "./localizeUtils";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { openReadMeHandler } from "../handlers/readmeHandlers";
+import { IsDeclarativeAgentManifest } from "@microsoft/teamsfx-core/build/common/projectTypeChecker";
 
 export async function showLocalDebugMessage() {
   const shouldShowLocalDebugMessage = (await globalStateGet(
@@ -58,6 +59,7 @@ export async function showLocalDebugMessage() {
 
   if (
     featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled) &&
+    isDeclarativeCopilotApp &&
     !isSensitivityLabelSet
   ) {
     showSetSensitivityLabelMessage();
