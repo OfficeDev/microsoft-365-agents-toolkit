@@ -34,7 +34,7 @@ export const MOS3ApiDefinitions: any = {
   PostBuilderPackage: {
     key: "post_builder_package",
     method: "POST",
-    path: /^\/builder\/v1\/users\/packages$/,
+    path: /^\/builder\/v1\/users\/packages\?/,
   },
   GetBuilderStatus: {
     key: "get_builder_status",
@@ -44,7 +44,7 @@ export const MOS3ApiDefinitions: any = {
   PostDevPackageAcquisitions: {
     key: "post_dev_package_acquire",
     method: "POST",
-    path: /^\/dev\/v1\/users\/packages\/acquisitions$/,
+    path: /^\/dev\/v1\/users\/packages\/acquisitions/,
   },
   GetShareInfo: {
     key: "get_share_info",
@@ -54,7 +54,7 @@ export const MOS3ApiDefinitions: any = {
   GetCatalogLaunchInfo: {
     key: "get_launch_info",
     method: "GET",
-    path: /^\/catalog\/v1\/users\/titles\/launchInfo$/,
+    path: /^\/catalog\/v1\/users\/titles\/launchInfo/,
   },
   DeleteCatalogAcquisitions: {
     key: "delete_catalog_acquisitions",
@@ -64,7 +64,7 @@ export const MOS3ApiDefinitions: any = {
   GetLaunchInfoByTitle: {
     key: "get_launch_info_by_title",
     method: "GET",
-    path: /^\/catalog\/v1\/users\/titles\/[^\/]+\/launchInfo$/,
+    path: /^\/catalog\/v1\/users\/titles\/[^\/]+\/launchInfo/,
   },
   GetCatalogUITypes: {
     key: "get_catalog_ui_types",

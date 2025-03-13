@@ -480,7 +480,7 @@ describe("Wrapped Axios Client Test", () => {
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
       "POST",
-      "/builder/v1/users/packages"
+      "/builder/v1/users/packages?scope=Personal"
     );
     chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PostBuilderPackage);
 
