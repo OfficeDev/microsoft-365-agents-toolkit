@@ -54,7 +54,7 @@ export async function getDomain(
 
   const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
   const isCustomAPIKey =
-    filteredOperations[0].auth?.authScheme.type === "apiKey" ? "true" : "false";
+    filteredOperations[0].auth!.authScheme.type === "apiKey" ? "true" : "false";
   wrapDriverContext.addTelemetryProperties({ [telemetryKeys.isCustomAPIKey]: isCustomAPIKey });
 
   const servers = filteredOperations.map((value) => value.server);
