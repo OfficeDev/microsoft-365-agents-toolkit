@@ -126,7 +126,7 @@ export function checkIsSensitivityLabelSet(directory: string): boolean {
   if (!manifestRes.isOk()) {
     return false;
   }
-  const declarativeAgentPath = manifestRes.value.copilotAgents?.declarativeAgents?.[0].file;
+  const declarativeAgentPath = manifestRes.value.copilotAgents?.declarativeAgents?.[0]?.file;
   if (!declarativeAgentPath) {
     return false;
   }

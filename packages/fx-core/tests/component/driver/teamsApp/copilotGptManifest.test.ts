@@ -1326,4 +1326,45 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isErr());
     });
   });
+
+  describe("readCopilotGptManifestFileSync", () => {
+    it("should read manifest file successfully", () => {
+      const manifest = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(res.value, manifest);
+      }
+    });
+
+    it("should return FileNotFoundError if file does not exist", () => {
+      sandbox.stub(fs, "existsSync").returns(false);
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+
+    it("should return FileNotFoundError if JSON parse fails", () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns("invalid json");
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+  });
 });
