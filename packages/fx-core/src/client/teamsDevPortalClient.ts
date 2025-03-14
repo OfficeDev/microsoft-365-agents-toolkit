@@ -95,9 +95,13 @@ export class TeamsDevPortalClient {
     this.regionEndpoint = regionEndpoint;
   }
 
-  async setRegionEndpointByToken(authSvcToken: string): Promise<void> {
+  async setRegionEndpointByToken(authSvcToken: string, regionalEndpoint?: string): Promise<void> {
     if (this.getGlobalEndpoint() === "https://dev-int.teams.microsoft.com") {
       // Do not set region for INT env
+      return;
+    }
+    if (regionalEndpoint) {
+      this.regionEndpoint = regionalEndpoint;
       return;
     }
     const requester = WrappedAxiosClient.create({

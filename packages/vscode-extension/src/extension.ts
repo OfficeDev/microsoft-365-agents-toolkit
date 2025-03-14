@@ -339,9 +339,19 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
     { scopes: AuthSvcScopes },
     async (status, token, accountInfo) => {
       if (status === "SignedIn") {
-        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
-        if (tokenRes.isOk()) {
-          await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+        if (
+          process.env.TEAMS_DEVELOPER_PORTAL_ENDPOINT &&
+          process.env.TEAMS_DEVELOPER_PORTAL_ENDPOINT.startsWith("https://dev.teams.microsoft.com")
+        ) {
+          await teamsDevPortalClient.setRegionEndpointByToken(
+            "",
+            process.env.TEAMS_DEVELOPER_PORTAL_ENDPOINT
+          );
+        } else {
+          const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
+          if (tokenRes.isOk()) {
+            await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
+          }
         }
       }
     }
