@@ -1,6 +1,6 @@
 {
     "name": "templates",
-    "version": "4.3.3-rc.0",
+    "version": "4.3.3-rc.1",
     "private": "true",
     "license": "MIT",
     "scripts": {
