@@ -63,7 +63,7 @@ describe("Global Variables", () => {
 
     it("set log folder", () => {
       sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(fs, "mkdirSync").callsFake(() => { });
+      sandbox.stub(fs, "mkdirSync").callsFake(() => {});
       globalVariables.initializeGlobalVariables({
         globalState: {
           get: () => undefined,
@@ -135,21 +135,25 @@ describe("Global Variables", () => {
     it("returns true when sensitivity label is set", () => {
       const teamsManifest = new TeamsAppManifest();
       teamsManifest.copilotAgents = {
-        declarativeAgents: [{ id: "test-id", file: "test.txt" }]
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(ok({
-        name: "test-agent",
-        description: "test description",
-        sensitivity_label: "test-label"
-      }));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+        ok({
+          name: "test-agent",
+          description: "test description",
+          sensitivity_label: "test-label",
+        })
+      );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
       chai.expect(result).to.be.true;
     });
 
     it("returns false when manifest read fails", () => {
-      sandbox.stub(manifestUtils, "readAppManifestSync").returns(err(new SystemError("test", "test", "test", "test")));
+      sandbox
+        .stub(manifestUtils, "readAppManifestSync")
+        .returns(err(new SystemError("test", "test", "test", "test")));
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
       chai.expect(result).to.be.false;
@@ -166,10 +170,11 @@ describe("Global Variables", () => {
     it("returns false when declarative agent manifest read fails", () => {
       const teamsManifest = new TeamsAppManifest();
       teamsManifest.copilotAgents = {
-        declarativeAgents: [{ id: "test-id", file: "test.txt" }]
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync")
+      sandbox
+        .stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync")
         .returns(err(new SystemError("test", "test", "test", "test")));
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
@@ -179,14 +184,15 @@ describe("Global Variables", () => {
     it("returns false when declarative agent manifest has no sensitivity label", () => {
       const teamsManifest = new TeamsAppManifest();
       teamsManifest.copilotAgents = {
-        declarativeAgents: [{ id: "test-id", file: "test.txt" }]
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync")
-        .returns(ok({
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+        ok({
           name: "test-agent",
-          description: "test description"
-        }));
+          description: "test description",
+        })
+      );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
       chai.expect(result).to.be.false;
