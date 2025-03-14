@@ -300,7 +300,7 @@ describe("copilotExtension", async () => {
     });
 
     it("token provider error", async () => {
-      const infoStub = sandbox.stub(context.logProvider!, "info");
+      const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox
         .stub(context.tokenProvider!.m365TokenProvider, "getStatus")
         .resolves(err(new UserError("source", "name", "message")));
@@ -308,10 +308,16 @@ describe("copilotExtension", async () => {
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      assert.isTrue(infoStub.calledOnce);
     });
 
     it("not signed in", async () => {
-      const infoStub = sandbox.stub(context.logProvider!, "info");
+      const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
         ok({
           status: "notSignedIn",
@@ -322,10 +328,16 @@ describe("copilotExtension", async () => {
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      assert.isTrue(infoStub.calledOnce);
     });
 
     it("token undefined", async () => {
-      const infoStub = sandbox.stub(context.logProvider!, "info");
+      const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
         ok({
           status: signedIn,
@@ -335,6 +347,12 @@ describe("copilotExtension", async () => {
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
+      assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -353,6 +371,12 @@ describe("copilotExtension", async () => {
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      assert.isTrue(infoStub.calledOnce);
     });
 
     it("read manifest error", async () => {
@@ -370,6 +394,12 @@ describe("copilotExtension", async () => {
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
+      assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -394,6 +424,12 @@ describe("copilotExtension", async () => {
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
+      assert.isTrue(infoStub.calledOnce);
+
+      const contextWithoutProvider = createContext() as any;
+      contextWithoutProvider.tokenProvider = undefined;
+      contextWithoutProvider.logProvider = undefined;
+      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
   });
