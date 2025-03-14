@@ -1160,7 +1160,7 @@ export class FxCore {
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
-  async previewWithManifest(inputs: Inputs): Promise<Result<string, FxError>> {
+  async previewWithManifest(inputs: InputsWithProjectPath): Promise<Result<string, FxError>> {
     inputs.stage = Stage.previewWithManifest;
 
     const hub = inputs[QuestionNames.M365Host] as HubTypes;
@@ -1169,7 +1169,7 @@ export class FxCore {
 
     const manifestRes = await manifestUtils.getManifestV3(
       manifestFilePath,
-      generateDriverContext(context, inputs as InputsWithProjectPath),
+      generateDriverContext(context, inputs),
       false
     );
     if (manifestRes.isErr()) {
