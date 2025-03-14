@@ -83,6 +83,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -99,7 +101,18 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "existsSync").returns(true);
     sandbox.stub(fs, "rmSync").returns();
     sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
-    sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
+    sandbox
+      .stub(fs, "readdirSync")
+      .onFirstCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any)
+      .onSecondCall()
+      .returns(["openapi.yaml"] as any);
     sandbox
       .stub(fs, "readJSON")
       .onFirstCall()
@@ -118,6 +131,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -154,6 +169,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -197,6 +214,8 @@ describe("typeSpecCompilt", async () => {
       {
         path: "mockedPath",
         manifestPath: "",
+        outputDir: "mockedOutputDir",
+        typeSpecConfigPath: "mockedTypeSpecConfigPath",
       },
       mockedDriverContext
     );
@@ -206,6 +225,30 @@ describe("typeSpecCompilt", async () => {
       {
         path: "",
         manifestPath: "mockedManifestPath",
+        outputDir: "mockedOutputDir",
+        typeSpecConfigPath: "mockedTypeSpecConfigPath",
+      },
+      mockedDriverContext
+    );
+    expect(result.result.isErr()).to.be.true;
+
+    result = await typeSpecCompileDriver.execute(
+      {
+        path: "mockedPath",
+        manifestPath: "mockedManifestPath",
+        outputDir: "",
+        typeSpecConfigPath: "mockedTypeSpecConfigPath",
+      },
+      mockedDriverContext
+    );
+    expect(result.result.isErr()).to.be.true;
+
+    result = await typeSpecCompileDriver.execute(
+      {
+        path: "mockedPath",
+        manifestPath: "mockedManifestPath",
+        outputDir: "mockedOutputDir",
+        typeSpecConfigPath: "",
       },
       mockedDriverContext
     );
@@ -216,6 +259,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -253,6 +298,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -293,6 +340,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -335,6 +384,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -368,6 +419,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -395,6 +448,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",
@@ -432,6 +487,8 @@ describe("typeSpecCompilt", async () => {
     const args: TypeSpecCompileArgs = {
       path: "mockedPath",
       manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
     };
     const pluginManifest: DeclarativeCopilotManifestSchema = {
       id: "mockedId",

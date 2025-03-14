@@ -24,12 +24,7 @@ import {
   InputValidationError,
   InvalidActionInputError,
 } from "../../../error/common";
-import {
-  defaultDAManifestFileName,
-  defaultOpenApiOutputDir,
-  defaultOutputDir,
-  helpLink,
-} from "./constants";
+import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { NoSpecError } from "./error/noSpecError";
 import { MultipleActionError } from "./error/multipleActionError";
 
@@ -59,26 +54,21 @@ export class TypeSpecCompileDriver implements StepDriver {
       }
 
       const mainFilePath = args.path;
-      const appPackageFolderPath = path.join(projectPath, "appPackage");
-      const outputFolderPath = path.join(appPackageFolderPath, defaultOutputDir);
+      const outputFolderPath = path.isAbsolute(args.outputDir)
+        ? args.outputDir
+        : path.join(ctx.projectPath, args.outputDir);
       const openApiSpecsFolderPath = path.join(outputFolderPath, defaultOpenApiOutputDir);
       const daManifestFilePath = path.join(outputFolderPath, defaultDAManifestFileName);
 
       if (ctx.ui?.runCommand) {
         // 0. Delete output folder if exists
         if (fs.existsSync(outputFolderPath)) {
-          fs.rmSync(outputFolderPath, { recursive: true, force: true });
+          this.removeGeneratedFiles(outputFolderPath);
         }
 
         // 1. Compile tsp file to openapi spec and declarative agent manifest
         const tspRes = await ctx.ui.runCommand({
-          cmd: `npx --package=@typespec/compiler tsp compile ${mainFilePath} \
-            --emit @typespec/openapi3 \
-            --emit @microsoft/typespec-copilot-skills \
-            --options @microsoft/typespec-copilot-skills.file-type=json \
-            --options @microsoft/typespec-copilot-skills.output-file=${daManifestFilePath} \
-            --options @microsoft/typespec-copilot-skills.emitter-output-dir=${outputFolderPath} \
-            --options @typespec/openapi3.emitter-output-dir=${openApiSpecsFolderPath}`,
+          cmd: `npx --package=@typespec/compiler tsp compile ${mainFilePath} --config ${args.typeSpecConfigPath}`,
           workingDirectory: projectPath,
         });
 
@@ -197,6 +187,14 @@ export class TypeSpecCompileDriver implements StepDriver {
       invalidParameters.push("manifestPath");
     }
 
+    if (typeof args.outputDir !== "string" || !args.outputDir) {
+      invalidParameters.push("outputDir");
+    }
+
+    if (typeof args.typeSpecConfigPath !== "string" || !args.typeSpecConfigPath) {
+      invalidParameters.push("typeSpecConfigPath");
+    }
+
     if (invalidParameters.length > 0) {
       throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
     }
@@ -236,6 +234,27 @@ export class TypeSpecCompileDriver implements StepDriver {
     });
     if (removeRes.isErr()) {
       throw removeRes.error;
+    }
+  }
+
+  private removeGeneratedFiles(outputFolderPath: string): void {
+    const files = fs.readdirSync(outputFolderPath);
+    for (const file of files) {
+      if (file === defaultOpenApiOutputDir) {
+        const openApiSpecsFolderPath = path.join(outputFolderPath, defaultOpenApiOutputDir);
+        fs.rmSync(openApiSpecsFolderPath, { recursive: true, force: true });
+      }
+
+      if (
+        file === defaultDAManifestFileName ||
+        file.match(/[^-]+\-apiplugin\.json/) ||
+        file.match(/[^-]+\-openapi\.json/) ||
+        file.match(/[^-]+\-openapi\.yaml/) ||
+        file.match(/[^-]+\-openapi\.yml/)
+      ) {
+        const filePath = path.join(outputFolderPath, file);
+        fs.rmSync(filePath);
+      }
     }
   }
 }
