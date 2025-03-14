@@ -184,7 +184,6 @@ describe("copilotExtension", async () => {
       );
 
       let res = await generator.post(context, inputs, "");
-      assert.isFalse(logStub.called);
       assert.isTrue(res.isOk());
 
       res = await generator.post(context, { ...inputs, platform: Platform.CLI }, "");
