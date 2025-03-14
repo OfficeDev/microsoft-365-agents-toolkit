@@ -330,7 +330,6 @@ describe("copilotExtension", async () => {
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
       await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
@@ -350,7 +349,6 @@ describe("copilotExtension", async () => {
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
       await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
@@ -373,7 +371,6 @@ describe("copilotExtension", async () => {
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
       await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
@@ -397,7 +394,6 @@ describe("copilotExtension", async () => {
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
       await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
@@ -427,7 +423,6 @@ describe("copilotExtension", async () => {
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
       await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
