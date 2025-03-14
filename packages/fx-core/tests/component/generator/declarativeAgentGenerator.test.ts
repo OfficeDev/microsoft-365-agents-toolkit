@@ -5,7 +5,16 @@
  * @author yuqzho@microsoft.com
  */
 
-import { err, Inputs, ok, Platform, PluginManifestSchema, UserError, signedIn, DeclarativeCopilotManifestSchema } from "@microsoft/teamsfx-api";
+import {
+  err,
+  Inputs,
+  ok,
+  Platform,
+  PluginManifestSchema,
+  UserError,
+  signedIn,
+  DeclarativeCopilotManifestSchema,
+} from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
@@ -27,6 +36,7 @@ import {
 } from "../../../src/question";
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { graphAPIClient } from "../../../src/client/graphAPIClient";
+import { featureFlagManager } from "../../../src/common/featureFlags";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -161,6 +171,8 @@ describe("copilotExtension", async () => {
       };
 
       const logStub = sandbox.stub(MockLogProvider.prototype, "info").resolves();
+      // mock sensitivity label feature flag
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
@@ -183,7 +195,25 @@ describe("copilotExtension", async () => {
       assert.isTrue(logStub.called);
       assert.isTrue(res.isOk());
     });
-    it("get manifest path error", async () => {
+    it("skip get manifest path error", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+        [QuestionNames.AppName]: "app",
+      };
+
+      sandbox
+        .stub(copilotGptManifestUtils, "getManifestPath")
+        .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+    it("get manifest path error - existing action", async () => {
       const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const inputs: Inputs = {
@@ -232,21 +262,27 @@ describe("copilotExtension", async () => {
 
     it("success", async () => {
       const infoStub = sandbox.stub(context.logProvider!, "info");
-      const tokenStub = sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
-        ok({
-          status: signedIn,
-          token: "fake-token",
-        })
-      );
-      const getLabelStub = sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
+      const tokenStub = sandbox
+        .stub(context.tokenProvider!.m365TokenProvider, "getStatus")
+        .resolves(
+          ok({
+            status: signedIn,
+            token: "fake-token",
+          })
+        );
+      const getLabelStub = sandbox
+        .stub(graphAPIClient, "getGeneralSentivityLabelId")
+        .resolves(ok("label-id"));
       const DAManifest = {
         name: "test",
-        description: "test description"
-      } as DeclarativeCopilotManifestSchema
-      const readStub = sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-        ok(DAManifest)
-      );
-      const writeStub = sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+        description: "test description",
+      } as DeclarativeCopilotManifestSchema;
+      const readStub = sandbox
+        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+        .resolves(ok(DAManifest));
+      const writeStub = sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(ok(undefined));
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -257,7 +293,7 @@ describe("copilotExtension", async () => {
       assert.deepEqual(writeStub.firstCall.args[0], {
         name: "test",
         description: "test description",
-        sensitivity_label: "label-id"
+        sensitivity_label: "label-id",
       });
       assert.equal(writeStub.firstCall.args[1], manifestPath);
       assert.isFalse(infoStub.called);
@@ -329,9 +365,9 @@ describe("copilotExtension", async () => {
         })
       );
       sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
-        err(new UserError("source", "name", "message"))
-      );
+      sandbox
+        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+        .resolves(err(new UserError("source", "name", "message")));
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -350,7 +386,7 @@ describe("copilotExtension", async () => {
       sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
         ok({
           name: "test",
-          description: "test description"
+          description: "test description",
         })
       );
       sandbox
