@@ -11,6 +11,7 @@ import {
   FxError,
   IQTreeNode,
   Inputs,
+  InputsWithProjectPath,
   Result,
   Stage,
   Tools,
@@ -308,7 +309,7 @@ export default class ServerConnection implements IServerConnection {
     const res = await Correlator.runWithId(
       corrId,
       (params) => this.core.previewWithManifest(params),
-      inputs
+      inputs as InputsWithProjectPath
     );
     return standardizeResult(res);
   }
