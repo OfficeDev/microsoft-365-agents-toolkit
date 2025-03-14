@@ -173,7 +173,10 @@ describe("Remote debug Tests", function () {
         const insertDataCmd = `npm run indexer:create -- ${searchKey} ${azureOpenAiKey}`;
         const { success: insertDataSuccess } = await Executor.execute(
           insertDataCmd,
-          projectPath
+          projectPath,
+          undefined,
+          undefined,
+          "DeprecationWarning"
         );
         if (!insertDataSuccess) {
           throw new Error("Failed to insert data");
