@@ -50,31 +50,40 @@ export class CDPClient {
       try {
         await new Promise((resolve) => setTimeout(resolve, delay)); // initial delay
         const client = await CDPModule.build({ port: debugPort, target });
+        logger.debug(
+          `CDPClient.connectWithBackoff() - CDPModule.build ({port: ${debugPort}, target: ${target}}) success`
+        );
         return client;
       } catch (error) {
         this.errors.push(error);
         recentError = error;
-        void vscode.window.showInformationMessage(
-          `Attempt ${i + 1} failed. Retrying in ${delay}ms...`
+        logger.debug(
+          `CDPClient.connectWithBackoff() - Attempt ${i + 1} failed. Retrying in ${delay}ms...`
         );
         delay *= 2; // double the delay for the next attempt
       }
     }
-    void vscode.window.showErrorMessage("All attempts to connect have failed");
+    logger.debug("CDPClient.connectWithBackoff() - All attempts to connect have failed");
     throw recentError;
   }
   async subscribeToWebSocketEvents(client: CDP.Client): Promise<void> {
     if (this.url.includes("m365.cloud.microsoft/chat")) {
+      logger.debug(
+        "CDPClient.subscribeToWebSocketEvents() - is m365.cloud.microsoft/chat, start listening to sub target iframe"
+      );
       // only m365.cloud.microsoft need listen to sub target iframe
       void this.launchTeamsChatListener(client);
     } else {
+      logger.debug(
+        "CDPClient.subscribeToWebSocketEvents() - is not m365.cloud.microsoft/chat, start listening to target directly"
+      );
       // Enable the necessary domains
       await client.Network.enable();
       await client.Page.enable();
       client.Network.webSocketFrameReceived(this.webSocketFrameReceivedHandler.bind(this));
       this.client = client;
       logger.info(
-        `Connected to copilot debug session: ${this.name}, port: ${this.port}, url: ${this.url}`
+        `CDPClient.subscribeToWebSocketEvents() - Connected to copilot iframe target: ${this.name}, port: ${this.port}, url: ${this.url}`
       );
     }
   }
@@ -100,6 +109,11 @@ export class CDPClient {
       ({ type, url }) =>
         type === "iframe" && url.includes("outlook.office.com/hosted/semanticoverview/Users")
     );
+    logger.debug(
+      `CDPClient.connectToTargetIframe() - filter out the iframe targets: ${iframeTargets
+        .map((i) => i.url)
+        .join(", ")}`
+    );
     for (const iframeTarget of iframeTargets) {
       const iframeClient = await this.connectWithBackoff(this.port, iframeTarget.targetId);
       if (iframeClient) {
@@ -109,7 +123,7 @@ export class CDPClient {
         iframeClient.Network.webSocketFrameReceived(this.webSocketFrameReceivedHandler.bind(this));
         this.client = iframeClient;
         logger.info(
-          `Connected to copilot debug session: ${this.name}, port: ${this.port}, url: ${this.url}`
+          `CDPClient.connectToTargetIframe() - Connected to copilot iframe target: ${this.name}, port: ${this.port}, url: ${iframeTarget.url}`
         );
         return true;
       }
@@ -125,11 +139,14 @@ export class CDPClient {
         url: urlType,
         name: this.name,
       });
+      logger.debug(
+        `CDPClient.start() ... start, name: ${this.name}, port: ${this.port}, urlType: ${urlType}`
+      );
       try {
         const client: CDP.Client = await this.connectWithBackoff(this.port);
         await this.subscribeToWebSocketEvents(client);
-        vscode.debug.activeDebugConsole.appendLine(
-          connectToExistingBrowserDebugSessionForCopilot.successfulConnectionMessage(this.port)
+        logger.debug(
+          `CDPClient.start() ... success, name: ${this.name}, port: ${this.port}, urlType: ${urlType}`
         );
         ExtTelemetry.sendTelemetryEvent("cdp-client-start-success", {
           port: `${this.port}`,
@@ -148,6 +165,11 @@ export class CDPClient {
             this.errors.map((e) => JSON.stringify(e, Object.getOwnPropertyNames(e))).join(",")
           ),
         });
+        logger.error(
+          `CDPClient.start() ... failed, name: ${this.name}, port: ${
+            this.port
+          }, urlType: ${urlType}, error: ${error.message as string}`
+        );
       }
     });
   }
@@ -214,11 +236,8 @@ class CDPClientManager {
   async start(url: string, port: number, name: string): Promise<CDPClient> {
     const existing = this.sessions.get(port);
     if (existing) {
-      // throw new PortsConflictError([port], [port], ExtensionSource);
-      void VS_CODE_UI.showMessage(
-        "warn",
-        `Debugging session already exists on this port: ${port}, the existing session will be replaced. Please change the runtimeArgs '--remote-debugging-port' in launch.json and relaunch again.`,
-        false
+      logger.warning(
+        `CDPClientManager.start() - Debugging session already exists on this port: ${port}, the existing session will be replaced. Please change the runtimeArgs '--remote-debugging-port' in launch.json and relaunch again.`
       );
       await this.stop(port);
     }
