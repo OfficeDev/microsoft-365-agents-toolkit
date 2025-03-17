@@ -647,7 +647,7 @@
   "core.syncManifest.success": "Manifest synced to environment: %s successfully.",
   "core.syncManifest.noDiff": "Your manifest file is already up-to-date. Sync completed.",
   "core.syncManifest.saveManifestSuccess": "Manifest file saved to %s successfully.",
-  "core.listSensitivityLabel.notLogin": "Unable to get sensitivity labels. Please login to Microsoft 365 account later.",
+  "core.listSensitivityLabel.notLogin": "Unable to get sensitivity labels. Please log in to Microsoft 365 account later.",
   "ui.select.LoadingOptionsPlaceholder": "Loading options ...",
   "ui.select.LoadingDefaultPlaceholder": "Loading default value ...",
   "error.aad.manifest.NameIsMissing": "name is missing\n",
