@@ -2,6 +2,31 @@
 
 > Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 5.14.0 - Mar 24, 2025
+This update represents a minor version increment of the Teams Toolkit, below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.
+
+### New Features
+
+- **Manage Authentication for Declarative Agent** When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
+![Manage Auth](./img/manage_auth.png)
+
+- **Enable Adaptive Card Previewer for Declarative Agent** We understand that designing an adaptive card for the Declarative Agent has been challenging due to compatibility issues with the Adaptive Card Previewer extension. We're excited to announce that we've now added support to preview Adaptive Card, making the process much smoother and more efficient for you. This enhancement ensures that you can seamlessly design adaptive cards without any hassle.
+
+- **Add Agent Debugging Experience** To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
+![Agent Debugger](./img/agent-debugger.png)
+
+#### Enhancements
+
+- **Use Existing Entra ID Instead of Always Create New** Teams Toolkit creates Entra ID during debugging. While users are easily to be blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can by created by tenant admin. You will need to input the ID and passward to continue.
+
+- **Add streaming experience in App Test Tool**
+
+-**Upgrade to Node 22** All the app templates in Teams Toolkit now are updated to support Node 22.
+
+-**Scecurity Enhancement** Upgrade python app templates to use MSI authentication when deploying to Azure.
+
+### Bug Fixes
+
 ## 5.12.1 - Jan 23, 2025
 
 Hotfix version.
