@@ -11,7 +11,7 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddKnowledgeInputs extends Inputs {
-  /** @description Add Knowledge */
+  /** @description Add Capability */
   "knowledge-source"?:
     | "web-search"
     | "oneDrive-sharePoint"
