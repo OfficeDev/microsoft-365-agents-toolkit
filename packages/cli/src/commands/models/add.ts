@@ -5,10 +5,10 @@ import { commands } from "../../resource";
 import { addSPFxWebpartCommand } from "./addSPFxWebpart";
 import { addPluginCommand } from "./addPlugin";
 import { addAuthConfigCommand } from "./addAuthConfig";
-import { addKnowledgeCommand } from "./addKnowledge";
+import { addCapabilityCommand } from "./addCapability";
 
 const adjustCommands = (): CLICommand[] => {
-  return [addSPFxWebpartCommand, addPluginCommand, addAuthConfigCommand, addKnowledgeCommand];
+  return [addSPFxWebpartCommand, addPluginCommand, addAuthConfigCommand, addCapabilityCommand];
 };
 export function addCommand(): CLICommand {
   return {
