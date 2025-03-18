@@ -36,6 +36,7 @@ export class FeatureFlagName {
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly GCList = "TEAMSFX_GC_LIST";
   static readonly TypeSpec = "TEAMSFX_TYPESPEC";
+  static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
 }
 
 export interface FeatureFlag {
@@ -120,6 +121,10 @@ export class FeatureFlags {
   };
   static readonly TypeSpec = {
     name: FeatureFlagName.TypeSpec,
+    defaultValue: "false",
+  };
+  static readonly SandBoxedTeam = {
+    name: FeatureFlagName.SandBoxedTeam,
     defaultValue: "false",
   };
 }

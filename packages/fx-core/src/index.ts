@@ -13,6 +13,7 @@
 
 import "reflect-metadata";
 export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
+export { GraphClient } from "./client/graphClient";
 export { askSubscription } from "./common/azureUtils";
 export {
   AppStudioScopes,
