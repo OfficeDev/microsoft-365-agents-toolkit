@@ -102,7 +102,6 @@ export class CDPClient {
       } catch (error) {
         this.errors.push(error);
       }
-      if (i + 1 >= retries) break;
       await new Promise((resolve) => setTimeout(resolve, interval));
     }
   }

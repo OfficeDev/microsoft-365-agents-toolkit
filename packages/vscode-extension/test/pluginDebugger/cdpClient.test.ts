@@ -145,6 +145,7 @@ describe("cdpClient", () => {
       const stub = sandbox.stub(cdpClient, "connectToTargetIframe");
       const client = {} as any;
       stub.resolves(true);
+      cdpClient.enableRetry = true;
       cdpClient.connectToTargetIframeWithRetries(client);
       chai.assert.isTrue(stub.calledOnce);
     });
