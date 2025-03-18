@@ -30,7 +30,7 @@ jobs:
       PREID: ${{ github.event.inputs.preid }}
     steps:
       - name: Validate CD branch
-        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo It's allowed to run CD on dev or release branch.
           exit 1
