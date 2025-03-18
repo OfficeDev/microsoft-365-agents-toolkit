@@ -81,6 +81,7 @@ export enum Stage {
   kiotaRegenerate = "kiotaRegenerate",
   addAuthAction = "addAuthAction",
   addKnowledge = "addKnowledge",
+  setSensitivityLabel = "setSensitivityLabel",
 }
 
 export enum TelemetryEvent {

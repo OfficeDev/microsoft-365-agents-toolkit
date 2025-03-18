@@ -2603,7 +2603,15 @@ export class FxCore {
 
     return ok(undefined);
   }
-
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.setSensitivityLabel }),
+    ErrorHandlerMW,
+    QuestionMW("setSensitivityLabel"),
+    ConcurrentLockerMW,
+  ])
+  async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
   private async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,

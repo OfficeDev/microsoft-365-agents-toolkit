@@ -16,6 +16,7 @@ import {
   PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
+  TeamsAppManifest,
   TextInputQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -58,6 +59,7 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
+import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -1553,5 +1555,89 @@ export function syncManifestQuestionNode(): IQTreeNode {
         },
       },
     ],
+  };
+}
+
+export function setSensitivityLabelNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: selectDeclarativeAgentManifestQuestion(),
+      },
+      {
+        data: SelectSensitivityLabelQuestion(),
+      },
+    ],
+  };
+}
+
+export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
+  return {
+    name: QuestionNames.DeclarativeAgentManifestPath,
+    cliName: "declarative-agent-manifest-file",
+    cliShortName: "d",
+    cliDescription:
+      "Specify the path for the Declarative Agent manifest. It can be either absolute path or relative path to the project root folder, with default at './appPackage/declarativeAgent.json'",
+    title: getLocalizedString("core.selectDeclarativeAgentManifestQuestion.title"),
+    type: "singleFile",
+    default: (inputs: Inputs): string | undefined => {
+      if (inputs.platform === Platform.CLI_HELP) {
+        return "./appPackage/declarativeAgent.json";
+      } else {
+        if (!inputs.projectPath) return undefined;
+        const manifestPath = path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
+        if (fs.pathExistsSync(manifestPath)) {
+          const manifestRes = fs.readJsonSync(manifestPath) as TeamsAppManifest;
+          const declarativeAgentPath = manifestRes?.copilotAgents?.declarativeAgents?.[0]?.file;
+          if (!declarativeAgentPath || !fs.pathExistsSync(declarativeAgentPath)) {
+            return undefined;
+          }
+          return declarativeAgentPath;
+        } else {
+          return undefined;
+        }
+      }
+    },
+  };
+}
+
+export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SensitivityLabel,
+    cliName: "sensitivity-label",
+    cliShortName: "s",
+    cliDescription: "Specify the sensitivity label to be set.",
+    title: getLocalizedString("core.selectSensitivityLabelQuestion.title"),
+    type: "singleSelect",
+    // Different tenant may have different sensitivity labels, so the options are always dynamic
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      try {
+        const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+          scopes: [listSensitivityLabelScope],
+        });
+        if (tokenRes.isErr()) {
+          return [];
+        }
+        const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+        if (res.isErr()) {
+          return [];
+        }
+        const options = [];
+        for (const label of res.value) {
+          options.push({
+            id: label.id ?? "",
+            label: label.displayName ?? "",
+            description: label.description ?? "",
+          });
+        }
+        return options;
+      } catch (e) {
+        return [];
+      }
+    },
   };
 }

@@ -267,6 +267,16 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
   return result;
 }
 
+export async function setSensitivityLabelHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.SetSensitivityLabelStart,
+    getTriggerFromProperty(args)
+  );
+  const inputs = getSystemInputs();
+  const result = await runCommand(Stage.setSensitivityLabel, inputs);
+  return result;
+}
+
 export async function addAuthActionHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
   const inputs = getSystemInputs();

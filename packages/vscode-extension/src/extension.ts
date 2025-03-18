@@ -129,6 +129,7 @@ import {
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
   shareHandler,
+  setSensitivityLabelHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -991,6 +992,14 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     Correlator.run(refreshCopilotCallback, args)
   );
   context.subscriptions.push(refreshCopilot);
+
+  const setSensitivityLabelCmd = vscode.commands.registerCommand(
+    "fx-extension.setSensitivityLabel",
+    async (...args) => {
+      await Correlator.run(setSensitivityLabelHandler, args);
+    }
+  );
+  context.subscriptions.push(setSensitivityLabelCmd);
 }
 
 /**

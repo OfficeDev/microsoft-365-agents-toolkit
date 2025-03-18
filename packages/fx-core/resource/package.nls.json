@@ -503,6 +503,8 @@
   "core.collaboration.error.failedToLoadDotEnvFile": "Unable to load your .env File. Reason: %s",
   "core.selectAadAppManifestQuestion.title": "Select Microsoft Entra manifest.json file",
   "core.selectTeamsAppManifestQuestion.title": "Select Teams manifest.json File",
+  "core.selectDeclarativeAgentManifestQuestion.title": "Select declarativeAgent.json file",
+  "core.selectSensitivityLabelQuestion.title": "Select a sensitivity label",
   "core.selectTeamsAppPackageQuestion.title": "Select Teams App Package File",
   "core.selectLocalTeamsAppManifestQuestion.title": "Select local Teams manifest.json file",
   "core.selectCollaborationAppTypeQuestion.title": "Select the app for which you want to manage collaborators",

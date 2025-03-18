@@ -345,6 +345,9 @@ export enum TelemetryEvent {
 
   OpenOneDriveSharePointUrlStart = "open-one-drive-share-point-url-start",
   OpenOneDriveSharePointUrl = "open-one-drive-share-point-url",
+
+  SetSensitivityLabelStart = "set-sensitivity-label-start",
+  SetSensitivityLabel = "set-sensitivity-label",
 }
 
 export enum TelemetryProperty {
