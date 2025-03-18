@@ -1587,18 +1587,27 @@ export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
       if (inputs.platform === Platform.CLI_HELP) {
         return "./appPackage/declarativeAgent.json";
       } else {
-        if (!inputs.projectPath) return undefined;
-        const manifestPath = path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
-        if (fs.pathExistsSync(manifestPath)) {
-          const manifestRes = fs.readJsonSync(manifestPath) as TeamsAppManifest;
-          const declarativeAgentPath = manifestRes?.copilotAgents?.declarativeAgents?.[0]?.file;
-          if (!declarativeAgentPath || !fs.pathExistsSync(declarativeAgentPath)) {
-            return undefined;
-          }
-          return declarativeAgentPath;
-        } else {
+        if (!inputs.projectPath) {
           return undefined;
         }
+        const manifestPath = path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
+        if (!fs.pathExistsSync(manifestPath)) {
+          return undefined;
+        }
+        const manifestRes = fs.readJsonSync(manifestPath) as TeamsAppManifest;
+        const declarativeAgentPath = manifestRes?.copilotAgents?.declarativeAgents?.[0]?.file;
+        if (!declarativeAgentPath) {
+          return undefined;
+        }
+        const declarativeAgentAbsolutePath = path.join(
+          inputs.projectPath,
+          AppPackageFolderName,
+          declarativeAgentPath
+        );
+        if (!fs.pathExistsSync(declarativeAgentAbsolutePath)) {
+          return undefined;
+        }
+        return declarativeAgentAbsolutePath;
       }
     },
   };

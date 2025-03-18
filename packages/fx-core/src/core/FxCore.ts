@@ -2610,6 +2610,7 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    await Promise.resolve();
     return ok(undefined);
   }
   private async updateAuthActionInYaml(

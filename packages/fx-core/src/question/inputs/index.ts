@@ -15,3 +15,4 @@ export * from "./UninstallInputs";
 export * from "./SyncManifestInputs";
 export * from "./AddAuthActionInputs";
 export * from "./AddKnowledgeInputs";
+export * from "./SetSensitivityLabelInputs";
