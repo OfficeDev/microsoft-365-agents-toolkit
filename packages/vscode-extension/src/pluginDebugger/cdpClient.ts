@@ -106,9 +106,9 @@ export class CDPClient {
   async connectToTargetIframe(client: CDP.Client): Promise<boolean> {
     const targets = await client.Target.getTargets();
     logger.debug(
-      `CDPClient.connectToTargetIframe() - input iframe targets: ${targets.targetInfos
-        .map((i) => i.url)
-        .join(", ")}`
+      `CDPClient.connectToTargetIframe() - input iframe targets: ${JSON.stringify(
+        targets.targetInfos
+      )}`
     );
     const iframeTargets = targets.targetInfos.filter(
       ({ type, url }) =>
