@@ -16,10 +16,7 @@ class MetadataDAPropertiesUtil {
     props: { [key: string]: string }
   ): Promise<void> {
     let manifestName = path.join(MetadataV3.teamsManifestFolder, MetadataV3.teamsManifestFileName);
-    const action = model.provision?.driverDefs.find(
-      (def) => def.uses === "teamsApp/validateManifest"
-    );
-    // if teamsApp/validateManifest action is defined, use the manifest file in the action
+    const action = model.provision?.driverDefs.find((def) => def.uses === "teamsApp/zipAppPackage");
     if (action) {
       const parameters = action.with as { [key: string]: string };
       if (parameters && parameters["manifestPath"]) {
@@ -29,10 +26,6 @@ class MetadataDAPropertiesUtil {
 
     const projectRoot = path.dirname(ymlPath);
     const manifestPath = path.join(projectRoot, manifestName);
-    if (!(await fs.pathExists(manifestPath))) {
-      return;
-    }
-
     try {
       const result = await manifestUtils._readAppManifest(manifestPath);
       if (result.isErr()) {
@@ -53,7 +46,7 @@ class MetadataDAPropertiesUtil {
 
         if (declarativeAgentJson.capabilities) {
           props[ProjectTypeProps.DeclarativeAgentCapabilities] = declarativeAgentJson.capabilities
-            ?.map((capability: any) => capability.name)
+            .map((capability: any) => capability.name)
             .join(",");
         } else {
           props[ProjectTypeProps.DeclarativeAgentCapabilities] = "";

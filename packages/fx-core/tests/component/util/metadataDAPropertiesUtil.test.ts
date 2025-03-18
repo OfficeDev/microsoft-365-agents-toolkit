@@ -1,4 +1,4 @@
-import { err, FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
+import { FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
@@ -12,11 +12,7 @@ import { DriverContext } from "../../../src/component/driver/interface/commonArg
 import { setTools } from "../../../src/common/globalVars";
 import { MockTools } from "../../core/utils";
 import { ExecutionResult as DriverResult } from "../../../src/component/driver/interface/stepDriver";
-import {
-  ProjectTypeProps,
-  TelemetryProperty,
-  WebApplicationIdValue,
-} from "../../../src/common/telemetry";
+import { ProjectTypeProps } from "../../../src/common/telemetry";
 import { metadataDAPropertiesUtil } from "../../../src/component/utils/metadataDAProperties";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 
@@ -44,26 +40,6 @@ describe("metadata rsc permission util", () => {
     $schema: "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
     manifestVersion: "1.19",
     version: "1.0.0",
-    id: "TEAMS_APP_ID",
-    developer: {
-      name: "Teams App, Inc.",
-      websiteUrl: "https://www.example.com",
-      privacyUrl: "https://www.example.com/privacy",
-      termsOfUseUrl: "https://www.example.com/termofuse",
-    },
-    icons: {
-      color: "color.png",
-      outline: "outline.png",
-    },
-    name: {
-      short: "test_NAME_SUFFIX",
-      full: "Full name for ddfdfdddd",
-    },
-    description: {
-      short: "Short description for test",
-      full: "Full description for test",
-    },
-    accentColor: "#FFFFFF",
     copilotAgents: {
       declarativeAgents: [
         {
@@ -72,8 +48,6 @@ describe("metadata rsc permission util", () => {
         },
       ],
     },
-    permissions: ["identity", "messageTeamMembers"],
-    validDomains: [],
   };
 
   const mockProjectModel: ProjectModel = {
@@ -82,7 +56,7 @@ describe("metadata rsc permission util", () => {
       name: "provision",
       driverDefs: [
         {
-          uses: "teamsApp/validateManifest",
+          uses: "teamsApp/zipAppPackage",
           with: {
             manifestPath: "./appPackage/manifest.json",
           },
@@ -179,7 +153,89 @@ describe("metadata rsc permission util", () => {
   it("parseManifest no manifest", async () => {
     sandbox.stub(fs, "pathExists").resolves(false);
     const props: any = {};
+    await metadataDAPropertiesUtil.parseManifest(
+      ymlPath,
+      {
+        version: "1.0.0",
+        provision: {
+          name: "provision",
+          driverDefs: [
+            {
+              uses: "teamsApp/zipAppPackage",
+              with: {},
+            },
+          ],
+          resolvePlaceholders: () => {
+            return ["AZURE_SUBSCRIPTION_ID", "AZURE_RESOURCE_GROUP_NAME"];
+          },
+          execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+            return { result: ok(new Map()), summaries: [] };
+          },
+          resolveDriverInstances: mockedResolveDriverInstances,
+        },
+        environmentFolderPath: "./envs",
+      },
+      props
+    );
+    assert(props[ProjectTypeProps.TeamsManifestVersion] === undefined);
+  });
+
+  it("parseManifest read manfiest error", async () => {
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const props: any = {};
     await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);
     assert(props[ProjectTypeProps.TeamsManifestVersion] === undefined);
+  });
+
+  it("parseManifest no capabilities and actions", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(readAppManifestRes as any));
+
+    sandbox.stub(fs, "readJSON").callsFake(async (path: string) => {
+      if (path.endsWith("declarativeAgent.json")) {
+        return {};
+      }
+    });
+
+    const props: any = {};
+    await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);
+
+    assert(props[ProjectTypeProps.DeclarativeAgentCapabilitiesCount] === "0");
+    assert(props[ProjectTypeProps.DeclarativeAgentActionsCount] === "0");
+    assert(props[ProjectTypeProps.DeclarativeAgentCapabilities] === "");
+    assert(props[ProjectTypeProps.DeclarativeAgentPluginAuthTypes] === "");
+  });
+
+  it("parseManifest no copilotAgents", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      ok({
+        $schema:
+          "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+        manifestVersion: "1.19",
+      } as any)
+    );
+
+    const props: any = {};
+    await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);
+
+    assert.deepEqual(props, {});
+  });
+
+  it("parseManifest no declarativeAgents", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      ok({
+        $schema:
+          "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+        manifestVersion: "1.19",
+        copilotAgents: {},
+      } as any)
+    );
+
+    const props: any = {};
+    await metadataDAPropertiesUtil.parseManifest(ymlPath, mockProjectModel, props);
+
+    assert.deepEqual(props, {});
   });
 });
