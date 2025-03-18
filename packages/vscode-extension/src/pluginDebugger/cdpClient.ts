@@ -7,8 +7,6 @@ import { Protocol } from "devtools-protocol";
 import * as uuid from "uuid";
 import * as vscode from "vscode";
 import logger from "../commonlib/log";
-import { connectToExistingBrowserDebugSessionForCopilot } from "../debug/common/debugConstants";
-import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { WebSocketEventHandler } from "./webSocketEventHandler";
 
@@ -32,6 +30,7 @@ export class CDPClient {
   client?: CDP.Client;
   errors: Error[] = [];
   messageNumber = 0;
+  enableRetry = false;
 
   constructor(url: string, port: number, name: string) {
     this.url = url;
@@ -72,7 +71,8 @@ export class CDPClient {
         "CDPClient.subscribeToWebSocketEvents() - is m365.cloud.microsoft/chat, start listening to sub target iframe"
       );
       // only m365.cloud.microsoft need listen to sub target iframe
-      void this.launchTeamsChatListener(client);
+      this.enableRetry = true;
+      void this.connectToTargetIframeWithRetries(client);
     } else {
       logger.debug(
         "CDPClient.subscribeToWebSocketEvents() - is not m365.cloud.microsoft/chat, start listening to target directly"
@@ -88,8 +88,12 @@ export class CDPClient {
     }
   }
 
-  async launchTeamsChatListener(client: CDP.Client, retries = 10, interval = 3000): Promise<void> {
-    for (let i = 0; i < retries; ++i) {
+  async connectToTargetIframeWithRetries(
+    client: CDP.Client,
+    retries = 1200,
+    interval = 3000
+  ): Promise<void> {
+    for (let i = 0; i < retries && this.enableRetry; ++i) {
       try {
         const res = await this.connectToTargetIframe(client);
         if (res) {
@@ -183,8 +187,9 @@ export class CDPClient {
       const urlType = isOfficeChatUrl(this.url) ? "office" : "m365";
       await this.client?.close();
       this.client = undefined;
+      this.enableRetry = false;
       logger.info(
-        `Disconnected to copilot debug session: ${this.name}, port: ${this.port}, url: ${this.url}`
+        `[CDPClient] - Disconnected to copilot debug session: ${this.name}, port: ${this.port}, url: ${this.url}`
       );
       ExtTelemetry.sendTelemetryEvent("cdp-client-end", {
         port: `${this.port}`,
