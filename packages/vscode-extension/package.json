@@ -920,7 +920,7 @@
       {
         "command": "fx-extension.addWebpart",
         "title": "%teamstoolkit.commmands.addWebpart.title%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isSPFx",
         "category": "Teams"
       },
       {
