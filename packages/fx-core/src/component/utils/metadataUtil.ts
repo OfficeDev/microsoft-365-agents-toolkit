@@ -10,6 +10,7 @@ import { yamlParser } from "../configManager/parser";
 import { createHash } from "crypto";
 import { metadataGraphPermissionUtil } from "./metadataGraphPermssion";
 import { metadataRscPermissionUtil } from "./metadataRscPermission";
+import { metadataDAPropertiesUtil } from "./metadataDAProperties";
 
 class MetadataUtil {
   async parse(path: string, env: string | undefined): Promise<Result<ProjectModel, FxError>> {
@@ -35,6 +36,7 @@ class MetadataUtil {
       );
       await metadataGraphPermissionUtil.parseAadManifest(path, res.value, props);
       await metadataRscPermissionUtil.parseManifest(path, res.value, props);
+      await metadataDAPropertiesUtil.parseManifest(path, res.value, props);
 
       TOOLS.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.MetaData, props);
     }
