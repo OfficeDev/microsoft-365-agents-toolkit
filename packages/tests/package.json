@@ -75,7 +75,7 @@
     "@microsoft/teamsfx-api": "workspace:*",
     "@types/semver": "^7.3.8",
     "adm-zip": "0.5.10",
-    "axios": "^1.6.8",
+    "axios": "^1.8.2",
     "dotenv": "^8.2.0",
     "form-data": "4.0.0",
     "fs-extra": "^7.0.1",
