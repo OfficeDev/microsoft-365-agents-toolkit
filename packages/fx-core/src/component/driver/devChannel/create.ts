@@ -44,8 +44,8 @@ export class CreateDevChannelDriver implements StepDriver {
       const graphClient = new GraphClient(context.m365TokenProvider);
       const res = await graphClient.CreateTeamAndChannelAsync(
         args.teamName,
-        args.channelName,
-        args.channelDescription
+        args.teamDescription,
+        args.channelName
       );
       const channelId = res.channelId;
       const teamId = res.teamId;

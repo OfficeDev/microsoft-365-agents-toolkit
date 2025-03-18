@@ -12,7 +12,7 @@ export interface CreateDevChannelArgs {
   channelName: string;
 
   /**
-   * The description of the channel to create.
+   * The description of the team to create.
    */
-  channelDescription: string;
+  teamDescription: string;
 }

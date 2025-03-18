@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { M365TokenProvider } from "@microsoft/teamsfx-api";
+import { M365TokenProvider, LogProvider } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import { ErrorContextMW } from "../common/globalVars";
 import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
@@ -19,13 +19,17 @@ import { GetChannelResponse } from "./interfaces/GetChannelResponse";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
+import { waitSeconds } from "../common/utils";
+import { getLocalizedString } from "../common/localizeUtils";
 
 export class GraphClient {
   private readonly baseUrl: string = "https://graph.microsoft.com/beta";
   private readonly tokenProvider: M365TokenProvider;
+  private readonly logProvider: LogProvider | undefined;
 
-  constructor(tokenProvider: M365TokenProvider) {
+  constructor(tokenProvider: M365TokenProvider, logProvider?: LogProvider) {
     this.tokenProvider = tokenProvider;
+    this.logProvider = logProvider;
   }
 
   private createRequesterWithToken(token: string): AxiosInstance {
@@ -106,8 +110,13 @@ export class GraphClient {
     description: string,
     defaultChannelName: string
   ): Promise<CreateTeamAndChannelResponse> {
+    const LocationRegex = /teams\('([0-9a-fA-F-]{36})'\)\/operations\('([0-9a-fA-F-]{36})'/;
     const tokenResponse = await this.tokenProvider.getAccessToken({
-      scopes: GraphTeamsTeamCreateScopes,
+      scopes: [
+        ...GraphTeamsTeamCreateScopes,
+        ...GraphTeamsTeamReadScopes,
+        ...GraphTeamsChannelReadScopes,
+      ],
     });
     if (tokenResponse.isErr()) {
       throw tokenResponse.error;
@@ -122,14 +131,38 @@ export class GraphClient {
     };
 
     const response = await requester.post(`/teams?isSandboxedTeam=true`, teamData);
-    const location = void response.headers.Location;
+    const location = response.headers.location;
+
     if (location) {
-      // TODO: Check the status of opearation completion, logging the status
-      // await status = requester.get(location);
-      return {
-        teamId: location,
-        channelId: location,
-      };
+      // this.logProvider?.info(`Location header: ${location}`);
+      const match = location.match(LocationRegex);
+      if (match) {
+        const teamId = match[1];
+        let status = await requester.get(location);
+
+        // Query team creation status, until it's succeeded
+        while (status.data.status !== "succeeded") {
+          await waitSeconds(5);
+          const message = getLocalizedString("driver.devChannel.status", status.data.status);
+          this.logProvider?.info(message);
+          status = await requester.get(location);
+        }
+
+        // Get Channel ID
+        const channels = await this.GetChannelsInTeamAsync(teamId);
+        const channel = channels.find((channel) => channel.displayName === defaultChannelName);
+        if (channel) {
+          const channelId = channel.id;
+          return {
+            teamId: teamId,
+            channelId: channelId,
+          };
+        } else {
+          throw new Error(`Failed to find channel with name: ${defaultChannelName}`);
+        }
+      } else {
+        throw new Error("Failed to parse location header.");
+      }
     } else {
       throw new Error("Failed to create team and channel.");
     }
@@ -157,5 +190,19 @@ export class GraphClient {
 
     const response = await requester.post(`/teams/${teamId}/channels`, channelData);
     return <CreateChannelResponse>response.data;
+  }
+
+  @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
+  public async GetChannelsInTeamAsync(teamId: string): Promise<GetChannelResponse[]> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({
+      scopes: GraphTeamsChannelReadScopes,
+    });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+
+    const response = await requester.get(`/teams/${teamId}/channels`);
+    return <GetChannelResponse[]>response.data.value;
   }
 }
