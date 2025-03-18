@@ -29,6 +29,30 @@ jobs:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
     steps:
+      - name: Validate CD branch
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
+        run: |
+          echo It's allowed to run CD on dev or release branch.
+          exit 1
+
+      - name: Validate inputs for release
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid == 'alpha' }}
+        run: |
+          echo It's not allowed to run CD on release branch for alpha.
+          exit 1
+
+      - name: Valiadte inputs for dev
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev' && github.event.inputs.preid != 'alpha' }}
+        run: |
+          echo It's only allowed to alpha on dev branch.
+          exit 1
+
+      - name: Validate schedule
+        if: ${{ github.event_name == 'schedule' && github.ref != 'refs/heads/dev' }}
+        run: |
+          echo It's not allowed to run schedule release except dev branch.
+          exit 1
+
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
