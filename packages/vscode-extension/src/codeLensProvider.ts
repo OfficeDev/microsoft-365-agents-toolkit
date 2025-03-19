@@ -31,6 +31,7 @@ import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
 import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
+import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -676,10 +677,11 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
       return [];
     }
+    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
     const text = document.getText();
-    const labelIndex = text.indexOf('"sensitivity_label"');
-
-    if (labelIndex == -1) {
+    const regex = new RegExp(Labelregex);
+    const matches = regex.exec(text);
+    if (matches == null) {
       const startPosition = new vscode.Position(0, 0);
       const endPosition = document.positionAt(text.indexOf("\n"));
       const range = new vscode.Range(startPosition, endPosition);
@@ -691,9 +693,10 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       const codeLens = new vscode.CodeLens(range, command);
       return [codeLens];
     }
-    const labelPosition = document.positionAt(labelIndex);
-    const startPosition = new vscode.Position(labelPosition.line, 0);
-    const endPosition = new vscode.Position(labelPosition.line, 1);
+    const line = document.lineAt(document.positionAt(matches.index).line);
+    const labelValue = matches[1];
+    const startPosition = new vscode.Position(line.lineNumber, 0);
+    const endPosition = new vscode.Position(line.lineNumber, 1);
     const range = new vscode.Range(startPosition, endPosition);
 
     // check if user has already logged in to the sensitivity label scope
@@ -714,14 +717,30 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       };
       const codeLens = new vscode.CodeLens(range, command);
       return [codeLens];
+    } else {
+      let labelDisplayName: string | undefined;
+      // query display name of the current label
+      const token = loginStatusRes.value.token;
+      const result = await graphAPIClient.listSensitivityLabels(token);
+      if (result.isOk()) {
+        for (const label of result.value) {
+          if (label.id === labelValue) {
+            labelDisplayName = label.displayName;
+            break;
+          }
+        }
+      }
+      const command = {
+        title: localize(
+          "teamstoolkit.codeLens.setSensitivityLabelWithDisplayName",
+          labelDisplayName
+        ),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
     }
-    const command = {
-      title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
-      command: "fx-extension.setSensitivityLabel",
-      arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
-    };
-    const codeLens = new vscode.CodeLens(range, command);
-    return [codeLens];
   }
 }
 

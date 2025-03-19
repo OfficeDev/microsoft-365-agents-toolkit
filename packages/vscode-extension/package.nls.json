@@ -54,6 +54,7 @@
   "teamstoolkit.codeLens.copilotPluginAddAPI": "Add another API",
   "teamstoolkit.codeLens.setSensitivityLabel": "Set Sensitivity Label",
   "teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn": "Label name: Unknown. Click to view the label",
+  "teamstoolkit.codeLens.setSensitivityLabelWithDisplayName": "Label name: %s. Click to view the label",
   "teamstoolkit.codeLens.decryptSecret": "Decrypt secret",
   "teamstoolkit.codeLens.generateManifestGUID": "Generate Manifest GUID",
   "teamstoolkit.codeLens.deployMicrosoftEntraManifest": "Deploy Microsoft Entra manifest file",
