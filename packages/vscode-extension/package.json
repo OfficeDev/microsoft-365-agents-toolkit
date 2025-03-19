@@ -1853,7 +1853,7 @@
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "watch:vite": "vite build --config vite.config.mts --watch",
     "build:test": "tsc --project tsconfig.test.json --incremental",
-    "test:unit": "npm run build:test && nyc mocha --config .mocharc.json \"test/extension/config.test.ts\"",
+    "test:unit": "npm run build:test && nyc mocha --config .mocharc.json \"test/**/*.test.ts\"",
     "test:debug": "npm run build:test && nyc mocha --config .mocharc.json \"test/pluginDebugger/*.test.ts\"",
     "test:integration": "echo 'to be implementd'",
     "test:e2e": "echo 'to be implementd'",
