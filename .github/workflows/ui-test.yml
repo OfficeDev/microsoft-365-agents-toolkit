@@ -166,6 +166,8 @@ jobs:
       AZURE_OPENAI_ENDPOINT : ${{ secrets.AZURE_OPENAI_ENDPOINT }}
       AZURE_VISION_ENDPOINT : ${{ secrets.AZURE_VISION_ENDPOINT }}
       AZURE_VISION_KEY : ${{ secrets.AZURE_VISION_KEY }}
+      AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
+      AZURE_OPENAI_4O_MINI_ENDPOINT : ${{ secrets.AZURE_OPENAI_4O_MINI_ENDPOINT }}
 
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
@@ -183,12 +185,16 @@ jobs:
           [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", "${{ env.AZURE_OPENAI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
           [System.Environment]::SetEnvironmentVariable("AZURE_VISION_ENDPOINT", "${{ env.AZURE_VISION_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
           [System.Environment]::SetEnvironmentVariable("AZURE_VISION_KEY", "${{ env.AZURE_VISION_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_KEY", "${{ env.AZURE_OPENAI_4O_MINI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_ENDPOINT", "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
           $env:MODEL_NAME = "${{ env.MODEL_NAME }}"
           $env:GOOGLE_API_KEY = "${{ env.GOOGLE_API_KEY }}"
           $env:AZURE_OPENAI_KEY = "${{ env.AZURE_OPENAI_KEY }}"
           $env:AZURE_OPENAI_ENDPOINT = "${{ env.AZURE_OPENAI_ENDPOINT }}"
           $env:AZURE_VISION_ENDPOINT = "${{ env.AZURE_VISION_ENDPOINT }}"
           $env:AZURE_VISION_KEY = "${{ env.AZURE_VISION_KEY }}"
+          $env:AZURE_OPENAI_4O_MINI_KEY = "${{ env.AZURE_OPENAI_4O_MINI_KEY }}"
+          $env:AZURE_OPENAI_4O_MINI_ENDPOINT = "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}"
         shell: pwsh
     
       # Print out the info, but not key info.
@@ -197,6 +203,7 @@ jobs:
           Write-Host "MODEL_NAME: $env:MODEL_NAME"
           Write-Host "AZURE_OPENAI_ENDPOINT: $env:AZURE_OPENAI_ENDPOINT"
           Write-Host "AZURE_VISION_ENDPOINT: $env:AZURE_VISION_ENDPOINT"
+          Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
         shell: pwsh
 
       - name: Set m365 account (win)
@@ -263,42 +270,21 @@ jobs:
           $certfolder = Join-Path -Path $home -ChildPath ".fx/certificate"
           New-Item -Path $certfolder -ItemType Directory
           Start-Process powershell -verb RunAs -ArgumentList $filePath -wait
-
-      # Install the Appium
-      - name: Install Appium
-        run: |
-            npm install -g appium
-            appium driver install windows
-            appium -v
-
-
-      - name: Install WinAppDriver
-        run: |
-          Invoke-WebRequest -Uri https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver_1.2.1.msi -OutFile WinAppDriver.msi
-          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
-    
-      - name: Enable Developer Mode (Requires Admin Privileges)
-        run: |
-          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
-        shell: cmd
-    
-      - name: Start Appium in Background
-        run: Start-Process -NoNewWindow -FilePath "cmd.exe" -ArgumentList "/c start /b appium --use-drivers=windows"
-        shell: pwsh
-
-      - name: Wait for Appium to Start
-        run: Start-Sleep -Seconds 15
-        shell: pwsh
-
-      - name: Verify Appium Server is Running
-        run: |
-          curl http://127.0.0.1:4723/status
-        shell: powershell
   
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
           npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest
+
+      # Temporary to print the version
+      - name: Verify the NPM/NPX version
+        working-directory: packages/tests
+        run: |
+          echo "NODE_PATH: $NODE_PATH"
+          echo "PATH: $PATH"
+          node -v
+          npm -v
+          npx -v
 
       - name: Install npm packages
         working-directory: packages/tests
@@ -346,6 +332,41 @@ jobs:
         run: |
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
+
+      # Install the Appium
+      - name: Install Appium
+        run: |
+            npm install -g appium
+            appium driver install windows
+            appium -v
+
+      # Install the Windows Application Driver
+      - name: Install WinAppDriver
+        run: |
+          Invoke-WebRequest -Uri https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver_1.2.1.msi -OutFile WinAppDriver.msi
+          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
+    
+      # Enable the Windows Development mode
+      - name: Enable Developer Mode (Requires Admin Privileges)
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
+        shell: cmd
+    
+      # Start the Appium with the background mode
+      - name: Start Appium in Background
+        run: Start-Process -NoNewWindow -FilePath "cmd.exe" -ArgumentList "/c start /b appium --use-drivers=windows"
+        shell: pwsh
+
+      # Wait for the process startup
+      - name: Wait for Appium to Start
+        run: Start-Sleep -Seconds 15
+        shell: pwsh
+
+      # Verify the Port of Appium is open
+      - name: Verify Appium Server is Running
+        run: |
+          curl http://127.0.0.1:4723/status
+        shell: powershell
 
       - name: Setup OpenAI key(win)
         run: |
