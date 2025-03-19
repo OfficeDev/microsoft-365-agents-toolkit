@@ -630,5 +630,6 @@
   "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "Invalid parameter in the createDeclarativeAgentWithApiSpec command. Usage: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).",
   "teamstoolkit.error.KiotaNotInstalled": "You need to install Microsoft Kiota extension with minimum version %s to use this feature.",
   "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision",
+  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting in the settings."
 }
