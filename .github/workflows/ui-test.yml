@@ -207,12 +207,10 @@ jobs:
         shell: pwsh
 
       - name: Download VS Code MSI installer
-        working-directory: packages/tests
         run: |
           Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
     
       - name: Install VS Code using MSI
-        working-directory: packages/tests
         run: |
           Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/SILENT" -Wait
 
