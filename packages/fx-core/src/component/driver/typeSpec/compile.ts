@@ -104,8 +104,9 @@ export class TypeSpecCompileDriver implements StepDriver {
             );
           } else {
             for (const spec of openapiSpecs) {
-              const action = actions.find((action: any) =>
-                spec.toLowerCase().includes((action.id as string).toLowerCase())
+              const action = actions.find(
+                (action: any) =>
+                  action.id.toLowerCase() === spec.split(".").slice(-2)[0].toLowerCase()
               );
               if (!action) {
                 continue;

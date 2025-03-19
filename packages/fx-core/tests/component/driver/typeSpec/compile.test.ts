@@ -178,11 +178,11 @@ describe("typeSpecCompilt", async () => {
       description: "mockedDescription",
       actions: [
         {
-          id: "mockedAction1",
+          id: "mockedaction1",
           file: "mockedAction1-apiplugin.json",
         },
         {
-          id: "mockedActionId2",
+          id: "mockedaction2",
           file: "mockedAction2-apiplugin.json",
         },
       ],
@@ -206,7 +206,7 @@ describe("typeSpecCompilt", async () => {
     });
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isOk()).to.be.true;
-    expect(runCommandStub.calledThrice).to.be.true;
+    expect(runCommandStub.callCount).to.equal(5);
   });
 
   it("should throw error if missing input", async () => {
