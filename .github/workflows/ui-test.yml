@@ -309,16 +309,16 @@ jobs:
 
       - name: Download VS Code MSI installer
         run: |
-          Invoke-WebRequest -Uri https://update.code.visualstudio.com/latest/win32-x64/stable -OutFile vscode-installer.exe
+          Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
     
       - name: Install VS Code using MSI
         run: |
           Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/silent" -NoNewWindow -Wait
 
-      - name: Get VSCode
-        working-directory: packages/tests
-        run: |
-          npx extest get-vscode --storage .test-resources --type stable
+      #- name: Get VSCode
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest get-vscode --storage .test-resources --type stable
 
       - name: Get chromedriver
         working-directory: packages/tests
