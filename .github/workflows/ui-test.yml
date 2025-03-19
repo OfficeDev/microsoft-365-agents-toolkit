@@ -209,10 +209,8 @@ jobs:
       - name: Download VS Code MSI installer
         run: |
           Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
-    
-      - name: Install VS Code using MSI
-        run: |
-          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/SILENT" -Wait
+          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/VERYSILENT" -Wait
+              
 
       - name: Set m365 account (win)
         run: |
