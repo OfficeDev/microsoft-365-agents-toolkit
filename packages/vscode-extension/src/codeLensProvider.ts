@@ -733,7 +733,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       const command = {
         title: localize(
           "teamstoolkit.codeLens.setSensitivityLabelWithDisplayName",
-          labelDisplayName
+          labelDisplayName ?? "Unknown"
         ),
         command: "fx-extension.setSensitivityLabel",
         arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
