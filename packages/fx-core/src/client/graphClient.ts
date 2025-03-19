@@ -104,6 +104,13 @@ export class GraphClient {
     });
   }
 
+  /**
+   * Create a sandboxed team and a channel.
+   * @param teamName Team name
+   * @param description Team description
+   * @param defaultChannelName Channel name
+   * @returns
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async CreateTeamAndChannelAsync(
     teamName: string,
@@ -192,6 +199,11 @@ export class GraphClient {
     return <CreateChannelResponse>response.data;
   }
 
+  /**
+   * List channels in a team
+   * @param teamId Team ID
+   * @returns A list of channels, with id and webUrl
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async GetChannelsInTeamAsync(teamId: string): Promise<GetChannelResponse[]> {
     const tokenResponse = await this.tokenProvider.getAccessToken({
