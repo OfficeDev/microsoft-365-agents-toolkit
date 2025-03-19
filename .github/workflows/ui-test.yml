@@ -8,11 +8,6 @@ on:
         required: true
         type: string
 
-      target-cli-version:
-        description: "target cli version or tag, like latest, beta or alpha"
-        required: true
-        type: string
-
       target-sample-ref:
         description: "target sample ref, like v1.1.0, v2.0.0 or dev"
         required: false
@@ -23,34 +18,7 @@ on:
         description: 'test case, e.g. ["localdebug-tab", "localdebug-bot"], Set empty to run all predefined cases'
         required: false
         type: string
-
-      os:
-        default: '["macos-latest", "ubuntu-latest", "windows-latest"]'
-        description: 'os, e.g. ["macos-latest", "ubuntu-latest", "windows-latest"]'
-        required: false
-        type: string
-
-      node-version:
-        default: "[22]"
-        description: "node version, e.g. [22]"
-        required: false
-        type: string
-
-      email-receiver:
-        description: "email notification receiver"
-        required: false
-        type: string
-
-      source-testplan-id:
-        description: "source testplan id: 24569079."
-        required: false
-        type: string
-        default: "24569079"
-
-      target-testplan-name:
-          description: "For example: CY230919. Sync test result to this test plan."
-          required: false
-          type: string
+        
   schedule:
     - cron: "0 18 * * *"
 
@@ -63,8 +31,6 @@ jobs:
     permissions:
       contents: read
     env:
-      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.source-testplan-id }}
-      TARGET_TEST_PLAN_NAME: ${{ github.event.inputs.target-testplan-name }}
       DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
       DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
       DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
@@ -78,12 +44,12 @@ jobs:
         id: bvt
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          echo "npm-tag=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_OUTPUT
+          echo "npm-tag=latest" >> $GITHUB_OUTPUT
           echo "sample-ref=${{ github.event.inputs.target-sample-ref }}" >> $GITHUB_OUTPUT
           echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "vsix-run-id=${{ github.event.inputs.target-vsix-run-id }}" >> $GITHUB_ENV
           echo "target_cli_version=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_ENV
-          echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
+          
 
       - name: pvt (dev)
         id: pvt
@@ -106,8 +72,40 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
+
+      - name: Verify Node.js and npm Installation
+        run: |
+          node -v
+          npm -v
       
+      - name: Install Appium
+        run: |
+          npm install -g appium
+          appium driver install windows
+          appium -v
+
+      - name: Install WinAppDriver
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver.msi" -OutFile "WinAppDriver.msi"
+          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
+        shell: powershell
+  
+      - name: Enable Developer Mode (Requires Admin Privileges)
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
+        shell: cmd
+  
+      - name: Start WebDriver Server in Background
+        run: |
+          Start-Process -FilePath "appium" -ArgumentList "--use-drivers=windows" -NoNewWindow -PassThru
+        shell: powershell
+        
+      - name: Verify Appium Server is Running
+        run: |
+          curl http://127.0.0.1:4723/wd/hub/status
+        shell: powershell
+
       - uses: pnpm/action-setup@v4
 
       - name: create pvt file (random platform/node)
@@ -117,19 +115,6 @@ jobs:
           pnpm --filter=@microsoft/teamsfx-test install
           npx ts-node ./scripts/createRandomPVT.ts
 
-      - name: setup matrix
-        id: setup-matrix
-        working-directory: packages/tests
-        run: |
-          matrix=""
-          if [ ! -z "${{ github.event.inputs.test-case }}" ]; then
-            matrix='{"node-version": ${{ github.event.inputs.node-version }}, "test-case": ${{ github.event.inputs.test-case }}, "os": ${{ github.event.inputs.os }} }'
-          else
-            bash ./scripts/convert-test-case.sh ./scripts/pvt.json
-            matrix=$(cat ./scripts/test-case-temp.json)
-          fi
-
-          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
 
       - name: Download TTK
         run: |
@@ -160,17 +145,14 @@ jobs:
 
     outputs:
       npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
-      sample-ref: ${{ steps.bvt.outputs.sample-ref || steps.pvt.outputs.sample-ref }}
       branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
-      email-receiver: ${{ steps.bvt.outputs.email-receiver || steps.pvt.outputs.email-receiver }}
       vsix-run-id: ${{ env.vsix-run-id }}
-      matrix: ${{ steps.setup-matrix.outputs.matrix }}
       ttk-package: ${{ steps.ttk.outputs.package }}
       ttk-version: ${{ steps.ttk.outputs.version }}
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test-case }}|${{ matrix.os }}|node ${{ matrix.node-version }}|${{ github.ref_name }}
+    name: 'UI Test'
     needs: setup
     permissions:
       contents: read
@@ -213,34 +195,17 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 80
-      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
-      - name: Set m365 account (unix)
-        if: matrix.os != 'windows-latest'
-        run: |
-          users=("${{ env.M365_USERNAME }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
-          count=${#users[@]}
-          index=$((RANDOM%$count))
-          echo "account index: $index"
-          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
-
       - name: Set m365 account (win)
-        if: matrix.os == 'windows-latest'
         run: |
           $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
           $index=Get-Random -min 0 -max $users.count
           $user=$users[$index]
           echo "account index: $index"
           echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
-
-      - name: Set m365 account for Outlook preview (unix)
-        if: matrix.os != 'windows-latest' && contains(matrix.test-case, 'localdebug-obo-tab') == true
-        run: |
-          echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $GITHUB_ENV
-
+          
       - name: Set m365 account for Outlook preview (win)
-        if: matrix.os == 'windows-latest' && contains(matrix.test-case, 'localdebug-obo-tab') == true
         run: |          
           echo "M365_ACCOUNT_NAME=${{ env.M365_USERNAME_5 }}" >> $env:GITHUB_ENV
       
@@ -252,7 +217,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
@@ -260,48 +225,15 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Setup Python
-        if: contains(matrix.test-case,  'py')
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Python environment
-        if: contains(matrix.test-case,  'py')
         run: |
           pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
 
-      - name: Install function core tool (ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
-          sudo apt-get update
-          sudo apt-get install azure-functions-core-tools-4
-
-      - name: Install devtunnel (ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
-          chmod +x ./devtunnel
-          mkdir -p ~/bin
-          mv ./devtunnel ~/bin/devtunnel
-          PATH=~/bin:$PATH
-          ~/bin/devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
-
-      - name: Install devtunnel (mac)
-        if: matrix.os == 'macos-latest'
-        run: |
-          curl https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/osx-x64-devtunnel-zip -o ./devtunnel.zip 
-          unzip ./devtunnel.zip
-          chmod +x ./devtunnel
-          mkdir -p ~/bin
-          mv ./devtunnel ~/bin/devtunnel
-          PATH=~/bin:$PATH
-          ~/bin/devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
-  
       - name: Install devtunnel (windows)
-        if: matrix.os == 'windows-latest'
         working-directory: packages/tests
         run: |
           powershell Invoke-WebRequest -Uri https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/devtunnel.exe -OutFile devtunnel.exe
@@ -311,7 +243,6 @@ jobs:
           ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
       
       - name: Downgrade PowerShell (win)
-        if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
           set "extractPath=C:\Program Files\PowerShell\7"
@@ -321,7 +252,6 @@ jobs:
           pwsh --version
 
       - name: Set cert (win)
-        if: matrix.os == 'windows-latest'
         run: |
           Write-Host $home
           $filePath = Join-Path -Path $home -ChildPath "certinstall.ps1"
@@ -341,11 +271,6 @@ jobs:
         run: |
           npm install
 
-      - name: Download browsers for playwright
-        working-directory: packages/tests
-        run: |
-          npx playwright install
-
       - name: Download TTK
         uses: actions/download-artifact@v4
         with:
@@ -356,46 +281,6 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
-
-      - name: Download samples
-        if: startsWith(matrix.test-case, 'sample-') && contains(matrix.test-case, 'proactive-message') == false && contains(matrix.test-case, 'reddit-link') == false && contains(matrix.test-case, 'chef-bot') == false && contains(matrix.test-case, 'food-catalog') == false && contains(matrix.test-case, 'outlook-signature') == false
-        uses: actions/checkout@v3
-        with:
-          repository: OfficeDev/TeamsFx-Samples
-          ref: ${{ needs.setup.outputs.sample-ref }}
-          path: packages/tests/resource
-
-      - name: Download samples from another repo
-        if: contains(matrix.test-case, 'proactive-message') || contains(matrix.test-case, 'reddit-link')
-        uses: actions/checkout@v3
-        with:
-          repository: OfficeDev/Microsoft-Teams-Samples
-          ref: main
-          path: packages/tests/resource
-
-      - name: Download samples chef bot
-        if: contains(matrix.test-case, 'chef-bot')
-        uses: actions/checkout@v3
-        with:
-          repository: microsoft/teams-ai
-          ref: main
-          path: packages/tests/resource
-
-      - name: Download samples food catalog
-        if: contains(matrix.test-case, 'food-catalog')
-        uses: actions/checkout@v3
-        with:
-          repository: pnp/graph-connectors-samples
-          ref: main
-          path: packages/tests/resource
-
-      - name: Download samples outlook signature
-        if: contains(matrix.test-case, 'outlook-signature')
-        uses: actions/checkout@v3
-        with:
-          repository: OfficeDev/Office-Add-in-samples
-          ref: main
-          path: packages/tests/resource
 
       - name: Get VSCode
         working-directory: packages/tests
@@ -422,63 +307,17 @@ jobs:
         run: |
           npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
 
-      - name: Install docker extension
-        if: contains(matrix.test-case,  'docker')
-        working-directory: packages/tests
-        run: |
-          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-azuretools.vscode-docker
-
-      - name: Install vsix(unix)
-        if: matrix.os != 'windows-latest'
-        working-directory: packages/tests
-        run: |
-          vsix=`find . -maxdepth 1 -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
-          npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
-
       - name: Install vsix(win)
-        if: matrix.os == 'windows-latest'
         working-directory: packages/tests
         run: |
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
-      - name: Setup OpenAI key(unix)
-        if: ${{ matrix.os == 'ubuntu-latest' && github.event_name != 'schedule' }}
-        uses: alsosee/envset@v1
-        with:
-          name: SECRET_AZURE_OPENAI_API_KEY
-          value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}
-
-      - name: Setup OpenAI key(macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
-
       - name: Setup OpenAI key(win)
-        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
-
-      - name: Extract Zip files
-        if: contains(matrix.test-case, 'localization')
-        working-directory: packages/tests
-        run: |
-          7z x "src/ui-test/case-resources/localization-agent-succeed.zip" -o"src/ui-test/case-resources/localization-agent-succeed" -y
-          7z x "src/ui-test/case-resources/localization-agent-unresolved.zip" -o"src/ui-test/case-resources/localization-agent-unresolved" -y
-          7z x "src/ui-test/case-resources/localization-agent-same-level.zip" -o"src/ui-test/case-resources/localization-agent-same-level" -y
-          7z x "src/ui-test/case-resources/localization-agent-different-level.zip" -o"src/ui-test/case-resources/localization-agent-different-level" -y
-
-      - name: Run UI Test(ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: packages/tests
-        run: |
-          sudo apt-get install xvfb
-          export DISPLAY=:99.0
-          Xvfb -ac :99 -screen 0 1920x1080x16 &
-          npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
      
       - name: Run UI Test(mac & win)
-        if: matrix.os != 'ubuntu-latest'
         working-directory: packages/tests
         run: |
           npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
@@ -487,215 +326,23 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'schedule' || success() || (failure() && github.run_attempt >= 5) }}
         with:
-          name: test-result-${{ matrix.test-case }}-${{ matrix.os }}
+          name: test-result
           path: packages/tests/mochawesome-report/mochawesome.json
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
+          name: screenshots
           path: packages/tests/.test-resources/screenshots/
 
       - name: Upload source code
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: source code ${{ matrix.test-case }} ${{ matrix.os }}
+          name: source code 
           path: |
             packages/tests/**/teamsfxuitest*/*
             !packages/tests/**/node_modules/*
 
-      - name: Upload telemetry
-        uses: actions/upload-artifact@v4
-        if: always() && startsWith(matrix.test-case, 'telemetry')
-        with:
-          name: telemetry ${{ matrix.test-case }} ${{ matrix.os }}
-          path: |
-            ~/.fx/telemetryTest.log
-
-  test-plan-update:
-    needs: main
-    if: ${{ always() && github.event.inputs.target-testplan-name != '' }}
-    environment: engineering
-    permissions:
-      id-token: write
-      contents: read
-    runs-on: ubuntu-latest
-    env:
-      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.source-testplan-id }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - uses: pnpm/action-setup@v4
-      - name: setup project
-        run: |
-          pnpm --filter=@microsoft/teamsfx-test install
-      - uses: azure/login@v2
-        with:
-          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
-          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
-          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
-          enable-AzPSSession: true
-
-      - name: Archive Test Plan
-        working-directory: packages/tests
-        run: |
-          testplanid=`npx ts-node src/scripts/testPlan.ts obtain vscode ${{ github.event.inputs.target-testplan-name }}`
-          echo "Testplan id is $testplanid"
-          npx ts-node src/scripts/testPlan.ts archive $testplanid
-      
-      - name: Download TestPlan
-        uses: actions/download-artifact@v4
-        with:
-          path: packages/tests/mocha-results
-
-      - name: Sync to Azure DevOps Test Plan
-        working-directory: packages/tests
-        run: |
-          npx ts-node src/scripts/testPlan.ts report ./testplan.json ./mocha-results 
-
-  rerun:
-    permissions:
-      actions: write
-    needs: main
-    if: ${{ ((github.event_name == 'workflow_dispatch' && github.event.inputs.test-case == '') || github.event_name == 'schedule') && failure() && github.run_attempt < 5 }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: trigger rerun workflow
-        run: |
-          curl \
-           -X POST \
-           -H "Accept: application/vnd.github+json" \
-           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-           -H "X-GitHub-Api-Version: 2022-11-28" \
-           https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
-           -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
-
-  report:
-    if: ${{ (github.event_name == 'workflow_dispatch' && needs.setup.outputs.email-receiver) || (github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5))) }}
-    needs: [setup, main]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Dateutils
-        run: |
-          sudo apt install dateutils
-
-      - name: list jobs
-        id: list-jobs
-        run: |
-          page=1
-          jobs="[]"
-          while :
-          do
-            url=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs\?per_page\=100\&page\=$page
-            resp=`curl -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url`
-            new_jobs=`echo $resp | jq -cr '.jobs'`
-            jobs=`jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs")`
-            has_next=`curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url | grep -Fi "link:" | grep "rel=\"last\"" || true`
-            if [ -z "$has_next" ]; then
-              break
-            fi
-            page=$((page+1))
-          done
-          cases=`echo $jobs| jq -r '.[] | select(.name | contains("|")) | .name'`
-
-          passed=0
-          failed=0
-          failedlimit=100
-          passedlimit=100
-          failedlist=""
-          passedlist=""
-          lists=""
-
-          emails="${{ needs.setup.outputs.email-receiver }}"
-
-          while IFS= read -r case;
-          do
-            if [ -z "$case" ]; then
-              continue
-            fi
-
-            name=`echo $case | awk -F '|' '{print $1}'`
-            os=`echo $case | awk -F '|' '{print $2}'`
-            node=`echo $case | awk -F '|' '{print $3}'`
-            branch=`echo $case | awk -F '|' '{print $4}'`
-
-            file=`find src -name "$name.test.ts"`
-
-            email=""
-            if grep -q "@author" $file; then
-              email=`grep '@author' $file | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}'`
-            fi
-
-            status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
-            if [[ ! -z "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
-              emails="$emails;$email;zhendr@microsoft.com;ccdevexperiencefc@microsoft.com"
-            fi
-
-            status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
-            started_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at'`
-            completed_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at'`
-            duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
-
-            author=""
-            if [ -z "$email" ]; then
-              author="N/A"
-            else
-              author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
-            fi
-
-            lable=""
-            if [ "$status" == "success" ]; then
-              passed=$((passed+1))
-              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
-            else
-              failed=$((failed+1))
-              label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
-            fi
-
-            url=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url'`
-            url="<a href=\\\"$url\\\">$name</a>"
-
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$duration</td> </tr>"
-
-            if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
-              passedlist="$passedlist $row"
-            elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
-              failedlist="$failedlist $row"
-            fi
-
-          done <<< $cases
-          lists="$failedlist $passedlist"
-          body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $lists </table> <br />"
-
-          total=$((passed+failed))
-
-          subject="TeamsFx UI Test Report ($passed/$total Passed)"
-          if [ $failed -gt 0 ]; then
-            subject="[FAILED] $subject"
-          else
-            subject="[PASSED] $subject"
-          fi    
-
-          echo "body=$body" >> $GITHUB_OUTPUT
-          echo "to=$emails" >> $GITHUB_OUTPUT
-          echo "subject=$subject" >> $GITHUB_OUTPUT
-
-      - name: Send E-mail
-        uses: ./.github/actions/send-email-report
-        env:
-          TO: ${{ steps.list-jobs.outputs.to }}
-          BODY: '"${{ steps.list-jobs.outputs.body }}"'
-          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
-          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+            
