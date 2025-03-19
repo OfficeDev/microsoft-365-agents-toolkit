@@ -315,10 +315,10 @@ jobs:
       #    npx extest get-chromedriver --storage .test-resources --type stable
       #  shell: cmd
 
-      - name: M365 Login
-        working-directory: packages/tests
-        run: | # rm -r -f ~/.fx/account
-          npx ts-node src/scripts/m365Login.ts '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
+      #- name: M365 Login
+      #  working-directory: packages/tests
+      #  run: | # rm -r -f ~/.fx/account
+      #    npx ts-node src/scripts/m365Login.ts '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
 
       - name: Build
         working-directory: packages/tests
