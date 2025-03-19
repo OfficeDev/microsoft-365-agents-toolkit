@@ -13,7 +13,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 - **Add Capability For Declarative Agent**: With Teams Toolkit, you can now enhance your Declarative Agent by integrating Web Search capabilities. This allows your agent to access and utilize information from the web, providing more accurate and relevant responses to your customers' queries.
 ![Add web search](./img/agent_add_websearch.png)
 
-- **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
+- **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what capability and action that your agent is set up with. You can easily view how your agent is executing actions and gain deeper insights into execution details, including success or failure hints for both capabilities and actions.
 ![Agent Debugger](./img/agent_debugger.png)
 
 - **Manage Authentication For Declarative Agent**: When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
@@ -27,7 +27,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 #### Enhancements
 
 
-- **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily to be blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can by created by tenant admin. You will need to input the ID and password to continue.
+- **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can be created by tenant admin. You will need to input the ID and password to continue.
 
 - **Input OpenAI Key to Debug**: Declarative Agent projects and some Custom Engine Agent projects require an OpenAI key for preview and debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before preview/debug to remind users of the required value.
 
