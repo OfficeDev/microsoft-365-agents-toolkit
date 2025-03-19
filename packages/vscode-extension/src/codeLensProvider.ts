@@ -644,6 +644,67 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
   }
 }
 
+export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.CodeLensProvider {
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.ProviderResult<vscode.CodeLens[]> {
+    const inputs = getSystemInputs();
+    if (!inputs.projectPath) {
+      return [];
+    }
+    const manifestFilePath = path.join(
+      inputs.projectPath,
+      AppPackageFolderName,
+      ManifestTemplateFileName
+    );
+    if (!fs.existsSync(manifestFilePath)) {
+      return [];
+    }
+    const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+    const manifest = JSON.parse(manifestContent) as TeamsAppManifest;
+    const declarativeAgentFilePath = manifest.copilotAgents?.declarativeAgents?.[0]?.file;
+    if (!declarativeAgentFilePath) {
+      return [];
+    }
+    const declarativeAgentFileAbsolutePath = path.resolve(
+      inputs.projectPath,
+      AppPackageFolderName,
+      declarativeAgentFilePath
+    );
+    // only target the first declarative agent
+    if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
+      return [];
+    }
+    const text = document.getText();
+    const labelIndex = text.indexOf('"sensitivity_label"');
+
+    if (labelIndex !== -1) {
+      const labelPosition = document.positionAt(labelIndex);
+      const startPosition = new vscode.Position(Math.max(0, labelPosition.line - 1), 0);
+      const endPosition = new vscode.Position(labelPosition.line, 0);
+      const range = new vscode.Range(startPosition, endPosition);
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    } else {
+      const startPosition = new vscode.Position(0, 0);
+      const endPosition = document.positionAt(text.indexOf("\n"));
+      const range = new vscode.Range(startPosition, endPosition);
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    }
+  }
+}
+
 export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
   private provisionRegex = /^provision:/m;
   private deployRegex = /^deploy:/m;

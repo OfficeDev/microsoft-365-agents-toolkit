@@ -267,12 +267,14 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
   return result;
 }
 
-export async function setSensitivityLabelHandler(...args: unknown[]) {
+export async function setSensitivityLabelHandler(args: any[]) {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.SetSensitivityLabelStart,
     getTriggerFromProperty(args)
   );
   const inputs = getSystemInputs();
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = args[0].declarativeAgentManifestPath;
+  inputs[QuestionNames.SensitivityLabel] = args[0].sensitivityLabel;
   const result = await runCommand(Stage.setSensitivityLabel, inputs);
   return result;
 }

@@ -47,6 +47,7 @@ import {
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
 } from "./codeLensProvider";
 import commandController from "./commandController";
 import azureAccountManager from "./commonlib/azureLogin";
@@ -1351,6 +1352,20 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     vscode.languages.registerCodeLensProvider(
       agentManifestSelector,
       oneDriveSharePointCodeLensProvider
+    )
+  );
+
+  const declarativeAgentManifestSelector: vscode.DocumentSelector = {
+    scheme: "file",
+    pattern: `**/${AppPackageFolderName}/*.{json}`,
+  };
+
+  const declarativeAgentSensitivityLabelCodeLensProvider =
+    new DeclarativeAgentSensitivityLabelCodeLensProvider();
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      declarativeAgentManifestSelector,
+      declarativeAgentSensitivityLabelCodeLensProvider
     )
   );
 }
