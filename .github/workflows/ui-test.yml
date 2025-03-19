@@ -79,33 +79,6 @@ jobs:
           node -v
           npm -v
       
-      - name: Install Appium
-        run: |
-          npm install -g appium
-          appium driver install windows
-          appium -v
-
-      - name: Install WinAppDriver
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver.msi" -OutFile "WinAppDriver.msi"
-          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
-        shell: powershell
-  
-      - name: Enable Developer Mode (Requires Admin Privileges)
-        run: |
-          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
-        shell: cmd
-  
-      - name: Start WebDriver Server in Background
-        run: |
-          Start-Process -FilePath "appium" -ArgumentList "--use-drivers=windows" -NoNewWindow -PassThru
-        shell: powershell
-        
-      - name: Verify Appium Server is Running
-        run: |
-          curl http://127.0.0.1:4723/wd/hub/status
-        shell: powershell
-
       - uses: pnpm/action-setup@v4
 
       - name: create pvt file (random platform/node)
@@ -261,6 +234,45 @@ jobs:
           New-Item -Path $certfolder -ItemType Directory
           Start-Process powershell -verb RunAs -ArgumentList $filePath -wait
 
+      - name: Install Appium
+        run: |
+            npm install -g appium
+            appium driver install windows
+            appium -v
+  
+      - name: Set API Key Environment Variables
+        run: |
+            echo "MODEL_NAME=google/gemini-2.0-flash" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "GOOGLE_API_KEY=your_google_api_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "AZURE_OPENAI_KEY=your_azure_openai_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "AZURE_VISION_ENDPOINT=your_azure_vision_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
+            echo "AZURE_VISION_KEY=your_azure_vision_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
+          shell: powershell
+
+      - name: Install WinAppDriver
+        run: |
+          Invoke-WebRequest -Uri https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver_1.2.1.msi -OutFile WinAppDriver.msi
+          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
+    
+      - name: Enable Developer Mode (Requires Admin Privileges)
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
+        shell: cmd
+    
+      - name: Start Appium in Background
+        run: Start-Process -NoNewWindow -FilePath "cmd.exe" -ArgumentList "/c start /b appium --use-drivers=windows"
+        shell: pwsh
+
+      - name: Wait for Appium to Start
+        run: Start-Sleep -Seconds 15
+        shell: pwsh
+
+      - name: Verify Appium Server is Running
+        run: |
+          curl http://127.0.0.1:4723/status
+        shell: powershell
+  
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
