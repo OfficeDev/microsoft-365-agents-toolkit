@@ -7,23 +7,48 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 ### New Features
 
+- **Switch Tenant**: Teams Toolkit now supports switching target tenant for users with multiple tenants in their Microsoft 365 or Azure account. A "Switch Tenant" button is located next to the account information, and the currently logged-in tenant is displayed alongside the account details.
+
+  <img width="643" alt="image" src="https://github.com/user-attachments/assets/f4c541ee-f79e-44cc-8f1e-84873a785c0e" />
+
+- **Add Agent Debugging Experience** To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
+![Agent Debugger](./img/agent_debugger.png)
+
 - **Manage Authentication for Declarative Agent** When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
 ![Manage Auth](./img/manage_auth.png)
 
 - **Enable Adaptive Card Previewer for Declarative Agent** We understand that designing an adaptive card for the Declarative Agent has been challenging due to compatibility issues with the Adaptive Card Previewer extension. We're excited to announce that we've now added support to preview Adaptive Card, making the process much smoother and more efficient for you. This enhancement ensures that you can seamlessly design adaptive cards without any hassle.
 
-- **Add Agent Debugging Experience** To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
-![Agent Debugger](./img/agent-debugger.png)
+- **GitHub Copilot Extension Walkthrough**: To make it easier for users to get started with the GitHub Copilot Extension "@teamsapp," Teams Toolkit has added a walkthrough UI experience. This guide helps users understand how to install and use this helpful AI assistant to build Teams apps.
+
+  <img width="1306" alt="image" src="https://github.com/user-attachments/assets/0af92cf1-c784-4e5c-ac2e-9a6e07133546" />
 
 #### Enhancements
 
+
 - **Use Existing Entra ID Instead of Always Create New** Teams Toolkit creates Entra ID during debugging. While users are easily to be blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can by created by tenant admin. You will need to input the ID and passward to continue.
 
-- **Add streaming experience in App Test Tool**
+- **Input OpenAI Key to Debug**: Declarative Agent projects and some Custom Engine Agent projects require an OpenAI key for preview and debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before preview/debug to remind users of the required value.
 
--**Upgrade to Node 22** All the app templates in Teams Toolkit now are updated to support Node 22.
+  <img width="386" alt="image" src="https://github.com/user-attachments/assets/c197d84c-fa87-4269-bfb5-2609c6e00370" />
 
--**Scecurity Enhancement** Upgrade python app templates to use MSI authentication when deploying to Azure.
+- **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was actually implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
+  
+- **Microsoft Entra Manifest**: Teams Toolkit has updated Microsoft Entra app manifest to apply MS Graph format for better integration with platform.
+
+- **Troubleshooting with GitHub Copilot Extension**: Teams Toolkit now improve the troubleshooting experience with GitHub Copilot extension by adding a "Resolve with @teamsapp" button, click this button will ask Teams Toolkit to open the output channel in the editor. Then the GitHub Copilot Chat will use the output log as a reference for troubleshooting requests. Consequently, @teamsapp can read the log and perform troubleshooting.
+
+  <img width="412" alt="image" src="https://github.com/user-attachments/assets/60408b17-4cb2-4e80-805f-f554eae05661" />
+
+- **Publish Teams App**: Refine the "Publish Teams App" UI in Teams Toolkit to reduce confusion. Now there are two buttons: one for publishing the Teams app to your organization and the other for publishing your app to the Teams store. The latter will require users to go to the Teams Developer Portal to complete the publishing process.
+
+  <img width="432" alt="image" src="https://github.com/user-attachments/assets/c7acfd7c-a29b-4bda-8baa-c3ff5f5c47c9" />
+
+- **Upgrade to Node 22** All the app templates in Teams Toolkit now are updated to support Node 22.
+
+- **Add streaming experience in App Test Tool** 
+
+- **Security Enhancement**: 1.Consolidate and standardize the Tab templates for quality and security. This involves ensuring consistency in the use of tools and dependencies, such as using npm packages instead of CDNs and updating the Teams JS version. 2. Upgrade python app templates to use MSI authentication when deploying to Azure.
 
 ### Bug Fixes
 
