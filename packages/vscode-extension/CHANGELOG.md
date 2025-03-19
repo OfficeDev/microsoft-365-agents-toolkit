@@ -13,7 +13,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 - **Add Capability For Declarative Agent**: With Teams Toolkit, you can now enhance your Declarative Agent by integrating Web Search capabilities. This allows your agent to access and utilize information from the web, providing more accurate and relevant responses to your customers' queries.
 ![Add web search](./img/agent_add_websearch.png)
 
-- **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
+- **Add Agent Debugging Experience**: To provide a better debugging experience for Agent developers, we have integrated the debugging experience in Microsoft 365 Copilot in-chat debugger (available in developer mode only). You can get a clear picture of what capability and action that your agent is set up with. You can easily view hoe your agent is executing actions and gain deeper insights of execution details, including success or failure hints for both capabilities and actions.
 ![Agent Debugger](./img/agent_debugger.png)
 
 - **Manage Authentication For Declarative Agent**: When adding actions to your Declarative Agent, you might encounter OpenAPI specifications that lack authentication configurations, even though the actual API calls require OAuth. To address this, we introduce commands that assist users to add and manage authentication for their agents. This enhancement would streamline the process and ensure that your API calls are properly authenticated, making it easier to work with your Declarative Agent.
@@ -27,13 +27,13 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 #### Enhancements
 
 
-- **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily to be blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can by created by tenant admin. You will need to input the ID and passward to continue.
+- **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily to be blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can by created by tenant admin. You will need to input the ID and password to continue.
 
 - **Input OpenAI Key to Debug**: Declarative Agent projects and some Custom Engine Agent projects require an OpenAI key for preview and debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before preview/debug to remind users of the required value.
 
   <img width="386" alt="image" src="https://github.com/user-attachments/assets/c197d84c-fa87-4269-bfb5-2609c6e00370" />
 
-- **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was actually implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
+- **Declarative Agent API Key Authentication**: API Key Authentication in the DA project was implemented using Bearer Tokens in the past. Recently, the Teams platform has added support for developers to specify the key name in the API request header or query URL. As a result, we have updated the corresponding templates to reflect this change.
   
 - **Microsoft Entra Manifest**: Teams Toolkit has updated Microsoft Entra app manifest to apply MS Graph format for better integration with platform.
 
@@ -56,7 +56,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 - Fixed the missing environment variable error `M365_App_ID` when debug Declarative Agent with action. [#12966](https://github.com/OfficeDev/teams-toolkit/pull/12966)
 
-- Microsfot tenant users have issues to login microsoft tenant account and create Entra ID app, we provide a [workaround guidance](https://stackoverflow.microsoft.com/questions/446689/446691) to help them fix the issue. [#13343](https://github.com/OfficeDev/teams-toolkit/pull/13343)
+- Microsoft tenant users have issues to login Microsoft 365 account and create Entra ID app, we provide a [workaround guidance](https://stackoverflow.microsoft.com/questions/446689/446691) to help them fix the issue. [#13343](https://github.com/OfficeDev/teams-toolkit/pull/13343)
 
 - Fixed the issue that Tab project shows blank page when remotely preview the app. [#13212](https://github.com/OfficeDev/teams-toolkit/pull/13213)
 
