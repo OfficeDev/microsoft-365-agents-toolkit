@@ -1,4 +1,4 @@
-import { LogLevel, ok } from "@microsoft/teamsfx-api";
+import { err, LogLevel, ok, UserError } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
@@ -6,6 +6,7 @@ import VsCodeLogInstance from "../../src/commonlib/log";
 import { configMgr } from "../../src/config";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vsc_ui from "../../src/qm/vsc_ui";
+import * as lifecycleHandlers from "../../src/handlers/lifecycleHandlers";
 
 describe("configMgr", () => {
   const sanbox = sinon.createSandbox();
@@ -116,6 +117,25 @@ describe("configMgr", () => {
       await configMgr.checkKiotaInstallation();
       chai.assert.isTrue(configStub.calledOnce);
     });
+    it("should skip if kiota not installed", async () => {
+      sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(false);
+      const configStub = sanbox.stub(vscode.workspace, "getConfiguration").returns({
+        get: (key: string) => {
+          if (key === "enableMicrosoftKiota") {
+            return true;
+          } else {
+            return "Undefined";
+          }
+        },
+        update: (key: string, value: string) => {
+          chai.assert.equal(key, "enableMicrosoftKiotaString");
+          chai.assert.equal(value, "Enabled");
+          return;
+        },
+      } as any);
+      await configMgr.checkKiotaInstallation();
+      chai.assert.isTrue(configStub.calledOnce);
+    });
     it("should set enabled if previous value is true", async () => {
       sanbox.stub(vscode.workspace, "getConfiguration").returns({
         get: (key: string) => {
@@ -131,6 +151,7 @@ describe("configMgr", () => {
           return;
         },
       } as any);
+      sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
       await configMgr.checkKiotaInstallation();
     });
     it("should ask user and set enabled", async () => {
@@ -148,6 +169,7 @@ describe("configMgr", () => {
           return;
         },
       } as any);
+      sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
       sanbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("Yes"));
       await configMgr.checkKiotaInstallation();
     });
@@ -166,6 +188,7 @@ describe("configMgr", () => {
           return;
         },
       } as any);
+      sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
       sanbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("No"));
       await configMgr.checkKiotaInstallation();
     });
@@ -184,7 +207,10 @@ describe("configMgr", () => {
           return;
         },
       } as any);
-      sanbox.stub(vsc_ui.VS_CODE_UI, "showMessage").rejects(new Error("error"));
+      sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
+      sanbox
+        .stub(vsc_ui.VS_CODE_UI, "showMessage")
+        .resolves(err(new UserError("source", "errorcode", "errormessage")));
       await configMgr.checkKiotaInstallation();
     });
   });
