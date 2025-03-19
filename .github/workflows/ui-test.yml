@@ -159,9 +159,13 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       STORAGE_ACCOUNT_KEY: ${{ secrets.TEST_STORAGE_ACCOUNT_KEY }}
 
-      AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-4-32k"
-      AZURE_OPENAI_ENDPOINT: "https://aoai-jasozdr.openai.azure.com/"
-      AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-ada-002"
+      # Set the windows environment from the Github Secrets
+      MODEL_NAME : ${{ secrets.MODEL_NAME }}
+      GOOGLE_API_KEY : ${{ secrets.GOOGLE_API_KEY }}
+      AZURE_OPENAI_KEY : ${{ secrets.AZURE_OPENAI_KEY }}
+      AZURE_OPENAI_ENDPOINT : ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+      AZURE_VISION_ENDPOINT : ${{ secrets.AZURE_VISION_ENDPOINT }}
+      AZURE_VISION_KEY : ${{ secrets.AZURE_VISION_KEY }}
 
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
@@ -170,6 +174,31 @@ jobs:
       max-parallel: 80
     runs-on: windows-latest
     steps:
+      # Setup the environment
+      - name: Set Windows Environment Variables
+        run: |
+          [System.Environment]::SetEnvironmentVariable("MODEL_NAME", "${{ env.MODEL_NAME }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("GOOGLE_API_KEY", "${{ env.GOOGLE_API_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_KEY", "${{ env.AZURE_OPENAI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", "${{ env.AZURE_OPENAI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_ENDPOINT", "${{ env.AZURE_VISION_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_KEY", "${{ env.AZURE_VISION_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          $env:MODEL_NAME = "${{ env.MODEL_NAME }}"
+          $env:GOOGLE_API_KEY = "${{ env.GOOGLE_API_KEY }}"
+          $env:AZURE_OPENAI_KEY = "${{ env.AZURE_OPENAI_KEY }}"
+          $env:AZURE_OPENAI_ENDPOINT = "${{ env.AZURE_OPENAI_ENDPOINT }}"
+          $env:AZURE_VISION_ENDPOINT = "${{ env.AZURE_VISION_ENDPOINT }}"
+          $env:AZURE_VISION_KEY = "${{ env.AZURE_VISION_KEY }}"
+        shell: pwsh
+    
+      # Print out the info, but not key info.
+      - name: Verify Environment Variables
+        run: |
+          Write-Host "MODEL_NAME: $env:MODEL_NAME"
+          Write-Host "AZURE_OPENAI_ENDPOINT: $env:AZURE_OPENAI_ENDPOINT"
+          Write-Host "AZURE_VISION_ENDPOINT: $env:AZURE_VISION_ENDPOINT"
+        shell: pwsh
+
       - name: Set m365 account (win)
         run: |
           $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
@@ -187,6 +216,7 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
+      # Specify the node version to 22
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -234,21 +264,13 @@ jobs:
           New-Item -Path $certfolder -ItemType Directory
           Start-Process powershell -verb RunAs -ArgumentList $filePath -wait
 
+      # Install the Appium
       - name: Install Appium
         run: |
             npm install -g appium
             appium driver install windows
             appium -v
-  
-      - name: Set API Key Environment Variables
-        run: |
-            echo "MODEL_NAME=google/gemini-2.0-flash" | Out-File -FilePath $env:GITHUB_ENV -Append
-            echo "GOOGLE_API_KEY=your_google_api_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-            echo "AZURE_OPENAI_KEY=your_azure_openai_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-            echo "AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-            echo "AZURE_VISION_ENDPOINT=your_azure_vision_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-            echo "AZURE_VISION_KEY=your_azure_vision_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: powershell
+
 
       - name: Install WinAppDriver
         run: |
