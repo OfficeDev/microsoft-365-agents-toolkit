@@ -206,6 +206,16 @@ jobs:
           Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
         shell: pwsh
 
+      - name: Download VS Code MSI installer
+        working-directory: packages/tests
+        run: |
+          Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
+    
+      - name: Install VS Code using MSI
+        working-directory: packages/tests
+        run: |
+          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/SILENT" -Wait
+
       - name: Set m365 account (win)
         run: |
           $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
@@ -306,16 +316,6 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
-
-      - name: Download VS Code MSI installer
-        working-directory: packages/tests
-        run: |
-          Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
-    
-      - name: Install VS Code using MSI
-        working-directory: packages/tests
-        run: |
-          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/SILENT" -Wait
 
       #- name: Get VSCode
       #  working-directory: packages/tests
