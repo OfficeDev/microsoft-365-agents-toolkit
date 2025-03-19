@@ -308,12 +308,14 @@ jobs:
           npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
 
       - name: Download VS Code MSI installer
+        working-directory: packages/tests
         run: |
           Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
     
       - name: Install VS Code using MSI
+        working-directory: packages/tests
         run: |
-          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/silent" -NoNewWindow -Wait
+          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/SILENT" -Wait
 
       #- name: Get VSCode
       #  working-directory: packages/tests
