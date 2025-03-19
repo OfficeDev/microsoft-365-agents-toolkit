@@ -43,6 +43,7 @@ import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
+import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
@@ -276,7 +277,33 @@ export async function setSensitivityLabelHandler(args: any[]) {
   inputs[QuestionNames.DeclarativeAgentManifestPath] = args[0].declarativeAgentManifestPath;
   inputs[QuestionNames.SensitivityLabel] = args[0].sensitivityLabel;
   const result = await runCommand(Stage.setSensitivityLabel, inputs);
-  return result;
+  if (result.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.SetSensitivityLabel,
+      result.error,
+      getTriggerFromProperty(args)
+    );
+    return;
+  }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SetSensitivityLabel, getTriggerFromProperty(args));
+  return;
+}
+
+export async function m365PreAuthHandler(args: any[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
+  const res = await TOOLS.tokenProvider?.m365TokenProvider.getAccessToken({
+    scopes: args[0].scopes,
+  });
+  if (res.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.m365PreAuth,
+      res.error,
+      getTriggerFromProperty(args)
+    );
+    return;
+  }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuth, getTriggerFromProperty(args));
+  return;
 }
 
 export async function addAuthActionHandler(...args: unknown[]) {

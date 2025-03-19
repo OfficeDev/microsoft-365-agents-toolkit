@@ -5,6 +5,7 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   ManifestUtil,
+  signedIn,
   TeamsAppManifest,
   TemplateFolderName,
 } from "@microsoft/teamsfx-api";
@@ -16,6 +17,7 @@ import {
   featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
+  listSensitivityLabelScope,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
@@ -28,6 +30,7 @@ import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
+import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -645,9 +648,7 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
 }
 
 export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.CodeLensProvider {
-  public provideCodeLenses(
-    document: vscode.TextDocument
-  ): vscode.ProviderResult<vscode.CodeLens[]> {
+  async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
     const inputs = getSystemInputs();
     if (!inputs.projectPath) {
       return [];
@@ -678,19 +679,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     const text = document.getText();
     const labelIndex = text.indexOf('"sensitivity_label"');
 
-    if (labelIndex !== -1) {
-      const labelPosition = document.positionAt(labelIndex);
-      const startPosition = new vscode.Position(Math.max(0, labelPosition.line - 1), 0);
-      const endPosition = new vscode.Position(labelPosition.line, 0);
-      const range = new vscode.Range(startPosition, endPosition);
-      const command = {
-        title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
-        command: "fx-extension.setSensitivityLabel",
-        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
-      };
-      const codeLens = new vscode.CodeLens(range, command);
-      return [codeLens];
-    } else {
+    if (labelIndex == -1) {
       const startPosition = new vscode.Position(0, 0);
       const endPosition = document.positionAt(text.indexOf("\n"));
       const range = new vscode.Range(startPosition, endPosition);
@@ -702,6 +691,37 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       const codeLens = new vscode.CodeLens(range, command);
       return [codeLens];
     }
+    const labelPosition = document.positionAt(labelIndex);
+    const startPosition = new vscode.Position(labelPosition.line, 0);
+    const endPosition = new vscode.Position(labelPosition.line, 1);
+    const range = new vscode.Range(startPosition, endPosition);
+
+    // check if user has already logged in to the sensitivity label scope
+    const loginStatusRes = await TOOLS.tokenProvider?.m365TokenProvider.getStatus({
+      scopes: [listSensitivityLabelScope],
+    });
+    // not logged in
+    if (
+      !loginStatusRes ||
+      loginStatusRes.isErr() ||
+      loginStatusRes.value.status != signedIn ||
+      !loginStatusRes.value.token
+    ) {
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn"),
+        command: "fx-extension.m365PreAuth",
+        arguments: [{ scopes: [listSensitivityLabelScope] }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    }
+    const command = {
+      title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
+      command: "fx-extension.setSensitivityLabel",
+      arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+    };
+    const codeLens = new vscode.CodeLens(range, command);
+    return [codeLens];
   }
 }
 

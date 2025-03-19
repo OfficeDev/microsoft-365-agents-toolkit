@@ -131,6 +131,7 @@ import {
   addKnowledgeHandler,
   shareHandler,
   setSensitivityLabelHandler,
+  m365PreAuthHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -1001,6 +1002,14 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     }
   );
   context.subscriptions.push(setSensitivityLabelCmd);
+
+  const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
+    "fx-extension.m365PreAuth",
+    async (...args) => {
+      await Correlator.run(m365PreAuthHandler, args);
+    }
+  );
+  context.subscriptions.push(m365PreAuthHandlerCmd);
 }
 
 /**

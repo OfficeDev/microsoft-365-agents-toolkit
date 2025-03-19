@@ -348,6 +348,9 @@ export enum TelemetryEvent {
 
   SetSensitivityLabelStart = "set-sensitivity-label-start",
   SetSensitivityLabel = "set-sensitivity-label",
+
+  m365PreAuthStart = "m365-pre-auth-start",
+  m365PreAuth = "m365-pre-auth",
 }
 
 export enum TelemetryProperty {
