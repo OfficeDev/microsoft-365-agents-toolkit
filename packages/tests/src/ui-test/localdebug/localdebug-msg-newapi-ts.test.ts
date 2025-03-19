@@ -54,7 +54,8 @@ describe("Local Debug Tests", function () {
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local" }
       );
       await validateApiMeResult(page, localDebugTestContext.appName);
     }
