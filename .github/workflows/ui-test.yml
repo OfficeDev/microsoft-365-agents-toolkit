@@ -227,7 +227,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 18
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
@@ -274,7 +274,7 @@ jobs:
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
-          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest @types/fs-extra ts-node@latest
+          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest 
 
       - name: Install npm packages
         working-directory: packages/tests
