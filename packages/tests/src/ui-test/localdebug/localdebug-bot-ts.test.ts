@@ -83,7 +83,8 @@ describe("Local Debug Tests", function () {
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
-            Env.password
+            Env.password,
+            { projectPath: projectPath, env: "local" }
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateEchoBot(page);
@@ -98,7 +99,8 @@ describe("Local Debug Tests", function () {
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
-            Env.password
+            Env.password,
+            { projectPath: projectPath, env: "local" }
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateEchoBot(page);
