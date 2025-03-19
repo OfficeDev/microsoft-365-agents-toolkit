@@ -234,6 +234,13 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
+      # temporary test
+      - name: Get VSCodeXQQ
+        working-directory: packages/tests
+        run: |
+          npx extest get-vscode --storage .test-resources --type stable
+        shell: cmd
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -311,11 +318,13 @@ jobs:
         working-directory: packages/tests
         run: |
           npx extest get-vscode --storage .test-resources --type stable
+        shell: cmd
 
       - name: Get chromedriver
         working-directory: packages/tests
         run: |
           npx extest get-chromedriver --storage .test-resources --type stable
+        shell: cmd
 
       - name: M365 Login
         working-directory: packages/tests
