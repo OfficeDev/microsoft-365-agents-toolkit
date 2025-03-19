@@ -248,7 +248,7 @@ jobs:
             echo "AZURE_OPENAI_ENDPOINT=your_azure_openai_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
             echo "AZURE_VISION_ENDPOINT=your_azure_vision_endpoint_here" | Out-File -FilePath $env:GITHUB_ENV -Append
             echo "AZURE_VISION_KEY=your_azure_vision_key_here" | Out-File -FilePath $env:GITHUB_ENV -Append
-          shell: powershell
+        shell: powershell
 
       - name: Install WinAppDriver
         run: |
