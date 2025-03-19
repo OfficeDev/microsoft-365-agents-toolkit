@@ -206,11 +206,13 @@ jobs:
           Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
         shell: pwsh
 
+        #Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
+        #Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/VERYSILENT" -Wait
       - name: Download VS Code MSI installer
+        shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
-          Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/VERYSILENT" -Wait
-              
+          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
+          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
 
       - name: Set m365 account (win)
         run: |
