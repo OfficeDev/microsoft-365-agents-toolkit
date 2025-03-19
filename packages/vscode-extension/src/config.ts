@@ -80,8 +80,8 @@ export class ConfigManager {
           "warn",
           localize("teamstoolkit.config.enableKiota"),
           true,
-          "Yes",
-          "No"
+          localize("teamstoolkit.config.enableKiota.yes"),
+          localize("teamstoolkit.config.enableKiota.no")
         );
         await configuration.update(
           ConfigurationKey.EnableMicrosoftKiotaString,
