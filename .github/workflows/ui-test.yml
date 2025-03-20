@@ -138,3 +138,4 @@ jobs:
           if ($stopwatch.Elapsed -ge $timeout) {
             Write-Host "##[error]Task timed out after 10 minutes"
             exit 1
+          }
