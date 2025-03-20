@@ -7,6 +7,7 @@
     "type": "module",
     "private": true,
     "dependencies": {
+        "@fluentui/react": "8.121.0",
         "@fluentui/react-charting": "^5.14.10",
         "@fluentui/react-components": "^9.55.1",
         "@fluentui/react-icons": "^2.0.186",

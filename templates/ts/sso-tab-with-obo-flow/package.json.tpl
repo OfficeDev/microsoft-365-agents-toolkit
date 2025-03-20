@@ -7,6 +7,7 @@
     "type": "module",
     "private": true,
     "dependencies": {
+        "@fluentui/react": "8.121.0",
         "@fluentui/react-components": "^9.55.1",
         "@microsoft/teams-js": "^2.31.1",
         "@microsoft/teamsfx": "^3.0.0",
