@@ -19,6 +19,9 @@ jobs:
         run: |
           # Recursively find all .txt files in target directory
           $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % FullName
+          # Print files to console for debugging
+          Write-Host "Found files:"
+          $files | ForEach-Object { Write-Host $_ }
           # Export as JSON array
           $files | ConvertTo-Json | Out-File -Encoding utf8 files_list.json
 
@@ -28,7 +31,9 @@ jobs:
         run: |
           # Prepare output for matrix strategy
           $json = Get-Content -Raw files_list.json
-          echo "files_list=$json" >> $env:GITHUB_OUTPUT
+          # Remove newlines and extra spaces, replace with a separator
+          $formattedList = $json -replace '[\r\n]', ',' | Trim()
+          echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
 
   process_file:
     needs: find_files
