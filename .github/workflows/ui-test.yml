@@ -176,6 +176,7 @@ jobs:
     needs: setup
     permissions:
       contents: read
+      security-events: write
     timeout-minutes: 50
     env:
       CI_ENABLED: true
@@ -450,11 +451,12 @@ jobs:
       - name: Add the code into the environment variable
         shell: pwsh
         run: |
-          $vscodeBinPath = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin"
+          #$vscodeBinPath = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin"
+          $vscodeBinPath = "C:\Program Files\Microsoft VS Code"
           if (Test-Path $vscodeBinPath) {
             "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
           } else {
-            Write-Error "VS Code 安装路径未找到: $vscodeBinPath"
+            Write-Error "VS Code: $vscodeBinPath"
             exit 1
           }
 
