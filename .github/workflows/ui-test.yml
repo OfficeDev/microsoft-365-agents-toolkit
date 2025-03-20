@@ -529,7 +529,7 @@ jobs:
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         run: |
-          vscuse.exe agent -f "../cases/29382146.txt" -s 40
+          vscuse.exe agent -f "../cases/29382146.txt" -s 90
         shell: cmd
 
       # - name: Setup OpenAI key(unix)
