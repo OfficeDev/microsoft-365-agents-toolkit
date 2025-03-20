@@ -78,9 +78,9 @@ jobs:
           # --- File Upload Phase ---
           $uploadResponse = curl -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
             -F "file=@$file" `
-            -H "x-api-guid: $api_guid" `  # Add the x-api-guid header
+            -H "x-api-guid: $api_guid" `
             -D headers.txt `
-            -o response.json         # Save response body
+            -o response.json
 
           # Validate upload status
           $statusCode = (Get-Content headers.txt | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
@@ -106,7 +106,7 @@ jobs:
           while ($stopwatch.Elapsed -lt $timeout) {
             # Poll task status endpoint with x-api-guid header
             $taskStatus = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" `
-              -H "x-api-guid: $api_guid"  # Add the x-api-guid header
+              -H "x-api-guid: $api_guid"
 
             Write-Host "Task Status Response: $taskStatus"  # Debugging: Print task status
 
