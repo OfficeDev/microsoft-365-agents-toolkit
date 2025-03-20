@@ -11,6 +11,8 @@ import { InstallNodeJSError } from "../../../error";
 import { NodeChecker } from "../../deps-checker/internal/nodeChecker";
 
 import { httpClient } from "./httpClient";
+import { WrapDriverContext } from "../util/wrapUtil";
+import { createSymlink } from "../../deps-checker/util/fileHelper";
 
 interface NodeDownloadMirror {
   name: string;
@@ -255,73 +257,100 @@ export class NodejsInstaller {
   }
 
   async ensureNodeJS(
+    context: WrapDriverContext,
     checkSystemInstalled = true,
-    checkUserFolderInstalled = false,
-    logProvider?: LogProvider,
-    progress?: (progress: string) => void
+    checkUserFolderInstalled = false
   ): Promise<Result<EnsureNodeJSResult, InstallNodeJSError>> {
+    const progressBar = context.ui?.createProgressBar("Install NodeJS", 9);
+    progressBar?.start();
+    progressBar?.next("Checking NodeJS in system environment.");
     if (checkSystemInstalled) {
-      progress?.("Checking NodeJS in system environment.");
       const nodeVersion = await NodeChecker.getInstalledNodeVersion();
       if (nodeVersion !== null) {
-        logProvider?.debug(`Found NodeJS version: ${nodeVersion.version}`);
+        context.logProvider?.debug(`Found NodeJS version: ${nodeVersion.version}`);
+        progressBar?.end(true);
         return ok({ status: "ignore" });
       }
     }
     // get the latest LTS version
-    progress?.("Looking up latest LTS version of NodeJS");
+    progressBar?.next("Looking up latest LTS version of NodeJS");
     const latestVersionRes = await nodejsInstaller.getLatestLTSVersion();
     if (latestVersionRes.isErr()) {
+      progressBar?.end(true);
       return err(latestVersionRes.error);
     }
     const latestVersion = latestVersionRes.value;
 
-    progress?.("Checking OS type and architecture");
+    progressBar?.next("Checking OS type and architecture");
     const { name, ext } = this.getCompatibleNodeJSVersionSuffix();
 
     const latestVersionFullname = `node-${latestVersion}-${name}`;
 
-    logProvider?.debug(`Latest NodeJS LTS version full name is: ${latestVersionFullname}`);
+    context.logProvider?.debug(`Latest NodeJS LTS version full name is: ${latestVersionFullname}`);
 
     const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
 
-    if (checkUserFolderInstalled) {
-      progress?.("Checking compatible NodeJS version in user folder");
+    progressBar?.next("Checking compatible NodeJS version in user folder");
 
+    if (checkUserFolderInstalled) {
       const subFolders = await fs.readdir(downloadDir);
 
       const foundFolder = subFolders.find((subFolder) => subFolder.endsWith(name));
 
       if (foundFolder) {
-        logProvider?.debug(
+        context.logProvider?.debug(
           `Found NodeJS version in user folder: ${path.join(downloadDir, foundFolder)}`
         );
+        progressBar?.end(true);
         return ok({ status: "ignore", installPath: path.join(downloadDir, foundFolder) });
       } else {
-        logProvider?.debug(`NodeJS not found in user folder: ${downloadDir}, continue to install`);
+        context.logProvider?.debug(
+          `NodeJS not found in user folder: ${downloadDir}, continue to install`
+        );
       }
     }
 
+    const confirmRes = await context.ui?.confirm?.({
+      name: "confirm",
+      title: "NodeJS is not installed, do you want to install latest LTS version?",
+    });
+
+    if (confirmRes?.isOk()) {
+      if (!confirmRes.value.result) {
+        context.logProvider?.warning("User canceled NodeJS installation");
+        progressBar?.end(true);
+        return ok({ status: "ignore" });
+      }
+    } else if (confirmRes?.isErr()) {
+      progressBar?.end(true);
+      return err(confirmRes.error);
+    }
+
     // get the fastest download mirror
-    progress?.("Searching best NodeJS download mirrors");
+    progressBar?.next("Searching best NodeJS download mirrors");
     const fast = await nodejsInstaller.getFastestNodeDownloadMirror();
     if (!fast.html) {
+      progressBar?.end(true);
       return err(new InstallNodeJSError("Failed to get fastest download mirror"));
     }
-    logProvider?.debug(
+    context.logProvider?.debug(
       `The fastest NodeJS download mirror site is: ${fast.url}, latency: ${
         fast.time ?? "unknown"
       } ms`
     );
 
     let versionPackageUrl = "";
-    progress?.("Fetching NodeJS download url for version: " + latestVersion);
+    progressBar?.next("Fetching NodeJS download url for version: " + latestVersion);
     if (fast.name === "NPM Mirror") {
       const jsonRes = await this.fetchJSON(fast.url);
-      if (jsonRes.isErr()) return err(jsonRes.error);
+      if (jsonRes.isErr()) {
+        progressBar?.end(true);
+        return err(jsonRes.error);
+      }
       const json = jsonRes.value;
       const versionInfo = json.find((entry: any) => entry.name.includes(latestVersion));
       if (!versionInfo) {
+        progressBar?.end(true);
         return err(
           new InstallNodeJSError(
             `No compatible links found for pattern: ${latestVersion} in NodeJS download page: ${fast.url}`
@@ -331,12 +360,16 @@ export class NodejsInstaller {
 
       const versionUrl = versionInfo.url;
       const versionJsonRes = await this.fetchJSON(versionUrl);
-      if (versionJsonRes.isErr()) return err(versionJsonRes.error);
+      if (versionJsonRes.isErr()) {
+        progressBar?.end(true);
+        return err(versionJsonRes.error);
+      }
       const versionJson = versionJsonRes.value;
       const compatibleVersionObj = versionJson.find((entry: any) =>
         entry.name.includes(name + ext)
       );
       if (!compatibleVersionObj) {
+        progressBar?.end(true);
         return err(
           new InstallNodeJSError(
             `No compatible links found for pattern: ${name + ext} in NodeJS download page: ${
@@ -353,6 +386,7 @@ export class NodejsInstaller {
         latestVersion
       );
       if (!versionFolderUrl) {
+        progressBar?.end(true);
         return err(
           new InstallNodeJSError(
             `Failed to get folder URL for target version: ${latestVersion} in page: ${fast.url}`
@@ -360,20 +394,21 @@ export class NodejsInstaller {
         );
       }
 
-      logProvider?.debug(`NodeJS download folder page url: ${versionFolderUrl}`);
+      context.logProvider?.debug(`NodeJS download folder page url: ${versionFolderUrl}`);
       const versionPackageUrlRes = await nodejsInstaller.getTargetVersionPackageUrl(
         versionFolderUrl,
         name + ext
       );
       if (versionPackageUrlRes.isErr()) {
+        progressBar?.end(true);
         return err(versionPackageUrlRes.error);
       }
       versionPackageUrl = versionPackageUrlRes.value;
     }
 
-    logProvider?.debug(`Start to download NodeJS package: ${versionPackageUrl}`);
+    context.logProvider?.debug(`Start to download NodeJS package: ${versionPackageUrl}`);
 
-    progress?.("Fetching NodeJS binary package: " + versionPackageUrl);
+    progressBar?.next("Fetching NodeJS binary package: " + versionPackageUrl);
 
     const t1 = Date.now();
     const packageRes = await nodejsInstaller.fetchBinary(versionPackageUrl, undefined, (progress) =>
@@ -382,18 +417,19 @@ export class NodejsInstaller {
     const t2 = Date.now();
 
     if (packageRes.isErr()) {
+      progressBar?.end(true);
       return err(packageRes.error);
     }
 
     const binary = packageRes.value;
 
-    logProvider?.debug(
+    context.logProvider?.debug(
       `Successfully download NodeJS package: ${versionPackageUrl}, size: ${binary.length}, time: ${
         t2 - t1
       } ms`
     );
 
-    progress?.("Extracting NodeJS package");
+    progressBar?.next("Extracting package");
 
     await fs.ensureDir(downloadDir);
 
@@ -403,13 +439,20 @@ export class NodejsInstaller {
       downloadDir
     );
     if (extractRes.isErr()) {
+      progressBar?.end(true);
       return err(extractRes.error);
     }
-    logProvider?.debug(`Successfully extract NodeJS package in target folder: ${downloadDir}`);
+    context.logProvider?.debug(
+      `Successfully extract NodeJS package in target folder: ${downloadDir}`
+    );
 
-    progress?.("NodeJS installation completed");
+    const targetNodeJSPath = path.join(downloadDir, latestVersionFullname);
 
-    return ok({ status: "installed", installPath: path.join(downloadDir, latestVersionFullname) });
+    progressBar?.next("NodeJS installation completed");
+
+    progressBar?.end(true);
+
+    return ok({ status: "installed", installPath: targetNodeJSPath });
   }
 }
 

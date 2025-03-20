@@ -39,6 +39,9 @@ import { DotnetInstallationUserError } from "./error/dotnetInstallationUserError
 import { FuncInstallationUserError } from "./error/funcInstallationUserError";
 import { TestToolInstallationUserError } from "./error/testToolInstallationUserError";
 import { InstallToolArgs } from "./interfaces/InstallToolArgs";
+import { nodejsInstaller } from "./nodeInstaller";
+import { create } from "lodash";
+import { createSymlink } from "../../deps-checker/util/fileHelper";
 
 const ACTION_NAME = "devTool/install";
 const helpLink = "https://aka.ms/teamsfx-actions/devtool-install";
@@ -292,6 +295,16 @@ export class ToolsInstallDriverImpl {
       );
     } else {
       this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
+
+      const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, false, true);
+
+      if (ensureRes.isOk()) {
+        const status = ensureRes.value;
+        if (status.installPath) {
+          const symLinkDir = path.join(this.context.projectPath, "devTools", "node");
+          await createSymlink(status.installPath, symLinkDir);
+        }
+      }
     }
   }
 
