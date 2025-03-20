@@ -721,7 +721,14 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       let labelDisplayName: string | undefined;
       // query display name of the current label
       const token = loginStatusRes.value.token;
-      const result = await graphAPIClient.listSensitivityLabels(token);
+      const accountUniqueNameRaw = loginStatusRes.value.accountInfo?.["unique_name"];
+      const accountUniqueNameString =
+        typeof accountUniqueNameRaw === "string" ? accountUniqueNameRaw : undefined;
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        accountUniqueNameString ? true : false,
+        accountUniqueNameString ?? ""
+      );
       if (result.isOk()) {
         for (const label of result.value) {
           if (label.id === labelValue) {

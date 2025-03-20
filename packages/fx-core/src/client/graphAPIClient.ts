@@ -6,6 +6,7 @@ import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { hooks } from "@feathersjs/hooks";
 import { ErrorContextMW } from "../common/globalVars";
 import { getDefaultString } from "../common/localizeUtils";
+import { globalStateGet, globalStateUpdate } from "../common/globalState";
 
 export const listSensitivityLabelScope = "InformationProtectionPolicy.Read";
 
@@ -13,6 +14,7 @@ const graphAPIEndpoint = "https://graph.microsoft.com";
 const listSensitivityLabelAPIPath = "/beta/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
+const listSensitivityLabelCacheKey = "listSensitivityLabelCacheKey";
 
 export class SensitivityLabel {
   id?: string;
@@ -43,8 +45,23 @@ export class RetryHandler {
 
 export class GraphAPIClient {
   @hooks([ErrorContextMW({ source: "Graph", component: "GraphAPIClient" })])
-  async listSensitivityLabels(token: string): Promise<Result<SensitivityLabel[], FxError>> {
+  async listSensitivityLabels(
+    token: string,
+    useCache = false,
+    accountUniqueName = ""
+  ): Promise<Result<SensitivityLabel[], FxError>> {
     try {
+      if (useCache) {
+        const cacheKey = `${listSensitivityLabelCacheKey}-${accountUniqueName}`;
+        const cacheValueRes = await globalStateGet(cacheKey);
+        if (cacheValueRes.isOk()) {
+          const timeStamp = cacheValueRes.value.unixTimestamp;
+          // if cache data is within 1 days, use the cache.
+          if (Date.now() - timeStamp < 1000 * 60 * 60 * 24) {
+            return ok(cacheValueRes.value.labels);
+          }
+        }
+      }
       const requester = WrappedAxiosClient.create({
         baseURL: graphAPIEndpoint,
       });
@@ -54,6 +71,14 @@ export class GraphAPIClient {
       const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
 
       if (response && response.data && response.data.value) {
+        if (useCache) {
+          const cacheKey = `${listSensitivityLabelCacheKey}-${accountUniqueName}`;
+          const cacheValue: ListSensitivityCacheValue = {
+            labels: response.data.value,
+            unixTimestamp: Date.now(),
+          };
+          await globalStateUpdate(cacheKey, cacheValue);
+        }
         return ok(response.data.value);
       } else {
         return err(
@@ -109,3 +134,8 @@ export class GraphAPIClient {
 }
 
 export const graphAPIClient = new GraphAPIClient();
+
+interface ListSensitivityCacheValue {
+  labels: SensitivityLabel[];
+  unixTimestamp: number;
+}
