@@ -465,10 +465,10 @@ jobs:
         run: |
           Write-Host "New PATH: $env:PATH"
 
-      - name: Get VSCode
-        working-directory: packages/tests
-        run: |
-          npx extest get-vscode --storage .test-resources --type stable
+      #- name: Get VSCode
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest get-vscode --storage .test-resources --type stable
 
       - name: Get chromedriver
         working-directory: packages/tests
@@ -555,12 +555,14 @@ jobs:
       - name: Check the code is installed.
         run: |
           where code
+          code --version
         shell: cmd
 
       # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         run: |
+          $env:Path += ";C:\Program Files\Microsoft VS Code\bin"
           vscuse.exe agent -f "../cases/29382146.txt" -s 90
         shell: cmd
 
