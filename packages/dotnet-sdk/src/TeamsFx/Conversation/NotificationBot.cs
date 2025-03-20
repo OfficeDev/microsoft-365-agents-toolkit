@@ -7,7 +7,6 @@ namespace Microsoft.TeamsFx.Conversation
     using Microsoft.Agents.Extensions.Teams.Connector;
     using Microsoft.Agents.Extensions.Teams.Models;
     using Microsoft.Agents.Hosting.AspNetCore;
-    using Microsoft.Rest;
     using System.Net;
 
     /// <summary>
@@ -101,18 +100,14 @@ namespace Microsoft.TeamsFx.Conversation
                     }
                     catch (Exception e)
                     {
-                        if (e is HttpOperationException httpEx)
+                        if (e is OperationCanceledException exception)
                         {
-                            var response = httpEx.Response;
-                            if (response != null)
+                            var status = exception.HResult;
+                            var error = exception.Message ?? string.Empty;
+                            if (status == (int)HttpStatusCode.Forbidden && error.Contains("BotNotInConversationRoster"))
                             {
-                                var status = response.StatusCode;
-                                var error = response.Content ?? string.Empty;
-                                if (status == HttpStatusCode.Forbidden && error.Contains("BotNotInConversationRoster"))
-                                {
-                                    // bot is uninstalled
-                                    isValid = false;
-                                }
+                                // bot is uninstalled
+                                isValid = false;
                             }
                         }
                     }
