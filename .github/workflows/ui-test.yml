@@ -15,11 +15,18 @@ jobs:
       - name: Get list of .txt files
         shell: pwsh
         run: |
-          # Get all .txt files in the specified directory
+          # Get all .txt files
           $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter "*.txt"
           $files | ForEach-Object {
             Write-Host $_.FullName
           } | Out-File files_list.txt
+
+      - name: Set output variables for next job
+        shell: pwsh
+        run: |
+          $files = Get-Content files_list.txt
+          echo "::set-output name=files_list::$($files -join ',')"
+          Write-Host "Files list: $($files -join ',')"
 
       - name: Upload files and trigger tasks
         shell: pwsh
