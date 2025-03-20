@@ -2610,9 +2610,28 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    await Promise.resolve();
+    const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
+    const declarativeAgentManifestPath = inputs[
+      QuestionNames.DeclarativeAgentManifestPath
+    ] as string;
+    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifestRes.isErr()) {
+      return err(declarativeAgentManifestRes.error);
+    }
+    const declarativeAgentManifest = declarativeAgentManifestRes.value;
+    declarativeAgentManifest.sensitivity_label = selectedLabel;
+    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    if (writeRes.isErr()) {
+      return err(writeRes.error);
+    }
     return ok(undefined);
   }
+  
   private async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,
