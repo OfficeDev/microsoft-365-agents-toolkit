@@ -1,4 +1,4 @@
-name: Daily Task Runner
+name: VSCUSE UI Test
 
 on:
   schedule:
@@ -6,84 +6,114 @@ on:
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  run-tasks:
+  find_files:
     runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get list of .txt files
+        shell: pwsh
+        run: |
+          # Get all .txt files in the specified directory
+          $files = Get-ChildItem -Path "packages/vscode-ui/vscuse" -Filter "*.txt"
+          $files | ForEach-Object {
+            Write-Host $_.FullName
+          } | Out-File files_list.txt
+
+      - name: Upload files and trigger tasks
+        shell: pwsh
+        run: |
+          # Read the list of files
+          $files = Get-Content files_list.txt
+          
+          # Create a job for each file
+          $files | ForEach-Object {
+            $file = $_
+            $job_name = "process_file_" + [System.IO.Path]::GetFileNameWithoutExtension($file)
+            echo "::set-output name=job_name::$job_name"
+            echo "::set-output name=file_path::$file"
+          }
+
+  process_file:
+    needs: find_files
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        file: ${{fromJson(needs.find_files.outputs.files_list)}}
+      fail-fast: false
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Find and process all .txt files
+      - name: "Process file: ${{ matrix.file }}"
         shell: pwsh
         run: |
-          # Loop through all .txt files in the packages/tests directory
-          $files = Get-ChildItem -Path "packages/tests" -Filter "*.txt"
+          $file = "${{ matrix.file }}"
+          Write-Host "Processing file: $file"
+
+          # Step 1: Upload the file and get the task_id
+          $response = curl -i -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" -F "file=@$file"
           
-          foreach ($file in $files) {
-            Write-Host "Processing file: $($file.FullName)"
-            
-            # Step 1: Upload the file and get the task_id
-            $response = curl -i -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" -F "file=@$($file.FullName)"
-            
-            # Extract the HTTP status code from the response
-            $statusCode = ($response.Split("`n")[0] -split " ")[1]
+          # Extract the HTTP status code from the response
+          $statusCode = ($response.Split("`n")[0] -split " ")[1]
 
-            # If the task_id is not found, continue with the next file
-            if ($statusCode -ne "200") {
-              Write-Host "Failed to upload file: $($file.FullName). Status code: $statusCode"
-              continue
+          # If the task_id is not found, continue with the next file
+          if ($statusCode -ne "200") {
+            Write-Host "Failed to upload file: $file. Status code: $statusCode"
+            return
+          }
+
+          # Extract the task_id from the response body (assuming it's in JSON format)
+          try {
+            $task_id = ($response | ConvertFrom-Json).task_id
+          }
+          catch {
+            Write-Host "Failed to extract task_id. Response was: $response"
+            return
+          }
+
+          Write-Host "Task ID for $file: $task_id"
+
+          # Step 2: Poll for task status every 10 seconds for up to 600 seconds
+          $max_retries = 60  # Max retries for 600 seconds (10 seconds * 60)
+          $retries = 0
+          $task_status = ""
+          $status_code = ""
+
+          while ($retries -lt $max_retries) {
+            # Poll the task status with the task_id
+            $task_status = curl -i -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
+            $status_code = ($task_status.Split("`n")[0] -split " ")[1]
+
+            # If the status code is 202, continue waiting
+            if ($status_code -eq "202") {
+              Write-Host "Task $task_id is still running. Waiting 10 seconds..."
+              $retries++
+              Start-Sleep -Seconds 10
             }
+            # If the status code is 200, print the response and check the last line for .html
+            elseif ($status_code -eq "200") {
+              Write-Host "Task $task_id completed. Response:"
+              Write-Host $task_status
 
-            # Extract the task_id from the response body (assuming it's in JSON format)
-            try {
-              $task_id = ($response | ConvertFrom-Json).task_id
-            }
-            catch {
-              Write-Host "Failed to extract task_id. Response was: $response"
-              continue
-            }
-
-            Write-Host "Task ID for $($file.FullName): $task_id"
-
-            # Step 2: Poll for task status every 10 seconds for up to 600 seconds
-            $max_retries = 60  # Max retries for 600 seconds (10 seconds * 60)
-            $retries = 0
-            $task_status = ""
-            $status_code = ""
-
-            while ($retries -lt $max_retries) {
-              # Poll the task status with the task_id
-              $task_status = curl -i -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
-              $status_code = ($task_status.Split("`n")[0] -split " ")[1]
-
-              # If the status code is 202, continue waiting
-              if ($status_code -eq "202") {
-                Write-Host "Task $task_id is still running. Waiting 10 seconds..."
-                $retries++
-                Start-Sleep -Seconds 10
+              # Extract the last line from the response and check if it contains ".html"
+              $last_line = ($task_status -split "`n")[-1].Trim()
+              if ($last_line -like "*`*.html*") {
+                Write-Host "Task $task_id completed successfully!"
+              } else {
+                Write-Host "Task $task_id completed, but no HTML file found. Task may have failed."
               }
-              # If the status code is 200, print the response and check the last line for .html
-              elseif ($status_code -eq "200") {
-                Write-Host "Task $task_id completed. Response:"
-                Write-Host $task_status
-
-                # Extract the last line from the response and check if it contains ".html"
-                $last_line = ($task_status -split "`n")[-1].Trim()
-                if ($last_line -like "*`*.html*") {
-                  Write-Host "Task $task_id completed successfully!"
-                } else {
-                  Write-Host "Task $task_id completed, but no HTML file found. Task may have failed."
-                }
-                break
-              }
-              else {
-                Write-Host "Unexpected status code: $status_code. Skipping to the next file."
-                break
-              }
+              break
             }
-
-            # Step 3: Handle task status response
-            if ($status_code -ne "200" -and $status_code -ne "202") {
-              Write-Host "Task $task_id failed or timed out. Skipping to the next file."
+            else {
+              Write-Host "Unexpected status code: $status_code. Skipping to the next file."
+              break
             }
+          }
+
+          # Step 3: Handle task status response
+          if ($status_code -ne "200" -and $status_code -ne "202") {
+            Write-Host "Task $task_id failed or timed out. Skipping to the next file."
           }
