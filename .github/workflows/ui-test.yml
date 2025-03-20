@@ -1,4 +1,4 @@
-name: VSCUSE UI Test
+name: uitest
 
 on:
   schedule:
