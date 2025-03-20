@@ -249,6 +249,7 @@ export enum TelemetryEvent {
   OpenFolder = "open-folder",
   ClickGetHelp = "click-get-help",
   MessageDebugInTestTool = "message-debugintesttool",
+  MessageDebugInSandbox = "message-debuginsandbox",
 
   // To track the event of opening in new window after creating a new project
   OpenNewProject = "open-new-project",

@@ -3,12 +3,18 @@
 
 import * as vscode from "vscode";
 
-import { getSideloadingStatus } from "@microsoft/teamsfx-core";
-import { checkSideloadingCallback } from "../../handlers/accounts/checkAccessCallback";
+import { featureFlagManager, FeatureFlags, getSideloadingStatus } from "@microsoft/teamsfx-core";
+import {
+  checkSandboxCallback,
+  checkSideloadingCallback,
+} from "../../handlers/accounts/checkAccessCallback";
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
 import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { errorIcon, infoIcon, passIcon } from "./common";
+import M365TokenInstance from "../../commonlib/m365Login";
+import { GraphClient } from "@microsoft/teamsfx-core";
+import { isSandboxedEnabled } from "../../debug/common/debugConstants";
 
 enum ContextValues {
   Normal = "checkSideloading",
@@ -33,7 +39,17 @@ export class SideloadingNode extends DynamicNode {
     if (this.token != "") {
       isSideloadingAllowed = await getSideloadingStatus(this.token);
       if (isSideloadingAllowed === false) {
-        await checkSideloadingCallback();
+        if (featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
+          // Suggest users to use sandboxed containers for local testing
+          const isSandboxedAllowed = await isSandboxedEnabled(M365TokenInstance);
+          if (isSandboxedAllowed) {
+            await checkSandboxCallback();
+          } else {
+            await checkSideloadingCallback();
+          }
+        } else {
+          await checkSideloadingCallback();
+        }
       }
     }
     if (isSideloadingAllowed === undefined) {

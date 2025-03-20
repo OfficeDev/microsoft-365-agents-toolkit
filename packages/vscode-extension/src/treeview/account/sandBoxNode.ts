@@ -8,6 +8,7 @@ import { DynamicNode } from "../dynamicNode";
 import { passIcon, warningIcon } from "./common";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { GraphClient } from "@microsoft/teamsfx-core";
+import { isSandboxedEnabled } from "../../debug/common/debugConstants";
 
 enum ContextValues {
   Normal = "checkSideloading",
@@ -28,12 +29,8 @@ export class SandboxNode extends DynamicNode {
   }
 
   public override async getTreeItem(): Promise<vscode.TreeItem> {
-    const graphClient = new GraphClient(M365TokenInstance);
-    const teamsAppSettings = await graphClient.GetTeamsAppSettingsAsync();
-    if (
-      teamsAppSettings.sandboxingConfiguration &&
-      teamsAppSettings.sandboxingConfiguration.isSideloadingEnabled
-    ) {
+    const isSandboxedAllowed = await isSandboxedEnabled(M365TokenInstance);
+    if (isSandboxedAllowed) {
       this.contextValue = ContextValues.ShowInfo;
       this.label = localize("teamstoolkit.accountTree.sandboxedTeamEnabled");
       this.iconPath = passIcon;
@@ -47,7 +44,6 @@ export class SandboxNode extends DynamicNode {
       this.contextValue = ContextValues.Normal;
       this.command = undefined;
     }
-    this.label = "Sandbox enabled";
     return this;
   }
 }

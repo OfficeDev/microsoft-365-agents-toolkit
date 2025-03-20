@@ -25,6 +25,8 @@
   "teamstoolkit.accountTree.sandboxedTeamEnabled.tooltip": "You can create sandboxed Team for local testing.",
   "teamstoolkit.accountTree.sandboxedTeamDisabled": "Sandboxed Team Disabled",
   "teamstoolkit.accountTree.sandboxedTeamDisabled.tooltip": "Microsoft 365 account administrator hasn't enabled Sandboxed Team.",
+  "teamstoolkit.accountTree.suggestSandboxedTeam": "[Custom app upload](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-upload) is disabled in your Microsoft 365 account. But you can create a sandboxed Team for local testing.",
+  "teamstoolkit.accountTree.sandboxedTeam.button": "Debug in Teams Sandbox (Edge)",
   "teamstoolkit.appStudioLogin.createM365TestingTenant": "Create a Microsoft 365 developer sandbox",
   "teamstoolkit.appStudioLogin.loginCancel": "Sign-in canceled. Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program (https://developer.microsoft.com/en-us/microsoft-365/dev-program).",
   "teamstoolkit.appStudioLogin.message": "Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program.",

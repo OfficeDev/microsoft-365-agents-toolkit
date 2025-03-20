@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 import * as util from "util";
 
-import { ProductName } from "@microsoft/teamsfx-api";
-import { Hub, TaskLabel } from "@microsoft/teamsfx-core";
+import { M365TokenProvider, ProductName } from "@microsoft/teamsfx-api";
+import { Hub, TaskLabel, GraphClient } from "@microsoft/teamsfx-core";
 import { ExtensionErrors } from "../../error/error";
 import { getDefaultString, localize } from "../../utils/localizeUtils";
 
@@ -111,6 +111,9 @@ export const openTestToolDisplayMessage = () =>
     localize("teamstoolkit.localDebug.useTestTool"),
     "[Debug in Test Tool](command:fx-extension.debugInTestToolFromMessage)"
   );
+
+export const openSandboxMessage = () =>
+  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Teams Sandbox (Edge)'");
 
 export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   taskName: "Get Started Prerequisites Check",
@@ -280,3 +283,14 @@ export const RecommendedOperations = Object.freeze({
 export const TeamsFxTaskType = ProductName;
 
 export const DebugNoSessionId = "no-session-id";
+
+export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Promise<boolean> {
+  const SANDBOX_SENSITIVITY_LABEL = "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5";
+  const graphClient = new GraphClient(tokenProvider);
+  const teamsAppSettings = await graphClient.GetTeamsAppSettingsAsync();
+  return (
+    teamsAppSettings.sandboxingConfiguration &&
+    teamsAppSettings.sandboxingConfiguration.sensitivityLabelUsedToIdentifySandboxedContainers ===
+      SANDBOX_SENSITIVITY_LABEL
+  );
+}
