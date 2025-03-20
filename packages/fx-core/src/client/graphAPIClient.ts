@@ -54,11 +54,11 @@ export class GraphAPIClient {
       if (useCache) {
         const cacheKey = `${listSensitivityLabelCacheKey}-${accountUniqueName}`;
         const cacheValueRes = await globalStateGet(cacheKey);
-        if (cacheValueRes.isOk()) {
-          const timeStamp = cacheValueRes.value.unixTimestamp;
+        if (cacheValueRes) {
+          const timeStamp = cacheValueRes.unixTimestamp;
           // if cache data is within 1 days, use the cache.
           if (Date.now() - timeStamp < 1000 * 60 * 60 * 24) {
-            return ok(cacheValueRes.value.labels);
+            return ok(cacheValueRes.labels);
           }
         }
       }
