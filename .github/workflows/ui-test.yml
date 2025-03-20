@@ -104,39 +104,36 @@ jobs:
           $stopwatch = [Diagnostics.Stopwatch]::StartNew()
 
           while ($stopwatch.Elapsed -lt $timeout) {
-              $responseFile = "task_status.json"
-              $headerFile = "task_status_headers.txt"
-              
-              curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" `
-                -H "x-api-guid: $api_guid" `
-                -D $headerFile `
-                -o $responseFile
+            $responseFile = "task_status.txt"
+            $headerFile = "task_status_headers.txt"
+            
+            curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" `
+              -H "x-api-guid: $api_guid" `
+              -D $headerFile `
+              -o $responseFile
 
-              # Extract HTTP status code
-              $httpCode = (Get-Content $headerFile | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
+            $httpCode = (Get-Content $headerFile | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
 
-              # Read response body
-              $responseBody = Get-Content -Raw $responseFile | ConvertFrom-Json
+            if (!(Test-Path $responseFile) -or (Get-Item $responseFile).Length -eq 0) {
+              Write-Host "##[error] Response file is empty or missing"
+              exit 1
+            }
 
-              Write-Host "HTTP Status Code: $httpCode"
-              Write-Host "Response Body: $responseBody"
+            $responseContent = Get-Content -Raw $responseFile
 
-              if ($httpCode -eq "200") {
-                  if ($responseBody -match '\.html') {
-                      Write-Host "##[info]Success: HTML generated"
-                      break
-                  } else {
-                      Write-Host "##[warning]Missing HTML output"
-                      exit 0
-                  }
-              } elseif ($httpCode -eq "202") {
-                  Write-Host "[$(Get-Date)] Task is still running (202), waiting..."
-                  Start-Sleep -Seconds 20
-              } else {
-                  Write-Host "##[error]Unexpected HTTP status code: $httpCode"
-                  Write-Host "Response: $responseBody"
-                  exit 1
-              }
+            Write-Host "HTTP Status Code: $httpCode"
+            Write-Host "Response Body: $responseContent"
+
+            if ($httpCode -eq "200") {
+              Write-Host "##[info] Task completed successfully"
+              exit 0
+            } elseif ($httpCode -eq "202") {
+              Write-Host "[$(Get-Date)] Task is still in progress, waiting..."
+              Start-Sleep -Seconds 20
+            } else {
+              Write-Host "##[error] Unexpected response (Code: $httpCode)"
+              exit 1
+            }
           }
 
           # --- Timeout Handling ---
