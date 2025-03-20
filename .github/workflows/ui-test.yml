@@ -439,6 +439,14 @@ jobs:
           ref: main
           path: packages/tests/resource
 
+      #Invoke-WebRequest -Uri "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user" -OutFile vscode-installer.exe
+      #Start-Process -FilePath "vscode-installer.exe" -ArgumentList "/VERYSILENT" -Wait
+      - name: Download VS Code and install
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
+          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
+
       - name: Get VSCode
         working-directory: packages/tests
         run: |
