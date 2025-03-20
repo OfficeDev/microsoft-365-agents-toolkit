@@ -49,21 +49,21 @@ jobs:
           # Initialize required assemblies
           Add-Type -AssemblyName System.Web
           $file = "${{ matrix.file }}"
-        
+
           # --- File Upload Phase ---
           $uploadResponse = curl -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
             -F "file=@$file" `
             -D headers.txt `          # Save response headers
             -o response.json         # Save response body
 
-          # Validate upload status
+          # Extract HTTP status code from headers
           $statusCode = (Get-Content headers.txt | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
           if ($statusCode -ne "200") {
             Write-Host "##[error]Upload Failed (Code $statusCode)"
             exit 1
           }
 
-          # Extract task ID from response
+          # Extract task ID from response body
           try {
             $task_id = (Get-Content response.json | ConvertFrom-Json).task_id
           } catch {
@@ -74,19 +74,20 @@ jobs:
           # --- Task Monitoring Phase ---
           $timeout = New-TimeSpan -Minutes 10
           $stopwatch = [Diagnostics.Stopwatch]::StartNew()
-        
+
           while ($stopwatch.Elapsed -lt $timeout) {
             # Poll task status endpoint
-            $taskStatus = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
-          
-            if ($taskStatus.StatusCode -eq 202) {
+            $taskStatusResponse = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
+            $taskStatus = $taskStatusResponse | ConvertFrom-Json
+
+            if ($taskStatus.status -eq "processing") {
               # Task still processing
               Write-Host "[$(Get-Date)] Task processing..."
               Start-Sleep -Seconds 15
             }
-            elseif ($taskStatus.StatusCode -eq 200) {
+            elseif ($taskStatus.status -eq "completed") {
               # Successful completion check
-              if ($taskStatus.Content -match '\.html') {
+              if ($taskStatus.output -match '\.html') {
                 Write-Host "##[info]Success: HTML generated"
                 break
               } else {
@@ -96,7 +97,7 @@ jobs:
             }
             else {
               # Handle unexpected status codes
-              Write-Host "##[error]Unexpected Status: $($taskStatus.StatusCode)"
+              Write-Host "##[error]Unexpected Status: $($taskStatus.status)"
               exit 1
             }
           }
