@@ -526,6 +526,13 @@ jobs:
         shell: powershell
 
       # Launch the vscuse
+      - name: Run Code
+        working-directory: packages/vscode-ui/vscuse/binary
+        run: |
+          code
+        shell: cmd
+
+      # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         run: |
