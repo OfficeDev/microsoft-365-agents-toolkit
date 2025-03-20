@@ -485,16 +485,16 @@ jobs:
         run: |
           npm run build
 
-      - name: Install python extension
-        working-directory: packages/tests
-        run: |
-          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
+      #- name: Install python extension
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
 
-      - name: Install docker extension
-        if: contains(matrix.test-case,  'docker')
-        working-directory: packages/tests
-        run: |
-          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-azuretools.vscode-docker
+      #- name: Install docker extension
+      #  if: contains(matrix.test-case,  'docker')
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-azuretools.vscode-docker
 
       - name: Install vsix(unix)
         if: matrix.os != 'windows-latest'
@@ -503,12 +503,12 @@ jobs:
           vsix=`find . -maxdepth 1 -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
-      - name: Install vsix(win)
-        if: matrix.os == 'windows-latest'
-        working-directory: packages/tests
-        run: |
-          $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
-          npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
+      #- name: Install vsix(win)
+      #  if: matrix.os == 'windows-latest'
+      #  working-directory: packages/tests
+      #  run: |
+      #    $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
+      #    npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
 
       # Install the Appium
       - name: Install Appium
