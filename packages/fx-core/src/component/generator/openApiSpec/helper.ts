@@ -86,6 +86,9 @@ const enum telemetryProperties {
   bearerTokenAuthCount = "bearer-token-auth-count",
   oauth2AuthCount = "oauth2-auth-count",
   otherAuthCount = "other-auth-count",
+  noneAuthCount = "none-auth-count",
+  apiKeyAuthCount = "api-key-auth-count",
+  multipleAuthCount = "multiple-auth-count",
   isFromAddingApi = "is-from-adding-api",
   failedReason = "failed-reason",
   generateType = "generate-type",
@@ -234,11 +237,22 @@ export async function listOperations(
       (api) => api.auth && Utils.isOAuthWithAuthCodeFlow(api.auth.authScheme)
     );
 
+    const apiKeyAuthAPIs = listResult.APIs.filter(
+      (api) => api.auth && Utils.isAPIKeyAuthButNotInCookie(api.auth.authScheme)
+    );
+
+    const multipleAuthAPIs = listResult.APIs.filter(
+      (api) => api.auth && api.auth.authScheme?.type === "multipleAuth"
+    );
+
+    const noneAuthAPIs = listResult.APIs.filter((api) => !api.auth);
+
     const otherAuthAPIs = listResult.APIs.filter(
       (api) =>
         api.auth &&
         !Utils.isOAuthWithAuthCodeFlow(api.auth.authScheme) &&
-        !Utils.isBearerTokenAuth(api.auth.authScheme)
+        !Utils.isBearerTokenAuth(api.auth.authScheme) &&
+        !Utils.isAPIKeyAuthButNotInCookie(api.auth.authScheme)
     );
 
     let operations = listResult.APIs.filter((value) => value.isValid);
@@ -248,6 +262,9 @@ export async function listOperations(
       [telemetryProperties.allApisCount]: listResult.allAPICount.toString(),
       [telemetryProperties.isFromAddingApi]: (!includeExistingAPIs).toString(),
       [telemetryProperties.bearerTokenAuthCount]: bearerTokenAuthAPIs.length.toString(),
+      [telemetryProperties.noneAuthCount]: noneAuthAPIs.length.toString(),
+      [telemetryProperties.multipleAuthCount]: multipleAuthAPIs.length.toString(),
+      [telemetryProperties.apiKeyAuthCount]: apiKeyAuthAPIs.length.toString(),
       [telemetryProperties.oauth2AuthCount]: oauth2AuthAPIs.length.toString(),
       [telemetryProperties.otherAuthCount]: otherAuthAPIs.length.toString(),
       [telemetryProperties.specHash]: validationRes.specHash!,
