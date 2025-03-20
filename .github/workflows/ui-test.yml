@@ -221,12 +221,17 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Check if vscuse.exe exists
+        run: dir packages\vscode-ui\vscuse\binary
+        shell: cmd
+
       # Launch the vscuse
       - name: Run vscuse.exe
+        working-directory: packages/vscode-ui/vscuse/binary
         run: |
-          packages/vscode-ui/vscuse/binary/vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
+          vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
         shell: cmd
-        
+
       # Setup the environment
       - name: Set Windows Environment Variables
         if: matrix.os == 'windows-latest'
