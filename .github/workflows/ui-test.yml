@@ -212,7 +212,7 @@ jobs:
       AZURE_VISION_KEY : ${{ secrets.AZURE_VISION_KEY }}
       AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
       AZURE_OPENAI_4O_MINI_ENDPOINT : ${{ secrets.AZURE_OPENAI_4O_MINI_ENDPOINT }}
-
+      
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
     strategy:
@@ -221,6 +221,12 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
+      # Launch the vscuse
+      - name: Run vscuse.exe
+        run: |
+          packages/vscode-ui/vscuse/binary/vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
+        shell: cmd
+        
       # Setup the environment
       - name: Set Windows Environment Variables
         if: matrix.os == 'windows-latest'
