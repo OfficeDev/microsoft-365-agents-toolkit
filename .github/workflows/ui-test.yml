@@ -104,36 +104,39 @@ jobs:
           $stopwatch = [Diagnostics.Stopwatch]::StartNew()
 
           while ($stopwatch.Elapsed -lt $timeout) {
-            # Poll task status endpoint with x-api-guid header
-            $taskStatus = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" `
-              -H "x-api-guid: $api_guid"
+              $responseFile = "task_status.json"
+              $headerFile = "task_status_headers.txt"
+              
+              curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" `
+                -H "x-api-guid: $api_guid" `
+                -D $headerFile `
+                -o $responseFile
 
-            Write-Host "Task Status Response: $taskStatus"  # Debugging: Print task status
+              # Extract HTTP status code
+              $httpCode = (Get-Content $headerFile | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
 
-            # Check if taskStatus contains expected fields and status code
-            if ($taskStatus -match '"detail":\s*"Task is still running"') {
-              # Task still processing
-              Write-Host "[$(Get-Date)] Task is still running, waiting..."
-              Start-Sleep -Seconds 20
-            }
-            elseif ($taskStatus -match '"status":\s*"202"') {
-              # Task still processing, but with 202
-              Write-Host "[$(Get-Date)] Task is processing with 202 status, waiting..."
-              Start-Sleep -Seconds 20
-            }
-            elseif ($taskStatus -match '"status":\s*"200"') {
-              # Successful completion check
-              if ($taskStatus -match '\.html') {
-                Write-Host "##[info]Success: HTML generated"
-                break
+              # Read response body
+              $responseBody = Get-Content -Raw $responseFile | ConvertFrom-Json
+
+              Write-Host "HTTP Status Code: $httpCode"
+              Write-Host "Response Body: $responseBody"
+
+              if ($httpCode -eq "200") {
+                  if ($responseBody -match '\.html') {
+                      Write-Host "##[info]Success: HTML generated"
+                      break
+                  } else {
+                      Write-Host "##[warning]Missing HTML output"
+                      exit 0
+                  }
+              } elseif ($httpCode -eq "202") {
+                  Write-Host "[$(Get-Date)] Task is still running (202), waiting..."
+                  Start-Sleep -Seconds 20
               } else {
-                Write-Host "##[warning]Missing HTML output"
-                exit 0
+                  Write-Host "##[error]Unexpected HTTP status code: $httpCode"
+                  Write-Host "Response: $responseBody"
+                  exit 1
               }
-            } else {
-              Write-Host "##[error]Unexpected response from task status endpoint: $taskStatus"
-              exit 1
-            }
           }
 
           # --- Timeout Handling ---
