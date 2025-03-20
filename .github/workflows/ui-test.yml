@@ -470,10 +470,10 @@ jobs:
       #  run: |
       #    npx extest get-vscode --storage .test-resources --type stable
 
-      - name: Get chromedriver
-        working-directory: packages/tests
-        run: |
-          npx extest get-chromedriver --storage .test-resources --type stable
+      #- name: Get chromedriver
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest get-chromedriver --storage .test-resources --type stable
 
       - name: M365 Login
         working-directory: packages/tests
