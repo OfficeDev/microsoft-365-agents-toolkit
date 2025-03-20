@@ -446,6 +446,22 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
           Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
+      
+      - name: Add the code into the environment variable
+        shell: pwsh
+        run: |
+          $vscodeBinPath = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin"
+          if (Test-Path $vscodeBinPath) {
+            "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } else {
+            Write-Error "VS Code 安装路径未找到: $vscodeBinPath"
+            exit 1
+          }
+
+      - name: Show the new PATH
+        shell: pwsh
+        run: |
+          Write-Host "New PATH: $env:PATH"
 
       - name: Get VSCode
         working-directory: packages/tests
