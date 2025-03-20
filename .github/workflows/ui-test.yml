@@ -31,8 +31,8 @@ jobs:
         run: |
           # Prepare output for matrix strategy
           $json = Get-Content -Raw files_list.json
-          # Remove newlines and extra spaces, replace with a separator
-          $formattedList = $json -replace '[\r\n]', ',' | Trim()
+          # Remove newlines and extra spaces, replace with a separator and then trim
+          $formattedList = ($json -replace '[\r\n]', ',').Trim()
           echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
 
   process_file:
