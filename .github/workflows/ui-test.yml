@@ -334,7 +334,7 @@ jobs:
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
-          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest @types/fs-extra
+          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest
 
       - name: Install npm packages
         working-directory: packages/tests
