@@ -14,6 +14,11 @@ import {
   err,
   Colors,
   UserError,
+  Result,
+  FxError,
+  DeclarativeCopilotCapabilityName,
+  Ok,
+  Err,
 } from "@microsoft/teamsfx-api";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import {
@@ -33,10 +38,7 @@ import { MockTools } from "../../../core/utils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import path from "path";
 import { SpecParser } from "@microsoft/m365-spec-parser";
-import {
-  EmbeddedKnowledgeCapabilityName,
-  EmbeddedKnowledgeLocalDirectoryName,
-} from "../../../../src/component/driver/teamsApp/constants";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -968,6 +970,151 @@ describe("copilotGptManifestUtils", () => {
     });
   });
 
+  describe("add knowledge for Graph Connector", async () => {
+    setTools(new MockTools());
+    const context = generateDriverContext(createContext(), {
+      platform: Platform.VSCode,
+      projectPath: "",
+    });
+
+    const agentManifestPath = "test/agentManifestPath";
+    let manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>;
+
+    it("happy path", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["connectionId1", "connectionId2"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            connections: [
+              {
+                connection_id: "123",
+              },
+            ],
+          },
+        ],
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+                {
+                  connection_id: "connectionId1",
+                },
+                {
+                  connection_id: "connectionId2",
+                },
+              ],
+            },
+          ],
+        });
+      }
+    });
+
+    it("duplicated id", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["123"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.GraphConnectors,
+            connections: [
+              {
+                connection_id: "123",
+              },
+            ],
+          },
+        ],
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+              ],
+            },
+          ],
+        });
+      }
+    });
+
+    it("empty capability", async () => {
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(new Ok(undefined));
+      const connectionIds = ["123"];
+      const manifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        connectionIds,
+        new Ok(manifest)
+      );
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(manifest, {
+          name: "name${{APP_NAME_SUFFIX}}",
+          description: "description",
+          capabilities: [
+            {
+              name: DeclarativeCopilotCapabilityName.GraphConnectors,
+              connections: [
+                {
+                  connection_id: "123",
+                },
+              ],
+            },
+          ],
+        });
+      }
+    });
+
+    it("error manifest", async () => {
+      const res = await copilotGptManifestUtils.addGCCapability(
+        agentManifestPath,
+        ["123"],
+        new Err("manifest") as any
+      );
+      chai.assert.isFalse(res.isOk());
+    });
+  });
+
   describe("addEmbeddedKnowledgeFiles", () => {
     setTools(new MockTools());
     const context = generateDriverContext(createContext(), {
@@ -1008,7 +1155,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);
@@ -1026,7 +1173,7 @@ describe("copilotGptManifestUtils", () => {
       const manifest: any = {
         capabilities: [
           {
-            name: EmbeddedKnowledgeCapabilityName,
+            name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
             files: [{ file: "existing.txt" }],
           },
         ],
@@ -1061,7 +1208,7 @@ describe("copilotGptManifestUtils", () => {
 
       chai.assert.isArray(manifest.capabilities);
       const capability = manifest.capabilities.find(
-        (cap: any) => cap.name === EmbeddedKnowledgeCapabilityName
+        (cap: any) => cap.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
       );
       chai.assert.exists(capability);
       chai.assert.isArray(capability.files);
@@ -1101,6 +1248,122 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(result.isErr());
       if (result.isErr()) {
         chai.assert.deepEqual(result.error, fackeErr);
+      }
+    });
+  });
+
+  describe("add knowledge for Web Content and OneDrive and Sharepoint", () => {
+    setTools(new MockTools());
+    afterEach(async () => {
+      if (await fs.pathExists("fake agent manifest path")) {
+        await fs.unlink("fake agent manifest path");
+      }
+      sandbox.restore();
+    });
+
+    it("happy path: manifestRes has no capabilities for addOrUpdateCapability ", async () => {
+      const agentManifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        ok(agentManifest),
+        {}
+      );
+      chai.assert.isTrue(res.isOk());
+    });
+
+    it("error path: manifestRes is error", async () => {
+      let res = await copilotGptManifestUtils.addOneDriveSharePointCapability(
+        "fake agent manifest path",
+        null,
+        null,
+        err(new UserError("fake error", "fake error", "fake error", "fake error"))
+      );
+      chai.assert.isTrue(res.isErr());
+
+      res = await copilotGptManifestUtils.addWebSearchCapability(
+        context,
+        "fake agent manifest path",
+        null,
+        err(new UserError("fake error", "fake error", "fake error", "fake error"))
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+
+    it("error path: manifestRes error for addOrUpdateCapability ", async () => {
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        err(new UserError("fake error", "fake error", "fake error", "fake error")),
+        {}
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+
+    it("error path: updateGptManifestRes error for addOrUpdateCapability ", async () => {
+      const agentManifest: DeclarativeCopilotManifestSchema = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+        capabilities: [
+          {
+            name: DeclarativeCopilotCapabilityName.WebSearch,
+          },
+        ],
+      };
+
+      sandbox
+        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .resolves(err(new UserError("fake error", "fake error", "fake error", "fake error")));
+      const res = await copilotGptManifestUtils.addOrUpdateCapability(
+        "fake agent manifest path",
+        DeclarativeCopilotCapabilityName.WebSearch,
+        ok(agentManifest),
+        {}
+      );
+      chai.assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("readCopilotGptManifestFileSync", () => {
+    it("should read manifest file successfully", () => {
+      const manifest = {
+        name: "name${{APP_NAME_SUFFIX}}",
+        description: "description",
+      };
+      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(res.value, manifest);
+      }
+    });
+
+    it("should return FileNotFoundError if file does not exist", () => {
+      sandbox.stub(fs, "existsSync").returns(false);
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+
+    it("should return FileNotFoundError if JSON parse fails", () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns("invalid json");
+
+      const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
       }
     });
   });

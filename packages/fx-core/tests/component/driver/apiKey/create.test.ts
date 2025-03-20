@@ -73,8 +73,9 @@ describe("CreateApiKeyDriver", () => {
           auth: {
             name: "test",
             authScheme: {
-              type: "http",
-              scheme: "bearer",
+              type: "apiKey",
+              in: "header",
+              name: "test",
             },
           },
           isValid: true,

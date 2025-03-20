@@ -234,6 +234,7 @@ export abstract class CaseFactory {
       npmName: string;
       dashboardFlag: boolean;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initPage(
@@ -241,7 +242,11 @@ export abstract class CaseFactory {
       teamsAppId,
       Env.username,
       Env.password,
-      { dashboardFlag: options?.dashboardFlag }
+      {
+        projectPath: sampledebugContext.projectPath,
+        env: options?.env,
+        dashboardFlag: options?.dashboardFlag,
+      }
     );
   }
 
@@ -254,6 +259,7 @@ export abstract class CaseFactory {
       npmName: string;
       dashboardFlag: boolean;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await reopenPage(
@@ -261,7 +267,11 @@ export abstract class CaseFactory {
       teamsAppId,
       Env.username,
       Env.password,
-      { dashboardFlag: options?.dashboardFlag }
+      {
+        projectPath: sampledebugContext.projectPath,
+        env: options?.env,
+        dashboardFlag: options?.dashboardFlag,
+      }
     );
   }
 
@@ -401,7 +411,13 @@ export abstract class CaseFactory {
               dev: async () => {
                 await sampledebugContext.provisionProject(
                   sampledebugContext.appName,
-                  sampledebugContext.projectPath
+                  sampledebugContext.projectPath,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  undefined,
+                  "DeprecationWarning"
                 );
                 if (options?.container) {
                   await Executor.login();
@@ -497,6 +513,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
+                  env: env,
                 });
 
                 // if no skip vaildation
@@ -544,6 +561,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
+                  env: env,
                 });
               } else {
                 page = await onInitPage(sampledebugContext, teamsAppId, {
@@ -552,6 +570,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
+                  env: env,
                 });
               }
 

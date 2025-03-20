@@ -90,6 +90,10 @@ export enum TelemetryProperty {
   MOSPATH = "mos-api-path",
 
   AddAuthType = "add-auth-type",
+
+  MosTitleId = "mos-title-id",
+  MosAppId = "mos-app-id",
+  IsDeclarativeAgent = "is-declarative-agent",
 }
 
 export const TelemetryConstants = {
@@ -166,6 +170,8 @@ export enum TelemetryEvent {
   MOSApi = "ttk-mos-api",
   ViewPluginManifestAfterAdded = "view-plugin-manifest-after-added",
   AddAuthAction = "add-auth-action",
+  ViewAgentManifestAfterAdded = "view-agent-manifest-after-added",
+  MosSideloadEnd = "mos-sideload-end",
 }
 
 export enum ProjectTypeProps {
@@ -181,6 +187,11 @@ export enum ProjectTypeProps {
   TeamsJs = "teams-js",
   Lauguages = "languages",
   OfficeAddinProjectType = "office-addin-project-type",
+
+  DeclarativeAgentCapabilitiesCount = "declarative-agent-capabilities-count",
+  DeclarativeAgentCapabilities = "declarative-agent-capabilities",
+  DeclarativeAgentActionsCount = "declarative-agent-actions-count",
+  DeclarativeAgentPluginAuthTypes = "declarative-agent-plugin-auth-types",
 }
 
 export enum TelemetrySuccess {

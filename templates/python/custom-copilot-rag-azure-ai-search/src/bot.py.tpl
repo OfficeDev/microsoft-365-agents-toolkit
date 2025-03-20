@@ -16,8 +16,10 @@ from teams.ai.prompts import PromptManager, PromptManagerOptions
 from teams.ai.actions import ActionTypes
 from teams.state import TurnState
 from teams.feedback_loop_data import FeedbackLoopData
+from teams.ai.actions import ActionTypes, ActionTurnContext
 
 from azure_ai_search_data_source import AzureAISearchDataSource, AzureAISearchDataSourceOptions
+from custom_say_command import say_command
 from config import Config
 
 config = Config()
@@ -70,6 +72,10 @@ bot_app = Application[TurnState](
         ai=AIOptions(planner=planner, enable_feedback_loop=True),
     )
 )
+
+@bot_app.ai.action(ActionTypes.SAY_COMMAND)
+async def on_say(_context: ActionTurnContext, _state: TurnState):
+    return await say_command(_context, _state, _context.data, feedback_loop_enabled=True)
 
 @bot_app.error
 async def on_error(context: TurnContext, error: Exception):

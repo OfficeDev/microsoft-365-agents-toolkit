@@ -3,9 +3,6 @@
 
 "use strict";
 
-export const signedIn = "SignedIn";
-export const signedOut = "SignedOut";
-
 export const env = {
   name: "AzureCloud",
   portalUrl: "https://portal.azure.com",

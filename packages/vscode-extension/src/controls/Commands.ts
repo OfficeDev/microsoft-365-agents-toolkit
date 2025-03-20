@@ -15,4 +15,5 @@ export enum Commands {
   StoreData = "store-data",
   GetData = "get-data",
   InvokeTeamsAgent = "invoke-teams-agent",
+  InvokeTeamsAgentWIthPreviewTag = "invoke-teams-agent-with-preview-tag",
 }

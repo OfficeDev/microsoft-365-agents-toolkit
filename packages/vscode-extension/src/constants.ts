@@ -5,7 +5,14 @@ export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",
   EnableMicrosoftKiota = "enableMicrosoftKiota",
+  EnableMicrosoftKiotaString = "enableMicrosoftKiotaString",
   EnableCEA = "enableCustomEngineAgent",
+}
+
+export enum EnableMicrosoftKiota {
+  enabled = "Enabled",
+  disabled = "Disabled",
+  undefined = "Undefined",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";

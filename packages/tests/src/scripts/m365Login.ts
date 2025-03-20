@@ -269,8 +269,8 @@ export class CryptoCachePlugin {
 }
 
 // Entry
-const username = process.argv[3];
-const password = process.argv[4];
+const username = process.argv[2];
+const password = process.argv[3];
 
 if (!username || !password) {
   console.error(

@@ -35,10 +35,10 @@ export class QuestionNodes {
   createProject(platform: Platform): IQTreeNode {
     // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
-    return scaffoldQuestionForVSCode();
+    return scaffoldQuestionForVSCode(platform);
   }
-  createFromTdp(): IQTreeNode {
-    return createFromTdpNode();
+  createFromTdp(platform: Platform): IQTreeNode {
+    return createFromTdpNode(platform);
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();

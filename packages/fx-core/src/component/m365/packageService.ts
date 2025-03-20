@@ -166,9 +166,19 @@ export class PackageService {
       if (appScope == AppScope.Shared) {
         shareLink = await this.getShareLink(token, res[0]);
       }
+      sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
+        [TelemetryProperty.MosTitleId]: res[0],
+        [TelemetryProperty.MosAppId]: res[1],
+        [TelemetryProperty.IsDeclarativeAgent]: isDelcarativeAgentApp.toString(),
+      });
       return [res[0], res[1], shareLink];
     } else {
       const res = await this.sideLoadingV1(token, packagePath);
+      sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
+        [TelemetryProperty.MosTitleId]: res[0],
+        [TelemetryProperty.MosAppId]: res[1],
+        [TelemetryProperty.IsDeclarativeAgent]: isDelcarativeAgentApp.toString(),
+      });
       return [res[0], res[1], ""];
     }
   }

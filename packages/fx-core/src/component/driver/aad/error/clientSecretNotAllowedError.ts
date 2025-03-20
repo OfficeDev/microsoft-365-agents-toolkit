@@ -9,13 +9,13 @@ const errorCode = "ClientSecretNotAllowed";
 const messageKey = "driver.aadApp.error.credentialTypeNotAllowedAsPerAppPolicy";
 
 export class ClientSecretNotAllowedError extends UserError {
-  constructor(actionName: string) {
+  constructor(actionName: string, isMicrosoftUser = false) {
     super({
       source: actionName,
       name: errorCode,
       message: getDefaultString(messageKey),
       displayMessage: getLocalizedString(messageKey),
-      helpLink: constants.defaultHelpLink,
+      helpLink: isMicrosoftUser ? constants.sniHelpLink : constants.defaultHelpLink,
     });
   }
 }

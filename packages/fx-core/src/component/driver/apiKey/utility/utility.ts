@@ -6,10 +6,11 @@ import { getAbsolutePath } from "../../../utils/common";
 import { DriverContext } from "../../interface/commonArgs";
 import { CreateApiKeyArgs } from "../interface/createApiKeyArgs";
 import { UpdateApiKeyArgs } from "../interface/updateApiKeyArgs";
-import { maxDomainPerApiKey } from "./constants";
+import { maxDomainPerApiKey, telemetryKeys } from "./constants";
 import { ApiKeyDomainInvalidError } from "../error/apiKeyDomainInvalid";
 import { ApiKeyFailedToGetDomainError } from "../error/apiKeyFailedToGetDomain";
 import { ApiKeyAuthMissingInSpecError } from "../error/apiKeyAuthMissingInSpec";
+import { WrapDriverContext } from "../../util/wrapUtil";
 
 // Needs to validate the parameters outside of the function
 export function loadStateFromEnv(
@@ -50,6 +51,11 @@ export async function getDomain(
   if (filteredOperations.length === 0) {
     throw new ApiKeyAuthMissingInSpecError(actionName, args.name);
   }
+
+  const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+  const isCustomAPIKey =
+    filteredOperations[0].auth!.authScheme.type === "apiKey" ? "true" : "false";
+  wrapDriverContext.addTelemetryProperties({ [telemetryKeys.isCustomAPIKey]: isCustomAPIKey });
 
   const servers = filteredOperations.map((value) => value.server);
 

@@ -15,6 +15,7 @@ import {
   OauthRegistration,
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { UpdateOauthArgs } from "./interface/updateOauthArgs";
@@ -190,6 +191,14 @@ export class UpdateOauthDriver implements StepDriver {
     }
 
     if (
+      args.tokenExchangeMethodType &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.BasicAuthorizationHeader &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.PostRequestBody
+    ) {
+      invalidParameters.push("tokenExchangeMethodType");
+    }
+
+    if (
       args.targetAudience &&
       args.targetAudience !== OauthRegistrationTargetAudience.AnyTenant &&
       args.targetAudience !== OauthRegistrationTargetAudience.HomeTenant
@@ -222,6 +231,17 @@ export class UpdateOauthDriver implements StepDriver {
     if (input.targetAudience && current.targetAudience !== input.targetAudience) {
       diffMsgs.push(
         `targetAudience: ${current.targetAudience as string} => ${input.targetAudience}`
+      );
+    }
+
+    if (
+      input.tokenExchangeMethodType &&
+      current.tokenExchangeMethodType !== input.tokenExchangeMethodType
+    ) {
+      diffMsgs.push(
+        `tokenExchangeMethodType: ${current.tokenExchangeMethodType as string} => ${
+          input.tokenExchangeMethodType
+        }`
       );
     }
 
@@ -331,6 +351,10 @@ export class UpdateOauthDriver implements StepDriver {
       ? (args.applicableToApps as OauthRegistrationAppType)
       : undefined;
 
+    const tokenExchangeMethodType = args.tokenExchangeMethodType
+      ? (args.tokenExchangeMethodType as TokenExchangeMethodType)
+      : TokenExchangeMethodType.BasicAuthorizationHeader;
+
     const result = {
       description: args.name,
       targetUrlsShouldStartWith: authInfo.domain,
@@ -338,6 +362,7 @@ export class UpdateOauthDriver implements StepDriver {
       m365AppId: applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
       targetAudience: targetAudience,
       isPKCEEnabled: !!args.isPKCEEnabled,
+      tokenExchangeMethodType: tokenExchangeMethodType,
       scopes: authInfo.scopes ?? [],
     } as OauthRegistration;
 

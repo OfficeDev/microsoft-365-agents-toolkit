@@ -173,7 +173,10 @@ describe("Remote debug Tests", function () {
         const insertDataCmd = `npm run indexer:create -- ${searchKey} ${azureOpenAiKey}`;
         const { success: insertDataSuccess } = await Executor.execute(
           insertDataCmd,
-          projectPath
+          projectPath,
+          undefined,
+          undefined,
+          "DeprecationWarning"
         );
         if (!insertDataSuccess) {
           throw new Error("Failed to insert data");
@@ -189,7 +192,8 @@ describe("Remote debug Tests", function () {
         remoteDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "dev" }
       );
       await driver.sleep(Timeout.longTimeWait);
       if (isRealKey) {

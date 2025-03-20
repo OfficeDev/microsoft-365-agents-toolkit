@@ -125,21 +125,19 @@ export async function initPage(
   username: string,
   password: string,
   options?: {
+    projectPath?: string;
+    env?: string;
     teamsAppName?: string;
     dashboardFlag?: boolean;
   }
 ): Promise<Page> {
   let page = await context.newPage();
   page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
-
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
   // open teams app page
   // https://github.com/puppeteer/puppeteer/issues/3338
-  await Promise.all([
-    page.goto(
-      `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-    ),
-    page.waitForNavigation(),
-  ]);
+  await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
 
   // input username
   await RetryHandler.retry(async () => {
@@ -177,14 +175,30 @@ export async function initPage(
     }
     await page.close();
     console.log(`open teams page`);
-    page = await context.newPage();
-    await Promise.all([
-      page.goto(
-        `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-      ),
-      page.waitForNavigation(),
-    ]);
-    await page.waitForTimeout(Timeout.longTimeWait);
+    try {
+      //try upload app package file
+      page = await context.newPage();
+
+      await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+
+      // Upload app package file
+      await uploadPackage(page, options?.projectPath, options?.env);
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("upload_page"),
+        fullPage: true,
+      });
+      // then try add app url
+      await page.close();
+      page = await context.newPage();
+
+      await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+    }
+
+    // Click add button
     console.log("click add button");
     let addBtn;
     try {
@@ -263,17 +277,51 @@ export async function initPage(
   return page;
 }
 
-export async function reopenPage(
+async function uploadPackage(page: Page, projectPath = "", env = "local") {
+  console.log("Click button Apps");
+  const appsBtn = await page?.waitForSelector("button[aria-label='Apps']");
+  await appsBtn.click();
+  await page.waitForTimeout(Timeout.shortTimeLoading);
+  console.log("Click button Manage your apps");
+  const manageAppsBtn = await page?.waitForSelector(
+    "button:has-text('Manage your apps')"
+  );
+  await manageAppsBtn.click();
+  await page.waitForTimeout(Timeout.shortTimeLoading);
+  console.log("Click button Upload an app");
+  const uploadAppBtn = await page?.waitForSelector(
+    "button:has-text('Upload an app')"
+  );
+  await uploadAppBtn.click();
+  await page.waitForTimeout(Timeout.shortTimeLoading);
+  // Set the file to be uploaded
+  const packageFile = `appPackage.${env}.zip`;
+  const packageFilePath = path.resolve(
+    projectPath,
+    "appPackage/build",
+    packageFile
+  );
+  console.log(packageFilePath);
+  // Wait for the file chooser dialog and set file path
+  console.log("Click button Upload a custom app");
+  const [fileChooser] = await Promise.all([
+    page.waitForEvent("filechooser"), // Wait for the file dialog to open
+    page.click('button:has-text("Upload a custom app")'), // Click the upload button that triggers file selection
+  ]);
+
+  await fileChooser.setFiles(packageFilePath); // Replace with your file path
+
+  await page.waitForTimeout(Timeout.shortTimeLoading);
+}
+
+export async function initCopilotPage(
   context: BrowserContext,
-  teamsAppId: string,
-  username?: string,
-  password?: string,
+  username: string,
+  password: string,
   options?: {
     teamsAppName?: string;
     dashboardFlag?: boolean;
-  },
-  addApp = true,
-  inputPassword = false
+  }
 ): Promise<Page> {
   let page = await context.newPage();
   page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
@@ -282,10 +330,90 @@ export async function reopenPage(
   // https://github.com/puppeteer/puppeteer/issues/3338
   await Promise.all([
     page.goto(
-      `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
+      `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
     ),
     page.waitForNavigation(),
   ]);
+
+  // input username
+  await RetryHandler.retry(async () => {
+    await page.fill("input.input[type='email']", username);
+    console.log(`fill in username ${username}`);
+
+    // next
+    await Promise.all([
+      page.click("input.button[type='submit']"),
+      page.waitForNavigation(),
+    ]);
+    // input password
+    console.log(`fill in password`);
+    await page.fill("input.input[type='password'][name='passwd']", password);
+
+    // sign in
+    await Promise.all([
+      page.click("input.button[type='submit']"),
+      page.waitForNavigation(),
+    ]);
+
+    // stay signed in confirm page
+    console.log(`stay signed confirm`);
+    await Promise.all([
+      page.click("input.button[type='submit'][value='Yes']"),
+      page.waitForNavigation(),
+    ]);
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+  });
+
+  // add app
+  await RetryHandler.retry(async (retries: number) => {
+    if (retries > 0) {
+      console.log(`Retried to run copilot app for ${retries} times.`);
+    }
+    await page.close();
+    console.log(`open Copilot page`);
+    page = await context.newPage();
+    await Promise.all([
+      page.goto(
+        `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
+      ),
+      page.waitForNavigation(),
+    ]);
+    await page.waitForTimeout(Timeout.longTimeWait);
+    console.log("check copilot agent loaded");
+    const frameElementHandle = await page.waitForSelector(
+      `iframe[title="Copilot"]`
+    );
+    const frame = await frameElementHandle?.contentFrame();
+    await frame?.waitForSelector(`span:has-text("Agents")`);
+    console.log("[success] copilot loaded");
+  });
+
+  return page;
+}
+
+export async function reopenPage(
+  context: BrowserContext,
+  teamsAppId: string,
+  username?: string,
+  password?: string,
+  options?: {
+    projectPath?: string;
+    env?: string;
+    teamsAppName?: string;
+    dashboardFlag?: boolean;
+  },
+  addApp = true,
+  inputPassword = false
+): Promise<Page> {
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
+
+  let page = await context.newPage();
+  page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
+
+  // open teams app page
+  // https://github.com/puppeteer/puppeteer/issues/3338
+  await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
 
   if (inputPassword && password) {
     // input password
@@ -314,14 +442,28 @@ export async function reopenPage(
     }
     await page.close();
     console.log(`open teams page`);
-    page = await context.newPage();
-    await Promise.all([
-      page.goto(
-        `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-      ),
-      page.waitForNavigation(),
-    ]);
-    await page.waitForTimeout(Timeout.longTimeWait);
+    try {
+      //try upload app package file
+      page = await context.newPage();
+
+      await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+
+      // Upload app package file
+      await uploadPackage(page, options?.projectPath, options?.env);
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("upload_page"),
+        fullPage: true,
+      });
+      // then try add app url
+      await page.close();
+      page = await context.newPage();
+
+      await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+    }
 
     await page.screenshot({
       path: getPlaywrightScreenshotPath("reopen_page"),
@@ -1497,6 +1639,60 @@ export async function validateBot(
       }
     }, 2);
     await page.waitForTimeout(Timeout.shortTimeLoading);
+  } catch (error) {
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("error"),
+      fullPage: true,
+    });
+    throw error;
+  }
+}
+
+export async function validatePrompt(
+  page: Page,
+  copilotAgentName: string,
+  options: {
+    prompt?: string;
+    expected?: ValidationContent;
+  }
+) {
+  try {
+    const frameElementHandle = await page.waitForSelector(
+      `iframe[title="Copilot"]`
+    );
+    const frame = await frameElementHandle?.contentFrame();
+    try {
+      console.log("Click See more button:");
+      const seeMore = await frame?.waitForSelector(
+        `button:has-text("See more")`
+      );
+      await seeMore?.click();
+      console.log("Loaded more agents:");
+    } catch {
+      console.log("No See more button:");
+    }
+    const copilotAgent = frame?.getByLabel(`${copilotAgentName}`).first();
+    await copilotAgent?.click();
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    console.log("start to verify prompt");
+    await frame?.getByRole("textbox").fill(options?.prompt || "list repairs");
+    const sendButton = await frame?.waitForSelector(
+      'button[aria-label="Send"]'
+    );
+    await sendButton?.click();
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    try {
+      const allowButton = await frame?.waitForSelector(
+        `button:has-text("Always allow")`
+      );
+      await allowButton?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      console.log("no allow button.");
+    }
+    await frame?.waitForSelector(`p:has-text("${options?.expected}")`);
+    console.log("verify prompt successfully!!!");
+    console.log(`${options?.expected}`);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),

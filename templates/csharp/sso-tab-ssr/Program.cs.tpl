@@ -1,6 +1,7 @@
 using {{SafeProjectName}};
 using {{SafeProjectName}}.Components;
 using {{SafeProjectName}}.Interop.TeamsSDK;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAntiforgery(o => o.SuppressXFrameOptionsHeader = true);
+
+builder.Services.AddSingleton<LibraryConfiguration>();
 
 var app = builder.Build();
 

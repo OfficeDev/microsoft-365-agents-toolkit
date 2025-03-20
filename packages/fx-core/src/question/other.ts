@@ -32,10 +32,12 @@ import { environmentNameManager } from "../core/environmentName";
 import {
   ActionStartOptions,
   AddAuthActionAuthTypeOptions,
+  GCSelectOptions,
   HubOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
+  KnowledgeSearchTypeOptions,
 } from "./constants";
 import {
   SPFxFrameworkQuestion,
@@ -47,6 +49,13 @@ import {
   apiSpecLocationQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
+  oneDriveSharePointItemQuestion,
+  oneDriveSharePointItemConfirmQuestion,
+  GCItemQuestion,
+  GCListQuestion,
+  GCInputQuestion,
+  searchTypeQuestion,
+  webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 
@@ -816,21 +825,92 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
     children: [
+      // Web Content
+      {
+        data: searchTypeQuestion(),
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id;
+        },
+        children: [
+          {
+            data: webContentQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // OneDrive SharePoint
+      {
+        data: searchTypeQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
+          );
+        },
+        children: [
+          {
+            data: oneDriveSharePointItemQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: oneDriveSharePointItemConfirmQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // Graph Connector
+      {
+        data: GCItemQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.graphConnector().id,
+        },
+        children: [
+          {
+            data: GCListQuestion(),
+            condition: {
+              equals: GCSelectOptions.list().id,
+            },
+          },
+          {
+            data: GCInputQuestion(),
+            condition: {
+              equals: GCSelectOptions.input().id,
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // Embedded Knowledge
       {
         data: selectTeamsAppManifestQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.embeddedKnowledge().id
+          );
         },
-      },
-      {
-        data: addEmbeddedKnowledgeFilesQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
-        },
+        children: [
+          {
+            data: addEmbeddedKnowledgeFilesQuestion(),
+          },
+        ],
       },
     ],
   };
 }
+
 export function addEmbeddedKnowledgeFilesQuestion(): MultiFileQuestion {
   return {
     name: QuestionNames.EmbeddedKnowledgeFiles,

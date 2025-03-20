@@ -22,6 +22,7 @@ export class FeatureFlagName {
   static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
+  static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
   static readonly SMEOAuth = "SME_OAUTH";
   static readonly ShowDiagnostics = "TEAMSFX_SHOW_DIAGNOSTICS";
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
@@ -30,7 +31,12 @@ export class FeatureFlagName {
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
-  static readonly AddKnowledge = "TEAMSFX_ADD_KNOWLEDGE";
+  static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
+  static readonly ShareEnabled = "TEAMSFX_SHARE";
+  static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
+  static readonly GCList = "TEAMSFX_GC_LIST";
+  static readonly TypeSpec = "TEAMSFX_TYPESPEC";
+  static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
 }
 
 export interface FeatureFlag {
@@ -64,6 +70,10 @@ export class FeatureFlags {
     name: FeatureFlagName.ChatParticipantUIEntries,
     defaultValue: "false",
   };
+  static readonly HideGitHubCopilotPreviewTag = {
+    name: FeatureFlagName.HideGitHubCopilotPreviewTag,
+    defaultValue: "false",
+  };
   static readonly SMEOAuth = { name: FeatureFlagName.SMEOAuth, defaultValue: "false" };
   static readonly ShowDiagnostics = {
     name: FeatureFlagName.ShowDiagnostics,
@@ -93,8 +103,28 @@ export class FeatureFlags {
     name: FeatureFlagName.BuilderAPIEnabled,
     defaultValue: "false",
   };
-  static readonly AddKnowledge = {
-    name: FeatureFlagName.AddKnowledge,
+  static readonly EmbeddedKnowledgeEnabled = {
+    name: FeatureFlagName.EmbeddedKnowledgeEnabled,
+    defaultValue: "false",
+  };
+  static readonly ShareEnabled = {
+    name: FeatureFlagName.ShareEnabled,
+    defaultValue: "false",
+  };
+  static readonly AddODSPKnowledge = {
+    name: FeatureFlagName.AddODSPKnowledge,
+    defaultValue: "false",
+  };
+  static readonly GCList = {
+    name: FeatureFlagName.GCList,
+    defaultValue: "false",
+  };
+  static readonly TypeSpec = {
+    name: FeatureFlagName.TypeSpec,
+    defaultValue: "false",
+  };
+  static readonly SensitivityLabelEnabled = {
+    name: FeatureFlagName.SensitivityLabelEnabled,
     defaultValue: "false",
   };
 }

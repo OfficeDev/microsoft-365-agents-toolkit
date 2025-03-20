@@ -24,6 +24,7 @@ import SampleListItem from "./sampleListItem";
 
 interface SampleGalleryProps {
   shouldShowChat: string;
+  shouldHideTeamsAgentPreviewTag: string;
 }
 
 export default class SampleGallery extends React.Component<SampleGalleryProps, SampleGalleryState> {
@@ -65,7 +66,8 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
         </div>
         <div className="title">
           <h1>Samples</h1>
-          {this.props.shouldShowChat === "true" ? (
+          {this.props.shouldShowChat === "true" &&
+          this.props.shouldHideTeamsAgentPreviewTag === "true" ? (
             <h3>
               Explore our sample gallery filled with solutions that work seamlessly with Teams
               Toolkit. Need help choosing? Let{" "}
@@ -75,6 +77,20 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                 }}
               >
                 Github Copilot
+              </Link>{" "}
+              assists you in selecting the right sample to create your Teams app.
+            </h3>
+          ) : this.props.shouldShowChat === "true" &&
+            this.props.shouldHideTeamsAgentPreviewTag === "false" ? (
+            <h3>
+              Explore our sample gallery filled with solutions that work seamlessly with Teams
+              Toolkit. Need help choosing? Let{" "}
+              <Link
+                onClick={() => {
+                  this.onInvokeTeamsAgent();
+                }}
+              >
+                Github Copilot (preview)
               </Link>{" "}
               assists you in selecting the right sample to create your Teams app.
             </h3>
@@ -370,9 +386,11 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     });
   };
 
-  private onInvokeTeamsAgent = () => {
+  private onInvokeTeamsAgent = (shouldHidePreviewTag: boolean) => {
     vscode.postMessage({
-      command: Commands.InvokeTeamsAgent,
+      command: shouldHidePreviewTag
+        ? Commands.InvokeTeamsAgent
+        : Commands.InvokeTeamsAgentWIthPreviewTag,
     });
   };
 }

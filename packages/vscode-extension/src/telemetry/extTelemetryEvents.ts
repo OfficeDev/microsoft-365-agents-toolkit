@@ -342,6 +342,9 @@ export enum TelemetryEvent {
   AddAuthActionStart = "add-auth-action-start",
   AddAuthAction = "add-auth-action",
   ProvisionFromAddAuthConfig = "provision-from-add-auth-config",
+
+  OpenOneDriveSharePointUrlStart = "open-one-drive-share-point-url-start",
+  OpenOneDriveSharePointUrl = "open-one-drive-share-point-url",
 }
 
 export enum TelemetryProperty {

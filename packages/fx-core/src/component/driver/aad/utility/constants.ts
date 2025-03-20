@@ -43,12 +43,14 @@ export const aadErrorCode = {
   hostNameNotOnVerifiedDomain: "HostNameNotOnVerifiedDomain", // Using unverified domain in multi tenant scenario
   credentialInvalidLifetimeAsPerAppPolicy: "CredentialInvalidLifetimeAsPerAppPolicy",
   credentialTypeNotAllowedAsPerAppPolicy: "CredentialTypeNotAllowedAsPerAppPolicy",
+  signInAudienceNotAllowedAsPerAppPolicy: "SignInAudienceNotAllowedAsPerAppPolicy",
 };
 
 export const constants = {
   aadAppPasswordDisplayName: "default",
   oauthAuthorityPrefix: "https://login.microsoftonline.com",
   defaultHelpLink: "https://aka.ms/teamsfx-actions/aadapp-create",
+  sniHelpLink: "https://aka.ms/teams-toolkit-sni-guide",
   insufficientPermissionErrorMessage: "Insufficient privileges to complete the operation.",
 };
 
@@ -56,4 +58,5 @@ export const telemetryKeys = {
   newAadApp: "new-aad-app",
   userInputAadApp: "user-input-aad-app",
   insufficientPermissionAadApp: "insufficient-permission-aad-app",
+  isNewAadSchema: "is-new-aad-schema",
 };

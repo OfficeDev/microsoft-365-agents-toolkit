@@ -53,8 +53,13 @@ export async function showError(e: UserError | SystemError) {
   const shouldRecommendTeamsAgent = featureFlagManager.getBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries
   );
+  const troubleshootButtonText = featureFlagManager.getBooleanValue(
+    CoreFeatureFlags.HideGitHubCopilotPreviewTag
+  )
+    ? localize("teamstoolkit.commmands.teamsAgentResolve.title")
+    : localize("teamstoolkit.commmands.teamsAgentResolve.title.preview");
   const troubleshootErrorWithTeamsAgentButton = {
-    title: localize("teamstoolkit.commmands.teamsAgentResolve.title"),
+    title: troubleshootButtonText,
     run: async () => {
       await commands.executeCommand(
         "fx-extension.teamsAgentTroubleshootError",

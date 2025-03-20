@@ -112,6 +112,9 @@ export class ProjectTypeOptions {
   }
 
   static startWithGithubCopilot(): OptionItem {
+    const description = featureFlagManager.getBooleanValue(FeatureFlags.HideGitHubCopilotPreviewTag)
+      ? undefined
+      : getLocalizedString("core.createProjectQuestion.option.description.preview");
     return {
       id: ProjectTypeOptions.startWithGithubCopilotOptionId,
       label: `$(comment-discussion) ${getLocalizedString(
@@ -119,6 +122,7 @@ export class ProjectTypeOptions {
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),
       groupName: getLocalizedString("core.createProjectQuestion.projectType.copilotGroup.title"),
+      description,
     };
   }
 }

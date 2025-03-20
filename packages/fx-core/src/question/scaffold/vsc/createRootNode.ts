@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
@@ -80,20 +80,23 @@ export function languageNode(): IQTreeNode {
 }
 
 export function folderAndAppNameCondition(inputs: Inputs): boolean {
-  // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
-  return !(
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-    (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
-      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
-    !inputs[QuestionNames.ActionManifestPath]
+  // skip this project when need to redirect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
+  // or start with github copilot
+  return (
+    !(
+      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+      (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
+        inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
+      !inputs[QuestionNames.ActionManifestPath]
+    ) && inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.startWithGithubCopilotOptionId
   );
 }
 
 /**
  * Scaffold question model dedicated for VS Code platform
  */
-export function scaffoldQuestionForVSCode(): IQTreeNode {
+export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode): IQTreeNode {
   const node: IQTreeNode = {
     data: { type: "group" },
     children: [
@@ -103,12 +106,12 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           title: getLocalizedString("core.createProjectQuestion.title"),
           type: "singleSelect",
           staticOptions: [
-            ProjectTypeOptions.declarativeAgent(),
-            ProjectTypeOptions.customEngineAgent(),
-            ProjectTypeOptions.bot(),
-            ProjectTypeOptions.tab(),
-            ProjectTypeOptions.me(),
-            ProjectTypeOptions.officeAddin(),
+            ProjectTypeOptions.declarativeAgent(platform),
+            ProjectTypeOptions.customEngineAgent(platform),
+            ProjectTypeOptions.bot(platform),
+            ProjectTypeOptions.tab(platform),
+            ProjectTypeOptions.me(platform),
+            ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
               : []),

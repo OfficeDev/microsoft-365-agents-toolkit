@@ -14,3 +14,9 @@ export const sampleConcurrencyLimits = 20;
 export const sampleDefaultRetryLimits = 2;
 
 export const declarativeAgentInstructionFileName = "instruction.txt";
+
+export enum OneDriveSharePointItemType {
+  File = "File",
+  Folder = "Folder",
+  Site = "Site",
+}

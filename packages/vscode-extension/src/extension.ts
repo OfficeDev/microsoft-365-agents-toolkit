@@ -43,6 +43,7 @@ import {
   CryptoCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
+  OneDriveSharePointCodeLensProvider,
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
@@ -211,6 +212,7 @@ import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/swi
 import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
+import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -222,6 +224,13 @@ export async function activate(context: vscode.ExtensionContext) {
   featureFlagManager.setBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries,
     shouldEnableChatParticipantUIEntries
+  );
+
+  const shouldHideGitHubCopilotPreviewTag =
+    releaseControlledFeatureSettings.shouldHideTeamsAgentPreviewTag;
+  featureFlagManager.setBooleanValue(
+    CoreFeatureFlags.HideGitHubCopilotPreviewTag,
+    shouldHideGitHubCopilotPreviewTag
   );
 
   context.subscriptions.push(new ExtTelemetry.Reporter(context));
@@ -266,6 +275,11 @@ export async function activate(context: vscode.ExtensionContext) {
     "fx-extension.isChatParticipantUIEntriesEnabled",
     shouldEnableChatParticipantUIEntries
   );
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.hideTeamsAgentPreviewTag",
+    shouldHideGitHubCopilotPreviewTag
+  );
 
   await vscode.commands.executeCommand(
     "setContext",
@@ -291,16 +305,13 @@ export async function activate(context: vscode.ExtensionContext) {
     isDeclarativeCopilotApp
   );
 
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isAddKnowledgeEnabled",
-    featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
-  );
   void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
   await vscode.commands.executeCommand("setContext", "fx-extension.initialized", true);
+
+  await configMgr.checkKiotaInstallation();
 }
 
 // this method is called when your extension is deactivated
@@ -484,11 +495,23 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(invokeTeamsAgent);
 
+  const invokeTeamsAgentWithPreviewTag = vscode.commands.registerCommand(
+    "fx-extension.invokeChatWithPreviewTag",
+    (...args) => Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
+  );
+  context.subscriptions.push(invokeTeamsAgentWithPreviewTag);
+
   const troubleshootSelectedText = vscode.commands.registerCommand(
     "fx-extension.teamsAgentTroubleshootSelectedText",
     (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
   );
   context.subscriptions.push(troubleshootSelectedText);
+
+  const troubleshootSelectedTextWithPreviewTag = vscode.commands.registerCommand(
+    "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
+    (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
+  );
+  context.subscriptions.push(troubleshootSelectedTextWithPreviewTag);
 
   const troubleshootError = vscode.commands.registerCommand(
     "fx-extension.teamsAgentTroubleshootError",
@@ -797,6 +820,12 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(addAuthActionHandler, args)
   );
   context.subscriptions.push(addAuthActionCmd);
+
+  const openOneDriveSharePointUrlCmd = vscode.commands.registerCommand(
+    "fx-extension.openOneDriveSharePointUrl",
+    (...args) => Correlator.run(openOneDriveSharePointUrlHandler, args)
+  );
+  context.subscriptions.push(openOneDriveSharePointUrlCmd);
 }
 
 /**
@@ -1185,6 +1214,12 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     pattern: `**/${AppPackageFolderName}/apiSpecificationFile/*.{yml,yaml,json}`,
   };
 
+  const agentManifestSelector = {
+    language: "json",
+    scheme: "file",
+    pattern: `**/${AppPackageFolderName}/**/*.json`,
+  };
+
   const aadAppTemplateCodeLensProvider = new AadAppTemplateCodeLensProvider();
 
   const aadAppTemplateSelectorV3 = {
@@ -1303,6 +1338,14 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(diagnosticCollection);
+
+  const oneDriveSharePointCodeLensProvider = new OneDriveSharePointCodeLensProvider();
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      agentManifestSelector,
+      oneDriveSharePointCodeLensProvider
+    )
+  );
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {

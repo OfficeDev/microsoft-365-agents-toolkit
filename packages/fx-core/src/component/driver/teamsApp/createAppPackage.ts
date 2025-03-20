@@ -9,7 +9,8 @@ import {
   err,
   ok,
   PluginManifestSchema,
-  File,
+  DeclarativeCopilotCapabilityName,
+  EmbeddedKnowledgeCapability,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -23,17 +24,13 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { WrapDriverContext } from "../util/wrapUtil";
-import {
-  Constants,
-  EmbeddedKnowledgeLocalDirectoryName,
-  EmbeddedKnowledgeCapabilityName,
-} from "./constants";
+import { Constants } from "./constants";
 import { CreateAppPackageArgs } from "./interfaces/CreateAppPackageArgs";
 import { manifestUtils } from "./utils/ManifestUtils";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../error/teamsApp";
 import { getResolvedManifest, normalizePath } from "./utils/utils";
 import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
-import { ManifestType } from "../../utils/envFunctionUtils";
+import { expandVariableWithFunction, ManifestType } from "../../utils/envFunctionUtils";
 import { getAbsolutePath } from "../../utils/common";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { updateVersionForTeamsAppYamlFile } from "../util/utils";
@@ -72,7 +69,16 @@ export class CreateAppPackageDriver implements StepDriver {
       return err(result.error);
     }
 
-    let manifestPath = args.manifestPath;
+    // TODO: use constant after previous pr merged
+    const generatedFolder = path.join(context.projectPath, "appPackage", ".generated");
+    const hasTTKGeneratedFolder =
+      featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec) &&
+      fs.existsSync(generatedFolder) &&
+      fs.existsSync(path.join(generatedFolder, "manifest.json"));
+
+    let manifestPath = hasTTKGeneratedFolder
+      ? path.join(generatedFolder, "manifest.json")
+      : args.manifestPath;
     if (!path.isAbsolute(manifestPath)) {
       manifestPath = path.join(context.projectPath, manifestPath);
     }
@@ -104,7 +110,7 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     await fs.mkdir(jsonFileDir, { recursive: true });
 
-    const appDirectory = path.dirname(manifestPath);
+    const appDirectory = path.dirname(hasTTKGeneratedFolder ? generatedFolder : manifestPath);
 
     const colorFile = path.resolve(appDirectory, manifest.icons.color);
     if (!(await fs.pathExists(colorFile))) {
@@ -289,7 +295,10 @@ export class CreateAppPackageDriver implements StepDriver {
       : manifest.copilotAgents?.declarativeAgents;
     // Copilot GPT
     if (declarativeCopilots?.length && declarativeCopilots[0].file) {
-      const declarativeAgentManifestFile = path.resolve(appDirectory, declarativeCopilots[0].file);
+      const declarativeAgentManifestFile = path.resolve(
+        hasTTKGeneratedFolder ? generatedFolder : appDirectory,
+        declarativeCopilots[0].file
+      );
       const checkExistenceRes = await this.validateReferencedFile(
         declarativeAgentManifestFile,
         appDirectory
@@ -326,13 +335,16 @@ export class CreateAppPackageDriver implements StepDriver {
               pluginFile
             );
 
-            const pluginFileRelativePath = path.relative(appDirectory, pluginFileAbsolutePath);
+            const pluginFileRelativePath = path.relative(
+              hasTTKGeneratedFolder ? generatedFolder : appDirectory,
+              pluginFileAbsolutePath
+            );
             const useForwardSlash = declarativeCopilots[0].file.concat(pluginFile).includes("/");
 
             const addPluginRes = await this.addPlugin(
               zip,
               normalizePath(pluginFileRelativePath, useForwardSlash),
-              appDirectory,
+              hasTTKGeneratedFolder ? generatedFolder : appDirectory,
               context,
               !shouldwriteAllManifest ? undefined : jsonFileDir
             );
@@ -343,17 +355,20 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (featureFlagManager.getBooleanValue(FeatureFlags.BuilderAPIEnabled)) {
+        if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
           if (getCopilotGptRes.value.capabilities) {
             const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
-              (capability) => capability.name === EmbeddedKnowledgeCapabilityName
+              (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
             );
             if (embeddedKnowledgeCapabilities.length > 0) {
               const fileSet = new Set<string>();
               for (const capability of embeddedKnowledgeCapabilities) {
-                for (const file of capability.files as File[]) {
-                  if (file.file) {
-                    fileSet.add(file.file);
+                const embeddedCapability = capability as EmbeddedKnowledgeCapability;
+                if (embeddedCapability.files) {
+                  for (const file of embeddedCapability.files) {
+                    if (file.file) {
+                      fileSet.add(file.file);
+                    }
                   }
                 }
               }
@@ -533,11 +548,38 @@ export class CreateAppPackageDriver implements StepDriver {
     let tmpPluginFile = pluginFile;
     let tempFolder: string | undefined;
 
+    let namespaceContainsUnderscore = false;
+    if (pluginFileContent.namespace?.includes("_")) {
+      pluginFileContent.namespace = pluginFileContent.namespace.replace(/_/g, "");
+      namespaceContainsUnderscore = true;
+      context.logProvider.warning(
+        getLocalizedString(
+          "plugins.appstudio.createPackage.aiPlugin.containsUnderscore",
+          pluginRelativePath
+        )
+      );
+    }
+
     if (containExternalAdaptiveCard) {
       await updateVersionForTeamsAppYamlFile(context.projectPath);
+    }
+
+    if (namespaceContainsUnderscore || containExternalAdaptiveCard) {
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
+      const processedFunctionRes = await expandVariableWithFunction(
+        JSON.stringify(pluginFileContent),
+        context,
+        undefined,
+        true,
+        ManifestType.PluginManifest,
+        pluginFile
+      );
+      if (processedFunctionRes.isErr()) {
+        return err(processedFunctionRes.error);
+      }
+      pluginFileContent = JSON.parse(processedFunctionRes.value);
       await fs.writeJSON(tmpPluginFile, pluginFileContent, { spaces: 4 });
     }
 
@@ -659,6 +701,7 @@ export class CreateAppPackageDriver implements StepDriver {
     if (await fs.pathExists(jsonFileName)) {
       await fs.chmod(jsonFileName, 0o777);
     }
+    await fs.ensureDir(path.dirname(jsonFileName));
     await fs.writeFile(jsonFileName, content);
     await fs.chmod(jsonFileName, 0o444);
   }

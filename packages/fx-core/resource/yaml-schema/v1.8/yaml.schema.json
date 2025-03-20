@@ -1831,6 +1831,11 @@
               "type": "string",
               "description": "The identity provider of OAuth registration.",
               "enum": ["MicrosoftEntra", "Custom"]
+            },
+            "tokenExchangeMethodType": {
+              "type": "string",
+              "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
+              "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
             }
           }
         },
@@ -1906,6 +1911,11 @@
             "clientSecret": {
               "type": "string",
               "description": "The client secret of OAuth registration."
+            },
+            "tokenExchangeMethodType": {
+              "type": "string",
+              "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
+              "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
             }
           }
         }

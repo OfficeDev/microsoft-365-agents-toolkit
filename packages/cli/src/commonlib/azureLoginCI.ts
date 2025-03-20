@@ -15,6 +15,8 @@ import {
   ok,
   Result,
   SubscriptionInfo,
+  signedIn,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import { LoginStatus, login } from "./common/login";
 
@@ -22,7 +24,7 @@ import { LogLevel as LLevel } from "@microsoft/teamsfx-api";
 import { InvalidAzureSubscriptionError, isValidProjectV3 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import { AzureSpCrypto } from "./cacheAccess";
-import { signedIn, signedOut, subscriptionInfoFile } from "./common/constant";
+import { subscriptionInfoFile } from "./common/constant";
 import CLILogProvider from "./log";
 import { ConvertTokenToJson } from "./codeFlowLogin";
 
