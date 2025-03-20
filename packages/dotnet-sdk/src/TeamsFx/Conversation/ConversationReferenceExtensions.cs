@@ -3,8 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
+    using Microsoft.Agents.Core.Models;
     using System.Text.Json;
-    using Microsoft.Bot.Schema;
 
     static internal class ConversationReferenceExtensions
     {

@@ -3,12 +3,15 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
     using Microsoft.Bot.Schema;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using AdaptiveCardInvokeResponse = Agents.Core.Models.AdaptiveCardInvokeResponse;
+    using AdaptiveCardInvokeValue = Agents.Core.Models.AdaptiveCardInvokeValue;
 
     internal class CardActionMiddleware : IMiddleware
     {
@@ -78,7 +81,7 @@ namespace Microsoft.TeamsFx.Conversation
 
                                 var messageActivity = MessageFactory.Attachment
                                 (
-                                    new Attachment
+                                    new Agents.Core.Models.Attachment
                                     {
                                         ContentType = "application/vnd.microsoft.card.adaptive",
                                         Content = card,
@@ -118,7 +121,7 @@ namespace Microsoft.TeamsFx.Conversation
 
         private async static Task SendInvokeResponseAsync(ITurnContext context, InvokeResponse response, CancellationToken cancellationToken)
         {
-            var invokeActivity = new Activity
+            var invokeActivity = new Agents.Core.Models.Activity
             {
                 Type = ActivityTypesEx.InvokeResponse,
                 Value = response

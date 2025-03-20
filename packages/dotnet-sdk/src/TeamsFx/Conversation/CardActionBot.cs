@@ -3,14 +3,14 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.Hosting.AspNetCore;
 
     /// <summary>
     /// Represents a bot to handle Adaptive Card Action Execute invoke activities.
     /// </summary>
     public class CardActionBot
     {
-        private readonly BotAdapter _adapter;
+        private readonly CloudAdapter _adapter;
         private readonly CardActionMiddleware _middleware;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <param name="options">The initialize options.</param>
         /// <paramref name="adapter"/> or <paramref name="options"/> is null.
         /// </exception>
-        public CardActionBot(BotAdapter adapter, CardActionOptions options)
+        public CardActionBot(CloudAdapter adapter, CardActionOptions options)
         {
             _adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
 

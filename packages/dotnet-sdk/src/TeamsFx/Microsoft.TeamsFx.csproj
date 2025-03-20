@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Microsoft.TeamsFx</AssemblyName>
     <RootNamespace>Microsoft.TeamsFx</RootNamespace>
     <Version>2.5.0</Version>
@@ -27,15 +27,18 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Microsoft.TeamsFx.Test</_Parameter1>
     </AssemblyAttribute>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Bot.Builder" Version="4.22.7" />
-    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.22.7" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Agents.BotBuilder" Version="0.2.162-alpha" />
+    <PackageReference Include="Microsoft.Agents.BotBuilder.Dialogs" Version="0.2.162-alpha" />
+    <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.162-alpha" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.162-alpha" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" />
+    <PackageReference Include="Microsoft.Bot.Schema" Version="4.23.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.3" />
     <PackageReference Include="Microsoft.Graph" Version="5.6.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

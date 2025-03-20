@@ -3,10 +3,10 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Teams;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Connector;
+    using Microsoft.Agents.Extensions.Teams.Models;
+    using Microsoft.Agents.Hosting.AspNetCore;
     using Microsoft.Rest;
     using System.Net;
 
@@ -15,7 +15,7 @@ namespace Microsoft.TeamsFx.Conversation
     /// </summary>
     public class NotificationBot
     {
-        private readonly BotAdapter _adapter;
+        private readonly CloudAdapter _adapter;
         private readonly string _botAppId;
         private readonly IConversationReferenceStore _store;
 
@@ -26,7 +26,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <param name="options">The initialize options.</param>
         /// <exception cref="ArgumentNullException">Throws if provided parameter is null.</exception>
         /// <exception cref="ArgumentException">Throws if provided parameter is invalid.</exception>
-        public NotificationBot(BotAdapter adapter, NotificationOptions options)
+        public NotificationBot(CloudAdapter adapter, NotificationOptions options)
         {
             _adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
 
@@ -81,7 +81,7 @@ namespace Microsoft.TeamsFx.Conversation
         }
 
         /// <summary>
-        /// Validate the installation by getting paged memebers.
+        /// Validate the installation by getting paged members.
         /// </summary>
         /// <param name="reference">The <see cref="ConversationReference"/> of the bot installation.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -123,13 +123,13 @@ namespace Microsoft.TeamsFx.Conversation
         }
 
         /// <summary>
-        /// Get a pagined list of targets where the bot is installed.
+        /// Get a paginated list of targets where the bot is installed.
         /// </summary>
         /// <param name="pageSize">Suggested number of entries on a page.</param>
         /// <param name="continuationToken">The continuation token.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="validationEnabled">The parameter to enable or disable installation validation.</param>
-        /// <returns>A pagined list of <see cref="TeamsBotInstallation"/>.</returns>
+        /// <returns>A paginated list of <see cref="TeamsBotInstallation"/>.</returns>
         /// <remarks>
         /// The result is retrieving from the persisted storage.
         /// </remarks>

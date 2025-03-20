@@ -3,8 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.TeamsFx.Conversation
             await next(cancellationToken).ConfigureAwait(false);
         }
 
-        private static string GetActivityText(Activity activity)
+        private static string GetActivityText(IActivity activity)
         {
             var text = activity.Text;
             var removedMentionText = activity.RemoveRecipientMention();

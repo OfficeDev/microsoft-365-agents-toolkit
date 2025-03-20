@@ -1,9 +1,9 @@
 ﻿namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Connector;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Connector;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Models;
 
     /// <summary>
     /// An <see cref="INotificationTarget"/> that represents a team member.
@@ -108,7 +108,7 @@
         {
             var reference = context.Activity.GetConversationReference();
             var personConversation = reference.Clone();
-            var connectorClient = context.TurnState.Get<IConnectorClient>();
+            var connectorClient = context.Services.Get<IConnectorClient>();
             var conversation = await connectorClient.Conversations.CreateConversationAsync
             (
                 new ConversationParameters {

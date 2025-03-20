@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema.Teams;
-using Microsoft.Bot.Schema;
-using System.Text.RegularExpressions;
-using System.Net;
-using Newtonsoft.Json.Linq;
-using Microsoft.Bot.Connector;
-using Microsoft.TeamsFx.Helper;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.BotBuilder.Dialogs;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Extensions.Teams.Models;
 using Microsoft.Identity.Client;
+using Microsoft.TeamsFx.Helper;
 using Microsoft.TeamsFx.Model;
+using Newtonsoft.Json.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.TeamsFx.Bot;
 
@@ -288,7 +287,7 @@ public class TeamsBotSsoPrompt : Dialog
     {
         await turnContext.SendActivityAsync(
             new Activity {
-                Type = ActivityTypesEx.InvokeResponse,
+                Type = Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse,
                 Value = new InvokeResponse {
                     Status = (int)statusCode,
                     Body = body,
