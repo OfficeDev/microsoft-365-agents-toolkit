@@ -214,6 +214,7 @@ jobs:
       AZURE_VISION_KEY : "fake"
       AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
       AZURE_OPENAI_4O_MINI_ENDPOINT : ${{ secrets.AZURE_OPENAI_4O_MINI_ENDPOINT }}
+      OPENROUTER_API_KEY : "fake"
       
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
@@ -235,6 +236,7 @@ jobs:
           [System.Environment]::SetEnvironmentVariable("AZURE_VISION_KEY", "${{ env.AZURE_VISION_KEY }}", [System.EnvironmentVariableTarget]::Machine)
           [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_KEY", "${{ env.AZURE_OPENAI_4O_MINI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
           [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_ENDPOINT", "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("OPENROUTER_API_KEY", "${{ env.OPENROUTER_API_KEY }}", [System.EnvironmentVariableTarget]::Machine)
           $env:MODEL_NAME = "${{ env.MODEL_NAME }}"
           $env:GOOGLE_API_KEY = "${{ env.GOOGLE_API_KEY }}"
           $env:AZURE_OPENAI_KEY = "${{ env.AZURE_OPENAI_KEY }}"
@@ -243,6 +245,7 @@ jobs:
           $env:AZURE_VISION_KEY = "${{ env.AZURE_VISION_KEY }}"
           $env:AZURE_OPENAI_4O_MINI_KEY = "${{ env.AZURE_OPENAI_4O_MINI_KEY }}"
           $env:AZURE_OPENAI_4O_MINI_ENDPOINT = "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}"
+          $env:OPENROUTER_API_KEY = "${{ env.OPENROUTER_API_KEY }}"
         shell: pwsh
     
       # Print out the info, but not key info.
@@ -526,7 +529,7 @@ jobs:
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         run: |
-          # vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
+          # vscuse.exe agent -f "../cases/30862206.txt"
           vscuse.exe agent -p "open vscode"
         shell: cmd
 
