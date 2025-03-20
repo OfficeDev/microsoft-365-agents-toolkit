@@ -552,10 +552,9 @@ jobs:
         shell: powershell
 
       # Launch the vscuse
-      - name: Run Code
-        working-directory: packages/vscode-ui/vscuse/binary
+      - name: Check the code is installed.
         run: |
-          code
+          where code
         shell: cmd
 
       # Launch the vscuse
