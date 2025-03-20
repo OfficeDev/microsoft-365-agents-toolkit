@@ -19,9 +19,11 @@ jobs:
         run: |
           # Recursively find all .txt files in target directory
           $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % FullName
-          # Print files to console for debugging
+          
+          # Debugging: Print the files found
           Write-Host "Found files:"
           $files | ForEach-Object { Write-Host $_ }
+
           # Export as JSON array
           $files | ConvertTo-Json | Out-File -Encoding utf8 files_list.json
 
@@ -31,8 +33,16 @@ jobs:
         run: |
           # Prepare output for matrix strategy
           $json = Get-Content -Raw files_list.json
-          # Remove newlines and extra spaces, replace with a separator and then trim
+          
+          # Debugging: Check the generated list
+          Write-Host "Generated file list: $json"
+
+          # Clean up file list to ensure proper formatting
           $formattedList = ($json -replace '[\r\n]', ',').Trim()
+
+          # Debugging: Check formatted list
+          Write-Host "Formatted file list: $formattedList"
+
           echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
 
   process_file:
@@ -55,22 +65,25 @@ jobs:
           Add-Type -AssemblyName System.Web
           $file = "${{ matrix.file }}"
 
-          # --- File Upload Phase ---
-          $uploadResponse = curl -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
-            -F "file=@$file" `
-            -D headers.txt `          # Save response headers
-            -o response.json         # Save response body
+          # Debugging: Check which file is being processed
+          Write-Host "Processing file: $file"
 
-          # Extract HTTP status code from headers
-          $statusCode = (Get-Content headers.txt | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
-          if ($statusCode -ne "200") {
-            Write-Host "##[error]Upload Failed (Code $statusCode)"
+          # --- File Upload Phase ---
+          $uploadResponse = Invoke-RestMethod -Uri "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
+            -Method Put `
+            -InFile $file `
+            -Headers @{"Content-Type" = "multipart/form-data"} `
+            -OutFile "response.json" # Save response body to file
+
+          # Validate upload response
+          if ($uploadResponse.StatusCode -ne 200) {
+            Write-Host "##[error]Upload Failed (Code $($uploadResponse.StatusCode))"
             exit 1
           }
 
-          # Extract task ID from response body
+          # Extract task ID from response
           try {
-            $task_id = (Get-Content response.json | ConvertFrom-Json).task_id
+            $task_id = ($uploadResponse | ConvertFrom-Json).task_id
           } catch {
             Write-Host "##[error]Invalid Response Format"
             exit 1
@@ -82,17 +95,16 @@ jobs:
 
           while ($stopwatch.Elapsed -lt $timeout) {
             # Poll task status endpoint
-            $taskStatusResponse = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
-            $taskStatus = $taskStatusResponse | ConvertFrom-Json
+            $taskStatus = Invoke-RestMethod -Uri "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" -Method Get
 
-            if ($taskStatus.status -eq "processing") {
+            if ($taskStatus.StatusCode -eq 202) {
               # Task still processing
               Write-Host "[$(Get-Date)] Task processing..."
               Start-Sleep -Seconds 15
             }
-            elseif ($taskStatus.status -eq "completed") {
+            elseif ($taskStatus.StatusCode -eq 200) {
               # Successful completion check
-              if ($taskStatus.output -match '\.html') {
+              if ($taskStatus.Content -match '\.html') {
                 Write-Host "##[info]Success: HTML generated"
                 break
               } else {
@@ -102,7 +114,7 @@ jobs:
             }
             else {
               # Handle unexpected status codes
-              Write-Host "##[error]Unexpected Status: $($taskStatus.status)"
+              Write-Host "##[error]Unexpected Status: $($taskStatus.StatusCode)"
               exit 1
             }
           }
@@ -111,4 +123,3 @@ jobs:
           if ($stopwatch.Elapsed -ge $timeout) {
             Write-Host "##[error]Task timed out after 10 minutes"
             exit 1
-          }
