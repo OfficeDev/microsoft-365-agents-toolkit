@@ -19,13 +19,20 @@ jobs:
         run: |
           # Recursively find all .txt files in target directory
           $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % FullName
-          
+
           # Debugging: Print the files found
           Write-Host "Found files:"
           $files | ForEach-Object { Write-Host $_ }
 
-          # Export as JSON array
-          $files | ConvertTo-Json | Out-File -Encoding utf8 files_list.json
+          # Filter out any empty or invalid file entries
+          $validFiles = $files | Where-Object { $_ -ne $null -and $_ -ne "" }
+
+          # Debugging: Print valid files list
+          Write-Host "Valid files:"
+          $validFiles | ForEach-Object { Write-Host $_ }
+
+          # Export valid files as JSON array
+          $validFiles | ConvertTo-Json -Compress | Out-File -Encoding utf8 files_list.json
 
       - name: Set output variable
         id: set_output
@@ -37,7 +44,7 @@ jobs:
           # Debugging: Check the generated list
           Write-Host "Generated file list: $json"
 
-          # Clean up file list to ensure proper formatting
+          # Clean up file list to ensure proper formatting (remove extra commas)
           $formattedList = ($json -replace '[\r\n]', ',').Trim()
 
           # Debugging: Check formatted list
@@ -65,25 +72,22 @@ jobs:
           Add-Type -AssemblyName System.Web
           $file = "${{ matrix.file }}"
 
-          # Debugging: Check which file is being processed
-          Write-Host "Processing file: $file"
-
           # --- File Upload Phase ---
-          $uploadResponse = Invoke-RestMethod -Uri "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
-            -Method Put `
-            -InFile $file `
-            -Headers @{"Content-Type" = "multipart/form-data"} `
-            -OutFile "response.json" # Save response body to file
+          $uploadResponse = curl -s -X PUT "https://8mf6h13h-8989.asse.devtunnels.ms/file" `
+            -F "file=@$file" `
+            -D headers.txt `
+            -o response.json         # Save response body
 
-          # Validate upload response
-          if ($uploadResponse.StatusCode -ne 200) {
-            Write-Host "##[error]Upload Failed (Code $($uploadResponse.StatusCode))"
+          # Validate upload status
+          $statusCode = (Get-Content headers.txt | Select-String 'HTTP/\d\.\d (\d+)').Matches.Groups[1].Value
+          if ($statusCode -ne "200") {
+            Write-Host "##[error]Upload Failed (Code $statusCode)"
             exit 1
           }
 
           # Extract task ID from response
           try {
-            $task_id = ($uploadResponse | ConvertFrom-Json).task_id
+            $task_id = (Get-Content response.json | ConvertFrom-Json).task_id
           } catch {
             Write-Host "##[error]Invalid Response Format"
             exit 1
@@ -95,7 +99,7 @@ jobs:
 
           while ($stopwatch.Elapsed -lt $timeout) {
             # Poll task status endpoint
-            $taskStatus = Invoke-RestMethod -Uri "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id" -Method Get
+            $taskStatus = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
 
             if ($taskStatus.StatusCode -eq 202) {
               # Task still processing
@@ -123,3 +127,4 @@ jobs:
           if ($stopwatch.Elapsed -ge $timeout) {
             Write-Host "##[error]Task timed out after 10 minutes"
             exit 1
+          }
