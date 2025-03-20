@@ -105,8 +105,11 @@ export class TypeSpecCompileDriver implements StepDriver {
           } else {
             for (const spec of openapiSpecs) {
               const action = actions.find(
+                // action.id is the namespace (service name)
+                // spec name follows the pattern openapi.{service-name-if-multiple}.json
+                // directly match the action.id in the spec name here
                 (action: any) =>
-                  action.id.toLowerCase() === spec.split(".").slice(-2)[0].toLowerCase()
+                  spec.toLowerCase().includes(`.${(action.id as string).toLowerCase()}.`)
               );
               if (!action) {
                 continue;

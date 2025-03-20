@@ -193,7 +193,9 @@ describe("typeSpecCompilt", async () => {
     const runCommandStub = sandbox
       .stub(mockedDriverContext.ui, "runCommand")
       .resolves(ok("mockedCommandResult"));
-    sandbox.stub(fs, "readdirSync").returns(["mockedAction1.yaml", "mockedAction2.yaml"] as any);
+    sandbox
+      .stub(fs, "readdirSync")
+      .returns(["openapi.mockedAction1.yaml", "openapi.mockedAction2.yaml"] as any);
     sandbox
       .stub(fs, "readJSON")
       .onFirstCall()
