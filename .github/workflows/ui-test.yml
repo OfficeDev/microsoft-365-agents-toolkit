@@ -288,13 +288,6 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
-      # Launch the vscuse
-      - name: Run vscuse.exe
-        working-directory: packages/vscode-ui/vscuse/binary
-        run: |
-          vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
-        shell: cmd
-
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -528,6 +521,14 @@ jobs:
         run: |
           curl http://127.0.0.1:4723/status
         shell: powershell
+
+      # Launch the vscuse
+      - name: Run vscuse.exe
+        working-directory: packages/vscode-ui/vscuse/binary
+        run: |
+          # vscuse.exe agent -f "../cases/30862206-[VSC] Create Declarative Agent from existing API (Custom API Key).txt"
+          vscuse.exe agent -p "open vscode"
+        shell: cmd
 
       - name: Setup OpenAI key(unix)
         if: ${{ matrix.os == 'ubuntu-latest' && github.event_name != 'schedule' }}
