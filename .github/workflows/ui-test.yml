@@ -208,8 +208,8 @@ jobs:
       
       MODEL_NAME : "azure/gpt-4o"
       GOOGLE_API_KEY : ${{ secrets.GOOGLE_API_KEY }}
-      AZURE_OPENAI_KEY : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21"
-      AZURE_OPENAI_ENDPOINT : "${{ secrets.AZURE_OPENAI_ENDPOINT }}"
+      AZURE_OPENAI_KEY : "${{ secrets.AZURE_OPENAI_KEY }}"
+      AZURE_OPENAI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21"
       AZURE_VISION_ENDPOINT : ${{ secrets.AZURE_VISION_ENDPOINT }}
       AZURE_VISION_KEY : ${{ secrets.AZURE_VISION_KEY }}
       AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
