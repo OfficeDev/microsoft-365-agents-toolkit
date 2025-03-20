@@ -2631,7 +2631,7 @@ export class FxCore {
     }
     return ok(undefined);
   }
-  
+
   private async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,
