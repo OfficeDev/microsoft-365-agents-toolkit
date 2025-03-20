@@ -288,10 +288,6 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
-      - name: Check if vscuse.exe exists
-        run: dir packages/vscode-ui/vscuse/binary
-        shell: cmd
-
       # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
