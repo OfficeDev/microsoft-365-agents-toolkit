@@ -93,6 +93,8 @@ jobs:
             exit 1
           }
 
+          Write-Host "Task ID: $task_id"  # Debugging: Print task ID
+
           # --- Task Monitoring Phase ---
           $timeout = New-TimeSpan -Minutes 10
           $stopwatch = [Diagnostics.Stopwatch]::StartNew()
@@ -101,24 +103,33 @@ jobs:
             # Poll task status endpoint
             $taskStatus = curl -s -X GET "https://8mf6h13h-8989.asse.devtunnels.ms/file/$task_id"
 
-            if ($taskStatus.StatusCode -eq 202) {
-              # Task still processing
-              Write-Host "[$(Get-Date)] Task processing..."
-              Start-Sleep -Seconds 15
-            }
-            elseif ($taskStatus.StatusCode -eq 200) {
-              # Successful completion check
-              if ($taskStatus.Content -match '\.html') {
-                Write-Host "##[info]Success: HTML generated"
-                break
-              } else {
-                Write-Host "##[warning]Missing HTML output"
-                exit 0
+            Write-Host "Task Status Response: $taskStatus"  # Debugging: Print task status
+
+            # Check if taskStatus is valid and contains expected fields
+            if ($taskStatus -match 'HTTP/\d\.\d (\d+)') {
+              $statusCode = ($taskStatus -match 'HTTP/\d\.\d (\d+)').Groups[1].Value
+
+              if ($statusCode -eq "202") {
+                # Task still processing
+                Write-Host "[$(Get-Date)] Task processing..."
+                Start-Sleep -Seconds 15
               }
-            }
-            else {
-              # Handle unexpected status codes
-              Write-Host "##[error]Unexpected Status: $($taskStatus.StatusCode)"
+              elseif ($statusCode -eq "200") {
+                # Successful completion check
+                if ($taskStatus -match '\.html') {
+                  Write-Host "##[info]Success: HTML generated"
+                  break
+                } else {
+                  Write-Host "##[warning]Missing HTML output"
+                  exit 0
+                }
+              }
+              else {
+                Write-Host "##[error]Unexpected Status: $statusCode"
+                exit 1
+              }
+            } else {
+              Write-Host "##[error]Invalid or empty response from task status endpoint."
               exit 1
             }
           }
@@ -127,4 +138,3 @@ jobs:
           if ($stopwatch.Elapsed -ge $timeout) {
             Write-Host "##[error]Task timed out after 10 minutes"
             exit 1
-          }
