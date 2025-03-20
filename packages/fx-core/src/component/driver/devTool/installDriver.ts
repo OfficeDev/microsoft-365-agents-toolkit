@@ -290,9 +290,8 @@ export class ToolsInstallDriverImpl {
         status.error,
         status.error?.helpLink || v3DefaultHelpLink
       );
-    } else {
-      this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
     }
+    this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
   }
 
   private validateArgs(args: InstallToolArgs): void {
