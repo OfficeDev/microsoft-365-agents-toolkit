@@ -1,0 +1,8 @@
+# uninstall the kiota extension, In vsc settings, set 'Enable Microsoft Kiota' to true
+0, open vs code
+1, press F1 to invoke command palette and input: 'Teams: Create New App' and press enter
+2, select 'Declarative Agent' option in the dropdown list
+3, select 'Add an action' option in the dropdown list
+4, select 'Start with OpenAPI description document' option in the dropdown list and press enter
+5, click 'Install Kiota' button in the right-bottom window
+6, click 'install' in the center of the page

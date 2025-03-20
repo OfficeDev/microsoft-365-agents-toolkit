@@ -529,50 +529,50 @@ jobs:
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         run: |
-          # vscuse.exe agent -f "../cases/30862206.txt"
+          # vscuse.exe agent -f "../cases/29382146.txt" -s 40
           vscuse.exe agent -p "open vscode"
         shell: cmd
 
-      - name: Setup OpenAI key(unix)
-        if: ${{ matrix.os == 'ubuntu-latest' && github.event_name != 'schedule' }}
-        uses: alsosee/envset@v1
-        with:
-          name: SECRET_AZURE_OPENAI_API_KEY
-          value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}
+      # - name: Setup OpenAI key(unix)
+      #  if: ${{ matrix.os == 'ubuntu-latest' && github.event_name != 'schedule' }}
+      #  uses: alsosee/envset@v1
+      #  with:
+      #    name: SECRET_AZURE_OPENAI_API_KEY
+      #    value: ${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}
 
-      - name: Setup OpenAI key(macos)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
+      #- name: Setup OpenAI key(macos)
+      #  if: ${{ matrix.os == 'macos-latest' }}
+      #  run: |
+      #    echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $GITHUB_ENV
 
-      - name: Setup OpenAI key(win)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
+      #- name: Setup OpenAI key(win)
+      #  if: ${{ matrix.os == 'windows-latest' }}
+      #  run: |
+      #    echo "SECRET_AZURE_OPENAI_API_KEY=${{ secrets.SECRET_AZURE_OPENAI_API_KEY }}" >> $env:GITHUB_ENV
 
-      - name: Extract Zip files
-        if: contains(matrix.test-case, 'localization')
-        working-directory: packages/tests
-        run: |
-          7z x "src/ui-test/case-resources/localization-agent-succeed.zip" -o"src/ui-test/case-resources/localization-agent-succeed" -y
-          7z x "src/ui-test/case-resources/localization-agent-unresolved.zip" -o"src/ui-test/case-resources/localization-agent-unresolved" -y
-          7z x "src/ui-test/case-resources/localization-agent-same-level.zip" -o"src/ui-test/case-resources/localization-agent-same-level" -y
-          7z x "src/ui-test/case-resources/localization-agent-different-level.zip" -o"src/ui-test/case-resources/localization-agent-different-level" -y
+      #- name: Extract Zip files
+      #  if: contains(matrix.test-case, 'localization')
+      #  working-directory: packages/tests
+      #  run: |
+      #    7z x "src/ui-test/case-resources/localization-agent-succeed.zip" -o"src/ui-test/case-resources/localization-agent-succeed" -y
+      #    7z x "src/ui-test/case-resources/localization-agent-unresolved.zip" -o"src/ui-test/case-resources/localization-agent-unresolved" -y
+      #    7z x "src/ui-test/case-resources/localization-agent-same-level.zip" -o"src/ui-test/case-resources/localization-agent-same-level" -y
+      #    7z x "src/ui-test/case-resources/localization-agent-different-level.zip" -o"src/ui-test/case-resources/localization-agent-different-level" -y
 
-      - name: Run UI Test(ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: packages/tests
-        run: |
-          sudo apt-get install xvfb
-          export DISPLAY=:99.0
-          Xvfb -ac :99 -screen 0 1920x1080x16 &
-          npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
+      #- name: Run UI Test(ubuntu)
+      #  if: matrix.os == 'ubuntu-latest'
+      #  working-directory: packages/tests
+      #  run: |
+      #    sudo apt-get install xvfb
+      #    export DISPLAY=:99.0
+      #    Xvfb -ac :99 -screen 0 1920x1080x16 &
+      #    npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
      
-      - name: Run UI Test(mac & win)
-        if: matrix.os != 'ubuntu-latest'
-        working-directory: packages/tests
-        run: |
-          npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
+      #- name: Run UI Test(mac & win)
+      #  if: matrix.os != 'ubuntu-latest'
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx extest run-tests --storage .test-resources --extensions_dir .test-resources --type stable --code_settings ./settings.json ./out/ui-test/**/${{ matrix.test-case }}.test.js
       
       - name: Upload test result json file
         uses: actions/upload-artifact@v4
@@ -588,14 +588,14 @@ jobs:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
           path: packages/tests/.test-resources/screenshots/
 
-      - name: Upload source code
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: source code ${{ matrix.test-case }} ${{ matrix.os }}
-          path: |
-            packages/tests/**/teamsfxuitest*/*
-            !packages/tests/**/node_modules/*
+      #- name: Upload source code
+      #  uses: actions/upload-artifact@v4
+      #  if: failure()
+      #  with:
+      #    name: source code ${{ matrix.test-case }} ${{ matrix.os }}
+      #    path: |
+      #      packages/tests/**/teamsfxuitest*/*
+      #      !packages/tests/**/node_modules/*
 
       - name: Upload telemetry
         uses: actions/upload-artifact@v4
@@ -620,33 +620,33 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: pnpm/action-setup@v4
-      - name: setup project
-        run: |
-          pnpm --filter=@microsoft/teamsfx-test install
-      - uses: azure/login@v2
-        with:
-          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
-          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
-          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
-          enable-AzPSSession: true
+      #- uses: pnpm/action-setup@v4
+      #- name: setup project
+      #  run: |
+      #    pnpm --filter=@microsoft/teamsfx-test install
+      #- uses: azure/login@v2
+      #  with:
+      #    client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+      #    tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+      #    subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+      #    enable-AzPSSession: true
 
-      - name: Archive Test Plan
-        working-directory: packages/tests
-        run: |
-          testplanid=`npx ts-node src/scripts/testPlan.ts obtain vscode ${{ github.event.inputs.target-testplan-name }}`
-          echo "Testplan id is $testplanid"
-          npx ts-node src/scripts/testPlan.ts archive $testplanid
+      #- name: Archive Test Plan
+      #  working-directory: packages/tests
+      #  run: |
+      #    testplanid=`npx ts-node src/scripts/testPlan.ts obtain vscode ${{ github.event.inputs.target-testplan-name }}`
+      #    echo "Testplan id is $testplanid"
+      #    npx ts-node src/scripts/testPlan.ts archive $testplanid
       
-      - name: Download TestPlan
-        uses: actions/download-artifact@v4
-        with:
-          path: packages/tests/mocha-results
+      #- name: Download TestPlan
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    path: packages/tests/mocha-results
 
-      - name: Sync to Azure DevOps Test Plan
-        working-directory: packages/tests
-        run: |
-          npx ts-node src/scripts/testPlan.ts report ./testplan.json ./mocha-results 
+      #- name: Sync to Azure DevOps Test Plan
+      #  working-directory: packages/tests
+      #  run: |
+      #    npx ts-node src/scripts/testPlan.ts report ./testplan.json ./mocha-results 
 
   rerun:
     permissions:
