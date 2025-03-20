@@ -32,7 +32,8 @@ import * as _ from "lodash";
 import path from "path";
 import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
 import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
-
+import * as util from "util";
+ 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
   const inputs = getSystemInputs();
@@ -738,8 +739,8 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
         }
       }
       const command = {
-        title: localize(
-          "teamstoolkit.codeLens.setSensitivityLabelWithDisplayName",
+        title: util.format(
+          localize("teamstoolkit.codeLens.setSensitivityLabelWithDisplayName"),
           labelDisplayName ?? "Unknown"
         ),
         command: "fx-extension.setSensitivityLabel",
