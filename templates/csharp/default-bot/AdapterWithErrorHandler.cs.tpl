@@ -7,9 +7,9 @@ namespace {{SafeProjectName}};
 
 public class AdapterWithErrorHandler : CloudAdapter
 {
-	public AdapterWithErrorHandler(IChannelServiceClientFactory channelServiceClientFactory, IActivityTaskQueue activityTaskQueue, ILogger<IBotHttpAdapter> logger)
-	    : base(channelServiceClientFactory, activityTaskQueue, logger: logger)
-	{
+    public AdapterWithErrorHandler(IChannelServiceClientFactory channelServiceClientFactory, IActivityTaskQueue activityTaskQueue, ILogger<IBotHttpAdapter> logger)
+        : base(channelServiceClientFactory, activityTaskQueue, logger: logger)
+    {
         OnTurnError = async (turnContext, exception) =>
         {
             // Log any leaked exception from the application.
