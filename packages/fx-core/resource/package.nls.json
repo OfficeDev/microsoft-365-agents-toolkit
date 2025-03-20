@@ -863,6 +863,7 @@
   "driver.devChannel.summary": "Team %s with default channel %s created.",
   "driver.devChannel.status": "Team and channel creation status: %s",
   "driver.devChannel.summary.exists": "Environment variable %s and %s already exist, skipping new sandboxed Team creation step.",
+  "driver.devChannel.install.success": "App installed into team %s with channel %s successfully.",
   "error.yaml.InvalidYamlSchemaError": "Unable to parse yaml file: %s. Please open the yaml file for detailed errors.",
   "error.yaml.InvalidYamlSchemaErrorWithReason": "Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.",
   "error.yaml.VersionNotSupported": "version %s is not supported. Supported versions: %s.",
