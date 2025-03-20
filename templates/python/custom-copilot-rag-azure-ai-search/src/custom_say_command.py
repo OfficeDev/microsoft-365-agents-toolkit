@@ -62,8 +62,8 @@ async def say_command(context: TurnContext, state: Any, data: Dict[str, Any], fe
                     appearance = Appearance(
                         name = content_item.get("citationTitle") or f"Document #{position}",
                         url = content_item.get("citationUrl"),
-                        # Create a snippet/preview of the citation content, limited to 480 chars
-                        abstract = snippet(content_item.get("citationContent"), 480),
+                        # Create a snippet/preview of the citation content, limited to 400 chars(limitation check 480)
+                        abstract = snippet(content_item.get("citationContent"), 400),
                     )
                 )
                 # Add citation reference number to the answer text
