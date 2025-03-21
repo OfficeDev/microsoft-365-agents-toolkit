@@ -728,7 +728,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
 
       const result = await graphAPIClient.listSensitivityLabels(
         token,
-        !!accountUniqueName,
+        !!accountUniqueName && !!tenantId,
         accountUniqueName,
         tenantId
       );
