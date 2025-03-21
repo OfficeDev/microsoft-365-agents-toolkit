@@ -75,7 +75,8 @@ describe("Remote debug Tests", function () {
         remoteDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "dev" }
       );
       await validateNpm(page, {
         npmName: "axios",

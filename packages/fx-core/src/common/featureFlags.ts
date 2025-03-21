@@ -36,6 +36,7 @@ export class FeatureFlagName {
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly GCList = "TEAMSFX_GC_LIST";
   static readonly TypeSpec = "TEAMSFX_TYPESPEC";
+  static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
 }
 
 export interface FeatureFlag {
@@ -120,6 +121,10 @@ export class FeatureFlags {
   };
   static readonly TypeSpec = {
     name: FeatureFlagName.TypeSpec,
+    defaultValue: "false",
+  };
+  static readonly SensitivityLabelEnabled = {
+    name: FeatureFlagName.SensitivityLabelEnabled,
     defaultValue: "false",
   };
 }

@@ -927,7 +927,7 @@
       {
         "command": "fx-extension.addWebpart",
         "title": "%teamstoolkit.commmands.addWebpart.title%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isSPFx",
         "category": "Teams"
       },
       {
@@ -1809,10 +1809,15 @@
           "default": "Info",
           "markdownDescription": "Set the log level of Teams Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Teams Toolkit to external services such as Azure, Microsoft 365, and Teams Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Teams Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Teams Toolkit command execution summaries.\n"
         },
-        "fx-extension.enableMicrosoftKiota": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota)"
+        "fx-extension.enableMicrosoftKiotaString": {
+          "type": "string",
+          "enum": [
+            "Enabled",
+            "Undefined",
+            "Disabled"
+          ],
+          "default": "Undefined",
+          "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota). After installing Kiota, reload this window to apply the changes."
         },
         "fx-extension.enableCustomEngineAgent": {
           "type": "boolean",
@@ -1963,7 +1968,7 @@
     "@vscode/extension-telemetry": "^0.6.2",
     "@vscode/webview-ui-toolkit": "^1.2.2",
     "async-mutex": "^0.3.1",
-    "axios": "^1.7.5",
+    "axios": "^1.8.3",
     "chrome-remote-interface": "^0.33.2",
     "detect-port": "^1.3.0",
     "devtools-protocol": "^0.0.1387316",

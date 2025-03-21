@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, FxError, Result, err, ok } from "@microsoft/teamsfx-api";
+import { CLICommand, FxError, Result, err, ok, signedOut } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
   CheckerFactory,
@@ -15,7 +15,6 @@ import {
 import * as util from "util";
 import { getFxCore } from "../../../activate";
 import { DoneText, TextType, WarningText, colorize } from "../../../colorize";
-import { signedOut } from "../../../commonlib/common/constant";
 import { logger } from "../../../commonlib/logger";
 import M365TokenInstance from "../../../commonlib/m365Login";
 import { cliSource } from "../../../constants";

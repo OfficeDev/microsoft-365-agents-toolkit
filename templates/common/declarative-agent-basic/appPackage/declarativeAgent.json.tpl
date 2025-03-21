@@ -6,6 +6,9 @@
     {{#EmbeddedKnowledgeEnabled}}
     "version": "v1.3",
     {{/EmbeddedKnowledgeEnabled}}
+    {{#SensitivityLabelEnabled}}
+    "sensitivity_label": "",
+    {{/SensitivityLabelEnabled}}
     "name": "{{appName}}",
     "description": "Declarative agent created with Teams Toolkit",
     "instructions": "$[file('instruction.txt')]"

@@ -187,6 +187,11 @@ export enum ProjectTypeProps {
   TeamsJs = "teams-js",
   Lauguages = "languages",
   OfficeAddinProjectType = "office-addin-project-type",
+
+  DeclarativeAgentCapabilitiesCount = "declarative-agent-capabilities-count",
+  DeclarativeAgentCapabilities = "declarative-agent-capabilities",
+  DeclarativeAgentActionsCount = "declarative-agent-actions-count",
+  DeclarativeAgentPluginAuthTypes = "declarative-agent-plugin-auth-types",
 }
 
 export enum TelemetrySuccess {

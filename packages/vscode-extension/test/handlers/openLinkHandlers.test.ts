@@ -1,10 +1,9 @@
-import { ok } from "@microsoft/teamsfx-api";
+import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import M365TokenInstance from "../../src/commonlib/m365Login";
-import { signedIn, signedOut } from "../../src/commonlib/common/constant";
 import { DeveloperPortalHomeLink } from "../../src/constants";
 import {
   findGitHubSimilarIssue,

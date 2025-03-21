@@ -343,7 +343,7 @@ function handleTriggerKiotaCommand(
   }
 }
 
-function validateKiotaInstallation(): boolean {
+export function validateKiotaInstallation(): boolean {
   const installed = vscode.extensions.getExtension(KiotaExtensionId);
   if (!installed) {
     return false;

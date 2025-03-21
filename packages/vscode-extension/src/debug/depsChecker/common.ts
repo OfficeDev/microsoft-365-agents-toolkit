@@ -14,6 +14,7 @@ import {
   UserErrorOptions,
   err,
   ok,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
@@ -36,7 +37,6 @@ import {
 import * as os from "os";
 import * as util from "util";
 import * as vscode from "vscode";
-import { signedOut } from "../../commonlib/common/constant";
 import VsCodeLogInstance from "../../commonlib/log";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { PanelType } from "../../controls/PanelType";
