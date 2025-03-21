@@ -1,0 +1,8 @@
+POST http://localhost:7071/api/clear
+
+###
+POST http://localhost:7071/api/retract
+
+###
+GET https://api.github.com/repos/sebastienlevert/copilot-connectors-hub/issues?state=all&per_page=100
+Authorization: Bearer
