@@ -530,6 +530,8 @@ jobs:
             exit 1
           } else {
             Write-Output "AZURE_OPENAI_KEY is set."
+            $first5 = $env:AZURE_OPENAI_KEY.Substring(0,5)
+            Write-Output "AZURE_OPENAI_KEY is set. First 5 characters: $first5*****"
             Write-Output "AZURE_OPENAI_ENDPOINT is $env:AZURE_OPENAI_ENDPOINT"
           }
         env:
