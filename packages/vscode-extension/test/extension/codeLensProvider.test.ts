@@ -948,8 +948,8 @@ publish:
           };
         },
         uri: {
-          fsPath: path.join(__dirname, "unknown", "appPackage", "agent.json")
-        }
+          fsPath: path.join(__dirname, "unknown", "appPackage", "agent.json"),
+        },
       } as any as vscode.TextDocument;
 
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
@@ -969,30 +969,30 @@ publish:
           declarativeAgents: [
             {
               id: "test-agent",
-              file: agentPath
-            }
-          ]
-        }
+              file: agentPath,
+            },
+          ],
+        },
       };
       sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(projectPath));
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
 
       // Setup login and token provider mocks
       const mockTokenProvider = {
         m365TokenProvider: {
           getStatus: () => {
-            return Promise.resolve(ok({
-              status: "SignedIn",
-              token: "mock_token",
-              accountInfo: {
-                unique_name: "test@test.com",
-                tid: "test-tenant-id"
-              }
-            }))
-          }
-        }
+            return Promise.resolve(
+              ok({
+                status: "SignedIn",
+                token: "mock_token",
+                accountInfo: {
+                  unique_name: "test@test.com",
+                  tid: "test-tenant-id",
+                },
+              })
+            );
+          },
+        },
       };
       sandbox.stub(tools, "tokenProvider").value(mockTokenProvider);
 
@@ -1004,20 +1004,22 @@ publish:
             value: [
               {
                 id: "test-label-id",
-                displayName: "Test Label"
-              }
-            ]
+                displayName: "Test Label",
+              },
+            ],
           });
-        }
+        },
       };
-      sandbox.stub(graphAPIClient, "listSensitivityLabels").callsFake(mockGraphClient.listSensitivityLabels as any);
+      sandbox
+        .stub(graphAPIClient, "listSensitivityLabels")
+        .callsFake(mockGraphClient.listSensitivityLabels as any);
 
       const document = {
         fileName: "agent.json",
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "test-label-id"
+            sensitivity_label: "test-label-id",
           });
         },
         positionAt: () => {
@@ -1026,12 +1028,12 @@ publish:
         lineAt: () => {
           return {
             lineNumber: 0,
-            text: '"sensitivity_label": "test-label-id"'
+            text: '"sensitivity_label": "test-label-id"',
           };
         },
         uri: {
-          fsPath: absoluteAgentPath
-        }
+          fsPath: absoluteAgentPath,
+        },
       } as any as vscode.TextDocument;
 
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
@@ -1054,28 +1056,28 @@ publish:
           declarativeAgents: [
             {
               id: "test-agent",
-              file: agentPath
-            }
-          ]
-        }
+              file: agentPath,
+            },
+          ],
+        },
       };
       sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(projectPath));
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
 
       // Setup login status as not signed in
       const mockTokenProvider = {
         m365TokenProvider: {
           getStatus: () => {
-            return Promise.resolve(ok({
-              isOk: () => true,
-              value: {
-                status: "NotSignedIn"
-              }
-            }));
-          }
-        }
+            return Promise.resolve(
+              ok({
+                isOk: () => true,
+                value: {
+                  status: "NotSignedIn",
+                },
+              })
+            );
+          },
+        },
       };
       sandbox.stub(tools, "tokenProvider").value(mockTokenProvider);
 
@@ -1084,7 +1086,7 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "test-label-id"
+            sensitivity_label: "test-label-id",
           });
         },
         positionAt: () => {
@@ -1093,12 +1095,12 @@ publish:
         lineAt: () => {
           return {
             lineNumber: 0,
-            text: '"sensitivity_label": "test-label-id"'
+            text: '"sensitivity_label": "test-label-id"',
           };
         },
         uri: {
-          fsPath: absoluteAgentPath
-        }
+          fsPath: absoluteAgentPath,
+        },
       } as any as vscode.TextDocument;
 
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
@@ -1120,21 +1122,19 @@ publish:
           declarativeAgents: [
             {
               id: "test-agent",
-              file: agentPath
-            }
-          ]
-        }
+              file: agentPath,
+            },
+          ],
+        },
       };
       sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(projectPath));
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
 
       const document = {
         fileName: "agent.json",
         getText: () => {
           return JSON.stringify({
-            type: "declarative"
+            type: "declarative",
             // No sensitivity_label field
           });
         },
@@ -1144,12 +1144,12 @@ publish:
         lineAt: () => {
           return {
             lineNumber: 0,
-            text: "{"
+            text: "{",
           };
         },
         uri: {
-          fsPath: absoluteAgentPath
-        }
+          fsPath: absoluteAgentPath,
+        },
       } as any as vscode.TextDocument;
 
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();

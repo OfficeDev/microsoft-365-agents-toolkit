@@ -157,15 +157,20 @@ describe("GraphAPIClient Test", () => {
           displayName: "General",
           name: "General Label",
           description: "General Label Description",
-        }
+        },
       ];
       const cacheValue = {
         labels: labels,
-        unixTimestamp: Date.now() - 1000 * 60 * 60 // 1 hour ago
+        unixTimestamp: Date.now() - 1000 * 60 * 60, // 1 hour ago
       };
 
       sandbox.stub(globalState, "globalStateGet").resolves(cacheValue);
-      const result = await graphAPIClient.listSensitivityLabels(token, true, "testAccount", "testTenant");
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        true,
+        "testAccount",
+        "testTenant"
+      );
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -185,14 +190,14 @@ describe("GraphAPIClient Test", () => {
               displayName: "New Label",
               name: "New Label",
               description: "New Label Description",
-            }
+            },
           ],
         },
       };
 
       const oldCache = {
         labels: [{ id: "oldLabel" }],
-        unixTimestamp: Date.now() - 1000 * 60 * 60 * 25 // 25 hours ago
+        unixTimestamp: Date.now() - 1000 * 60 * 60 * 25, // 25 hours ago
       };
 
       sandbox.stub(globalState, "globalStateGet").resolves(oldCache);
@@ -201,7 +206,12 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphAPIClient();
-      const result = await graphAPIClient.listSensitivityLabels(token, true, "testAccount", "testTenant");
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        true,
+        "testAccount",
+        "testTenant"
+      );
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -221,7 +231,7 @@ describe("GraphAPIClient Test", () => {
               displayName: "General",
               name: "General Label",
               description: "General Label Description",
-            }
+            },
           ],
         },
       };
@@ -235,7 +245,12 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphAPIClient();
-      const result = await graphAPIClient.listSensitivityLabels(token, true, "testAccount", "testTenant");
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        true,
+        "testAccount",
+        "testTenant"
+      );
 
       expect(result.isOk()).to.be.true;
       expect(updatedCache).to.not.be.undefined;
@@ -255,14 +270,14 @@ describe("GraphAPIClient Test", () => {
               displayName: "New Label",
               name: "New Label",
               description: "New Label Description",
-            }
+            },
           ],
         },
       };
 
       const cache = {
         labels: [{ id: "oldLabel" }],
-        unixTimestamp: Date.now()
+        unixTimestamp: Date.now(),
       };
 
       sandbox.stub(globalState, "globalStateGet").resolves(cache);
