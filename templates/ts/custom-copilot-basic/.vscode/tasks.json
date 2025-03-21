@@ -7,7 +7,7 @@
         {
             "label": "Start Teams App (Sandbox)",
             "dependsOn": [
-                // "Validate prerequisites (Test Tool)",
+                "Validate prerequisites (Sandbox)",
                 "Start local tunnel (Sandbox)",
                 "Provision (Sandbox)",
                 "Deploy (Sandbox)",
@@ -136,6 +136,24 @@
                     "nodejs", // Validate if Node.js is installed.
                     "m365Account", // Sign-in prompt for Microsoft 365 account, then validate if the account enables the sideloading permission.
                     "portOccupancy" // Validate available ports to ensure those debug ones are not occupied.
+                ],
+                "portOccupancy": [
+                    3978, // app service port
+                    9239 // app inspector port for Node.js debugger
+                ]
+            }
+        },
+        {
+            // Check all required prerequisites.
+            // See https://aka.ms/teamsfx-tasks/check-prerequisites to know the details and how to customize the args.
+            "label": "Validate prerequisites (Sandbox)",
+            "type": "teamsfx",
+            "command": "debug-check-prerequisites",
+            "args": {
+                "prerequisites": [
+                    "portOccupancy", // Validate available ports to ensure those debug ones are not occupied.
+                    "sandbox",
+                    "nodejs" // Validate if Node.js is installed.
                 ],
                 "portOccupancy": [
                     3978, // app service port
