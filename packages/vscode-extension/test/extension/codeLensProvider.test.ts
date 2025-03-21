@@ -145,8 +145,8 @@ describe("CodeLens Provider", () => {
       const res = await aadProvider.provideCodeLenses(document);
       chai.assert.isTrue(
         res != null &&
-        res.length === 1 &&
-        res[0].command!.command === "fx-extension.openPreviewAadFile"
+          res.length === 1 &&
+          res[0].command!.command === "fx-extension.openPreviewAadFile"
       );
     });
 
@@ -192,8 +192,8 @@ describe("CodeLens Provider", () => {
 
       chai.assert.isTrue(
         res != null &&
-        res.length === 1 &&
-        res[0].command!.command === "fx-extension.updateAadAppManifest"
+          res.length === 1 &&
+          res[0].command!.command === "fx-extension.updateAadAppManifest"
       );
     });
 
