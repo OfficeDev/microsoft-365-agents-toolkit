@@ -24,13 +24,12 @@ import * as parser from "jsonc-parser";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
-import { commandIsRunning, core } from "./globalVariables";
+import { commandIsRunning, core, tools } from "./globalVariables";
 import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
-import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
 import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as util from "util";
 
@@ -701,7 +700,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     const range = new vscode.Range(startPosition, endPosition);
 
     // check if user has already logged in to the sensitivity label scope
-    const loginStatusRes = await TOOLS.tokenProvider?.m365TokenProvider.getStatus({
+    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider.getStatus({
       scopes: [listSensitivityLabelScope],
     });
     // not logged in

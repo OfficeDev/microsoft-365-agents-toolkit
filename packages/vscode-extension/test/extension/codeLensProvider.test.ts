@@ -24,11 +24,15 @@ import {
   TeamsAppYamlCodeLensProvider,
   OneDriveSharePointCodeLensProvider,
   SharePointIdCodeLens,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
 } from "../../src/codeLensProvider";
 import * as globalVariables from "../../src/globalVariables";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import * as path from "path";
 import { describe, afterEach } from "mocha";
+import { setTools, tools } from "../../src/globalVariables";
+import { MockTools } from "../mocks/mockTools";
+import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 
 describe("CodeLens Provider", () => {
   afterEach(() => {
@@ -141,8 +145,8 @@ describe("CodeLens Provider", () => {
       const res = await aadProvider.provideCodeLenses(document);
       chai.assert.isTrue(
         res != null &&
-          res.length === 1 &&
-          res[0].command!.command === "fx-extension.openPreviewAadFile"
+        res.length === 1 &&
+        res[0].command!.command === "fx-extension.openPreviewAadFile"
       );
     });
 
@@ -188,8 +192,8 @@ describe("CodeLens Provider", () => {
 
       chai.assert.isTrue(
         res != null &&
-          res.length === 1 &&
-          res[0].command!.command === "fx-extension.updateAadAppManifest"
+        res.length === 1 &&
+        res[0].command!.command === "fx-extension.updateAadAppManifest"
       );
     });
 
@@ -910,6 +914,250 @@ publish:
       chai.assert.isDefined(resolvedLens.command);
       chai.assert.equal(resolvedLens.command?.command, "");
       chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
+    });
+  });
+
+  describe("DeclarativeAgentSensitivityLabelCodeLensProvider", () => {
+    const sandbox = sinon.createSandbox();
+    setTools(new MockTools());
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should not provide codelens when manifest file does not exist", async () => {
+      sandbox.stub(fs, "existsSync").returns(false);
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "internal-only",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+        uri: {
+          fsPath: path.join(__dirname, "unknown", "appPackage", "agent.json")
+        }
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should provide sensitivity label codelens when label exists", async () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      const projectPath = path.join(__dirname, "unknown");
+      const agentPath = "agent.json";
+      const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
+
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              id: "test-agent",
+              file: agentPath
+            }
+          ]
+        }
+      };
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(projectPath));
+
+      // Setup login and token provider mocks
+      const mockTokenProvider = {
+        m365TokenProvider: {
+          getStatus: () => {
+            return Promise.resolve(ok({
+              status: "SignedIn",
+              token: "mock_token",
+              accountInfo: {
+                unique_name: "test@test.com",
+                tid: "test-tenant-id"
+              }
+            }))
+          }
+        }
+      };
+      sandbox.stub(tools, "tokenProvider").value(mockTokenProvider);
+
+      // Mock sensitivity labels API response
+      const mockGraphClient = {
+        listSensitivityLabels: () => {
+          return Promise.resolve({
+            isOk: () => true,
+            value: [
+              {
+                id: "test-label-id",
+                displayName: "Test Label"
+              }
+            ]
+          });
+        }
+      };
+      sandbox.stub(graphAPIClient, "listSensitivityLabels").callsFake(mockGraphClient.listSensitivityLabels as any);
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "test-label-id"
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: '"sensitivity_label": "test-label-id"'
+          };
+        },
+        uri: {
+          fsPath: absoluteAgentPath
+        }
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      const lens = codelens[0] as vscode.CodeLens;
+      chai.assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
+      chai.assert.isTrue(lens.command?.title.includes("Test Label"));
+    });
+
+    it("should show login codelens when user not logged in", async () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      const projectPath = path.join(__dirname, "unknown");
+      const agentPath = "agent.json";
+      const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
+
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              id: "test-agent",
+              file: agentPath
+            }
+          ]
+        }
+      };
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(projectPath));
+
+      // Setup login status as not signed in
+      const mockTokenProvider = {
+        m365TokenProvider: {
+          getStatus: () => {
+            return Promise.resolve(ok({
+              isOk: () => true,
+              value: {
+                status: "NotSignedIn"
+              }
+            }));
+          }
+        }
+      };
+      sandbox.stub(tools, "tokenProvider").value(mockTokenProvider);
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "test-label-id"
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: '"sensitivity_label": "test-label-id"'
+          };
+        },
+        uri: {
+          fsPath: absoluteAgentPath
+        }
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      const lens = codelens[0] as vscode.CodeLens;
+      chai.assert.equal(lens.command?.command, "fx-extension.m365PreAuth");
+    });
+
+    it("should provide add sensitivity label codelens when label not exists", async () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      const projectPath = path.join(__dirname, "unknown");
+      const agentPath = "agent.json";
+      const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
+
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              id: "test-agent",
+              file: agentPath
+            }
+          ]
+        }
+      };
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox
+        .stub(globalVariables, "workspaceUri")
+        .value(vscode.Uri.parse(projectPath));
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative"
+            // No sensitivity_label field
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "{"
+          };
+        },
+        uri: {
+          fsPath: absoluteAgentPath
+        }
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      const lens = codelens[0] as vscode.CodeLens;
+      chai.assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
     });
   });
 });
