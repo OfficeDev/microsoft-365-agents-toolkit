@@ -75,8 +75,18 @@ export class GraphAPIClient {
       if (response && response.data && response.data.value) {
         if (useCache) {
           const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+          // only retrieve the necessary properties from the response.data.value
+          const labels = response.data.value.map(
+            (label: any) =>
+              ({
+                id: label?.id,
+                name: label?.name,
+                description: label?.description,
+                displayName: label?.displayName,
+              } as SensitivityLabel)
+          );
           const cacheValue: ListSensitivityCacheValue = {
-            labels: response.data.value,
+            labels: labels,
             unixTimestamp: Date.now(),
           };
           await globalStateUpdate(cacheKey, cacheValue);
