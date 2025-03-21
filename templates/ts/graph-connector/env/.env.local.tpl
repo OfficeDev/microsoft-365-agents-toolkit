@@ -5,7 +5,7 @@ TEAMSFX_ENV=local
 APP_NAME_SUFFIX=local
 CONNECTOR_ID=
 CONNECTOR_NAME={{{gcName}}}
-CONNECTOR_DESCRIPTION=
-CONNECTOR_REPOS=
+CONNECTOR_DESCRIPTION=Connection that indexes all GitHub issues from a specific owner and repo.
+CONNECTOR_REPOS=org/repo-a,org/repo-b
 
 # Generated during provision, you can also add your own variables.

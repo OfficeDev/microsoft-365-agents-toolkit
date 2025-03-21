@@ -5,7 +5,7 @@ TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
 CONNECTOR_ID=
 CONNECTOR_NAME={{{gcName}}}
-CONNECTOR_DESCRIPTION=
+CONNECTOR_DESCRIPTION=Connection that indexes all GitHub issues from a specific owner and repo.
 CONNECTOR_REPOS=
 
 # Updating Azure resources

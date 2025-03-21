@@ -53,10 +53,9 @@ Version|Date|Comments
     - Metadata: Read-Only
   - Click on **Generate token**
   - Copy the token
-- Copy the environment files in the `env` folder
-  - Copy the `.env.dev.sample` file to `.env.dev` and fill in the values
-  - Copy the `.env.local.sample` file to `.env.local` and fill in the values
-  - Copy the `.env.local.user.sample` file to `.env.local.user` and add the your GitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
+- Fill env file in `env` folder
+  - Open the `.env.local`. Add the `CONNECTOR_ID` value and update the `CONNECTOR_REPOS` value
+  - Open the `.env.local.user` and add the your GitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
 - Press <kbd>F5</kbd>, follow the sign in prompts
 - When prompted, click on the link in the console to perform the tenant-wide admin consent
 - Wait for all tasks to complete
