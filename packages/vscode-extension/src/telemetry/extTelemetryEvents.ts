@@ -148,6 +148,7 @@ export enum TelemetryEvent {
   DebugPrereqsCheckCert = "debug-prereqs-check-cert",
   DebugPrereqsCheckDependencies = "debug-prereqs-check-dependencies",
   DebugPrereqsCheckNpmInstall = "debug-prereqs-check-npm-install",
+  DebugPrereqsCheckSandbox = "debug-prereqs-check-sandbox",
   DebugPrereqsInstallPackages = "debug-prereqs-install-packages",
   DebugPreCheckCoreLocalDebug = "debug-precheck-core-local-debug",
   DebugTaskProvider = "debug-task-provider",
