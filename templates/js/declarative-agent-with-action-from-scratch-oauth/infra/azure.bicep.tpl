@@ -93,6 +93,11 @@ resource authSettings 'Microsoft.Web/sites/config@2021-02-01' = {
             ]
           }
 {{/MicrosoftEntra}}
+          defaultAuthorizationPolicy: {
+            allowedApplications: [
+              aadAppClientId
+            ]
+          }
           allowedAudiences: [
             aadAppClientId
             aadApplicationIdUri
