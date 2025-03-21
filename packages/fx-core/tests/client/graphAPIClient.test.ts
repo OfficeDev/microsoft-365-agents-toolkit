@@ -168,7 +168,7 @@ describe("GraphAPIClient Test", () => {
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
-        "testAccount",
+        "testAccount - Should use cache when useCache is true and cache is valid",
         "testTenant"
       );
 
@@ -209,7 +209,7 @@ describe("GraphAPIClient Test", () => {
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
-        "testAccount",
+        "testAccount - Should not use cache when cache is expired",
         "testTenant"
       );
 
@@ -248,7 +248,7 @@ describe("GraphAPIClient Test", () => {
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
-        "testAccount",
+        "testAccount - Should update cache after API call with useCache",
         "testTenant"
       );
 
@@ -290,6 +290,56 @@ describe("GraphAPIClient Test", () => {
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
         expect(result.value).to.deep.equal(response.data.value);
+      }
+    });
+
+    it("Should handle response with undefined or missing label properties", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const response = {
+        data: {
+          value: [
+            {
+              // No properties defined
+            },
+            {
+              id: undefined,
+              name: undefined,
+              description: undefined,
+              displayName: undefined,
+            },
+            {
+              id: "label1",
+              // Missing some properties
+              displayName: "Test Label",
+            },
+            undefined,
+          ],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(response);
+      sandbox.stub(RetryHandler, "Retry").resolves(response);
+
+      const graphAPIClient = new GraphAPIClient();
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        true,
+        "testAccount - Should handle response with undefined or missing label properties",
+        "testTenant"
+      );
+
+      expect(result.isOk()).to.be.true;
+      if (result.isOk()) {
+        expect(result.value.length).to.equal(4);
+        expect(result.value[0].id).to.be.undefined;
+        expect(result.value[0].name).to.be.undefined;
+        expect(result.value[1].id).to.be.undefined;
+        expect(result.value[1].displayName).to.be.undefined;
+        expect(result.value[2].id).to.equal("label1");
+        expect(result.value[2].displayName).to.equal("Test Label");
+        expect(result.value[2].name).to.be.undefined;
       }
     });
   });
