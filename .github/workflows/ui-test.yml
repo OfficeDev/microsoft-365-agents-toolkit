@@ -523,14 +523,17 @@ jobs:
         shell: cmd
 
       - name: Ensure AZURE_OPENAI_KEY is set
+        shell: pwsh
         run: |
-          if [ -z "$AZURE_OPENAI_KEY" ]; then
-            echo "AZURE_OPENAI_KEY is not set!" >&2
+          if (-not $env:AZURE_OPENAI_KEY) {
+            Write-Error "AZURE_OPENAI_KEY is not set!"
             exit 1
-          else
-            echo "AZURE_OPENAI_KEY is set."
-            echo "AZURE_OPENAI_ENDPOINT is $AZURE_OPENAI_ENDPOINT"
-          fi
+          } else {
+            Write-Output "AZURE_OPENAI_KEY is set."
+            Write-Output "AZURE_OPENAI_ENDPOINT is $env:AZURE_OPENAI_ENDPOINT"
+          }
+        env:
+          AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
 
       # Launch the vscuse
       - name: Run vscuse.exe
