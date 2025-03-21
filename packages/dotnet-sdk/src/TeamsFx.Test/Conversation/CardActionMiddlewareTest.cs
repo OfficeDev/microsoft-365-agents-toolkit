@@ -98,7 +98,7 @@
             // Arrange
             var mockHandler = CreateMockCardActionHandler(
                 "doStuff",
-                InvokeResponseFactory.AdaptiveCard(JObject.Parse(GetAdaptiveCard())),
+                InvokeResponseFactory.AdaptiveCard(GetAdaptiveCard()),
                 AdaptiveCardResponse.ReplaceForInteractor);
 
             _middleware.CardActionHandlers.Add(mockHandler.Object);
@@ -126,7 +126,7 @@
             Assert.IsNotNull(responseBody);
             Assert.AreEqual(InvokeResponseContentType.AdaptiveCard, responseBody.Type);
             Assert.IsNotNull(responseBody.Value);
-            Assert.AreEqual(GetAdaptiveCard(), JsonConvert.SerializeObject(responseBody.Value, Formatting.Indented));
+            Assert.AreEqual(GetAdaptiveCard(), responseBody.Value);
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@
             // Arrange
             var mockHandler = CreateMockCardActionHandler(
                 "doStuff",
-                InvokeResponseFactory.AdaptiveCard(JObject.Parse(GetAdaptiveCard())),
+                InvokeResponseFactory.AdaptiveCard(GetAdaptiveCard()),
                 AdaptiveCardResponse.ReplaceForAll);
 
             _middleware.CardActionHandlers.Add(mockHandler.Object);
@@ -166,7 +166,7 @@
             Assert.IsNotNull(responseBody);
             Assert.AreEqual(InvokeResponseContentType.AdaptiveCard, responseBody.Type);
             Assert.IsNotNull(responseBody.Value);
-            Assert.AreEqual(GetAdaptiveCard(), JsonConvert.SerializeObject(responseBody.Value, Formatting.Indented));
+            Assert.AreEqual(GetAdaptiveCard(), responseBody.Value);
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@
             // Arrange
             var mockHandler = CreateMockCardActionHandler(
                 "doStuff",
-                InvokeResponseFactory.AdaptiveCard(JObject.Parse(GetAdaptiveCard())),
+                InvokeResponseFactory.AdaptiveCard(GetAdaptiveCard()),
                 AdaptiveCardResponse.NewForAll);
 
             _middleware.CardActionHandlers.Add(mockHandler.Object);
