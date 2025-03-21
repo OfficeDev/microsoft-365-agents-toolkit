@@ -1,35 +1,37 @@
 using {{SafeProjectName}};
 using {{SafeProjectName}}.Commands;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Agents.BotBuilder.App;
+using Microsoft.Agents.BotBuilder.State;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.Agents.Storage;
 using Microsoft.TeamsFx.Conversation;
-using Microsoft.Bot.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddCloudAdapter<AdapterWithErrorHandler>();
+builder.Logging.AddConsole();
 
-// Prepare Configuration for ConfigurationBotFrameworkAuthentication
-var config = builder.Configuration.Get<ConfigOptions>();
-builder.Configuration["MicrosoftAppType"] = config.BOT_TYPE;
-builder.Configuration["MicrosoftAppId"] = config.BOT_ID;
-builder.Configuration["MicrosoftAppPassword"] = config.BOT_PASSWORD;
-builder.Configuration["MicrosoftAppTenantId"] = config.BOT_TENANT_ID;
-// Create the Bot Framework Authentication to be used with the Bot Adapter.
-builder.Services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
+// Add AspNet token validation
+builder.Services.AddBotAspNetAuthentication(builder.Configuration);
 
-// Create the Cloud Adapter with error handling enabled.
-// Note: some classes expect a BotAdapter and some expect a BotFrameworkHttpAdapter, so
-// register the same adapter instance for both types.
-builder.Services.AddSingleton<CloudAdapter, AdapterWithErrorHandler>();
-builder.Services.AddSingleton<IBotFrameworkHttpAdapter>(sp => sp.GetService<CloudAdapter>());
-builder.Services.AddSingleton<BotAdapter>(sp => sp.GetService<CloudAdapter>());
+// Add ApplicationOptions
+builder.Services.AddTransient(sp =>
+{
+    return new AgentApplicationOptions()
+    {
+        StartTypingTimer = false,
+        TurnStateFactory = () => new TurnState(sp.GetService<IStorage>())
+    };
+});
 
-// Create command handlers and the Conversation with command-response feature enabled.
+// Create command handlers 
 builder.Services.AddSingleton<HelloWorldCommandHandler>();
 builder.Services.AddSingleton<GenericCommandHandler>();
+
+// Keep the ConversationBot to maintain compatibility with TeamsFx SDK
 builder.Services.AddSingleton(sp =>
 {
     var options = new ConversationOptions()
@@ -43,12 +45,11 @@ builder.Services.AddSingleton(sp =>
             }
         }
     };
-
     return new ConversationBot(options);
 });
 
-// Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-builder.Services.AddTransient<IBot, TeamsBot>();
+// Add the bot (which is transient)
+builder.AddBot<TeamsBot>();
 
 var app = builder.Build();
 
@@ -59,9 +60,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-app.UseEndpoints(endpoints =>
+app.UseAuthentication();
+app.UseAuthorization();
+
+if (app.Environment.IsDevelopment())
 {
-    endpoints.MapControllers();
-});
+    app.MapGet("/", () => "Command and Response Bot");
+    app.MapControllers().AllowAnonymous();
+}
+else
+{
+    app.MapControllers();
+}
 
 app.Run();
