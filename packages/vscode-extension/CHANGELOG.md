@@ -37,7 +37,7 @@ This update represents a minor version increment of the Teams Toolkit, below is 
 
 - **Use Existing Entra ID Instead of Always Create New**: Teams Toolkit creates Entra ID during debugging. While users are easily blocked by no permission to create Entra ID in their tenant. Now we improve this process to allow users to use an existing Entra ID which can be created by tenant admin. You will need to input the ID and password to continue.
 
-- **Input OpenAI Key to Debug**: Custom Engine Agent projects require an OpenAI key for debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before preview/debug to remind users of the required value.
+- **Input OpenAI Key to Debug**: Custom Engine Agent projects require an OpenAI key for debugging. Teams Toolkit now allows users to create these projects without inputting the OpenAI key. However, missing this value will definitely cause a failure in preview and debugging. Therefore, an input box will pop up before debug to remind users of the required value.
 
 <img width="386" alt="image" src="https://github.com/user-attachments/assets/c197d84c-fa87-4269-bfb5-2609c6e00370" />
 
