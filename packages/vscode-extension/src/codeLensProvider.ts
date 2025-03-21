@@ -33,7 +33,7 @@ import path from "path";
 import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
 import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as util from "util";
- 
+
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
   const inputs = getSystemInputs();
@@ -722,13 +722,16 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       let labelDisplayName: string | undefined;
       // query display name of the current label
       const token = loginStatusRes.value.token;
-      const accountUniqueNameRaw = loginStatusRes.value.accountInfo?.["unique_name"];
-      const accountUniqueNameString =
-        typeof accountUniqueNameRaw === "string" ? accountUniqueNameRaw : undefined;
+      const accountInfo = loginStatusRes.value.accountInfo;
+      const accountUniqueName =
+        typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
+      const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
+
       const result = await graphAPIClient.listSensitivityLabels(
         token,
-        accountUniqueNameString ? true : false,
-        accountUniqueNameString ?? ""
+        !!accountUniqueName,
+        accountUniqueName,
+        tenantId
       );
       if (result.isOk()) {
         for (const label of result.value) {

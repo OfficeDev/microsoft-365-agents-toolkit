@@ -14,7 +14,7 @@ const graphAPIEndpoint = "https://graph.microsoft.com";
 const listSensitivityLabelAPIPath = "/beta/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
-const listSensitivityLabelCacheKey = "listSensitivityLabelCacheKey";
+const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
 
 export class SensitivityLabel {
   id?: string;
@@ -48,11 +48,13 @@ export class GraphAPIClient {
   async listSensitivityLabels(
     token: string,
     useCache = false,
-    accountUniqueName = ""
+    accountUniqueName = "",
+    tenantId = ""
   ): Promise<Result<SensitivityLabel[], FxError>> {
     try {
       if (useCache) {
-        const cacheKey = `${listSensitivityLabelCacheKey}-${accountUniqueName}`;
+        // TTK supports switching tenant, so we need to add tenantId in the cache key.
+        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
         const cacheValueRes = await globalStateGet(cacheKey);
         if (cacheValueRes) {
           const timeStamp = cacheValueRes.unixTimestamp;
@@ -72,7 +74,7 @@ export class GraphAPIClient {
 
       if (response && response.data && response.data.value) {
         if (useCache) {
-          const cacheKey = `${listSensitivityLabelCacheKey}-${accountUniqueName}`;
+          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
           const cacheValue: ListSensitivityCacheValue = {
             labels: response.data.value,
             unixTimestamp: Date.now(),
@@ -130,6 +132,10 @@ export class GraphAPIClient {
         })
       );
     }
+  }
+
+  private buildCacheKey(accountUniqueName: string, tenantId: string): string {
+    return `${listSensitivityLabelCacheKeyPrefix}:${tenantId}:${accountUniqueName}`;
   }
 }
 
