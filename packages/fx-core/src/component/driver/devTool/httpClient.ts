@@ -39,6 +39,19 @@ class HttpClient {
       return buffer;
     }
   }
+
+  async headTime(url: string, options: DownloadOptions = {}): Promise<number> {
+    const { timeout = 30000 } = options;
+    const startTime = Date.now();
+    const res: Response = await fetch(url, {
+      method: "HEAD",
+      timeout,
+    });
+    if (!res.ok) {
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+    return Date.now() - startTime;
+  }
 }
 
 export const httpClient = new HttpClient();

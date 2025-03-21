@@ -9,25 +9,61 @@ import * as path from "path";
 import { extract } from "tar";
 import { InstallNodeJSError } from "../../../error";
 import { NodeChecker } from "../../deps-checker/internal/nodeChecker";
-
-import { httpClient } from "./httpClient";
 import { WrapDriverContext } from "../util/wrapUtil";
-import { createSymlink } from "../../deps-checker/util/fileHelper";
+import { httpClient } from "./httpClient";
 
 interface NodeDownloadMirror {
   name: string;
   url: string;
+  indexJsonUrl: string;
+  indexJson?: [
+    {
+      lts: false | string;
+      version: string;
+    }
+  ];
   html?: string;
+  version?: string;
+  versionUrl?: string;
+  packageUrl?: string;
   time?: number;
 }
+const FirstPriorityMirror: NodeDownloadMirror = {
+  name: "NPM",
+  url: "https://registry.npmmirror.com/-/binary/node/",
+  indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
+};
+// const FirstPriorityMirror: NodeDownloadMirror = {
+//   name: "Official",
+//   url: "https://nodejs.org/dist/",
+//   indexJsonUrl: "https://nodejs.org/dist/index.json",
+// };
+const BackupMirrors: NodeDownloadMirror[] = [
+  {
+    name: "Official",
+    url: "https://nodejs.org/dist/",
+    indexJsonUrl: "https://nodejs.org/dist/index.json",
+  },
+  {
+    name: "Tencent",
+    url: "https://mirrors.cloud.tencent.com/nodejs-release/",
+    indexJsonUrl: "https://mirrors.cloud.tencent.com/nodejs-release/index.json",
+  },
+  {
+    name: "Aliyun",
+    url: "https://mirrors.aliyun.com/nodejs-release/",
+    indexJsonUrl: "https://mirrors.aliyun.com/nodejs-release/index.json",
+  },
+];
 
 export interface EnsureNodeJSResult {
   status: "ignore" | "installed";
   installPath?: string;
+  totalTime?: number;
 }
 
 export class NodejsInstaller {
-  getCompatibleNodeJSVersionSuffix(): { name: string; ext: string } {
+  getNameAndExt(): { name: string; ext: string } {
     const platform = process.platform;
     const arch = os.arch();
 
@@ -68,49 +104,15 @@ export class NodejsInstaller {
     return { name: `${targetOS}-${targetArch}`, ext: extPattern };
   }
 
-  async getLatestLTSVersion(): Promise<Result<string, InstallNodeJSError>> {
-    const fetchRes = await this.fetchJSON("https://nodejs.org/dist/index.json");
-    if (fetchRes.isErr()) {
-      return err(fetchRes.error);
-    }
-    const jsonData = fetchRes.value;
-    const ltsVersion = jsonData.find((entry: any) => entry.lts !== false);
+  getLatestLTSVersion(mirror: NodeDownloadMirror): Result<string, InstallNodeJSError> {
+    const jsonData = mirror.indexJson!;
+    const ltsVersion = jsonData.find(
+      (entry: { lts: false | string; version: string }) => entry.lts !== false
+    );
     if (!ltsVersion) {
       return err(new InstallNodeJSError("No LTS version found"));
     }
     return ok(ltsVersion.version);
-  }
-
-  async getTargetVersionPackageUrl(
-    baseUrl: string,
-    versionPattern: string
-  ): Promise<Result<string, InstallNodeJSError>> {
-    const htmlRes = await this.fetchString(baseUrl);
-    if (htmlRes.isErr()) {
-      return err(htmlRes.error);
-    }
-    const html = htmlRes.value;
-    const { document } = parseHTML(html);
-    const compatibleLinks = [...document.querySelectorAll("a")]
-      .map((a) => a.getAttribute("href"))
-      .filter((href) => href && href.includes("node-") && href.endsWith(versionPattern))
-      .map((href) => this.resolveUrl(baseUrl, href!)) as string[];
-    if (compatibleLinks.length === 0) {
-      err(
-        new InstallNodeJSError(
-          `No compatible links found for pattern: ${versionPattern} in NodeJS download page: ${baseUrl}`
-        )
-      );
-    }
-    const downloadUrl = compatibleLinks[0];
-    if (!downloadUrl) {
-      return err(
-        new InstallNodeJSError(
-          `Failed to get download URL for pattern: ${versionPattern} in NodeJS download page: ${baseUrl}`
-        )
-      );
-    }
-    return ok(downloadUrl);
   }
 
   async fetchJSON(url: string): Promise<Result<any, InstallNodeJSError>> {
@@ -154,34 +156,70 @@ export class NodejsInstaller {
     return `${parsed.origin}/`; // 取网站根目录
   }
 
-  async getFastestNodeDownloadMirror(): Promise<NodeDownloadMirror> {
-    const mirrors = [
-      { name: "Official", url: "https://nodejs.org/dist/" },
-      { name: "NPM Mirror", url: "https://registry.npmmirror.com/-/binary/node/" },
-      { name: "Tencent", url: "https://mirrors.cloud.tencent.com/nodejs-release/" },
-      { name: "Aliyun", url: "https://mirrors.aliyun.com/nodejs-release/" },
-    ];
-    const results = await Promise.all(
-      mirrors.map(async (mirror) => {
-        const start = Date.now();
-        const fetchRes = await this.fetchString(mirror.url, 1000);
-        if (fetchRes.isErr()) {
-          return { name: mirror.name, url: mirror.url, time: Infinity, html: undefined };
-        }
-        const html = fetchRes.value;
-        const time = Date.now() - start;
-        return { name: mirror.name, url: mirror.url, html: html, time: time };
-      })
-    );
-    const fastest = results.reduce((a, b) => (a.time < b.time ? a : b));
-    return fastest;
+  async testMirrorSpeed(
+    mirror: NodeDownloadMirror,
+    osArchName: string,
+    ext: string,
+    timeout: number,
+    logger?: LogProvider
+  ): Promise<NodeDownloadMirror> {
+    try {
+      const headTime = await httpClient.headTime(mirror.url, { timeout: timeout });
+      const time1 = Date.now();
+      const indexJson = await httpClient.get(mirror.indexJsonUrl, { timeout: timeout });
+      const time2 = Date.now();
+      mirror.indexJson = JSON.parse(indexJson as string);
+
+      const versionRes = nodejsInstaller.getLatestLTSVersion(mirror);
+      if (versionRes.isErr()) {
+        return mirror;
+      }
+      const ltsVersion = versionRes.value;
+      mirror.version = ltsVersion;
+      const packageUrlRes = await this.getDownloadUrl(mirror, ltsVersion, osArchName, ext);
+      if (packageUrlRes.isErr()) {
+        return mirror;
+      }
+      const packageUrl = packageUrlRes.value;
+      const time3 = Date.now();
+      mirror.packageUrl = packageUrl;
+      mirror.time = headTime + time3 - time1;
+      logger?.debug(
+        `Mirror: ${mirror.name}, URL: ${mirror.url}, Head: ${headTime} ms, Index JSON: ${
+          time2 - time1
+        } ms, Get URL: ${time3 - time2} ms, Total: ${mirror.time} ms`
+      );
+    } catch (e: any) {
+      logger?.error(`Mirror: ${mirror.name}, URL: ${mirror.url}, Error: ${(e as Error).message}`);
+    }
+    return mirror;
   }
 
-  parseTargetVersionUrl(url: string, html: string, version: string): string | undefined {
+  async getBestMirror(
+    osArchName: string,
+    ext: string,
+    logger?: LogProvider
+  ): Promise<NodeDownloadMirror | undefined> {
+    const mirror = await this.testMirrorSpeed(FirstPriorityMirror, osArchName, ext, 1000, logger);
+    if (mirror.packageUrl) {
+      return mirror;
+    }
+    for (let i = 0; i < 3; ++i) {
+      const mirror = await Promise.race(
+        BackupMirrors.map((mirror) => this.testMirrorSpeed(mirror, osArchName, ext, 1000, logger))
+      );
+      if (mirror.packageUrl) {
+        return mirror;
+      }
+    }
+    return undefined;
+  }
+
+  parseHtmlToGetUrl(url: string, html: string, pattern: string): string | undefined {
     const { document } = parseHTML(html);
     const links = [...document.querySelectorAll("a")]
       .map((a) => a.getAttribute("href"))
-      .filter((href) => href && href.includes(version))
+      .filter((href) => href && href.includes(pattern))
       .map((href) => this.resolveUrl(url, href!));
     if (links.length === 0) {
       return undefined;
@@ -212,12 +250,12 @@ export class NodejsInstaller {
     }
   }
 
-  extractZipFromBuffer(buffer: Buffer, targetDir: string): void {
+  extractZip(buffer: Buffer, targetDir: string): void {
     const zip = new AdmZip(buffer);
     zip.extractAllTo(targetDir, true);
   }
 
-  extractTarFromBuffer(buffer: Buffer, targetDir: string): Result<undefined, InstallNodeJSError> {
+  extractTar(buffer: Buffer, targetDir: string): Result<undefined, InstallNodeJSError> {
     const extname = path.extname(targetDir).toLowerCase();
     if (extname === ".gz" || extname === ".tar.gz") {
       const stream = require("stream");
@@ -236,17 +274,17 @@ export class NodejsInstaller {
     }
   }
 
-  extractNodeJsPackageFromBuffer(
+  extractPackage(
     buffer: Buffer,
     fileName: string,
     targetDir: string
   ): Result<undefined, InstallNodeJSError> {
     const extname = path.extname(fileName).toLowerCase();
     if (extname === ".zip") {
-      this.extractZipFromBuffer(buffer, targetDir);
+      this.extractZip(buffer, targetDir);
       return ok(undefined);
     } else if (extname === ".tar.gz" || extname === ".tar.xz") {
-      const res = this.extractTarFromBuffer(buffer, targetDir);
+      const res = this.extractTar(buffer, targetDir);
       if (res.isErr()) {
         return err(res.error);
       }
@@ -256,68 +294,142 @@ export class NodejsInstaller {
     }
   }
 
+  async getDownloadUrl(
+    mirror: NodeDownloadMirror,
+    version: string,
+    osArchName: string,
+    ext: string
+  ): Promise<Result<string, InstallNodeJSError>> {
+    if (mirror.name === "NPM") {
+      const jsonRes = await this.fetchJSON(mirror.url);
+      if (jsonRes.isErr()) {
+        return err(jsonRes.error);
+      }
+      const json = jsonRes.value as { url: string; name: string }[];
+      const versionInfo = json.find((entry: { url: string; name: string }) =>
+        entry.name.includes(version)
+      );
+      if (!versionInfo) {
+        return err(
+          new InstallNodeJSError(`Unable to find ${version} in version list page: ${mirror.url}`)
+        );
+      }
+      const versionUrl = versionInfo.url;
+      mirror.versionUrl = versionUrl;
+      const versionJsonRes = await this.fetchJSON(versionUrl);
+      if (versionJsonRes.isErr()) {
+        return err(versionJsonRes.error);
+      }
+      const versionJson = versionJsonRes.value;
+      const packageUrlEntry = versionJson.find((entry: any) =>
+        entry.name.includes(osArchName + ext)
+      );
+      if (!packageUrlEntry) {
+        return err(
+          new InstallNodeJSError(
+            `Unable to find ${osArchName + ext} in package list page: ${versionUrl}`
+          )
+        );
+      }
+      return ok(packageUrlEntry.url);
+    } else {
+      const versionListHtmlRes = await this.fetchString(mirror.url);
+      if (versionListHtmlRes.isErr()) {
+        return err(versionListHtmlRes.error);
+      }
+      const versionListHtml = versionListHtmlRes.value;
+      const versionUrl = nodejsInstaller.parseHtmlToGetUrl(mirror.url, versionListHtml, version);
+      if (!versionUrl) {
+        return err(
+          new InstallNodeJSError(`Unable to find ${version} in version list page: ${mirror.url}`)
+        );
+      }
+      mirror.versionUrl = versionUrl;
+      const packageListHtmlRes = await this.fetchString(versionUrl);
+      if (packageListHtmlRes.isErr()) {
+        return err(packageListHtmlRes.error);
+      }
+      const packageListHtml = packageListHtmlRes.value;
+      const packageUrl = nodejsInstaller.parseHtmlToGetUrl(
+        versionUrl,
+        packageListHtml,
+        `${version}-${osArchName}${ext}`
+      );
+      if (!packageUrl) {
+        return err(
+          new InstallNodeJSError(
+            `Unable to find ${version}-${osArchName}${ext} in package list page: ${versionUrl}`
+          )
+        );
+      }
+      return ok(packageUrl);
+    }
+  }
+
   async ensureNodeJS(
     context: WrapDriverContext,
     checkSystemInstalled = true,
     checkUserFolderInstalled = false
   ): Promise<Result<EnsureNodeJSResult, InstallNodeJSError>> {
-    const progressBar = context.ui?.createProgressBar("Install NodeJS", 9);
+    const startTime = Date.now();
+    const progressBar = context.ui?.createProgressBar("Install NodeJS", 5);
     progressBar?.start();
-    progressBar?.next("Checking NodeJS in system environment.");
+
+    // Checking NodeJS in system environment
+    context.logProvider?.info("Checking NodeJS in system environment");
+    progressBar?.next("Checking NodeJS in system environment");
     if (checkSystemInstalled) {
       const nodeVersion = await NodeChecker.getInstalledNodeVersion();
       if (nodeVersion !== null) {
-        context.logProvider?.debug(`Found NodeJS version: ${nodeVersion.version}`);
+        context.logProvider?.info(
+          `NodeJS is installed in system environment: ${nodeVersion.version}`
+        );
         progressBar?.end(true);
         return ok({ status: "ignore" });
       }
     }
-    // get the latest LTS version
-    progressBar?.next("Looking up latest LTS version of NodeJS");
-    const latestVersionRes = await nodejsInstaller.getLatestLTSVersion();
-    if (latestVersionRes.isErr()) {
-      progressBar?.end(true);
-      return err(latestVersionRes.error);
-    }
-    const latestVersion = latestVersionRes.value;
 
-    progressBar?.next("Checking OS type and architecture");
-    const { name, ext } = this.getCompatibleNodeJSVersionSuffix();
-
-    const latestVersionFullname = `node-${latestVersion}-${name}`;
-
-    context.logProvider?.debug(`Latest NodeJS LTS version full name is: ${latestVersionFullname}`);
-
+    // Checking NodeJS in user folder
+    context.logProvider?.info("Checking NodeJS in user folder");
+    progressBar?.next("Checking NodeJS in user folder");
+    const { name, ext } = this.getNameAndExt();
     const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
-
-    progressBar?.next("Checking compatible NodeJS version in user folder");
-
     if (checkUserFolderInstalled) {
       const subFolders = await fs.readdir(downloadDir);
-
       const foundFolder = subFolders.find((subFolder) => subFolder.endsWith(name));
-
       if (foundFolder) {
-        context.logProvider?.debug(
-          `Found NodeJS version in user folder: ${path.join(downloadDir, foundFolder)}`
+        context.logProvider?.info(
+          `NodeJS is installed in user folder: ${path.join(downloadDir, foundFolder)}`
         );
         progressBar?.end(true);
         return ok({ status: "ignore", installPath: path.join(downloadDir, foundFolder) });
       } else {
-        context.logProvider?.debug(
-          `NodeJS not found in user folder: ${downloadDir}, continue to install`
-        );
+        context.logProvider?.info(`NodeJS not found in user folder: ${downloadDir}`);
       }
     }
 
+    // Testing speed of download mirrors
+    context.logProvider?.info("Testing speed of download mirrors");
+    progressBar?.next("Testing speed of download mirrors");
+    const bestMirror = await nodejsInstaller.getBestMirror(name, ext, context.logProvider);
+    if (!bestMirror || !bestMirror.packageUrl) {
+      progressBar?.end(true);
+      return err(new InstallNodeJSError("All mirrors are not reachable"));
+    }
+    context.logProvider?.debug(
+      `The fastest download mirror is: ${bestMirror.name} - ${bestMirror.url}, latency: ${
+        bestMirror.time ?? "unknown"
+      } ms`
+    );
+
+    // User confirmation for installation
     const confirmRes = await context.ui?.confirm?.({
       name: "confirm",
-      title: "NodeJS is not installed, do you want to install latest LTS version?",
+      title: `Do you want to install NodeJS LTS version (${bestMirror.version!}) in your user folder?`,
     });
-
     if (confirmRes?.isOk()) {
       if (!confirmRes.value.result) {
-        context.logProvider?.warning("User canceled NodeJS installation");
+        context.logProvider?.warning("User canceled installation");
         progressBar?.end(true);
         return ok({ status: "ignore" });
       }
@@ -326,133 +438,43 @@ export class NodejsInstaller {
       return err(confirmRes.error);
     }
 
-    // get the fastest download mirror
-    progressBar?.next("Searching best NodeJS download mirrors");
-    const fast = await nodejsInstaller.getFastestNodeDownloadMirror();
-    if (!fast.html) {
-      progressBar?.end(true);
-      return err(new InstallNodeJSError("Failed to get fastest download mirror"));
-    }
-    context.logProvider?.debug(
-      `The fastest NodeJS download mirror site is: ${fast.url}, latency: ${
-        fast.time ?? "unknown"
-      } ms`
-    );
-
-    let versionPackageUrl = "";
-    progressBar?.next("Fetching NodeJS download url for version: " + latestVersion);
-    if (fast.name === "NPM Mirror") {
-      const jsonRes = await this.fetchJSON(fast.url);
-      if (jsonRes.isErr()) {
-        progressBar?.end(true);
-        return err(jsonRes.error);
-      }
-      const json = jsonRes.value;
-      const versionInfo = json.find((entry: any) => entry.name.includes(latestVersion));
-      if (!versionInfo) {
-        progressBar?.end(true);
-        return err(
-          new InstallNodeJSError(
-            `No compatible links found for pattern: ${latestVersion} in NodeJS download page: ${fast.url}`
-          )
-        );
-      }
-
-      const versionUrl = versionInfo.url;
-      const versionJsonRes = await this.fetchJSON(versionUrl);
-      if (versionJsonRes.isErr()) {
-        progressBar?.end(true);
-        return err(versionJsonRes.error);
-      }
-      const versionJson = versionJsonRes.value;
-      const compatibleVersionObj = versionJson.find((entry: any) =>
-        entry.name.includes(name + ext)
-      );
-      if (!compatibleVersionObj) {
-        progressBar?.end(true);
-        return err(
-          new InstallNodeJSError(
-            `No compatible links found for pattern: ${name + ext} in NodeJS download page: ${
-              fast.url
-            }`
-          )
-        );
-      }
-      versionPackageUrl = compatibleVersionObj.url;
-    } else {
-      const versionFolderUrl = nodejsInstaller.parseTargetVersionUrl(
-        fast.url,
-        fast.html,
-        latestVersion
-      );
-      if (!versionFolderUrl) {
-        progressBar?.end(true);
-        return err(
-          new InstallNodeJSError(
-            `Failed to get folder URL for target version: ${latestVersion} in page: ${fast.url}`
-          )
-        );
-      }
-
-      context.logProvider?.debug(`NodeJS download folder page url: ${versionFolderUrl}`);
-      const versionPackageUrlRes = await nodejsInstaller.getTargetVersionPackageUrl(
-        versionFolderUrl,
-        name + ext
-      );
-      if (versionPackageUrlRes.isErr()) {
-        progressBar?.end(true);
-        return err(versionPackageUrlRes.error);
-      }
-      versionPackageUrl = versionPackageUrlRes.value;
-    }
-
-    context.logProvider?.debug(`Start to download NodeJS package: ${versionPackageUrl}`);
-
-    progressBar?.next("Fetching NodeJS binary package: " + versionPackageUrl);
-
+    // Downloading NodeJS package
+    context.logProvider?.info(`Downloading binary package: ${bestMirror.packageUrl}`);
+    progressBar?.next(`Downloading binary package: ${bestMirror.packageUrl}`);
     const t1 = Date.now();
-    const packageRes = await nodejsInstaller.fetchBinary(versionPackageUrl, undefined, (progress) =>
-      process.stdout.write(progress + "\r")
+    const packageRes = await nodejsInstaller.fetchBinary(
+      bestMirror.packageUrl,
+      undefined,
+      (progress) => void progressBar?.text?.(progress)
     );
     const t2 = Date.now();
-
     if (packageRes.isErr()) {
       progressBar?.end(true);
       return err(packageRes.error);
     }
-
     const binary = packageRes.value;
-
-    context.logProvider?.debug(
-      `Successfully download NodeJS package: ${versionPackageUrl}, size: ${binary.length}, time: ${
-        t2 - t1
-      } ms`
+    context.logProvider?.info(
+      `Successfully download NodeJS package: ${bestMirror.packageUrl}, size: ${
+        binary.length
+      }, time: ${t2 - t1} ms`
     );
 
+    // Extracting package
+    context.logProvider?.info("Extracting package");
     progressBar?.next("Extracting package");
-
     await fs.ensureDir(downloadDir);
-
-    const extractRes = nodejsInstaller.extractNodeJsPackageFromBuffer(
-      binary,
-      versionPackageUrl,
-      downloadDir
-    );
+    const extractRes = nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
     if (extractRes.isErr()) {
       progressBar?.end(true);
       return err(extractRes.error);
     }
-    context.logProvider?.debug(
-      `Successfully extract NodeJS package in target folder: ${downloadDir}`
+    const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version!}-${name}`);
+    context.logProvider?.info(
+      `Successfully extract NodeJS package in target folder: ${targetNodeJSPath}`
     );
-
-    const targetNodeJSPath = path.join(downloadDir, latestVersionFullname);
-
-    progressBar?.next("NodeJS installation completed");
-
     progressBar?.end(true);
-
-    return ok({ status: "installed", installPath: targetNodeJSPath });
+    const totalTime = Date.now() - startTime;
+    return ok({ status: "installed", installPath: targetNodeJSPath, totalTime: totalTime });
   }
 }
 
@@ -469,17 +491,32 @@ export const nodejsInstaller = new NodejsInstaller();
 //     console.error(message);
 //   },
 // };
-
 // async function main() {
 //   const result = await nodejsInstaller.ensureNodeJS(
+//     {
+//       logProvider: logProvider,
+//       ui: {
+//         createProgressBar: (title: string, totalSteps: number) => {
+//           return {
+//             start: (message?: string) => {
+//               console.log(`${title}: ${message || ""}`);
+//             },
+//             next: (message?: string) => {
+//               console.log(`Next step: ${message || ""}`);
+//             },
+//             end: (success: boolean) => {
+//               console.log(`Progress ended. Success: ${success.toString()}`);
+//             },
+//             text: (message: string) => {
+//               process.stdout.write(`Progress: ${message}\r`);
+//             },
+//           };
+//         },
+//       },
+//     } as any,
 //     false,
-//     false,
-//     logProvider as any,
-//     (progress) => {
-//       console.log("--------------------------" + progress);
-//     }
+//     false
 //   );
 //   console.log(result);
 // }
-
 // main();

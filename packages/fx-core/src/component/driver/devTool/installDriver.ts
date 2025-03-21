@@ -301,8 +301,11 @@ export class ToolsInstallDriverImpl {
       if (ensureRes.isOk()) {
         const status = ensureRes.value;
         if (status.installPath) {
-          const symLinkDir = path.join(this.context.projectPath, "devTools", "node");
+          const symLinkDir = path.join(this.context.projectPath, "devTools", "nodejs");
           await createSymlink(status.installPath, symLinkDir);
+          if (status.status === "installed") {
+            this.context.addSummary(`NodeJS is installed at: ${status.installPath}.`);
+          }
         }
       }
     }
