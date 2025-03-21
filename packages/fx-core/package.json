@@ -70,6 +70,7 @@
     "test:copilotGenerator": "nyc mocha \"tests/component/generator/copilotGenerator.test.ts\"",
     "test:tdpClient": "nyc mocha \"tests/client/tdpClient.test.ts\"",
     "test:secretMasker": "nyc mocha \"tests/common/secretMasker.test.ts\"",
+    "test:nodeInstall": "nyc mocha \"tests/component/driver/devTool/nodeInstaller.test.ts\"",
     "clean": "rm -rf build",
     "prebuild": "npm run gen:cli",
     "build": "tsc -p ./ --incremental",
