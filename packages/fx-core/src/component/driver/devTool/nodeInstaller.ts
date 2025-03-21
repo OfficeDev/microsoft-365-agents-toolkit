@@ -11,6 +11,10 @@ import { InstallNodeJSError } from "../../../error";
 import { NodeChecker } from "../../deps-checker/internal/nodeChecker";
 import { WrapDriverContext } from "../util/wrapUtil";
 import { httpClient } from "./httpClient";
+import { getLocalizedString } from "../../../common/localizeUtils";
+import { get } from "lodash";
+
+export const ComponentName = "NodeInstaller";
 
 interface NodeDownloadMirror {
   name: string;
@@ -110,7 +114,15 @@ export class NodejsInstaller {
       (entry: { lts: false | string; version: string }) => entry.lts !== false
     );
     if (!ltsVersion) {
-      return err(new InstallNodeJSError("No LTS version found"));
+      return err(
+        new InstallNodeJSError(
+          getLocalizedString(
+            "action.devTool.nodeInstaller.UnableToFind",
+            "LTS version",
+            mirror.indexJsonUrl
+          )
+        )
+      );
     }
     return ok(ltsVersion.version);
   }
@@ -120,9 +132,7 @@ export class NodejsInstaller {
       const res = await httpClient.get(url);
       return ok(JSON.parse(res as string));
     } catch (e: any) {
-      return err(
-        new InstallNodeJSError(`Failed to fetch JSON from ${url}: ${(e as Error).message}`)
-      );
+      return err(new InstallNodeJSError((e as Error).message));
     }
   }
 
@@ -131,9 +141,7 @@ export class NodejsInstaller {
       const res = await httpClient.get(url, { timeout: timeout });
       return ok(res as string);
     } catch (e: any) {
-      return err(
-        new InstallNodeJSError(`Failed to fetch text from ${url}: ${(e as Error).message}`)
-      );
+      return err(new InstallNodeJSError((e as Error).message));
     }
   }
 
@@ -244,9 +252,7 @@ export class NodejsInstaller {
       });
       return ok(res as Buffer);
     } catch (e: any) {
-      return err(
-        new InstallNodeJSError(`Failed to fetch binary from ${url}: ${(e as Error).message}`)
-      );
+      return err(new InstallNodeJSError((e as Error).message));
     }
   }
 
@@ -255,42 +261,27 @@ export class NodejsInstaller {
     zip.extractAllTo(targetDir, true);
   }
 
-  extractTar(buffer: Buffer, targetDir: string): Result<undefined, InstallNodeJSError> {
+  extractTar(buffer: Buffer, targetDir: string): void {
     const extname = path.extname(targetDir).toLowerCase();
     if (extname === ".gz" || extname === ".tar.gz") {
       const stream = require("stream");
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
-      return ok(undefined);
     } else if (extname === ".xz" || extname === ".tar.xz") {
       const stream = require("stream");
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
-      return ok(undefined);
-    } else {
-      return err(new InstallNodeJSError("Not supported compress file type: " + extname));
     }
   }
 
-  extractPackage(
-    buffer: Buffer,
-    fileName: string,
-    targetDir: string
-  ): Result<undefined, InstallNodeJSError> {
+  extractPackage(buffer: Buffer, fileName: string, targetDir: string): void {
     const extname = path.extname(fileName).toLowerCase();
     if (extname === ".zip") {
       this.extractZip(buffer, targetDir);
-      return ok(undefined);
     } else if (extname === ".tar.gz" || extname === ".tar.xz") {
-      const res = this.extractTar(buffer, targetDir);
-      if (res.isErr()) {
-        return err(res.error);
-      }
-      return ok(undefined);
-    } else {
-      return err(new InstallNodeJSError("Not supported compress file type: " + extname));
+      this.extractTar(buffer, targetDir);
     }
   }
 
@@ -311,7 +302,9 @@ export class NodejsInstaller {
       );
       if (!versionInfo) {
         return err(
-          new InstallNodeJSError(`Unable to find ${version} in version list page: ${mirror.url}`)
+          new InstallNodeJSError(
+            getLocalizedString("action.devTool.nodeInstaller.UnableToFind", version, mirror.url)
+          )
         );
       }
       const versionUrl = versionInfo.url;
@@ -322,12 +315,16 @@ export class NodejsInstaller {
       }
       const versionJson = versionJsonRes.value;
       const packageUrlEntry = versionJson.find((entry: any) =>
-        entry.name.includes(osArchName + ext)
+        entry.name.includes(`${version}-${osArchName}${ext}`)
       );
       if (!packageUrlEntry) {
         return err(
           new InstallNodeJSError(
-            `Unable to find ${osArchName + ext} in package list page: ${versionUrl}`
+            getLocalizedString(
+              "action.devTool.nodeInstaller.UnableToFind",
+              `${version}-${osArchName}${ext}`,
+              versionUrl
+            )
           )
         );
       }
@@ -341,7 +338,9 @@ export class NodejsInstaller {
       const versionUrl = nodejsInstaller.parseHtmlToGetUrl(mirror.url, versionListHtml, version);
       if (!versionUrl) {
         return err(
-          new InstallNodeJSError(`Unable to find ${version} in version list page: ${mirror.url}`)
+          new InstallNodeJSError(
+            getLocalizedString("action.devTool.nodeInstaller.UnableToFind", version, mirror.url)
+          )
         );
       }
       mirror.versionUrl = versionUrl;
@@ -358,7 +357,11 @@ export class NodejsInstaller {
       if (!packageUrl) {
         return err(
           new InstallNodeJSError(
-            `Unable to find ${version}-${osArchName}${ext} in package list page: ${versionUrl}`
+            getLocalizedString(
+              "action.devTool.nodeInstaller.UnableToFind",
+              `${version}-${osArchName}${ext}`,
+              versionUrl
+            )
           )
         );
       }
@@ -372,26 +375,33 @@ export class NodejsInstaller {
     checkUserFolderInstalled = false
   ): Promise<Result<EnsureNodeJSResult, InstallNodeJSError>> {
     const startTime = Date.now();
-    const progressBar = context.ui?.createProgressBar("Install NodeJS", 5);
+    const progressBar = context.ui?.createProgressBar(
+      getLocalizedString("action.devTool.nodeInstaller.Progress.title"),
+      5
+    );
     progressBar?.start();
 
     // Checking NodeJS in system environment
-    context.logProvider?.info("Checking NodeJS in system environment");
-    progressBar?.next("Checking NodeJS in system environment");
+    let progressText = getLocalizedString("action.devTool.nodeInstaller.Progress1");
+    context.logProvider?.info(progressText);
+    progressBar?.next(progressText);
     if (checkSystemInstalled) {
       const nodeVersion = await NodeChecker.getInstalledNodeVersion();
       if (nodeVersion !== null) {
         context.logProvider?.info(
-          `NodeJS is installed in system environment: ${nodeVersion.version}`
+          getLocalizedString("action.devTool.nodeInstaller.InstalledSystem", nodeVersion.version)
         );
         progressBar?.end(true);
         return ok({ status: "ignore" });
+      } else {
+        context.logProvider?.info(getLocalizedString("action.devTool.nodeInstaller.NotInstalled"));
       }
     }
 
     // Checking NodeJS in user folder
-    context.logProvider?.info("Checking NodeJS in user folder");
-    progressBar?.next("Checking NodeJS in user folder");
+    progressText = getLocalizedString("action.devTool.nodeInstaller.Progress2");
+    context.logProvider?.info(progressText);
+    progressBar?.next(progressText);
     const { name, ext } = this.getNameAndExt();
     const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
     if (checkUserFolderInstalled) {
@@ -399,37 +409,47 @@ export class NodejsInstaller {
       const foundFolder = subFolders.find((subFolder) => subFolder.endsWith(name));
       if (foundFolder) {
         context.logProvider?.info(
-          `NodeJS is installed in user folder: ${path.join(downloadDir, foundFolder)}`
+          getLocalizedString(
+            "action.devTool.nodeInstaller.InstalledUser",
+            path.join(downloadDir, foundFolder)
+          )
         );
         progressBar?.end(true);
         return ok({ status: "ignore", installPath: path.join(downloadDir, foundFolder) });
       } else {
-        context.logProvider?.info(`NodeJS not found in user folder: ${downloadDir}`);
+        context.logProvider?.info(
+          getLocalizedString("action.devTool.nodeInstaller.NotInstalledUser", downloadDir)
+        );
       }
     }
 
     // Testing speed of download mirrors
-    context.logProvider?.info("Testing speed of download mirrors");
-    progressBar?.next("Testing speed of download mirrors");
+    progressText = getLocalizedString("action.devTool.nodeInstaller.Progress3");
+    context.logProvider?.info(progressText);
+    progressBar?.next(progressText);
     const bestMirror = await nodejsInstaller.getBestMirror(name, ext, context.logProvider);
     if (!bestMirror || !bestMirror.packageUrl) {
       progressBar?.end(true);
-      return err(new InstallNodeJSError("All mirrors are not reachable"));
+      return err(
+        new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirror"))
+      );
     }
-    context.logProvider?.debug(
-      `The fastest download mirror is: ${bestMirror.name} - ${bestMirror.url}, latency: ${
-        bestMirror.time ?? "unknown"
-      } ms`
+    context.logProvider?.info(
+      getLocalizedString(
+        "action.devTool.nodeInstaller.BestMirror",
+        bestMirror.name,
+        bestMirror.url,
+        bestMirror.time
+      )
     );
 
     // User confirmation for installation
     const confirmRes = await context.ui?.confirm?.({
       name: "confirm",
-      title: `Do you want to install NodeJS LTS version (${bestMirror.version!}) in your user folder?`,
+      title: getLocalizedString("action.devTool.nodeInstaller.Confirm", bestMirror.version!),
     });
     if (confirmRes?.isOk()) {
       if (!confirmRes.value.result) {
-        context.logProvider?.warning("User canceled installation");
         progressBar?.end(true);
         return ok({ status: "ignore" });
       }
@@ -439,8 +459,12 @@ export class NodejsInstaller {
     }
 
     // Downloading NodeJS package
-    context.logProvider?.info(`Downloading binary package: ${bestMirror.packageUrl}`);
-    progressBar?.next(`Downloading binary package: ${bestMirror.packageUrl}`);
+    progressText = getLocalizedString(
+      "action.devTool.nodeInstaller.Progress4",
+      bestMirror.packageUrl
+    );
+    context.logProvider?.info(progressText);
+    progressBar?.next(progressText);
     const t1 = Date.now();
     const packageRes = await nodejsInstaller.fetchBinary(
       bestMirror.packageUrl,
@@ -454,23 +478,23 @@ export class NodejsInstaller {
     }
     const binary = packageRes.value;
     context.logProvider?.info(
-      `Successfully download NodeJS package: ${bestMirror.packageUrl}, size: ${
-        binary.length
-      }, time: ${t2 - t1} ms`
+      getLocalizedString(
+        "action.devTool.nodeInstaller.SuccessDownload",
+        bestMirror.packageUrl,
+        binary.length,
+        t2 - t1
+      )
     );
 
     // Extracting package
-    context.logProvider?.info("Extracting package");
-    progressBar?.next("Extracting package");
+    progressText = getLocalizedString("action.devTool.nodeInstaller.Progress5");
+    context.logProvider?.info(progressText);
+    progressBar?.next(progressText);
     await fs.ensureDir(downloadDir);
-    const extractRes = nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
-    if (extractRes.isErr()) {
-      progressBar?.end(true);
-      return err(extractRes.error);
-    }
+    nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
     const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version!}-${name}`);
     context.logProvider?.info(
-      `Successfully extract NodeJS package in target folder: ${targetNodeJSPath}`
+      getLocalizedString("action.devTool.nodeInstaller.SuccessExtract", targetNodeJSPath)
     );
     progressBar?.end(true);
     const totalTime = Date.now() - startTime;

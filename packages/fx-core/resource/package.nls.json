@@ -1023,5 +1023,22 @@
   "driver.typespec.error.multipleActionError": "More than one action found in declarativeAgent.json. Please make sure your TypeSpec files are valid and try again.",
   "driver.typeSpec.progressBar": "Compiling and generating files...",
   "core.addKnowledge.doubleConfirm": "Performing this action will overwrite your existing manifest file and can't be undone. To keep your existing data, please back it up before proceeding. Would you like to add new content?",
-  "error.dep.InstallNodeJSError": "Unable to install Node.js for reason: %s. Please install it manually from https://nodejs.org and restart Visual Studio Code."
+  "error.dep.InstallNodeJSError": "Unable to install Node.js for reason: %s. Please install it manually from https://nodejs.org and restart Visual Studio Code.",
+  "action.devTool.nodeInstaller.UnableToFind": "Unable to find %s in page: %s",
+  "action.devTool.nodeInstaller.Progress.title": "Install NodeJS",
+  "action.devTool.nodeInstaller.Progress1": "Checking NodeJS in system environment",
+  "action.devTool.nodeInstaller.Progress2": "Checking NodeJS in user folder",
+  "action.devTool.nodeInstaller.Progress3": "Testing speed of download mirrors",
+  "action.devTool.nodeInstaller.Progress4": "Downloading binary package: %s",
+  "action.devTool.nodeInstaller.Progress5": "Extracting package",
+  "action.devTool.nodeInstaller.Progress6": "Installing NodeJS",
+  "action.devTool.nodeInstaller.InstalledSystem": "NodeJS is already installed in system environment: %s",
+  "action.devTool.nodeInstaller.NotInstalledSystem": "NodeJS is not installed in system environment",
+  "action.devTool.nodeInstaller.InstalledUser": "NodeJS is already installed in user folder: %s",
+  "action.devTool.nodeInstaller.NotInstalledUser": "NodeJS is not installed in user folder: %s",
+  "action.devTool.nodeInstaller.NoMirrorUsable": "No mirror is reachable, please check your network connection",
+  "action.devTool.nodeInstaller.BestMirror": "The fastest mirror is: %s - %s, latency to extract download package url: %s ms",
+  "action.devTool.nodeInstaller.Confirm": "Do you want to install NodeJS LTS version %s in user folder?",
+  "action.devTool.nodeInstaller.SuccessDownload": "Successfully download NodeJS package: %s, size: %s, time: %s ms",
+  "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s"
 }

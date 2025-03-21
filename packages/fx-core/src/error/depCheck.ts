@@ -165,14 +165,14 @@ export class FindProcessError extends SystemError {
 }
 
 export class InstallNodeJSError extends SystemError {
-  constructor(reason: string, source?: string) {
+  constructor(reason: string) {
     const key = "error.dep.InstallNodeJSError";
     const errorOptions: UserErrorOptions = {
-      source: source || "core",
+      source: "NodeInstaller",
       name: "InstallNodeJSError",
       message: getDefaultString(key, reason),
       displayMessage: getLocalizedString(key, reason),
-      categories: [ErrorCategory.Internal],
+      categories: [ErrorCategory.External],
     };
     super(errorOptions);
   }
