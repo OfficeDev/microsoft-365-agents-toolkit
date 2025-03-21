@@ -522,6 +522,16 @@ jobs:
           where code.cmd
         shell: cmd
 
+      - name: Ensure AZURE_OPENAI_KEY is set
+        run: |
+          if [ -z "$AZURE_OPENAI_KEY" ]; then
+            echo "AZURE_OPENAI_KEY is not set!" >&2
+            exit 1
+          else
+            echo "AZURE_OPENAI_KEY is set."
+            echo "AZURE_OPENAI_ENDPOINT is $AZURE_OPENAI_ENDPOINT"
+          fi
+
       # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
