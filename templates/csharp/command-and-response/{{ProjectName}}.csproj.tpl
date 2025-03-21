@@ -27,7 +27,6 @@
       <!-- Exclude TeamsFx wwwroot static files which are for frontend only. -->
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="6.0.10" />
   </ItemGroup>
 
 </Project>
