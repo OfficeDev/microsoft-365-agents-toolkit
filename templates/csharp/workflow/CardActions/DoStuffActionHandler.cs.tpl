@@ -1,8 +1,9 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Bot.Builder;
+using Microsoft.Agents.BotBuilder.App;
+using Microsoft.Agents.BotBuilder.State;
+using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
-using Newtonsoft.Json;
 
 namespace {{SafeProjectName}}.CardActions
 {
@@ -38,7 +39,7 @@ namespace {{SafeProjectName}}.CardActions
             );
 
             // Send invoke response with adaptive card
-            return InvokeResponseFactory.AdaptiveCard(JsonConvert.DeserializeObject(cardContent));
+            return InvokeResponseFactory.AdaptiveCard(cardContent);
 
             /**
              * If you want to send invoke response with text message, you can:
