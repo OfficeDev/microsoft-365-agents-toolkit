@@ -22,6 +22,7 @@ import {
 import { DotnetChecker } from "../../deps-checker/internal/dotnetChecker";
 import { FuncToolChecker } from "../../deps-checker/internal/funcToolChecker";
 import { TestToolChecker } from "../../deps-checker/internal/testToolChecker";
+import { createSymlink } from "../../deps-checker/util/fileHelper";
 import { LocalCertificate, LocalCertificateManager } from "../../local/localCertificateManager";
 import { wrapRun } from "../../utils/common";
 import { DriverContext } from "../interface/commonArgs";
@@ -40,8 +41,6 @@ import { FuncInstallationUserError } from "./error/funcInstallationUserError";
 import { TestToolInstallationUserError } from "./error/testToolInstallationUserError";
 import { InstallToolArgs } from "./interfaces/InstallToolArgs";
 import { nodejsInstaller } from "./nodeInstaller";
-import { create } from "lodash";
-import { createSymlink } from "../../deps-checker/util/fileHelper";
 
 const ACTION_NAME = "devTool/install";
 const helpLink = "https://aka.ms/teamsfx-actions/devtool-install";
