@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { UserError } from "@microsoft/teamsfx-api";
+import { ok, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import "mocha";
 import * as sinon from "sinon";
@@ -14,6 +14,8 @@ import { InstallToolArgs } from "../../../../src/component/driver/devTool/interf
 import { LocalCertificateManager } from "../../../../src/component/local/localCertificateManager";
 import { CoreSource, DepsCheckerError } from "../../../../src/error";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+import { nodejsInstaller } from "../../../../src/component/driver/devTool/nodeInstaller";
+import * as fileHelper from "../../../../src/component/deps-checker/util/fileHelper";
 
 describe("Tools Install Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -21,6 +23,7 @@ describe("Tools Install Driver test", () => {
   const mockedDriverContext: any = {
     logProvider: new MockedLogProvider(),
     ui: new MockedUserInteraction(),
+    projectPath: "/path/to/project",
   };
 
   describe("Trust Cert test (run)", () => {
@@ -316,6 +319,12 @@ describe("Tools Install Driver test", () => {
   describe("Test Tool installation test (run)", () => {
     afterEach(() => {
       sandbox.restore();
+    });
+    beforeEach(() => {
+      sandbox
+        .stub(nodejsInstaller, "ensureNodeJS")
+        .resolves(ok({ status: "installed", installPath: "/path/to/nodejs" }));
+      sandbox.stub(fileHelper, "createSymlink").resolves();
     });
 
     it("Install test tool", async () => {
