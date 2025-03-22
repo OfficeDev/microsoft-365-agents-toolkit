@@ -12,21 +12,18 @@ import { NodeChecker } from "../../deps-checker/internal/nodeChecker";
 import { WrapDriverContext } from "../util/wrapUtil";
 import { httpClient } from "./httpClient";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { get } from "lodash";
+import stream from "stream";
 
 export const ComponentName = "NodeInstaller";
 
-interface NodeDownloadMirror {
+export interface NodeDownloadMirror {
   name: string;
   url: string;
   indexJsonUrl: string;
-  indexJson?: [
-    {
-      lts: false | string;
-      version: string;
-    }
-  ];
-  html?: string;
+  indexJson?: {
+    lts: false | string;
+    version: string;
+  }[];
   version?: string;
   versionUrl?: string;
   packageUrl?: string;
@@ -68,7 +65,7 @@ export interface EnsureNodeJSResult {
 
 export class NodejsInstaller {
   getNameAndExt(): { name: string; ext: string } {
-    const platform = process.platform;
+    const platform = os.platform();
     const arch = os.arch();
 
     const osMap: { [key: string]: string } = {
@@ -89,10 +86,6 @@ export class NodejsInstaller {
     const targetOS = osMap[platform] || platform;
     const targetArch = archMap[arch] || arch;
 
-    if (targetOS === "darwin" && targetArch === "arm64") {
-      return { name: "darwin-arm64", ext: ".tar.xz" };
-    }
-
     let extPattern;
     switch (targetOS) {
       case "win":
@@ -108,29 +101,18 @@ export class NodejsInstaller {
     return { name: `${targetOS}-${targetArch}`, ext: extPattern };
   }
 
-  getLatestLTSVersion(mirror: NodeDownloadMirror): Result<string, InstallNodeJSError> {
+  getLatestLTSVersion(mirror: NodeDownloadMirror): string | undefined {
     const jsonData = mirror.indexJson!;
     const ltsVersion = jsonData.find(
       (entry: { lts: false | string; version: string }) => entry.lts !== false
     );
-    if (!ltsVersion) {
-      return err(
-        new InstallNodeJSError(
-          getLocalizedString(
-            "action.devTool.nodeInstaller.UnableToFind",
-            "LTS version",
-            mirror.indexJsonUrl
-          )
-        )
-      );
-    }
-    return ok(ltsVersion.version);
+    return ltsVersion?.version;
   }
 
   async fetchJSON(url: string): Promise<Result<any, InstallNodeJSError>> {
     try {
-      const res = await httpClient.get(url);
-      return ok(JSON.parse(res as string));
+      const res = await httpClient.getText(url);
+      return ok(JSON.parse(res));
     } catch (e: any) {
       return err(new InstallNodeJSError((e as Error).message));
     }
@@ -138,30 +120,15 @@ export class NodejsInstaller {
 
   async fetchString(url: string, timeout?: number): Promise<Result<string, InstallNodeJSError>> {
     try {
-      const res = await httpClient.get(url, { timeout: timeout });
-      return ok(res as string);
+      const res = await httpClient.getText(url, { timeout: timeout });
+      return ok(res);
     } catch (e: any) {
       return err(new InstallNodeJSError((e as Error).message));
     }
   }
 
-  resolveUrl(baseUrl: string, href: string): string | undefined {
-    try {
-      if (href.startsWith("http")) {
-        return href;
-      }
-      if (href.startsWith("/")) {
-        const domain = this.getBaseUrl(baseUrl);
-        return new URL(href, domain).href;
-      }
-      return new URL(href, baseUrl).href;
-    } catch (e) {
-      return undefined;
-    }
-  }
-  getBaseUrl(url: string): string {
-    const parsed = new URL(url);
-    return `${parsed.origin}/`; // 取网站根目录
+  resolveUrl(baseUrl: string, href: string): string {
+    return new URL(href, baseUrl).toString();
   }
 
   async testMirrorSpeed(
@@ -174,15 +141,14 @@ export class NodejsInstaller {
     try {
       const headTime = await httpClient.headTime(mirror.url, { timeout: timeout });
       const time1 = Date.now();
-      const indexJson = await httpClient.get(mirror.indexJsonUrl, { timeout: timeout });
+      const indexJson = await httpClient.getText(mirror.indexJsonUrl, { timeout: timeout });
       const time2 = Date.now();
-      mirror.indexJson = JSON.parse(indexJson as string);
+      mirror.indexJson = JSON.parse(indexJson);
 
-      const versionRes = nodejsInstaller.getLatestLTSVersion(mirror);
-      if (versionRes.isErr()) {
+      const ltsVersion = nodejsInstaller.getLatestLTSVersion(mirror);
+      if (!ltsVersion) {
         return mirror;
       }
-      const ltsVersion = versionRes.value;
       mirror.version = ltsVersion;
       const packageUrlRes = await this.getDownloadUrl(mirror, ltsVersion, osArchName, ext);
       if (packageUrlRes.isErr()) {
@@ -212,7 +178,7 @@ export class NodejsInstaller {
     if (mirror.packageUrl) {
       return mirror;
     }
-    for (let i = 0; i < 3; ++i) {
+    for (let i = 0; i < 5; ++i) {
       const mirror = await Promise.race(
         BackupMirrors.map((mirror) => this.testMirrorSpeed(mirror, osArchName, ext, 1000, logger))
       );
@@ -250,26 +216,28 @@ export class NodejsInstaller {
           }
         },
       });
-      return ok(res as Buffer);
+      return ok(res);
     } catch (e: any) {
       return err(new InstallNodeJSError((e as Error).message));
     }
   }
 
+  getAdmZip(buffer: Buffer): AdmZip {
+    return new AdmZip(buffer);
+  }
+
   extractZip(buffer: Buffer, targetDir: string): void {
-    const zip = new AdmZip(buffer);
+    const zip = this.getAdmZip(buffer);
     zip.extractAllTo(targetDir, true);
   }
 
-  extractTar(buffer: Buffer, targetDir: string): void {
-    const extname = path.extname(targetDir).toLowerCase();
+  extractTar(buffer: Buffer, fileName: string, targetDir: string): void {
+    const extname = path.extname(fileName).toLowerCase();
     if (extname === ".gz" || extname === ".tar.gz") {
-      const stream = require("stream");
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
     } else if (extname === ".xz" || extname === ".tar.xz") {
-      const stream = require("stream");
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
@@ -281,7 +249,7 @@ export class NodejsInstaller {
     if (extname === ".zip") {
       this.extractZip(buffer, targetDir);
     } else if (extname === ".tar.gz" || extname === ".tar.xz") {
-      this.extractTar(buffer, targetDir);
+      this.extractTar(buffer, fileName, targetDir);
     }
   }
 
@@ -428,7 +396,7 @@ export class NodejsInstaller {
     context.logProvider?.info(progressText);
     progressBar?.next(progressText);
     const bestMirror = await nodejsInstaller.getBestMirror(name, ext, context.logProvider);
-    if (!bestMirror || !bestMirror.packageUrl) {
+    if (!bestMirror?.packageUrl) {
       progressBar?.end(true);
       return err(
         new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirror"))
@@ -448,12 +416,8 @@ export class NodejsInstaller {
       name: "confirm",
       title: getLocalizedString("action.devTool.nodeInstaller.Confirm", bestMirror.version!),
     });
-    if (confirmRes?.isOk()) {
-      if (!confirmRes.value.result) {
-        progressBar?.end(true);
-        return ok({ status: "ignore" });
-      }
-    } else if (confirmRes?.isErr()) {
+
+    if (confirmRes?.isErr()) {
       progressBar?.end(true);
       return err(confirmRes.error);
     }

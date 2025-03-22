@@ -9,7 +9,7 @@ export type DownloadOptions = {
 };
 
 class HttpClient {
-  async get(url: string, options: DownloadOptions = {}): Promise<string | Buffer> {
+  async get(url: string, options: DownloadOptions = {}): Promise<Buffer> {
     const { timeout = 30000, progress } = options;
     const res: Response = await fetch(url, {
       redirect: "follow",
@@ -19,7 +19,6 @@ class HttpClient {
     if (!res.ok) {
       throw new Error(`Request failed with status ${res.status}`);
     }
-    const contentType = res.headers.get("content-type") || "";
     const totalSize = parseInt(res.headers.get("content-length") || "0", 10);
     let downloaded = 0;
     const chunks: Buffer[] = [];
@@ -31,13 +30,12 @@ class HttpClient {
       }
     }
     const buffer = Buffer.concat(chunks);
-    if (contentType.includes("application/json")) {
-      return buffer.toString("utf-8");
-    } else if (contentType.includes("text") || contentType.includes("html")) {
-      return buffer.toString("utf-8");
-    } else {
-      return buffer;
-    }
+    return buffer;
+  }
+
+  async getText(url: string, options: DownloadOptions = {}): Promise<string> {
+    const buffer = await this.get(url, options);
+    return buffer.toString("utf-8");
   }
 
   async headTime(url: string, options: DownloadOptions = {}): Promise<number> {
