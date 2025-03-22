@@ -218,6 +218,20 @@ describe("NodeJS Installer", () => {
       }
     });
 
+    it("happy with progress", async () => {
+      const buffer = Buffer.from("chunk1");
+      const fakeResponse = new Response(Readable.from(buffer), {
+        status: 200,
+        headers: { "content-type": "application/json", "content-length": `${buffer.length}` },
+      });
+      sandbox.stub(nodeFetch, "default").resolves(fakeResponse);
+      const binRes = await nodejsInstaller.fetchBinary("test url", 1000, (process: string) => {});
+      assert.isTrue(binRes.isOk());
+      if (binRes.isOk()) {
+        assert.deepEqual(binRes.value.toString(), "chunk1");
+      }
+    });
+
     it("error", async () => {
       sandbox.stub(httpClient, "get").rejects(new Error("test error"));
       const binRes = await nodejsInstaller.fetchBinary("test url");
@@ -352,6 +366,17 @@ describe("NodeJS Installer", () => {
         .resolves(successMirror);
       const resultMirror = await nodejsInstaller.getBestMirror("win-x64", ".zip");
       assert.equal(resultMirror, successMirror);
+    });
+
+    it("all fail", async () => {
+      const failMirror: NodeDownloadMirror = {
+        url: "https://nodejs.org/dist",
+        name: "test mirror",
+        indexJsonUrl: "https://nodejs.org/dist/index.json",
+      };
+      sandbox.stub(nodejsInstaller, "testMirrorSpeed").resolves(failMirror);
+      const resultMirror = await nodejsInstaller.getBestMirror("win-x64", ".zip");
+      assert.isUndefined(resultMirror);
     });
   });
 
