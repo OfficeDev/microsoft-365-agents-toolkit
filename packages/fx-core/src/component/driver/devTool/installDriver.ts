@@ -136,6 +136,10 @@ export class ToolsInstallDriverImpl {
       );
     }
 
+    if (args.nodejs) {
+      await this.resolveNodeJS(args.nodejs.symlinkDir);
+    }
+
     return res;
   }
 
@@ -294,17 +298,17 @@ export class ToolsInstallDriverImpl {
       );
     } else {
       this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
-
-      const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, false, true);
-
-      if (ensureRes.isOk()) {
-        const status = ensureRes.value;
-        if (status.installPath) {
-          const symLinkDir = path.join(this.context.projectPath, "devTools", "nodejs");
-          await createSymlink(status.installPath, symLinkDir);
-          if (status.status === "installed") {
-            this.context.addSummary(`NodeJS is installed at: ${status.installPath}.`);
-          }
+    }
+  }
+  async resolveNodeJS(symlinkDir: string): Promise<void> {
+    const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, false, true);
+    if (ensureRes.isOk()) {
+      const status = ensureRes.value;
+      if (status.installPath) {
+        const symLinkDir = path.join(this.context.projectPath, symlinkDir);
+        await createSymlink(status.installPath, symLinkDir);
+        if (status.status === "installed") {
+          this.context.addSummary(`NodeJS is installed at: ${status.installPath}.`);
         }
       }
     }
@@ -343,6 +347,14 @@ export class ToolsInstallDriverImpl {
       }
       if (typeof args.testTool.symlinkDir !== "string") {
         throw new InvalidActionInputError(ACTION_NAME, ["testTool.symlinkDir"], helpLink);
+      }
+    }
+    if (typeof args.nodejs !== "undefined") {
+      if (typeof args.nodejs !== "object") {
+        throw new InvalidActionInputError(ACTION_NAME, ["nodejs"], helpLink);
+      }
+      if (typeof args.nodejs.symlinkDir !== "string") {
+        throw new InvalidActionInputError(ACTION_NAME, ["nodejs.symlinkDir"], helpLink);
       }
     }
   }
