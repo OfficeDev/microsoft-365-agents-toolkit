@@ -1031,7 +1031,6 @@
   "action.devTool.nodeInstaller.Progress3": "Testing speed of download mirrors",
   "action.devTool.nodeInstaller.Progress4": "Downloading binary package: %s",
   "action.devTool.nodeInstaller.Progress5": "Extracting package",
-  "action.devTool.nodeInstaller.Progress6": "Installing NodeJS",
   "action.devTool.nodeInstaller.InstalledSystem": "NodeJS is already installed in system environment: %s",
   "action.devTool.nodeInstaller.NotInstalledSystem": "NodeJS is not installed in system environment",
   "action.devTool.nodeInstaller.InstalledUser": "NodeJS is already installed in user folder: %s",

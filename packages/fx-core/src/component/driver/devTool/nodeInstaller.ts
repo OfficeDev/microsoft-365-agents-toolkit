@@ -362,7 +362,9 @@ export class NodejsInstaller {
         progressBar?.end(true);
         return ok({ status: "ignore" });
       } else {
-        context.logProvider?.info(getLocalizedString("action.devTool.nodeInstaller.NotInstalled"));
+        context.logProvider?.info(
+          getLocalizedString("action.devTool.nodeInstaller.NotInstalledSystem")
+        );
       }
     }
 
@@ -399,7 +401,7 @@ export class NodejsInstaller {
     if (!bestMirror?.packageUrl) {
       progressBar?.end(true);
       return err(
-        new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirror"))
+        new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirrorUsable"))
       );
     }
     context.logProvider?.info(
