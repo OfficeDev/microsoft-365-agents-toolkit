@@ -220,7 +220,7 @@ describe("NodeJS Installer", () => {
 
     it("error", async () => {
       sandbox.stub(httpClient, "get").rejects(new Error("test error"));
-      const binRes = await nodejsInstaller.fetchString("test url");
+      const binRes = await nodejsInstaller.fetchBinary("test url");
       assert.isTrue(binRes.isErr());
       if (binRes.isErr()) {
         assert.isTrue(binRes.error instanceof InstallNodeJSError);
@@ -703,5 +703,8 @@ describe("NodeJS Installer", () => {
         assert.equal(res.value.installPath, targetDir);
       }
     });
+  });
+  it("getAdmZip", async () => {
+    nodejsInstaller.getAdmZip(Buffer.from(""));
   });
 });

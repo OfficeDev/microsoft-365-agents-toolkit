@@ -245,10 +245,9 @@ export class NodejsInstaller {
   }
 
   extractPackage(buffer: Buffer, fileName: string, targetDir: string): void {
-    const extname = path.extname(fileName).toLowerCase();
-    if (extname === ".zip") {
+    if (fileName.endsWith(".zip")) {
       this.extractZip(buffer, targetDir);
-    } else if (extname === ".tar.gz" || extname === ".tar.xz") {
+    } else if (fileName.endsWith(".tar.gz") || fileName.endsWith(".tar.xz")) {
       this.extractTar(buffer, fileName, targetDir);
     }
   }
