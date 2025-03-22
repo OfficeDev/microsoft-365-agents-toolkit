@@ -47,7 +47,7 @@ describe("NodeJS Installer", () => {
           headers: { "content-type": "application/json" },
         });
         sandbox.stub(nodeFetch, "default").resolves(fakeResponse);
-        const result = await httpClient.get("https://test.com");
+        const result = await httpClient.get("https://test.com", { progress: () => {} });
         assert.equal(result.toString(), "chunk1");
       });
     });
