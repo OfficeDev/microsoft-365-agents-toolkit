@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ok, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import "mocha";
 import * as sinon from "sinon";
@@ -9,10 +9,18 @@ import { DepsType, TestToolReleaseType } from "../../../../src/component/deps-ch
 import { DotnetChecker } from "../../../../src/component/deps-checker/internal/dotnetChecker";
 import { FuncToolChecker } from "../../../../src/component/deps-checker/internal/funcToolChecker";
 import { TestToolChecker } from "../../../../src/component/deps-checker/internal/testToolChecker";
-import { ToolsInstallDriver } from "../../../../src/component/driver/devTool/installDriver";
+import {
+  ToolsInstallDriver,
+  ToolsInstallDriverImpl,
+} from "../../../../src/component/driver/devTool/installDriver";
 import { InstallToolArgs } from "../../../../src/component/driver/devTool/interfaces/InstallToolArgs";
 import { LocalCertificateManager } from "../../../../src/component/local/localCertificateManager";
-import { CoreSource, DepsCheckerError } from "../../../../src/error";
+import {
+  CoreSource,
+  DepsCheckerError,
+  InstallNodeJSError,
+  InvalidActionInputError,
+} from "../../../../src/error";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { nodejsInstaller } from "../../../../src/component/driver/devTool/nodeInstaller";
 import * as fileHelper from "../../../../src/component/deps-checker/util/fileHelper";
@@ -319,12 +327,6 @@ describe("Tools Install Driver test", () => {
   describe("Test Tool installation test (run)", () => {
     afterEach(() => {
       sandbox.restore();
-    });
-    beforeEach(() => {
-      sandbox
-        .stub(nodejsInstaller, "ensureNodeJS")
-        .resolves(ok({ status: "installed", installPath: "/path/to/nodejs" }));
-      sandbox.stub(fileHelper, "createSymlink").resolves();
     });
 
     it("Install test tool", async () => {
@@ -915,6 +917,74 @@ describe("Tools Install Driver test", () => {
       chai.assert.isTrue(res.result.isErr());
       chai.assert.isEmpty(res.summaries);
       chai.assert.isTrue(res.result.isErr());
+    });
+  });
+
+  describe("ToolsInstallDriverImpl.validateArgs", () => {
+    const mockedDriverContext: any = {
+      logProvider: new MockedLogProvider(),
+      ui: new MockedUserInteraction(),
+      projectPath: "/path/to/project",
+    };
+    const impl = new ToolsInstallDriverImpl(mockedDriverContext);
+    it("Invalid parameter", async () => {
+      try {
+        impl.validateArgs({ nodejs: "" } as any);
+        chai.assert.fail("should throw error");
+      } catch (e: any) {
+        chai.assert.isTrue(e instanceof InvalidActionInputError);
+      }
+    });
+    it("Invalid parameter", async () => {
+      try {
+        impl.validateArgs({ nodejs: { symlinkDir: {} } } as any);
+        chai.assert.fail("should throw error");
+      } catch (e: any) {
+        chai.assert.isTrue(e instanceof InvalidActionInputError);
+      }
+    });
+    it("success", async () => {
+      try {
+        impl.validateArgs({ nodejs: { symlinkDir: "." } } as any);
+      } catch (e: any) {
+        chai.assert.fail("should not throw error");
+      }
+    });
+  });
+
+  describe("ToolsInstallDriverImpl.resolveNodeJS", () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+    const context: any = {
+      logProvider: new MockedLogProvider(),
+      ui: new MockedUserInteraction(),
+      projectPath: "/path/to/project",
+      addSummary: (summary: string) => {
+        console.log(summary);
+      },
+    };
+    const impl = new ToolsInstallDriverImpl(context);
+    it("success", async () => {
+      sandbox
+        .stub(nodejsInstaller, "ensureNodeJS")
+        .resolves(ok({ status: "installed", installPath: "/path/to/nodejs" }));
+      sandbox.stub(fileHelper, "createSymlink").resolves();
+      const addSummary = sandbox.stub(context, "addSummary");
+      await impl.resolveNodeJS("./devTool/nodejs");
+      chai.assert.isTrue(addSummary.calledOnce);
+    });
+    it("no install path", async () => {
+      sandbox.stub(nodejsInstaller, "ensureNodeJS").resolves(ok({ status: "ignore" }));
+      const addSummary = sandbox.stub(context, "addSummary");
+      await impl.resolveNodeJS("./devTool/nodejs");
+      chai.assert.isTrue(addSummary.notCalled);
+    });
+    it("fail", async () => {
+      sandbox.stub(nodejsInstaller, "ensureNodeJS").resolves(err(new InstallNodeJSError("")));
+      const addSummary = sandbox.stub(context, "addSummary");
+      await impl.resolveNodeJS("./devTool/nodejs");
+      chai.assert.isTrue(addSummary.notCalled);
     });
   });
 });

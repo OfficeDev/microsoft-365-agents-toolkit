@@ -314,7 +314,7 @@ export class ToolsInstallDriverImpl {
     }
   }
 
-  private validateArgs(args: InstallToolArgs): void {
+  public validateArgs(args: InstallToolArgs): void {
     if (!!args.devCert && typeof args.devCert?.trust !== "boolean") {
       throw new InvalidActionInputError(ACTION_NAME, ["devCert.trust"], helpLink);
     }
