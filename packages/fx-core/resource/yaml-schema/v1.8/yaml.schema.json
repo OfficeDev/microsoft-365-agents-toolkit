@@ -9,7 +9,7 @@
     },
     "environmentFolderPath": {
       "type": "string",
-      "description": "The folder path of .env files used for variables and different envrironments."
+      "description": "The folder path of .env files used for variables and different environments."
       },
     "version": {
       "type": "string",
