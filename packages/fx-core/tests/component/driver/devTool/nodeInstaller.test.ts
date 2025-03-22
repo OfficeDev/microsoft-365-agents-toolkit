@@ -708,6 +708,7 @@ describe("NodeJS Installer", () => {
     });
   });
   it("getAdmZip", async () => {
-    nodejsInstaller.getAdmZip(Buffer.from(""));
+    const zipBuffer = Buffer.from("UEsFBgAAAAAAAAAAAAAAAAAAAAAAAA==", "base64");
+    nodejsInstaller.getAdmZip(zipBuffer);
   });
 });
