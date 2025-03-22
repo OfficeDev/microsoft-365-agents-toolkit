@@ -542,6 +542,9 @@ describe("NodeJS Installer", () => {
         .resolves(ok(""))
         .onSecondCall()
         .resolves(err(new InstallNodeJSError("test error")));
+      sandbox
+        .stub(nodejsInstaller, "parseHtmlToGetUrl")
+        .returns("https://nodejs.org/dist/v22.14.0/");
       const res = await nodejsInstaller.getDownloadUrl(
         OfficialMirror,
         "v22.14.0",
