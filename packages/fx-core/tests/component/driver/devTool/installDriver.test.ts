@@ -989,6 +989,14 @@ describe("Tools Install Driver test", () => {
       await impl.resolveNodeJS("./devTool/nodejs");
       chai.assert.isTrue(addSummary.calledOnce);
     });
+    it("ignore with install path", async () => {
+      sandbox
+        .stub(nodejsInstaller, "ensureNodeJS")
+        .resolves(ok({ status: "ignore", installPath: "/path/to/nodejs" }));
+      const addSummary = sandbox.stub(context, "addSummary");
+      await impl.resolveNodeJS("./devTool/nodejs");
+      chai.assert.isTrue(addSummary.notCalled);
+    });
     it("no install path", async () => {
       sandbox.stub(nodejsInstaller, "ensureNodeJS").resolves(ok({ status: "ignore" }));
       const addSummary = sandbox.stub(context, "addSummary");

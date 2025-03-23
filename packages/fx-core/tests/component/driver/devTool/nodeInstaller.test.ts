@@ -434,6 +434,7 @@ describe("NodeJS Installer", () => {
       sandbox.stub(nodejsInstaller, "extractZip").returns();
       sandbox.stub(nodejsInstaller, "extractTar").returns();
       nodejsInstaller.extractPackage(Buffer.from(""), "test.tar.gz", "/path/to/dest");
+      nodejsInstaller.extractPackage(Buffer.from(""), "test.tar.xz", "/path/to/dest");
       nodejsInstaller.extractPackage(Buffer.from(""), "test.zip", "/path/to/dest");
     });
   });
@@ -561,6 +562,33 @@ describe("NodeJS Installer", () => {
       const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
       const targetDir = path.join(downloadDir, "node-v22.14.0-win-x64");
       const res = await nodejsInstaller.ensureNodeJS(context, true, true);
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.equal(res.value.status, "installed");
+        assert.equal(res.value.installPath, targetDir);
+      }
+    });
+
+    it("success", async () => {
+      const NpmMirror: NodeDownloadMirror = {
+        name: "NPM",
+        url: "https://registry.npmmirror.com/-/binary/node/",
+        indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
+        packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
+        version: "v22.14.0",
+      };
+      sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
+      sandbox.stub(nodejsInstaller, "getNameAndExt").returns({ name: "win-x64", ext: ".zip" });
+      sandbox.stub(fs, "readdir").resolves([""] as any);
+      sandbox.stub(nodejsInstaller, "getBestMirror").resolves(NpmMirror);
+      sandbox.stub(context.ui, "confirm").resolves(ok({ type: "success", result: true }));
+      sandbox.stub(nodejsInstaller, "fetchBinary").resolves(ok(Buffer.from("test buffer")));
+      sandbox.stub(nodejsInstaller, "extractPackage").returns();
+      const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
+      const targetDir = path.join(downloadDir, "node-v22.14.0-win-x64");
+      const res = await nodejsInstaller.ensureNodeJS(context, true, true);
+      await nodejsInstaller.ensureNodeJS({} as any, true, true);
       assert.isTrue(res.isOk());
       if (res.isOk()) {
         assert.equal(res.value.status, "installed");

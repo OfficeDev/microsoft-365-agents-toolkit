@@ -239,11 +239,11 @@ export class NodejsInstaller {
 
   extractTar(buffer: Buffer, fileName: string, targetDir: string): void {
     const extname = path.extname(fileName).toLowerCase();
-    if (extname === ".gz" || extname === ".tar.gz") {
+    if (extname === ".tar.gz") {
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
-    } else if (extname === ".xz" || extname === ".tar.xz") {
+    } else if (extname === ".tar.xz") {
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
@@ -274,8 +274,8 @@ export class NodejsInstaller {
 
   async ensureNodeJS(
     context: WrapDriverContext,
-    checkSystemInstalled = true,
-    checkUserFolderInstalled = false
+    checkSystemInstalled: boolean,
+    checkUserFolderInstalled: boolean
   ): Promise<Result<EnsureNodeJSResult, InstallNodeJSError>> {
     const startTime = Date.now();
     const progressBar = context.ui?.createProgressBar(
