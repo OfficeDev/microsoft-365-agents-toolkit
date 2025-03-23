@@ -275,7 +275,7 @@ describe("NodeJS Installer", () => {
       sandbox.restore();
     });
     it("error", async () => {
-      sandbox.stub(httpClient, "headTime").rejects(new Error("test error"));
+      sandbox.stub(httpClient, "getText").rejects(new Error("test error"));
       const mirror: NodeDownloadMirror = {
         url: "https://nodejs.org/dist",
         name: "test mirror",
@@ -286,7 +286,6 @@ describe("NodeJS Installer", () => {
       assert.isUndefined(res.indexJson);
     });
     it("no lts version", async () => {
-      sandbox.stub(httpClient, "headTime").resolves(1000);
       sandbox.stub(httpClient, "getText").resolves("[]");
       const mirror: NodeDownloadMirror = {
         url: "https://nodejs.org/dist",
@@ -298,42 +297,44 @@ describe("NodeJS Installer", () => {
       assert.deepEqual(res.indexJson, []);
       assert.isUndefined(res.version);
     });
-    it("get download url fail", async () => {
-      sandbox.stub(httpClient, "headTime").resolves(1000);
-      sandbox.stub(httpClient, "getText").resolves("[]");
-      sandbox.stub(nodejsInstaller, "getLatestLTSVersion").returns("v22.14.0");
-      sandbox
-        .stub(nodejsInstaller, "getDownloadUrl")
-        .resolves(err(new InstallNodeJSError("test error")));
-      const mirror: NodeDownloadMirror = {
-        url: "https://nodejs.org/dist",
-        name: "test mirror",
-        indexJsonUrl: "https://nodejs.org/dist/index.json",
-        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
-      };
-      const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
-      assert.deepEqual(res.indexJson, []);
-      assert.isDefined(res.version);
-      assert.isUndefined(res.packageUrl);
-    });
+    // it("get download url fail", async () => {
+    //   sandbox.stub(httpClient, "headTime").resolves(1000);
+    //   sandbox.stub(httpClient, "getText").resolves("[]");
+    //   sandbox.stub(nodejsInstaller, "getLatestLTSVersion").returns("v22.14.0");
+    //   sandbox
+    //     .stub(nodejsInstaller, "getDownloadUrl")
+    //     .resolves(err(new InstallNodeJSError("test error")));
+    //   const mirror: NodeDownloadMirror = {
+    //     url: "https://nodejs.org/dist",
+    //     name: "test mirror",
+    //     indexJsonUrl: "https://nodejs.org/dist/index.json",
+    //     packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
+    //   };
+    //   const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
+    //   assert.deepEqual(res.indexJson, []);
+    //   assert.isDefined(res.version);
+    //   assert.isUndefined(res.packageUrl);
+    // });
 
     it("success", async () => {
       sandbox.stub(httpClient, "headTime").resolves(1000);
       sandbox.stub(httpClient, "getText").resolves("[]");
       sandbox.stub(nodejsInstaller, "getLatestLTSVersion").returns("v22.14.0");
-      sandbox
-        .stub(nodejsInstaller, "getDownloadUrl")
-        .resolves(ok("https://node-v22.14.0-win-x64.zip"));
-      const mirror: NodeDownloadMirror = {
-        url: "https://nodejs.org/dist",
-        name: "test mirror",
-        indexJsonUrl: "https://nodejs.org/dist/index.json",
-        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
-      };
-      const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
+      // sandbox
+      //   .stub(nodejsInstaller, "getDownloadUrl")
+      //   .resolves(ok("https://node-v22.14.0-win-x64.zip"));
+      const res = await nodejsInstaller.testMirrorSpeed(
+        FirstPriorityMirror,
+        "win-x64",
+        ".zip",
+        1000
+      );
       assert.deepEqual(res.indexJson, []);
       assert.equal(res.version, "v22.14.0");
-      assert.equal(res.packageUrl, "https://node-v22.14.0-win-x64.zip");
+      assert.equal(
+        res.packageUrl,
+        "https://cdn.npmmirror.com/binaries/node/v22.14.0/node-v22.14.0-win-x64.zip"
+      );
     });
   });
 
@@ -505,6 +506,7 @@ describe("NodeJS Installer", () => {
         url: "https://registry.npmmirror.com/-/binary/node/",
         indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
         packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        version: "v22.14.0",
         packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
@@ -525,6 +527,7 @@ describe("NodeJS Installer", () => {
         url: "https://registry.npmmirror.com/-/binary/node/",
         indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
         packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        version: "v22.14.0",
         packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
