@@ -342,8 +342,15 @@ describe("Tools Install Driver test", () => {
           binFolders: ["./devTools/testTool"],
         },
       });
+      const ensureNodeStub = sandbox
+        .stub(nodejsInstaller, "ensureNodeJS")
+        .resolves(ok({ status: "ignore" }));
+
       const res = await toolsInstallDriver.run(
-        { testTool: { version: "~0.1.0", symlinkDir: "./devTools/testTool" } },
+        {
+          testTool: { version: "~0.1.0", symlinkDir: "./devTools/testTool" },
+          nodejs: { symlinkDir: "./devTools/nodejs" },
+        },
         mockedDriverContext
       );
       chai.assert.isTrue(res.isOk());
@@ -358,6 +365,7 @@ describe("Tools Install Driver test", () => {
           projectPath: mockedDriverContext.projectPath,
         })
       );
+      chai.assert.isTrue(ensureNodeStub.calledOnce);
     });
 
     // it("Install test tool failed without error", async () => {
@@ -946,6 +954,13 @@ describe("Tools Install Driver test", () => {
     it("success", async () => {
       try {
         impl.validateArgs({ nodejs: { symlinkDir: "." } } as any);
+      } catch (e: any) {
+        chai.assert.fail("should not throw error");
+      }
+    });
+    it("empty", async () => {
+      try {
+        impl.validateArgs({} as any);
       } catch (e: any) {
         chai.assert.fail("should not throw error");
       }

@@ -1024,7 +1024,6 @@
   "driver.typeSpec.progressBar": "Compiling and generating files...",
   "core.addKnowledge.doubleConfirm": "Performing this action will overwrite your existing manifest file and can't be undone. To keep your existing data, please back it up before proceeding. Would you like to add new content?",
   "error.dep.InstallNodeJSError": "Unable to install Node.js for reason: %s. Please install it manually from https://nodejs.org and restart Visual Studio Code.",
-  "action.devTool.nodeInstaller.UnableToFind": "Unable to find %s in page: %s",
   "action.devTool.nodeInstaller.Progress.title": "Install NodeJS",
   "action.devTool.nodeInstaller.Progress1": "Checking NodeJS in system environment",
   "action.devTool.nodeInstaller.Progress2": "Checking NodeJS in user folder",
