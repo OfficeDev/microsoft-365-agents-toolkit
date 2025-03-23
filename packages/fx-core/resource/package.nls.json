@@ -1036,8 +1036,8 @@
   "action.devTool.nodeInstaller.InstalledUser": "NodeJS is already installed in user folder: %s",
   "action.devTool.nodeInstaller.NotInstalledUser": "NodeJS is not installed in user folder: %s",
   "action.devTool.nodeInstaller.NoMirrorUsable": "No mirror is reachable, please check your network connection",
-  "action.devTool.nodeInstaller.BestMirror": "The fastest mirror is: %s - %s, latency to extract download package url: %s ms",
+  "action.devTool.nodeInstaller.BestMirror": "Selected download mirror is: %s - %s, test latency: %s ms",
   "action.devTool.nodeInstaller.Confirm": "Do you want to install NodeJS LTS version %s in user folder?",
   "action.devTool.nodeInstaller.SuccessDownload": "Successfully download NodeJS package: %s, size: %s, time: %s ms",
-  "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s"
+  "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms"
 }

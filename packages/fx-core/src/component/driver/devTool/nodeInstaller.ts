@@ -13,6 +13,7 @@ import { WrapDriverContext } from "../util/wrapUtil";
 import { httpClient } from "./httpClient";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import stream from "stream";
+import * as Handlebars from "handlebars";
 
 export const ComponentName = "NodeInstaller";
 
@@ -20,40 +21,55 @@ export interface NodeDownloadMirror {
   name: string;
   url: string;
   indexJsonUrl: string;
+  packageUrlTpl: HandlebarsTemplateDelegate;
   indexJson?: {
     lts: false | string;
     version: string;
   }[];
   version?: string;
-  versionUrl?: string;
   packageUrl?: string;
   time?: number;
 }
-const FirstPriorityMirror: NodeDownloadMirror = {
+export const FirstPriorityMirror: NodeDownloadMirror = {
   name: "NPM",
   url: "https://registry.npmmirror.com/-/binary/node/",
   indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
+  packageUrlTpl: Handlebars.compile(
+    "https://cdn.npmmirror.com/binaries/node/{{version}}/node-{{version}}-{{name}}{{ext}}"
+  ),
 };
 // const FirstPriorityMirror: NodeDownloadMirror = {
-//   name: "Official",
-//   url: "https://nodejs.org/dist/",
-//   indexJsonUrl: "https://nodejs.org/dist/index.json",
+//   name: "Tencent",
+//   url: "https://mirrors.cloud.tencent.com/nodejs-release/",
+//   indexJsonUrl: "https://mirrors.cloud.tencent.com/nodejs-release/index.json",
+//   packageUrlTpl: Handlebars.compile(
+//     "https://mirrors.cloud.tencent.com/nodejs-release/{{version}}/node-{{version}}-{{name}}{{ext}}"
+//   ),
 // };
-const BackupMirrors: NodeDownloadMirror[] = [
+export const BackupMirrors: NodeDownloadMirror[] = [
   {
     name: "Official",
     url: "https://nodejs.org/dist/",
     indexJsonUrl: "https://nodejs.org/dist/index.json",
+    packageUrlTpl: Handlebars.compile(
+      "https://nodejs.org/dist/{{version}}/node-{{version}}-{{name}}{{ext}}"
+    ),
   },
   {
     name: "Tencent",
     url: "https://mirrors.cloud.tencent.com/nodejs-release/",
     indexJsonUrl: "https://mirrors.cloud.tencent.com/nodejs-release/index.json",
+    packageUrlTpl: Handlebars.compile(
+      "https://mirrors.cloud.tencent.com/nodejs-release/{{version}}/node-{{version}}-{{name}}{{ext}}"
+    ),
   },
   {
     name: "Aliyun",
     url: "https://mirrors.aliyun.com/nodejs-release/",
     indexJsonUrl: "https://mirrors.aliyun.com/nodejs-release/index.json",
+    packageUrlTpl: Handlebars.compile(
+      "https://mirrors.aliyun.com/nodejs-release/{{version}}/node-{{version}}-{{name}}{{ext}}"
+    ),
   },
 ];
 
@@ -139,32 +155,22 @@ export class NodejsInstaller {
     logger?: LogProvider
   ): Promise<NodeDownloadMirror> {
     try {
-      const headTime = await httpClient.headTime(mirror.url, { timeout: timeout });
       const time1 = Date.now();
       const indexJson = await httpClient.getText(mirror.indexJsonUrl, { timeout: timeout });
-      const time2 = Date.now();
       mirror.indexJson = JSON.parse(indexJson);
-
       const ltsVersion = nodejsInstaller.getLatestLTSVersion(mirror);
       if (!ltsVersion) {
         return mirror;
       }
       mirror.version = ltsVersion;
-      const packageUrlRes = await this.getDownloadUrl(mirror, ltsVersion, osArchName, ext);
-      if (packageUrlRes.isErr()) {
-        return mirror;
-      }
-      const packageUrl = packageUrlRes.value;
-      const time3 = Date.now();
+      const packageUrl = this.getDownloadUrl(mirror, ltsVersion, osArchName, ext);
       mirror.packageUrl = packageUrl;
-      mirror.time = headTime + time3 - time1;
-      logger?.debug(
-        `Mirror: ${mirror.name}, URL: ${mirror.url}, Head: ${headTime} ms, Index JSON: ${
-          time2 - time1
-        } ms, Get URL: ${time3 - time2} ms, Total: ${mirror.time} ms`
-      );
+      await httpClient.headTime(packageUrl, { timeout: timeout });
+      const time2 = Date.now();
+      mirror.time = time2 - time1;
+      logger?.debug(`Mirror: ${mirror.name}, URL: ${packageUrl}, Time: ${mirror.time} ms`);
     } catch (e: any) {
-      logger?.error(`Mirror: ${mirror.name}, URL: ${mirror.url}, Error: ${(e as Error).message}`);
+      logger?.error(`Mirror: ${mirror.name}, Error: ${(e as Error).message}`);
     }
     return mirror;
   }
@@ -252,88 +258,18 @@ export class NodejsInstaller {
     }
   }
 
-  async getDownloadUrl(
+  getDownloadUrl(
     mirror: NodeDownloadMirror,
     version: string,
     osArchName: string,
     ext: string
-  ): Promise<Result<string, InstallNodeJSError>> {
-    if (mirror.name === "NPM") {
-      const jsonRes = await this.fetchJSON(mirror.url);
-      if (jsonRes.isErr()) {
-        return err(jsonRes.error);
-      }
-      const json = jsonRes.value as { url: string; name: string }[];
-      const versionInfo = json.find((entry: { url: string; name: string }) =>
-        entry.name.includes(version)
-      );
-      if (!versionInfo) {
-        return err(
-          new InstallNodeJSError(
-            getLocalizedString("action.devTool.nodeInstaller.UnableToFind", version, mirror.url)
-          )
-        );
-      }
-      const versionUrl = versionInfo.url;
-      mirror.versionUrl = versionUrl;
-      const versionJsonRes = await this.fetchJSON(versionUrl);
-      if (versionJsonRes.isErr()) {
-        return err(versionJsonRes.error);
-      }
-      const versionJson = versionJsonRes.value;
-      const packageUrlEntry = versionJson.find((entry: any) =>
-        entry.name.includes(`${version}-${osArchName}${ext}`)
-      );
-      if (!packageUrlEntry) {
-        return err(
-          new InstallNodeJSError(
-            getLocalizedString(
-              "action.devTool.nodeInstaller.UnableToFind",
-              `${version}-${osArchName}${ext}`,
-              versionUrl
-            )
-          )
-        );
-      }
-      return ok(packageUrlEntry.url);
-    } else {
-      const versionListHtmlRes = await this.fetchString(mirror.url);
-      if (versionListHtmlRes.isErr()) {
-        return err(versionListHtmlRes.error);
-      }
-      const versionListHtml = versionListHtmlRes.value;
-      const versionUrl = nodejsInstaller.parseHtmlToGetUrl(mirror.url, versionListHtml, version);
-      if (!versionUrl) {
-        return err(
-          new InstallNodeJSError(
-            getLocalizedString("action.devTool.nodeInstaller.UnableToFind", version, mirror.url)
-          )
-        );
-      }
-      mirror.versionUrl = versionUrl;
-      const packageListHtmlRes = await this.fetchString(versionUrl);
-      if (packageListHtmlRes.isErr()) {
-        return err(packageListHtmlRes.error);
-      }
-      const packageListHtml = packageListHtmlRes.value;
-      const packageUrl = nodejsInstaller.parseHtmlToGetUrl(
-        versionUrl,
-        packageListHtml,
-        `${version}-${osArchName}${ext}`
-      );
-      if (!packageUrl) {
-        return err(
-          new InstallNodeJSError(
-            getLocalizedString(
-              "action.devTool.nodeInstaller.UnableToFind",
-              `${version}-${osArchName}${ext}`,
-              versionUrl
-            )
-          )
-        );
-      }
-      return ok(packageUrl);
-    }
+  ): string {
+    const packageUrl = mirror.packageUrlTpl({
+      version: version,
+      name: osArchName,
+      ext: ext,
+    });
+    return packageUrl;
   }
 
   async ensureNodeJS(
@@ -397,7 +333,7 @@ export class NodejsInstaller {
     context.logProvider?.info(progressText);
     progressBar?.next(progressText);
     const bestMirror = await nodejsInstaller.getBestMirror(name, ext, context.logProvider);
-    if (!bestMirror?.packageUrl) {
+    if (!bestMirror?.packageUrl || !bestMirror?.version) {
       progressBar?.end(true);
       return err(
         new InstallNodeJSError(getLocalizedString("action.devTool.nodeInstaller.NoMirrorUsable"))
@@ -415,7 +351,7 @@ export class NodejsInstaller {
     // User confirmation for installation
     const confirmRes = await context.ui?.confirm?.({
       name: "confirm",
-      title: getLocalizedString("action.devTool.nodeInstaller.Confirm", bestMirror.version!),
+      title: getLocalizedString("action.devTool.nodeInstaller.Confirm", bestMirror.version),
     });
 
     if (confirmRes?.isErr()) {
@@ -431,17 +367,17 @@ export class NodejsInstaller {
     context.logProvider?.info(progressText);
     progressBar?.next(progressText);
     const t1 = Date.now();
-    const packageRes = await nodejsInstaller.fetchBinary(
+    const downloadRes = await nodejsInstaller.fetchBinary(
       bestMirror.packageUrl,
       undefined,
       (progress) => void progressBar?.text?.(progress)
     );
     const t2 = Date.now();
-    if (packageRes.isErr()) {
+    if (downloadRes.isErr()) {
       progressBar?.end(true);
-      return err(packageRes.error);
+      return err(downloadRes.error);
     }
-    const binary = packageRes.value;
+    const binary = downloadRes.value;
     context.logProvider?.info(
       getLocalizedString(
         "action.devTool.nodeInstaller.SuccessDownload",
@@ -457,12 +393,13 @@ export class NodejsInstaller {
     progressBar?.next(progressText);
     await fs.ensureDir(downloadDir);
     nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
-    const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version!}-${name}`);
+    const t3 = Date.now();
+    const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version}-${name}`);
     context.logProvider?.info(
-      getLocalizedString("action.devTool.nodeInstaller.SuccessExtract", targetNodeJSPath)
+      getLocalizedString("action.devTool.nodeInstaller.SuccessExtract", targetNodeJSPath, t3 - t2)
     );
     progressBar?.end(true);
-    const totalTime = Date.now() - startTime;
+    const totalTime = t3 - startTime;
     return ok({ status: "installed", installPath: targetNodeJSPath, totalTime: totalTime });
   }
 }

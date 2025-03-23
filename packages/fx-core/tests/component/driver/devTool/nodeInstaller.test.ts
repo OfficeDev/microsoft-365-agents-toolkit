@@ -13,6 +13,7 @@ import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { NodeChecker } from "../../../../src/component/deps-checker/internal/nodeChecker";
 import { httpClient } from "../../../../src/component/driver/devTool/httpClient";
 import {
+  FirstPriorityMirror,
   NodeDownloadMirror,
   nodejsInstaller,
 } from "../../../../src/component/driver/devTool/nodeInstaller";
@@ -123,6 +124,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
         indexJson: [
           {
             version: "v23.0.0",
@@ -143,6 +145,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
         indexJson: [
           {
             version: "v23.0.0",
@@ -277,6 +280,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
       assert.isUndefined(res.indexJson);
@@ -288,6 +292,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
       assert.deepEqual(res.indexJson, []);
@@ -304,6 +309,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
       assert.deepEqual(res.indexJson, []);
@@ -322,6 +328,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       const res = await nodejsInstaller.testMirrorSpeed(mirror, "win-x64", ".zip", 1000);
       assert.deepEqual(res.indexJson, []);
@@ -339,6 +346,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
         packageUrl: "https://nodejs.org/dist/v22.14.0/node-v22.14.0-win-x64.zip",
       };
       sandbox.stub(nodejsInstaller, "testMirrorSpeed").resolves(mirror);
@@ -351,12 +359,14 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       const successMirror: NodeDownloadMirror = {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
         packageUrl: "https://nodejs.org/dist/v22.14.0/node-v22.14.0-win-x64.zip",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox
         .stub(nodejsInstaller, "testMirrorSpeed")
@@ -373,6 +383,7 @@ describe("NodeJS Installer", () => {
         url: "https://nodejs.org/dist",
         name: "test mirror",
         indexJsonUrl: "https://nodejs.org/dist/index.json",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox.stub(nodejsInstaller, "testMirrorSpeed").resolves(failMirror);
       const resultMirror = await nodejsInstaller.getBestMirror("win-x64", ".zip");
@@ -427,201 +438,20 @@ describe("NodeJS Installer", () => {
   });
 
   describe("getDownloadUrl", () => {
-    const NpmMirror: NodeDownloadMirror = {
-      name: "NPM",
-      url: "https://registry.npmmirror.com/-/binary/node/",
-      indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
-    };
-    const OfficialMirror: NodeDownloadMirror = {
-      name: "Official",
-      url: "https://nodejs.org/dist/",
-      indexJsonUrl: "https://nodejs.org/dist/index.json",
-    };
     afterEach(() => {
       sandbox.restore();
     });
-    it("NPM mirror - first fetchJSON fail", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchJSON")
-        .resolves(err(new InstallNodeJSError("test error")));
-      const res = await nodejsInstaller.getDownloadUrl(NpmMirror, "v22.14.0", "win-x64", ".zip");
-      assert.isTrue(res.isErr());
-    });
-    it("NPM mirror - second fetchJSON fail", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchJSON")
-        .onFirstCall()
-        .resolves(
-          ok([
-            {
-              name: "v22.14.0",
-              url: "https://cdn.npmmirror.com/binaries/node/v22.14.0/",
-            },
-          ])
-        )
-        .onSecondCall()
-        .resolves(err(new InstallNodeJSError("test error")));
-      const res = await nodejsInstaller.getDownloadUrl(NpmMirror, "v22.14.0", "win-x64", ".zip");
-      assert.isTrue(res.isErr());
-    });
-    it("NPM mirror - version not found", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchJSON")
-        .onFirstCall()
-        .resolves(
-          ok([
-            {
-              name: "v23.14.0",
-              url: "https://cdn.npmmirror.com/binaries/node/v22.14.0/",
-            },
-          ])
-        );
-      const res = await nodejsInstaller.getDownloadUrl(NpmMirror, "v22.14.0", "win-x64", ".zip");
-      assert.isTrue(res.isErr());
-    });
-    it("NPM mirror - package not found", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchJSON")
-        .onFirstCall()
-        .resolves(
-          ok([
-            {
-              name: "v22.14.0",
-              url: "https://cdn.npmmirror.com/binaries/node/v22.14.0/",
-            },
-          ])
-        )
-        .onSecondCall()
-        .resolves(ok([]));
-      const res = await nodejsInstaller.getDownloadUrl(NpmMirror, "v22.14.0", "win-x64", ".zip");
-      assert.isTrue(res.isErr());
-    });
-    it("NPM mirror - happy", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchJSON")
-        .onFirstCall()
-        .resolves(
-          ok([
-            {
-              name: "v22.14.0",
-              url: "https://cdn.npmmirror.com/binaries/node/v22.14.0/",
-            },
-          ])
-        )
-        .onSecondCall()
-        .resolves(
-          ok([
-            {
-              name: "v22.14.0-win-x64.zip",
-              url: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
-            },
-          ])
-        );
-      const res = await nodejsInstaller.getDownloadUrl(NpmMirror, "v22.14.0", "win-x64", ".zip");
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.equal(
-          res.value,
-          "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip"
-        );
-      }
-    });
-
-    it("Official mirror - first fetchString fail", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchString")
-        .resolves(err(new InstallNodeJSError("test error")));
-      const res = await nodejsInstaller.getDownloadUrl(
-        OfficialMirror,
+    it("happy", async () => {
+      const downloadUrl = await nodejsInstaller.getDownloadUrl(
+        FirstPriorityMirror,
         "v22.14.0",
         "win-x64",
         ".zip"
       );
-      assert.isTrue(res.isErr());
-    });
-    it("Official mirror - version not found", async () => {
-      sandbox.stub(nodejsInstaller, "fetchString").resolves(ok(""));
-      sandbox.stub(nodejsInstaller, "parseHtmlToGetUrl").returns(undefined);
-      const res = await nodejsInstaller.getDownloadUrl(
-        OfficialMirror,
-        "v22.14.0",
-        "win-x64",
-        ".zip"
+      assert.equal(
+        downloadUrl,
+        "https://cdn.npmmirror.com/binaries/node/v22.14.0/node-v22.14.0-win-x64.zip"
       );
-      assert.isTrue(res.isErr());
-      if (res.isErr()) {
-        assert.include(
-          res.error.message,
-          getLocalizedString(
-            "action.devTool.nodeInstaller.UnableToFind",
-            "v22.14.0",
-            "https://nodejs.org/dist/"
-          )
-        );
-      }
-    });
-    it("Official mirror - second fetchString fail", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchString")
-        .onFirstCall()
-        .resolves(ok(""))
-        .onSecondCall()
-        .resolves(err(new InstallNodeJSError("test error")));
-      sandbox
-        .stub(nodejsInstaller, "parseHtmlToGetUrl")
-        .returns("https://nodejs.org/dist/v22.14.0/");
-      const res = await nodejsInstaller.getDownloadUrl(
-        OfficialMirror,
-        "v22.14.0",
-        "win-x64",
-        ".zip"
-      );
-      assert.isTrue(res.isErr());
-    });
-    it("Official mirror - package not found", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchString")
-        .onFirstCall()
-        .resolves(ok(""))
-        .onSecondCall()
-        .resolves(ok(""));
-      sandbox
-        .stub(nodejsInstaller, "parseHtmlToGetUrl")
-        .onFirstCall()
-        .returns("https://nodejs.org/dist/v22.14.0/")
-        .onSecondCall()
-        .returns(undefined);
-      const res = await nodejsInstaller.getDownloadUrl(
-        OfficialMirror,
-        "v22.14.0",
-        "win-x64",
-        ".zip"
-      );
-      assert.isTrue(res.isErr());
-    });
-    it("Official mirror - happy", async () => {
-      sandbox
-        .stub(nodejsInstaller, "fetchString")
-        .onFirstCall()
-        .resolves(ok(""))
-        .onSecondCall()
-        .resolves(ok(""));
-      sandbox
-        .stub(nodejsInstaller, "parseHtmlToGetUrl")
-        .onFirstCall()
-        .returns("https://nodejs.org/dist/v22.14.0/")
-        .onSecondCall()
-        .returns("https://nodejs.org/dist/v22.14.0/v22.14.0-win-x64.zip");
-      const res = await nodejsInstaller.getDownloadUrl(
-        OfficialMirror,
-        "v22.14.0",
-        "win-x64",
-        ".zip"
-      );
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.equal(res.value, "https://nodejs.org/dist/v22.14.0/v22.14.0-win-x64.zip");
-      }
     });
   });
 
@@ -675,6 +505,7 @@ describe("NodeJS Installer", () => {
         url: "https://registry.npmmirror.com/-/binary/node/",
         indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
         packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
       sandbox.stub(nodejsInstaller, "getNameAndExt").returns({ name: "win-x64", ext: ".zip" });
@@ -694,6 +525,7 @@ describe("NodeJS Installer", () => {
         url: "https://registry.npmmirror.com/-/binary/node/",
         indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
         packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
       };
       sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
       sandbox.stub(nodejsInstaller, "getNameAndExt").returns({ name: "win-x64", ext: ".zip" });
@@ -713,6 +545,7 @@ describe("NodeJS Installer", () => {
         url: "https://registry.npmmirror.com/-/binary/node/",
         indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
         packageUrl: "https://cdn.npmmirror.com/binaries/node/v22.14.0/v22.14.0-win-x64.zip",
+        packageUrlTpl: FirstPriorityMirror.packageUrlTpl,
         version: "v22.14.0",
       };
       sandbox.stub(NodeChecker, "getInstalledNodeVersion").resolves(null);
