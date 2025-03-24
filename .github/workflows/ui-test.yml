@@ -101,6 +101,56 @@ jobs:
           ref: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
 
           
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - uses: pnpm/action-setup@v4
+
+      - name: Download TTK
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+      - name: Export TTK version
+        id: ttk
+        run: |
+          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
+          echo "package=$package" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+      - name: Upload TTK to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ttk
+          path: |
+            ./${{ steps.ttk.outputs.package }}
+      - name: clean devtunnel
+        run: |
+          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
+          chmod 777 ./devtunnel
+          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
+          ./devtunnel delete-all -f
+    outputs:
+      npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
+      branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
+      email-receiver: ${{ steps.bvt.outputs.email-receiver || steps.pvt.outputs.email-receiver }}
+      vsix-run-id: ${{ env.vsix-run-id }}
+      files_list: ${{ steps.set_output.outputs.files_list }}
+      ttk-package: ${{ steps.ttk.outputs.package }}
+      ttk-version: ${{ steps.ttk.outputs.version }}
+      target_cli_version: ${{ env.target_cli_version }}
+
+
+  find_files:
+    runs-on: windows-latest
+    needs: setup
+    outputs:
+      files_list: ${{ steps.set_output.outputs.files_list }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Generate file list
         shell: pwsh
         run: |
@@ -137,91 +187,10 @@ jobs:
           # Debugging: Check formatted list
           Write-Host "Formatted file list: $formattedList"
 
-          
-      # - name: setup matrix
-      #   id: setup-matrix
-      #   shell: pwsh
-      #   run: |
-      #     # Parse user input for test cases
-      #     $testCasesInput = '${{ inputs.test-case }}'
-      #     if (-not $testCasesInput -or $testCasesInput -eq '[]' -or $testCasesInput -eq '""') {
-      #       # If no test-case is provided, retrieve all files in the 'cases' directory
-      #       $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % { $_.Name -replace '.txt$', '' }
-      #     } else {
-      #       # Use provided test cases
-      #       $files = $testCasesInput | ConvertFrom-Json
-      #     }
-        
-      #     # Parse user input for OS and Node.js versions
-      #     $osList = '${{ inputs.os }}' | ConvertFrom-Json
-      #     $nodeVersions = '${{ inputs.node-version }}' | ConvertFrom-Json
-      
-      #     # Generate Cartesian Product of test cases, OS, and Node.js versions
-      #     $matrix = @()
-      #     foreach ($file in $files) {
-      #       foreach ($os in $osList) {
-      #         foreach ($node in $nodeVersions) {
-      #           $matrix += @{
-      #             'test-case' = $file
-      #             'os' = $os
-      #             'node-version' = $node
-      #           }
-      #         }
-      #       }
-      #     }
-    
-      #     $matrixJson = ConvertTo-Json -InputObject @($matrix) -Compress
-      #     Write-Host "Generated matrix: $matrixJson"
-
-      #     # Output the matrix to GitHub environment variable
-      #     "matrix<<MATRIX_EOF" >> $env:GITHUB_ENV
-      #     echo "matrix=$matrixJson" >> $GITHUB_ENV
-      #     "MATRIX_EOF" >> $env:GITHUB_ENV
-      
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      
-      - uses: pnpm/action-setup@v4
-
-      - name: Download TTK
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
-          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
-      - name: Export TTK version
-        id: ttk
-        run: |
-          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
-          version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
-          echo "package=$package" >> $GITHUB_OUTPUT
-          echo "version=$version" >> $GITHUB_OUTPUT
-      - name: Upload TTK to artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ttk
-          path: |
-            ./${{ steps.ttk.outputs.package }}
-      - name: clean devtunnel
-        run: |
-          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
-          chmod 777 ./devtunnel
-          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
-          ./devtunnel delete-all -f
-    outputs:
-      npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
-      branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
-      email-receiver: ${{ steps.bvt.outputs.email-receiver || steps.pvt.outputs.email-receiver }}
-      vsix-run-id: ${{ env.vsix-run-id }}
-      # matrix: ${{ steps.setup-matrix.outputs.matrix }}
-      files_list: ${{ steps.set_output.outputs.files_list }}
-      ttk-package: ${{ steps.ttk.outputs.package }}
-      ttk-version: ${{ steps.ttk.outputs.version }}
-      target_cli_version: ${{ env.target_cli_version }}
-
+          echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
   main:
     # name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
-    needs: setup
+    needs: [setup, find_files]
     permissions:
       contents: read
       security-events: write
@@ -272,8 +241,8 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
-      matrix: 
-        test_case_file: ${{ fromJson(needs.setup.outputs.files_list) }}
+      matrix:
+        file: ${{ fromJson(needs.find_files.outputs.files_list) }}
     runs-on: 'windows-latest'
     steps:
       
