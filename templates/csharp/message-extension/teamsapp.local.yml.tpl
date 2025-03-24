@@ -44,9 +44,11 @@ provision:
       target: ./appsettings.Development.json
 {{/isNewProjectTypeEnabled}}
       content:
-        BOT_TYPE: 'MultiTenant'
-        BOT_ID: ${{BOT_ID}}
-        BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
+        Connections:
+          BotServiceConnection:
+            Settings:
+              ClientId: ${{BOT_ID}}
+              ClientSecret: ${{SECRET_BOT_PASSWORD}}
 
   # Create or update the bot registration on dev.botframework.com
   - uses: botFramework/create

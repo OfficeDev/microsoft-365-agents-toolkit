@@ -38,7 +38,7 @@ public class SearchApp : TeamsActivityHandler
             var attachment = new MessagingExtensionAttachment
             {
                 ContentType = AdaptiveCard.ContentType,
-                Content = adaptiveCard,
+                Content = adaptiveCard.ToJson(),
                 Preview = previewCard.ToAttachment()
             };
 
