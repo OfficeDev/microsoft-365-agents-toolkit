@@ -329,7 +329,7 @@ jobs:
           RMDIR "%extractPath%" /S /Q
           7z x PowerShell-7.2.17-win-x64.zip -o"%extractPath%"
           pwsh --version
-          
+
       - name: Set cert (win)
         run: |
           Write-Host $home
@@ -479,7 +479,7 @@ jobs:
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "../cases/${{ matrix.test_case_file }}.txt" %S_PARAM%
+          vscuse.exe agent -f "${{ matrix.test_case_file }}" %S_PARAM%
         shell: cmd
 
       - name: Upload test result json file
