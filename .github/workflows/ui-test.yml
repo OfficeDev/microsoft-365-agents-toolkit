@@ -259,6 +259,42 @@ jobs:
           Write-Host "AZURE_VISION_ENDPOINT: $env:AZURE_VISION_ENDPOINT"
           Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
         shell: pwsh
+
+      - name: Download VSCode from internet and install
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
+          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
+      
+      - name: Add the code into the environment variable
+        shell: pwsh
+        run: |
+          $vscodeBinPath = "C:\Program Files\Microsoft VS Code\bin"
+          if (Test-Path $vscodeBinPath) {
+            "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } else {
+            Write-Error "VS Code: $vscodeBinPath"
+            exit 1
+          }
+ 
+      - name: Show the new PATH
+        shell: pwsh
+        run: |
+          Write-Host "New PATH: $env:PATH"
+
+      # Check the code is installed.
+      - name: Check the code is installed.
+        run: |
+          where code
+          where code.cmd
+        shell: cmd
+
+      - name: Check Installed Browsers
+        run: |
+          if (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") { Write-Output "Chrome is installed" }
+          if (Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe") { Write-Output "Firefox is installed" }
+          if (Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe") { Write-Output "Edge is installed" }
+        shell: pwsh
       
       - name: Set m365 account (win)
         run: |
@@ -404,57 +440,6 @@ jobs:
           curl http://127.0.0.1:4723/status
         shell: powershell
       
-      - name: Download VSCode from internet and install
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
-          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
-      
-      - name: Add the code into the environment variable
-        shell: pwsh
-        run: |
-          $vscodeBinPath = "C:\Program Files\Microsoft VS Code\bin"
-          if (Test-Path $vscodeBinPath) {
-            "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-          } else {
-            Write-Error "VS Code: $vscodeBinPath"
-            exit 1
-          }
- 
-      - name: Show the new PATH
-        shell: pwsh
-        run: |
-          Write-Host "New PATH: $env:PATH"
-
-      # Check the code is installed.
-      - name: Check the code is installed.
-        run: |
-          where code
-          where code.cmd
-        shell: cmd
-
-      - name: Ensure AZURE_OPENAI_KEY is set
-        shell: pwsh
-        run: |
-          if (-not $env:AZURE_OPENAI_KEY) {
-            Write-Error "AZURE_OPENAI_KEY is not set!"
-            exit 1
-          } else {
-            Write-Output "AZURE_OPENAI_KEY is set."
-            $first5 = $env:AZURE_OPENAI_KEY.Substring(0,5)
-            Write-Output "AZURE_OPENAI_KEY is set. First 5 characters: $first5*****"
-            Write-Output "AZURE_OPENAI_ENDPOINT is $env:AZURE_OPENAI_ENDPOINT"
-          }
-        env:
-          AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
-
-      - name: Check Installed Browsers
-        run: |
-          if (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") { Write-Output "Chrome is installed" }
-          if (Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe") { Write-Output "Firefox is installed" }
-          if (Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe") { Write-Output "Edge is installed" }
-        shell: pwsh
-  
       # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
