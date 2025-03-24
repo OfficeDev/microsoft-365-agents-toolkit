@@ -924,6 +924,40 @@ publish:
       sandbox.restore();
     });
 
+    it("should not provide codelens when projectPath is not available", async () => {
+      // Stub getSystemInputs to return an object without projectPath
+      sandbox.stub(require("../../src/utils/systemEnvUtils"), "getSystemInputs").returns({
+        // No projectPath included
+      });
+
+      const document = {
+        fileName: "agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "internal-only",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+        uri: {
+          fsPath: path.join("unknown", "appPackage", "agent.json"),
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
     it("should not provide codelens when manifest file does not exist", async () => {
       sandbox.stub(fs, "existsSync").returns(false);
       sandbox
@@ -949,6 +983,91 @@ publish:
         },
         uri: {
           fsPath: path.join(__dirname, "unknown", "appPackage", "agent.json"),
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should not provide codelens when document path doesn't match declarative agent file path", async () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      const projectPath = path.join(__dirname, "unknown");
+      const agentPath = "agent.json";
+
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              id: "test-agent",
+              file: agentPath,
+            },
+          ],
+        },
+      };
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+
+      // Create a document with a different path than the agent file path
+      const document = {
+        fileName: "different-agent.json",
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "internal-only",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+        uri: {
+          fsPath: path.join(projectPath, "appPackage", "different-agent.json"),
+        },
+      } as any as vscode.TextDocument;
+
+      const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
+      const codelens = await provider.provideCodeLenses(document);
+
+      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+    });
+
+    it("should not provide codelens when manifest does not contain declarative agent", async () => {
+      sandbox.stub(fs, "existsSync").returns(true);
+      const projectPath = path.join(__dirname, "unknown");
+      const agentPath = "agent.json";
+
+      const manifest = {};
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+
+      // Create a document with a different path than the agent file path
+      const document = {
+        fileName: agentPath,
+        getText: () => {
+          return JSON.stringify({
+            type: "declarative",
+            sensitivity_label: "internal-only",
+          });
+        },
+        positionAt: () => {
+          return new vscode.Position(0, 0);
+        },
+        lineAt: () => {
+          return {
+            lineNumber: 0,
+            text: "test",
+          };
+        },
+        uri: {
+          fsPath: path.join(projectPath, "appPackage", "different-agent.json"),
         },
       } as any as vscode.TextDocument;
 
