@@ -20,21 +20,6 @@ on:
         required: false
         type: string
 
-      email-receiver:
-        description: "email notification receiver"
-        required: false
-        type: string
-
-      source-testplan-id:
-        description: "source testplan id: 24569079."
-        required: false
-        type: string
-        default: "24569079"
-
-      target-testplan-name:
-          description: "For example: CY230919. Sync test result to this test plan."
-          required: false
-          type: string
   schedule:
     - cron: "0 18 * * *"
 
@@ -47,8 +32,6 @@ jobs:
     permissions:
       contents: read
     env:
-      AUTO_TEST_PLAN_ID: ${{ github.event.inputs.source-testplan-id }}
-      TARGET_TEST_PLAN_NAME: ${{ github.event.inputs.target-testplan-name }}
       DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
       DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
       DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
@@ -65,7 +48,6 @@ jobs:
           echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "vsix-run-id=${{ github.event.inputs.target-vsix-run-id }}" >> $GITHUB_ENV
           echo "target_cli_version=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_ENV
-          echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
       - name: pvt (dev)
         id: pvt
         if: ${{ github.event.schedule == '0 18 * * *' }}
@@ -73,7 +55,6 @@ jobs:
           echo "npm-tag=alpha" >> $GITHUB_OUTPUT
           echo "sample-ref=dev" >> $GITHUB_OUTPUT
           echo "branch=dev" >> $GITHUB_OUTPUT
-          echo "email-receiver=teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
           run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
           echo "vsix-run-id=$run_id" >> $GITHUB_ENV
           echo "target_cli_version=alpha" >> $GITHUB_ENV
@@ -82,7 +63,6 @@ jobs:
         with:
           ref: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
 
-          
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -116,7 +96,6 @@ jobs:
     outputs:
       npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
       branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
-      email-receiver: ${{ steps.bvt.outputs.email-receiver || steps.pvt.outputs.email-receiver }}
       vsix-run-id: ${{ env.vsix-run-id }}
       files_list: ${{ steps.set_output.outputs.files_list }}
       ttk-package: ${{ steps.ttk.outputs.package }}
@@ -170,6 +149,7 @@ jobs:
           Write-Host "Formatted file list: $formattedList"
 
           echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
+
   main:
     name: ${{ matrix.file }}
     needs: [setup, find_files]
@@ -180,7 +160,6 @@ jobs:
     
     env:
       CI_ENABLED: true
-      NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
       TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
 
       CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
@@ -222,7 +201,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 1 # Limit concurrent executions due to the OpenAI API rate limit
+      max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
       matrix:
         file: ${{ fromJson(needs.find_files.outputs.files_list) }}
     runs-on: 'windows-latest'
@@ -448,11 +427,12 @@ jobs:
         run: |
           vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
-      
+        
+
       - name: Check for HTML report  # The report like: C:\Users\runneradmin\.vscuse\sessions\250324_1319_6752\report\memory_report_20250324_134618.html
         id: check_report
         run: |
-          $last_line = Get-Content output.log | Select-Object -Last 1
+          $last_line = Get-Content ${{ runner.temp }}\output.log | Select-Object -Last 1
           if ($last_line -match 'Report saved to: (.+\.html)') {
             $report_path = $matches[1]
             echo "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
