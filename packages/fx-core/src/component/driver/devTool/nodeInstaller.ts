@@ -31,7 +31,7 @@ export interface NodeDownloadMirror {
   time?: number;
 }
 
-export const BackupMirrors: NodeDownloadMirror[] = [
+export const NodejsMirrors: NodeDownloadMirror[] = [
   {
     name: "NPM",
     url: "https://registry.npmmirror.com/-/binary/node/",
@@ -179,7 +179,7 @@ export class NodejsInstaller {
     // }
     for (let i = 0; i < 5; ++i) {
       const mirror = await Promise.race(
-        BackupMirrors.map((mirror) => this.testMirrorSpeed(mirror, osArchName, ext, 1000, logger))
+        NodejsMirrors.map((mirror) => this.testMirrorSpeed(mirror, osArchName, ext, 1000, logger))
       );
       if (mirror.packageUrl) {
         return mirror;
