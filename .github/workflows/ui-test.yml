@@ -106,14 +106,14 @@ jobs:
         run: |
           # Parse user input for test cases
           $testCasesInput = '${{ inputs.test-case }}'
-          if ($testCasesInput -eq '[]' -or $testCasesInput -eq '""') {
+          if (-not $testCasesInput -or $testCasesInput -eq '[]' -or $testCasesInput -eq '""') {
             # If no test-case is provided, retrieve all files in the 'cases' directory
             $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % { $_.Name -replace '.txt$', '' }
           } else {
             # Use provided test cases
             $files = $testCasesInput | ConvertFrom-Json
           }
-      
+          
           # Parse user input for OS and Node.js versions
           $osList = '${{ inputs.os }}' | ConvertFrom-Json
           $nodeVersions = '${{ inputs.node-version }}' | ConvertFrom-Json
@@ -123,7 +123,11 @@ jobs:
           foreach ($file in $files) {
             foreach ($os in $osList) {
               foreach ($node in $nodeVersions) {
-                $matrix += @{ test_case = $file; os = $os; node_version = $node }
+                $matrix += @{
+                  test_case = $file
+                  os = $os
+                  node_version = $node
+                }
               }
             }
           }
