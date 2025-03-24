@@ -113,7 +113,7 @@ jobs:
             # Use provided test cases
             $files = $testCasesInput | ConvertFrom-Json
           }
-          
+        
           # Parse user input for OS and Node.js versions
           $osList = '${{ inputs.os }}' | ConvertFrom-Json
           $nodeVersions = '${{ inputs.node-version }}' | ConvertFrom-Json
@@ -131,13 +131,13 @@ jobs:
               }
             }
           }
-      
-          # Convert the matrix to JSON and output it as a string in the required format
-          $matrixJson = $matrix | ConvertTo-Json -Compress
+    
+          $matrixJson = ConvertTo-Json -InputObject @($matrix) -Compress
           Write-Host "Generated matrix: $matrixJson"
-          
-          # Output the matrix as a simple key-value pair to the GitHub output file
+        
+          # Output the matrix to GitHub environment variable
           echo "matrix=$matrixJson" >> $GITHUB_ENV
+      
 
       - name: Setup node
         uses: actions/setup-node@v3
