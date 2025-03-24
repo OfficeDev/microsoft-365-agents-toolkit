@@ -446,12 +446,23 @@ jobs:
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM%
+          vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
-
-      - name: Upload test result json file
+      
+      - name: Check for HTML report  # The report like: C:\Users\runneradmin\.vscuse\sessions\250324_1319_6752\report\memory_report_20250324_134618.html
+        id: check_report
+        run: |
+          $last_line = Get-Content output.log | Select-Object -Last 1
+          if ($last_line -match 'Report saved to: (.+\.html)') {
+            $report_path = $matches[1]
+            echo "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+            echo "SESSION_PATH=$(Split-Path -Parent $(Split-Path -Parent $report_path))" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8  
+            exit 1
+          }
+        shell: pwsh
+      
+      - name: Upload VSCUSE session files
         uses: actions/upload-artifact@v4
-        if: ${{ github.event_name != 'schedule' || success() || (failure() && github.run_attempt >= 5) }}
         with:
-          name: test-result-${{ matrix.test-case }}-${{ matrix.os }}
-          path: packages/tests/mochawesome-report/mochawesome.json
+          name: vscuse-session
+          path: ${{ env.SESSION_PATH }}
