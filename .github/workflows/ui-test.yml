@@ -310,13 +310,7 @@ jobs:
       - name: Install Python environment
         run: |
           pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
-      - name: Install function core tool (ubuntu)
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
-          sudo apt-get update
-          sudo apt-get install azure-functions-core-tools-4
+      
 
       - name: Install devtunnel (windows)
         working-directory: packages/tests
@@ -335,6 +329,7 @@ jobs:
           RMDIR "%extractPath%" /S /Q
           7z x PowerShell-7.2.17-win-x64.zip -o"%extractPath%"
           pwsh --version
+          
       - name: Set cert (win)
         run: |
           Write-Host $home
