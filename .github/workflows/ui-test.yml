@@ -232,10 +232,7 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
-      matrix:
-        test-case: ${{fromJson(needs.setup.outputs.matrix).test_case}}
-        os: ${{fromJson(needs.setup.outputs.matrix).os}}
-        node-version: ${{fromJson(needs.setup.outputs.matrix).node_version}}
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
       # Setup the environment
