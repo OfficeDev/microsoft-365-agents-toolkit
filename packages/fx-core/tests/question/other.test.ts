@@ -11,6 +11,7 @@ import {
   SystemError,
   SingleSelectQuestion,
   SingleFileQuestion,
+  AppPackageFolderName,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -34,6 +35,7 @@ import {
 } from "../../src/question/other";
 import { graphAPIClient } from "../../src/client/graphAPIClient";
 import { setTools, TOOLS } from "../../src/common/globalVars";
+import path from "path";
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -629,7 +631,7 @@ describe("setSensitivityLabelNode", () => {
     });
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
     const defaultPath = (question?.default as any)(inputs);
-    assert.equal(defaultPath, "testProject\\appPackage\\agent.json");
+    assert.equal(defaultPath, path.join(inputs.projectPath!, AppPackageFolderName, "agent.json"));
   });
 
   it("should return undefined if projectPath is not defined for selectDeclarativeAgentManifestQuestion", () => {

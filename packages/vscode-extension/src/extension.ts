@@ -1364,19 +1364,20 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     )
   );
 
-  const declarativeAgentManifestSelector: vscode.DocumentSelector = {
-    scheme: "file",
-    pattern: `**/${AppPackageFolderName}/*.{json}`,
-  };
-
-  const declarativeAgentSensitivityLabelCodeLensProvider =
-    new DeclarativeAgentSensitivityLabelCodeLensProvider();
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      declarativeAgentManifestSelector,
-      declarativeAgentSensitivityLabelCodeLensProvider
-    )
-  );
+  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+    const declarativeAgentManifestSelector: vscode.DocumentSelector = {
+      scheme: "file",
+      pattern: `**/${AppPackageFolderName}/*.{json}`,
+    };
+    const declarativeAgentSensitivityLabelCodeLensProvider =
+      new DeclarativeAgentSensitivityLabelCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        declarativeAgentManifestSelector,
+        declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {

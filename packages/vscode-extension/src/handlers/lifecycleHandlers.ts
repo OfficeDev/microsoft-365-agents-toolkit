@@ -43,7 +43,7 @@ import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
-import { TOOLS } from "@microsoft/teamsfx-core/build/common/globalVars";
+import { tools } from "../globalVariables";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
@@ -291,7 +291,7 @@ export async function setSensitivityLabelHandler(args: any[]) {
 
 export async function m365PreAuthHandler(args: any[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
-  const res = await TOOLS.tokenProvider?.m365TokenProvider.getAccessToken({
+  const res = await tools.tokenProvider?.m365TokenProvider.getAccessToken({
     scopes: args[0].scopes,
   });
   if (res.isErr()) {
