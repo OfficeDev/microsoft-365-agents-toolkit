@@ -124,9 +124,9 @@ jobs:
             foreach ($os in $osList) {
               foreach ($node in $nodeVersions) {
                 $matrix += @{
-                  test_case = $file
+                  test-case = $file
                   os = $os
-                  node_version = $node
+                  node-version = $node
                 }
               }
             }
@@ -136,8 +136,9 @@ jobs:
           Write-Host "Generated matrix: $matrixJson"
 
           # Output the matrix to GitHub environment variable
+          "matrix<<MATRIX_EOF" >> $env:GITHUB_ENV
           echo "matrix=$matrixJson" >> $GITHUB_ENV
-          Write-Host "Generated matrix 2: ${{ steps.setup-matrix.outputs.matrix }}"
+          "MATRIX_EOF" >> $env:GITHUB_ENV
       
       - name: Setup node
         uses: actions/setup-node@v3
@@ -180,7 +181,7 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    # name: ${{ matrix.test_case }}|${{ matrix.os }}|${{ matrix.node_version }}
+    # name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
     needs: setup
     permissions:
       contents: read
@@ -232,7 +233,8 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
-      matrix: ${{ fromJson(needs.setup.outputs.matrix) || '[]' }} 
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.matrix) || '[]' }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Validate Matrix
