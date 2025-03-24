@@ -124,9 +124,9 @@ jobs:
             foreach ($os in $osList) {
               foreach ($node in $nodeVersions) {
                 $matrix += @{
-                  test-case = $file
-                  os = $os
-                  node-version = $node
+                  'test-case' = $file
+                  'os' = $os
+                  'node-version' = $node
                 }
               }
             }
