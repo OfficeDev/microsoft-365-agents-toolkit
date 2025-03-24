@@ -273,7 +273,7 @@ jobs:
       fail-fast: false
       max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
       matrix: 
-        test_case_file: ${{ fromJson(needs.find_files.outputs.files_list) }}
+        test_case_file: ${{ fromJson(needs.setup.outputs.files_list) }}
     runs-on: 'windows-latest'
     steps:
       
