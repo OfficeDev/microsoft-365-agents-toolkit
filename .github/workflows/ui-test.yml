@@ -19,6 +19,12 @@ on:
         description: 'test case, e.g. ["29382146", "30862206"], Set empty to run all predefined cases'
         required: false
         type: string
+      
+      test-case-steps:
+        default: '90'
+        description: 'The test cases steps, e.g. 90'
+        required: false
+        type: string
 
       os:
         default: '["windows-latest"]'
@@ -106,7 +112,7 @@ jobs:
         working-directory: packages/tests
         run: |
           pnpm --filter=@microsoft/teamsfx-test install
-          npx ts-node ./scripts/createRandomPVT.ts
+          npx ts-node ./scripts/createRandomPVT-vscuse.ts
       - name: setup matrix
         id: setup-matrix
         working-directory: packages/tests
@@ -115,7 +121,7 @@ jobs:
           if [ ! -z "${{ github.event.inputs.test-case }}" ]; then
             matrix='{"node-version": ${{ github.event.inputs.node-version }}, "test-case": ${{ github.event.inputs.test-case }}, "os": ${{ github.event.inputs.os }} }'
           else
-            bash ./scripts/convert-test-case.sh ./scripts/pvt.json
+            bash ./scripts/convert-test-case.sh ./scripts/pvt-vscuse.json
             matrix=$(cat ./scripts/test-case-temp.json)
           fi
           echo "matrix=${matrix}" >> $GITHUB_OUTPUT
@@ -154,7 +160,7 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test-case }}|${{ matrix.os }}
+    name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
     needs: setup
     permissions:
       contents: read
@@ -190,14 +196,14 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       STORAGE_ACCOUNT_KEY: ${{ secrets.TEST_STORAGE_ACCOUNT_KEY }}
       
-      MODEL_NAME : "azure/gpt-4o"
+      MODEL_NAME : "azure/gpt-4o"  # support 'azure/gpt-4o-mini'
       GOOGLE_API_KEY : ${{ secrets.GOOGLE_API_KEY }}
       AZURE_OPENAI_KEY : "${{ secrets.AZURE_OPENAI_KEY }}"
       AZURE_OPENAI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21"
       AZURE_VISION_ENDPOINT : "fake"
       AZURE_VISION_KEY : "fake"
       AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
-      AZURE_OPENAI_4O_MINI_ENDPOINT : ${{ secrets.AZURE_OPENAI_4O_MINI_ENDPOINT }}
+      AZURE_OPENAI_4O_MINI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview"
       OPENROUTER_API_KEY : "fake"
       
       TEAMSFX_DEV_TUNNEL_TEST: true
@@ -547,8 +553,10 @@ jobs:
       # Launch the vscuse
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
+        env:
+          S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "../cases/29382146.txt" -s 90
+          vscuse.exe agent -f "../cases/${{ matrix.test-case }}.txt" %S_PARAM%
         shell: cmd
 
       # - name: Setup OpenAI key(unix)
