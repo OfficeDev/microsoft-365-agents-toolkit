@@ -134,11 +134,11 @@ jobs:
     
           $matrixJson = ConvertTo-Json -InputObject @($matrix) -Compress
           Write-Host "Generated matrix: $matrixJson"
-        
+
           # Output the matrix to GitHub environment variable
           echo "matrix=$matrixJson" >> $GITHUB_ENV
+          Write-Host "Generated matrix 2: ${{ steps.setup-matrix.outputs.matrix }}"
       
-
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -180,7 +180,7 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
+    name: ${{ matrix.test_case }}|${{ matrix.os }}|${{ matrix.node_version }}
     needs: setup
     permissions:
       contents: read
