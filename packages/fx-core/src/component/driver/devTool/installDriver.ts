@@ -127,6 +127,10 @@ export class ToolsInstallDriverImpl {
       dotnetRes.forEach((v, k) => res.set(k, v));
     }
 
+    if (args.nodejs) {
+      await this.resolveNodeJS(args.nodejs.symlinkDir);
+    }
+
     if (args.testTool) {
       await this.resolveTestTool(
         // Hardcode to npm release type if running from YAML
@@ -134,10 +138,6 @@ export class ToolsInstallDriverImpl {
         `${args.testTool.version}`,
         args.testTool.symlinkDir
       );
-    }
-
-    if (args.nodejs) {
-      await this.resolveNodeJS(args.nodejs.symlinkDir);
     }
 
     return res;
