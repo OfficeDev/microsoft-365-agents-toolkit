@@ -14,21 +14,15 @@ on:
         type: string
         default: latest
 
-      target-sample-ref:
-        description: "target sample ref, like v1.1.0, v2.0.0 or dev"
-        required: false
-        type: string
-        default: dev
-
       test-case:
-        default: '["localdebug-bot"]'
-        description: 'test case, e.g. ["localdebug-tab", "localdebug-bot"], Set empty to run all predefined cases'
+        default: '["29382146"]'
+        description: 'test case, e.g. ["29382146", "30862206"], Set empty to run all predefined cases'
         required: false
         type: string
 
       os:
         default: '["windows-latest"]'
-        description: 'os, e.g. ["macos-latest", "ubuntu-latest", "windows-latest"]'
+        description: 'os, e.g. ["windows-latest"], only support windows-latest right now'
         required: false
         type: string
 
@@ -80,7 +74,6 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "npm-tag=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_OUTPUT
-          echo "sample-ref=${{ github.event.inputs.target-sample-ref }}" >> $GITHUB_OUTPUT
           echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "vsix-run-id=${{ github.event.inputs.target-vsix-run-id }}" >> $GITHUB_ENV
           echo "target_cli_version=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_ENV
@@ -161,12 +154,13 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test-case }}|${{ matrix.os }}|node ${{ matrix.node-version }}|${{ github.ref_name }}
+    name: ${{ matrix.test-case }}|${{ matrix.os }}
     needs: setup
     permissions:
       contents: read
       security-events: write
     timeout-minutes: 50
+    
     env:
       CI_ENABLED: true
       NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
@@ -208,9 +202,10 @@ jobs:
       
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
+
     strategy:
       fail-fast: false
-      max-parallel: 80
+      max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -256,6 +251,7 @@ jobs:
           index=$((RANDOM%$count))
           echo "account index: $index"
           echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+
       - name: Set m365 account (win)
         if: matrix.os == 'windows-latest'
         run: |
@@ -264,6 +260,7 @@ jobs:
           $user=$users[$index]
           echo "account index: $index"
           echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
+
       - name: Set m365 account for Outlook preview (unix)
         if: matrix.os != 'windows-latest' && contains(matrix.test-case, 'localdebug-obo-tab') == true
         run: |
@@ -289,13 +286,11 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Setup Python
-        if: contains(matrix.test-case,  'py')
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Python environment
-        if: contains(matrix.test-case,  'py')
         run: |
           pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
       - name: Install function core tool (ubuntu)
@@ -433,6 +428,7 @@ jobs:
         working-directory: packages/tests
         run: |
           npm run build
+
       - name: Install python extension
         working-directory: packages/tests
         run: |
@@ -515,7 +511,7 @@ jobs:
         run: |
           Write-Host "New PATH: $env:PATH"
 
-      # Launch the vscuse
+      # Check the code is installed.
       - name: Check the code is installed.
         run: |
           where code
@@ -536,6 +532,17 @@ jobs:
           }
         env:
           AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+
+      - name: Check Installed Browsers
+        run: |
+          if (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") { Write-Output "Chrome is installed" }
+          if (Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe") { Write-Output "Firefox is installed" }
+          if (Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe") { Write-Output "Edge is installed" }
+        shell: pwsh
+  
+      - name: Start Chrome Headless
+        run: Start-Process -FilePath "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--headless --remote-debugging-port=9222"
+        shell: pwsh
 
       # Launch the vscuse
       - name: Run vscuse.exe
