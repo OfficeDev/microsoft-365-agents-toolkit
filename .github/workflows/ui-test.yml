@@ -102,36 +102,39 @@ jobs:
 
       - name: setup matrix
         id: setup-matrix
+        shell: pwsh
         run: |
           # Parse user input for test cases
-          test_cases_input='${{ inputs.test-case }}'
-          if [[ "$test_cases_input" == "[]" || "$test_cases_input" == "\"\"" ]]; then
+          $testCasesInput = '${{ inputs.test-case }}'
+          if ($testCasesInput -eq '[]' -or $testCasesInput -eq '""') {
             # If no test-case is provided, retrieve all files in the 'cases' directory
-            files=$(find packages/vscode-ui/vscuse/cases -name "*.txt" | sed 's|.*/||' | sed 's/\.txt$//')
-          else
+            $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % { $_.Name -replace '.txt$', '' }
+          } else {
             # Use provided test cases
-            files=$(echo "$test_cases_input" | jq -r '.[]')
-          fi
-  
+            $files = $testCasesInput | ConvertFrom-Json
+          }
+      
           # Parse user input for OS and Node.js versions
-          os_list=$(echo '${{ inputs.os }}' | jq -r '.[]')
-          node_versions=$(echo '${{ inputs.node-version }}' | jq -r '.[]')
-  
+          $osList = '${{ inputs.os }}' | ConvertFrom-Json
+          $nodeVersions = '${{ inputs.node-version }}' | ConvertFrom-Json
+      
           # Generate Cartesian Product of test cases, OS, and Node.js versions
-          matrix_json=$(jq -n --argjson files "$(printf '%s\n' $files | jq -R . | jq -s .)" \
-                            --argjson os_list "$(printf '%s\n' $os_list | jq -R . | jq -s .)" \
-                            --argjson node_versions "$(printf '%s\n' $node_versions | jq -R . | jq -s .)" \
-                            '[
-                              $files[] as $file |
-                              $os_list[] as $os |
-                              $node_versions[] as $node |
-                              { test_case: $file, os: $os, node_version: $node }
-                            ]')
-  
-          # Ensure the output format is correct
-          echo "Generated matrix: $matrix_json"
-          echo "matrix=$matrix_json" >> $GITHUB_ENV
-    
+          $matrix = @()
+          foreach ($file in $files) {
+            foreach ($os in $osList) {
+              foreach ($node in $nodeVersions) {
+                $matrix += @{ test_case = $file; os = $os; node_version = $node }
+              }
+            }
+          }
+      
+          # Convert the matrix to JSON and output it as a string in the required format
+          $matrixJson = $matrix | ConvertTo-Json -Compress
+          Write-Host "Generated matrix: $matrixJson"
+          
+          # Output the matrix as a simple key-value pair to the GitHub output file
+          echo "matrix=$matrixJson" >> $GITHUB_ENV
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
