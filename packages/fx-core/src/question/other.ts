@@ -1648,5 +1648,6 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
         return [];
       }
     },
+    skipValidation: true,
   };
 }

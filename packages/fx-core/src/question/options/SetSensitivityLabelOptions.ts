@@ -27,6 +27,7 @@ export const SetSensitivityLabelOptions: CLICommandOption[] = [
     shortName: "s",
     description: "Specify the sensitivity label to be set.",
     required: true,
+    skipValidation: true,
   },
 ];
 export const SetSensitivityLabelArguments: CLICommandArgument[] = [];
