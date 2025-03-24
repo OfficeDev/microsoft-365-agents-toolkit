@@ -176,7 +176,6 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
     needs: setup
     permissions:
       contents: read
