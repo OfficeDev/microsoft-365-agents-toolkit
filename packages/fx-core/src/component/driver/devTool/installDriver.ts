@@ -300,6 +300,10 @@ export class ToolsInstallDriverImpl {
       this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
     }
   }
+
+  /**
+   * return nodejs install path, if nodejs is installed in system environment, return "", else return installed path (./devTools/nodejs)
+   */
   async resolveNodeJS(symlinkDir: string): Promise<void> {
     const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, true, true);
     if (ensureRes.isOk()) {
