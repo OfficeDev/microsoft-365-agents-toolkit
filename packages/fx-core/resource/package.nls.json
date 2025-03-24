@@ -1036,9 +1036,9 @@
   "action.devTool.nodeInstaller.NotInstalledUser": "NodeJS is not installed in user folder: %s",
   "action.devTool.nodeInstaller.NoMirrorUsable": "No mirror is reachable, please check your network connection",
   "action.devTool.nodeInstaller.BestMirror": "Selected download mirror is: %s - %s, test latency: %s ms",
-  "action.devTool.nodeInstaller.Confirm": "Do you want to install NodeJS LTS version %s in user folder?",
+  "action.devTool.nodeInstaller.Confirm": "NodeJS is required to launch test tool, which is not installed in system environment or user folder. Do you want to install the latest LTS version (%s) of NodeJS in your user folder? (Note: the installation will not change your system environment globally.)",
   "action.devTool.nodeInstaller.SuccessDownload": "Successfully download NodeJS package: %s, size: %s, time: %s ms",
   "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms",
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
-  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is installed in system environment."
+  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment."
 }
