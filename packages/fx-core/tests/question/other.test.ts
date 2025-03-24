@@ -6,6 +6,11 @@ import {
   Inputs,
   Platform,
   TextInputQuestion,
+  ok,
+  err,
+  SystemError,
+  SingleSelectQuestion,
+  SingleFileQuestion,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -24,7 +29,11 @@ import {
   oauthScopeQuestion,
   oauthTokenUrlQuestion,
   selectTargetEnvQuestion,
+  setSensitivityLabelNode,
+  selectDeclarativeAgentManifestQuestion,
 } from "../../src/question/other";
+import { graphAPIClient } from "../../src/client/graphAPIClient";
+import { setTools, TOOLS } from "../../src/common/globalVars";
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -500,5 +509,157 @@ describe("addAuthActionQuestion", () => {
     const validation = (authNameQuestion().validation as FuncValidation<string>).validFunc;
     const res = await validation("test", undefined);
     assert.isUndefined(res);
+  });
+});
+
+describe("setSensitivityLabelNode", () => {
+  const sandbox = sinon.createSandbox();
+  setTools({
+    tokenProvider: {
+      m365TokenProvider: {
+        getAccessToken: async () => {
+          return ok("mockToken");
+        },
+      },
+    },
+  } as any);
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should have correct structure", () => {
+    const node = setSensitivityLabelNode();
+    assert.isTrue(node.data.type === "group");
+    assert.isTrue(node.children?.length === 2);
+  });
+
+  it("validate sensitivity label question", async () => {
+    const node = setSensitivityLabelNode();
+    const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const mockLabels = [
+      { id: "1", displayName: "Label1" },
+      { id: "2", displayName: "Label2" },
+    ];
+    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    // mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
+    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    assert.equal(options?.length, 2);
+    assert.equal((options?.[0] as any).id, "1");
+    assert.equal((options?.[0] as any).label, "Label1");
+  });
+
+  it("should handle graphAPI exception", async () => {
+    const node = setSensitivityLabelNode();
+    const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    sandbox.stub(graphAPIClient, "listSensitivityLabels").throws(new Error("Graph API error"));
+    // mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
+    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    assert.equal(options?.length, 0);
+  });
+
+  it("should handle token error in sensitivity label question", async () => {
+    const node = setSensitivityLabelNode();
+    const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(new SystemError("TestError", "Test error message", "TestSource")));
+    const mockLabels = [
+      { id: "1", displayName: "Label1" },
+      { id: "2", displayName: "Label2" },
+    ];
+    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    assert.equal(options?.length, 0);
+  });
+
+  it("should handle error in sensitivity label question", async () => {
+    const node = setSensitivityLabelNode();
+    const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(
+      err(
+        new SystemError({
+          name: "TestError",
+          message: "Test error message",
+          source: "TestSource",
+        })
+      )
+    );
+    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    assert.equal(options?.length, 0);
+  });
+
+  it("should return the correct default path for selectDeclarativeAgentManifestQuestion - CLI_HELP", () => {
+    const inputs: Inputs = {
+      platform: Platform.CLI_HELP,
+      projectPath: "./testProject",
+    };
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = (question?.default as any)(inputs);
+    assert.equal(defaultPath, "./appPackage/declarativeAgent.json");
+  });
+
+  it("should return the correct default path for selectDeclarativeAgentManifestQuestion", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(fs, "readJsonSync").returns({
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            file: "agent.json",
+          },
+        ],
+      },
+    });
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = (question?.default as any)(inputs);
+    assert.equal(defaultPath, "testProject\\appPackage\\agent.json");
+  });
+
+  it("should return undefined if projectPath is not defined for selectDeclarativeAgentManifestQuestion", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = (question?.default as any)(inputs);
+    assert.isUndefined(defaultPath);
+  });
+
+  it("should return undefined if manifest path does not exist for selectDeclarativeAgentManifestQuestion", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./nonExistentProject",
+    };
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = (question?.default as any)(inputs);
+    assert.isUndefined(defaultPath);
+  });
+
+  it("should return undefined if manifest does not contain DA for selectDeclarativeAgentManifestQuestion", () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(fs, "readJsonSync").returns({});
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = (question?.default as any)(inputs);
+    assert.isUndefined(defaultPath);
   });
 });
