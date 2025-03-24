@@ -30,22 +30,7 @@ export interface NodeDownloadMirror {
   packageUrl?: string;
   time?: number;
 }
-// export const FirstPriorityMirror: NodeDownloadMirror = {
-//   name: "NPM",
-//   url: "https://registry.npmmirror.com/-/binary/node/",
-//   indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
-//   packageUrlTpl: Handlebars.compile(
-//     "https://cdn.npmmirror.com/binaries/node/{{version}}/node-{{version}}-{{name}}{{ext}}"
-//   ),
-// };
-// const FirstPriorityMirror: NodeDownloadMirror = {
-//   name: "Tencent",
-//   url: "https://mirrors.cloud.tencent.com/nodejs-release/",
-//   indexJsonUrl: "https://mirrors.cloud.tencent.com/nodejs-release/index.json",
-//   packageUrlTpl: Handlebars.compile(
-//     "https://mirrors.cloud.tencent.com/nodejs-release/{{version}}/node-{{version}}-{{name}}{{ext}}"
-//   ),
-// };
+
 export const BackupMirrors: NodeDownloadMirror[] = [
   {
     name: "NPM",
@@ -246,12 +231,11 @@ export class NodejsInstaller {
   }
 
   extractTar(buffer: Buffer, fileName: string, targetDir: string): void {
-    const extname = path.extname(fileName).toLowerCase();
-    if (extname === ".tar.gz") {
+    if (fileName.endsWith(".tar.gz")) {
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
-    } else if (extname === ".tar.xz") {
+    } else if (fileName.endsWith(".tar.xz")) {
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       bufferStream.pipe(extract({ cwd: targetDir }));
