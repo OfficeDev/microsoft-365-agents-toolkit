@@ -310,6 +310,7 @@ export class ToolsInstallDriverImpl {
         if (status.status === "installed") {
           this.context.addSummary(`NodeJS is installed at: ${status.installPath}.`);
         }
+        process.env.PATH = `${status.installPath}${path.delimiter}${process.env.PATH as string}`;
       }
     }
   }

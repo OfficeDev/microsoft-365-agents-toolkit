@@ -30,14 +30,14 @@ export interface NodeDownloadMirror {
   packageUrl?: string;
   time?: number;
 }
-export const FirstPriorityMirror: NodeDownloadMirror = {
-  name: "NPM",
-  url: "https://registry.npmmirror.com/-/binary/node/",
-  indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
-  packageUrlTpl: Handlebars.compile(
-    "https://cdn.npmmirror.com/binaries/node/{{version}}/node-{{version}}-{{name}}{{ext}}"
-  ),
-};
+// export const FirstPriorityMirror: NodeDownloadMirror = {
+//   name: "NPM",
+//   url: "https://registry.npmmirror.com/-/binary/node/",
+//   indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
+//   packageUrlTpl: Handlebars.compile(
+//     "https://cdn.npmmirror.com/binaries/node/{{version}}/node-{{version}}-{{name}}{{ext}}"
+//   ),
+// };
 // const FirstPriorityMirror: NodeDownloadMirror = {
 //   name: "Tencent",
 //   url: "https://mirrors.cloud.tencent.com/nodejs-release/",
@@ -47,6 +47,14 @@ export const FirstPriorityMirror: NodeDownloadMirror = {
 //   ),
 // };
 export const BackupMirrors: NodeDownloadMirror[] = [
+  {
+    name: "NPM",
+    url: "https://registry.npmmirror.com/-/binary/node/",
+    indexJsonUrl: "https://cdn.npmmirror.com/binaries/node/index.json",
+    packageUrlTpl: Handlebars.compile(
+      "https://cdn.npmmirror.com/binaries/node/{{version}}/node-{{version}}-{{name}}{{ext}}"
+    ),
+  },
   {
     name: "Official",
     url: "https://nodejs.org/dist/",
@@ -180,10 +188,10 @@ export class NodejsInstaller {
     ext: string,
     logger?: LogProvider
   ): Promise<NodeDownloadMirror | undefined> {
-    const mirror = await this.testMirrorSpeed(FirstPriorityMirror, osArchName, ext, 1000, logger);
-    if (mirror.packageUrl) {
-      return mirror;
-    }
+    // const mirror = await this.testMirrorSpeed(FirstPriorityMirror, osArchName, ext, 1000, logger);
+    // if (mirror.packageUrl) {
+    //   return mirror;
+    // }
     for (let i = 0; i < 5; ++i) {
       const mirror = await Promise.race(
         BackupMirrors.map((mirror) => this.testMirrorSpeed(mirror, osArchName, ext, 1000, logger))

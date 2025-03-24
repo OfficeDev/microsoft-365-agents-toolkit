@@ -993,6 +993,7 @@ describe("Tools Install Driver test", () => {
       sandbox
         .stub(nodejsInstaller, "ensureNodeJS")
         .resolves(ok({ status: "ignore", installPath: "/path/to/nodejs" }));
+      sandbox.stub(fileHelper, "createSymlink").resolves();
       const addSummary = sandbox.stub(context, "addSummary");
       await impl.resolveNodeJS("./devTool/nodejs");
       chai.assert.isTrue(addSummary.notCalled);
