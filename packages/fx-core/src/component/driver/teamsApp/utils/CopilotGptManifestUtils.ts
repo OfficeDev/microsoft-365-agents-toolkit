@@ -63,6 +63,23 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public readCopilotGptManifestFileSync(
+    path: string
+  ): Result<DeclarativeCopilotManifestSchema, FxError> {
+    if (!fs.existsSync(path)) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+    // Be compatible with UTF8-BOM encoding
+    // Avoid Unexpected token error at JSON.parse()
+    let content = fs.readFileSync(path, { encoding: "utf-8" });
+    content = stripBom(content);
+    try {
+      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      return ok(manifest);
+    } catch (e) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+  }
   /**
    * Get Declarative Copilot Manifest with env value filled.
    * @param path path of declaraitve Copilot
@@ -165,8 +182,8 @@ export class CopilotGptManifestUtils {
       return err(teamsManifestRes.error);
     }
     const filePath = teamsManifestRes.value.copilotExtensions
-      ? teamsManifestRes.value.copilotExtensions.declarativeCopilots?.[0].file
-      : teamsManifestRes.value.copilotAgents?.declarativeAgents?.[0].file;
+      ? teamsManifestRes.value.copilotExtensions.declarativeCopilots?.[0]?.file
+      : teamsManifestRes.value.copilotAgents?.declarativeAgents?.[0]?.file;
     if (!filePath) {
       return err(
         AppStudioResultFactory.UserError(

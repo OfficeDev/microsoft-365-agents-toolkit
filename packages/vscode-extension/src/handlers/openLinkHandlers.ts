@@ -6,6 +6,7 @@ import {
   FxError,
   ok,
   Result,
+  signedIn,
   SubscriptionInfo,
   UserError,
   Void,
@@ -13,7 +14,6 @@ import {
 import { AppStudioScopes, getHashedEnv } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import * as util from "util";
-import { signedIn } from "../commonlib/common/constant";
 import M365TokenInstance from "../commonlib/m365Login";
 import {
   AzurePortalUrl,

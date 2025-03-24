@@ -142,7 +142,8 @@ describe("Command And Response Bot Local Debug Tests", function () {
           localDebugTestContext.context!,
           teamsAppId,
           Env.username,
-          Env.password
+          Env.password,
+          { projectPath: projectPath, env: "local" }
         );
         await validateBot(page, {
           botCommand: "helloWorld",
@@ -158,7 +159,8 @@ describe("Command And Response Bot Local Debug Tests", function () {
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
-            Env.password
+            Env.password,
+            { projectPath: projectPath, env: "local" }
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateBot(page, {

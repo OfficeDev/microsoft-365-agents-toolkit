@@ -59,7 +59,7 @@ describe("cdpClient", () => {
     });
     it("connect to iframe target", async () => {
       const cdpClient = new CDPClient("url", 9222, "name");
-      sandbox.stub(cdpClient, "launchTeamsChatListener").resolves();
+      sandbox.stub(cdpClient, "connectToTargetIframeWithRetries").resolves();
       const client = {
         Network: { enable: () => {}, webSocketFrameReceived: () => {} },
         Page: { enable: () => {} },
@@ -139,27 +139,28 @@ describe("cdpClient", () => {
     });
   });
 
-  describe("launchTeamsChatListener", () => {
+  describe("connectToTargetIframeWithRetries", () => {
     it("happy", async () => {
       const cdpClient = new CDPClient("url", 9222, "name");
       const stub = sandbox.stub(cdpClient, "connectToTargetIframe");
       const client = {} as any;
       stub.resolves(true);
-      cdpClient.launchTeamsChatListener(client);
+      cdpClient.enableRetry = true;
+      cdpClient.connectToTargetIframeWithRetries(client);
       chai.assert.isTrue(stub.calledOnce);
     });
     // it("error", async () => {
     //   const cdpClient = new CDPClient("url", 9222, "name");
     //   sandbox.stub(cdpClient, "connectToTargetIframe").rejects(new Error());
     //   const client = {} as any;
-    //   await cdpClient.launchTeamsChatListener(client, 1, 1);
+    //   await cdpClient.connectToTargetIframeWithRetries(client, 1, 1);
     //   chai.assert.isUndefined(cdpClient.client);
     // });
     it("reach max try", async () => {
       const cdpClient = new CDPClient("url", 9222, "name");
       sandbox.stub(cdpClient, "connectToTargetIframe").rejects(new Error());
       const client = {} as any;
-      const p = cdpClient.launchTeamsChatListener(client, 2, 1);
+      const p = cdpClient.connectToTargetIframeWithRetries(client, 2, 1);
       await clock.tickAsync(2000);
       await p;
       chai.assert.isUndefined(cdpClient.client);

@@ -91,7 +91,8 @@ describe("Local Debug M365 Tests", function () {
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local" }
       );
       await localDebugTestContext.validateLocalStateForTab();
       await validateReactTab(page, Env.displayName, true);

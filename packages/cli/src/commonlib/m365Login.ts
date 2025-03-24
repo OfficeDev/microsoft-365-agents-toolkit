@@ -11,13 +11,15 @@ import {
   M365TokenProvider,
   ok,
   Result,
+  signedIn,
+  signedOut,
   TokenRequest,
 } from "@microsoft/teamsfx-api";
 import { AuthSvcScopes, teamsDevPortalClient } from "@microsoft/teamsfx-core";
 import ui from "../userInteraction";
 import { CryptoCachePlugin, loadTenantId } from "./cacheAccess";
 import { CodeFlowLogin, ConvertTokenToJson, ErrorMessage } from "./codeFlowLogin";
-import { m365CacheName, signedIn, signedOut } from "./common/constant";
+import { m365CacheName } from "./common/constant";
 import { LoginStatus } from "./common/login";
 import CLILogProvider from "./log";
 import M365TokenProviderUserPassword from "./m365LoginUserPassword";

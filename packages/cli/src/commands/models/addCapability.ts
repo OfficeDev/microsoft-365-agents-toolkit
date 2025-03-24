@@ -7,12 +7,12 @@ import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ProjectFolderOption } from "../common";
 
-export const addKnowledgeCommand: CLICommand = {
-  name: "knowledge",
-  description: commands["add.knowledge"].description,
+export const addCapabilityCommand: CLICommand = {
+  name: "capability",
+  description: commands["add.capability"].description,
   options: [...AddKnowledgeOptions, ProjectFolderOption],
   telemetry: {
-    event: TelemetryEvent.AddKnowledge,
+    event: TelemetryEvent.AddCapability,
   },
   handler: async (ctx) => {
     const inputs = ctx.optionValues as AddKnowledgeInputs;

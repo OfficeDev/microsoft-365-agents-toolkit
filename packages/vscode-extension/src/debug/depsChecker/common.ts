@@ -14,6 +14,7 @@ import {
   UserErrorOptions,
   err,
   ok,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,

@@ -37,6 +37,7 @@ export class FeatureFlagName {
   static readonly GCList = "TEAMSFX_GC_LIST";
   static readonly TypeSpec = "TEAMSFX_TYPESPEC";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
+  static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
 }
 
 export interface FeatureFlag {
@@ -125,6 +126,10 @@ export class FeatureFlags {
   };
   static readonly SandBoxedTeam = {
     name: FeatureFlagName.SandBoxedTeam,
+    defaultValue: "false",
+  };
+  static readonly SensitivityLabelEnabled = {
+    name: FeatureFlagName.SensitivityLabelEnabled,
     defaultValue: "false",
   };
 }

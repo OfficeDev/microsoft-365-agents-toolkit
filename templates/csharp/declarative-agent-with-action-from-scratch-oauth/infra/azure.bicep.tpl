@@ -85,14 +85,14 @@ resource authSettings 'Microsoft.Web/sites/config@2021-02-01' = {
           clientId: aadAppClientId
         }
         validation: {
-{{#MicrosoftEntra}}
           defaultAuthorizationPolicy: {
             allowedApplications: [
               aadAppClientId
+{{#MicrosoftEntra}}
               clientIdForTGS
+{{/MicrosoftEntra}}
             ]
           }
-{{/MicrosoftEntra}}
           allowedAudiences: [
             aadAppClientId
             aadApplicationIdUri

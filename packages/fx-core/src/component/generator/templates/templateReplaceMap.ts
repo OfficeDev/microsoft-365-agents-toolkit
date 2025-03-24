@@ -78,5 +78,10 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
       ? "true"
       : "",
     ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
+    SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
+      FeatureFlags.SensitivityLabelEnabled
+    )
+      ? "true"
+      : "",
   };
 }

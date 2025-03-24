@@ -3,11 +3,10 @@
 
 import * as util from "util";
 import * as vscode from "vscode";
-import { SubscriptionInfo } from "@microsoft/teamsfx-api";
+import { signedIn, SubscriptionInfo } from "@microsoft/teamsfx-api";
 import { AppStudioScopes, environmentNameManager } from "@microsoft/teamsfx-core";
 import { M365Login } from "../commonlib/m365Login";
 import azureAccountManager from "../commonlib/azureLogin";
-import { signedIn } from "../commonlib/common/constant";
 import { isSPFxProject } from "../globalVariables";
 import {
   getM365TenantFromEnv,

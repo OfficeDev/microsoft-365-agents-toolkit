@@ -16,6 +16,8 @@ import {
   BasicLogin,
   UserError,
   SystemError,
+  signedIn,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import { AccountInfo, LogLevel } from "@azure/msal-node";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
@@ -23,15 +25,7 @@ import { CodeFlowLogin, ConvertTokenToJson, UserCancelError } from "./codeFlowLo
 import VsCodeLogInstance from "./log";
 import * as vscode from "vscode";
 import { CryptoCachePlugin, saveAccountId } from "./cacheAccess";
-import {
-  loggedIn,
-  loggingIn,
-  m365CacheName,
-  signedIn,
-  signedOut,
-  signingIn,
-  switching,
-} from "./common/constant";
+import { loggedIn, loggingIn, m365CacheName, signingIn, switching } from "./common/constant";
 import * as util from "util";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {

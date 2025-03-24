@@ -6,6 +6,9 @@ import { TokenCredential } from "@azure/core-auth";
 import { ok, Result } from "neverthrow";
 import { FxError } from "../error";
 
+export const signedIn = "SignedIn";
+export const signedOut = "SignedOut";
+
 export type AzureCredential =
   | {
       type: "AuthorizationCode";

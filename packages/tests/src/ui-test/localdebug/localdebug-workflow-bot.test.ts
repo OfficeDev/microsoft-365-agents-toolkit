@@ -140,7 +140,8 @@ describe("Workflow Bot Local Debug Tests", function () {
           localDebugTestContext.context!,
           teamsAppId,
           Env.username,
-          Env.password
+          Env.password,
+          { projectPath: projectPath, env: "local" }
         );
         await validateBot(page, {
           botCommand: "helloWorld",
@@ -157,7 +158,8 @@ describe("Workflow Bot Local Debug Tests", function () {
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
-            Env.password
+            Env.password,
+            { projectPath: projectPath, env: "local" }
           );
           await validateBot(page, {
             botCommand: "helloWorld",
