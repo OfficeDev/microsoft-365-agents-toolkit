@@ -1074,6 +1074,10 @@
                         {
                           "const": "portOccupancy",
                           "title": "%teamstoolkit.taskDefinitions.args.prerequisites.portsTitle%"
+                        },
+                        {
+                          "const": "sandbox",
+                          "title": "%teamstoolkit.taskDefinitions.args.prerequisites.sandboxTitle%"
                         }
                       ]
                     }
