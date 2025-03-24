@@ -83,5 +83,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     )
       ? "true"
       : "",
+    SandBoxedTeam: featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam) ? "true" : "",
   };
 }

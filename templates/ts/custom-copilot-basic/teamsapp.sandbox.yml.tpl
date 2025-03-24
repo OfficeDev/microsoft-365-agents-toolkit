@@ -6,8 +6,8 @@ version: v1.8
 provision:
 {{#SandBoxedTeam}}
   # Creates a Teams channel in the specified team.
-  - uses: "devChannel/create"
-    with: 
+  - uses: devChannel/create
+    with:
       teamName: "App Development" # The name of the team in which to create the channel.
       channelName: "{{appName}} App testing" # The default name for the channel.
       description: "Team created via Teams Toolkit for development" # Optional team description.
@@ -45,7 +45,7 @@ provision:
   - uses: botFramework/create
     with:
       botId: ${{BOT_ID}}
-      name: {{appName}}
+      name:{{appName}}
       messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
       description: ""
       channels:
@@ -95,8 +95,8 @@ provision:
 deploy:
 {{#SandBoxedTeam}}
   # Sideload app in sandboxed team.
-  - uses: "devChannel/installApp"
-    with: 
+  - uses: devChannel/installApp
+    with:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/SandBoxedTeam}}
 

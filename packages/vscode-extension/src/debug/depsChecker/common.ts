@@ -39,7 +39,6 @@ import * as os from "os";
 import * as util from "util";
 import * as vscode from "vscode";
 import axios from "axios";
-import { signedOut } from "../../commonlib/common/constant";
 import VsCodeLogInstance from "../../commonlib/log";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { PanelType } from "../../controls/PanelType";

@@ -7,7 +7,6 @@ import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { passIcon, warningIcon } from "./common";
 import M365TokenInstance from "../../commonlib/m365Login";
-import { GraphClient } from "@microsoft/teamsfx-core";
 import { isSandboxedEnabled } from "../../debug/common/debugConstants";
 
 enum ContextValues {
