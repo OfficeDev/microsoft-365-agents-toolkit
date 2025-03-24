@@ -1,0 +1,160 @@
+[
+    {
+        "os": {
+            "windows-latest": {
+                "node-22": []
+            },
+            "ubuntu-latest": {
+                "node-22": []
+            },
+            "macos-latest": {
+                "node-22": []
+            }
+        },
+        "cases": [
+            "sample-localdebug-query-org",
+            "sample-localdebug-stock-update",
+            "sample-localdebug-incoming-webhook",
+            "sample-remotedebug-todo-list-with-m365",
+            "sample-localdebug-npm-search",
+            "sample-localdebug-proactive-message",
+            "sample-remotedebug-dice-roller",
+            "localdebug-chatdata-m365-js-azureopenai",
+            "localdebug-chatdata-m365-js-openai",
+            "localdebug-chatdata-m365-ts-azureopenai",
+            "localdebug-chatdata-m365-ts-openai",
+            "remotedebug-chatdata-m365-js-azureopenai",
+            "remotedebug-chatdata-m365-js-openai",
+            "remotedebug-chatdata-m365-ts-azureopenai",
+            "remotedebug-chatdata-m365-ts-openai",
+            "sample-localdebug-outlook-signature",
+            "sample-remotedebug-outlook-signature",
+            "sample-localdebug-reddit-link",
+            "sample-remotedebug-reddit-link",
+            "sample-localdebug-chef-bot",
+            "sample-remotedebug-chef-bot"
+        ]
+    },
+    {
+        "os": {
+            "ubuntu-latest": {
+                "node-18": []
+            }
+        },
+        "cases": [
+            "sample-localdebug-todo-list-with-spfx",
+            "sample-localdebug-spfx-productivity-dashboard",
+            "sample-localdebug-react-retail-dashboard"
+        ]
+    },
+    {
+        "os": {
+            "windows-latest": {
+                "node-18": []
+            },
+            "ubuntu-latest": {
+                "node-18": []
+            }
+        },
+        "cases": [
+            "sample-remotedebug-todo-list-with-spfx",
+            "sample-remotedebug-spfx-productivity-dashboard",
+            "sample-remotedebug-react-retail-dashboard"
+        ]
+    },
+    {
+        "os": {
+            "ubuntu-latest": {
+                "node-22": []
+            },
+            "windows-latest": {
+                "node-22": []
+            }
+        },
+        "cases": [
+            "sample-localdebug-hello-world-tab-with-backend",
+            "sample-localdebug-dice-roller",
+            "sample-localdebug-contact-exporter",
+            "sample-localdebug-hello-world-meeting",
+            "sample-localdebug-food-catalog",
+            "sample-remotedebug-food-catalog"
+        ]
+    },
+    {
+        "os": {
+            "windows-latest": {
+                "node-22": []
+            }
+        },
+        "cases": [
+            "sample-remotedebug-adaptive-card",
+            "sample-remotedebug-dashboard",
+            "sample-remotedebug-graph-connector",
+            "sample-remotedebug-contact-exporter",
+            "sample-remotedebug-hello-world-tab-with-backend",
+            "sample-remotedebug-npm-search",
+            "sample-remotedebug-hello-world-meeting",
+            "sample-remotedebug-one-productivity-hub",
+            "sample-remotedebug-stock-update",
+            "sample-remotedebug-query-org",
+            "sample-remotedebug-proactive-message",
+            "sample-remotedebug-assistant-dashboard",
+            "sample-remotedebug-hello-world-tab-outlook",
+            "sample-remotedebug-bot-sso",
+            "sample-remotedebug-sso-tab-via-apim-proxy",
+            "sample-localdebug-graph-connector-bot",
+            "sample-localdebug-bot-sso"
+        ]
+    },
+    {
+        "os": {
+            "ubuntu-latest": {
+                "node-22": []
+            }
+        },
+        "cases": [
+            "sample-localdebug-adaptive-card",
+            "sample-localdebug-graph-connector",
+            "sample-localdebug-share-now",
+            "sample-localdebug-dashboard",
+            "sample-localdebug-hello-world-tab-outlook",
+            "sample-localdebug-one-productivity-hub",
+            "sample-localdebug-assistant-dashboard",
+            "sample-localdebug-todo-list-sql",
+            "sample-remotedebug-share-now",
+            "sample-remotedebug-todo-list-sql",
+            "sample-remotedebug-large-scale-notification",
+            "sample-localdebug-bot-sso-docker",
+            "sample-remotedebug-bot-sso-docker",
+            "sample-localdebug-hello-world-tab-docker",
+            "sample-remotedebug-hello-world-tab-docker",
+            "sample-localdebug-todo-list-with-m365",
+            "sample-localdebug-intelligent-data-chart",
+            "sample-remotedebug-intelligent-data-chart"
+        ]
+    },
+    {
+        "os": {
+            "ubuntu-latest": {
+                "node-22": []
+            },
+            "macos-latest": {
+                "node-22": []
+            }
+        },
+        "cases": [
+            "localdebug-chatdata-azureai-js-azureopenai",
+            "localdebug-chatdata-azureai-py-azureopenai",
+            "localdebug-chatdata-azureai-ts-azureopenai",
+            "remotedebug-chatdata-azureai-js-azureopenai",
+            "remotedebug-chatdata-azureai-ts-azureopenai",
+            "remotedebug-chatdata-azureai-py-azureopenai",
+            "localdebug-chatdata-azureai-js-openai",
+            "localdebug-chatdata-azureai-py-openai",
+            "localdebug-chatdata-azureai-ts-openai",
+            "remotedebug-chatdata-azureai-js-openai",
+            "remotedebug-chatdata-azureai-py-openai",
+            "remotedebug-chatdata-azureai-ts-openai"
+        ]
+    }
+]
