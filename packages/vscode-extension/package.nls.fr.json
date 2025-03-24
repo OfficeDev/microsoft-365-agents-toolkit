@@ -182,9 +182,9 @@
   "teamstoolkit.commandsTreeViewProvider.addPluginTitle": "Ajouter une action",
   "teamstoolkit.commandsTreeViewProvider.addPluginDescription": "Ajouter une action dans l’agent déclaratif",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Ajout de l’action...",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "Ajouter des connaissances",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "Ajouter des connaissances dans l’agent déclaratif",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "Ajout de connaissances...",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "Add Capability",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "Add capability in declarative agent",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "Adding capability...",
   "teamstoolkit.commandsTreeViewProvider.addWebpartTitle": "Ajouter un composant WebPart SPFx",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployTitle": "Déployer",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployDescription": "Déployer",
@@ -278,6 +278,7 @@
   "teamstoolkit.handlers.provisionDescription": "[%s] a été créé au [local address](%s). Continuez l’approvisionnement, puis vous pouvez afficher un aperçu de l’application.",
   "teamstoolkit.handlers.provisionDescription.fallback": "[%s] a été créé au %s. Continuez l’approvisionnement, puis vous pouvez afficher un aperçu de l’application.",
   "teamstoolkit.handlers.provisionTitle": "Approvisionner",
+  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens \"Get Sensitivity Label ID\"",
   "teamstoolkit.handlers.manualStepRequired": "[%s] est créé à [local address](%s). Suivez les instructions du fichier README pour afficher un aperçu de votre application.",
   "teamstoolkit.handlers.manualStepRequired.fallback": "[%s] est créé à %s. Suivez les instructions du fichier README pour afficher un aperçu de votre application.",
   "teamstoolkit.handlers.manualStepRequiredTitle": "Ouvrir README",
@@ -608,5 +609,8 @@
   "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "Paramètre non valide dans la commande createDeclarativeAgentWithApiSpec. Utilisation : createDeclarativeAgentWithApiSpec(API_SPEC_PATH : string).",
   "teamstoolkit.error.KiotaNotInstalled": "Vous devez installer l’extension Microsoft Kiota avec une version minimale %s pour utiliser cette fonctionnalité.",
   "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit a mis à jour votre configuration de projet (teamsapp.yaml et teamsapp.local.yaml) avec une action ajoutée pour prendre en charge le flux d’authentification. Vous pouvez passer à l’approvisionnement à distance.",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Approvisionner"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Approvisionner",
+  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.",
+  "teamstoolkit.config.enableKiota.yes": "Yes",
+  "teamstoolkit.config.enableKiota.no": "No"
 }
