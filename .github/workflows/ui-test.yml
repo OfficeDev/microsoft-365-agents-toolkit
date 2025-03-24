@@ -112,11 +112,11 @@ jobs:
             # Use provided test cases
             files=$(echo "$test_cases_input" | jq -r '.[]')
           fi
-
+  
           # Parse user input for OS and Node.js versions
           os_list=$(echo '${{ inputs.os }}' | jq -r '.[]')
           node_versions=$(echo '${{ inputs.node-version }}' | jq -r '.[]')
-
+  
           # Generate Cartesian Product of test cases, OS, and Node.js versions
           matrix_json=$(jq -n --argjson files "$(printf '%s\n' $files | jq -R . | jq -s .)" \
                             --argjson os_list "$(printf '%s\n' $os_list | jq -R . | jq -s .)" \
@@ -127,18 +127,18 @@ jobs:
                               $node_versions[] as $node |
                               { test_case: $file, os: $os, node_version: $node }
                             ]')
-
+  
+          # Ensure the output format is correct
           echo "Generated matrix: $matrix_json"
-          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
-
-      
+          echo "matrix=$matrix_json" >> $GITHUB_ENV
+    
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: 18
       
       - uses: pnpm/action-setup@v4
-      
+
       - name: Download TTK
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
