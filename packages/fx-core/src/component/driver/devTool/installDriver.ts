@@ -127,17 +127,22 @@ export class ToolsInstallDriverImpl {
       dotnetRes.forEach((v, k) => res.set(k, v));
     }
 
+    let npmExecutablePath = "npm";
+    if (args.nodejs) {
+      const nodeInstallPath = await this.resolveNodeJS(args.nodejs.symlinkDir);
+      if (nodeInstallPath) {
+        npmExecutablePath = path.join(nodeInstallPath, "npm");
+      }
+    }
+
     if (args.testTool) {
       await this.resolveTestTool(
         // Hardcode to npm release type if running from YAML
         TestToolReleaseType.Npm,
         `${args.testTool.version}`,
-        args.testTool.symlinkDir
+        args.testTool.symlinkDir,
+        npmExecutablePath
       );
-    }
-
-    if (args.nodejs) {
-      await this.resolveNodeJS(args.nodejs.symlinkDir);
     }
 
     return res;
@@ -269,11 +274,13 @@ export class ToolsInstallDriverImpl {
   async resolveTestTool(
     releaseType: TestToolReleaseType,
     versionRange: string,
-    symlinkDir: string
+    symlinkDir: string,
+    npmExecutablePath?: string
   ): Promise<void> {
     const checker = new TestToolChecker();
     const projectPath = this.context.projectPath;
     const status = await checker.resolve({
+      npmExecutablePath,
       releaseType,
       versionRange,
       symlinkDir,
@@ -300,7 +307,11 @@ export class ToolsInstallDriverImpl {
       this.context.addSummary(Summaries.testToolSuccess(status.details.binFolders));
     }
   }
-  async resolveNodeJS(symlinkDir: string): Promise<void> {
+
+  /**
+   * return nodejs install path, if nodejs is installed in system environment, return "", else return installed path (./devTools/nodejs)
+   */
+  async resolveNodeJS(symlinkDir: string): Promise<string> {
     const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, true, true);
     if (ensureRes.isOk()) {
       const status = ensureRes.value;
@@ -310,8 +321,12 @@ export class ToolsInstallDriverImpl {
         if (status.status === "installed") {
           this.context.addSummary(`NodeJS is installed at: ${status.installPath}.`);
         }
+        return symLinkDir;
+      } else {
+        return "";
       }
     }
+    throw ensureRes.error;
   }
 
   public validateArgs(args: InstallToolArgs): void {

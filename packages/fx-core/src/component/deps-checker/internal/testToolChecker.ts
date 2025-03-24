@@ -127,7 +127,11 @@ export class TestToolChecker implements DepsChecker {
 
     let installationInfo: TestToolDependencyStatus;
     try {
-      if (installOptions.releaseType === TestToolReleaseType.Npm && !(await this.hasNode())) {
+      if (
+        !installOptions.npmExecutablePath &&
+        installOptions.releaseType === TestToolReleaseType.Npm &&
+        !(await this.hasNode())
+      ) {
         throw new NodejsNotFoundError();
       }
       installationInfo = await this.getInstallationInfo(installOptions);
@@ -139,7 +143,8 @@ export class TestToolChecker implements DepsChecker {
           installOptions.releaseType,
           installOptions.projectPath,
           installOptions.versionRange,
-          symlinkDir
+          symlinkDir,
+          installOptions.npmExecutablePath
         );
       } else {
         if (installationInfo.installType === InstallType.Portable) {
@@ -166,9 +171,10 @@ export class TestToolChecker implements DepsChecker {
     releaseType: TestToolReleaseType,
     projectPath: string,
     versionRange: string,
-    symlinkDir?: string
+    symlinkDir?: string,
+    npmExecutablePath?: string
   ): Promise<TestToolDependencyStatus> {
-    if (releaseType === TestToolReleaseType.Npm && !(await this.hasNPM())) {
+    if (!npmExecutablePath && releaseType === TestToolReleaseType.Npm && !(await this.hasNPM())) {
       throw new DepsCheckerError(Messages.needInstallNpm(), v3DefaultHelpLink);
     }
 
@@ -176,7 +182,7 @@ export class TestToolChecker implements DepsChecker {
     const tmpPath = this.getPortableInstallPath(releaseType, tmpVersion);
     await fs.ensureDir(tmpPath);
     if (releaseType === TestToolReleaseType.Npm) {
-      await this.npmInstall(projectPath, tmpPath, versionRange);
+      await this.npmInstall(projectPath, tmpPath, versionRange, npmExecutablePath);
     } else {
       await this.binaryInstall(tmpPath, versionRange);
     }
@@ -442,7 +448,8 @@ export class TestToolChecker implements DepsChecker {
   private async npmInstall(
     projectPath: string,
     prefix: string,
-    versionRange: string
+    versionRange: string,
+    npmExecutablePath = "npm"
   ): Promise<void> {
     let pkg: string | undefined;
 
@@ -458,7 +465,7 @@ export class TestToolChecker implements DepsChecker {
         undefined,
         // avoid powershell execution policy issue.
         { shell: isWindows() ? "cmd.exe" : true, timeout: InstallTimeout },
-        `npm`,
+        npmExecutablePath,
         "install",
         `"${pkg}"`,
         "--prefix",

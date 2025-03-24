@@ -53,6 +53,7 @@ export interface FuncInstallOptions {
 }
 
 export interface TestToolInstallOptions {
+  npmExecutablePath?: string;
   releaseType: TestToolReleaseType;
   symlinkDir?: string;
   projectPath: string;
