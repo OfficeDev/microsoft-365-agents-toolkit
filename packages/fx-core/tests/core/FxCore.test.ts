@@ -803,6 +803,23 @@ describe("Core basic APIs", () => {
     const res = await core.uninstall(inputs);
     assert.isTrue(res.isErr());
   });
+
+  it("happy path: set sensitivity label", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Confidential",
+      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      platform: Platform.VSCode,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isOk());
+  });
   it("uninstall with invalid mode", async () => {
     const core = new FxCore(tools);
     const inputs = {
