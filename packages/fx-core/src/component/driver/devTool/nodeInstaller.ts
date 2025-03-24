@@ -309,6 +309,7 @@ export class NodejsInstaller {
     progressBar?.next(progressText);
     const { name, ext } = this.getNameAndExt();
     const downloadDir = path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "nodejs");
+    await fs.ensureDir(downloadDir);
     if (checkUserFolderInstalled) {
       const subFolders = await fs.readdir(downloadDir);
       const foundFolder = subFolders.find((subFolder) => subFolder.endsWith(name));
@@ -391,7 +392,6 @@ export class NodejsInstaller {
     progressText = getLocalizedString("action.devTool.nodeInstaller.Progress5");
     context.logProvider?.info(progressText);
     progressBar?.next(progressText);
-    await fs.ensureDir(downloadDir);
     nodejsInstaller.extractPackage(binary, bestMirror.packageUrl, downloadDir);
     const t3 = Date.now();
     const targetNodeJSPath = path.join(downloadDir, `node-${bestMirror.version}-${name}`);

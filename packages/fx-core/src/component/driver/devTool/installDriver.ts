@@ -301,7 +301,7 @@ export class ToolsInstallDriverImpl {
     }
   }
   async resolveNodeJS(symlinkDir: string): Promise<void> {
-    const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, false, true);
+    const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, true, true);
     if (ensureRes.isOk()) {
       const status = ensureRes.value;
       if (status.installPath) {

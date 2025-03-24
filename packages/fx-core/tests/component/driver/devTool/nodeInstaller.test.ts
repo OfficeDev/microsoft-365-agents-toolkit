@@ -462,6 +462,9 @@ describe("NodeJS Installer", () => {
       logProvider: new MockedLogProvider(),
       ui: new MockedUserInteraction(),
     };
+    beforeEach(() => {
+      sandbox.stub(fs, "ensureDir").resolves();
+    });
     afterEach(() => {
       sandbox.restore();
     });
