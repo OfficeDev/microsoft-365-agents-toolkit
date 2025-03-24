@@ -180,7 +180,7 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
   main:
-    name: ${{ matrix.test_case }}|${{ matrix.os }}|${{ matrix.node_version }}
+    # name: ${{ matrix.test_case }}|${{ matrix.os }}|${{ matrix.node_version }}
     needs: setup
     permissions:
       contents: read
@@ -232,9 +232,14 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 2 # Limit concurrent executions due to the OpenAI API rate limit
-      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) || '[]' }} 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Validate Matrix
+        run: |
+          echo "Raw matrix output: ${{ needs.setup.outputs.matrix }}"
+          echo "Parsed matrix: ${{ toJson(fromJson(needs.setup.outputs.matrix)) }}"
+
       # Setup the environment
       - name: Set Windows Environment Variables
         if: matrix.os == 'windows-latest'
