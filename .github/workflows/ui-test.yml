@@ -107,24 +107,59 @@ jobs:
       
       - uses: pnpm/action-setup@v4
 
-      - name: create pvt file (random platform/node)
-        if: ${{ github.event.schedule == '0 18 * * *' }} || ${{ github.event.inputs.test-case }} == ''
-        working-directory: packages/tests
-        run: |
-          pnpm --filter=@microsoft/teamsfx-test install
-          npx ts-node ./scripts/createRandomPVT-vscuse.ts
+
       - name: setup matrix
         id: setup-matrix
-        working-directory: packages/tests
+        shell: pwsh
         run: |
-          matrix=""
-          if [ ! -z "${{ github.event.inputs.test-case }}" ]; then
-            matrix='{"node-version": ${{ github.event.inputs.node-version }}, "test-case": ${{ github.event.inputs.test-case }}, "os": ${{ github.event.inputs.os }} }'
-          else
-            bash ./scripts/convert-test-case.sh ./scripts/pvt-vscuse.json
-            matrix=$(cat ./scripts/test-case-temp.json)
-          fi
-          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+          # Parse user input for test cases
+          $testCasesInput = '${{ inputs.test-case }}'
+          if ($testCasesInput -eq '[]' -or $testCasesInput -eq '""') {
+            # If no test-case is provided, retrieve all files in the 'cases' directory
+            $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % { $_.Name -replace '.txt$', '' }
+          } else {
+            # Use provided test cases
+            $files = $testCasesInput | ConvertFrom-Json
+          }
+
+          # Parse user input for OS and Node.js versions
+          $osList = '${{ inputs.os }}' | ConvertFrom-Json
+          $nodeVersions = '${{ inputs.node-version }}' | ConvertFrom-Json
+
+          # Generate Cartesian Product of test cases, OS, and Node.js versions
+          $matrix = @()
+          foreach ($file in $files) {
+            foreach ($os in $osList) {
+              foreach ($node in $nodeVersions) {
+                $matrix += @{ test_case = $file; os = $os; node_version = $node }
+              }
+            }
+          }
+
+          # Convert the matrix to JSON and output it
+          $matrixJson = $matrix | ConvertTo-Json -Compress
+          Write-Host "Generated matrix: $matrixJson"
+          echo "matrix=$matrixJson" >> $env:GITHUB_OUTPUT
+
+      # - name: create pvt file (random platform/node)
+      #   if: ${{ github.event.schedule == '0 18 * * *' }} || ${{ github.event.inputs.test-case }} == ''
+      #   working-directory: packages/tests
+      #   run: |
+      #     pnpm --filter=@microsoft/teamsfx-test install
+      #     npx ts-node ./scripts/createRandomPVT-vscuse.ts
+
+      # - name: setup matrix
+      #   id: setup-matrix
+      #   working-directory: packages/tests
+      #   run: |
+      #     matrix=""
+      #     if [ ! -z "${{ github.event.inputs.test-case }}" ]; then
+      #       matrix='{"node-version": ${{ github.event.inputs.node-version }}, "test-case": ${{ github.event.inputs.test-case }}, "os": ${{ github.event.inputs.os }} }'
+      #     else
+      #       bash ./scripts/convert-test-case.sh ./scripts/pvt-vscuse.json
+      #       matrix=$(cat ./scripts/test-case-temp.json)
+      #     fi
+      #     echo "matrix=${matrix}" >> $GITHUB_OUTPUT
       - name: Download TTK
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
