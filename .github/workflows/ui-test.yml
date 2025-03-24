@@ -14,27 +14,9 @@ on:
         type: string
         default: latest
 
-      test-case:
-        default: '["29382146"]'
-        description: 'test case, e.g. ["29382146", "30862206"], Set empty to run all predefined cases'
-        required: false
-        type: string
-      
       test-case-steps:
         default: '90'
         description: 'The test cases steps, e.g. 90'
-        required: false
-        type: string
-
-      os:
-        default: '["windows-latest"]'
-        description: 'os, e.g. ["windows-latest"], only support windows-latest right now'
-        required: false
-        type: string
-
-      node-version:
-        default: "[22]"
-        description: "node version, e.g. [22]"
         required: false
         type: string
 
@@ -189,7 +171,7 @@ jobs:
 
           echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
   main:
-    # name: ${{ matrix.test-case }}|${{ matrix.os }}|${{ matrix.node-version }}
+    name: ${{ matrix.file }}
     needs: [setup, find_files]
     permissions:
       contents: read
@@ -479,7 +461,7 @@ jobs:
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "${{ matrix.test_case_file }}" %S_PARAM%
+          vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM%
         shell: cmd
 
       - name: Upload test result json file
