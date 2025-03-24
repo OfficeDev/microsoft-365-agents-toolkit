@@ -24,6 +24,7 @@ import {
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { nodejsInstaller } from "../../../../src/component/driver/devTool/nodeInstaller";
 import * as fileHelper from "../../../../src/component/deps-checker/util/fileHelper";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
 
 describe("Tools Install Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -980,35 +981,43 @@ describe("Tools Install Driver test", () => {
       },
     };
     const impl = new ToolsInstallDriverImpl(context);
-    it("success", async () => {
+    it("success to install in user folder", async () => {
       sandbox
         .stub(nodejsInstaller, "ensureNodeJS")
         .resolves(ok({ status: "installed", installPath: "/path/to/nodejs" }));
       sandbox.stub(fileHelper, "createSymlink").resolves();
       const addSummary = sandbox.stub(context, "addSummary");
       await impl.resolveNodeJS("./devTool/nodejs");
-      chai.assert.isTrue(addSummary.calledOnce);
+      chai.assert.isTrue(
+        addSummary.calledWith(
+          getLocalizedString(
+            "action.devTool.nodeInstaller.Summary.installInPath",
+            "/path/to/nodejs"
+          )
+        )
+      );
     });
-    it("ignore with install path", async () => {
-      sandbox
-        .stub(nodejsInstaller, "ensureNodeJS")
-        .resolves(ok({ status: "ignore", installPath: "/path/to/nodejs" }));
-      sandbox.stub(fileHelper, "createSymlink").resolves();
-      const addSummary = sandbox.stub(context, "addSummary");
-      await impl.resolveNodeJS("./devTool/nodejs");
-      chai.assert.isTrue(addSummary.notCalled);
-    });
-    it("no install path", async () => {
+    it("already installed in system", async () => {
       sandbox.stub(nodejsInstaller, "ensureNodeJS").resolves(ok({ status: "ignore" }));
       const addSummary = sandbox.stub(context, "addSummary");
       await impl.resolveNodeJS("./devTool/nodejs");
-      chai.assert.isTrue(addSummary.notCalled);
+      chai.assert.isTrue(
+        addSummary.calledWith(
+          getLocalizedString("action.devTool.nodeInstaller.Summary.installInSystem")
+        )
+      );
     });
-    it("fail", async () => {
+    it("error", async () => {
       sandbox.stub(nodejsInstaller, "ensureNodeJS").resolves(err(new InstallNodeJSError("")));
       const addSummary = sandbox.stub(context, "addSummary");
-      await impl.resolveNodeJS("./devTool/nodejs");
+      try {
+        await impl.resolveNodeJS("./devTool/nodejs");
+        chai.assert.fail("should throw error");
+      } catch (e: any) {
+        chai.assert.isTrue(e instanceof InstallNodeJSError);
+      }
       chai.assert.isTrue(addSummary.notCalled);
     });
+    it("throw error");
   });
 });
