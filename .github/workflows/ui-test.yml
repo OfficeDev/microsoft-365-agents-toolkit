@@ -155,6 +155,7 @@ jobs:
     needs: [setup, discover_test_cases]
     permissions:
       contents: read
+      id-token: write
       security-events: write
     timeout-minutes: 50
     
@@ -237,7 +238,7 @@ jobs:
             --file packages/vscode-ui/vscuse/binary/vscuse.exe `
             --auth-mode login
 
-            
+
       # Setup the environment
       - name: Set Windows Environment Variables
         run: |
