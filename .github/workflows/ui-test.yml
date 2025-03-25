@@ -274,11 +274,23 @@ jobs:
           where code.cmd
         shell: cmd
       
-      - name: Install VSIX to VSCode (Windows)
+      - name: Debug VSIX Installation
         working-directory: packages/tests
         run: |
-          $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
-          code --install-extension $vsix --force
+          # list all the vsix files
+          Get-ChildItem -Path . -Filter *.vsix | Format-Table -AutoSize
+      
+          # get the vsix file name
+          $vsix = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
+          Write-Host "Detected VSIX file: $vsix"
+      
+          if ($vsix) {
+            code --install-extension $vsix --force
+          } else {
+            Write-Host "No VSIX file found!"
+            exit 1
+          }
+        shell: pwsh
 
       # Check current web browsers
       - name: Check Installed Browsers
@@ -366,16 +378,6 @@ jobs:
         run: |
           npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
 
-      - name: Get VSCode
-        working-directory: packages/tests
-        run: |
-          npx extest get-vscode --storage .test-resources --type stable
-
-      - name: Get chromedriver
-        working-directory: packages/tests
-        run: |
-          npx extest get-chromedriver --storage .test-resources --type stable
-
       - name: M365 Login
         working-directory: packages/tests
         run: | # rm -r -f ~/.fx/account
@@ -385,18 +387,6 @@ jobs:
         run: |
           npm run build
 
-      - name: Install python extension
-        working-directory: packages/tests
-        run: |
-          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
-
-      - name: Install vsix(win)
-        working-directory: packages/tests
-        run: |
-          $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
-          npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
-
-      
       # Install the Appium
       - name: Install Appium
         run: |
