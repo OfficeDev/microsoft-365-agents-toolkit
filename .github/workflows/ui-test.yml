@@ -429,6 +429,28 @@ jobs:
       #     vscuse.exe agent -f "../cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
       #   shell: cmd
 
+
+      # Create the directory if it doesn't exist
+      - name: Create directory for vscuse.exe if it doesn't exist
+        run: |
+          $dirPath = "packages/vscode-ui/vscuse/binary"
+          if (-not (Test-Path -Path $dirPath)) {
+            New-Item -Path $dirPath -ItemType Directory
+            Write-Host "Directory $dirPath created."
+          } else {
+            Write-Host "Directory $dirPath already exists."
+          }
+        shell: pwsh
+
+      # Download vscuse.exe to the correct directory
+      - name: Download vscuse.exe
+        run: |
+          $url = "${{ env.VSCUSE_DOWNLOAD_URL }}" 
+          $outputPath = "packages/vscode-ui/vscuse/binary\vscuse.exe"
+          Invoke-WebRequest -Uri $url -OutFile $outputPath
+          Write-Host "vscuse.exe downloaded to $outputPath"
+        shell: pwsh
+
       # Run vscuse.exe  (0.1.8 with ZEN model)
       - name: Run vscuse.exe (0.1.8 with ZEN model) 
         working-directory: packages/vscode-ui/vscuse/binary
