@@ -4,6 +4,7 @@ using Microsoft.Agents.Core.Models;
 using Microsoft.Agents.Extensions.Teams.Compat;
 using Microsoft.Agents.Extensions.Teams.Models;
 using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace {{SafeProjectName}}.Action;
 
