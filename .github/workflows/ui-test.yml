@@ -195,6 +195,7 @@ jobs:
       AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
       AZURE_OPENAI_4O_MINI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview"
       OPENROUTER_API_KEY : "fake"
+      VSCUSE_DOWNLOAD_URL: ${{ secrets.VSCUSE_DOWNLOAD_URL }} # Temporary URL for VSCUSE download
       
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
@@ -425,7 +426,7 @@ jobs:
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "packages/vscode-ui/vscuse/cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
+          vscuse.exe agent -f "../cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
 
       # Check output.log and extract SESSION_PATH
