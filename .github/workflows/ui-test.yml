@@ -14,12 +14,6 @@ on:
         type: string
         default: latest
 
-      # test-case-steps:
-      #   default: '30'
-      #   description: 'The test cases steps, e.g. 90'
-      #   required: false
-      #   type: string
-
   schedule:
     - cron: "0 18 * * *"
 
@@ -208,35 +202,11 @@ jobs:
         file: ${{ fromJson(needs.discover_test_cases.outputs.files_list) }}
     runs-on: 'windows-latest'
     steps:
-      # Create the directory if it doesn't exist
-      - name: Create directory for vscuse.exe if it doesn't exist
-        run: |
-          $dirPath = "packages/vscode-ui/vscuse/binary"
-          if (-not (Test-Path -Path $dirPath)) {
-            New-Item -Path $dirPath -ItemType Directory
-            Write-Host "Directory $dirPath created."
-          } else {
-            Write-Host "Directory $dirPath already exists."
-          }
-        shell: pwsh
-
-      # Login to Azure
-      - uses: azure/login@v2
+            
+      - name: Checkout branch
+        uses: actions/checkout@v3
         with:
-          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
-          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
-          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
-          enable-AzPSSession: true
-
-      - name: 'Download a File from Storage (Windows)' # 0.1.8 version 2025-March-25
-        shell: pwsh
-        run: |
-          az storage blob download `
-            --account-name vscusedownload `
-            --container-name vscusebinary `
-            --name latest/vscuse.exe `
-            --file packages/vscode-ui/vscuse/binary/vscuse.exe `
-            --auth-mode login
+          ref: ${{ needs.setup.outputs.branch }}
 
 
       # Setup the environment
@@ -271,12 +241,14 @@ jobs:
           Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
         shell: pwsh
 
+      # Download the latest version of VSCode and install it
       - name: Download VSCode from internet and install
         shell: pwsh
         run: |
           Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
           Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
       
+      # Add the vscode's "\bin" to the PATH, because only the code.cmd is workable in the Github action, but not the code.exe
       - name: Add the code into the environment variable
         shell: pwsh
         run: |
@@ -287,7 +259,8 @@ jobs:
             Write-Error "VS Code: $vscodeBinPath"
             exit 1
           }
- 
+
+      # Double confirm the PATH variable
       - name: Show the new PATH
         shell: pwsh
         run: |
@@ -300,6 +273,7 @@ jobs:
           where code.cmd
         shell: cmd
 
+      # Check current web browsers
       - name: Check Installed Browsers
         run: |
           if (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") { Write-Output "Chrome is installed" }
@@ -307,6 +281,7 @@ jobs:
           if (Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe") { Write-Output "Edge is installed" }
         shell: pwsh
       
+      # Sign in
       - name: Set m365 account (win)
         run: |
           $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
@@ -315,12 +290,7 @@ jobs:
           echo "account index: $index"
           echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
 
-
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ needs.setup.outputs.branch }}
-
+      # Download and set up the node.js
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -368,6 +338,7 @@ jobs:
           $certfolder = Join-Path -Path $home -ChildPath ".fx/certificate"
           New-Item -Path $certfolder -ItemType Directory
           Start-Process powershell -verb RunAs -ArgumentList $filePath -wait
+
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
@@ -417,6 +388,7 @@ jobs:
         run: |
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
+          
       # Install the Appium
       - name: Install Appium
         run: |
@@ -450,27 +422,37 @@ jobs:
         run: |
           curl http://127.0.0.1:4723/status
         shell: powershell
-      
-      # Run vscuse.exe  (older version, 0.1.6, 0.1.7)
-      # - name: Run vscuse.exe 
-      #   working-directory: packages/vscode-ui/vscuse/binary
-      #   env:
-      #     S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
-      #   run: |
-      #     vscuse.exe agent -f "../cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
-      #   shell: cmd
 
+      # Create the directory if it doesn't exist
+      - name: Create directory for vscuse.exe if it doesn't exist
+        run: |
+          $dirPath = "packages/vscode-ui/vscuse/binary"
+          if (-not (Test-Path -Path $dirPath)) {
+            New-Item -Path $dirPath -ItemType Directory
+            Write-Host "Directory $dirPath created."
+          } else {
+            Write-Host "Directory $dirPath already exists."
+          }
+        shell: pwsh
 
-      
-      # Download vscuse.exe to the correct directory
-      
-      # - name: Download vscuse.exe
-      #   run: |
-      #     $url = "${{ env.VSCUSE_DOWNLOAD_URL }}" 
-      #     $outputPath = "packages/vscode-ui/vscuse/binary\vscuse.exe"
-      #     Invoke-WebRequest -Uri $url -OutFile $outputPath
-      #     Write-Host "vscuse.exe downloaded to $outputPath"
-      #   shell: pwsh
+      # Login to Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      # Download the latest vscuse.exe from Azure Storage via the MI method
+      - name: 'Download a File from Storage (Windows)' # 0.1.8 version 2025-March-25
+        shell: pwsh
+        run: |
+          az storage blob download `
+            --account-name vscusedownload `
+            --container-name vscusebinary `
+            --name latest/vscuse.exe `
+            --file packages/vscode-ui/vscuse/binary/vscuse.exe `
+            --auth-mode login
 
       # Run vscuse.exe  (0.1.8 with ZEN model)
       - name: Run vscuse.exe (0.1.8 with ZEN model) 
