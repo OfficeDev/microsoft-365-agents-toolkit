@@ -274,8 +274,13 @@ jobs:
           where code.cmd
         shell: cmd
       
+      
+      - name: Download TTK
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+
       - name: VSIX Installation
-        working-directory: packages/tests
         run: |
           # list all the vsix files
           Get-ChildItem -Path . -Filter *.vsix | Format-Table -AutoSize
