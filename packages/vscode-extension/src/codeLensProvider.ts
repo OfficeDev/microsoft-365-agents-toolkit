@@ -740,6 +740,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
           }
         }
       }
+
       const command = {
         title: util.format(
           localize("teamstoolkit.codeLens.setSensitivityLabelWithDisplayName"),
