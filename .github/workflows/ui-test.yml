@@ -437,6 +437,9 @@ jobs:
             $report_path = $matches[1]
             echo "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
             echo "SESSION_PATH=$(Split-Path -Parent $(Split-Path -Parent $report_path))" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8  
+            Write-Host "SESSION_PATH=${{ env.SESSION_PATH }}"
+          } else {
+            Write-Host "No report found in the output log."
             exit 1
           }
         shell: pwsh
