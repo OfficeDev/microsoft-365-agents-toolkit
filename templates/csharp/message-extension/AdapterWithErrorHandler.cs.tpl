@@ -1,13 +1,13 @@
-﻿using Microsoft.Agents.BotBuilder;
-using Microsoft.Agents.Hosting.AspNetCore;
-using Microsoft.Agents.Hosting.AspNetCore.BackgroundQueue;
+﻿using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Bot.Builder.TraceExtensions;
+using Microsoft.Bot.Connector.Authentication;
 
 namespace {{SafeProjectName}};
 
 public class AdapterWithErrorHandler : CloudAdapter
 {
-	public AdapterWithErrorHandler(IChannelServiceClientFactory channelServiceClientFactory, IActivityTaskQueue activityTaskQueue, ILogger<IBotHttpAdapter> logger)
-		: base(channelServiceClientFactory, activityTaskQueue, logger: logger)
+	public AdapterWithErrorHandler(BotFrameworkAuthentication auth, ILogger<IBotFrameworkHttpAdapter> logger)
+		: base(auth, logger)
 	{
         OnTurnError = async (turnContext, exception) =>
         {

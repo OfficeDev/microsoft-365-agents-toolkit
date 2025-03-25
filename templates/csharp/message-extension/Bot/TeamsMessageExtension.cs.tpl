@@ -1,8 +1,8 @@
-﻿using AdaptiveCards;
-using Microsoft.Agents.BotBuilder;
-using Microsoft.Agents.Core.Models;
-using Microsoft.Agents.Extensions.Teams.Compat;
-using Microsoft.Agents.Extensions.Teams.Models;
+﻿using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Teams;
+using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
+using AdaptiveCards;
 using Newtonsoft.Json.Linq;
 
 namespace {{SafeProjectName}}.Bot;
@@ -66,7 +66,7 @@ public class TeamsMessageExtension : TeamsActivityHandler
             var attachment = new MessagingExtensionAttachment
             {
                 ContentType = AdaptiveCard.ContentType,
-                Content = adaptiveCard.ToJson(),
+                Content = adaptiveCard,
                 Preview = previewCard.ToAttachment()
             };
 
