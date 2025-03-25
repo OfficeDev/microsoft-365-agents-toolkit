@@ -5,7 +5,16 @@
  */
 
 import { ProjectType, SpecParserError } from "@microsoft/m365-spec-parser";
-import { Context, err, FxError, GeneratorResult, Inputs, Result } from "@microsoft/teamsfx-api";
+import {
+  AppPackageFolderName,
+  Context,
+  err,
+  FxError,
+  GeneratorResult,
+  Inputs,
+  Platform,
+  Result,
+} from "@microsoft/teamsfx-api";
 import { assembleError } from "../../../error";
 import { QuestionNames } from "../../../question";
 import { ActionContext } from "../../middleware/actionExecutionMW";
@@ -14,6 +23,10 @@ import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { generateFilesFromApiSpec, getTemplateInfosFromApiSpec } from "./common";
 import { convertSpecParserErrorToFxError } from "./helper";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import path from "path";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
+import fs from "fs-extra";
 
 export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplateGenerator {
   componentName = "da-with-existing-api-generator";
@@ -41,6 +54,18 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
     try {
+      if (
+        featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&
+        (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode)
+      ) {
+        // ensure EmbeddedKnwoledge folder exists
+        const embeddedKnowledgeFolderPath = path.join(
+          destinationPath,
+          AppPackageFolderName,
+          EmbeddedKnowledgeLocalDirectoryName
+        );
+        await fs.ensureDir(embeddedKnowledgeFolderPath);
+      }
       return await generateFilesFromApiSpec(
         context,
         inputs,

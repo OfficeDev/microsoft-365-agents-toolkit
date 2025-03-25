@@ -36,6 +36,8 @@ import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
 import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
 import { getDefaultString } from "../../../common/localizeUtils";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
+import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 const enum telemetryProperties {
@@ -133,7 +135,31 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
 
+    if (
+      featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&
+      (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode)
+    ) {
+      // ensure EmbeddedKnwoledge folder exists
+      const embeddedKnowledgeFolderPath = path.join(
+        destinationPath,
+        AppPackageFolderName,
+        EmbeddedKnowledgeLocalDirectoryName
+      );
+      await fs.ensureDir(embeddedKnowledgeFolderPath);
+    }
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
+      const teamsManifestPath = path.join(
+        destinationPath,
+        AppPackageFolderName,
+        ManifestTemplateFileName
+      );
+      const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+        teamsManifestPath
+      );
+      if (declarativeCopilotManifestPathRes.isErr()) {
+        return err(declarativeCopilotManifestPathRes.error);
+      }
+
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],
