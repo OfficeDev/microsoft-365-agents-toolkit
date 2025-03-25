@@ -207,7 +207,37 @@ jobs:
         file: ${{ fromJson(needs.discover_test_cases.outputs.files_list) }}
     runs-on: 'windows-latest'
     steps:
-      
+      # Create the directory if it doesn't exist
+      - name: Create directory for vscuse.exe if it doesn't exist
+        run: |
+          $dirPath = "packages/vscode-ui/vscuse/binary"
+          if (-not (Test-Path -Path $dirPath)) {
+            New-Item -Path $dirPath -ItemType Directory
+            Write-Host "Directory $dirPath created."
+          } else {
+            Write-Host "Directory $dirPath already exists."
+          }
+        shell: pwsh
+
+      # Login to Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      - name: 'Download a File from Storage (Windows)' # 0.1.8 version 2025-March-25
+        shell: pwsh
+        run: |
+          az storage blob download `
+            --account-name vscusedownload `
+            --container-name vscusebinary `
+            --name latest/vscuse.exe `
+            --file packages/vscode-ui/vscuse/binary/vscuse.exe `
+            --auth-mode login
+
+            
       # Setup the environment
       - name: Set Windows Environment Variables
         run: |
@@ -430,26 +460,16 @@ jobs:
       #   shell: cmd
 
 
-      # Create the directory if it doesn't exist
-      - name: Create directory for vscuse.exe if it doesn't exist
-        run: |
-          $dirPath = "packages/vscode-ui/vscuse/binary"
-          if (-not (Test-Path -Path $dirPath)) {
-            New-Item -Path $dirPath -ItemType Directory
-            Write-Host "Directory $dirPath created."
-          } else {
-            Write-Host "Directory $dirPath already exists."
-          }
-        shell: pwsh
-
+      
       # Download vscuse.exe to the correct directory
-      - name: Download vscuse.exe
-        run: |
-          $url = "${{ env.VSCUSE_DOWNLOAD_URL }}" 
-          $outputPath = "packages/vscode-ui/vscuse/binary\vscuse.exe"
-          Invoke-WebRequest -Uri $url -OutFile $outputPath
-          Write-Host "vscuse.exe downloaded to $outputPath"
-        shell: pwsh
+      
+      # - name: Download vscuse.exe
+      #   run: |
+      #     $url = "${{ env.VSCUSE_DOWNLOAD_URL }}" 
+      #     $outputPath = "packages/vscode-ui/vscuse/binary\vscuse.exe"
+      #     Invoke-WebRequest -Uri $url -OutFile $outputPath
+      #     Write-Host "vscuse.exe downloaded to $outputPath"
+      #   shell: pwsh
 
       # Run vscuse.exe  (0.1.8 with ZEN model)
       - name: Run vscuse.exe (0.1.8 with ZEN model) 
