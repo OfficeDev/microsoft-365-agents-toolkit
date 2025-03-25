@@ -296,11 +296,21 @@ async function uploadPackage(page: Page, projectPath = "", env = "local") {
   await page.waitForTimeout(Timeout.shortTimeLoading);
   // Set the file to be uploaded
   const packageFile = `appPackage.${env}.zip`;
-  const packageFilePath = path.resolve(
-    projectPath,
-    "appPackage/build",
-    packageFile
-  );
+  let packageFilePath: string;
+  packageFilePath = path.resolve(projectPath, "appPackage/build", packageFile);
+  // verify project path is exist
+  if (!fs.existsSync(projectPath)) {
+    // sample chef bot/proactive message path
+    packageFilePath = path.resolve(
+      projectPath,
+      "build/appPackage",
+      packageFile
+    );
+
+    if (!fs.existsSync(packageFilePath)) {
+      throw new Error(`Package file not found: ${packageFilePath}`);
+    }
+  }
   console.log(packageFilePath);
   // Wait for the file chooser dialog and set file path
   console.log("Click button Upload a custom app");
