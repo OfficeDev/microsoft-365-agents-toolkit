@@ -15,7 +15,7 @@ on:
         default: latest
 
       test-case-steps:
-        default: '90'
+        default: '30'
         description: 'The test cases steps, e.g. 90'
         required: false
         type: string
@@ -103,7 +103,7 @@ jobs:
       target_cli_version: ${{ env.target_cli_version }}
 
 
-  find_files:
+  discover_test_cases:
     runs-on: windows-latest
     needs: setup
     outputs:
@@ -115,20 +115,20 @@ jobs:
       - name: Generate file list
         shell: pwsh
         run: |
-          # Recursively find all .txt files in target directory
-          $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | % FullName
-
+          # Recursively find all .txt files and extract only the file names without extensions
+          $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | ForEach-Object { $_.BaseName }
+      
           # Debugging: Print the files found
           Write-Host "Found files:"
           $files | ForEach-Object { Write-Host $_ }
-
+      
           # Filter out any empty or invalid file entries
           $validFiles = $files | Where-Object { $_ -ne $null -and $_ -ne "" }
-
+      
           # Debugging: Print valid files list
           Write-Host "Valid files:"
           $validFiles | ForEach-Object { Write-Host $_ }
-
+      
           # Export valid files as JSON array
           $validFiles | ConvertTo-Json -Compress | Out-File -Encoding utf8 files_list.json
 
@@ -152,7 +152,7 @@ jobs:
 
   main:
     name: ${{ matrix.file }}
-    needs: [setup, find_files]
+    needs: [setup, discover_test_cases]
     permissions:
       contents: read
       security-events: write
@@ -203,7 +203,7 @@ jobs:
       fail-fast: false
       max-parallel: 1 # Limit concurrent executions due to the OpenAI API rate limit
       matrix:
-        file: ${{ fromJson(needs.find_files.outputs.files_list) }}
+        file: ${{ fromJson(needs.discover_test_cases.outputs.files_list) }}
     runs-on: 'windows-latest'
     steps:
       
@@ -425,7 +425,7 @@ jobs:
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM% | tee "${{ runner.temp }}\output.log"
+          vscuse.exe agent -f "packages/vscode-ui/vscuse/cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
 
       # Check output.log and extract SESSION_PATH
@@ -458,5 +458,5 @@ jobs:
       - name: Upload VSCUSE session files
         uses: actions/upload-artifact@v4
         with:
-          name: vscuse-session
+          name: vscuse-session-log-${{ matrix.file }}
           path: ${{ env.SESSION_PATH }}
