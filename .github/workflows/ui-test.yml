@@ -419,7 +419,7 @@ jobs:
           curl http://127.0.0.1:4723/status
         shell: powershell
       
-      # Launch the vscuse
+      # Run vscuse.exe
       - name: Run vscuse.exe
         working-directory: packages/vscode-ui/vscuse/binary
         env:
@@ -427,23 +427,34 @@ jobs:
         run: |
           vscuse.exe agent -f "${{ matrix.file }}" %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
-        
 
-      - name: Check for HTML report  # The report like: C:\Users\runneradmin\.vscuse\sessions\250324_1319_6752\report\memory_report_20250324_134618.html
+      # Check output.log and extract SESSION_PATH
+      - name: Check for HTML report
         id: check_report
         run: |
-          $last_line = Get-Content ${{ runner.temp }}\output.log | Select-Object -Last 1
-          if ($last_line -match 'Report saved to: (.+\.html)') {
-            $report_path = $matches[1]
+          $log_path = "${{ runner.temp }}\output.log"
+          $report_path = ""
+
+          # Iterate through the log file to find "Report saved to:"
+          Get-Content $log_path | ForEach-Object {
+            if ($_ -match 'Report saved to: (.+\.html)') {
+              $report_path = $matches[1]
+            }
+          }
+
+          if ($report_path -ne "") {
+            # Extract SESSION_PATH by getting the parent directory of the report folder
+            $session_path = Split-Path -Parent (Split-Path -Parent $report_path)
             echo "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
-            echo "SESSION_PATH=$(Split-Path -Parent $(Split-Path -Parent $report_path))" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8  
-            Write-Host "SESSION_PATH=${{ env.SESSION_PATH }}"
+            echo "SESSION_PATH=$session_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8  
+            Write-Host "SESSION_PATH=$session_path"
           } else {
             Write-Host "No report found in the output log."
             exit 1
           }
         shell: pwsh
-      
+
+      # Upload VSCUSE session files
       - name: Upload VSCUSE session files
         uses: actions/upload-artifact@v4
         with:
