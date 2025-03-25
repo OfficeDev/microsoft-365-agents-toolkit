@@ -1,0 +1,35 @@
+open_app: VS Code
+wait: 10 seconds to launch VS Code
+press_key: F1
+wait: 5 seconds
+type_text: "Teams: Create New App" and enter
+wait: 10 seconds to activate Teams Toolkit extension
+left_click: "Declarative Agent"
+wait: 5 seconds
+left_click: "Add an action"
+wait: 5 seconds
+left_click: "Start with OpenAPI description document" and enter
+wait: 5 seconds
+left_click: "Enter OpenAPI description document location" and enter
+wait: 5 seconds
+type_text: "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-custom-api-key.yaml" and enter
+wait: 5 seconds
+left_click: any API in the dropdown list and enter
+wait: 5 seconds
+left_click: "Default Folder"
+wait: 5 seconds
+type_text: random name and enter
+wait: 10 seconds
+press_key: F1
+wait: 5 seconds
+type_text: "Teams: Provision" and enter
+wait: 3 seconds
+type_text: "my-secret-value" (API key) and enter
+wait: 5 seconds
+left_click: "Confirm" in dialog window
+wait: 60 seconds
+press_key: F5
+wait: every 60 seconds until browser is opened
+type_text: "list repairs assigned to Karin" in "Message Copilot" chat input box and enter
+wait: 5 seconds
+left_click: response from Copilot in web browser
