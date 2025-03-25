@@ -14,7 +14,7 @@ import { SampledebugContext } from "./sampledebugContext";
 
 class ContactExporterTestCase extends CaseFactory {
   public override async onValidate(page: Page): Promise<void> {
-    return await validateContact(page, { displayName: Env.displayName });
+    return await validateContact(page, { displayName: Env.displayName }, true);
   }
   public override async onCliValidate(page: Page): Promise<void> {
     return await validateContact(page, { displayName: Env.displayName });
