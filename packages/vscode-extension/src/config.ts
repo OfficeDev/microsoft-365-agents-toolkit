@@ -72,7 +72,8 @@ export class ConfigManager {
       if (previousConfig) {
         await configuration.update(
           ConfigurationKey.EnableMicrosoftKiotaString,
-          EnableMicrosoftKiota.enabled
+          EnableMicrosoftKiota.enabled,
+          true
         );
       } else {
         // pop up question to ask if user want to enable kiota
@@ -87,7 +88,8 @@ export class ConfigManager {
           ConfigurationKey.EnableMicrosoftKiotaString,
           res.isOk() && res.value === "Yes"
             ? EnableMicrosoftKiota.enabled
-            : EnableMicrosoftKiota.disabled
+            : EnableMicrosoftKiota.disabled,
+          true
         );
       }
       this.loadFeatureFlags();
