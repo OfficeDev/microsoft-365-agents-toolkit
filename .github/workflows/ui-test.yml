@@ -68,6 +68,7 @@ jobs:
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
           gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+
       - name: Export TTK version
         id: ttk
         run: |
@@ -272,6 +273,12 @@ jobs:
           where code
           where code.cmd
         shell: cmd
+      
+      - name: Install VSIX to VSCode (Windows)
+        working-directory: packages/tests
+        run: |
+          $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
+          code --install-extension $vsix --force
 
       # Check current web browsers
       - name: Check Installed Browsers
@@ -388,7 +395,8 @@ jobs:
         run: |
           $vsix = (Get-ChildItem *.vsix | Select-Object -ExpandProperty Name)
           npx extest install-vsix --storage .test-resources --extensions_dir .test-resources --type stable --vsix_file $vsix
-          
+
+      
       # Install the Appium
       - name: Install Appium
         run: |
