@@ -678,11 +678,11 @@ export async function initTeamsPage(
       console.log("no need to add to a team step");
     }
 
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[name="embedded-page-container"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
     try {
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[name="embedded-page-container"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
       console.log("Load debug scripts");
       await frame?.click('button:has-text("Load debug scripts")');
       console.log("Debug scripts loaded");
