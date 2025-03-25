@@ -40,7 +40,7 @@ new SpfxProductivityTestCase(
   TemplateProject.SpfxProductivity,
   24753065,
   "v-ivanchen@microsoft.com",
-  "local",
+  "dev",
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "SPFx productivity dashboard",
