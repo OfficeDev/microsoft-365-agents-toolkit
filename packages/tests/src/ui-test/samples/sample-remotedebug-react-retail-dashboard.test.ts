@@ -54,6 +54,5 @@ new RetailDashboardTestCase(
   [],
   {
     teamsAppName: "react-retail-dashboard-dev",
-    type: "spfx",
   }
 ).test();

@@ -44,7 +44,6 @@ new SpfxProductivityTestCase(
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "SPFx productivity dashboard",
-    type: "spfx",
     skipValidation: true,
   }
 ).test();

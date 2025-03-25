@@ -54,6 +54,5 @@ new RetailDashboardTestCase(
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "react-retail-dashboard-local",
-    type: "spfx",
   }
 ).test();
