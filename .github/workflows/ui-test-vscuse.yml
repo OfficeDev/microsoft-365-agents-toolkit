@@ -1,0 +1,494 @@
+name: uitest-vscuse
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-vsix-run-id:
+        description: "target vsix github action run id"
+        required: true
+        type: string
+
+      target-cli-version:
+        description: "target cli version or tag, like latest, beta or alpha"
+        required: true
+        type: string
+        default: latest
+
+  schedule:
+    - cron: "0 18 * * *"
+
+permissions:
+  actions: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+    steps:
+      - name: Init GitHub CLI
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+      - name: bvt (dispatch)
+        id: bvt
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "npm-tag=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "vsix-run-id=${{ github.event.inputs.target-vsix-run-id }}" >> $GITHUB_ENV
+          echo "target_cli_version=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_ENV
+      - name: pvt (dev)
+        id: pvt
+        if: ${{ github.event.schedule == '0 18 * * *' }}
+        run: |
+          echo "npm-tag=alpha" >> $GITHUB_OUTPUT
+          echo "sample-ref=dev" >> $GITHUB_OUTPUT
+          echo "branch=dev" >> $GITHUB_OUTPUT
+          run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
+          echo "vsix-run-id=$run_id" >> $GITHUB_ENV
+          echo "target_cli_version=alpha" >> $GITHUB_ENV
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - uses: pnpm/action-setup@v4
+
+      - name: Download TTK
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+
+      - name: Export TTK version
+        id: ttk
+        run: |
+          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
+          echo "package=$package" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+      - name: Upload TTK to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ttk
+          path: |
+            ./${{ steps.ttk.outputs.package }}
+      - name: clean devtunnel
+        run: |
+          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
+          chmod 777 ./devtunnel
+          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
+          ./devtunnel delete-all -f
+    outputs:
+      npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
+      branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
+      vsix-run-id: ${{ env.vsix-run-id }}
+      files_list: ${{ steps.set_output.outputs.files_list }}
+      ttk-package: ${{ steps.ttk.outputs.package }}
+      ttk-version: ${{ steps.ttk.outputs.version }}
+      target_cli_version: ${{ env.target_cli_version }}
+
+
+  discover_test_cases:
+    runs-on: windows-latest
+    needs: setup
+    outputs:
+      files_list: ${{ steps.set_output.outputs.files_list }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate file list
+        shell: pwsh
+        run: |
+          # Recursively find all .txt files and extract only the file names without extensions
+          $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | ForEach-Object { $_.BaseName }
+      
+          # Debugging: Print the files found
+          Write-Host "Found files:"
+          $files | ForEach-Object { Write-Host $_ }
+      
+          # Filter out any empty or invalid file entries
+          $validFiles = $files | Where-Object { $_ -ne $null -and $_ -ne "" }
+      
+          # Debugging: Print valid files list
+          Write-Host "Valid files:"
+          $validFiles | ForEach-Object { Write-Host $_ }
+      
+          # Export valid files as JSON array
+          $validFiles | ConvertTo-Json -Compress | Out-File -Encoding utf8 files_list.json
+
+      - name: Set output variable
+        id: set_output
+        shell: pwsh
+        run: |
+          # Prepare output for matrix strategy
+          $json = Get-Content -Raw files_list.json
+          
+          # Debugging: Check the generated list
+          Write-Host "Generated file list: $json"
+
+          # Clean up file list to ensure proper formatting (remove extra commas)
+          $formattedList = ($json -replace '[\r\n]', ',').Trim()
+
+          # Debugging: Check formatted list
+          Write-Host "Formatted file list: $formattedList"
+
+          echo "files_list=$formattedList" >> $env:GITHUB_OUTPUT
+
+  main:
+    name: ${{ matrix.file }}
+    needs: [setup, discover_test_cases]
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+    timeout-minutes: 50
+    environment: engineering
+    env:
+      CI_ENABLED: true
+      TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
+
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_USERNAME: "test14@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
+      M365_USERNAME_5: "ttktest01@xxbdw.onmicrosoft.com"
+      M365_DISPLAY_NAME: "ttktest"
+      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      M365_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
+
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_SUBSCRIPTION_NAME: ${{ secrets.TEST_SUBSCRIPTION_NAME }}
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      STORAGE_ACCOUNT_KEY: ${{ secrets.TEST_STORAGE_ACCOUNT_KEY }}
+      
+      MODEL_NAME : "azure/gpt-4o-mini"  # support 'azure/gpt-4o-mini', "azure/gpt-4o"
+      GOOGLE_API_KEY : ${{ secrets.GOOGLE_API_KEY }}
+      AZURE_OPENAI_KEY : "${{ secrets.AZURE_OPENAI_KEY }}"
+      AZURE_OPENAI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21"
+      AZURE_VISION_ENDPOINT : "fake"
+      AZURE_VISION_KEY : "fake"
+      AZURE_OPENAI_4O_MINI_KEY : ${{ secrets.AZURE_OPENAI_4O_MINI_KEY }}
+      AZURE_OPENAI_4O_MINI_ENDPOINT : "https://vscuseopenai.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2025-01-01-preview"
+      OPENROUTER_API_KEY : "fake"
+      VSCUSE_DOWNLOAD_URL: ${{ secrets.VSCUSE_DOWNLOAD_URL }} # Temporary URL for VSCUSE download
+      
+      TEAMSFX_DEV_TUNNEL_TEST: true
+      TEAMSFX_TELEMETRY_TEST: true
+
+    strategy:
+      fail-fast: false
+      max-parallel: 1 # Limit concurrent executions due to the OpenAI API rate limit
+      matrix:
+        file: ${{ fromJson(needs.discover_test_cases.outputs.files_list) }}
+    runs-on: 'windows-latest'
+    steps:
+            
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.branch }}
+
+
+      # Setup the environment
+      - name: Set Windows Environment Variables
+        run: |
+          [System.Environment]::SetEnvironmentVariable("MODEL_NAME", "${{ env.MODEL_NAME }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("GOOGLE_API_KEY", "${{ env.GOOGLE_API_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_KEY", "${{ env.AZURE_OPENAI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", "${{ env.AZURE_OPENAI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_ENDPOINT", "${{ env.AZURE_VISION_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_KEY", "${{ env.AZURE_VISION_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_KEY", "${{ env.AZURE_OPENAI_4O_MINI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_4O_MINI_ENDPOINT", "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("OPENROUTER_API_KEY", "${{ env.OPENROUTER_API_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          $env:MODEL_NAME = "${{ env.MODEL_NAME }}"
+          $env:GOOGLE_API_KEY = "${{ env.GOOGLE_API_KEY }}"
+          $env:AZURE_OPENAI_KEY = "${{ env.AZURE_OPENAI_KEY }}"
+          $env:AZURE_OPENAI_ENDPOINT = "${{ env.AZURE_OPENAI_ENDPOINT }}"
+          $env:AZURE_VISION_ENDPOINT = "${{ env.AZURE_VISION_ENDPOINT }}"
+          $env:AZURE_VISION_KEY = "${{ env.AZURE_VISION_KEY }}"
+          $env:AZURE_OPENAI_4O_MINI_KEY = "${{ env.AZURE_OPENAI_4O_MINI_KEY }}"
+          $env:AZURE_OPENAI_4O_MINI_ENDPOINT = "${{ env.AZURE_OPENAI_4O_MINI_ENDPOINT }}"
+          $env:OPENROUTER_API_KEY = "${{ env.OPENROUTER_API_KEY }}"
+        shell: pwsh
+    
+      # Print out the info, but not key info.
+      - name: Verify Environment Variables
+        run: |
+          Write-Host "MODEL_NAME: $env:MODEL_NAME"
+          Write-Host "AZURE_OPENAI_ENDPOINT: $env:AZURE_OPENAI_ENDPOINT"
+          Write-Host "AZURE_VISION_ENDPOINT: $env:AZURE_VISION_ENDPOINT"
+          Write-Host "AZURE_OPENAI_4O_MINI_ENDPOINT: $env:AZURE_OPENAI_4O_MINI_ENDPOINT"
+        shell: pwsh
+
+      # Download the latest version of VSCode and install it
+      - name: Download VSCode from internet and install
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64/stable" -OutFile VSCodeSetup.exe
+          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
+      
+      # Add the vscode's "\bin" to the PATH, because only the code.cmd is workable in the Github action, but not the code.exe
+      - name: Add the code into the environment variable
+        shell: pwsh
+        run: |
+          $vscodeBinPath = "C:\Program Files\Microsoft VS Code\bin"
+          if (Test-Path $vscodeBinPath) {
+            "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } else {
+            Write-Error "VS Code: $vscodeBinPath"
+            exit 1
+          }
+
+      # Double confirm the PATH variable
+      - name: Show the new PATH
+        shell: pwsh
+        run: |
+          Write-Host "New PATH: $env:PATH"
+
+      # Check the code is installed.
+      - name: Check the code is installed.
+        run: |
+          where code
+          where code.cmd
+        shell: cmd
+      
+      #Download the vsix from the previous step
+      - name: Download TTK
+        uses: actions/download-artifact@v4
+        with:
+          name: ttk
+          path: packages/tests
+
+      # Install the VSIX
+      - name: VSIX Installation
+        working-directory: packages/tests
+        run: |
+          # list all the vsix files
+          Get-ChildItem -Path . -Filter *.vsix | Format-Table -AutoSize
+      
+          # get the vsix file name
+          $vsix = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
+          Write-Host "Detected VSIX file: $vsix"
+      
+          if ($vsix) {
+            code --install-extension $vsix --force
+          } else {
+            Write-Host "No VSIX file found!"
+            exit 1
+          }
+        shell: pwsh
+
+      # Check current web browsers
+      - name: Check Installed Browsers
+        run: |
+          if (Test-Path "C:\Program Files\Google\Chrome\Application\chrome.exe") { Write-Output "Chrome is installed" }
+          if (Test-Path "C:\Program Files\Mozilla Firefox\firefox.exe") { Write-Output "Firefox is installed" }
+          if (Test-Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe") { Write-Output "Edge is installed" }
+        shell: pwsh
+      
+      # Sign in
+      - name: Set m365 account (win)
+        run: |
+          $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
+          $index=Get-Random -min 0 -max $users.count
+          $user=$users[$index]
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
+
+      # Download and set up the node.js
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python environment
+        run: |
+          pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
+      
+      - name: Install devtunnel (windows)
+        working-directory: packages/tests
+        run: |
+          powershell Invoke-WebRequest -Uri https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/devtunnel.exe -OutFile devtunnel.exe
+          $currentDirectory = (Get-Location).Path
+          $executablePath = Join-Path $currentDirectory "devtunnel.exe"
+          [System.Environment]::SetEnvironmentVariable("Path", "$currentPath;$executablePath", [System.EnvironmentVariableTarget]::Machine)
+          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
+      
+      - name: Downgrade PowerShell (win)
+        shell: cmd
+        run: |
+          set "extractPath=C:\Program Files\PowerShell\7"
+          curl -sLO https://github.com/PowerShell/PowerShell/releases/download/v7.2.17/PowerShell-7.2.17-win-x64.zip
+          RMDIR "%extractPath%" /S /Q
+          7z x PowerShell-7.2.17-win-x64.zip -o"%extractPath%"
+          pwsh --version
+
+      - name: Set cert (win)
+        run: |
+          Write-Host $home
+          $filePath = Join-Path -Path $home -ChildPath "certinstall.ps1"
+          $content = '$cert = New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "Cert:LocalMachine\My" -NotAfter  (Get-Date).AddMonths(6) -KeyAlgorithm RSA -KeyLength 4096 -HashAlgorithm "sha256" -FriendlyName "localhost" -TextExtension @("2.5.29.19={text}", "2.5.29.37={text}1.3.6.1.5.5.7.3.1");$mypwd = ConvertTo-SecureString -String "1234" -Force -AsPlainText;$cert | Export-PfxCertificate -FilePath $home/test1.pfx -Password $mypwd;openssl pkcs12 -in $home/test1.pfx -nocerts -out $home/.fx/certificate/localhost.key -passin pass:1234 -nodes;openssl pkcs12 -info -in $home/test1.pfx  -nokeys  -out $home/.fx/certificate/localhost.crt -passin pass:1234;$filePath = Join-Path -Path $home -ChildPath ".fx/certificate/localhost.crt";Import-Certificate -FilePath $filePath -CertStoreLocation Cert:\\LocalMachine\\Root'
+          New-Item $filePath -ItemType File -Value $content
+          $certfolder = Join-Path -Path $home -ChildPath ".fx/certificate"
+          New-Item -Path $certfolder -ItemType Directory
+          Start-Process powershell -verb RunAs -ArgumentList $filePath -wait
+
+      - name: Update npm packages for UI Test
+        working-directory: packages/tests
+        run: |
+          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest @types/fs-extra
+      - name: Install npm packages
+        working-directory: packages/tests
+        run: |
+          npm install
+
+      - name: Install teamsfx cli
+        working-directory: packages/tests
+        run: |
+          npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
+
+      - name: M365 Login
+        working-directory: packages/tests
+        run: | # rm -r -f ~/.fx/account
+          npx ts-node src/scripts/m365Login.ts '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
+      - name: Build
+        working-directory: packages/tests
+        run: |
+          npm run build
+
+      # Install the Appium
+      - name: Install Appium
+        run: |
+            npm install -g appium
+            appium driver install windows
+            appium -v
+      # Install the Windows Application Driver
+      - name: Install WinAppDriver
+        run: |
+          Invoke-WebRequest -Uri https://github.com/microsoft/WinAppDriver/releases/download/v1.2.1/WindowsApplicationDriver_1.2.1.msi -OutFile WinAppDriver.msi
+          Start-Process msiexec.exe -ArgumentList '/i WinAppDriver.msi /quiet /norestart' -NoNewWindow -Wait
+    
+      # Enable the Windows Development mode
+      - name: Enable Developer Mode (Requires Admin Privileges)
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d 1
+        shell: cmd
+    
+      # Start the Appium with the background mode
+      - name: Start Appium in Background
+        run: Start-Process -NoNewWindow -FilePath "cmd.exe" -ArgumentList "/c start /b appium --use-drivers=windows"
+        shell: pwsh
+
+      # Wait for the process startup
+      - name: Wait for Appium to Start
+        run: Start-Sleep -Seconds 15
+        shell: pwsh
+
+      # Verify the Port of Appium is open
+      - name: Verify Appium Server is Running
+        run: |
+          curl http://127.0.0.1:4723/status
+        shell: powershell
+
+      # Create the directory if it doesn't exist
+      - name: Create directory for vscuse.exe if it doesn't exist
+        run: |
+          $dirPath = "packages/vscode-ui/vscuse/binary"
+          if (-not (Test-Path -Path $dirPath)) {
+            New-Item -Path $dirPath -ItemType Directory
+            Write-Host "Directory $dirPath created."
+          } else {
+            Write-Host "Directory $dirPath already exists."
+          }
+        shell: pwsh
+
+      # Login to Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      # Download the latest vscuse.exe from Azure Storage via the MI method
+      - name: 'Download a File from Storage (Windows)' # 0.1.8 version 2025-March-25
+        shell: pwsh
+        run: |
+          az storage blob download `
+            --account-name vscusedownload `
+            --container-name vscusebinary `
+            --name latest/vscuse.exe `
+            --file packages/vscode-ui/vscuse/binary/vscuse.exe `
+            --auth-mode login
+
+      # Run vscuse.exe  (0.1.8 with ZEN model)
+      - name: Run vscuse.exe (0.1.8 with ZEN model) 
+        working-directory: packages/vscode-ui/vscuse/binary
+        run: |
+          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v  --no-cache | tee "${{ runner.temp }}\output.log"
+        shell: cmd
+        
+      # Check output.log and extract SESSION_PATH
+      - name: Check for HTML report
+        id: check_report
+        run: |
+          $log_path = "${{ runner.temp }}\output.log"
+          $report_path = ""
+
+          # Iterate through the log file to find "Report saved to:"
+          Get-Content $log_path | ForEach-Object {
+            if ($_ -match 'Report saved to: (.+\.html)') {
+              $report_path = $matches[1]
+            }
+          }
+
+          if ($report_path -ne "") {
+            # Extract SESSION_PATH by getting the parent directory of the report folder
+            $session_path = Split-Path -Parent (Split-Path -Parent $report_path)
+            echo "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+            echo "SESSION_PATH=$session_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8  
+            Write-Host "SESSION_PATH=$session_path"
+          } else {
+            Write-Host "No report found in the output log."
+            exit 1
+          }
+        shell: pwsh
+
+      # Upload VSCUSE session files
+      - name: Upload VSCUSE session files
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscuse-session-log-${{ matrix.file }}
+          path: ${{ env.SESSION_PATH }}
