@@ -3,9 +3,9 @@
 import fetch, { Response } from "node-fetch";
 
 export type DownloadOptions = {
-  timeout?: number; // 请求超时时间（毫秒）
-  maxRedirects?: number; // 最大重定向次数
-  progress?: (downloaded: number, total: number) => void; // 进度回调
+  timeout?: number;
+  maxRedirects?: number;
+  progress?: (downloaded: number, total: number) => void;
 };
 
 class HttpClient {
@@ -13,7 +13,7 @@ class HttpClient {
     const { timeout = 30000, progress } = options;
     const res: Response = await fetch(url, {
       redirect: "follow",
-      follow: options.maxRedirects ?? 5, // 默认最多跟随 5 次重定向
+      follow: options.maxRedirects ?? 5,
       timeout,
     });
     if (!res.ok) {
@@ -53,15 +53,3 @@ class HttpClient {
 }
 
 export const httpClient = new HttpClient();
-
-// async function main() {
-//   const url = "https://registry.npmmirror.com/-/binary/node/v22.14.0/node-v22.14.0-win-x64.zip";
-//   const result = await httpClient.get(url, {
-//     progress: (downloaded, total) => {
-//       const progress = ((downloaded / total) * 100).toFixed(2);
-//       process.stdout.write(`${progress}%\r`);
-//     },
-//   });
-//   console.log("下载完成", result.length, "字节");
-// }
-// main();
