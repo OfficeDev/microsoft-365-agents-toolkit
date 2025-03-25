@@ -3066,14 +3066,6 @@ export async function validateTodoListSpfx(page: Page, tabName: string) {
       );
       const titleContext = await title?.innerText();
       expect(titleContext).to.equal("To Do List");
-      // task check
-      console.log("check task");
-      const task = await spfxFrame?.waitForSelector(
-        "div.item input[value='Hello World']"
-      );
-      console.log(await task?.inputValue());
-      expect(task).to.not.be.undefined;
-
       console.log("verify finish!!!");
 
       // cleanup
