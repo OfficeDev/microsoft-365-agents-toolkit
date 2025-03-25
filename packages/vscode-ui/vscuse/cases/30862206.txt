@@ -1,19 +1,25 @@
-# https://msazure.visualstudio.com/Microsoft%20Teams%20Extensibility/_workitems/edit/30862206
-0. open vs code
-1. press F1 to invoke command palette and input: 'Teams: Create New App' and press enter
-2. click 'Declarative Agent' option in the dropdown list
-3. click 'Add an action' option in the dropdown list
-4. click 'Start with OpenAPI description document' option in the dropdown list
-5. click 'Enter OpenAPI description document location' option in the dropdown list
-6. input 'https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-custom-api-key.yaml' and press enter
-7. click any Api in the dropdown list then press enter to confirm
-8. choose default folder in dropdown list
-9. input a random name and press enter
-10. wait 10 seconds
-11. press F1 and input 'teams: provision' then press enter then wait 3 seconds
-12. input apikey value: 'mysecretvalue' and press enter
-13. click "confirm" in dialog window
-14. wait 60 seconds
-15. press F5 and wait for every 60s until browser is opened
-16. type in 'list repairs assigned to Karin' in "message copilot" chat input box and press enter
-17. wait 5 seconds and click the response from copilot in web browser
+open_app: VS Code
+wait: 3 seconds to launch VS Code
+press_key: F1
+type_text: "Teams: Create New App" and enter
+wait: 10 seconds to activate Teams Toolkit extension
+left_click: "Declarative Agent"
+left_click: "Add an action"
+left_click: "Start with OpenAPI description document"
+left_click: "Enter OpenAPI description document location"
+type_text: "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/refs/heads/main/real-custom-api-key.yaml" and enter
+left_click: any API in the dropdown list and enter
+left_click: "Default Folder"
+type_text: random name and enter
+wait: 10 seconds
+press_key: F1
+type_text: "Teams: Provision" and enter
+wait: 3 seconds
+type_text: "mysecretvalue" (API key) and enter
+left_click: "Confirm" in dialog window
+wait: 60 seconds
+press_key: F5
+wait: every 60 seconds until browser is opened
+type_text: "list repairs assigned to Karin" in "Message Copilot" chat input box and enter
+wait: 5 seconds
+left_click: response from Copilot in web browser

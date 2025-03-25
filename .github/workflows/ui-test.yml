@@ -420,15 +420,24 @@ jobs:
           curl http://127.0.0.1:4723/status
         shell: powershell
       
-      # Run vscuse.exe
-      - name: Run vscuse.exe
+      # Run vscuse.exe  (older version, 0.1.6, 0.1.7)
+      # - name: Run vscuse.exe 
+      #   working-directory: packages/vscode-ui/vscuse/binary
+      #   env:
+      #     S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
+      #   run: |
+      #     vscuse.exe agent -f "../cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
+      #   shell: cmd
+
+      # Run vscuse.exe  (0.1.8 with ZEN model)
+      - name: Run vscuse.exe (0.1.8 with ZEN model) 
         working-directory: packages/vscode-ui/vscuse/binary
         env:
           S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe agent -f "../cases/${{ matrix.file }}.txt" %S_PARAM% | tee "${{ runner.temp }}\output.log"
+          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v %S_PARAM% | tee "${{ runner.temp }}\output.log"
         shell: cmd
-
+        
       # Check output.log and extract SESSION_PATH
       - name: Check for HTML report
         id: check_report
