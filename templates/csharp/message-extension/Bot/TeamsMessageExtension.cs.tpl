@@ -3,7 +3,9 @@ using Microsoft.Agents.BotBuilder;
 using Microsoft.Agents.Core.Models;
 using Microsoft.Agents.Extensions.Teams.Compat;
 using Microsoft.Agents.Extensions.Teams.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace {{SafeProjectName}}.Bot;
 
