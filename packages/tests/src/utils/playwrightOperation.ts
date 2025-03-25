@@ -532,12 +532,16 @@ export async function initTeamsPage(
   username: string,
   password: string,
   options?: {
+    projectPath?: string;
+    env?: string;
     teamsAppName?: string;
     dashboardFlag?: boolean;
     type?: string;
   }
 ): Promise<Page> {
   let page = await context.newPage();
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
   try {
     page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
 
@@ -586,20 +590,28 @@ export async function initTeamsPage(
       }
       await page.close();
       console.log(`open teams page`);
-      page = await context.newPage();
-      await Promise.all([
-        page.goto(
-          `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-        ),
-        page.waitForNavigation(),
-      ]);
-      await page.waitForTimeout(Timeout.longTimeWait);
 
       try {
-        console.log("dismiss message");
-        await page.click('button:has-text("Dismiss")');
-      } catch (error) {
-        console.log("no message to dismiss");
+        //try upload app package file
+        page = await context.newPage();
+
+        await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+        await page.waitForTimeout(Timeout.longTimeWait);
+
+        // Upload app package file
+        await uploadPackage(page, options?.projectPath, options?.env);
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+      } catch {
+        await page.screenshot({
+          path: getPlaywrightScreenshotPath("upload_page"),
+          fullPage: true,
+        });
+        // then try add app url
+        await page.close();
+        page = await context.newPage();
+
+        await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+        await page.waitForTimeout(Timeout.longTimeWait);
       }
 
       // default
@@ -729,6 +741,8 @@ export async function reopenTeamsPage(
   username: string,
   password: string,
   options?: {
+    projectPath?: string;
+    env?: string;
     teamsAppName?: string;
     dashboardFlag?: boolean;
     type?: string;
@@ -736,6 +750,8 @@ export async function reopenTeamsPage(
   addApp = true
 ): Promise<Page> {
   let page = await context.newPage();
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
   try {
     page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
 
@@ -755,13 +771,29 @@ export async function reopenTeamsPage(
       }
       await page.close();
       console.log(`open teams page`);
-      page = await context.newPage();
-      await Promise.all([
-        page.goto(
-          `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-        ),
-        page.waitForNavigation(),
-      ]);
+
+      try {
+        //try upload app package file
+        page = await context.newPage();
+
+        await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+        await page.waitForTimeout(Timeout.longTimeWait);
+
+        // Upload app package file
+        await uploadPackage(page, options?.projectPath, options?.env);
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+      } catch {
+        await page.screenshot({
+          path: getPlaywrightScreenshotPath("upload_page"),
+          fullPage: true,
+        });
+        // then try add app url
+        await page.close();
+        page = await context.newPage();
+
+        await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+        await page.waitForTimeout(Timeout.longTimeWait);
+      }
 
       try {
         console.log("dismiss message");

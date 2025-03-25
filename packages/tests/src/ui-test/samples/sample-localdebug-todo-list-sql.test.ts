@@ -84,6 +84,8 @@ class TodoListBackendTestCase extends CaseFactory {
       Env.username,
       Env.password,
       {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -111,6 +113,8 @@ class TodoListBackendTestCase extends CaseFactory {
       Env.username,
       Env.password,
       {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
