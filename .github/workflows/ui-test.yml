@@ -337,7 +337,6 @@ jobs:
         run: |
           pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
       
-
       - name: Install devtunnel (windows)
         working-directory: packages/tests
         run: |
@@ -374,12 +373,6 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install
-
-      - name: Download TTK
-        uses: actions/download-artifact@v4
-        with:
-          name: ttk
-          path: packages/tests
 
       - name: Install teamsfx cli
         working-directory: packages/tests
