@@ -16,7 +16,9 @@ public class TeamsMessageExtension : TeamsActivityHandler
     protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
     {
         // The user has chosen to create a card by choosing the 'Create Card' context menu command.
-        var actionData = ((JObject)action.Data).ToObject<CardResponse>();
+        var jsonElement = (JsonElement)action.Data;
+        var jsonString = jsonElement.GetRawText();
+        var actionData = JsonConvert.DeserializeObject<CardResponse>(jsonString);
         var templateJson = await System.IO.File.ReadAllTextAsync(_actionAdaptiveCardFilePath, cancellationToken);
         var template = new AdaptiveCards.Templating.AdaptiveCardTemplate(templateJson);
         var adaptiveCardJson = template.Expand(new { title = actionData.Title ?? "", subTitle = actionData.Subtitle ?? "", text = actionData.Text ?? "" });
@@ -24,7 +26,7 @@ public class TeamsMessageExtension : TeamsActivityHandler
         var attachments = new MessagingExtensionAttachment()
         {
             ContentType = AdaptiveCard.ContentType,
-            Content = adaptiveCard
+            Content = adaptiveCard.ToJson()
         };
 
         return new MessagingExtensionActionResponse
@@ -117,7 +119,7 @@ public class TeamsMessageExtension : TeamsActivityHandler
             Content = previewCard
         };
 
-        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard, preview: previewAttachment);
+        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard.ToJson(), preview: previewAttachment);
 
         // By default the link unfurling result is cached in Teams for 30 minutes.
         // The code has set a cache policy and removed the cache for the app. Learn more here: https://learn.microsoft.com/microsoftteams/platform/messaging-extensions/how-to/link-unfurling?tabs=dotnet%2Cadvantages#remove-link-unfurling-cache
