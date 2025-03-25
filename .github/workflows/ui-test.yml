@@ -14,11 +14,11 @@ on:
         type: string
         default: latest
 
-      test-case-steps:
-        default: '30'
-        description: 'The test cases steps, e.g. 90'
-        required: false
-        type: string
+      # test-case-steps:
+      #   default: '30'
+      #   description: 'The test cases steps, e.g. 90'
+      #   required: false
+      #   type: string
 
   schedule:
     - cron: "0 18 * * *"
@@ -432,10 +432,8 @@ jobs:
       # Run vscuse.exe  (0.1.8 with ZEN model)
       - name: Run vscuse.exe (0.1.8 with ZEN model) 
         working-directory: packages/vscode-ui/vscuse/binary
-        env:
-          S_PARAM: ${{ github.event.inputs.test-case-steps != '' && format('-s {0}', github.event.inputs.test-case-steps) || '' }}
         run: |
-          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v %S_PARAM% | tee "${{ runner.temp }}\output.log"
+          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v  --no-cache | tee "${{ runner.temp }}\output.log"
         shell: cmd
         
       # Check output.log and extract SESSION_PATH
