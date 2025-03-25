@@ -135,6 +135,8 @@
 /packages/fx-core/src/component/driver/deploy/azure @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/src/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/src/component/driver/devTool @swatDong @XiaofuHuang @kuojianlu @kimizhu
+/packages/fx-core/src/component/driver/devTool/httpClient.ts @jayzhang @nliu-ms
+/packages/fx-core/src/component/driver/devTool/nodeInstaller.ts @jayzhang @nliu-ms
 /packages/fx-core/src/component/driver/file @swatDong @XiaofuHuang @xiaolang124 @kuojianlu @kimizhu
 /packages/fx-core/src/component/driver/m365 @swatDong @XiaofuHuang @kuojianlu @kimizhu
 /packages/fx-core/src/component/driver/middleware @tecton @jayzhang
@@ -198,6 +200,7 @@
 /packages/fx-core/tests/component/driver/deploy/azure/ @Siglud @Yukun-dong @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/driver/deploy/spfx @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
 /packages/fx-core/tests/component/driver/devTool @swatDong @XiaofuHuang @kuojianlu @kimizhu
+/packages/fx-core/tests/component/driver/devTool/nodeInstaller.test.ts @jayzhang @nliu-ms
 /packages/fx-core/tests/component/driver/file @swatDong @XiaofuHuang @xiaolang124 @kuojianlu @kimizhu
 /packages/fx-core/tests/component/driver/m365 @swatDong @XiaofuHuang @kuojianlu @kimizhu
 /packages/fx-core/tests/component/driver/middleware/updateProgress.test.ts @tecton @jayzhang
@@ -288,6 +291,7 @@
 /packages/vscode-extension/src/handlers/manifestHandlers.ts @nliu-ms @yuqizhou77 @anchenyi
 /packages/vscode-extension/src/releaseBasedFeatureSettings.ts @yuqizhou77 @tecton @Alive-Fish
 /packages/vscode-extension/src/migration @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
+/packages/vscode-extension/src/pluginDebugger @jayzhang @nliu-ms
 /packages/vscode-extension/src/officeChat @1openwindow @MSFT-yiz
 /packages/vscode-extension/src/qm @jayzhang
 /packages/vscode-extension/src/telemetry @chagong @tecton @HuihuiWu-Microsoft
@@ -295,6 +299,7 @@
 /packages/vscode-extension/test @tecton @HuihuiWu-Microsoft @jayzhang
 /packages/vscode-extension/test/localdebug @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
 /packages/vscode-extension/test/migration @kimizhu @swatDong @kuojianlu @a1exwang @qinezh @XiaofuHuang @xiaolang124 @dooriya
+/packages/vscode-extension/test/pluginDebugger @jayzhang @nliu-ms
 
 /schemas/* @yuqizhou77 @huimiu
 
