@@ -27,7 +27,8 @@ builder.Services.AddTransient(sp =>
 });
 
 // Add the bot (which is transient)
-builder.AddBot<EchoBot>();
+builder.AddAgent<EchoBot>();
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
 
 var app = builder.Build();
 

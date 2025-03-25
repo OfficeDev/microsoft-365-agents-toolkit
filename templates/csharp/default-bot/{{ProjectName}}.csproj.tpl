@@ -19,8 +19,8 @@
 
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.154-alpha" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.154-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.171-alpha" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.171-alpha" />
   </ItemGroup>
 
 </Project>

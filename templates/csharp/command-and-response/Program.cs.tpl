@@ -49,7 +49,8 @@ builder.Services.AddSingleton(sp =>
 });
 
 // Add the bot (which is transient)
-builder.AddBot<TeamsBot>();
+builder.AddAgent<TeamsBot>();
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
 
 var app = builder.Build();
 
