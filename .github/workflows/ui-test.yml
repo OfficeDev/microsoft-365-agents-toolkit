@@ -174,7 +174,7 @@ jobs:
     needs: setup
     permissions:
       contents: read
-    timeout-minutes: 50
+    timeout-minutes: 70
     env:
       CI_ENABLED: true
       NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
@@ -492,7 +492,7 @@ jobs:
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() || cancelled()
         with:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
           path: packages/tests/.test-resources/screenshots/

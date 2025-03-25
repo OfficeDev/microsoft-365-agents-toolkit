@@ -132,6 +132,26 @@ export async function setSkuNameToB1(projectPath: string) {
   return fs.writeJSON(azureParametersFilePath, context, { spaces: 4 });
 }
 
+export async function setSkuNameToStandard(projectPath: string) {
+  const parameters = "parameters";
+  const staticWebAppSku = "staticWebAppSku";
+  const azureParametersFilePathSuffix = path.join(
+    "infra",
+    "azure.parameters.json"
+  );
+  const azureParametersFilePath = path.resolve(
+    projectPath,
+    azureParametersFilePathSuffix
+  );
+  const context = await fs.readJSON(azureParametersFilePath);
+  try {
+    context[parameters][staticWebAppSku]["value"] = "Standard";
+  } catch {
+    console.log("Cannot set the propertie.");
+  }
+  return fs.writeJSON(azureParametersFilePath, context, { spaces: 4 });
+}
+
 export async function setSimpleAuthSkuNameToB1Bicep(
   projectPath: string,
   envName: string
