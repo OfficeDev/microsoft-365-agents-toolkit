@@ -158,7 +158,7 @@ jobs:
       id-token: write
       security-events: write
     timeout-minutes: 50
-    
+    environment: engineering
     env:
       CI_ENABLED: true
       TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
