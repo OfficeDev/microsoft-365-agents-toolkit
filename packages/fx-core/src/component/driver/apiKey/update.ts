@@ -21,6 +21,7 @@ import { ApiKeyNameTooLongError } from "./error/apiKeyNameTooLong";
 import { UpdateApiKeyArgs } from "./interface/updateApiKeyArgs";
 import { logMessageKeys } from "./utility/constants";
 import { getDomain, validateDomain } from "./utility/utility";
+import { WrapDriverContext } from "../util/wrapUtil";
 
 const actionName = "apiKey/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/apiKey-update";
@@ -30,8 +31,14 @@ export class UpdateApiKeyDriver implements StepDriver {
   description = getLocalizedString("driver.apiKey.description.update");
   readonly progressTitle = getLocalizedString("driver.aadApp.apiKey.title.update");
 
-  @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async execute(args: UpdateApiKeyArgs, context: DriverContext): Promise<ExecutionResult> {
+    const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+    const result = await this._run(args, wrapDriverContext);
+    return result;
+  }
+
+  @hooks([addStartAndEndTelemetry(actionName, actionName)])
+  public async _run(args: UpdateApiKeyArgs, context: WrapDriverContext): Promise<ExecutionResult> {
     const summaries: string[] = [];
     const outputs: Map<string, string> = new Map<string, string>();
 
