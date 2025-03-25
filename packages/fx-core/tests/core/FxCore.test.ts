@@ -841,7 +841,9 @@ describe("Core basic APIs", () => {
         actions: [{}],
       } as DeclarativeCopilotManifestSchema)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isErr());
