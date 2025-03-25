@@ -299,7 +299,7 @@ async function uploadPackage(page: Page, projectPath = "", env = "local") {
   let packageFilePath: string;
   packageFilePath = path.resolve(projectPath, "appPackage/build", packageFile);
   // verify project path is exist
-  if (!fs.existsSync(projectPath)) {
+  if (!fs.existsSync(packageFilePath)) {
     // sample chef bot/proactive message path
     packageFilePath = path.resolve(
       projectPath,
