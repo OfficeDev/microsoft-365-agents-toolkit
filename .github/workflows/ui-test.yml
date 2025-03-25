@@ -274,7 +274,7 @@ jobs:
           where code.cmd
         shell: cmd
       
-      - name: Debug VSIX Installation
+      - name: VSIX Installation
         working-directory: packages/tests
         run: |
           # list all the vsix files
