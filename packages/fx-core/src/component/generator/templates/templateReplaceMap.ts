@@ -5,6 +5,7 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import { QuestionNames } from "../../../question/constants";
 import { LocalCrypto } from "../../../core/crypto";
+import path from "path";
 
 export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string } {
   const appName = inputs[QuestionNames.AppName] as string;
@@ -83,5 +84,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     )
       ? "true"
       : "",
+    pathDelimiter: process.platform === "win32" ? ";" : ":",
   };
 }
