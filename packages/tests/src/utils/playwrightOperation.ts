@@ -657,20 +657,38 @@ export async function initTeamsPage(
       return page;
     }
 
-    {
-      // if load debug scripts page is opened
-      const frameElementHandle = await page.waitForSelector(
-        `iframe[name="embedded-page-container"]`
+    try {
+      // teams app add
+      const dialog = await page.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface"
       );
-      const frame = await frameElementHandle?.contentFrame();
-      try {
-        console.log("Load debug scripts");
-        await frame?.click('button:has-text("Load debug scripts")');
-        console.log("Debug scripts loaded");
-        return page;
-      } catch (error) {
-        console.log("No debug scripts to load");
-      }
+      const openBtn = await dialog?.waitForSelector("button:has-text('Open')");
+      console.log("click 'open' button");
+      await openBtn?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+
+      await page?.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface",
+        {
+          state: "detached",
+        }
+      );
+      console.log("successful to add teams app!!!");
+    } catch (error) {
+      console.log("no need to add to a team step");
+    }
+
+    const frameElementHandle = await page.waitForSelector(
+      `iframe[name="embedded-page-container"]`
+    );
+    const frame = await frameElementHandle?.contentFrame();
+    try {
+      console.log("Load debug scripts");
+      await frame?.click('button:has-text("Load debug scripts")');
+      console.log("Debug scripts loaded");
+      return page;
+    } catch (error) {
+      console.log("No debug scripts to load");
     }
 
     {
