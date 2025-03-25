@@ -1,6 +1,7 @@
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Teams;
-using Microsoft.Bot.Schema;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.BotBuilder.App;
+using Microsoft.Agents.BotBuilder.State;
+using Microsoft.Agents.Core.Models;
 
 namespace {{SafeProjectName}}
 {
@@ -8,18 +9,18 @@ namespace {{SafeProjectName}}
     /// Bot handler.
     /// You can add your customization code here to extend your bot logic if needed.
     /// </summary>
-    public class TeamsBot : TeamsActivityHandler
+    public class TeamsBot : AgentApplication
     {
-        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        public TeamsBot(AgentApplicationOptions options) : base(options)
         {
-            await base.OnTurnAsync(turnContext, cancellationToken);
+            OnConversationUpdate(ConversationUpdateEvents.MembersAdded, OnMembersAddedAsync);
         }
 
-        protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        private async Task OnMembersAddedAsync(ITurnContext turnContext, ITurnState turnState, CancellationToken cancellationToken)
         {
             var welcomeText = "Welcome to the Notification Bot! I am designed to send you updates and alerts using Adaptive Cards triggered by HTTP post requests. " +
-              "Please note that I am a notification-only bot and you can't interact with me. Follow the README in the project and stay tuned for notifications!";
-            foreach (var member in membersAdded)
+                "Please note that I am a notification-only bot and you can't interact with me. Follow the README in the project and stay tuned for notifications!";
+            foreach (ChannelAccount member in turnContext.Activity.MembersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {

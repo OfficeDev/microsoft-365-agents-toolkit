@@ -1,15 +1,15 @@
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Builder.TraceExtensions;
-using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.Agents.Hosting.AspNetCore.BackgroundQueue;
 using Microsoft.Extensions.Logging;
-using Microsoft.Bot.Schema;
 
 namespace {{SafeProjectName}}
 {
     public class AdapterWithErrorHandler : CloudAdapter
     {
-        public AdapterWithErrorHandler(BotFrameworkAuthentication auth, ILogger<CloudAdapter> logger)
-            : base(auth, logger)
+        public AdapterWithErrorHandler(IChannelServiceClientFactory channelServiceClientFactory, IActivityTaskQueue activityTaskQueue, ILogger<IBotHttpAdapter> logger)
+            : base(channelServiceClientFactory, activityTaskQueue, logger: logger)
         {
             OnTurnError = async (turnContext, exception) =>
             {
@@ -18,6 +18,7 @@ namespace {{SafeProjectName}}
                 // Azure Application Insights. Visit https://aka.ms/bottelemetry to see how
                 // to add telemetry capture to your bot.
                 logger.LogError(exception, $"[OnTurnError] unhandled error : {exception.Message}");
+
                 // Only send error message for user messages, not for other message types so the bot doesn't spam a channel or chat.
                 if (turnContext.Activity.Type == ActivityTypes.Message)
                 {

@@ -1,10 +1,10 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Builder;
 using Microsoft.Extensions.Logging;
 using Microsoft.TeamsFx.Conversation;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Hosting.AspNetCore;
 
 namespace {{SafeProjectName}}
 {
