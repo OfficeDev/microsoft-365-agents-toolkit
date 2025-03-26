@@ -1439,3 +1439,20 @@ describe("Generate sample using download directory", () => {
     assert.isTrue(existsStub.calledOnce);
   });
 });
+
+describe("getTemplateReplaceMap", () => {
+  const sandbox = createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("should return windows pathDelimiter", () => {
+    sandbox.stub(process, "platform").value("win32");
+    const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
+    assert.equal(map.pathDelimiter, ";");
+  });
+  it("should return windows pathDelimiter", () => {
+    sandbox.stub(process, "platform").value("linux");
+    const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
+    assert.equal(map.pathDelimiter, ":");
+  });
+});
