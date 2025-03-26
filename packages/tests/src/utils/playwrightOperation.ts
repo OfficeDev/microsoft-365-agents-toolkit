@@ -2419,8 +2419,12 @@ export async function validateContact(
     } catch (error) {
       console.log("no message to dismiss");
     }
-
-    startBtn = await frame?.waitForSelector('button:has-text("Start")');
+    try {
+      startBtn = await frame?.waitForSelector('button:has-text("Start")');
+    } catch (error) {
+      console.log("no start button");
+      startBtn = undefined;
+    }
     if (startBtn) {
       await RetryHandler.retry(async () => {
         console.log("Before popup");
