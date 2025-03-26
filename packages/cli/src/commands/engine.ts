@@ -69,6 +69,10 @@ class CLIEngine {
   async start(rootCmd: CLICommand): Promise<void> {
     Correlator.setId();
 
+    logger.warning(
+      `*** Notice: '@microsoft/teamsapp-cli' will be deprecated and replaced by the new package '@microsoft/m365agentstoolkit-cli' soon. ***`
+    );
+
     this.debugLogs = [];
 
     const root = cloneDeep(rootCmd);
