@@ -1,8 +1,9 @@
-import { delay } from "./utils";
-import { getClient } from "./graphClient";
 import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
+import { getClient } from "./graphClient";
 import { Config } from "./models/Config";
-import { getAllItems } from "./services/itemsService";
+import { Item } from "./models/Item";
+import { ItemsService } from "./services/itemsService";
+import { delay } from "./utils";
 
 const timeout = 600_000; // 10 minutes
 const retryInterval = 15_000; // 15 seconds
@@ -127,15 +128,16 @@ export async function ensureConnection(config: Config): Promise<boolean> {
  * Clears all items from the connection.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function clearConnectionItems(config: Config): Promise<boolean> {
+export async function clearConnectionItems(config: Config, service: ItemsService<Item>): Promise<boolean> {
   try {
-    client = getClient();
     const connection = await getConnection(config);
 
     if (connection) {
       config.context.log(`Clearing all items from connection ${config.connector.id}`);
-      const items = await getAllItems(config, undefined);
-      config.context.log(JSON.stringify(items, null, 4));
+      await service.processAllAsync(items => {
+        config.context.log(JSON.stringify(items, null, 4));
+        return Promise.resolve();
+      });
       return true;
     }
 

@@ -1,11 +1,9 @@
+import { Client } from "@microsoft/microsoft-graph-client";
 import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
-import { getClient } from "./graphClient";
-import { Config } from "./models/Config";
-import { getAllItems } from "./services/itemsService";
-import { Item } from "./models/Item";
 import { getExternalItemFromItem } from "./custom/getExternalItemFromItem";
-
-const client = getClient();
+import { Config } from "./models/Config";
+import { Item } from "./models/Item";
+import { ItemsService } from "./services/itemsService";
 
 /**
  * Transforms the content into a format that can be ingested by the Graph API.
@@ -24,7 +22,7 @@ function transformContent(items: Item[]): ExternalConnectors.ExternalItem[] {
  * @param doc - The document to load.
  * @returns A promise that resolves when the content has been loaded.
  */
-async function loadContent(config: Config, item: ExternalConnectors.ExternalItem): Promise<void> {
+async function loadContent(config: Config, client: Client, item: ExternalConnectors.ExternalItem): Promise<void> {
   const itemId = item.id;
 
   // Remove the ID from the item to avoid conflicts
@@ -50,9 +48,10 @@ async function loadContent(config: Config, item: ExternalConnectors.ExternalItem
  * Ensures that the content is ingested into the Graph API.
  * @param config - The configuration object.
  */
-export async function ingestContent(config: Config, since?: Date): Promise<void> {
-  const files = await getAllItems(config, since);
-  for (const doc of transformContent(files)) {
-    await loadContent(config, doc);
-  }
+export async function ingestContent(config: Config, client: Client, service: ItemsService<Item>): Promise<void> {
+  await service.processAllAsync(async (items) => {
+    for (const doc of transformContent(items)) {
+      await loadContent(config, client, doc);
+    }
+  });
 }

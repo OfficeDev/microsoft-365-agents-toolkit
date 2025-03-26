@@ -1,13 +1,15 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext, Timer } from "@azure/functions";
+import { initConfig } from "../config";
 import {
   clearConnectionItems,
   deleteConnection,
   ensureConnection,
   setSearchSettings,
 } from "../connection";
-import { ensureSchema } from "../schema";
+import { MultiRepoIssuesFetchService } from "../custom/getAllItemsFromAPI";
+import { getClient } from "../graphClient";
 import { ingestContent } from "../ingest";
-import { initConfig } from "../config";
+import { ensureSchema } from "../schema";
 import { getLastCrawl, saveLastCrawl } from "../services/crawlService";
 
 let connectionDeployed = false;
@@ -46,9 +48,10 @@ export async function deployConnection(timer: Timer, context: InvocationContext)
  * @param {InvocationContext} context - The context object of the current invocation
  * @returns {Promise<void>}
  */
-export async function fullCrawl(timer: Timer, context: InvocationContext): Promise<void> {
+export async function fullCrawl(timer: Timer, context: InvocationContext | null): Promise<void> {
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
+  const client = getClient();
 
   if (!connectionDeployed) {
     context.warn("Connection not deployed yet...");
@@ -59,13 +62,13 @@ export async function fullCrawl(timer: Timer, context: InvocationContext): Promi
   const nextCrawl = new Date();
 
   context.log("Starting full crawl...");
+
   // Starts the full ingestion of the contents
   // If the function is running locally, it will use the last crawl date from the file system as the starting point
   // Delete the last crawl file to force a full crawl
-  await ingestContent(
-    config,
-    process.env.AZURE_FUNCTIONS_ENVIRONMENT === "Development" ? lastCrawl : undefined
-  );
+  const since = process.env.AZURE_FUNCTIONS_ENVIRONMENT === "Development" ? lastCrawl : undefined;
+  const service = MultiRepoIssuesFetchService.forRepositories(config.connector.repos.split(','), { config, pageSize: 100, since });
+  await ingestContent(config, client, service);
   await saveLastCrawl(nextCrawl);
   fullCrawlInProgress = false;
   context.log("Finished full crawl...");
@@ -101,7 +104,10 @@ export async function incrementalCrawl(timer: Timer, context: InvocationContext)
   const lastCrawl = await getLastCrawl();
   // Starts the delta ingestion of the contents
 
-  await ingestContent(config, lastCrawl);
+  const client = getClient();
+  const since = lastCrawl;
+  const service = MultiRepoIssuesFetchService.forRepositories(config.connector.repos.split(','), { config, pageSize: 100, since });
+  await ingestContent(config, client, service);
   await saveLastCrawl(nextCrawl);
   context.log("Finished incremental crawl...");
 }
@@ -161,7 +167,8 @@ export async function clearConnection(
     return;
   }
 
-  await clearConnectionItems(config);
+  let service = MultiRepoIssuesFetchService.forRepositories(config.connector.repos.split(','), { config, pageSize: 100 })
+  await clearConnectionItems(config, service);
   await saveLastCrawl(new Date(0));
 
   return null;
