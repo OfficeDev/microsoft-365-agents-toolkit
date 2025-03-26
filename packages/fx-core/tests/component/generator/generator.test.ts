@@ -1443,17 +1443,24 @@ describe("Generate sample using download directory", () => {
 
 describe("getTemplateReplaceMap", () => {
   const sandbox = createSandbox();
+  const inputs = {
+    platform: Platform.VSCode,
+    [QuestionNames.AppName]: randomAppName(),
+    [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
+    [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+    [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
+  } as Inputs;
   afterEach(() => {
     sandbox.restore();
   });
   it("should return windows pathDelimiter", () => {
     sandbox.stub(os, "platform").returns("win32");
-    const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
+    const map = getTemplateReplaceMap(inputs);
     assert.equal(map.pathDelimiter, ";");
   });
   it("should return windows pathDelimiter", () => {
     sandbox.stub(os, "platform").returns("linux");
-    const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
+    const map = getTemplateReplaceMap(inputs);
     assert.equal(map.pathDelimiter, ":");
   });
 });
