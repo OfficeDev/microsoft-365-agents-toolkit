@@ -33,6 +33,9 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
+import fs from "fs-extra";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -108,6 +111,18 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
+    if (
+      featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&
+      (inputs.platform === Platform.CLI || inputs.platform === Platform.VSCode)
+    ) {
+      // ensure EmbeddedKnwoledge folder exists
+      const embeddedKnowledgeFolderPath = path.join(
+        destinationPath,
+        AppPackageFolderName,
+        EmbeddedKnowledgeLocalDirectoryName
+      );
+      await fs.ensureDir(embeddedKnowledgeFolderPath);
+    }
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
       const teamsManifestPath = path.join(
         destinationPath,
@@ -120,6 +135,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       if (declarativeCopilotManifestPathRes.isErr()) {
         return err(declarativeCopilotManifestPathRes.error);
       }
+
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],

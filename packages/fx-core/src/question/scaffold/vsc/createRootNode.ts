@@ -36,7 +36,7 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
   const languages = getAllTemplatesOnPlatform(inputs.platform)
     .filter((t) => t.name === templateName)
     .map((t) => t.language)
-    .filter((lang) => lang !== "none" && lang !== undefined);
+    .filter((lang) => lang !== undefined);
   const languageOptions = languages.map(
     (lang) =>
       (LanguageOptionMap.get(lang) as OptionItem) || {
