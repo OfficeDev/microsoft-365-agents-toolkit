@@ -4,7 +4,7 @@
     // Launch project within Teams App Test Tool
     "Teams App Test Tool (browser)": {
       "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
@@ -24,7 +24,7 @@
     // Launch project within Teams App Test Tool
     "Teams App Test Tool (browser)": {
       "commandName": "Project",
-      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,
       "launchUrl": "http://localhost:56150",
     },
