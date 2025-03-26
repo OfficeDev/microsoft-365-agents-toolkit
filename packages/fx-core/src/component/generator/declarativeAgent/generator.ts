@@ -148,18 +148,6 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       await fs.ensureDir(embeddedKnowledgeFolderPath);
     }
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
-      const teamsManifestPath = path.join(
-        destinationPath,
-        AppPackageFolderName,
-        ManifestTemplateFileName
-      );
-      const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
-        teamsManifestPath
-      );
-      if (declarativeCopilotManifestPathRes.isErr()) {
-        return err(declarativeCopilotManifestPathRes.error);
-      }
-
       const addPluginRes = await addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],
