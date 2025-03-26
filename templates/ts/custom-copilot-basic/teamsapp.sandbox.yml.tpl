@@ -45,7 +45,7 @@ provision:
   - uses: botFramework/create
     with:
       botId: ${{BOT_ID}}
-      name:{{appName}}
+      name: {{appName}}
       messagingEndpoint: ${{BOT_ENDPOINT}}/api/messages
       description: ""
       channels:
