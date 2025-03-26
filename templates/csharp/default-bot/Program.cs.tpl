@@ -43,7 +43,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestTool")
 {
     app.MapGet("/", () => "Echo Bot");
     app.UseDeveloperExceptionPage();
