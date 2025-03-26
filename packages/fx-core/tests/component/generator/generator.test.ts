@@ -53,6 +53,7 @@ import { ActionContext } from "../../../src/component/middleware/actionExecution
 import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
+import os from "os";
 
 const mockedSampleInfo: SampleConfig = {
   id: "test-id",
@@ -1446,12 +1447,12 @@ describe("getTemplateReplaceMap", () => {
     sandbox.restore();
   });
   it("should return windows pathDelimiter", () => {
-    sandbox.stub(process, "platform").value("win32");
+    sandbox.stub(os, "platform").returns("win32");
     const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
     assert.equal(map.pathDelimiter, ";");
   });
   it("should return windows pathDelimiter", () => {
-    sandbox.stub(process, "platform").value("linux");
+    sandbox.stub(os, "platform").returns("linux");
     const map = getTemplateReplaceMap({ platform: Platform.VSCode } as Inputs);
     assert.equal(map.pathDelimiter, ":");
   });
