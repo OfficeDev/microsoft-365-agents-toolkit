@@ -104,7 +104,7 @@ export const doctorResult = {
   InstallNodeV3:
     "The supported node versions are specified in the package.json. Go to https://nodejs.org to install a supported Node.js.",
   SideLoadingDisabled:
-    "Your Microsoft 365 tenant admin hasn't enabled custom app upload permission for your account. You can't install your app to Teams!",
+    "Your Microsoft 365 tenant admin hasn't enabled custom app upload permission for your account. You can't install your app to Microsoft 365!",
   NotSignIn: "No Microsoft 365 account login",
   SignInSuccess: `Microsoft 365 Account (@account) is signed in and custom app upload permission is enabled`,
   SkipTrustingCert: "Skip trusting development certificate for localhost",
@@ -123,7 +123,7 @@ export const runCommand = {
 export const manifestChangesHintMessage = (): string =>
   `If you changed the manifest file, please run '${process.env.TEAMSFX_CLI_BIN_NAME} provision %s' to install app again.`;
 export const m365TenantHintMessage =
-  "WARN: Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click https://aka.ms/teamsfx-m365-apps-prerequisites for more information about setting up dev environment for extending Teams apps across Microsoft 365.";
+  "WARN: Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click https://aka.ms/teamsfx-m365-apps-prerequisites for more information about setting up dev environment for extending apps across Microsoft 365.";
 export const m365SwitchedMessage =
   "WARN: You are now using a different Microsoft 365 tenant from what you previously used. Please visit https://aka.ms/teamsfx-switch-tenant to get more info.";
 

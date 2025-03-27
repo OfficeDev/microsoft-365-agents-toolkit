@@ -7,16 +7,16 @@ Please review this document for setting up your development environment, debuggi
 ## Prerequisites
 ---
 
-Verify you have the right prerequisites for building Teams apps:
+Verify you have the right prerequisites for building Microsoft 365 Apps:
 
 ### M365 account
 
-The Microsoft 365 Agents Toolkit CLI requires a Microsoft 365 organizationl account where Teams is running and has been registered.
+The Microsoft 365 Agents Toolkit CLI requires a Microsoft 365 organizational account where Microsoft 365 App is running and has been registered.
 
 ### Azure account
 The Microsoft 365 Agents Toolkit CLI may require an Azure account and subscription to deploy the Azure resources for your project.
 
-**_NOTE:_** Don't have a M365 to experience building Teams app? Sign up for [M365 Developer Program](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant), which allows you to have a testing tenant with preconfigured permissions.
+**_NOTE:_** Don't have a M365 to experience building Microsoft 365 App? Sign up for [M365 Developer Program](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant), which allows you to have a testing tenant with preconfigured permissions.
 
 ## Setup Development Environment
 ---

@@ -47,10 +47,10 @@
     "description": "Display all connected Microsoft 365 and Azure accounts."
   },
   "add": {
-    "description": "Add feature to your Microsoft Teams application."
+    "description": "Add feature to your Microsoft 365 App."
   },
   "add.spfx-web-part": {
-    "description": "Auto-hosted SPFx web part tightly integrated with Microsoft Teams."
+    "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
   },
   "add.plugin": {
     "description": "A plugin to extend Copilot using your APIs."
@@ -62,13 +62,13 @@
     "description": "A capability to extend Copilot using your APIs."
   },
   "create": {
-    "description": "Create a new Microsoft Teams application."
+    "description": "Create a new Microsoft 365 App."
   },
   "create.sample": {
     "description": "Create an app from existing sample."
   },
   "collaborator": {
-    "description": "Check, grant and list permissions for who can access and manage Microsoft Teams application and Microsoft Entra application."
+    "description": "Check, grant and list permissions for who can access and manage Microsoft 365 App and Microsoft Entra application."
   },
   "collaborator.grant": {
     "description": "Grant permission for another account."
@@ -83,7 +83,7 @@
     "description": "Run the deploy stage in m365agents.yml or m365agents.local.yml."
   },
   "doctor": {
-    "description": "Prerequisite checker for building Microsoft Teams apps."
+    "description": "Prerequisite checker for building Microsoft 365 Apps."
   },
   "entra-app": {
     "description": "Manage the Microsoft Entra app in the current application."
@@ -104,16 +104,16 @@
     "description": "Reset environment file."
   },
   "list": {
-    "description": "List available Microsoft Teams application templates and samples."
+    "description": "List available Microsoft 365 App templates and samples."
   },
   "list.samples": {
-    "description": "List available Microsoft Teams application samples.",
+    "description": "List available Microsoft 365 App samples.",
     "options": {
       "tag": "Specifies the tag to filter the samples."
     }
   },
   "list.templates": {
-    "description": "List available Microsoft Teams application templates.",
+    "description": "List available Microsoft 365 App templates.",
     "options": {
       "format": "Specifies the format of the results."
     }
@@ -144,7 +144,7 @@
     "description": "Preview the current application."
   },
   "package": {
-    "description": "Build your Microsoft Teams app into a package for publishing.",
+    "description": "Build your Microsoft 365 App into a package for publishing.",
     "options": {
       "output-zip-path": "Specifies the output path of the zipped app package, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'.",
       "output-manifest-path": "Specifies the output path of the generated manifest path, defaults to '${folder}/appPackage/build/manifest.${env}.json'"
@@ -178,7 +178,7 @@
     "success": "Upgrade project successfully."
   },
   "validate": {
-    "description": "Validate the Microsoft Teams app using manifest schema, validation rules, or test cases."
+    "description": "Validate the Microsoft 365 App using manifest schema, validation rules, or test cases."
   }
 }
 
