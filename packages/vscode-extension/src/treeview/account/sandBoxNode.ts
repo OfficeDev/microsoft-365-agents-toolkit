@@ -7,7 +7,7 @@ import { localize } from "../../utils/localizeUtils";
 import { DynamicNode } from "../dynamicNode";
 import { passIcon, warningIcon } from "./common";
 import M365TokenInstance from "../../commonlib/m365Login";
-import { isSandboxedEnabled } from "../../debug/common/debugConstants";
+import { isSandboxedEnabled } from "@microsoft/teamsfx-core";
 
 enum ContextValues {
   Normal = "checkSideloading",

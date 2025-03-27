@@ -34,6 +34,7 @@ import {
   UserCancelError,
   assembleError,
   getSideloadingStatus,
+  isSandboxedEnabled,
 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import * as util from "util";
@@ -50,11 +51,7 @@ import { VS_CODE_UI } from "../../qm/vsc_ui";
 import { ExtTelemetry } from "../../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
 import { localize } from "../../utils/localizeUtils";
-import {
-  DisplayMessages,
-  isSandboxedEnabled,
-  RecommendedOperations,
-} from "../common/debugConstants";
+import { DisplayMessages, RecommendedOperations } from "../common/debugConstants";
 import { Step } from "../common/step";
 import {
   CheckResult,

@@ -7,6 +7,7 @@ import {
   ConcurrentError,
   featureFlagManager,
   FeatureFlags as CoreFeatureFlags,
+  isSandboxedEnabled,
 } from "@microsoft/teamsfx-core";
 import { Uri, commands, window } from "vscode";
 import {
@@ -14,7 +15,6 @@ import {
   openTestToolMessage,
   openTestToolDisplayMessage,
   openSandboxMessage,
-  isSandboxedEnabled,
 } from "../debug/common/debugConstants";
 import {
   setOutputTroubleshootNotificationCount,
