@@ -12,7 +12,7 @@ export const addCapabilityCommand: CLICommand = {
   description: commands["add.capability"].description,
   options: [...AddKnowledgeOptions, ProjectFolderOption],
   telemetry: {
-    event: TelemetryEvent.AddCapability,
+    event: TelemetryEvent.AddCap,
   },
   handler: async (ctx) => {
     const inputs = ctx.optionValues as AddKnowledgeInputs;
