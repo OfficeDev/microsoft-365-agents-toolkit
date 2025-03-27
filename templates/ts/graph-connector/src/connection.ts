@@ -134,9 +134,10 @@ export async function clearConnectionItems(config: Config, service: ItemsService
 
     if (connection) {
       config.context.log(`Clearing all items from connection ${config.connector.id}`);
-      await service.processAllAsync(items => {
-        config.context.log(JSON.stringify(items, null, 4));
-        return Promise.resolve();
+      await service.processAllAsync({
+        processor: items => {
+          config.context.log(JSON.stringify(items, null, 4));
+        }
       });
       return true;
     }

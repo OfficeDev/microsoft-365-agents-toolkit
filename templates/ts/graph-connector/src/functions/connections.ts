@@ -6,7 +6,7 @@ import {
   ensureConnection,
   setSearchSettings,
 } from "../connection";
-import { MultiRepoIssuesFetchService } from "../custom/getAllItemsFromAPI";
+import { MultiRepoIssuesFetchService } from "../custom/githubIssuesFetchService";
 import { getClient } from "../graphClient";
 import { ingestContent } from "../ingest";
 import { ensureSchema } from "../schema";

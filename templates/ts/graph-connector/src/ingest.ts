@@ -49,9 +49,11 @@ async function loadContent(config: Config, client: Client, item: ExternalConnect
  * @param config - The configuration object.
  */
 export async function ingestContent(config: Config, client: Client, service: ItemsService<Item>): Promise<void> {
-  await service.processAllAsync(async (items) => {
-    for (const doc of transformContent(items)) {
-      await loadContent(config, client, doc);
+  await service.processAllAsync({
+    processor: async (items) => {
+      for (const doc of transformContent(items)) {
+        await loadContent(config, client, doc);
+      }
     }
   });
 }
