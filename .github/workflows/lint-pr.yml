@@ -129,7 +129,7 @@ jobs:
         run: |
           pip install yamllint
           npm install mustache -g
-          echo "{}" > test.json
+          echo '{"appName":"test"}'>test.json
       
       - name: check origin or remote
         id: remote
