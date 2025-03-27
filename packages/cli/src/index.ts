@@ -31,7 +31,7 @@ export async function start(): Promise<void> {
   const binName = process.env.TEAMSFX_CLI_BIN_NAME as string;
   if (binName === "teamsapp") {
     logger.warning(
-      `Deprecation Warning: The CLI package "@microsoft/teamsapp-cli" and its "teamsapp" command are renamed to "@microsoft/m365agentstoolkit-cli" and "m365agents" respectively. The old command "teamsapp" will be retired soon. Please switch to the new command "m365agents" and update your workflows accordingly.`
+      `Deprecation Warning: The CLI command "teamsapp" is renamed to "m365agents". The old command name will be retired soon. Please switch to the new command and update your workflows accordingly.`
     );
   }
   cliTelemetry.reporter?.addSharedProperty(TelemetryProperty.BinName, binName); // trigger binary name for telemetry
