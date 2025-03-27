@@ -88,4 +88,13 @@ export class ProgressHandler implements IProgressHandler {
       }
     });
   }
+
+  public async text(detail: string) {
+    await this.mutex.runExclusive(() => {
+      this.detail = detail;
+      if (this.resolve) {
+        this.resolve(null);
+      }
+    });
+  }
 }

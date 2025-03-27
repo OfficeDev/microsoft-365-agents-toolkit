@@ -47,6 +47,7 @@ import {
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
 } from "./codeLensProvider";
 import commandController from "./commandController";
 import azureAccountManager from "./commonlib/azureLogin";
@@ -129,6 +130,8 @@ import {
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
   shareHandler,
+  setSensitivityLabelHandler,
+  m365PreAuthHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -993,6 +996,22 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     Correlator.run(refreshCopilotCallback, args)
   );
   context.subscriptions.push(refreshCopilot);
+
+  const setSensitivityLabelCmd = vscode.commands.registerCommand(
+    "fx-extension.setSensitivityLabel",
+    async (...args) => {
+      await Correlator.run(setSensitivityLabelHandler, args);
+    }
+  );
+  context.subscriptions.push(setSensitivityLabelCmd);
+
+  const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
+    "fx-extension.m365PreAuth",
+    async (...args) => {
+      await Correlator.run(m365PreAuthHandler, args);
+    }
+  );
+  context.subscriptions.push(m365PreAuthHandlerCmd);
 }
 
 /**
@@ -1346,6 +1365,21 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
       oneDriveSharePointCodeLensProvider
     )
   );
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+    const declarativeAgentManifestSelector: vscode.DocumentSelector = {
+      scheme: "file",
+      pattern: `**/${AppPackageFolderName}/*.{json}`,
+    };
+    const declarativeAgentSensitivityLabelCodeLensProvider =
+      new DeclarativeAgentSensitivityLabelCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        declarativeAgentManifestSelector,
+        declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {

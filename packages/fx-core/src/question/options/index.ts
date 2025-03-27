@@ -15,3 +15,4 @@ export * from "./UninstallOptions";
 export * from "./SyncManifestOptions";
 export * from "./AddAuthActionOptions";
 export * from "./AddKnowledgeOptions";
+export * from "./SetSensitivityLabelOptions";

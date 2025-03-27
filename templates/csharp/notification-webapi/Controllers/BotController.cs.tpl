@@ -1,27 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.TeamsFx.Conversation;
 
 namespace {{SafeProjectName}}.Controllers
 {
     [Route("api/messages")]
     [ApiController]
-    public class BotController : ControllerBase
+    [Authorize]
+    public class BotController(IBotHttpAdapter adapter, IBot bot, ConversationBot conversation) : ControllerBase
     {
-        private readonly ConversationBot _conversation;
-        private readonly IBot _bot;
-
-        public BotController(ConversationBot conversation, IBot bot)
-        {
-            this._conversation = conversation;
-            this._bot = bot;
-        }
-
         [HttpPost]
-        public async Task PostAsync(CancellationToken cancellationToken = default)
-        {
-            await (this._conversation.Adapter as CloudAdapter).ProcessAsync(this.Request, this.Response, this._bot, cancellationToken);
-        }
+        public Task PostAsync(CancellationToken cancellationToken)
+            => adapter.ProcessAsync(Request, Response, bot, cancellationToken);
     }
 }

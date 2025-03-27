@@ -20,15 +20,15 @@ export const specialTemplates: Template[] = [
     description: "Simple Teams Tab App with SSO",
   },
   {
-    id: "declarative-agent-with-action-from-existing-api-csharp",
-    name: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
-    language: "csharp",
-    description: "",
-  },
-  {
     id: "declarative-agent-with-action-from-existing-api",
     name: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
     language: "none",
+    description: "",
+  },
+  {
+    id: "declarative-agent-with-action-from-existing-api-csharp",
+    name: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    language: "csharp",
     description: "",
   },
   {

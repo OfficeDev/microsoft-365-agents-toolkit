@@ -127,6 +127,8 @@ export enum QuestionNames {
   ApiKeyName = "api-key-name",
 
   TypeSpecProjectType = "type-spec-project-type",
+  DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
+  SensitivityLabel = "sensitivity-label",
 }
 
 export enum ProjectTypeGroup {

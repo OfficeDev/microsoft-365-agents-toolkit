@@ -159,10 +159,13 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[하나 이상의 Graph 커넥터를 지식 원본으로 선택]]></Val>
+            <Val><![CDATA[하나 이상의 Graph 커넥터를 기능 원본으로 선택]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -993,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 지식 원본을 기반으로 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용의 손실을 방지하려면 진행하기 전에 파일을 백업하거나 변경 내용 추적을 위해 git을 사용하세요.]]></Val>
+            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 기능 원본에 따라 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용의 손실을 방지하려면 진행하기 전에 파일을 백업하거나 변경 내용 추적을 위해 git을 사용하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1020,10 +1026,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully. View agent manifest in "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[프로젝트에 지식 원본이 추가되었습니다. "%s"에서 에이전트 매니페스트를 확인하세요.]]></Val>
+            <Val><![CDATA[프로젝트에 기능 원본이 추가되었습니다. "%s"에서 에이전트 매니페스트를 확인하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1038,10 +1047,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[프로젝트에 지식 원본이 추가되었습니다.]]></Val>
+            <Val><![CDATA[프로젝트에 기능 원본이 추가되었습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2343,19 +2355,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[기술 원본을 선언적 에이전트에 대한 접지 정보로 선택]]></Val>
+            <Val><![CDATA[선언적 에이전트에 대한 기반을 두는 과정 정보로 기능 원본 선택]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Knowledge]]></Val>
+          <Val><![CDATA[Add Capability]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[지식 추가]]></Val>
+            <Val><![CDATA[기능 추가]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add Knowledge]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2454,10 +2472,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[TypeSpec을 사용하여 작업 만들기]]></Val>
+            <Val><![CDATA[API 작업 템플릿을 사용하여 TypeSpec으로 작업을 생성하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3900,6 +3921,15 @@
           <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[기존 Office 추가 기능 업그레이드]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.listSensitivityLabel.notLogin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get sensitivity labels. Please log in to Microsoft 365 account later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[민감도 레이블을 가져올 수 없습니다. 나중에 Microsoft 365 계정에 로그인하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8629,11 +8659,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.graphAPI.apiFailed.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to call Graph API. API: %s. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Graph API를 호출할 수 없습니다. API: %s. 오류: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[플러그 인 매니페스트에서 적응형 카드 생성할 수 없습니다. 필요한 경우 매니페스트 파일을 수동으로 업데이트하십시오.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[목록 민감도 레이블 API에 대한 토큰을 가져올 수 없습니다. 오류: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenUndefined" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[목록 민감도 레이블 API에 대한 토큰을 가져올 수 없습니다. 토큰이 정의되지 않았습니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8683,6 +8740,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[선언적 에이전트 매니페스트 파일을 읽을 수 없습니다. 오류: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.script.ScriptExecutionError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to execute script action. Script: `%s`. Error: `%s`]]></Val>
@@ -8721,6 +8787,15 @@
           <Val><![CDATA[Script execution timeout. Adjust 'timeout' parameter in yaml or improve your script's efficiency.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[스크립트 실행 시간이 초과되었습니다. yaml에서 'timeout' 매개 변수를 조정하거나 스크립트의 효율성을 개선합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.setGeneralSensitivityLabel.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to set general sensitivity label. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[일반 민감도 레이블을 설정할 수 없습니다. 오류: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8794,6 +8869,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[This project is already the latest, no need to upgrade.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.writeDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to write declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[선언적 에이전트 매니페스트 파일을 쓸 수 없습니다. 오류: %s]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

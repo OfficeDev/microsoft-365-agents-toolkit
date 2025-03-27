@@ -1,9 +1,8 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
-using Newtonsoft.Json;
 
 namespace {{SafeProjectName}}.Commands
 {
@@ -50,7 +49,7 @@ namespace {{SafeProjectName}}.Commands
                 new Attachment
                 {
                     ContentType = "application/vnd.microsoft.card.adaptive",
-                    Content = JsonConvert.DeserializeObject(cardContent),
+                    Content = cardContent
                 }
             );
 

@@ -159,10 +159,13 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selecione um ou mais Conectores do Graph como fonte de conhecimento]]></Val>
+            <Val><![CDATA[Selecione um ou mais Conectores do Graph como origem de capacidade]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -993,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O Kit de Ferramentas do Teams modificará arquivos na sua pasta "%s" com base na fonte de conhecimento fornecida. Para evitar a perda de alterações inesperadas, faça backup dos arquivos ou use o git para controle de alterações antes de continuar.]]></Val>
+            <Val><![CDATA[O Toolkit do Teams modificará arquivos na sua pasta "%s" com base na origem de capacidade fornecida. Para evitar a perda de alterações inesperadas, faça backup dos arquivos ou use o git para controle de alterações antes de continuar.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1020,10 +1026,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully. View agent manifest in "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fonte de conhecimento adicionada ao projeto com êxito. Exibir manifesto do agente em "%s".]]></Val>
+            <Val><![CDATA[Origem de capacidade adicionada ao projeto com êxito. Exibir manifesto do agente em "%s".]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1038,10 +1047,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fonte de conhecimento adicionada ao projeto com êxito.]]></Val>
+            <Val><![CDATA[Origem de capacidade adicionada ao projeto com êxito.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2343,19 +2355,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selecione uma fonte de conhecimento como informações básicas para o agente declarativo]]></Val>
+            <Val><![CDATA[Selecione uma origem de capacidade como informações de fundamento para o agente declarativo]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Knowledge]]></Val>
+          <Val><![CDATA[Add Capability]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Adicionar Conhecimento]]></Val>
+            <Val><![CDATA[Adicionar Capacidade]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add Knowledge]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2454,10 +2472,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crie sua ação com TypeSpec]]></Val>
+            <Val><![CDATA[Crie sua ação com o TypeSpec usando um modelo de Ação de API.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3900,6 +3921,15 @@
           <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Atualizar um Suplemento existente do Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.listSensitivityLabel.notLogin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get sensitivity labels. Please log in to Microsoft 365 account later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível obter rótulos de confidencialidade. Faça logon na conta do Microsoft 365 mais tarde.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8629,11 +8659,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.graphAPI.apiFailed.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to call Graph API. API: %s. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível chamar a API do Graph. API: %s. Erro: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Não é possível gerar card no manifesto do plug-in. Atualize manualmente o arquivo de manifesto, se necessário.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível obter token para a API de listagem de rótulos de confidencialidade. Erro: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenUndefined" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível obter token para a API de listagem de rótulos de confidencialidade. O token está indefinido.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8683,6 +8740,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível ler o arquivo de manifesto do agente declarativo. Erro: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.script.ScriptExecutionError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to execute script action. Script: `%s`. Error: `%s`]]></Val>
@@ -8721,6 +8787,15 @@
           <Val><![CDATA[Script execution timeout. Adjust 'timeout' parameter in yaml or improve your script's efficiency.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Tempo limite de execução do script. Ajuste o parâmetro 'timeout' no yaml ou melhore a eficiência do script.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.setGeneralSensitivityLabel.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to set general sensitivity label. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível definir o rótulo de confidencialidade geral. Erro: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8794,6 +8869,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[This project is already the latest, no need to upgrade.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.writeDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to write declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível gravar o arquivo de manifesto do agente declarativo. Erro: %s]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
 
     /// <summary>
     /// Defines a contract that represents a command handler that can handle commands received from Teams.

@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -141,7 +141,7 @@
             Assert.IsFalse(command.IsTriggered);
         }
 
-        private static Activity CreateMessageActivity(string text)
+        private static IActivity CreateMessageActivity(string text)
         {
             return new Activity()
             {

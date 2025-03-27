@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
 
     /// <summary>
     /// Represents a simple text message for a command response.

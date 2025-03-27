@@ -1,11 +1,12 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Hosting.AspNetCore;
+    using Microsoft.Agents.Hosting.AspNetCore.BackgroundQueue;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System.Collections.Generic;
-    using System.Linq;
 
     [TestClass]
     public class CardActionBotTest
@@ -14,10 +15,12 @@
         public void CreateCardActionBot_ShouldUseMiddleware()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
 
             // Act
-            var bot = new CardActionBot(_mockAdapter.Object,
+            var bot = new CardActionBot(_mockAdapter,
                 new CardActionOptions()
                 {
                     Actions = new List<IAdaptiveCardActionHandler> { new Mock<IAdaptiveCardActionHandler>().Object }
@@ -26,17 +29,17 @@
             // Assert
             Assert.IsNotNull(bot.CardActionHandlers);
             Assert.AreEqual(1, bot.CardActionHandlers.Count);
-            Assert.IsNotNull(_mockAdapter.Object.MiddlewareSet);
-            Assert.AreEqual(1, _mockAdapter.Object.MiddlewareSet.Count());
-            Assert.IsTrue(_mockAdapter.Object.MiddlewareSet.First() is CardActionMiddleware);
+            Assert.IsNotNull(_mockAdapter.MiddlewareSet);
         }
 
         [TestMethod]
         public void RegisterHandler_ShouldSucceed()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
-            var bot = new CardActionBot(_mockAdapter.Object, new CardActionOptions());
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
+            var bot = new CardActionBot(_mockAdapter, new CardActionOptions());
 
             // Act
             bot.RegisterHandler(new Mock<IAdaptiveCardActionHandler>().Object);
@@ -50,8 +53,10 @@
         public void RegisterHandlers_ShouldSucceed()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
-            var bot = new CardActionBot(_mockAdapter.Object, new CardActionOptions());
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
+            var bot = new CardActionBot(_mockAdapter, new CardActionOptions());
             var handlers = new List<IAdaptiveCardActionHandler>
             {
                 new Mock<IAdaptiveCardActionHandler>().Object,

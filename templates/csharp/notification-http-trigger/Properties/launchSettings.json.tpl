@@ -26,6 +26,7 @@
       "launchBrowser": true,
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}",
       "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.." // Path to project folder $(MSBuildProjectDirectory)
       }
@@ -81,6 +82,7 @@
       "commandLineArgs": "host start --port 5130 --pause-on-error",
       "dotnetRunMessages": true,
       "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development",
         // Path to project folder $(MSBuildProjectDirectory), used in Microsoft.TeamsFx package.
         "TEAMSFX_NOTIFICATION_LOCALSTORE_DIR": "../../.."

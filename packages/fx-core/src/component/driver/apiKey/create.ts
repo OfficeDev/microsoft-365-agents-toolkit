@@ -11,7 +11,6 @@ import { InvalidActionInputError, assembleError } from "../../../error";
 import { QuestionNames } from "../../../question/constants";
 import { QuestionMW } from "../../middleware/questionMW";
 import { OutputEnvironmentVariableUndefinedError } from "../error/outputEnvironmentVariableUndefinedError";
-import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import {
@@ -28,6 +27,7 @@ import { CreateApiKeyOutputs, OutputKeys } from "./interface/createApiKeyOutputs
 import { logMessageKeys, maxSecretLength, minSecretLength } from "./utility/constants";
 import { getDomain, loadStateFromEnv, validateDomain } from "./utility/utility";
 import { apiKeyFromScratchClientSecretInvalid } from "./error/apiKeyFromScratchClientSecretInvalid";
+import { WrapDriverContext } from "../util/wrapUtil";
 
 const actionName = "apiKey/register"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/apiKey-register";
@@ -37,10 +37,20 @@ export class CreateApiKeyDriver implements StepDriver {
   description = getLocalizedString("driver.apiKey.description.create");
   readonly progressTitle = getLocalizedString("driver.aadApp.apiKey.title.create");
 
-  @hooks([QuestionMW("apiKey", true), addStartAndEndTelemetry(actionName, actionName)])
   public async execute(
     args: CreateApiKeyArgs,
-    context: DriverContext,
+    context: WrapDriverContext,
+    outputEnvVarNames?: Map<string, string>
+  ): Promise<ExecutionResult> {
+    const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+    const result = await this._run(args, wrapDriverContext, outputEnvVarNames);
+    return result;
+  }
+
+  @hooks([QuestionMW("apiKey", true), addStartAndEndTelemetry(actionName, actionName)])
+  public async _run(
+    args: CreateApiKeyArgs,
+    context: WrapDriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<ExecutionResult> {
     const summaries: string[] = [];

@@ -159,10 +159,13 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyberte jeden nebo více konektorů Graphu jako zdroj znalostí]]></Val>
+            <Val><![CDATA[Vyberte jeden nebo více konektorů Graphu jako zdroj schopností]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -993,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada nástrojů Teams upraví soubory ve složce „%s“ na základě zadaného zdroje znalostí. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
+            <Val><![CDATA[Sada nástrojů Teams upraví soubory ve složce %s na základě zadaného zdroje schopností. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1020,10 +1026,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully. View agent manifest in "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zdroj znalostí byl úspěšně přidán do projektu. Zobrazte manifest agenta v „%s“.]]></Val>
+            <Val><![CDATA[Zdroj schopností byl úspěšně přidán do projektu. Manifest agenta si můžete zobrazit v %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1038,10 +1047,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zdroj znalostí byl úspěšně přidán do projektu.]]></Val>
+            <Val><![CDATA[Zdroj schopností byl úspěšně přidán do projektu.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2343,19 +2355,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyberte zdroj znalostí jako informace o uzemnění pro deklarativního agenta.]]></Val>
+            <Val><![CDATA[Vyberte zdroj schopností jako podkladovou informaci pro deklarativního agenta]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Knowledge]]></Val>
+          <Val><![CDATA[Add Capability]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Přidat znalosti]]></Val>
+            <Val><![CDATA[Přidat schopnost]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add Knowledge]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2454,10 +2472,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytvořit akci pomocí TypeSpec]]></Val>
+            <Val><![CDATA[Vytvořte svou akci pomocí TypeSpec s použitím šablony akce rozhraní API.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3900,6 +3921,15 @@
           <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Upgradovat existující doplněk pro Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.listSensitivityLabel.notLogin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get sensitivity labels. Please log in to Microsoft 365 account later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze získat popisky citlivosti. Přihlaste se prosím k účtu Microsoft 365 později.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8629,11 +8659,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.graphAPI.apiFailed.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to call Graph API. API: %s. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze volat rozhraní Graph API. API: %s. Chyba: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[V manifestu modulu plug-in se nepovedlo vygenerovat adaptivní kartu. V případě potřeby ručně aktualizujte soubor manifestu.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze získat token pro rozhraní API k zobrazení výpisu popisků citlivosti. Chyba: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenUndefined" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze získat token pro rozhraní API k zobrazení výpisu popisků citlivosti. Token není definován.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8683,6 +8740,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze přečíst soubor manifestu deklarativního agenta. Chyba: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.script.ScriptExecutionError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to execute script action. Script: `%s`. Error: `%s`]]></Val>
@@ -8721,6 +8787,15 @@
           <Val><![CDATA[Script execution timeout. Adjust 'timeout' parameter in yaml or improve your script's efficiency.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Vypršel časový limit pro spuštění skriptu. Upravte parametr timeout v yaml nebo zvyšte efektivitu skriptu.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.setGeneralSensitivityLabel.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to set general sensitivity label. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze nastavit obecný popisek citlivosti. Chyba: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8794,6 +8869,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[This project is already the latest, no need to upgrade.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.writeDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to write declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze zapsat soubor manifestu deklarativního agenta. Chyba: %s]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -3,8 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System.Threading;
@@ -55,7 +55,7 @@ namespace Microsoft.TeamsFx.Conversation
 
                             if (contentType == InvokeResponseContentType.AdaptiveCard)
                             {
-                                var card = responseValue.Value;
+                                var card = responseValue.Value as string;
                                 if (card == null)
                                 {
                                     string errorMessage = "Adaptive card content cannot be null.";
@@ -66,7 +66,7 @@ namespace Microsoft.TeamsFx.Conversation
                                     throw new ExceptionWithCode(errorMessage, ExceptionCode.InvalidParameter);
                                 }
 
-                                var isRefresh = ((JObject)card).ContainsKey("refresh");
+                                var isRefresh = JObject.Parse(card).ContainsKey("refresh");
                                 var adaptiveCardResponse = handler.AdaptiveCardResponse;
 
                                 if (isRefresh && handler.AdaptiveCardResponse == AdaptiveCardResponse.ReplaceForInteractor)
@@ -78,7 +78,7 @@ namespace Microsoft.TeamsFx.Conversation
 
                                 var messageActivity = MessageFactory.Attachment
                                 (
-                                    new Attachment
+                                    new Agents.Core.Models.Attachment
                                     {
                                         ContentType = "application/vnd.microsoft.card.adaptive",
                                         Content = card,
@@ -120,7 +120,7 @@ namespace Microsoft.TeamsFx.Conversation
         {
             var invokeActivity = new Activity
             {
-                Type = ActivityTypesEx.InvokeResponse,
+                Type = Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse,
                 Value = response
             };
 

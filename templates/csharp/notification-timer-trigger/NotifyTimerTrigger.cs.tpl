@@ -1,11 +1,10 @@
 using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.TeamsFx.Conversation;
-using Newtonsoft.Json;
 
 namespace {{SafeProjectName}}
 {
@@ -13,13 +12,11 @@ namespace {{SafeProjectName}}
     {
         private readonly ConversationBot _conversation;
         private readonly ILogger<NotifyTimerTrigger> _log;
-        private readonly string _contentRootPath;
 
-        public NotifyTimerTrigger(ConversationBot conversation, ILogger<NotifyTimerTrigger> log, string contentRootPath)
+        public NotifyTimerTrigger(ConversationBot conversation, ILogger<NotifyTimerTrigger> log)
         {
             _conversation = conversation;
             _log = log;
-            _contentRootPath = contentRootPath;
         }
 
         [Function("NotifyTimerTrigger")]
@@ -28,7 +25,7 @@ namespace {{SafeProjectName}}
             _log.LogInformation($"NotifyTimerTrigger is triggered at {DateTime.Now}.");
 
             // Read adaptive card template
-            var adaptiveCardFilePath = Path.Combine(_contentRootPath, "Resources", "NotificationDefault.json");
+            var adaptiveCardFilePath = Path.Combine("Resources", "NotificationDefault.json");
             var cardTemplate = await File.ReadAllTextAsync(adaptiveCardFilePath, cancellationToken);
 
             var pageSize = 100;
@@ -51,7 +48,7 @@ namespace {{SafeProjectName}}
                             NotificationUrl = "https://aka.ms/teamsfx-notification-new",
                         }
                     );
-                    await installation.SendAdaptiveCard(JsonConvert.DeserializeObject(cardContent), cancellationToken);
+                    await installation.SendAdaptiveCard(cardContent, cancellationToken);
                 }
 
             } while (!string.IsNullOrEmpty(continuationToken));

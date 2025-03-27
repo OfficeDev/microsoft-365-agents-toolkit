@@ -159,10 +159,13 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ナレッジ ソースとして 1 つ以上の Graph コネクタを選択します]]></Val>
+            <Val><![CDATA[機能ソースとして 1 つ以上の Graph コネクタを選択する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -993,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、指定したナレッジ ソースに基づいて、"%s" フォルダー内のファイルを変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
+            <Val><![CDATA[Teams Toolkit は、指定した機能ソースに基づいて、"%s" フォルダー内のファイルを変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1020,10 +1026,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully. View agent manifest in "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ナレッジ ソースがプロジェクトに正常に追加されました。"%s" でエージェント マニフェストを表示します。]]></Val>
+            <Val><![CDATA[機能ソースがプロジェクトに正常に追加されました。"%s" でエージェント マニフェストを表示します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully. View agent manifest in "%s".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1038,10 +1047,13 @@
       </Item>
       <Item ItemId=";core.addKnowledge.success.vsc" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          <Val><![CDATA[Capability source added to the project successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ナレッジ ソースがプロジェクトに正常に追加されました。]]></Val>
+            <Val><![CDATA[機能ソースがプロジェクトに正常に追加されました。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Knowledge source added to the project successfully.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2343,19 +2355,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          <Val><![CDATA[Select a capability source as grounding information for declarative agent]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[宣言型エージェントの基礎情報としてナレッジ ソースを選択します]]></Val>
+            <Val><![CDATA[宣言型エージェントの基礎情報として機能ソースを選択する]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select a knowledge source as grounding information for declarative agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addKnowledge.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Knowledge]]></Val>
+          <Val><![CDATA[Add Capability]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ナレッジの追加]]></Val>
+            <Val><![CDATA[機能の追加]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add Knowledge]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2454,10 +2472,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[TypeSpec を使用してアクションを作成します]]></Val>
+            <Val><![CDATA[API アクション テンプレートを使用して TypeSpec でアクションを作成します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create your action with TypeSpec]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3900,6 +3921,15 @@
           <Val><![CDATA[Upgrade an Existing Office Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[既存の Office アドインのアップグレード]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.listSensitivityLabel.notLogin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get sensitivity labels. Please log in to Microsoft 365 account later.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[秘密度ラベルを取得できません。後で Microsoft 365 アカウントにログインしてください。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8629,11 +8659,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.graphAPI.apiFailed.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to call Graph API. API: %s. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Graph API を呼び出せません。API: %s。エラー: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[プラグイン マニフェストにアダプティブ カードを生成できません。必要に応じて、マニフェスト ファイルを手動で更新します。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[リスト秘密度ラベル API のトークンを取得できません。エラー: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.listSensitivityLabel.tokenUndefined" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[リスト秘密度ラベル API のトークンを取得できません。トークンが未定義です。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8683,6 +8740,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[宣言型エージェント マニフェスト ファイルを読み取れません。エラー: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.script.ScriptExecutionError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to execute script action. Script: `%s`. Error: `%s`]]></Val>
@@ -8721,6 +8787,15 @@
           <Val><![CDATA[Script execution timeout. Adjust 'timeout' parameter in yaml or improve your script's efficiency.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[スクリプト実行タイムアウト。yaml の 'timeout' パラメーターを調整するか、スクリプトの効率を向上させます。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.setGeneralSensitivityLabel.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to set general sensitivity label. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[一般的な秘密度ラベルを設定できません。エラー: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8794,6 +8869,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[This project is already the latest, no need to upgrade.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.writeDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to write declarative agent manifest file. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[宣言型エージェント マニフェスト ファイルを書き込めません。エラー: %s]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

@@ -62,7 +62,7 @@ export default class Progress implements IProgressHandler {
     this.currentPercentage = 0;
   }
 
-  async start(detail?: string) {
+  start(detail?: string) {
     this.status = "running";
     this.detail = detail;
     this.currentStep = 0;
@@ -71,7 +71,7 @@ export default class Progress implements IProgressHandler {
     }
   }
 
-  async end(success: boolean, hideAfterFinish = false) {
+  end(success: boolean, hideAfterFinish = false) {
     this.status = success ? "done" : "error";
     if (success) this.currentPercentage = 100;
     if (Progress.findIndex(this) > -1) {
@@ -79,12 +79,14 @@ export default class Progress implements IProgressHandler {
     }
   }
 
-  async next(detail?: string) {
+  next(detail?: string) {
     this.detail = detail;
     this.currentStep++;
     if (this.totalSteps < this.currentStep) this.totalSteps = this.currentStep;
   }
-
+  text(detail?: string) {
+    this.detail = detail;
+  }
   private updatePercentage() {
     const needArrivedPercentage = ((this.currentStep - 1) / this.totalSteps) * 100;
     const nextArrivedPercentage = (this.currentStep / this.totalSteps) * 100 - 1;

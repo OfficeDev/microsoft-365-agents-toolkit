@@ -1,65 +1,58 @@
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Agents.BotBuilder.App;
+using Microsoft.Agents.BotBuilder.State;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.Agents.Storage;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.TeamsFx.Conversation;
 using {{SafeProjectName}};
 
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureAppConfiguration((hostContext, builder) => {
-        var context = hostContext.HostingEnvironment;
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile(Path.Combine(context.ContentRootPath, $"appsettings.json"), optional: true, reloadOnChange: false)
-            .AddJsonFile(Path.Combine(context.ContentRootPath, $"appsettings.{context.EnvironmentName}.json"), optional: true, reloadOnChange: false)
-            .Build();
-        builder.AddConfiguration(configuration);
-        var config = builder.Build().Get<ConfigOptions>();
-        builder.AddInMemoryCollection(new Dictionary<string, string>()
-        {
-            { "MicrosoftAppType", config.BOT_TYPE },
-            { "MicrosoftAppId", config.BOT_ID },
-            { "MicrosoftAppPassword", config.BOT_PASSWORD },
-            { "MicrosoftAppTenantId", config.BOT_TENANT_ID },
-        });
-    })
-    .ConfigureServices((hostContext, services) =>
+var builder = FunctionsApplication.CreateBuilder(args);
+builder.ConfigureFunctionsWebApplication();
+builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddCloudAdapter<AdapterWithErrorHandler>();
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
+builder.Logging.AddConsole();
+
+// Add AspNet token validation
+builder.Services.AddBotAspNetAuthentication(builder.Configuration);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
+
+// Add ApplicationOptions
+builder.Services.AddTransient(sp =>
+{
+    return new AgentApplicationOptions()
     {
-        var configuration = hostContext.Configuration;
+        StartTypingTimer = false,
+        TurnStateFactory = () => new TurnState(sp.GetService<IStorage>())
+    };
+});
 
-        services.AddSingleton(hostContext.HostingEnvironment.ContentRootPath);
-
-        // Create the Bot Framework Authentication to be used with the Bot Adapter.
-        services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
-
-        // Create the Cloud Adapter with error handling enabled.
-        // Note: some classes expect a BotAdapter and some expect a BotFrameworkHttpAdapter, so
-        // register the same adapter instance for all types.
-        services.AddSingleton<CloudAdapter, AdapterWithErrorHandler>();
-        services.AddSingleton<IBotFrameworkHttpAdapter>(sp => sp.GetService<CloudAdapter>());
-        services.AddSingleton<BotAdapter>(sp => sp.GetService<CloudAdapter>());
-
-        // Create the Conversation with notification feature enabled.
-        services.AddSingleton(sp =>
+// Create the Conversation with notification feature enabled.
+builder.Services.AddSingleton(sp =>
+{
+    var options = new ConversationOptions()
+    {
+        Adapter = sp.GetService<CloudAdapter>(),
+        Notification = new NotificationOptions
         {
-            var options = new ConversationOptions()
-            {
-                Adapter = sp.GetService<CloudAdapter>(),
-                Notification = new NotificationOptions
-                {
-                    BotAppId = configuration["MicrosoftAppId"],
-                },
-            };
+            BotAppId = builder.Configuration["Connections:BotServiceConnection:Settings:ClientId"],
+        },
+    };
 
-            return new ConversationBot(options);
-        });
+    return new ConversationBot(options);
+});
 
-        // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-        services.AddTransient<IBot, TeamsBot>();
-    })
-    .Build();
+// Add the bot (which is transient)
+builder.AddAgent<TeamsBot>();
 
-host.Run();
+var app = builder.Build();
+app.Run();

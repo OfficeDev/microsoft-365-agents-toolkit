@@ -1,7 +1,7 @@
 namespace Microsoft.TeamsFx.Test.Conversation
 {
     using System.Text.Json;
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.Core.Models;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

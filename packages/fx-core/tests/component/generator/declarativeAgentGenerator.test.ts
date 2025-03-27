@@ -252,6 +252,78 @@ describe("copilotExtension", async () => {
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
+
+    it("add EmbeddedKnowledge folder success - CLI", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "ensureDir").resolves();
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+
+    it("add EmbeddedKnowledge folder success - VSC", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "ensureDir").resolves();
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+
+    it("add EmbeddedKnowledge folder skipped - VS", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VS,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "ensureDir").throws("error");
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
+
+    it("add EmbeddedKnowledge folder skipped - feature flag off", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
+        [QuestionNames.AppName]: "app",
+      };
+
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(fs, "ensureDir").throws("error");
+
+      const res = await generator.post(context, inputs, "");
+      assert.isTrue(res.isOk());
+    });
   });
 
   describe("setGeneralSensitivityLabel", async () => {

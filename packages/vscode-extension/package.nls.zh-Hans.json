@@ -182,9 +182,9 @@
   "teamstoolkit.commandsTreeViewProvider.addPluginTitle": "添加操作",
   "teamstoolkit.commandsTreeViewProvider.addPluginDescription": "在声明性代理中添加操作",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "正在添加操作...",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "添加知识",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "在声明性代理中添加知识",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "正在添加知识...",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "Add Capability",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "Add capability in declarative agent",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "Adding capability...",
   "teamstoolkit.commandsTreeViewProvider.addWebpartTitle": "添加 SPFx Web 部件",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployTitle": "部署",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployDescription": "部署",
@@ -278,6 +278,7 @@
   "teamstoolkit.handlers.provisionDescription": "[%s] 已在 [local address](%s) 成功创建。继续预配，然后即可预览应用。",
   "teamstoolkit.handlers.provisionDescription.fallback": "[%s] 已在 %s 成功创建。继续预配，然后即可预览应用。",
   "teamstoolkit.handlers.provisionTitle": "预配",
+  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens \"Get Sensitivity Label ID\"",
   "teamstoolkit.handlers.manualStepRequired": "[%s] 是在 [local address](%s) 处创建的。按照 README 文件中的说明预览应用。",
   "teamstoolkit.handlers.manualStepRequired.fallback": "[%s] 是在 %s 处创建的。按照 README 文件中的说明预览应用。",
   "teamstoolkit.handlers.manualStepRequiredTitle": "打开自述文件",
@@ -608,5 +609,8 @@
   "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "createDeclarativeAgentWithApiSpec 命令中的参数无效。用法： createDeclarativeAgentWithApiSpec(API_SPEC_PATH： string)。",
   "teamstoolkit.error.KiotaNotInstalled": "需要安装Microsoft最低版本为 %s 的 Kiota 扩展才能使用此功能。",
   "teamstoolkit.handeler.addAuthConfig.notification": "Teams 工具包已成功 (teamsapp.yaml 和 teamsapp.local.yaml) 文件更新了项目配置，并添加了支持身份验证流的作。你可以继续进行远程预配。",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "预配"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "预配",
+  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.",
+  "teamstoolkit.config.enableKiota.yes": "Yes",
+  "teamstoolkit.config.enableKiota.no": "No"
 }

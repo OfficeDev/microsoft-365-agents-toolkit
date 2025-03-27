@@ -30,6 +30,8 @@ class RetailDashboardTestCase extends CaseFactory {
       Env.username,
       Env.password,
       {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -52,6 +54,5 @@ new RetailDashboardTestCase(
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "react-retail-dashboard-local",
-    type: "spfx",
   }
 ).test();
