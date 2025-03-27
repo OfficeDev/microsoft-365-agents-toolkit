@@ -523,6 +523,7 @@
   "core.GCListQuestion.placeholder": "List all existing Graph Connectors",
   "core.GCInputQuestion.title": "Connection ID",
   "core.GCListQuestion.invalidMessage": "%s API(s) selected. You need to select at least one APIs.",
+  "core.GCList.insufficientPermission": "To list graph connectors, you need org's Microsoft 365 tenant admin permissions.",
   "core.confirmManifestQuestion.placeholder": "Confirm you've selected the correct manifest file",
   "core.aadAppQuestion.label": "Microsoft Entra app",
   "core.aadAppQuestion.description": "Your Microsoft Entra app for Single Sign On",
