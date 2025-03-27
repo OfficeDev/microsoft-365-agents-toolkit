@@ -3,9 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
+    using Microsoft.Agents.Core.Models;
     using System.Text.Json;
-
-    using Microsoft.Bot.Schema;
 
     [Obsolete]
     internal sealed class LocalFileStorage : INotificationTargetStorage

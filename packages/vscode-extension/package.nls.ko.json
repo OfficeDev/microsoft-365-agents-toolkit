@@ -182,9 +182,9 @@
   "teamstoolkit.commandsTreeViewProvider.addPluginTitle": "동작 추가",
   "teamstoolkit.commandsTreeViewProvider.addPluginDescription": "선언적 에이전트에 작업 추가",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "작업 추가 중...",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "지식 추가",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "선언적 에이전트에 기술 자료 추가",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "기술 자료 추가 중...",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "Add Capability",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "Add capability in declarative agent",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "Adding capability...",
   "teamstoolkit.commandsTreeViewProvider.addWebpartTitle": "SPFx 웹 파트 추가",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployTitle": "배포",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployDescription": "배포",
@@ -278,6 +278,7 @@
   "teamstoolkit.handlers.provisionDescription": "[%s]이(가) [local address](%s)에 만들어졌습니다. 프로비저닝을 계속하면 앱을 미리 볼 수 있습니다.",
   "teamstoolkit.handlers.provisionDescription.fallback": "[%s]을(를) %s 만들었습니다. 프로비저닝을 계속하면 앱을 미리 볼 수 있습니다.",
   "teamstoolkit.handlers.provisionTitle": "프로비전",
+  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens \"Get Sensitivity Label ID\"",
   "teamstoolkit.handlers.manualStepRequired": "[%s]이(가) [local address](%s)에 생성되었습니다. README 파일의 지침에 따라 앱을 미리 봅니다.",
   "teamstoolkit.handlers.manualStepRequired.fallback": "[%s]이(가) %s 생성되었습니다. README 파일의 지침에 따라 앱을 미리 봅니다.",
   "teamstoolkit.handlers.manualStepRequiredTitle": "추가 정보 열기",
@@ -608,5 +609,8 @@
   "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "createDeclarativeAgentWithApiSpec 명령의 매개 변수가 잘못되었습니다. 사용법: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).",
   "teamstoolkit.error.KiotaNotInstalled": "이 기능을 사용하려면 최소 버전 %s Microsoft Kiota 확장을 설치해야 합니다.",
   "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit에서 인증 흐름을 지원하기 위한 추가 작업으로 프로젝트 구성(teamsapp.yaml 및 teamsapp.local.yaml) 파일을 업데이트했습니다. 원격 프로비저닝을 계속할 수 있습니다.",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "프로비전"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "프로비전",
+  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.",
+  "teamstoolkit.config.enableKiota.yes": "Yes",
+  "teamstoolkit.config.enableKiota.no": "No"
 }

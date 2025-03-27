@@ -1,7 +1,7 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Teams;
-using Microsoft.Bot.Schema;
-using Microsoft.Bot.Schema.Teams;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Extensions.Teams.Compat;
+using Microsoft.Agents.Extensions.Teams.Models;
 using AdaptiveCards;
 
 namespace {{SafeProjectName}}.LinkUnfurling;
@@ -30,7 +30,7 @@ public class LinkUnfurlingApp : TeamsActivityHandler
             Content = previewCard
         };
 
-        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard, preview: previewAttachment);
+        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard.ToJson(), preview: previewAttachment);
 
         // By default the link unfurling result is cached in Teams for 30 minutes.
         // The code has set a cache policy and removed the cache for the app. Learn more here: https://learn.microsoft.com/microsoftteams/platform/messaging-extensions/how-to/link-unfurling?tabs=dotnet%2Cadvantages#remove-link-unfurling-cache
@@ -64,7 +64,7 @@ public class LinkUnfurlingApp : TeamsActivityHandler
             Content = previewCard
         };
 
-        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard, preview: previewAttachment);
+        var attachments = new MessagingExtensionAttachment(AdaptiveCard.ContentType, null, adaptiveCard.ToJson(), preview: previewAttachment);
 
         // By default the link unfurling result is cached in Teams for 30 minutes.
         // The code has set a cache policy and removed the cache for the app. Learn more here: https://learn.microsoft.com/microsoftteams/platform/messaging-extensions/how-to/link-unfurling?tabs=dotnet%2Cadvantages#remove-link-unfurling-cache

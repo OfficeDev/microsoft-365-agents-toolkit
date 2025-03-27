@@ -26,7 +26,7 @@ export function loadStateFromEnv(
 // TODO: need to add logic to read domain from env if need to support non-lifecycle commands
 export async function getDomain(
   args: CreateApiKeyArgs | UpdateApiKeyArgs,
-  context: DriverContext,
+  context: WrapDriverContext,
   actionName: string
 ): Promise<string[]> {
   const absolutePath = getAbsolutePath(args.apiSpecPath, context.projectPath);
@@ -52,10 +52,10 @@ export async function getDomain(
     throw new ApiKeyAuthMissingInSpecError(actionName, args.name);
   }
 
-  const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
   const isCustomAPIKey =
     filteredOperations[0].auth!.authScheme.type === "apiKey" ? "true" : "false";
-  wrapDriverContext.addTelemetryProperties({ [telemetryKeys.isCustomAPIKey]: isCustomAPIKey });
+
+  context.addTelemetryProperties({ [telemetryKeys.isCustomAPIKey]: isCustomAPIKey });
 
   const servers = filteredOperations.map((value) => value.server);
 

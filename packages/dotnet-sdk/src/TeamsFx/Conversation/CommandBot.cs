@@ -3,14 +3,14 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.Hosting.AspNetCore;
 
     /// <summary>
     /// Represents a command bot to handle commands received from Teams.
     /// </summary>
     public class CommandBot
     {
-        private readonly BotAdapter _adapter;
+        private readonly CloudAdapter _adapter;
         private readonly CommandResponseMiddleware _middleware;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <exception cref="ArgumentNullException">
         /// <paramref name="adapter"/> or <paramref name="options"/> is null.
         /// </exception>
-        public CommandBot(BotAdapter adapter, CommandOptions options)
+        public CommandBot(CloudAdapter adapter, CommandOptions options)
         {
             _adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
 

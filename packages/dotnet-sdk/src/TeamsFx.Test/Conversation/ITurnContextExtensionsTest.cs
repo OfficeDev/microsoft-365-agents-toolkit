@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Models;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

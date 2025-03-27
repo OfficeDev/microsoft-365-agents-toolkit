@@ -21,6 +21,11 @@ export interface InstallToolArgs {
    * Install Test Tool
    */
   testTool?: TestToolArgs;
+
+  /**
+   * Install NodeJS
+   */
+  nodejs?: NodeJSArgs;
 }
 
 interface DevCertArgs {
@@ -34,5 +39,9 @@ interface FuncArgs {
 
 interface TestToolArgs {
   version: string | number;
+  symlinkDir: string;
+}
+
+interface NodeJSArgs {
   symlinkDir: string;
 }

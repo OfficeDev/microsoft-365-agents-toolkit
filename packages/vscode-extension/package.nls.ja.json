@@ -182,9 +182,9 @@
   "teamstoolkit.commandsTreeViewProvider.addPluginTitle": "アクションの追加",
   "teamstoolkit.commandsTreeViewProvider.addPluginDescription": "宣言型エージェントにアクションを追加する",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "アクションを追加しています...",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "ナレッジの追加",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "宣言型エージェントにナレッジを追加する",
-  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "ナレッジを追加しています...",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle": "Add Capability",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription": "Add capability in declarative agent",
+  "teamstoolkit.commandsTreeViewProvider.addKnowledge.running": "Adding capability...",
   "teamstoolkit.commandsTreeViewProvider.addWebpartTitle": "SPFx Web Part の追加",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployTitle": "デプロイ",
   "teamstoolkit.commandsTreeViewProvider.officeDevDeployDescription": "デプロイ",
@@ -278,6 +278,7 @@
   "teamstoolkit.handlers.provisionDescription": "[%s] が [local address](%s) で正常に作成されました。プロビジョニングを続行すると、アプリをプレビューできます。",
   "teamstoolkit.handlers.provisionDescription.fallback": "[%s] が %s に正常に作成されました。プロビジョニングを続行すると、アプリをプレビューできます。",
   "teamstoolkit.handlers.provisionTitle": "プロビジョニング",
+  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens \"Get Sensitivity Label ID\"",
   "teamstoolkit.handlers.manualStepRequired": "[%s] は [local address](%s) に作成されます。README ファイルの指示に従って、アプリをプレビューします。",
   "teamstoolkit.handlers.manualStepRequired.fallback": "[%s] は %s に作成されます。README ファイルの指示に従って、アプリをプレビューします。",
   "teamstoolkit.handlers.manualStepRequiredTitle": "README を開く",
@@ -608,5 +609,8 @@
   "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "createDeclarativeAgentWithApiSpec コマンドのパラメーターが無効です。使用法: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string)。",
   "teamstoolkit.error.KiotaNotInstalled": "この機能を使用するには、Microsoft Kiota 拡張機能を最小バージョン %s でインストールする必要があります。",
   "teamstoolkit.handeler.addAuthConfig.notification": "Teams Toolkit は、認証フローをサポートするためのアクションを追加して、プロジェクト構成 (teamsapp.yaml および teamsapp.local.yaml) ファイルを正常に更新しました。リモート プロビジョニングに進むことができます。",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "プロビジョニング"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "プロビジョニング",
+  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.",
+  "teamstoolkit.config.enableKiota.yes": "Yes",
+  "teamstoolkit.config.enableKiota.no": "No"
 }

@@ -18,6 +18,18 @@ export const declarativeAgentTemplates: Template[] = [
     description: "",
   },
   {
+    id: "declarative-agent-basic",
+    name: TemplateNames.DeclarativeAgentWithExistingAction,
+    language: "common",
+    description: "",
+  },
+  {
+    id: "declarative-agent-basic-csharp",
+    name: TemplateNames.DeclarativeAgentWithExistingAction,
+    language: "csharp",
+    description: "",
+  },
+  {
     id: "declarative-agent-with-action-from-scratch-ts",
     name: TemplateNames.DeclarativeAgentWithActionFromScratch,
     language: "typescript",

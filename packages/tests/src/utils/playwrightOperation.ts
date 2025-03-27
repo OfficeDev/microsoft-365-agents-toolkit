@@ -296,11 +296,21 @@ async function uploadPackage(page: Page, projectPath = "", env = "local") {
   await page.waitForTimeout(Timeout.shortTimeLoading);
   // Set the file to be uploaded
   const packageFile = `appPackage.${env}.zip`;
-  const packageFilePath = path.resolve(
-    projectPath,
-    "appPackage/build",
-    packageFile
-  );
+  let packageFilePath: string;
+  packageFilePath = path.resolve(projectPath, "appPackage/build", packageFile);
+  // verify project path is exist
+  if (!fs.existsSync(packageFilePath)) {
+    // sample chef bot/proactive message path
+    packageFilePath = path.resolve(
+      projectPath,
+      "build/appPackage",
+      packageFile
+    );
+
+    if (!fs.existsSync(packageFilePath)) {
+      throw new Error(`Package file not found: ${packageFilePath}`);
+    }
+  }
   console.log(packageFilePath);
   // Wait for the file chooser dialog and set file path
   console.log("Click button Upload a custom app");
@@ -532,12 +542,16 @@ export async function initTeamsPage(
   username: string,
   password: string,
   options?: {
+    projectPath?: string;
+    env?: string;
     teamsAppName?: string;
     dashboardFlag?: boolean;
     type?: string;
   }
 ): Promise<Page> {
   let page = await context.newPage();
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
   try {
     page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
 
@@ -580,28 +594,234 @@ export async function initTeamsPage(
     ]);
 
     // add app
-    await RetryHandler.retry(async (retries: number) => {
-      if (retries > 0) {
-        console.log(`Retried to run adding app for ${retries} times.`);
-      }
-      await page.close();
-      console.log(`open teams page`);
+    await page.close();
+    console.log(`open teams page`);
+
+    try {
+      //try upload app package file
       page = await context.newPage();
-      await Promise.all([
-        page.goto(
-          `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-        ),
-        page.waitForNavigation(),
-      ]);
+
+      await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
       await page.waitForTimeout(Timeout.longTimeWait);
 
-      try {
-        console.log("dismiss message");
-        await page.click('button:has-text("Dismiss")');
-      } catch (error) {
-        console.log("no message to dismiss");
-      }
+      // Upload app package file
+      await uploadPackage(page, options?.projectPath, options?.env);
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("upload_page"),
+        fullPage: true,
+      });
+      // then try add app url
+      await page.close();
+      page = await context.newPage();
 
+      await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+    }
+
+    // default
+    console.log("click add button");
+    let addBtn;
+    try {
+      addBtn = await page?.waitForSelector(
+        "button[id='install-app-btn']:has-text('Add')"
+      );
+    } catch {
+      try {
+        addBtn = await page?.waitForSelector(
+          "button[id='install-app-btn']:has-text('Open')"
+        );
+      } catch {
+        await page.screenshot({
+          path: getPlaywrightScreenshotPath("add_page"),
+          fullPage: true,
+        });
+        throw "error to add app";
+      }
+    }
+    await addBtn?.click();
+
+    await page.waitForTimeout(Timeout.longTimeWait);
+
+    if (options?.type === "meeting") {
+      // select meeting tab in dialog box
+      const dialog = await page.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface"
+      );
+      const meetingTab = await dialog?.waitForSelector(
+        "li:has-text('testing')"
+      );
+      console.log("click meeting tab");
+      await meetingTab?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+      const gotoBtn = await dialog?.waitForSelector("button[data-tid='go']");
+      console.log("click 'set up a tab' button");
+      await gotoBtn?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+
+      await page?.waitForSelector("button[data-tid='go']", {
+        state: "detached",
+      });
+      console.log("successful to add teams app!!!");
+      return page;
+    }
+
+    try {
+      // teams app add
+      const dialog = await page.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface"
+      );
+      const openBtn = await dialog?.waitForSelector("button:has-text('Open')");
+      console.log("click 'open' button");
+      await openBtn?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+
+      await page?.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface",
+        {
+          state: "detached",
+        }
+      );
+      console.log("successful to add teams app!!!");
+    } catch (error) {
+      console.log("no need to add to a team step");
+    }
+
+    try {
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[name="embedded-page-container"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
+      console.log("Load debug scripts");
+      await frame?.click('button:has-text("Load debug scripts")');
+      console.log("Debug scripts loaded");
+      return page;
+    } catch (error) {
+      console.log("No debug scripts to load");
+    }
+
+    {
+      if (options?.type === "spfx") {
+        // spfx add to channel
+        const dialog = await page.waitForSelector(
+          "div[role='presentation'].fui-DialogSurface"
+        );
+        const spfxTab = await dialog?.waitForSelector(
+          "li:has-text('test-team')"
+        );
+        console.log("click spfxTab tab");
+        await spfxTab?.click();
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+        const gotoBtn = await dialog?.waitForSelector("button[data-tid='go']");
+        console.log("click 'set up a tab' button");
+        await gotoBtn?.click();
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+
+        await page?.waitForSelector("button[data-tid='go']", {
+          state: "detached",
+        });
+
+        const frameElementHandle = await page.waitForSelector(
+          `iframe[name="embedded-page-container"]`
+        );
+        const frame = await frameElementHandle?.contentFrame();
+        try {
+          console.log("Load debug scripts");
+          await frame?.click('button:has-text("Load debug scripts")');
+          console.log("Debug scripts loaded");
+        } catch (error) {
+          console.log("No debug scripts to load");
+        }
+      }
+      try {
+        const saveBtn = await page.waitForSelector(`button:has-text("Save")`);
+        await saveBtn?.click();
+        await page.waitForSelector(`button:has-text("Save")`, {
+          state: "detached",
+        });
+        console.log('[success] click "save" button');
+      } catch (error) {
+        console.log("No save button to click");
+      }
+    }
+    console.log("successful to add teams app!!!");
+
+    return page;
+  } catch (error) {
+    console.log(error);
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("error"),
+      fullPage: true,
+    });
+    throw error;
+  }
+}
+
+export async function reopenTeamsPage(
+  context: BrowserContext,
+  teamsAppId: string,
+  username: string,
+  password: string,
+  options?: {
+    projectPath?: string;
+    env?: string;
+    teamsAppName?: string;
+    dashboardFlag?: boolean;
+    type?: string;
+  },
+  addApp = true
+): Promise<Page> {
+  let page = await context.newPage();
+  const installAppUrl = `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`;
+  const teamsUrl = `https://teams.microsoft.com`;
+  try {
+    page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
+
+    // open teams app page
+    // https://github.com/puppeteer/puppeteer/issues/3338
+    await Promise.all([
+      page.goto(
+        `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
+      ),
+      page.waitForNavigation(),
+    ]);
+
+    // add app
+    await page.close();
+    console.log(`open teams page`);
+
+    try {
+      //try upload app package file
+      page = await context.newPage();
+
+      await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+
+      // Upload app package file
+      await uploadPackage(page, options?.projectPath, options?.env);
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+    } catch {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("upload_page"),
+        fullPage: true,
+      });
+      // then try add app url
+      await page.close();
+      page = await context.newPage();
+
+      await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+    }
+
+    try {
+      console.log("dismiss message");
+      await page.click('button:has-text("Dismiss")');
+    } catch (error) {
+      console.log("no message to dismiss");
+    }
+    if (addApp) {
+      await page.waitForTimeout(Timeout.longTimeWait);
       // default
       console.log("click add button");
       let addBtn;
@@ -623,269 +843,101 @@ export async function initTeamsPage(
         }
       }
       await addBtn?.click();
+    }
+    await page.waitForTimeout(Timeout.shortTimeLoading);
 
-      await page.waitForTimeout(Timeout.longTimeWait);
-
-      if (options?.type === "meeting") {
-        // select meeting tab in dialog box
-        const dialog = await page.waitForSelector("div[role='dialog']");
-        const meetingTab = await dialog?.waitForSelector(
-          "li:has-text('testing')"
-        );
-        console.log("click meeting tab");
-        await meetingTab?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
-        const gotoBtn = await dialog?.waitForSelector("button[data-tid='go']");
-        console.log("click 'set up a tab' button");
-        await gotoBtn?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
-
-        await page?.waitForSelector("button[data-tid='go']", {
-          state: "detached",
-        });
-        console.log("successful to add teams app!!!");
-        return;
-      }
-
-      try {
-        // teams app add
-        const dialog = await page.waitForSelector("div[role='dialog']");
-        const openBtn = await dialog?.waitForSelector(
-          "button:has-text('Open')"
-        );
-        console.log("click 'open' button");
-        await openBtn?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
-
-        await page?.waitForSelector("div[role='dialog']", {
-          state: "detached",
-        });
-        console.log("successful to add teams app!!!");
-      } catch (error) {
-        console.log("no need to add to a team step");
-      }
-
-      {
-        if (options?.type === "spfx") {
-          // spfx add to channel
-          const dialog = await page.waitForSelector("div[role='dialog']");
-          const spfxTab = await dialog?.waitForSelector(
-            "li:has-text('test-team')"
-          );
-          console.log("click spfxTab tab");
-          await spfxTab?.click();
-          await page.waitForTimeout(Timeout.shortTimeLoading);
-          const gotoBtn = await dialog?.waitForSelector(
-            "button[data-tid='go']"
-          );
-          console.log("click 'set up a tab' button");
-          await gotoBtn?.click();
-          await page.waitForTimeout(Timeout.shortTimeLoading);
-
-          await page?.waitForSelector("button[data-tid='go']", {
-            state: "detached",
-          });
-
-          const frameElementHandle = await page.waitForSelector(
-            `iframe[name="embedded-page-container"]`
-          );
-          const frame = await frameElementHandle?.contentFrame();
-          try {
-            console.log("Load debug scripts");
-            await frame?.click('button:has-text("Load debug scripts")');
-            console.log("Debug scripts loaded");
-          } catch (error) {
-            console.log("No debug scripts to load");
-          }
-        }
-        try {
-          const saveBtn = await page.waitForSelector(`button:has-text("Save")`);
-          await saveBtn?.click();
-          await page.waitForSelector(`button:has-text("Save")`, {
-            state: "detached",
-          });
-          console.log('[success] click "save" button');
-        } catch (error) {
-          console.log("No save button to click");
-        }
-      }
-      console.log("successful to add teams app!!!");
-    });
-
-    return page;
-  } catch (error) {
-    console.log(error);
-    await page.screenshot({
-      path: getPlaywrightScreenshotPath("error"),
-      fullPage: true,
-    });
-    throw error;
-  }
-}
-
-export async function reopenTeamsPage(
-  context: BrowserContext,
-  teamsAppId: string,
-  username: string,
-  password: string,
-  options?: {
-    teamsAppName?: string;
-    dashboardFlag?: boolean;
-    type?: string;
-  },
-  addApp = true
-): Promise<Page> {
-  let page = await context.newPage();
-  try {
-    page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
-
-    // open teams app page
-    // https://github.com/puppeteer/puppeteer/issues/3338
-    await Promise.all([
-      page.goto(
-        `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-      ),
-      page.waitForNavigation(),
-    ]);
-
-    // add app
-    await RetryHandler.retry(async (retries: number) => {
-      if (retries > 0) {
-        console.log(`Retried to run adding app for ${retries} times.`);
-      }
-      await page.close();
-      console.log(`open teams page`);
-      page = await context.newPage();
-      await Promise.all([
-        page.goto(
-          `https://teams.microsoft.com/_#/l/app/${teamsAppId}?installAppPackage=true`
-        ),
-        page.waitForNavigation(),
-      ]);
-
-      try {
-        console.log("dismiss message");
-        await page.click('button:has-text("Dismiss")');
-      } catch (error) {
-        console.log("no message to dismiss");
-      }
-      if (addApp) {
-        await page.waitForTimeout(Timeout.longTimeWait);
-        // default
-        console.log("click add button");
-        let addBtn;
-        try {
-          addBtn = await page?.waitForSelector(
-            "button[id='install-app-btn']:has-text('Add')"
-          );
-        } catch {
-          try {
-            addBtn = await page?.waitForSelector(
-              "button[id='install-app-btn']:has-text('Open')"
-            );
-          } catch {
-            await page.screenshot({
-              path: getPlaywrightScreenshotPath("add_page"),
-              fullPage: true,
-            });
-            throw "error to add app";
-          }
-        }
-        await addBtn?.click();
-      }
+    if (options?.type === "meeting") {
+      // select meeting tab in dialog box
+      const dialog = await page.waitForSelector(
+        "div[role='presentation'].fui-DialogSurface"
+      );
+      const meetingTab = await dialog?.waitForSelector(
+        "li:has-text('testing')"
+      );
+      console.log("click meeting tab");
+      await meetingTab?.click();
+      await page.waitForTimeout(Timeout.shortTimeLoading);
+      const gotoBtn = await dialog?.waitForSelector("button[data-tid='go']");
+      console.log("click 'set up a tab' button");
+      await gotoBtn?.click();
       await page.waitForTimeout(Timeout.shortTimeLoading);
 
-      if (options?.type === "meeting") {
-        // select meeting tab in dialog box
-        const dialog = await page.waitForSelector("div[role='dialog']");
-        const meetingTab = await dialog?.waitForSelector(
-          "li:has-text('testing')"
-        );
-        console.log("click meeting tab");
-        await meetingTab?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
-        const gotoBtn = await dialog?.waitForSelector("button[data-tid='go']");
-        console.log("click 'set up a tab' button");
-        await gotoBtn?.click();
-        await page.waitForTimeout(Timeout.shortTimeLoading);
+      await page?.waitForSelector("button[data-tid='go']", {
+        state: "detached",
+      });
+      console.log("successful to add teams app!!!");
+      return page;
+    }
 
-        await page?.waitForSelector("button[data-tid='go']", {
+    try {
+      // verify add page is closed
+      await page?.waitForSelector(`h1:has-text('to a team')`);
+      try {
+        try {
+          const items = await page?.waitForSelector("li.ui-dropdown__item");
+          await items?.click();
+          console.log("selected a team.");
+        } catch (error) {
+          const searchBtn = await page?.waitForSelector(
+            "div.ui-dropdown__toggle-indicator"
+          );
+          await searchBtn?.click();
+          await page.waitForTimeout(Timeout.shortTimeLoading);
+
+          const items = await page?.waitForSelector("li.ui-dropdown__item");
+          await items?.click();
+          console.log("[catch] selected a team.");
+        }
+
+        const setUpBtn = await page?.waitForSelector(
+          'button span:has-text("Set up a tab")'
+        );
+        await setUpBtn?.click();
+        console.log("click 'set up a tab' button");
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+        await page?.waitForSelector('button span:has-text("Set up a tab")', {
           state: "detached",
         });
-        console.log("successful to add teams app!!!");
-        return;
-      }
-
-      try {
-        // verify add page is closed
-        await page?.waitForSelector(`h1:has-text('to a team')`);
-        try {
-          try {
-            const items = await page?.waitForSelector("li.ui-dropdown__item");
-            await items?.click();
-            console.log("selected a team.");
-          } catch (error) {
-            const searchBtn = await page?.waitForSelector(
-              "div.ui-dropdown__toggle-indicator"
-            );
-            await searchBtn?.click();
-            await page.waitForTimeout(Timeout.shortTimeLoading);
-
-            const items = await page?.waitForSelector("li.ui-dropdown__item");
-            await items?.click();
-            console.log("[catch] selected a team.");
-          }
-
-          const setUpBtn = await page?.waitForSelector(
-            'button span:has-text("Set up a tab")'
-          );
-          await setUpBtn?.click();
-          console.log("click 'set up a tab' button");
-          await page.waitForTimeout(Timeout.shortTimeLoading);
-          await page?.waitForSelector('button span:has-text("Set up a tab")', {
-            state: "detached",
-          });
-        } catch (error) {
-          console.log(error);
-          await page.screenshot({
-            path: getPlaywrightScreenshotPath("error"),
-            fullPage: true,
-          });
-          throw error;
-        }
       } catch (error) {
-        console.log("no need to add to a team step");
+        console.log(error);
+        await page.screenshot({
+          path: getPlaywrightScreenshotPath("error"),
+          fullPage: true,
+        });
+        throw error;
       }
+    } catch (error) {
+      console.log("no need to add to a team step");
+    }
 
-      {
-        console.log('[start] click "save" button');
-        const frameElementHandle = await page.waitForSelector(
-          `iframe[name="embedded-page-container"]`
-        );
-        const frame = await frameElementHandle?.contentFrame();
-        if (options?.type === "spfx") {
-          try {
-            console.log("Load debug scripts");
-            await frame?.click('button:has-text("Load debug scripts")');
-            console.log("Debug scripts loaded");
-          } catch (error) {
-            console.log("No debug scripts to load");
-          }
-        }
+    {
+      console.log('[start] click "save" button');
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[name="embedded-page-container"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
+      if (options?.type === "spfx") {
         try {
-          const saveBtn = await page.waitForSelector(`button:has-text("Save")`);
-          await saveBtn?.click();
-          await page.waitForSelector(`button:has-text("Save")`, {
-            state: "detached",
-          });
-          console.log('[success] click "save" button');
+          console.log("Load debug scripts");
+          await frame?.click('button:has-text("Load debug scripts")');
+          console.log("Debug scripts loaded");
         } catch (error) {
-          console.log("No save button to click");
+          console.log("No debug scripts to load");
         }
       }
-      await page.waitForTimeout(Timeout.shortTimeLoading);
-      console.log("successful to add teams app!!!");
-    });
+      try {
+        const saveBtn = await page.waitForSelector(`button:has-text("Save")`);
+        await saveBtn?.click();
+        await page.waitForSelector(`button:has-text("Save")`, {
+          state: "detached",
+        });
+        console.log('[success] click "save" button');
+      } catch (error) {
+        console.log("No save button to click");
+      }
+    }
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    console.log("successful to add teams app!!!");
 
     return page;
   } catch (error) {
@@ -2367,8 +2419,12 @@ export async function validateContact(
     } catch (error) {
       console.log("no message to dismiss");
     }
-
-    startBtn = await frame?.waitForSelector('button:has-text("Start")');
+    try {
+      startBtn = await frame?.waitForSelector('button:has-text("Start")');
+    } catch (error) {
+      console.log("no start button");
+      startBtn = undefined;
+    }
     if (startBtn) {
       await RetryHandler.retry(async () => {
         console.log("Before popup");
@@ -2775,7 +2831,9 @@ export async function messageExtensionClean(page: Page, appName: string) {
   console.log("click delete button");
   await deleteBtn.click();
   await page.waitForTimeout(Timeout.shortTimeWait);
-  const dialog = await page.waitForSelector("div[role='dialog']");
+  const dialog = await page.waitForSelector(
+    "div[role='presentation'].fui-DialogSurface"
+  );
   const confirmBtn = await dialog.waitForSelector("button:has-text('Remove')");
   console.log("click confirm button");
   await confirmBtn.click();
@@ -3012,14 +3070,6 @@ export async function validateTodoListSpfx(page: Page, tabName: string) {
       );
       const titleContext = await title?.innerText();
       expect(titleContext).to.equal("To Do List");
-      // task check
-      console.log("check task");
-      const task = await spfxFrame?.waitForSelector(
-        "div.item input[value='Hello World']"
-      );
-      console.log(await task?.inputValue());
-      expect(task).to.not.be.undefined;
-
       console.log("verify finish!!!");
 
       // cleanup

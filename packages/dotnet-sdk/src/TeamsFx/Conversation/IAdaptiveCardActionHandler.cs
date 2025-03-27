@@ -3,7 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
 
     /// <summary>
     /// Represents an adaptive card action handler to respond to an adaptiveCard/action invoke activity.

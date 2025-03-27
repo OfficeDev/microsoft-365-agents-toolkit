@@ -17,10 +17,11 @@
 
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.33" />
-    <PackageReference Include="Microsoft.Bot.Builder" Version="4.22.7" />
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.7" />
-    <PackageReference Include="AdaptiveCards" Version="2.7.3" />
+	  <PackageReference Include="AdaptiveCards" Version="3.1.0" />
+	  <PackageReference Include="Microsoft.Agents.Authentication" Version="0.2.154-alpha" />
+	  <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.154-alpha" />
+	  <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.154-alpha" />
+	  <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.154-alpha" />
   </ItemGroup>
 
 </Project>

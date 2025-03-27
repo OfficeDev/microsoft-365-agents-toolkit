@@ -1,3 +1,7 @@
+# 3.0.0-rc
+- Breaking: Migrate dependencies from Bot Framework SDK to Microsoft Agents SDK.
+- Breaking: Upgrade target framework to .NET 8.0.
+
 # 2.5.0
 
 - Update dependencies `Microsoft.Bot.Builder` and `Microsoft.Bot.Builder.Dialogs`.

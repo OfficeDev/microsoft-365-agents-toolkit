@@ -5,6 +5,7 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import { QuestionNames } from "../../../question/constants";
 import { LocalCrypto } from "../../../core/crypto";
+import os from "os";
 
 export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string } {
   const appName = inputs[QuestionNames.AppName] as string;
@@ -84,5 +85,6 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
       ? "true"
       : "",
     SandBoxedTeam: featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam) ? "true" : "",
+    pathDelimiter: os.platform() === "win32" ? ";" : ":",
   };
 }

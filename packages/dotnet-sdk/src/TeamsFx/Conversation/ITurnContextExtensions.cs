@@ -3,8 +3,9 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Models;
 
     static internal class ITurnContextExtensions
     {

@@ -795,6 +795,60 @@ describe("Core basic APIs", () => {
       restore();
     }
   });
+  it("set sensitivity label - happy path", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isOk());
+  });
+
+  it("set sensitivity label - read manifest errir", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - write error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox
+      .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
   it("uninstall with empty input", async () => {
     const core = new FxCore(tools);
     const inputs: UninstallInputs = {

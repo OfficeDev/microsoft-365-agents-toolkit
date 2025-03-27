@@ -5,6 +5,7 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   ManifestUtil,
+  signedIn,
   TeamsAppManifest,
   TemplateFolderName,
 } from "@microsoft/teamsfx-api";
@@ -16,18 +17,21 @@ import {
   featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
+  listSensitivityLabelScope,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
-import { commandIsRunning, core } from "./globalVariables";
+import { commandIsRunning, core, tools } from "./globalVariables";
 import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
+import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
+import * as util from "util";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -640,6 +644,113 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
       return [codeLens];
     } else {
       return [];
+    }
+  }
+}
+
+export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.CodeLensProvider {
+  async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+    const inputs = getSystemInputs();
+    if (!inputs.projectPath) {
+      return [];
+    }
+    const manifestFilePath = path.join(
+      inputs.projectPath,
+      AppPackageFolderName,
+      ManifestTemplateFileName
+    );
+    if (!fs.existsSync(manifestFilePath)) {
+      return [];
+    }
+    const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+    const manifest = JSON.parse(manifestContent) as TeamsAppManifest;
+    const declarativeAgentFilePath = manifest.copilotAgents?.declarativeAgents?.[0]?.file;
+    if (!declarativeAgentFilePath) {
+      return [];
+    }
+    const declarativeAgentFileAbsolutePath = path.resolve(
+      inputs.projectPath,
+      AppPackageFolderName,
+      declarativeAgentFilePath
+    );
+    // only target the first declarative agent
+    if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
+      return [];
+    }
+    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
+    const text = document.getText();
+    const regex = new RegExp(Labelregex);
+    const matches = regex.exec(text);
+    if (matches == null) {
+      const startPosition = new vscode.Position(0, 0);
+      const endPosition = document.positionAt(text.indexOf("\n"));
+      const range = new vscode.Range(startPosition, endPosition);
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    }
+    const line = document.lineAt(document.positionAt(matches.index).line);
+    const labelValue = matches[1];
+    const startPosition = new vscode.Position(line.lineNumber, 0);
+    const endPosition = new vscode.Position(line.lineNumber, 1);
+    const range = new vscode.Range(startPosition, endPosition);
+
+    // check if user has already logged in to the sensitivity label scope
+    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider.getStatus({
+      scopes: [listSensitivityLabelScope],
+    });
+    // not logged in
+    if (
+      !loginStatusRes ||
+      loginStatusRes.isErr() ||
+      loginStatusRes.value.status != signedIn ||
+      !loginStatusRes.value.token
+    ) {
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn"),
+        command: "fx-extension.m365PreAuth",
+        arguments: [{ scopes: [listSensitivityLabelScope] }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    } else {
+      let labelDisplayName: string | undefined;
+      // query display name of the current label
+      const token = loginStatusRes.value.token;
+      const accountInfo = loginStatusRes.value.accountInfo;
+      const accountUniqueName =
+        typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
+      const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
+
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        !!accountUniqueName && !!tenantId,
+        accountUniqueName,
+        tenantId
+      );
+      if (result.isOk()) {
+        for (const label of result.value) {
+          if (label.id === labelValue) {
+            labelDisplayName = label.displayName;
+            break;
+          }
+        }
+      }
+
+      const command = {
+        title: util.format(
+          localize("teamstoolkit.codeLens.setSensitivityLabelWithDisplayName"),
+          labelDisplayName ?? "Unknown"
+        ),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
     }
   }
 }

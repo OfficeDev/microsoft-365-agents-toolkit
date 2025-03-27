@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.Hosting.AspNetCore;
 
     /// <summary>
     /// Provide utilities for bot conversation, including:
@@ -29,7 +29,7 @@
         /// <summary>
         /// The bot adapter.
         /// </summary>
-        public BotAdapter Adapter { get; private set; }
+        public CloudAdapter Adapter { get; private set; }
 
         /// <summary>
         /// The entry point of notification.

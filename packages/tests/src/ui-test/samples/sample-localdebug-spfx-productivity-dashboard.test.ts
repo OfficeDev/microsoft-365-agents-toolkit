@@ -27,6 +27,8 @@ class SpfxProductivityTestCase extends CaseFactory {
       Env.username,
       Env.password,
       {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -42,7 +44,6 @@ new SpfxProductivityTestCase(
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "SPFx productivity dashboard",
-    type: "spfx",
     skipValidation: true,
   }
 ).test();

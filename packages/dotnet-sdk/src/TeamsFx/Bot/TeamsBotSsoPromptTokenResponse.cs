@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Bot.Schema;
+using Microsoft.Agents.Core.Models;
 namespace Microsoft.TeamsFx.Bot;
 
 /// <summary>

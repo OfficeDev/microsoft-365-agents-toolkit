@@ -43,6 +43,7 @@ import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
+import { tools } from "../globalVariables";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
@@ -265,6 +266,44 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
   }
   const result = await runCommand(Stage.copilotPluginAddAPI, inputs);
   return result;
+}
+
+export async function setSensitivityLabelHandler(args: any[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.SetSensitivityLabelStart,
+    getTriggerFromProperty(args)
+  );
+  const inputs = getSystemInputs();
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = args[0].declarativeAgentManifestPath;
+  inputs[QuestionNames.SensitivityLabel] = args[0].sensitivityLabel;
+  const result = await runCommand(Stage.setSensitivityLabel, inputs);
+  if (result.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.SetSensitivityLabel,
+      result.error,
+      getTriggerFromProperty(args)
+    );
+    return;
+  }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SetSensitivityLabel, getTriggerFromProperty(args));
+  return;
+}
+
+export async function m365PreAuthHandler(args: any[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
+  const res = await tools.tokenProvider?.m365TokenProvider.getAccessToken({
+    scopes: args[0].scopes,
+  });
+  if (res.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.m365PreAuth,
+      res.error,
+      getTriggerFromProperty(args)
+    );
+    return;
+  }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuth, getTriggerFromProperty(args));
+  return;
 }
 
 export async function addAuthActionHandler(...args: unknown[]) {
