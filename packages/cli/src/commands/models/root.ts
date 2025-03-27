@@ -38,8 +38,8 @@ export const helpCommand: CLICommand = {
   },
 };
 export const rootCommand: CLICommand = {
-  name: "m365agents",
-  fullName: "m365agents",
+  name: "atk",
+  fullName: "atk",
   description: "Microsoft 365 Agents Toolkit CLI.",
   version: getVersion(),
   footer: FooterText,

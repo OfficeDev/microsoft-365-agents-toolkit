@@ -51,7 +51,7 @@ This will run "pnpm install && npm run build" to link packages in monorepo local
 
 ### Install the published package
 1. Run: `npm install -g @microsoft/m365agentstoolkit-cli` (Pls check the version is the latest version)
-2. Now the package is installed in your global npm folder. You can type 'm365agents -h' to see how to use the cli tool.
+2. Now the package is installed in your global npm folder. You can type 'atk -h' to see how to use the cli tool.
 
 ## Test the proejct
 ---

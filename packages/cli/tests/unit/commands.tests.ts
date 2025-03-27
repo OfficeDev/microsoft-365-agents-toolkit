@@ -75,7 +75,7 @@ describe("CLI commands", () => {
   const mockedEnvRestore: RestoreFn = () => {};
 
   beforeEach(() => {
-    sandbox.stub(process.env, "TEAMSFX_CLI_BIN_NAME").value("m365agents");
+    sandbox.stub(process.env, "TEAMSFX_CLI_BIN_NAME").value("atk");
     sandbox.stub(logger, "info").resolves(true);
     sandbox.stub(logger, "error").resolves(true);
   });

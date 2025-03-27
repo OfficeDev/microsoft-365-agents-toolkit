@@ -16,7 +16,7 @@
     "doctor": {
       "account": {
         "SideLoadingDisabled": "Your Microsoft 365 tenant admin hasn't enabled custom app upload permission for your account. You can't install your app to Microsoft 365!",
-        "NotSignIn": "You've not signed into your Microsoft 365 account yet. Please use 'm365agents auth login' command to sign into your Microsoft 365 account.",
+        "NotSignIn": "You've not signed into your Microsoft 365 account yet. Please use 'atk auth login' command to sign into your Microsoft 365 account.",
         "SignInSuccess": "Microsoft 365 Account (%s) is signed in and custom app upload permission is enabled."
       },
       "node" : {

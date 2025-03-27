@@ -6,11 +6,11 @@ Microsoft 365 Agents Toolkit CLI is a text-based command line interface that can
 
 ## Getting Started
 
-Let's start by installing `@microsoft/m365agentstoolkit-cli` from NPM and run `m365agents -h` to check all available commands:
+Let's start by installing `@microsoft/m365agentstoolkit-cli` from NPM and run `atk -h` to check all available commands:
 
 ```powershell
 $ npm install -g @microsoft/m365agentstoolkit-cli
-$ m365agents -h
+$ atk -h
 ```
 
 > [!NOTE]
