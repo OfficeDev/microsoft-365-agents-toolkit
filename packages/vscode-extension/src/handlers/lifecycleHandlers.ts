@@ -274,8 +274,8 @@ export async function setSensitivityLabelHandler(args: any[]) {
     getTriggerFromProperty(args)
   );
   const inputs = getSystemInputs();
-  inputs[QuestionNames.DeclarativeAgentManifestPath] = args[0].declarativeAgentManifestPath;
-  inputs[QuestionNames.SensitivityLabel] = args[0].sensitivityLabel;
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = args?.[0]?.declarativeAgentManifestPath;
+  inputs[QuestionNames.SensitivityLabel] = args?.[0]?.sensitivityLabel;
   const result = await runCommand(Stage.setSensitivityLabel, inputs);
   if (result.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(
@@ -291,7 +291,7 @@ export async function setSensitivityLabelHandler(args: any[]) {
 
 export async function m365PreAuthHandler(args: any[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
-  const res = await tools.tokenProvider?.m365TokenProvider.getAccessToken({
+  const res = await tools.tokenProvider?.m365TokenProvider?.getAccessToken({
     scopes: args[0].scopes,
   });
   if (res.isErr()) {
