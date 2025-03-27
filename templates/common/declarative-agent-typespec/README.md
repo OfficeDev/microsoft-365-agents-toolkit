@@ -17,7 +17,8 @@ With the declarative agent, you can build a custom version of Copilot that can b
 
 1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Update the `main.tsp` to configure your agent and import your tsp files. This is the default entry point for TypeSpec files. You can configure a different entry point in `tspconfig.yaml` if needed. Run `npm install` first to install dependencies before working with TypeSpec files.
+3. Run `npm install` to install dependencies before working with TypeSpec files.
+4. Update the `main.tsp` to configure your agent and its plugins. This is the default entry point for TypeSpec files. 
 4. Create Teams app by clicking `Provision` in "Lifecycle" section.
 5. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
 6. Once the Copilot app is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.
