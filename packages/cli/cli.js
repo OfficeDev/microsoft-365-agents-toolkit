@@ -17,6 +17,6 @@ process.on("uncaughtException", (err) => {
   }
   process.exit(1);
 });
-process.env.TEAMSFX_CLI_BIN_NAME = "teamsapp";
+process.env.TEAMSFX_CLI_BIN_NAME = "m365agents";
 const cli = require("./lib");
-cli.start("teamsapp");
+cli.start("m365agents");

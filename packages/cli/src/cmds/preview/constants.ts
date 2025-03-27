@@ -120,8 +120,8 @@ export const runCommand = {
   showWorkingFolder: "Working folder - ",
 };
 
-export const manifestChangesHintMessage =
-  "If you changed the manifest file, please run 'teamsapp provision %s' to install app again.";
+export const manifestChangesHintMessage = (): string =>
+  `If you changed the manifest file, please run '${process.env.TEAMSFX_CLI_BIN_NAME} provision %s' to install app again.`;
 export const m365TenantHintMessage =
   "WARN: Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click https://aka.ms/teamsfx-m365-apps-prerequisites for more information about setting up dev environment for extending Teams apps across Microsoft 365.";
 export const m365SwitchedMessage =

@@ -1,20 +1,20 @@
-# Teams Toolkit CLI (Command Line Tool)
+# Microsoft 365 Agents Toolkit CLI (Command Line Tool)
 
-Teams Toolkit CLI is a text-based command line interface that can help scaffold, validate, and deploy applications for Microsoft Teams from the terminal or a CI/CD process.
+Microsoft 365 Agents Toolkit CLI is a text-based command line interface that can help scaffold, validate, and deploy applications for Microsoft 365 from the terminal or a CI/CD process.
 
 ![CLI](https://aka.ms/cli-hero-image)
 
 ## Getting Started
 
-Let's start by installing `teamsapp-cli` from NPM and run `teamsapp -h` to check all available commands:
+Let's start by installing `@microsoft/m365agentstoolkit-cli` from NPM and run `m365agents -h` to check all available commands:
 
 ```powershell
-$ npm install -g @microsoft/teamsapp-cli
-$ teamsapp -h
+$ npm install -g @microsoft/m365agentstoolkit-cli
+$ m365agents -h
 ```
 
 > [!NOTE]
-> Please refer to [Teams Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
+> Please refer to [Microsoft 365 Agents Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
 
 ## Feedback
 
@@ -51,8 +51,8 @@ If you are interested in fixing issues and contributing directly to the code bas
 
 ## Additional References
 
-* [Source code](https://github.com/OfficeDev/teamsapp/tree/dev/packages/cli)
-* [Package (NPM)](https://www.npmjs.com/package/@microsoft/teamsapp-cli)
+* [Source code](https://github.com/OfficeDev/teams-toolkit/tree/dev/packages/cli)
+* [Package (NPM)](https://www.npmjs.com/package/@microsoft/m365agentstoolkit-cli)
 * [Official Documentation](https://aka.ms/teamsfx-toolkit-cli)
 
 ## Trademarks

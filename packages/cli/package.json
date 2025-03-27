@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/teamsapp-cli",
+  "name": "@microsoft/m365agentstoolkit-cli",
   "version": "3.0.8",
   "author": "Microsoft Corporation",
   "description": "",
@@ -37,7 +37,9 @@
     "teamsfx",
     "teamsfx-cli",
     "teamsapp-cli",
-    "teamsapp"
+    "m365agentstoolkit-cli",
+    "teamsapp",
+    "m365agents"
   ],
   "preferGlobal": true,
   "bin": {

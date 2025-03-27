@@ -72,9 +72,10 @@ import { shareCommand } from "../../src/commands/models/share";
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
 
-  let mockedEnvRestore: RestoreFn;
+  const mockedEnvRestore: RestoreFn = () => {};
 
   beforeEach(() => {
+    sandbox.stub(process.env, "TEAMSFX_CLI_BIN_NAME").value("m365agents");
     sandbox.stub(logger, "info").resolves(true);
     sandbox.stub(logger, "error").resolves(true);
   });
@@ -168,7 +169,10 @@ describe("CLI commands", () => {
     it("happy path", async () => {
       sandbox.stub(utils, "getTemplates").resolves([]);
       const ctx: CLIContext = {
-        command: { ...listSamplesCommand, fullName: "teamsapp list samples" },
+        command: {
+          ...listSamplesCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} list samples`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -183,7 +187,10 @@ describe("CLI commands", () => {
       sandbox.stub(AzureTokenProvider, "signout");
       sandbox.stub(accountUtils, "outputAzureInfo").resolves();
       const ctx: CLIContext = {
-        command: { ...accountLoginAzureCommand, fullName: "teamsapp auth login azure" },
+        command: {
+          ...accountLoginAzureCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure`,
+        },
         optionValues: { "service-principal": false },
         globalOptionValues: {},
         argumentValues: [],
@@ -196,7 +203,10 @@ describe("CLI commands", () => {
       sandbox.stub(AzureTokenProvider, "signout");
       sandbox.stub(accountUtils, "outputAzureInfo").resolves();
       const ctx: CLIContext = {
-        command: { ...accountLoginAzureCommand, fullName: "teamsapp auth login azure" },
+        command: {
+          ...accountLoginAzureCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure`,
+        },
         optionValues: { "service-principal": true },
         globalOptionValues: {},
         argumentValues: [],
@@ -209,7 +219,10 @@ describe("CLI commands", () => {
       sandbox.stub(AzureTokenProvider, "signout");
       sandbox.stub(accountUtils, "outputAzureInfo").resolves();
       const ctx: CLIContext = {
-        command: { ...accountLoginAzureCommand, fullName: "teamsapp auth login azure" },
+        command: {
+          ...accountLoginAzureCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure`,
+        },
         optionValues: { "service-principal": false, username: "abc" },
         globalOptionValues: {},
         argumentValues: [],
@@ -224,7 +237,10 @@ describe("CLI commands", () => {
       sandbox.stub(M365TokenProvider, "signout");
       sandbox.stub(accountUtils, "outputM365Info").resolves();
       const ctx: CLIContext = {
-        command: { ...accountLoginM365Command, fullName: "teamsapp auth login m365" },
+        command: {
+          ...accountLoginM365Command,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth login m365`,
+        },
         optionValues: { "service-principal": false },
         globalOptionValues: {},
         argumentValues: [],
@@ -385,7 +401,7 @@ describe("CLI commands", () => {
     it("success with env", async () => {
       sandbox.stub(envUtil, "resetEnv").resolves();
       const ctx: CLIContext = {
-        command: { ...envAddCommand, fullName: "teamsapp env reset" },
+        command: { ...envAddCommand, fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} env reset` },
         optionValues: { env: "dev", projectPath: "." },
         globalOptionValues: {},
         argumentValues: [],
@@ -397,7 +413,7 @@ describe("CLI commands", () => {
     it("success with env file", async () => {
       sandbox.stub(envUtil, "resetEnvFile").resolves();
       const ctx: CLIContext = {
-        command: { ...envAddCommand, fullName: "teamsapp env reset" },
+        command: { ...envAddCommand, fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} env reset` },
         optionValues: { "env-file": ".env.dev" },
         globalOptionValues: {},
         argumentValues: [],
@@ -581,7 +597,10 @@ describe("CLI commands", () => {
     it("success", async () => {
       sandbox.stub(FxCore.prototype, "deployAadManifest").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...entraAppUpdateCommand, fullName: "teamsapp entraapp update" },
+        command: {
+          ...entraAppUpdateCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} entraapp update`,
+        },
         optionValues: {
           env: "local",
           projectPath: "./",
@@ -858,7 +877,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "updateTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappUpdateCommand, fullName: "teamsapp update" },
+        command: {
+          ...teamsappUpdateCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} update`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -871,7 +893,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "updateTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappUpdateCommand, fullName: "teamsapp update" },
+        command: {
+          ...teamsappUpdateCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} update`,
+        },
         optionValues: { "manifest-file": "manifest.json", "package-file": "package.zip" },
         globalOptionValues: {},
         argumentValues: [],
@@ -884,7 +909,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "packageTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappPackageCommand, fullName: "teamsapp package" },
+        command: {
+          ...teamsappPackageCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} package`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -897,7 +925,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "validateTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappValidateCommand, fullName: "teamsapp validate" },
+        command: {
+          ...teamsappValidateCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} validate`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -910,7 +941,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "validateTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappValidateCommand, fullName: "teamsapp validate" },
+        command: {
+          ...teamsappValidateCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} validate`,
+        },
         optionValues: { "manifest-file": "manifest.json", "package-file": "package.zip" },
         globalOptionValues: {},
         argumentValues: [],
@@ -923,7 +957,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "publishTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappPublishCommand, fullName: "teamsapp publish" },
+        command: {
+          ...teamsappPublishCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} publish`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -936,7 +973,10 @@ describe("CLI commands", () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       sandbox.stub(FxCore.prototype, "publishTeamsAppCLIV3").resolves(ok(undefined));
       const ctx: CLIContext = {
-        command: { ...teamsappPublishCommand, fullName: "teamsapp publish" },
+        command: {
+          ...teamsappPublishCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} publish`,
+        },
         optionValues: { "manifest-file": "manifest.json", "package-file": "package.zip" },
         globalOptionValues: {},
         argumentValues: [],
@@ -1147,7 +1187,10 @@ describe("CLI read-only commands", () => {
       sandbox.stub(AzureTokenProvider, "getStatus").resolves({ status: signedOut });
       messages = [];
       const ctx: CLIContext = {
-        command: { ...accountShowCommand, fullName: "teamsapp auth list" },
+        command: {
+          ...accountShowCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -1164,7 +1207,10 @@ describe("CLI read-only commands", () => {
       const outputAzureInfo = sandbox.stub(accountUtils, "outputAzureInfo").resolves();
       messages = [];
       const ctx: CLIContext = {
-        command: { ...accountShowCommand, fullName: "teamsapp auth list" },
+        command: {
+          ...accountShowCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -1186,7 +1232,10 @@ describe("CLI read-only commands", () => {
       const outputAccountInfoOffline = sandbox.stub(accountUtils, "outputAccountInfoOffline");
       messages = [];
       const ctx: CLIContext = {
-        command: { ...accountShowCommand, fullName: "teamsapp auth list" },
+        command: {
+          ...accountShowCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -1200,7 +1249,10 @@ describe("CLI read-only commands", () => {
       sandbox.stub(M365TokenProvider, "getStatus").resolves(err(new UserCancelError()));
       messages = [];
       const ctx: CLIContext = {
-        command: { ...accountShowCommand, fullName: "teamsapp auth list" },
+        command: {
+          ...accountShowCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
@@ -1215,7 +1267,10 @@ describe("CLI read-only commands", () => {
     it("azure success", async () => {
       sandbox.stub(AzureTokenProvider, "signout").resolves(true);
       const ctx: CLIContext = {
-        command: { ...accountLogoutCommand, fullName: "teamsapp auth logout" },
+        command: {
+          ...accountLogoutCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: ["azure"],
@@ -1228,7 +1283,10 @@ describe("CLI read-only commands", () => {
     it("azure fail", async () => {
       sandbox.stub(AzureTokenProvider, "signout").resolves(false);
       const ctx: CLIContext = {
-        command: { ...accountLogoutCommand, fullName: "teamsapp auth logout" },
+        command: {
+          ...accountLogoutCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: ["azure"],
@@ -1241,7 +1299,10 @@ describe("CLI read-only commands", () => {
     it("m365 success", async () => {
       sandbox.stub(M365TokenProvider, "signout").resolves(true);
       const ctx: CLIContext = {
-        command: { ...accountLogoutCommand, fullName: "teamsapp auth logout" },
+        command: {
+          ...accountLogoutCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: ["m365"],
@@ -1253,7 +1314,10 @@ describe("CLI read-only commands", () => {
     it("m365 fail", async () => {
       sandbox.stub(M365TokenProvider, "signout").resolves(false);
       const ctx: CLIContext = {
-        command: { ...accountLogoutCommand, fullName: "teamsapp auth logout" },
+        command: {
+          ...accountLogoutCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: ["m365"],
@@ -1265,7 +1329,7 @@ describe("CLI read-only commands", () => {
     });
   });
   describe("listTemplatesCommand", async () => {
-    let mockedEnvRestore: RestoreFn;
+    const mockedEnvRestore: RestoreFn = () => {};
     afterEach(() => {
       if (mockedEnvRestore) {
         mockedEnvRestore();
@@ -1535,7 +1599,10 @@ describe("CLI read-only commands", () => {
       sandbox.stub(DoctorChecker.prototype, "checkFuncCoreTool").resolves();
       sandbox.stub(DoctorChecker.prototype, "checkCert").resolves();
       const ctx: CLIContext = {
-        command: { ...teamsappDoctorCommand, fullName: "teamsapp doctor" },
+        command: {
+          ...teamsappDoctorCommand,
+          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} doctor`,
+        },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],

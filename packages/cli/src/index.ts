@@ -25,8 +25,9 @@ export function initTelemetryReporter(): void {
 /**
  * Starts the CLI process.
  */
-export async function start(binName: "teamsfx" | "teamsapp"): Promise<void> {
+export async function start(): Promise<void> {
   initTelemetryReporter();
+  const binName = process.env.TEAMSFX_CLI_BIN_NAME as string;
   cliTelemetry.reporter?.addSharedProperty(TelemetryProperty.BinName, binName); // trigger binary name for telemetry
   return startNewUX(binName);
 }

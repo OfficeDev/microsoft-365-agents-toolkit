@@ -38,9 +38,9 @@ export const helpCommand: CLICommand = {
   },
 };
 export const rootCommand: CLICommand = {
-  name: "teamsapp",
-  fullName: "teamsapp",
-  description: "Microsoft Teams Toolkit CLI.",
+  name: "m365agents",
+  fullName: "m365agents",
+  description: "Microsoft 365 Agents Toolkit CLI.",
   version: getVersion(),
   footer: FooterText,
   commands: [

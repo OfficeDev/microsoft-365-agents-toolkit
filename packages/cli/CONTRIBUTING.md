@@ -50,8 +50,8 @@ This will run "pnpm install && npm run build" to link packages in monorepo local
 4. Hit 'F5' or click start debugging button
 
 ### Install the published package
-1. Run: `npm install -g @microsoft/teamsapp-cli` (Pls check the version is the latest version)
-2. Now the package is installed in your global npm folder. You can type 'teamsapp -h' to see how to use the cli tool.
+1. Run: `npm install -g @microsoft/m365agentstoolkit-cli` (Pls check the version is the latest version)
+2. Now the package is installed in your global npm folder. You can type 'm365agents -h' to see how to use the cli tool.
 
 ## Test the proejct
 ---

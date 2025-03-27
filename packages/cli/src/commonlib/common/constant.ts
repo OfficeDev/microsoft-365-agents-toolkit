@@ -31,8 +31,8 @@ export const azureLoginMessage = "Log in to your Azure account - opening default
 export const m365LoginMessage =
   "Log in to your Microsoft 365 account - opening default web browser at ";
 
-export const changeLoginTenantMessage =
-  "The following tenants require Multi-Factor Authentication (MFA). Use 'teamsapp auth login azure --tenant TENANT_ID' to explicitly login to a tenant.";
+export const changeLoginTenantMessage = (): string =>
+  `The following tenants require Multi-Factor Authentication (MFA). Use '${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure --tenant TENANT_ID' to explicitly login to a tenant.`;
 export const MFACode = "AADSTS50076";
 
 export const noSubscriptionFound = "NoSubscriptionFound";
@@ -46,8 +46,9 @@ export const envDefaultJsonFile = "env.default.json";
 
 export const sendFileTimeout = "Send success page timeout.";
 export const usageError = "UsageError";
-export const servicePrincipalLoginFormat =
-  "teamsapp auth login azure --service-principal --username NAME --password SECRET --tenant TENANT";
-export const codeFlowLoginFormat = "teamsapp auth login azure";
+export const servicePrincipalLoginFormat = (): string =>
+  `${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure --service-principal --username NAME --password SECRET --tenant TENANT`;
+export const codeFlowLoginFormat = (): string =>
+  `${process.env.TEAMSFX_CLI_BIN_NAME} auth login azure`;
 
 export const m365CacheName = "appStudio";

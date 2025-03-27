@@ -80,10 +80,10 @@
     }
   },
   "deploy": {
-    "description": "Run the deploy stage in teamsapp.yml or teamsapp.local.yml."
+    "description": "Run the deploy stage in m365agents.yml or m365agents.local.yml."
   },
   "doctor": {
-    "description": "Prerequiste checker for building Microsoft Teams apps."
+    "description": "Prerequisite checker for building Microsoft Teams apps."
   },
   "entra-app": {
     "description": "Manage the Microsoft Entra app in the current application."
@@ -134,7 +134,7 @@
     }
   },
   "provision": {
-    "description": "Run the provision stage in teamsapp.yml or teamsapp.local.yml.",
+    "description": "Run the provision stage in m365agents.yml or m365agents.local.yml.",
     "options": {
       "resource-group": "Specifies resource group name.",
       "region": "Specifies resource group region."
@@ -151,10 +151,10 @@
     }
   },
   "publish": {
-    "description": "Run the publish stage in teamsapp.yml."
+    "description": "Run the publish stage in m365agents.yml."
   },
   "share": {
-    "description": "Run the share stage in teamsapp.yml."
+    "description": "Run the share stage in m365agents.yml."
   },
   "uninstall": {
     "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Teams Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
