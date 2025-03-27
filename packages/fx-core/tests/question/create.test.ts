@@ -4457,6 +4457,24 @@ describe("scaffold question", () => {
           assert.isNotNull(error);
         }
       });
+
+      it("api error", async () => {
+        const fakeAxiosInstance = axios.create();
+        sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+        const axiosGetStub = sandbox.stub(fakeAxiosInstance, "get");
+        axiosGetStub.onCall(0).rejects({
+          response: {
+            status: 403,
+            error: "fakeError",
+          },
+        });
+        try {
+          await generatorHelper.getGraphConnectors();
+          assert.fail("Should throw error");
+        } catch (error) {
+          assert.isNotNull(error);
+        }
+      });
     });
   });
 });
