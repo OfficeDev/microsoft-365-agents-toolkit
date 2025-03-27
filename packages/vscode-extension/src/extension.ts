@@ -18,7 +18,6 @@ import {
   FeatureFlags,
   VersionState,
   featureFlagManager,
-  globalStateGet,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
@@ -68,6 +67,7 @@ import { TreatmentVariableValue, TreatmentVariables } from "./exp/treatmentVaria
 import {
   diagnosticCollection,
   initializeGlobalVariables,
+  isDeclarativeCopilotApp,
   isExistingUser,
   isOfficeAddInProject,
   isOfficeManifestOnlyProject,
@@ -75,7 +75,6 @@ import {
   isTeamsFxProject,
   unsetIsTeamsFxProject,
   workspaceUri,
-  isDeclarativeCopilotApp,
 } from "./globalVariables";
 import {
   convertAadToNewSchemaHandler,
@@ -88,13 +87,19 @@ import {
   cmpAccountsHandler,
   createAccountHandler,
 } from "./handlers/accounts/accountHandlers";
-import { activate as activateHandlers } from "./handlers/activate";
-import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import {
   checkCopilotCallback,
   checkSideloadingCallback,
 } from "./handlers/accounts/checkAccessCallback";
 import { checkCopilotAccessHandler } from "./handlers/accounts/checkCopilotAccess";
+import {
+  refreshCopilotCallback,
+  refreshSideloadingCallback,
+} from "./handlers/accounts/refreshAccessHandlers";
+import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
+import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
+import { activate as activateHandlers } from "./handlers/activate";
+import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import { manageCollaboratorHandler } from "./handlers/collaboratorHandlers";
 import {
   openFolderHandler,
@@ -104,6 +109,8 @@ import {
   saveTextDocumentHandler,
 } from "./handlers/controlHandlers";
 import * as copilotChatHandlers from "./handlers/copilotChatHandlers";
+import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
+import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
 import {
   debugInTestToolHandler,
   selectAndDebugHandler,
@@ -117,8 +124,10 @@ import {
   openConfigStateFile,
   refreshEnvironment,
 } from "./handlers/envHandlers";
+import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import {
   addAuthActionHandler,
+  addKnowledgeHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -127,7 +136,6 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
-  addKnowledgeHandler,
   shareHandler,
 } from "./handlers/lifecycleHandlers";
 import {
@@ -160,6 +168,7 @@ import {
   openResourceGroupInPortal,
   openSubscriptionInPortal,
 } from "./handlers/openLinkHandlers";
+import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 import {
   checkUpgrade,
   getDotnetPathHandler,
@@ -169,18 +178,14 @@ import {
   validateGetStartedPrerequisitesHandler,
 } from "./handlers/prerequisiteHandlers";
 import { openReadMeHandler } from "./handlers/readmeHandlers";
-import {
-  refreshCopilotCallback,
-  refreshSideloadingCallback,
-} from "./handlers/accounts/refreshAccessHandlers";
 import { showOutputChannelHandler } from "./handlers/showOutputChannel";
-import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
 import { openTutorialHandler, selectTutorialsHandler } from "./handlers/tutorialHandlers";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
 } from "./handlers/walkthrough";
 import { ManifestTemplateHoverProvider } from "./hoverProvider";
+import { manifestListener } from "./manifestListener";
 import {
   CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
   officeChatParticipantId,
@@ -191,6 +196,7 @@ import {
   officeChatRequestHandler,
 } from "./officeChat/handlers";
 import { initVSCodeUI } from "./qm/vsc_ui";
+import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import accountTreeViewProviderInstance from "./treeview/account/accountTreeViewProvider";
@@ -206,13 +212,6 @@ import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/project
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
-import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
-import { manifestListener } from "./manifestListener";
-import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
-import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
-import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
-import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
-import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -305,7 +304,7 @@ export async function activate(context: vscode.ExtensionContext) {
     isDeclarativeCopilotApp
   );
 
-  void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
+  void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
