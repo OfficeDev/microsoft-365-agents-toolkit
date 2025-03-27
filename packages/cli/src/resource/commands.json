@@ -1,9 +1,9 @@
 {
   "root": {
-    "description": "Microsoft Teams Toolkit CLI.",
+    "description": "Microsoft 365 Agents CLI.",
     "options": {
-      "version": "Display Microsoft Teams Toolkit CLI version.",
-      "help": "Show Microsoft Teams Toolkit CLI help.",
+      "version": "Display Microsoft 365 Agents Toolkit CLI version.",
+      "help": "Show Microsoft 365 Agents Toolkit CLI help.",
       "interactive": "Run the command in interactive mode.",
       "debug": "Print debug information.",
       "verbose": "Print diagnostic information.",
@@ -11,7 +11,7 @@
     }
   },
   "help": {
-    "description": "Show Microsoft Teams Toolkit CLI help.",
+    "description": "Show Microsoft 365 Agents Toolkit CLI help.",
     "arguments": {
       "command": "The command to get help for."
     }
@@ -157,23 +157,23 @@
     "description": "Run the share stage in m365agents.yml."
   },
   "uninstall": {
-    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Teams Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
+    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
     "options": {
       "mode": "Choose a way to clean up resources.",
       "title-id": "Title ID of the App.",
       "manifest-id": "Manifest ID of the App.",
-      "env": "The specific environment in the project created by Teams Toolkit.",
+      "env": "The specific environment in the project created by Microsoft 365 Agents Toolkit.",
       "folder": "Project path to uninstall, only used in env mode.",
       "options": "Selected resourecs to uninstall. example: --options m365-app,app-registration,bot-framework-registration"
     }
   },
   "update": {
-    "description": "Update the Microsoft Teams App manifest to Teams Developer Portal."
+    "description": "Update the Microsoft 365 App manifest to Teams Developer Portal."
   },
   "upgrade": {
-    "description": "Upgrade the project to work with the latest version of Teams Toolkit.",
+    "description": "Upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit.",
     "options": {
-      "force": "Force upgrade the project to work with the latest version of Teams Toolkit."
+      "force": "Force upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit."
     },
     "success": "Upgrade project successfully."
   },

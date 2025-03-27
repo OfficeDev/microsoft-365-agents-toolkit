@@ -42,7 +42,7 @@
     },
     "add":{
       "auth-config": {
-        "notification": "Teams Toolkit has successfully updated your project configuration (m365agents.yaml) files with added action to support authentication flow. You can proceed to remote provision."
+        "notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (m365agents.yaml) files with added action to support authentication flow. You can proceed to remote provision."
       }
     }
   }

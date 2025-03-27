@@ -103,7 +103,7 @@ async function _openTeamsDesktopClient(
 
   const desktopDebugHelpMessage = [
     {
-      content: `Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account${username} used in Teams Toolkit. Please visit https://aka.ms/teamsfx-debug-in-desktop-client to get more info.`,
+      content: `Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account${username} used in Microsoft 365 Agents Toolkit. Please visit https://aka.ms/teamsfx-debug-in-desktop-client to get more info.`,
       color: Colors.WHITE,
     },
   ];
