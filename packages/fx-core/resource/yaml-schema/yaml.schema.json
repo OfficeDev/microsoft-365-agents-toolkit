@@ -1647,7 +1647,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "apiSpecPath"],
+          "required": ["name", "appId"],
           "properties": {
             "name": {
               "type": "string",
@@ -1667,7 +1667,11 @@
             },
             "apiSpecPath": {
               "type": "string",
-              "description": "The path of API specification file."
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
             },
             "applicableToApps": {
               "type": "string",
@@ -1740,14 +1744,14 @@
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Updagte API key. Refer to https://aka.ms/teamsfx-actions/apiKey-update for more details.",
+          "description": "Update API key. Refer to https://aka.ms/teamsfx-actions/apiKey-update for more details.",
           "const": "apiKey/update"
         },
         "with": {
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "apiSpecPath", "registrationId"],
+          "required": ["name", "appId", "registrationId"],
           "properties": {
             "name": {
               "type": "string",
@@ -1759,7 +1763,11 @@
             },
             "apiSpecPath": {
               "type": "string",
-              "description": "The path of API specification file."
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
             },
             "registrationId": {
               "type": "string",
@@ -1794,7 +1802,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "apiSpecPath", "flow"],
+          "required": ["name", "appId", "flow"],
           "properties": {
             "name": {
               "type": "string",
@@ -1806,7 +1814,23 @@
             },
             "apiSpecPath": {
               "type": "string",
-              "description": "The path of API specification file."
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "description": "The authorization URL for the OAuth flow."
+            },
+            "tokenUrl": {
+              "type": "string",
+              "description": "The token URL for the OAuth flow."
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope(s) for the OAuth flow."
             },
             "applicableToApps": {
               "type": "string",
@@ -1877,14 +1901,14 @@
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Updagte OAuth registration. Refer to https://aka.ms/teamsfx-actions/oauth-update for more details.",
+          "description": "Update OAuth registration. Refer to https://aka.ms/teamsfx-actions/oauth-update for more details.",
           "const": "oauth/update"
         },
         "with": {
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "apiSpecPath", "configurationId"],
+          "required": ["name", "appId", "configurationId"],
           "properties": {
             "name": {
               "type": "string",
@@ -1896,7 +1920,23 @@
             },
             "apiSpecPath": {
               "type": "string",
-              "description": "The path of API specification file."
+              "description": "The path of API specification file. Will be used to extract missing properties if they're not explicitly provided."
+            },
+            "baseUrl": {
+              "type": "string",
+              "description": "The base URL for the API."
+            },
+            "authorizationUrl": {
+              "type": "string",
+              "description": "The authorization URL for the OAuth flow."
+            },
+            "tokenUrl": {
+              "type": "string",
+              "description": "The token URL for the OAuth flow."
+            },
+            "scope": {
+              "type": "string",
+              "description": "The scope(s) for the OAuth flow."
             },
             "configurationId": {
               "type": "string",
