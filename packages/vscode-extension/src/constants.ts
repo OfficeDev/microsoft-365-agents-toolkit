@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-export const CONFIGURATION_PREFIX = "fx-extension";
+export const CONFIGURATION_PREFIX = "M365AgentsToolkit";
 export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",

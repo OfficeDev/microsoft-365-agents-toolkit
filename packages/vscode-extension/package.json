@@ -1,8 +1,8 @@
 {
   "name": "ms-teams-vscode-extension",
-  "displayName": "Teams Toolkit",
-  "description": "Create, debug, and deploy Teams apps with Teams Toolkit",
-  "version": "5.14.0",
+  "displayName": "Microsoft 365 Agents Toolkit",
+  "description": "Create, debug, and deploy agents with Microsoft 365 Agents Toolkit",
+  "version": "6.0.0-alpha.0",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -25,7 +25,7 @@
   },
   "license": "MIT",
   "keywords": [
-    "Microsoft Teams",
+    "Microsoft Agents",
     "Azure",
     "Microsoft 365"
   ],
@@ -118,17 +118,12 @@
       "activitybar": [
         {
           "id": "teamsfx",
-          "title": "Teams Toolkit",
+          "title": "Microsoft 365 Agents Toolkit",
           "icon": "media/teams.svg"
         }
       ]
     },
     "viewsWelcome": [
-      {
-        "view": "teamsfx-empty-project",
-        "contents": "%teamstoolkit.viewsWelcome.teamsfx-empty-project.content%",
-        "enablement": "fx-extension.initialized"
-      },
       {
         "view": "teamsfx-empty-project-with-chat",
         "contents": "%teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content%",
@@ -184,24 +179,13 @@
           "visibility": "visible"
         },
         {
-          "id": "teamsfx-help",
-          "name": "Help",
-          "when": "false",
-          "visibility": "collapsed"
-        },
-        {
-          "id": "teamsfx-empty-project",
-          "name": "Teams Toolkit",
-          "when": "false"
-        },
-        {
           "id": "teamsfx-empty-project-with-chat",
-          "name": "Teams Toolkit",
+          "name": "Microsoft 365 Agents Toolkit",
           "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn && fx-extension.hideTeamsAgentPreviewTag"
         },
         {
           "id": "teamsfx-empty-project-with-chat-preview",
-          "name": "Teams Toolkit",
+          "name": "Microsoft 365 Agents Toolkit",
           "when": "!fx-extension.isTeamsFx && !fx-extension.isOfficeAddIn&&  !fx-extension.hideTeamsAgentPreviewTag"
         },
         {
@@ -399,12 +383,12 @@
         {
           "command": "fx-extension.teamsAgentTroubleshootSelectedText",
           "group": "navigation",
-          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Teams Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && fx-extension.hideTeamsAgentPreviewTag"
+          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Microsoft 365 Agents Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && fx-extension.hideTeamsAgentPreviewTag"
         },
         {
           "command": "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
           "group": "navigation",
-          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Teams Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && !fx-extension.hideTeamsAgentPreviewTag"
+          "when": "(fx-extension.isChatParticipantUIEntriesEnabled && (resourceFilename =~ /.*Microsoft 365 Agents Toolkit\\.log$/ || (activeOutputChannel =~ /^extension-output-TeamsDevApp\\.ms-teams-vscode-extension.*/ && view == 'workbench.panel.output'))) && !fx-extension.hideTeamsAgentPreviewTag"
         }
       ],
       "editor/title/run": [
@@ -602,42 +586,42 @@
         "command": "fx-extension.create",
         "title": "%teamstoolkit.commands.createProject.title%",
         "enablement": "!fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.createFromWalkthrough",
-        "title": "Teams - Create Project",
+        "title": "M365 Agents - Create Project",
         "enablement": "never"
       },
       {
         "command": "fx-extension.openLifecycleTreeview",
-        "title": "Teams - Open Lifecycle Treeview",
+        "title": "M365 Agents - Open Lifecycle Treeview",
         "enablement": "never"
       },
       {
         "command": "fx-extension.openDocument",
         "title": "%teamstoolkit.commands.document.title%",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openReadMe",
-        "title": "Teams - Open Read Me",
+        "title": "M365 Agents - Open Read Me",
         "enablement": "never"
       },
       {
         "command": "fx-extension.openSamples",
         "title": "%teamstoolkit.commands.viewSamples.title%",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openWelcome",
         "title": "%teamstoolkit.commands.getstarted.title%",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.buildIntelligentAppsWalkthrough",
         "title": "%teamstoolkit.commands.walkthroughs.buildIntelligentApps.title%",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.selectAndDebug",
@@ -648,18 +632,18 @@
         "command": "fx-extension.selectTutorials",
         "title": "%teamstoolkit.commands.selectTutorials.title%",
         "icon": "$(tasklist)",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.validate-getStarted-prerequisites",
-        "title": "Teams - Validate Get Started Prerequisites",
+        "title": "M365 Agents - Validate Get Started Prerequisites",
         "enablement": "never"
       },
       {
         "command": "fx-extension.addEnvironment",
         "title": "%teamstoolkit.commands.createEnvironment.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.addEnvironmentWithIcon",
@@ -671,85 +655,85 @@
         "command": "fx-extension.build",
         "title": "%teamstoolkit.commands.zipPackage.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.checkProjectUpgrade",
         "title": "%teamstoolkit.commands.upgradeProject.title%",
         "enablement": "fx-extension.initialized && isWorkspaceTrusted",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.cmpAccounts",
         "title": "%teamstoolkit.commands.accounts.title%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "fx-extension.initialized"
       },
       {
         "command": "fx-extension.deploy",
         "title": "%teamstoolkit.commands.deploy.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.updateAadAppManifest",
         "title": "%teamstoolkit.commands.updateAadAppManifest.title%",
         "enablement": "fx-extension.isTeamsFx && fx-extension.isAadManifestEnabled && isWorkspaceTrusted && !fx-extension.isSPFx",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.migrateTeamsManifest",
         "title": "%teamstoolkit.commands.migrateManifest.title%",
         "enablement": "isWorkspaceTrusted",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.migrateTeamsTabApp",
         "title": "%teamstoolkit.commands.migrateApp.title%",
         "enablement": "isWorkspaceTrusted",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openAppManagement",
         "title": "%teamstoolkit.commands.devPortal.title%",
         "enablement": "fx-extension.isTeamsFx && !fx-extension.isTDPIntegrationEnabled",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.publishInDeveloperPortal",
         "title": "%teamstoolkit.commandsTreeViewProvider.publishInDevPortalTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && fx-extension.isTDPIntegrationEnabled && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openReportIssues",
         "title": "%teamstoolkit.commands.reportIssue.title%",
         "enablement": "fx-extension.isTeamsFx",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.provision",
         "title": "%teamstoolkit.commands.provision.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.publish",
         "title": "%teamstoolkit.commands.publish.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.updatePreviewFile",
         "title": "%teamstoolkit.commands.updateManifest.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.validateManifest",
         "title": "%teamstoolkit.commands.validateManifest.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.azureAccountSettings",
@@ -785,7 +769,7 @@
         "command": "fx-extension.localdebug",
         "title": "%teamstoolkit.commands.localDebug.title%",
         "enablement": "!fx-extension.commandLocked && !fx-extension.isManifestOnlyOfficeAddIn",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.localdebugWithIcon",
@@ -846,7 +830,7 @@
         "command": "fx-extension.convertAadToNewSchema",
         "title": "%teamstoolkit.commands.convertAadToNewSchema.title%",
         "icon": "$(file-code)",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openResourceGroupInPortal",
@@ -921,19 +905,19 @@
         "command": "fx-extension.addWebpart",
         "title": "%teamstoolkit.commmands.addWebpart.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isSPFx",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.addPlugin",
         "title": "%teamstoolkit.commandsTreeViewProvider.addPluginTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.addKnowledge",
         "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.openOfficeDevLifecycleLink",
@@ -958,54 +942,54 @@
       {
         "command": "fx-extension.invokeChat",
         "title": "%teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled && fx-extension.hideTeamsAgentPreviewTag"
       },
       {
         "command": "fx-extension.invokeChatWithPreviewTag",
         "title": "%teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled && !fx-extension.hideTeamsAgentPreviewTag"
       },
       {
         "command": "fx-extension.syncManifest",
         "title": "%teamstoolkit.commandsTreeViewProvider.syncManifest%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "fx-extension.isSyncManifestEnabled"
       },
       {
         "command": "fx-extension.teamsAgentTroubleshootSelectedText",
         "title": "%teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title%",
         "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled && fx-extension.hideTeamsAgentPreviewTag",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
         "title": "%teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title.preview%",
         "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled && !fx-extension.hideTeamsAgentPreviewTag",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.teamsAgentTroubleshootError",
         "title": "%teamstoolkit.commmands.teamsAgentResolve.title%",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.findSimilarIssue",
         "title": "%teamstoolkit.handlers.similarIssues%",
-        "category": "Teams"
+        "category": "M365 Agents"
       },
       {
         "command": "fx-extension.addAuthAction",
         "title": "%teamstoolkit.commands.addAuthAction%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "true"
       },
       {
         "command": "fx-extension.openTeamsAgentWalkthrough",
         "title": "%teamsagent.walkthrough.title%",
-        "category": "Teams",
+        "category": "M365 Agents",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
       }
     ],
@@ -1239,7 +1223,7 @@
       {
         "name": "teamsfx-frontend-watch",
         "label": "TeamsFx Frontend Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1268,7 +1252,7 @@
       {
         "name": "teamsfx-backend-watch",
         "label": "TeamsFx Backend Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1292,7 +1276,7 @@
       {
         "name": "teamsfx-func-hosted-bot-watch",
         "label": "TeamsFx Azure Functions Hosted Bot Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1316,7 +1300,7 @@
       {
         "name": "teamsfx-auth-watch",
         "label": "TeamsFx SimpleAuth Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1340,7 +1324,7 @@
       {
         "name": "teamsfx-ngrok-watch",
         "label": "TeamsFx Ngrok Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1364,7 +1348,7 @@
       {
         "name": "teamsfx-local-tunnel-watch",
         "label": "TeamsFx Local Tunnel Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1387,7 +1371,7 @@
       {
         "name": "teamsfx-bot-watch",
         "label": "TeamsFx Bot Problems",
-        "owner": "Teams Toolkit",
+        "owner": "Microsoft 365 Agents Toolkit",
         "source": "teamsfx",
         "applyTo": "allDocuments",
         "fileLocation": [
@@ -1790,9 +1774,9 @@
       }
     ],
     "configuration": {
-      "title": "Teams Toolkit",
+      "title": "Microsoft 365 Agents Toolkit",
       "properties": {
-        "fx-extension.logLevel": {
+        "M365AgentsToolkit.logLevel": {
           "type": "string",
           "enum": [
             "Info",
@@ -1800,9 +1784,9 @@
             "Debug"
           ],
           "default": "Info",
-          "markdownDescription": "Set the log level of Teams Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Teams Toolkit to external services such as Azure, Microsoft 365, and Teams Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Teams Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Teams Toolkit command execution summaries.\n"
+          "markdownDescription": "Set the log level of Microsoft 365 Agents Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Microsoft 365 Agents Toolkit to external services such as Azure, Microsoft 365, and Teams Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Microsoft 365 Agents Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Microsoft 365 Agents Toolkit command execution summaries.\n"
         },
-        "fx-extension.enableMicrosoftKiotaString": {
+        "M365AgentsToolkit.enableMicrosoftKiotaString": {
           "type": "string",
           "enum": [
             "Enabled",
@@ -1812,7 +1796,7 @@
           "default": "Undefined",
           "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota). After installing Kiota, reload this window to apply the changes."
         },
-        "fx-extension.enableCustomEngineAgent": {
+        "M365AgentsToolkit.enableCustomEngineAgent": {
           "type": "boolean",
           "default": false,
           "markdownDescription": "Enable uploading the Custom Engine Agent in Microsoft 365 Copilot. For more information please refer to [this documentation](https://aka.ms/cea-feature-flag)."
