@@ -104,14 +104,50 @@ jobs:
     outputs:
       files_list: ${{ steps.set_output.outputs.files_list }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      
+      # Login to Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
+      # Download all test case files (.txt) from Azure Storage via the MI method
+      - name: 'Download all test case files from Storage (Windows)' # 0.1.8 version 2025-March-28
+        shell: pwsh
+        run: |
+          # Create directory if it doesn't exist
+          $testCasePath = "packages/tests/vscuse/cases"
+          if (-not (Test-Path -Path $testCasePath)) {
+            New-Item -Path $testCasePath -ItemType Directory -Force
+          }
+
+          # List all blobs in the container
+          $blobs = az storage blob list `
+            --account-name vscusedownload `
+            --container-name vsctestcase `
+            --auth-mode login `
+            --query "[?ends_with(name, '.txt')].name" -o tsv
+
+          # Download each .txt file
+          foreach ($blob in $blobs) {
+            $localPath = Join-Path $testCasePath $blob
+            az storage blob download `
+              --account-name vscusedownload `
+              --container-name vsctestcase `
+              --name $blob `
+              --file $localPath `
+              --auth-mode login
+            
+            Write-Host "Downloaded: $blob"
+          }
 
       - name: Generate file list
         shell: pwsh
         run: |
           # Recursively find all .txt files and extract only the file names without extensions
-          $files = Get-ChildItem -Path "packages/vscode-ui/vscuse/cases" -Filter *.txt -Recurse | ForEach-Object { $_.BaseName }
+          $files = Get-ChildItem -Path "packages/tests/vscuse/cases" -Filter *.txt -Recurse | ForEach-Object { $_.BaseName }
       
           # Debugging: Print the files found
           Write-Host "Found files:"
@@ -425,7 +461,7 @@ jobs:
       # Create the directory if it doesn't exist
       - name: Create directory for vscuse.exe if it doesn't exist
         run: |
-          $dirPath = "packages/vscode-ui/vscuse/binary"
+          $dirPath = "packages/tests/vscuse/binary"
           if (-not (Test-Path -Path $dirPath)) {
             New-Item -Path $dirPath -ItemType Directory
             Write-Host "Directory $dirPath created."
@@ -443,21 +479,21 @@ jobs:
           enable-AzPSSession: true
 
       # Download the latest vscuse.exe from Azure Storage via the MI method
-      - name: 'Download a File from Storage (Windows)' # 0.1.8 version 2025-March-25
+      - name: 'Download a VSCUSE.exe from Storage (Windows)' # 0.1.8 version 2025-March-25
         shell: pwsh
         run: |
           az storage blob download `
             --account-name vscusedownload `
             --container-name vscusebinary `
             --name latest/vscuse.exe `
-            --file packages/vscode-ui/vscuse/binary/vscuse.exe `
+            --file packages/tests/vscuse/binary/vscuse.exe `
             --auth-mode login
 
       # Run vscuse.exe  (0.1.8 with ZEN model)
       - name: Run vscuse.exe (0.1.8 with ZEN model) 
-        working-directory: packages/vscode-ui/vscuse/binary
+        working-directory: packages/tests/vscuse/binary
         run: |
-          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v  --no-cache | tee "${{ runner.temp }}\output.log"
+          vscuse.exe zen -f "../cases/${{ matrix.file }}.txt" -v --no-cache | tee "${{ runner.temp }}\output.log"
         shell: cmd
         
       # Check output.log and extract SESSION_PATH
