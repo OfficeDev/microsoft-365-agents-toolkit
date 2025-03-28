@@ -2,15 +2,6 @@
 
 ## Quick Start
 
-{{#enableTestToolByDefault}}
-1. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-2. Teams App Test Tool will be opened in the launched browser 
-3. Open Windows PowerShell and post a HTTP request to trigger the notification:
-
-   Invoke-WebRequest -Uri "http://localhost:5130/api/notification" -Method Post
-   
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
 2. Right-click the 'TeamsApp' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
 3. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
@@ -21,14 +12,8 @@
 
    Invoke-WebRequest -Uri "http://localhost:5130/api/notification" -Method Post
 
-{{/enableTestToolByDefault}}
-
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-{{^enableTestToolByDefault}}
-## Debug in Test Tool
-Teams App Test Tool allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
-{{/enableTestToolByDefault}}
 
 ## Learn more
 
