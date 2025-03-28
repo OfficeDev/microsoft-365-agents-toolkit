@@ -533,8 +533,6 @@ jobs:
       - name: setup project
         run: |
           pnpm --filter=@microsoft/teamsfx-test install
-
-          
       - uses: azure/login@v2
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
