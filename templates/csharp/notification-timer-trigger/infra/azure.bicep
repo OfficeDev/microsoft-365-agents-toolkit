@@ -61,16 +61,16 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
           value: '1' // Zipdeploy files will always be updated. Detail: https://aka.ms/teamsfx-zipdeploy-donot-preserve-filetime
         }
         {
-          name: 'BOT_ID'
+          name: 'Connections__BotServiceConnection__Settings__ClientId'
           value: identity.properties.clientId
         }
         {
-          name: 'BOT_TENANT_ID'
+          name: 'Connections__BotServiceConnection__Settings__TenantId'
           value: identity.properties.tenantId
         }
         {
-          name: 'BOT_TYPE'
-          value: 'UserAssignedMsi'
+          name: 'TokenValidation__Audiences__0'
+          value: identity.properties.clientId
         }
       ]
       ftpsState: 'FtpsOnly'
