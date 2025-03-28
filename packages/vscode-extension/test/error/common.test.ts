@@ -10,7 +10,7 @@ import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import { notifyOutputTroubleshoot, showError } from "../../src/error/common";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import { RecommendedOperations } from "../../src/debug/common/debugConstants";
-import { featureFlagManager } from "@microsoft/teamsfx-core";
+import { featureFlagManager, GraphClient, FeatureFlagName } from "@microsoft/teamsfx-core";
 import { MaximumNotificationOutputTroubleshootCount } from "../../src/constants";
 
 describe("common", async () => {
@@ -22,6 +22,15 @@ describe("common", async () => {
     if (clock) {
       clock.restore();
     }
+  });
+
+  beforeEach(() => {
+    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+      sandboxingConfiguration: {
+        isSideloadingEnabled: true,
+        sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
+      },
+    });
   });
 
   it("showError", async () => {
@@ -296,7 +305,13 @@ describe("common", async () => {
         .callsFake((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((featureFlag: any) => {
+        if (featureFlag.name == FeatureFlagName.SandBoxedTeam) {
+          return false;
+        } else {
+          return true;
+        }
+      });
       sandbox.stub(localizeUtils, "localize").returns("");
       sandbox.stub(projectChecker, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));

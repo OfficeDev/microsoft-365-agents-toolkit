@@ -81,7 +81,9 @@
           { "$ref": "#/definitions/apiKeyUpdate"},
           { "$ref": "#/definitions/oauthRegister"},
           { "$ref": "#/definitions/oauthUpdate"},
-          { "$ref": "#/definitions/shareToOthers"}
+          { "$ref": "#/definitions/shareToOthers"},
+          { "$ref": "#/definitions/devChannelCreate"},
+          { "$ref": "#/definitions/devChannelInstallApp"}
         ]
       }
     },
@@ -1968,6 +1970,80 @@
               "type": "string",
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            }
+          }
+        }
+      }
+    },
+    "devChannelCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Create a Teams sandboxed team and channel.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Create a Teams sandboxed team and channel.",
+          "const": "devChannel/create"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["teamName", "channelName"],
+          "properties": {
+            "teamName": {
+              "type": "string",
+              "description": "The name of sandboxed team."
+            },
+            "channelName": {
+              "type": "string",
+              "description": "The default name for the channel."
+            },
+            "description": {
+              "type": "string",
+              "description": "Team description."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write environment variables to environment file",
+          "required": ["channelId", "teamId"],
+          "properties": {
+            "channelId": {
+              "description": "The ID of the created channel.",
+              "$ref": "#/definitions/envVarName"
+            },
+            "teamId": {
+              "description": "The ID of the team in which the channel is created.",
+              "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "devChannelInstallApp": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Install Teams app to a sandboxed team and channel.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Install Teams app to a sandboxed team and channel.",
+          "const": "devChannel/installApp"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["appPackagePath"],
+          "properties": {
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to zipped Teams app package file."
             }
           }
         }
