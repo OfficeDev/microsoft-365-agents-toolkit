@@ -74,8 +74,8 @@ describe("CLI commands", () => {
 
   const mockedEnvRestore: RestoreFn = () => {};
 
+  process.env.TEAMSFX_CLI_BIN_NAME = "atk";
   beforeEach(() => {
-    sandbox.stub(process.env, "TEAMSFX_CLI_BIN_NAME").value("atk");
     sandbox.stub(logger, "info").resolves(true);
     sandbox.stub(logger, "error").resolves(true);
   });
