@@ -109,7 +109,9 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            ProjectTypeOptions.graphConnector(platform),
+            ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
+              ? [ProjectTypeOptions.graphConnector(platform)]
+              : []),
             ProjectTypeOptions.bot(platform),
             ProjectTypeOptions.tab(platform),
             ProjectTypeOptions.me(platform),
