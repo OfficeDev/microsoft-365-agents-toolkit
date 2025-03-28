@@ -20,7 +20,7 @@ import {
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { UpdateOauthArgs } from "./interface/updateOauthArgs";
 import { logMessageKeys } from "./utility/constants";
-import { getandValidateOauthInfoFromSpec, OauthInfo, validateSecret } from "./utility/utility";
+import { getAuthInfo, OauthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthDisablePKCEError } from "./error/oauthDisablePKCEError";
 
 const actionName = "oauth/update"; // DO NOT MODIFY the name
@@ -49,7 +49,8 @@ export class UpdateOauthDriver implements StepDriver {
         throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
       }
 
-      const authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
+      const authInfo = await getAuthInfo(args, context, actionName);
+
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
       });
@@ -174,12 +175,31 @@ export class UpdateOauthDriver implements StepDriver {
       throw new OauthNameTooLongError(actionName);
     }
 
-    if (typeof args.appId !== "string" || !args.appId) {
+    if (args.appId && typeof args.appId !== "string") {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
       invalidParameters.push("apiSpecPath");
+    }
+
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (
+      args.authorizationUrl &&
+      (typeof args.authorizationUrl !== "string" || !validateUrl(args.authorizationUrl))
+    ) {
+      invalidParameters.push("authorizationUrl");
+    }
+
+    if (args.tokenUrl && (typeof args.tokenUrl !== "string" || !validateUrl(args.tokenUrl))) {
+      invalidParameters.push("tokenUrl");
+    }
+
+    if (args.scope && typeof args.scope !== "string") {
+      invalidParameters.push("scope");
     }
 
     if (
@@ -248,9 +268,10 @@ export class UpdateOauthDriver implements StepDriver {
     // Compare domain
     const domain = authInfo.domain;
     if (
-      current.targetUrlsShouldStartWith.length !== domain.length ||
-      !current.targetUrlsShouldStartWith.every((value) => domain.includes(value)) ||
-      !domain.every((value) => current.targetUrlsShouldStartWith.includes(value))
+      domain &&
+      (current.targetUrlsShouldStartWith.length !== domain.length ||
+        !current.targetUrlsShouldStartWith.every((value) => domain.includes(value)) ||
+        !domain.every((value) => current.targetUrlsShouldStartWith.includes(value)))
     ) {
       diffMsgs.push(
         `targetUrlsShouldStartWith: ${current.targetUrlsShouldStartWith.join(",")} => ${domain.join(
@@ -291,7 +312,11 @@ export class UpdateOauthDriver implements StepDriver {
     }
 
     // Compare tokenRefreshEndpoint
-    if (!isMicrosoftEntra && current.tokenRefreshEndpoint !== authInfo.tokenRefreshEndpoint) {
+    if (
+      !isMicrosoftEntra &&
+      authInfo.tokenRefreshEndpoint &&
+      current.tokenRefreshEndpoint !== authInfo.tokenRefreshEndpoint
+    ) {
       diffMsgs.push(
         `tokenRefreshEndpoint: ${current.tokenRefreshEndpoint!} => ${
           authInfo.tokenRefreshEndpoint ?? "Undefined"
@@ -300,7 +325,11 @@ export class UpdateOauthDriver implements StepDriver {
     }
 
     // Compare scopes
-    if (!isMicrosoftEntra && !this.compareScopes(current.scopes, authInfo.scopes)) {
+    if (
+      !isMicrosoftEntra &&
+      authInfo.scopes &&
+      !this.compareScopes(current.scopes, authInfo.scopes)
+    ) {
       diffMsgs.push(
         `scopes: ${current.scopes.join(",")} => ${
           authInfo.scopes ? authInfo.scopes.join(",") : "Undefined"
@@ -321,9 +350,13 @@ export class UpdateOauthDriver implements StepDriver {
   private shouldSkipConfirm(
     diffMsgs: string[],
     getDomain: string[],
-    domain: string[],
+    domain: string[] | undefined,
     isCustomIdentityProvider: boolean
   ): boolean {
+    if (!domain) {
+      return diffMsgs.length === 1 && diffMsgs[0].includes("clientId");
+    }
+
     const targetUrlChangesWithDevTunnel =
       getDomain.length === domain.length &&
       getDomain.every((value) => value.includes("devtunnel")) &&

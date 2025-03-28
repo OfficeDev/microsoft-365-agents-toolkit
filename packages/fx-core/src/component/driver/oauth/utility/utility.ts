@@ -16,7 +16,7 @@ import { UpdateOauthArgs } from "../interface/updateOauthArgs";
 import { OauthAuthMissingInSpec } from "../error/oauthAuthMissingInSpec";
 
 export interface OauthInfo {
-  domain: string[];
+  domain?: string[];
   authorizationEndpoint?: string;
   tokenExchangeEndpoint?: string;
   tokenRefreshEndpoint?: string;
@@ -28,15 +28,51 @@ interface AuthInfo {
   authorizationUrl: string;
   tokenUrl: string;
   refreshUrl?: string;
-  scopes: string[];
+  scopes?: string[];
 }
 
-export async function getandValidateOauthInfoFromSpec(
+export async function getAuthInfo(
   args: CreateOauthArgs | UpdateOauthArgs,
   context: DriverContext,
   actionName: string
 ): Promise<OauthInfo> {
-  const absolutePath = getAbsolutePath(args.apiSpecPath, context.projectPath);
+  if (args.baseUrl) {
+    if (args.identityProvider === "MicrosoftEntra") {
+      return {
+        domain: [args.baseUrl],
+      };
+    } else if (args.authorizationUrl && args.tokenUrl) {
+      return {
+        domain: [args.baseUrl],
+        authorizationEndpoint: args.authorizationUrl,
+        tokenExchangeEndpoint: args.tokenUrl,
+        tokenRefreshEndpoint: args.refreshUrl, // optional
+        scopes: parseScopes(args.scope), // optional
+      };
+    }
+  }
+
+  let authInfo: OauthInfo = {};
+  // when update, baseUrl and apiSpecPath are not required
+  if (args.apiSpecPath) {
+    authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
+  }
+
+  if (args.baseUrl) authInfo.domain = [args.baseUrl];
+  if (args.authorizationUrl) authInfo.authorizationEndpoint = args.authorizationUrl;
+  if (args.tokenUrl) authInfo.tokenExchangeEndpoint = args.tokenUrl;
+  if (args.refreshUrl) authInfo.tokenRefreshEndpoint = args.refreshUrl;
+  if (args.scope) authInfo.scopes = parseScopes(args.scope);
+
+  return authInfo;
+}
+
+async function getandValidateOauthInfoFromSpec(
+  args: CreateOauthArgs | UpdateOauthArgs,
+  context: DriverContext,
+  actionName: string
+): Promise<OauthInfo> {
+  const absolutePath = getAbsolutePath(args.apiSpecPath!, context.projectPath);
   const parser = new SpecParser(absolutePath, {
     allowAPIKeyAuth: false,
     allowBearerTokenAuth: true,
@@ -57,14 +93,19 @@ export async function getandValidateOauthInfoFromSpec(
     throw new OauthAuthMissingInSpec(actionName, args.name);
   }
 
-  const domains = operations
-    .map((value) => {
-      return value.server;
-    })
-    .filter((value, index, self) => {
-      return self.indexOf(value) === index;
-    });
-  validateDomain(domains, actionName);
+  let domains: string[] = [];
+  if (args.baseUrl) {
+    domains = [args.baseUrl];
+  } else {
+    domains = operations
+      .map((value) => {
+        return value.server;
+      })
+      .filter((value, index, self) => {
+        return self.indexOf(value) === index;
+      });
+    validateDomain(domains, actionName);
+  }
 
   // Need to separate the logic for different flows
   const flow = "flow" in args ? args.flow : "authorizationCode";
@@ -77,11 +118,14 @@ export async function getandValidateOauthInfoFromSpec(
           authInfo = (value.auth?.authScheme as OpenAPIV3.OAuth2SecurityScheme).flows
             .authorizationCode;
       }
+
       return {
-        authorizationUrl: authInfo!.authorizationUrl,
-        tokenUrl: authInfo!.tokenUrl,
-        refreshUrl: authInfo!.refreshUrl,
-        scopes: Object.keys(authInfo!.scopes),
+        authorizationUrl: args.authorizationUrl
+          ? args.authorizationUrl
+          : authInfo!.authorizationUrl,
+        tokenUrl: args.tokenUrl ? args.tokenUrl : authInfo!.tokenUrl,
+        refreshUrl: args.refreshUrl ? args.refreshUrl : authInfo!.refreshUrl,
+        scopes: args.scope ? parseScopes(args.scope) : Object.keys(authInfo!.scopes),
       };
     })
     .reduce((accumulator: AuthInfo[], currentValue) => {
@@ -124,4 +168,20 @@ function validateDomain(domain: string[], actionName: string): void {
   if (domain.length === 0 || domain.includes("")) {
     throw new OauthFailedToGetDomainError(actionName);
   }
+}
+
+export function validateUrl(baseUrl: string): boolean {
+  try {
+    const url = new URL(baseUrl);
+    return url.protocol === "https:";
+  } catch (error) {
+    return false;
+  }
+}
+
+export function parseScopes(scopes: string | undefined): string[] | undefined {
+  if (!scopes) {
+    return undefined;
+  }
+  return scopes.split(",").map((scope) => scope.trim());
 }

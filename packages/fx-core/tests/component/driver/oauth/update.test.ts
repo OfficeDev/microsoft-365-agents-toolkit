@@ -165,6 +165,139 @@ describe("UpdateOauthDriver", () => {
     }
   });
 
+  it("happy path: update all fields without apiSpecPath", async () => {
+    sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test2"],
+      applicableToApps: OauthRegistrationAppType.SpecificApp,
+      targetAudience: OauthRegistrationTargetAudience.HomeTenant,
+      m365AppId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      authorizationEndpoint: "mockedAuthorizationEndpoint",
+      tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
+      scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.PostRequestBody,
+      isPKCEEnabled: true,
+    });
+    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
+      oAuthConfigId: "mockedRegistrationId",
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test"],
+      applicableToApps: OauthRegistrationAppType.AnyApp,
+      targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      authorizationEndpoint: "mockedAuthorizationEndpoint",
+      tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
+      scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.BasicAuthorizationHeader,
+      isPKCEEnabled: false,
+    });
+    sinon.stub(mockedDriverContext.ui, "confirm").callsFake(async (config) => {
+      expect((config as ConfirmConfig).title.includes("description")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("applicableToApps")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("m365AppId")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("targetAudience")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("isPKCEEnabled")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("authorizationEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenRefreshEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("scopes")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeMethodType")).to.be.true;
+      return ok({ type: "success", value: true });
+    });
+
+    const args: UpdateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      targetAudience: "HomeTenant",
+      applicableToApps: "SpecificApp",
+      configurationId: "mockedRegistrationId",
+      tokenExchangeMethodType: "PostRequestBody",
+      isPKCEEnabled: true,
+
+      baseUrl: "https://test2",
+      authorizationUrl: "https://test",
+      tokenUrl: "https://test",
+      refreshUrl: "https://test",
+      scope: "mockedScopes",
+    };
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.size).to.equal(0);
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
+  it("happy path: update fields without apiSpecPath and baseUrl", async () => {
+    sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test2"],
+      applicableToApps: OauthRegistrationAppType.SpecificApp,
+      targetAudience: OauthRegistrationTargetAudience.HomeTenant,
+      m365AppId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      authorizationEndpoint: "mockedAuthorizationEndpoint",
+      tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
+      scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.PostRequestBody,
+      isPKCEEnabled: true,
+    });
+    sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
+      oAuthConfigId: "mockedRegistrationId",
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test"],
+      applicableToApps: OauthRegistrationAppType.AnyApp,
+      targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      authorizationEndpoint: "mockedAuthorizationEndpoint",
+      tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
+      scopes: ["mockedScope"],
+      tokenExchangeMethodType: TokenExchangeMethodType.BasicAuthorizationHeader,
+      isPKCEEnabled: false,
+    });
+    sinon.stub(mockedDriverContext.ui, "confirm").callsFake(async (config) => {
+      expect((config as ConfirmConfig).title.includes("description")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("applicableToApps")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("m365AppId")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("targetAudience")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("isPKCEEnabled")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("authorizationEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenRefreshEndpoint")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("scopes")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeMethodType")).to.be.true;
+      return ok({ type: "success", value: true });
+    });
+
+    const args: UpdateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      targetAudience: "HomeTenant",
+      applicableToApps: "SpecificApp",
+      configurationId: "mockedRegistrationId",
+      tokenExchangeMethodType: "PostRequestBody",
+      isPKCEEnabled: true,
+
+      authorizationUrl: "https://test",
+      tokenUrl: "https://test",
+      refreshUrl: "https://test",
+      scope: "mockedScopes",
+    };
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.size).to.equal(0);
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
   it("happy path: update all fields for Entra SSO", async () => {
     sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
       description: "mockedDescription",
@@ -635,7 +768,7 @@ describe("UpdateOauthDriver", () => {
       identityProvider: "Custom",
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(utiltiy, "getandValidateOauthInfoFromSpec").resolves({} as any);
+    sinon.stub(utiltiy, "getAuthInfo").resolves({} as any);
     sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",
@@ -663,7 +796,7 @@ describe("UpdateOauthDriver", () => {
       clientSecret: 123,
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(utiltiy, "getandValidateOauthInfoFromSpec").resolves({} as any);
+    sinon.stub(utiltiy, "getAuthInfo").resolves({} as any);
     sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",
@@ -750,6 +883,30 @@ describe("UpdateOauthDriver", () => {
     }
   });
 
+  it("should throw error if invalid baseUrl, authorizationUrl, tokenUrl, scope", async () => {
+    const args: any = {
+      name: "name",
+      appId: "mockedAppId",
+      configurationId: "mockedRegistrationId",
+      applicableToApps: "test",
+      tokenExchangeMethodType: "Unknown",
+
+      baseUrl: [],
+      authorizationUrl: [],
+      tokenUrl: [],
+      scope: [],
+    };
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("baseUrl");
+      expect(result.result.error.message).to.include("authorizationUrl");
+      expect(result.result.error.message).to.include("tokenUrl");
+      expect(result.result.error.message).to.include("scope");
+    }
+  });
+
   it("should throw error if invalid targetAudience", async () => {
     const args: any = {
       name: "name",
@@ -833,7 +990,7 @@ describe("UpdateOauthDriver", () => {
     }
   });
 
-  it("should update if tokenRefreshEndpoint and scopes are undefined", async () => {
+  it("should not update if tokenRefreshEndpoint and scopes are undefined", async () => {
     sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
       description: "mockedDescription",
       targetUrlsShouldStartWith: ["https://test2"],
@@ -861,71 +1018,23 @@ describe("UpdateOauthDriver", () => {
       scopes: ["mockedScope"],
       isPKCEEnabled: false,
     });
-    sinon.stub(SpecParser.prototype, "list").resolves({
-      APIs: [
-        {
-          api: "api",
-          server: "https://test",
-          operationId: "get",
-          auth: {
-            name: "test",
-            authScheme: {
-              type: "oauth2",
-              flows: {
-                authorizationCode: {
-                  authorizationUrl: "https://test",
-                  tokenUrl: "https://test",
-                  scopes: {
-                    mockedScopes: "mockedScopes",
-                  },
-                },
-              },
-            },
-          },
-          isValid: true,
-          reason: [],
-        },
-        {
-          api: "api2",
-          server: "https://test",
-          operationId: "get",
-          auth: {
-            name: "test2",
-            authScheme: {
-              type: "oauth2",
-              flows: {
-                authorizationCode: {
-                  authorizationUrl: "https://test",
-                  tokenUrl: "https://test",
-                  scopes: {},
-                },
-              },
-            },
-          },
-          isValid: true,
-          reason: [],
-        },
-      ],
-      allAPICount: 1,
-      validAPICount: 1,
-    });
+
     sinon.stub(mockedDriverContext.ui, "confirm").callsFake(async (config) => {
       expect((config as ConfirmConfig).title.includes("description")).to.be.true;
       expect((config as ConfirmConfig).title.includes("applicableToApps")).to.be.true;
       expect((config as ConfirmConfig).title.includes("m365AppId")).to.be.true;
       expect((config as ConfirmConfig).title.includes("targetAudience")).to.be.true;
       expect((config as ConfirmConfig).title.includes("isPKCEEnabled")).to.be.true;
-      expect((config as ConfirmConfig).title.includes("authorizationEndpoint")).to.be.true;
-      expect((config as ConfirmConfig).title.includes("tokenExchangeEndpoint")).to.be.true;
-      expect((config as ConfirmConfig).title.includes("tokenRefreshEndpoint")).to.be.true;
-      expect((config as ConfirmConfig).title.includes("scopes")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("authorizationEndpoint")).to.be.false;
+      expect((config as ConfirmConfig).title.includes("tokenExchangeEndpoint")).to.be.false;
+      expect((config as ConfirmConfig).title.includes("tokenRefreshEndpoint")).to.be.false;
+      expect((config as ConfirmConfig).title.includes("scopes")).to.be.false;
       return ok({ type: "success", value: true });
     });
 
     const args: UpdateOauthArgs = {
       name: "test2",
       appId: "mockedAppId",
-      apiSpecPath: "mockedPath",
       targetAudience: "HomeTenant",
       applicableToApps: "SpecificApp",
       configurationId: "mockedRegistrationId",

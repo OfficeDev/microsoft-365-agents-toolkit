@@ -1802,7 +1802,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "flow"],
+          "required": ["name", "flow"],
           "properties": {
             "name": {
               "type": "string",
@@ -1810,7 +1810,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of OAuth registration."
+              "description": "The app ID of the App. Only take effect when applicableToApps is SpecificApp."
             },
             "apiSpecPath": {
               "type": "string",
@@ -1908,7 +1908,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["name", "appId", "configurationId"],
+          "required": ["name", "configurationId"],
           "properties": {
             "name": {
               "type": "string",
@@ -1916,7 +1916,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of OAuth registration."
+              "description": "The app ID of the App. Only take effect when applicableToApps is SpecificApp."
             },
             "apiSpecPath": {
               "type": "string",
@@ -1937,6 +1937,10 @@
             "scope": {
               "type": "string",
               "description": "The scope(s) for the OAuth flow."
+            },
+            "refreshUrl": {
+              "type": "string",
+              "description": "The refresh url of OAuth registration."
             },
             "configurationId": {
               "type": "string",
