@@ -462,10 +462,22 @@ jobs:
           curl http://127.0.0.1:4723/status
         shell: powershell
 
-      # Create the directory if it doesn't exist
+      # Create the directory if it doesn't exist(for binary)
       - name: Create directory for vscuse.exe if it doesn't exist
         run: |
           $dirPath = "packages/tests/vscuse/binary"
+          if (-not (Test-Path -Path $dirPath)) {
+            New-Item -Path $dirPath -ItemType Directory
+            Write-Host "Directory $dirPath created."
+          } else {
+            Write-Host "Directory $dirPath already exists."
+          }
+        shell: pwsh
+
+      # Create the directory if it doesn't exist(for test cases)
+      - name: Create directory for test cases if it doesn't exist
+        run: |
+          $dirPath = "packages/tests/vscuse/cases"
           if (-not (Test-Path -Path $dirPath)) {
             New-Item -Path $dirPath -ItemType Directory
             Write-Host "Directory $dirPath created."
@@ -481,6 +493,17 @@ jobs:
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
           enable-AzPSSession: true
+
+      # Download the specified test case .txt file from Azure Storage via the MI method
+      - name: 'Download a VSCUSE.exe from Storage (Windows)' # 0.1.8 version 2025-March-25
+        shell: pwsh
+        run: |
+          az storage blob download `
+            --account-name vscusedownload `
+            --container-name vsctestcase `
+            --name ${{ matrix.file }}.txt `
+            --file packages/tests/vscuse/cases/${{ matrix.file }}.txt `
+            --auth-mode login
 
       # Download the latest vscuse.exe from Azure Storage via the MI method
       - name: 'Download a VSCUSE.exe from Storage (Windows)' # 0.1.8 version 2025-March-25
