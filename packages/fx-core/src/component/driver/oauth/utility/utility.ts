@@ -93,19 +93,14 @@ async function getandValidateOauthInfoFromSpec(
     throw new OauthAuthMissingInSpec(actionName, args.name);
   }
 
-  let domains: string[] = [];
-  if (args.baseUrl) {
-    domains = [args.baseUrl];
-  } else {
-    domains = operations
-      .map((value) => {
-        return value.server;
-      })
-      .filter((value, index, self) => {
-        return self.indexOf(value) === index;
-      });
-    validateDomain(domains, actionName);
-  }
+  const domains = operations
+    .map((value) => {
+      return value.server;
+    })
+    .filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+  validateDomain(domains, actionName);
 
   // Need to separate the logic for different flows
   const flow = "flow" in args ? args.flow : "authorizationCode";
@@ -120,12 +115,10 @@ async function getandValidateOauthInfoFromSpec(
       }
 
       return {
-        authorizationUrl: args.authorizationUrl
-          ? args.authorizationUrl
-          : authInfo!.authorizationUrl,
-        tokenUrl: args.tokenUrl ? args.tokenUrl : authInfo!.tokenUrl,
-        refreshUrl: args.refreshUrl ? args.refreshUrl : authInfo!.refreshUrl,
-        scopes: args.scope ? parseScopes(args.scope) : Object.keys(authInfo!.scopes),
+        authorizationUrl: authInfo!.authorizationUrl,
+        tokenUrl: authInfo!.tokenUrl,
+        refreshUrl: authInfo!.refreshUrl,
+        scopes: Object.keys(authInfo!.scopes),
       };
     })
     .reduce((accumulator: AuthInfo[], currentValue) => {

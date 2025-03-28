@@ -66,6 +66,10 @@ export class UpdateOauthDriver implements StepDriver {
       const isCustomIdentityProvider =
         !getOauthRes.identityProvider || getOauthRes.identityProvider === "Custom";
 
+      if (!getOauthRes.m365AppId && args.applicableToApps === "SpecificApp" && !args.appId) {
+        invalidParameters.push("appId");
+      }
+
       if (isCustomIdentityProvider) {
         if (args.isPKCEEnabled && typeof args.isPKCEEnabled !== "boolean") {
           invalidParameters.push("isPKCEEnabled");
@@ -243,7 +247,7 @@ export class UpdateOauthDriver implements StepDriver {
     if (input.applicableToApps && current.applicableToApps !== input.applicableToApps) {
       let msg = `applicableToApps: ${current.applicableToApps} => ${input.applicableToApps}`;
       if (input.applicableToApps === "SpecificApp") {
-        msg += `, m365AppId: ${input.appId}`;
+        msg += `, m365AppId: ${input.appId!}`;
       }
       diffMsgs.push(msg);
     }
@@ -330,11 +334,7 @@ export class UpdateOauthDriver implements StepDriver {
       authInfo.scopes &&
       !this.compareScopes(current.scopes, authInfo.scopes)
     ) {
-      diffMsgs.push(
-        `scopes: ${current.scopes.join(",")} => ${
-          authInfo.scopes ? authInfo.scopes.join(",") : "Undefined"
-        }`
-      );
+      diffMsgs.push(`scopes: ${current.scopes.join(",")} => ${authInfo.scopes.join(",")}`);
     }
 
     if (!!current.isPKCEEnabled !== !!input.isPKCEEnabled) {

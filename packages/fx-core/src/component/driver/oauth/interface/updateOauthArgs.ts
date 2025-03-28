@@ -3,7 +3,7 @@
 
 export interface UpdateOauthArgs {
   name: string; // The name of Api Secret
-  appId: string; // Teams app id
+  appId?: string; // Teams app id
   apiSpecPath?: string; // The location of api spec file
   configurationId: string; // The registration id of the oauth registration
   applicableToApps?: string; // What app can access the api key. Values can be "SpecificApp" or "AnyApp". Default is "AnyApp".

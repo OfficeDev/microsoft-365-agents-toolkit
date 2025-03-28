@@ -1458,6 +1458,32 @@ describe("CreateOauthDriver", () => {
     }
   });
 
+  it("should throw error if when no apiSpecPath, and baseUrl, authorizationUrl, tokenUrl and scope is not valid https url", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      applicableToApps: "SpecificApp",
+      targetAudience: "HomeTenant",
+      tokenExchangeMethodType: "PostRequestBody",
+
+      baseUrl: "invalid",
+      authorizationUrl: "invalid",
+      tokenUrl: "http://invalid",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message.includes("baseUrl")).to.be.true;
+      expect(result.result.error.message.includes("authorizationUrl")).to.be.true;
+      expect(result.result.error.message.includes("tokenUrl")).to.be.true;
+    }
+  });
+
   it("should throw error if when no apiSpecPath, and missing baseUrl, authorizationUrl, tokenUrl and scope", async () => {
     const args: any = {
       name: "test",
