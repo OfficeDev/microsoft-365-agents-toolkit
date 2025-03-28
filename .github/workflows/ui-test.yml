@@ -1,4 +1,4 @@
-name: uitest-vscuse
+name: uitest
 
 on:
   workflow_dispatch:
