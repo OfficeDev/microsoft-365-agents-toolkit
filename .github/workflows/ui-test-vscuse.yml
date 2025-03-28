@@ -97,10 +97,14 @@ jobs:
       ttk-version: ${{ steps.ttk.outputs.version }}
       target_cli_version: ${{ env.target_cli_version }}
 
-
+      
   discover_test_cases:
     runs-on: windows-latest
     needs: setup
+    permissions:
+        id-token: write
+        security-events: write
+    environment: engineering
     outputs:
       files_list: ${{ steps.set_output.outputs.files_list }}
     steps:
