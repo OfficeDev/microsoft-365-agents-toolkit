@@ -6,10 +6,7 @@ import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { setSensitivityLabelCommand } from "./setSensitivityLabel";
 
 const adjustCommands = (): CLICommand[] => {
-  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
-    return [setSensitivityLabelCommand];
-  }
-  return [];
+  return [setSensitivityLabelCommand];
 };
 
 export function setCommand(): CLICommand {
