@@ -1,6 +1,6 @@
 {
-  "name": "@microsoft/m365agentstoolkit-cli",
-  "version": "3.0.8",
+  "name": "@microsoft/teamsapp-cli",
+  "version": "3.0.9",
   "author": "Microsoft Corporation",
   "description": "Microsoft 365 Agents Toolkit CLI",
   "license": "MIT",
