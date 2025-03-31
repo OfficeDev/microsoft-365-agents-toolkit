@@ -19,6 +19,7 @@ import {
   execCommandIfExistFromTreeView,
   inputFolderPath,
   openExistingProject,
+  getNotification,
 } from "../../utils/vscodeOperation";
 import { InputBox, VSBrowser } from "vscode-extension-tester";
 import { it } from "../../utils/it";
@@ -104,7 +105,7 @@ describe("New project in existing project Tests", function () {
       await driver.sleep(Timeout.shortTimeLoading);
 
       await VSBrowser.instance.takeScreenshot("create_after");
-      assert.fail("Failed to create new project in existing project");
+      await getNotification("", undefined, undefined, ["error"]);
 
       const newProjectPath = path.resolve(testRootFolder, newAppName);
       const newProjectCopyPath = path.resolve(
