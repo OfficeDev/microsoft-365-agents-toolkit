@@ -15,7 +15,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
-import { MetadataV3 } from "../../src/common/versionMetadata";
+import { MetadataV3, MetadataV3Abandoned, MetadataV4 } from "../../src/common/versionMetadata";
 import { ProjectModel } from "../../src/component/configManager/interface";
 import { EnvLoaderMW, EnvWriterMW } from "../../src/component/middleware/envMW";
 import { DotenvOutput, dotenvUtil, envUtil } from "../../src/component/utils/envUtil";
@@ -48,7 +48,7 @@ describe("envUtils", () => {
     trackingId: "mockProjectId",
     version: "1",
   };
-  let mockedEnvRestore: RestoreFn | undefined;
+  let mockedEnvRestore: RestoreFn = () => {};
   afterEach(() => {
     sandbox.restore();
     if (mockedEnvRestore) {
@@ -57,17 +57,61 @@ describe("envUtils", () => {
   });
 
   describe("pathUtils.getYmlFilePath", () => {
-    it("happy path", async () => {
+    afterEach(() => {
+      sandbox.restore();
+      mockedEnvRestore();
+    });
+    it("defined in env var of TEAMSFX_CONFIG_FILE_PATH", async () => {
+      mockedEnvRestore = mockedEnv({ TEAMSFX_CONFIG_FILE_PATH: "abc.yml" });
+      const res1 = pathUtils.getYmlFilePath(".");
+      assert.equal(res1, path.join(".", "abc.yml"));
+    });
+    it("happy path v4 dev by TEAMSFX_ENV", async () => {
+      mockedEnvRestore = mockedEnv({ TEAMSFX_ENV: "dev" });
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      process.env.TEAMSFX_ENV = "dev";
-      const res1 = pathUtils.getYmlFilePath(".", "dev");
-      assert.equal(res1, path.join(".", MetadataV3.configFile));
+      const res1 = pathUtils.getYmlFilePath(".");
+      assert.equal(res1, path.join(".", MetadataV4.configFile));
+    });
+    it("happy path v4 dev default", async () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const res1 = pathUtils.getYmlFilePath(".");
+      assert.equal(res1, path.join(".", MetadataV4.configFile));
+    });
+    it("happy path v4 local", async () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "local");
+      assert.equal(res1, path.join(".", MetadataV4.localConfigFile));
+    });
+    it("happy path v4 testtool", async () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "testtool");
+      assert.equal(res1, path.join(".", MetadataV4.testToolConfigFile));
+    });
+    it("happy path v4 sandbox", async () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "sandbox");
+      assert.equal(res1, path.join(".", MetadataV4.sandboxConfigFile));
+    });
+    it("happy path v3 local", async () => {
+      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "local");
+      assert.equal(res1, path.join(".", MetadataV3.localConfigFile));
+    });
+    it("happy path v3 testtool", async () => {
+      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "testtool");
+      assert.equal(res1, path.join(".", MetadataV3.testToolConfigFile));
+    });
+    it("happy path v3 sandbox", async () => {
+      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      const res1 = pathUtils.getYmlFilePath(".", "sandbox");
+      assert.equal(res1, path.join(".", MetadataV3.sandboxConfigFile));
     });
     it("throw MissingRequiredFileError with env=dev", async () => {
       sandbox.stub(fs, "pathExistsSync").returns(false);
       process.env.TEAMSFX_ENV = "dev";
       try {
-        await pathUtils.getYmlFilePath(".", "dev");
+        pathUtils.getYmlFilePath(".", "dev");
         assert.fail("show not reach here");
       } catch (e) {
         assert.isTrue(e instanceof MissingRequiredFileError);
@@ -96,7 +140,7 @@ describe("envUtils", () => {
         .stub(fs, "readFile")
         .resolves("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./xxx");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./xxx");
       const res = await pathUtils.getEnvFolderPath(".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -104,14 +148,14 @@ describe("envUtils", () => {
       }
     });
     it("returns default value", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./m365agents.yml");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
       sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
       sandbox.stub(fs, "pathExists").resolves(true);
       const res = await pathUtils.getEnvFolderPath("");
       assert.isTrue(res.isOk());
     });
     it("returns undefined value", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./m365agents.yml");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
       sandbox
         .stub(fs, "readFile")
         .resolves("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
@@ -126,7 +170,7 @@ describe("envUtils", () => {
 
   describe("pathUtils.getEnvFilePath", () => {
     it("happy path", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./xxx");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./xxx");
       sandbox
         .stub(fs, "readFile")
         .resolves("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
@@ -140,7 +184,7 @@ describe("envUtils", () => {
     it("returns default value", async () => {
       sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./xxx");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./xxx");
       const res = await pathUtils.getEnvFilePath(".", "dev");
       assert.isTrue(res.isOk());
     });
@@ -401,7 +445,7 @@ describe("envUtils", () => {
     it("environmentManager.listRemoteEnvConfigs return error", async () => {
       sandbox.stub(fs, "pathExists").resolves(false);
       sandbox.stub(fs, "readdir").resolves([] as any);
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./xxx");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./xxx");
       const res = await environmentManager.listRemoteEnvConfigs(".", true);
       assert.isTrue(res.isErr());
     });
@@ -803,15 +847,19 @@ describe("envUtils", () => {
   });
 
   describe("settingsUtil", () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
     it("settingsUtil read not exist", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("."));
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
       const res = await settingsUtil.readSettings("abc");
       assert.isTrue(res.isErr());
     });
 
     it("settingsUtil read and ensure trackingId", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("."));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
       sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
       sandbox.stub(fs, "writeFile").resolves();
       const res = await settingsUtil.readSettings("abc");
@@ -822,7 +870,7 @@ describe("envUtils", () => {
     });
 
     it("settingsUtil write success", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("."));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
       sandbox.stub(fs, "writeFile").resolves();
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
@@ -830,7 +878,7 @@ describe("envUtils", () => {
       assert.isTrue(res.isOk());
     });
     it("settingsUtil write failed", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("."));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
       sandbox.stub(fs, "pathExists").resolves(false);
       const res = await settingsUtil.writeSettings(".", { trackingId: "123", version: "2" });
       assert.isTrue(res.isErr());

@@ -7,13 +7,12 @@ import * as path from "path";
 import yaml from "yaml";
 import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
-import { MissingRequiredFileError, MissingRequiredInputError } from "../../error/common";
+import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
   getYmlFilePath(projectPath: string, env?: string): string {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
     const envName = env || process.env.TEAMSFX_ENV || "dev";
-    if (!envName) throw new MissingRequiredInputError("env", "PathUtils");
     const ymlPathV4 = path.join(
       projectPath,
       envName === environmentNameManager.getLocalEnvName()
