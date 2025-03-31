@@ -59,28 +59,26 @@ describe("New project in existing project Tests", function () {
       expect(fs.existsSync(filePath1), `${filePath1} must exist.`).to.eq(true);
 
       // create new project in existing project
+      const newAppName = appName + appNameCopySuffix;
+      console.log("create new project in existing project");
       const driver = VSBrowser.instance.driver;
-      console.log("1. Create New App");
       await execCommandIfExistFromTreeView(
         TreeViewCommands.CreateProjectCommand,
         Timeout.webView
       );
 
       const input = await InputBox.create();
-      console.log("2. tab");
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
-      console.log("3. Basic Tab");
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
 
       // Choose programming language
-      console.log("4. Language");
       await input.selectQuickPick("TypeScript");
       await driver.sleep(Timeout.input);
 
       // Input folder path
-      console.log("5. choose project path: ", testRootFolder);
+      console.log("choose project path: ", testRootFolder);
       await input.selectQuickPick("Browse...");
       await inputFolderPath(driver, input, testRootFolder);
       await driver.sleep(Timeout.input);
@@ -92,9 +90,8 @@ describe("New project in existing project Tests", function () {
       await input.confirm();
 
       // Input App Name
-      console.log("input appName: ", appName);
       if ((await input.getTitle()) === "Application Name") {
-        await input.setText(appName);
+        await input.setText(newAppName);
         await driver.sleep(Timeout.input);
         await input.confirm();
       } else {
@@ -105,10 +102,10 @@ describe("New project in existing project Tests", function () {
 
       await driver.sleep(Timeout.input);
 
-      const newProjectPath = path.resolve(testRootFolder, appName + "copy");
+      const newProjectPath = path.resolve(testRootFolder, newAppName);
       const newProjectCopyPath = path.resolve(
         testRootFolder,
-        appName + appNameCopySuffix
+        newAppName + appNameCopySuffix
       );
       console.log("copy path: ", projectPath, " to: ", newProjectPath);
       await fs.mkdir(newProjectCopyPath);
