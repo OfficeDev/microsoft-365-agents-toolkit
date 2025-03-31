@@ -46,11 +46,7 @@ import {
 } from "../../src";
 import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
-import {
-  TeamsfxConfigType,
-  TeamsfxVersionState,
-  projectTypeChecker,
-} from "../../src/common/projectTypeChecker";
+import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
 import {
   DriverDefinition,
   DriverInstance,
@@ -2134,7 +2130,7 @@ describe("checkProjectType", async () => {
   it("happy 2", async () => {
     sandbox.stub(projectTypeChecker, "checkProjectType").resolves({
       isTeamsFx: true,
-      teamsfxConfigType: TeamsfxConfigType.teamsappYml,
+      teamsfxConfigType: MetadataV3.configFile,
       teamsfxConfigVersion: "1.0.0",
       teamsfxVersionState: TeamsfxVersionState.Compatible,
       teamsfxProjectId: "xxxx-xxxx-xxxx",
