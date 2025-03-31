@@ -100,6 +100,7 @@ import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
+import "../component/feature/sso";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
