@@ -11,6 +11,7 @@ class EnvironmentNameManager {
   private readonly defaultEnvName = "dev";
   private readonly localEnvName = "local";
   private readonly testToolEnvName = "testtool";
+  private readonly sandboxEnvName = "sandbox";
 
   public getDefaultEnvName() {
     return this.defaultEnvName;
@@ -22,6 +23,10 @@ class EnvironmentNameManager {
 
   public getTestToolEnvName() {
     return this.testToolEnvName;
+  }
+
+  public getSandboxEnvName() {
+    return this.sandboxEnvName;
   }
 
   public getNonRemoteEnvNames(): string[] {

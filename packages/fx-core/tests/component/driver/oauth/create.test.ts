@@ -129,6 +129,97 @@ describe("CreateOauthDriver", () => {
     }
   });
 
+  it("happy path: use parameters for auth info without apiSpecPath", async () => {
+    sinon
+      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .callsFake(async (token, oauthRegistration) => {
+        expect(oauthRegistration.clientId).to.equals("mockedClientId");
+        expect(oauthRegistration.clientSecret).to.equals("mockedClientSecret");
+        expect(oauthRegistration.description).to.equals("test");
+        expect(oauthRegistration.authorizationEndpoint).to.equals("https://authUrl");
+        expect(oauthRegistration.scopes[0]).to.equals("scope1");
+        expect(oauthRegistration.targetUrlsShouldStartWith[0]).to.equals("https://test");
+        expect(oauthRegistration.tokenExchangeEndpoint).to.equals("https://tokenUrl");
+        expect(oauthRegistration.tokenRefreshEndpoint).to.equal("https://refreshUrl");
+        expect(oauthRegistration.applicableToApps).to.equals(OauthRegistrationAppType.AnyApp);
+        expect(oauthRegistration.isPKCEEnabled).to.be.false;
+        expect(oauthRegistration.targetAudience).to.equals(
+          OauthRegistrationTargetAudience.AnyTenant
+        );
+        expect(oauthRegistration.m365AppId).to.equal("");
+        expect(oauthRegistration.identityProvider).to.equal("Custom");
+        return {
+          configurationRegistrationId: {
+            oAuthConfigId: "mockedRegistrationId",
+          },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      apiSpecPath: "mockedPath",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "https://refreshUrl",
+      isPKCEEnabled: false,
+      identityProvider: "Custom",
+
+      baseUrl: "https://test",
+      authorizationUrl: "https://authUrl",
+      tokenUrl: "https://tokenUrl",
+      scope: "scope1,scope2",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.get(outputKeys.configurationId)).to.equal("mockedRegistrationId");
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
+  it("happy path: use parameters for auth info without apiSpecPath, and identityProvider is MicrosoftEntra", async () => {
+    sinon
+      .stub(teamsDevPortalClient, "createOauthRegistration")
+      .callsFake(async (token, oauthRegistration) => {
+        expect(oauthRegistration.clientId).to.equals("mockedClientId");
+        expect(oauthRegistration.description).to.equals("test");
+        expect(oauthRegistration.targetUrlsShouldStartWith[0]).to.equals("https://test");
+        expect(oauthRegistration.applicableToApps).to.equals(OauthRegistrationAppType.AnyApp);
+        expect(oauthRegistration.targetAudience).to.equals(
+          OauthRegistrationTargetAudience.AnyTenant
+        );
+        expect(oauthRegistration.m365AppId).to.equal("");
+        expect(oauthRegistration.identityProvider).to.equal("MicrosoftEntra");
+        return {
+          configurationRegistrationId: {
+            oAuthConfigId: "mockedRegistrationId",
+          },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      apiSpecPath: "mockedPath",
+      clientId: "mockedClientId",
+      flow: "authorizationCode",
+      refreshUrl: "https://refreshUrl",
+      identityProvider: "MicrosoftEntra",
+
+      baseUrl: "https://test",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.get(outputKeys.configurationId)).to.equal("mockedRegistrationId");
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
   it("happy path: secret is not needed when PKCE enabled", async () => {
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
@@ -1336,6 +1427,105 @@ describe("CreateOauthDriver", () => {
       expect(result.result.error.message.includes("applicableToApps")).to.be.true;
       expect(result.result.error.message.includes("targetAudience")).to.be.true;
       expect(result.result.error.message.includes("tokenExchangeMethodType")).to.be.true;
+    }
+  });
+
+  it("should throw error if when no apiSpecPath, and baseUrl, authorizationUrl, tokenUrl and scope is not string", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      applicableToApps: "SpecificApp",
+      targetAudience: "HomeTenant",
+      tokenExchangeMethodType: "PostRequestBody",
+
+      baseUrl: [],
+      authorizationUrl: [],
+      tokenUrl: [],
+      scope: [],
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message.includes("baseUrl")).to.be.true;
+      expect(result.result.error.message.includes("authorizationUrl")).to.be.true;
+      expect(result.result.error.message.includes("tokenUrl")).to.be.true;
+      expect(result.result.error.message.includes("scope")).to.be.true;
+    }
+  });
+
+  it("should throw error if when no apiSpecPath, and baseUrl, authorizationUrl, tokenUrl and scope is not valid https url", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      applicableToApps: "SpecificApp",
+      targetAudience: "HomeTenant",
+      tokenExchangeMethodType: "PostRequestBody",
+
+      baseUrl: "invalid",
+      authorizationUrl: "invalid",
+      tokenUrl: "http://invalid",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message.includes("baseUrl")).to.be.true;
+      expect(result.result.error.message.includes("authorizationUrl")).to.be.true;
+      expect(result.result.error.message.includes("tokenUrl")).to.be.true;
+    }
+  });
+
+  it("should throw error if when no apiSpecPath, and missing baseUrl, authorizationUrl, tokenUrl and scope", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      applicableToApps: "SpecificApp",
+      targetAudience: "HomeTenant",
+      tokenExchangeMethodType: "PostRequestBody",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message.includes("baseUrl")).to.be.true;
+      expect(result.result.error.message.includes("authorizationUrl")).to.be.true;
+      expect(result.result.error.message.includes("tokenUrl")).to.be.true;
+      expect(result.result.error.message.includes("apiSpecPath")).to.be.true;
+    }
+  });
+
+  it("should throw error if when no apiSpecPath, identityProvider is MicrosoftEntra, and missing baseUrl", async () => {
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "mockedClientId",
+      clientSecret: "mockedClientSecret",
+      flow: "authorizationCode",
+      refreshUrl: "mockedRefreshUrl",
+      applicableToApps: "SpecificApp",
+      targetAudience: "HomeTenant",
+      identityProvider: "MicrosoftEntra",
+      tokenExchangeMethodType: "PostRequestBody",
+    };
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message.includes("baseUrl")).to.be.true;
+      expect(result.result.error.message.includes("apiSpecPath")).to.be.true;
     }
   });
 

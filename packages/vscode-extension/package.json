@@ -112,6 +112,13 @@
           "fontPath": "./media/font/teamstoolkit.woff",
           "fontCharacter": "\\E006"
         }
+      },
+      "teamsfx-graph-connector": {
+        "description": "Graph Connector icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E007"
+        }
       }
     },
     "viewsContainers": {

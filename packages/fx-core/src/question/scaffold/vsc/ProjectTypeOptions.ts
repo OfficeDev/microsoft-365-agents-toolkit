@@ -14,6 +14,7 @@ export class ProjectTypeOptions {
   static officeMetaOSOptionId = "office-meta-os-type";
   static copilotAgentOptionId = "copilot-agent-type";
   static customCopilotOptionId = "custom-copilot-type";
+  static graphConnectorOptionId = "graph-connector-type";
   static startWithGithubCopilotOptionId = "start-with-github-copilot";
 
   static groupName(group: ProjectTypeGroup): string | undefined {
@@ -107,6 +108,17 @@ export class ProjectTypeOptions {
         platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
       }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.detail"),
+      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
+    };
+  }
+
+  static graphConnector(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: ProjectTypeOptions.graphConnectorOptionId,
+      label: `${
+        platform === Platform.VSCode ? "$(teamsfx-graph-connector) " : ""
+      }${getLocalizedString("core.createProjectQuestion.createGraphConnector.label")}`,
+      detail: getLocalizedString("core.createProjectQuestion.createGraphConnector.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
     };
   }

@@ -89,6 +89,7 @@ import {
   KnowledgeSearchTypeOptions,
 } from "./constants";
 import { OneDriveSharePointItemType } from "../component/generator/constant";
+import { TemplateNames } from "../component/generator/templates/templateNames";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -1541,6 +1542,30 @@ export function searchTypeQuestion(): SingleSelectQuestion {
         options.push(KnowledgeSearchTypeOptions.allOneDriveSharepoint());
       }
       return options;
+    },
+  };
+}
+
+export function GCNameQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.GCName,
+    title: getLocalizedString("core.GCNameQuestion.title"),
+    placeholder: getLocalizedString("core.GCNameQuestion.placeholder"),
+    cliDescription: "a connection ID for Graph Connector",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.GCName] = input;
+        inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
+        inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
+        inputs[QuestionNames.AppName] = input;
+        return;
+      },
     },
   };
 }

@@ -11,6 +11,7 @@ import { tabTemplates } from "./tab";
 import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
 import { wxpTemplates } from "./wxp";
+import { graphConnectorTemplates } from "./graphConnector";
 
 const allTemplates: Template[] = [
   ...tabTemplates,
@@ -21,6 +22,7 @@ const allTemplates: Template[] = [
   ...specialTemplates,
   ...vsOnlyTemplates,
   ...wxpTemplates,
+  ...graphConnectorTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [
@@ -30,6 +32,7 @@ const defaultGeneratorTemplates: Template[] = [
   ...customEngineAgentTemplates,
   ...tdpTemplates,
   ...vsOnlyTemplates,
+  ...graphConnectorTemplates,
 ];
 
 // used by programming language question options filter
