@@ -33,101 +33,75 @@ jobs:
               https://api.github.com/repos/devdiv-azure-service-dmitryr/TeamsFx-CICD-Test/actions/workflows/trigger_cicd_by_dev.yml/dispatches \
               -d "{\"ref\":\"main\"}"
 
-  DownloadAndOutput:
+  cherry-pick-version-change:
+    if: ${{ contains(github.event.workflow_run.display_title, 'stable') &&
+      github.event.workflow_run.conclusion == 'success'}}
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    outputs:
-      zipLink: ${{ steps.downloadUrl.outputs.result }}
-      pre_id: ${{ steps.preid.outputs.result }}
-      server_version: ${{ steps.version.outputs.result }}
-      stage: ${{ steps.series.outputs.result }}
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - name: Download artifact
-        id: downloadUrl
+      - name: Get workflow information
+        id: workflow-info
         uses: actions/github-script@v6
         with:
           script: |
-            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            const workflow_run = await github.rest.actions.getWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
+              run_id: context.payload.workflow_run.id
             });
-            let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "release"
-            })[0];
-            let download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: matchArtifact.id,
-              archive_format: 'zip',
-            });
-            let fs = require('fs');
-            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/release.zip`, Buffer.from(download.data));
-            return matchArtifact.url
-
-      - name: Unzip artifact
-        run: unzip release.zip
-
-      - name: Get teamsfx-server version
-        id: version
-        uses: actions/github-script@v6
-        with:
-          script: |
-            let rawData = require('fs').readFileSync('./versions.json', {encoding:'utf8', flag:'r'});
-            let pkgs = JSON.parse(rawData);
-            let server = pkgs.find(item => item.name === "@microsoft/teamsfx-server")
-            console.log("==================", server.version)
-            return server.version
-
-      - name: Get stage input
-        id: series
-        uses: actions/github-script@v6
-        with:
-          script: |
-            let rawData = require('fs').readFileSync('./series.txt', {encoding:'utf8', flag:'r'});
-            if (rawData.trim() === "") rawData = "undefined"
-            console.log('-----------------', rawData)
-            return rawData;
-
-      - run: npm install semver
-      - name: Get teamsfx-server preid
-        id: preid
-        uses: actions/github-script@v6
-        with:
-          script: |
-            let rawData = require('fs').readFileSync('./versions.json', {encoding:'utf8', flag:'r'});
-            let pkgs = JSON.parse(rawData);
-            let server = pkgs.find(item => item.name === "@microsoft/teamsfx-server")
-            let semver = require('semver')
-            if(semver.prerelease(server.version)) {
-              console.log("===========", semver.prerelease(server.version)[0])
-              return semver.prerelease(server.version)[0]
-            } else {
-              console.log("=========== stable")
-              return "stable"
+            return {
+              actor: workflow_run.data.actor.login,
+              branch: workflow_run.data.head_branch
             }
 
-  CheckSetupSuccess:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
+      - name: Create Version Change Issue
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.CD_PAT }}
-          ref: ${{ github.event.workflow_run.head_branch }}
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-      - name: Setup project
-        id: setup
-        run: npm run setup
-        continue-on-error: true
-      - name: Info
-        if: steps.setup.outcome != 'success'
-        run: |
-          echo "`npm run setup` failed after current project finish CD,\
-           it may be the inconsistency of package dependencies caused by separate release,\
-           please confirm this problem will not affect the CI of subsequent PRs."
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const actor = '${{ steps.workflow-info.outputs.result }}'.actor;
+            const sourceBranch = '${{ steps.workflow-info.outputs.result }}'.branch;
+            
+            const issueBody = `
+            ### Version Change Cherry-pick Reminder
+            
+            @${actor} Hello!
+            
+            This is an automatically created reminder for version change cherry-pick.
+            The stable version has been released from branch \`${sourceBranch}\`.
+            
+            Please cherry-pick the version change commit to the following branch:
+            - [ ] cherry-pick version change to \`dev\` branch
+            
+            #### Steps to Follow:
+            1. Find the version change commit from branch \`${sourceBranch}\`
+            2. Execute the following commands:
+               \`\`\`bash
+               git fetch origin
+               git checkout dev
+               git cherry-pick <version_change_commit_hash>
+               git push origin dev
+               \`\`\`
+            
+            After completion, please check the item above ✓
+            
+            > Note: This is an automatically created issue. You can close this issue after completing the operation.
+            `;
+            
+            try {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Version Change] Cherry-pick version changes from ${sourceBranch} to dev branch`,
+                body: issueBody,
+                labels: ['cherry-pick-required'],
+                assignees: [actor]
+              });
+              
+              console.log(`Created issue #${issue.data.number}`);
+            } catch (error) {
+              console.log('Error creating issue:', error);
+              core.setFailed(error.message);
+            }
