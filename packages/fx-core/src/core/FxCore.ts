@@ -199,6 +199,7 @@ import {
   getODSPItemDetailById,
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
+import { withFileLock } from "./middleware/fileLocker";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2603,33 +2604,38 @@ export class FxCore {
 
     return ok(undefined);
   }
+
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.setSensitivityLabel }),
     ErrorHandlerMW,
     QuestionMW("setSensitivityLabel"),
-    ConcurrentLockerMW,
   ])
   async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
     const declarativeAgentManifestPath = inputs[
       QuestionNames.DeclarativeAgentManifestPath
     ] as string;
-    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      declarativeAgentManifestPath
-    );
-    if (declarativeAgentManifestRes.isErr()) {
-      return err(declarativeAgentManifestRes.error);
+    if (!declarativeAgentManifestPath || !fs.pathExistsSync(declarativeAgentManifestPath)) {
+      throw new Error("declarativeAgentManifestPath is undefined or does not exist");
     }
-    const declarativeAgentManifest = declarativeAgentManifestRes.value;
-    declarativeAgentManifest.sensitivity_label = selectedLabel;
-    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
-      declarativeAgentManifest,
-      declarativeAgentManifestPath
-    );
-    if (writeRes.isErr()) {
-      return err(writeRes.error);
-    }
-    return ok(undefined);
+    return await withFileLock(declarativeAgentManifestPath, async () => {
+      const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
+      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+        declarativeAgentManifestPath
+      );
+      if (declarativeAgentManifestRes.isErr()) {
+        return err(declarativeAgentManifestRes.error);
+      }
+      const declarativeAgentManifest = declarativeAgentManifestRes.value;
+      declarativeAgentManifest.sensitivity_label = selectedLabel;
+      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+        declarativeAgentManifest,
+        declarativeAgentManifestPath
+      );
+      if (writeRes.isErr()) {
+        return err(writeRes.error);
+      }
+      return ok(undefined);
+    });
   }
 
   private async updateAuthActionInYaml(
