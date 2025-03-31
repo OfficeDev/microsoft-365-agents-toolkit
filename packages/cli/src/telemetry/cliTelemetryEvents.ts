@@ -124,6 +124,8 @@ export enum TelemetryEvent {
 
   AddCopilotPlugin = "add-copilot-plugin",
   AddAuthAction = "add-auth-action",
+
+  SetSensitivityLabel = "set-sensitivity-label",
 }
 
 export enum TelemetryProperty {
