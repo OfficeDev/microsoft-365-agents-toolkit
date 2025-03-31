@@ -1443,9 +1443,6 @@ export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
 
 export function GCItemQuestion(): SingleSelectQuestion {
   const options = [GCSelectOptions.list(), GCSelectOptions.input()];
-  if (!featureFlagManager.getBooleanValue(FeatureFlags.GCList)) {
-    options.shift();
-  }
 
   return {
     name: QuestionNames.GCContent,

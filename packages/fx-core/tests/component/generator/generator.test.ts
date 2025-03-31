@@ -1338,6 +1338,13 @@ describe("render template", () => {
         : Generator.getDefaultVariables("test");
       assert.equal(vars.ShareEnabled, "");
     });
+
+    it("template variables with graph connector scaffold", async () => {
+      inputs.projectId = "test-id";
+      inputs[QuestionNames.GCName] = "test-name";
+      const vars = getTemplateReplaceMap(inputs);
+      assert.equal(vars.gcName, "test-name");
+    });
   });
 });
 

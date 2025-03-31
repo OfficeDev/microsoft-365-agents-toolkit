@@ -126,6 +126,48 @@ describe("UpdateApiKeyDriver", () => {
     }
   });
 
+  it("happy path: update all fields with baseURL", async () => {
+    sinon.stub(teamsDevPortalClient, "updateApiKeyRegistration").resolves({
+      description: "mockedDescription",
+      targetUrlsShouldStartWith: ["https://test2"],
+      applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
+      targetAudience: ApiSecretRegistrationTargetAudience.HomeTenant,
+      specificAppId: "mockedAppId",
+    });
+    sinon.stub(teamsDevPortalClient, "getApiKeyRegistrationById").resolves({
+      id: "mockedRegistrationId",
+      description: "mockedDescription",
+      clientSecrets: [],
+      targetUrlsShouldStartWith: ["https://test"],
+      applicableToApps: ApiSecretRegistrationAppType.AnyApp,
+      targetAudience: ApiSecretRegistrationTargetAudience.AnyTenant,
+    });
+
+    sinon.stub(mockedDriverContext.ui, "confirm").callsFake(async (config) => {
+      expect((config as ConfirmConfig).title.includes("description")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("applicableToApps")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("specificAppId")).to.be.true;
+      expect((config as ConfirmConfig).title.includes("targetAudience")).to.be.true;
+      return ok({ type: "success", value: true });
+    });
+
+    const args: UpdateApiKeyArgs = {
+      name: "test2",
+      appId: "mockedAppId",
+      targetAudience: "HomeTenant",
+      applicableToApps: "SpecificApp",
+      registrationId: "mockedRegistrationId",
+      baseUrl: "https://test",
+    };
+
+    const result = await updateApiKeyDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.size).to.equal(0);
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
   it("happy path: does not update when no changes", async () => {
     sinon.stub(teamsDevPortalClient, "getApiKeyRegistrationById").resolves({
       id: "test",
@@ -348,7 +390,7 @@ describe("UpdateApiKeyDriver", () => {
     }
   });
 
-  it("should throw error if missing apiSpecPath", async () => {
+  it("should throw error if missing both baseUrl and apiSpecPath", async () => {
     const args: any = {
       name: "name",
       appId: "mockedAppId",
@@ -358,6 +400,38 @@ describe("UpdateApiKeyDriver", () => {
     expect(result.result.isErr()).to.be.true;
     if (result.result.isErr()) {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("baseUrl");
+      expect(result.result.error.message).to.include("apiSpecPath");
+    }
+  });
+
+  it("should throw error if apiSpecPath is not string", async () => {
+    const args: any = {
+      name: "name",
+      appId: "mockedAppId",
+      regirstrationid: "mockedRegistrationId",
+      apiSpecPath: ["invalidPathType"],
+    };
+    const result = await updateApiKeyDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("apiSpecPath");
+    }
+  });
+
+  it("should throw error if baseURL is not valid https url", async () => {
+    const args: any = {
+      name: "name",
+      appId: "mockedAppId",
+      regirstrationid: "mockedRegistrationId",
+      baseUrl: "http://test",
+    };
+    const result = await updateApiKeyDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).to.include("baseUrl");
     }
   });
 

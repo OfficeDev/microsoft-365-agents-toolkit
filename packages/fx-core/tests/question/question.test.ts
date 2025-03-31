@@ -36,6 +36,7 @@ import { CollaborationConstants, CollaborationUtil } from "../../src/core/collab
 import {
   GCInputQuestion,
   GCListQuestion,
+  GCNameQuestion,
   SPFxImportFolderQuestion,
   questionNodes,
 } from "../../src/question";
@@ -1536,5 +1537,28 @@ describe("addKnowledgeQuestionNode", async () => {
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+  });
+});
+
+describe("scaffold graph connector", async () => {
+  const sandbox = sinon.createSandbox();
+  const mockedEnvRestore: RestoreFn = () => {};
+  afterEach(() => {
+    sandbox.restore();
+    mockedEnvRestore();
+  });
+
+  it("GCName validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCNameQuestion();
+    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc("test", inputs);
   });
 });

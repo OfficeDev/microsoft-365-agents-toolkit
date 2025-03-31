@@ -13,6 +13,7 @@
 
 import "reflect-metadata";
 export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
+export { GraphClient } from "./client/graphClient";
 export { askSubscription } from "./common/azureUtils";
 export {
   AppStudioScopes,
@@ -56,7 +57,12 @@ export {
   parseFromResourceId,
 } from "./common/stringUtils";
 export { telemetryUtils } from "./common/telemetry";
-export { getSPFxTenant, getSideloadingStatus, listDevTunnels } from "./common/tools";
+export {
+  getSPFxTenant,
+  getSideloadingStatus,
+  listDevTunnels,
+  isSandboxedEnabled,
+} from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";
 export { SummaryConstant } from "./component/configManager/constant";
 export { KiotaLastCommands } from "./component/constants";
