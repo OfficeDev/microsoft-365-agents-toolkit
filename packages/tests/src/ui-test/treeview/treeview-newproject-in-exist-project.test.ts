@@ -59,7 +59,7 @@ describe("New project in existing project Tests", function () {
       expect(fs.existsSync(filePath1), `${filePath1} must exist.`).to.eq(true);
 
       // create new project in existing project
-      const newAppName = appName + appNameCopySuffix;
+      const newAppName = appName + "SECEND";
       console.log("create new project in existing project");
       const driver = VSBrowser.instance.driver;
       await execCommandIfExistFromTreeView(
@@ -91,6 +91,7 @@ describe("New project in existing project Tests", function () {
 
       // Input App Name
       if ((await input.getTitle()) === "Application Name") {
+        console.log("input app name", newAppName);
         await input.setText(newAppName);
         await driver.sleep(Timeout.input);
         await input.confirm();
@@ -100,14 +101,17 @@ describe("New project in existing project Tests", function () {
         assert.fail("Failed to input app name");
       }
 
-      await driver.sleep(Timeout.input);
+      await driver.sleep(Timeout.shortTimeLoading);
+
+      await VSBrowser.instance.takeScreenshot("create_after");
+      assert.fail("Failed to create new project in existing project");
 
       const newProjectPath = path.resolve(testRootFolder, newAppName);
       const newProjectCopyPath = path.resolve(
         testRootFolder,
         newAppName + appNameCopySuffix
       );
-      console.log("copy path: ", projectPath, " to: ", newProjectPath);
+      console.log("copy path: ", newProjectPath, " to: ", newProjectCopyPath);
       await fs.mkdir(newProjectCopyPath);
       const filterFunc = (src: string) =>
         src.indexOf("node_modules") > -1 ? false : true;
