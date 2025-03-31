@@ -104,14 +104,14 @@ describe("envUtils", () => {
       }
     });
     it("returns default value", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./teamsapp.yml");
+      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./m365agents.yml");
       sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
       sandbox.stub(fs, "pathExists").resolves(true);
       const res = await pathUtils.getEnvFolderPath("");
       assert.isTrue(res.isOk());
     });
     it("returns undefined value", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./teamsapp.yml");
+      sandbox.stub(pathUtils, "getYmlFilePath").resolves("./m365agents.yml");
       sandbox
         .stub(fs, "readFile")
         .resolves("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);

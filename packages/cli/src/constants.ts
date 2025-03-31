@@ -7,7 +7,6 @@ import chalk from "chalk";
 export const cliSource = "TeamsfxCLI";
 export const cliName = "teamsfx";
 export const cliTelemetryPrefix = "teamsfx-cli";
-export const teamsAppFileName = "teamsapp.yml";
 
 export enum CLILogLevel {
   error = 0,

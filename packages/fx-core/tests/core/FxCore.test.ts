@@ -1950,7 +1950,7 @@ describe("getProjectMetadata", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").returns(true);
     sandbox.stub(fs, "readFileSync").returns("version: 1.1.1\nprojectId: 12345" as any);
     const core = new FxCore(tools);
@@ -1964,7 +1964,7 @@ describe("getProjectMetadata", async () => {
     }
   });
   it("yml not exist", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").resolves(false);
     const core = new FxCore(tools);
     const res = await core.getProjectMetadata(".");
@@ -1974,7 +1974,7 @@ describe("getProjectMetadata", async () => {
     }
   });
   it("throw error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").throws(new Error("mocked error"));
     const core = new FxCore(tools);
     const res = await core.getProjectMetadata(".");
@@ -1990,7 +1990,7 @@ describe("getTeamsAppName", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "12345",
       provision: {
@@ -2014,7 +2014,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "testappname-");
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "12345",
       provision: {
@@ -2038,7 +2038,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "testappname");
   });
   it("return empty value", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {};
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
     const core = new FxCore(tools);
@@ -2046,7 +2046,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "");
   });
   it("parse yml error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(err(new UserError({})));
     const core = new FxCore(tools);
     const res = await core.getTeamsAppName(".");
@@ -2060,7 +2060,7 @@ describe("getProjectInfo", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "mock-project-id",
       provision: {
@@ -2098,14 +2098,14 @@ describe("getProjectInfo", async () => {
     }
   });
   it("parse yml error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(err(new UserError({})));
     const core = new FxCore(tools);
     const res = await core.getProjectInfo(".", "dev");
     assert.isTrue(res.isErr());
   });
   it("read env error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(ok({} as any));
     sandbox.stub(envUtil, "readEnv").resolves(err(new UserError({})));
     const core = new FxCore(tools);

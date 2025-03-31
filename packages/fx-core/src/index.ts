@@ -38,7 +38,6 @@ export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {
   ProjectTypeResult,
-  TeamsfxConfigType,
   TeamsfxVersionState,
   projectTypeChecker,
 } from "./common/projectTypeChecker";

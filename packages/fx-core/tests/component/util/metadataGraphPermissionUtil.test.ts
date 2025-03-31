@@ -60,7 +60,7 @@ describe("metadata graph permission util", () => {
     environmentFolderPath: "./envs",
   };
   let tools: MockTools;
-  const ymlPath = "teamsapp.yml";
+  const ymlPath = "m365agents.yml";
 
   beforeEach(() => {
     tools = new MockTools();

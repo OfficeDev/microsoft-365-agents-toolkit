@@ -74,7 +74,7 @@ describe("component coordinator test", () => {
     });
     sandbox.stub(deployUtils, "askForDeployConsentV3").resolves(ok(Void));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("m365agents.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -114,7 +114,7 @@ describe("component coordinator test", () => {
     sandbox.stub(tools.ui, "showMessage").resolves(ok(undefined));
     sandbox.stub(deployUtils, "askForDeployConsentV3").resolves(ok(Void));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("m365agents.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VS,
@@ -141,7 +141,7 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("m365agents.yml"));
     sbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
     sbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
     sbox.stub(envUtil, "readEnv").resolves(ok({}));
@@ -229,7 +229,7 @@ describe("component coordinator test", () => {
       },
     };
     sandbox.stub(deployUtils, "askForDeployConsentV3").resolves(ok(Void));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("m365agents.yml"));
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
     sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
@@ -286,7 +286,7 @@ describe("component coordinator test", () => {
     });
     sandbox.stub(deployUtils, "askForDeployConsentV3").resolves(ok(Void));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("m365agents.yml"));
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     sandbox.stub(tools.ui, "createProgressBar").returns(undefined as any as IProgressHandler);
     const inputs: Inputs = {

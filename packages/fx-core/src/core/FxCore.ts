@@ -2331,7 +2331,7 @@ export class FxCore {
 
   /**
    * Kiota regenerate
-   * Need to update da manifest and update teamsapp.yml
+   * Need to update da manifest and update m365agents.yml
    */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.addPlugin }),

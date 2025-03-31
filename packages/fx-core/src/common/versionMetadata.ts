@@ -62,6 +62,26 @@ export const MetadataV3Abandoned = {
   configFile: "settings.json",
 };
 
+export const MetadataV4 = {
+  configFile: "m365agents.yml",
+  localConfigFile: "m365agents.local.yml",
+  testToolConfigFile: "m365agents.testtool.yml",
+  sandboxConfigFile: "m365agents.sandbox.yml",
+};
+
+export function isYamlFileName(fileName: string): boolean {
+  return (
+    fileName === MetadataV3.configFile ||
+    fileName === MetadataV3.localConfigFile ||
+    fileName === MetadataV3.testToolConfigFile ||
+    fileName === MetadataV3.sandboxConfigFile ||
+    fileName === MetadataV4.configFile ||
+    fileName === MetadataV4.localConfigFile ||
+    fileName === MetadataV4.testToolConfigFile ||
+    fileName === MetadataV4.sandboxConfigFile
+  );
+}
+
 export enum VersionState {
   // project version compatible
   compatible = 0,
