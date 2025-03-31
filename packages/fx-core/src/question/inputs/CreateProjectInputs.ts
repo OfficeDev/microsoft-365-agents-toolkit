@@ -11,7 +11,7 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface CreateProjectInputs extends Inputs {
-  /** @description Teams Toolkit: select runtime for your app */
+  /** @description Microsoft 365 Agents Toolkit: select runtime for your app */
   runtime?: "node" | "dotnet";
   /** @description New Project */
   "project-type"?: "bot-type" | "tab-type" | "me-type" | "outlook-addin-type";

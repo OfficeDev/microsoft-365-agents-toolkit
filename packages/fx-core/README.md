@@ -1,6 +1,6 @@
 # TeamsFx Core
 
-The TeamsFx Core package implements shared capabilities for Teams Toolkit IDE Extensions and the CLI through API contracts defined in the [api](/packages/api).
+The TeamsFx Core package implements shared capabilities for Microsoft 365 Agents Toolkit IDE Extensions and the CLI through API contracts defined in the [api](/packages/api).
 
 ## Data Collection.
 

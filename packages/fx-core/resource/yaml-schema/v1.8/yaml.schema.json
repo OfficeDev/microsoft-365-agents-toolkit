@@ -18,12 +18,12 @@
     },
     "additionalMetadata": {
       "type": "object",
-      "description": "Metadata property, used by Teams Toolkit only.",
+      "description": "Metadata property, used by Microsoft 365 Agents Toolkit only.",
       "additionalProperties": true,
       "properties": {
         "sampleTag": {
           "type": ["number","string","boolean","object","array", "null", "integer"],
-          "description": "A tag for the sample app used to track telemetry events sent by Teams Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
+          "description": "A tag for the sample app used to track telemetry events sent by Microsoft 365 Agents Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
         }
       }
     },
@@ -319,7 +319,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs from Bicep/JSON will be persisted in the current Teams Toolkit environment following certain naming convertion. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
+          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs from Bicep/JSON will be persisted in the current Microsoft 365 Agents Toolkit environment following certain naming convertion. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
           "const": "arm/deploy"
         },
         "with": {
@@ -338,7 +338,7 @@
             },
             "bicepCliVersion": {
               "type": "string",
-              "description": "The Bicep CLI version. Bicep CLI will be downloaded to {Home}/.fx/bin/bicep.\n Teams Toolkit defaults to Bicep in PATH if version is not defined."
+              "description": "The Bicep CLI version. Bicep CLI will be downloaded to {Home}/.fx/bin/bicep.\n Microsoft 365 Agents Toolkit defaults to Bicep in PATH if version is not defined."
             },
             "templates": {
               "type": "array",
@@ -358,7 +358,7 @@
                   },
                   "parameters": {
                     "type": "string",
-                    "description": "Relative path to ARM parameters file. Teams Toolkit will expand the environment variable in the parameters file"
+                    "description": "Relative path to ARM parameters file. Microsoft 365 Agents Toolkit will expand the environment variable in the parameters file"
                   }
                 }
               }

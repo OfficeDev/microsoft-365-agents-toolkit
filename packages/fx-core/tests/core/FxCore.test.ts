@@ -470,7 +470,7 @@ describe("Core basic APIs", () => {
 
       assert.include(
         res.error.message,
-        "For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly."
+        "For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly."
       );
     }
   });

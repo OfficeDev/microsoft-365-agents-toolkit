@@ -19,6 +19,6 @@
           parameters: ./templates/azure/azure.parameters.${{TEAMSFX_ENV}}.json
           # Required when deploying ARM template
           deploymentName: teams_toolkit_deployment
-      # Teams Toolkit will download this bicep CLI version from github for you,
+      # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.4.613

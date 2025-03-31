@@ -1543,7 +1543,7 @@ export function syncManifestQuestionNode(): IQTreeNode {
           type: "text",
           name: QuestionNames.Env,
           title: getLocalizedString("core.syncManifest.env"),
-          cliDescription: "Target Teams Toolkit Environment",
+          cliDescription: "Target Microsoft 365 Agents Toolkit Environment",
         },
       },
       {

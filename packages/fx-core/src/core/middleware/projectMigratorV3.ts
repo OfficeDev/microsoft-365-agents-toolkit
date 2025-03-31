@@ -203,7 +203,7 @@ export const ProjectMigratorMWV3: Middleware = async (ctx: CoreHookContext, next
   } else {
     // continue next step only when:
     // 1. no need to upgrade the project;
-    // 2. no need to update Teams Toolkit version;
+    // 2. no need to update Microsoft 365 Agents Toolkit version;
     await next();
   }
 };
@@ -912,9 +912,9 @@ export async function generateApimPluginEnvContent(context: MigrationContext): P
                   path.join(MetadataV3.defaultEnvironmentFolder, Constants.envFilePrefix + envName)
                 );
               const apimPluginAppendContent =
-                "APIM__PUBLISHEREMAIL= # Teams Toolkit does not record your mail to protect your privacy, please fill your mail address here before provision to avoid failures" +
+                "APIM__PUBLISHEREMAIL= # Microsoft 365 Agents Toolkit does not record your mail to protect your privacy, please fill your mail address here before provision to avoid failures" +
                 EOL +
-                "APIM__PUBLISHERNAME= # Teams Toolkit does not record your name to protect your privacy, please fill your name here before provision to avoid failures" +
+                "APIM__PUBLISHERNAME= # Microsoft 365 Agents Toolkit does not record your name to protect your privacy, please fill your name here before provision to avoid failures" +
                 EOL;
               await context.fsWriteFile(
                 path.join(MetadataV3.defaultEnvironmentFolder, Constants.envFilePrefix + envName),
