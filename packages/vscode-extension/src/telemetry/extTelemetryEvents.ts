@@ -305,9 +305,8 @@ export enum TelemetryEvent {
   OpenInstallTeamsAgent = "open-install-teams-agent",
   MarkTeamsAgentInstallationDoneStart = "mark-teams-agent-installation-done-start",
   MarkTeamsAgentInstallationDone = "mark-teams-agent-installation-done",
-  MarkGitHubCopilotSetupDoneStart = "mark-github-copilot-setup-done-start",
-  MarkGitHubCopilotSetupDone = "mark-github-copilot-setup-done",
   OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
+  TeamsAgentPreCheckResult = "teams-agent-pre-check-result",
 
   // Copilot Chat
   CopilotChatStart = "copilot-chat-start",
@@ -475,8 +474,8 @@ export enum TelemetryProperty {
   CopilotChatRequestToken = "copilot-chat-request-token",
   CopilotChatResponseToken = "copilot-chat-response-token",
   // Used in Copilot Chat UI
-  HasQueryForCopilotChat = "has-query-for-copilot-chat",
-  CopilotChatQuerySent = "copilot-chat-query-sent",
+  TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
+  TeamsAgentPreCheckResultSuccess = "teans-agent-pre-check-result-success",
 }
 
 export enum TelemetryMeasurements {
