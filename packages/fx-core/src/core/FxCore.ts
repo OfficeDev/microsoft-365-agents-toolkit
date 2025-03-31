@@ -2618,6 +2618,24 @@ export class FxCore {
       throw new Error("declarativeAgentManifestPath is undefined or does not exist");
     }
     return await withFileLock(declarativeAgentManifestPath, async () => {
+      const context = createContext();
+      // User confirm before adding knowledge
+      const confirmMessage = getLocalizedString(
+        "core.setSensitivityLabel.confirm",
+        declarativeAgentManifestPath
+      );
+      const confirmRes = await context.userInteraction.showMessage(
+        "warn",
+        confirmMessage,
+        true,
+        getLocalizedString("core.setSensitivityLabel.continue")
+      );
+
+      if (confirmRes.isErr()) {
+        return err(confirmRes.error);
+      } else if (confirmRes.value !== getLocalizedString("core.setSensitivityLabel.continue")) {
+        return err(new UserCancelError());
+      }
       const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
       const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
         declarativeAgentManifestPath
