@@ -5,12 +5,12 @@ import { SetSensitivityLabelInputs, SetSensitivityLabelOptions } from "@microsof
 import { getFxCore } from "../../activate";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { ProjectFolderOption } from "../common";
+import { ProjectFolderOptionWithoutValidation } from "../common";
 
 export const setSensitivityLabelCommand: CLICommand = {
   name: "sensitivityLabel",
   description: commands["set.sensitivityLabel"].description,
-  options: [...SetSensitivityLabelOptions, ProjectFolderOption],
+  options: [...SetSensitivityLabelOptions, ProjectFolderOptionWithoutValidation],
   telemetry: {
     event: TelemetryEvent.SetSensitivityLabel,
   },
