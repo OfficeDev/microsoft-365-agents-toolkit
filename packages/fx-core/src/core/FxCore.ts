@@ -2614,7 +2614,7 @@ export class FxCore {
     const declarativeAgentManifestPath = inputs[
       QuestionNames.DeclarativeAgentManifestPath
     ] as string;
-    if (!declarativeAgentManifestPath || !fs.pathExistsSync(declarativeAgentManifestPath)) {
+    if (!declarativeAgentManifestPath || !(await fs.pathExists(declarativeAgentManifestPath))) {
       throw new Error("declarativeAgentManifestPath is undefined or does not exist");
     }
     return await withFileLock(declarativeAgentManifestPath, async () => {
