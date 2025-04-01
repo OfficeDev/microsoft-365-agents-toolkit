@@ -23,7 +23,7 @@ export async function withFileLock<T>(filePath: string, callback: () => Promise<
       release = await lock(filePath, { lockfilePath: lockfilePath });
       break;
     } catch (e) {
-      if (e["code"] === "ELOCKED") {
+      if (e.code === "ELOCKED") {
         await waitSeconds(1);
       } else {
         throw e;

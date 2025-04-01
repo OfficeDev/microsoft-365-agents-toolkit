@@ -861,6 +861,46 @@ describe("Core basic APIs", () => {
     assert.isTrue(result.isErr());
   });
 
+  it("set sensitivity label - user cancel error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - user cancel", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
   it("uninstall with empty input", async () => {
     const core = new FxCore(tools);
     const inputs: UninstallInputs = {
