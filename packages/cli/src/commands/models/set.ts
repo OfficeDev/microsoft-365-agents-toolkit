@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 import { CLICommand } from "@microsoft/teamsfx-api";
 import { commands } from "../../resource";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { setSensitivityLabelCommand } from "./setSensitivityLabel";
 
 const adjustCommands = (): CLICommand[] => {
