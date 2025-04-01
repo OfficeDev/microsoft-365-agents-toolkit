@@ -21,8 +21,8 @@ const actionName = "devChannel/installApp";
 
 @Service(actionName)
 export class InstallAppToChannelDriver implements StepDriver {
-  description = getLocalizedString("driver.devChannel.description");
-  readonly progressTitle = getLocalizedString("driver.devChannel.progress.message");
+  description = getLocalizedString("driver.devChannel.install.description");
+  readonly progressTitle = getLocalizedString("driver.devChannel.install.progress.message");
 
   public async execute(
     args: InstallAppArgs,
@@ -46,8 +46,11 @@ export class InstallAppToChannelDriver implements StepDriver {
     // Need teamId and channelId to install app to channel
     const teamId = process.env["TEAM_ID"];
     const channelId = process.env["CHANNEL_ID"];
-    if (!teamId || !channelId) {
-      return err(new InvalidActionInputError(actionName, ["teamId or channelId"]));
+    if (!teamId) {
+      return err(new InvalidActionInputError(actionName, ["teamId"]));
+    }
+    if (!channelId) {
+      return err(new InvalidActionInputError(actionName, ["channelId"]));
     }
 
     let appPackagePath = args.appPackagePath;

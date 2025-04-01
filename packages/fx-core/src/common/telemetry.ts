@@ -94,6 +94,8 @@ export enum TelemetryProperty {
   MosTitleId = "mos-title-id",
   MosAppId = "mos-app-id",
   IsDeclarativeAgent = "is-declarative-agent",
+
+  SkipCreation = "skip-creation",
 }
 
 export const TelemetryConstants = {
