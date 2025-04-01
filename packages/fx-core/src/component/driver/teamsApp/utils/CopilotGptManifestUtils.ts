@@ -434,7 +434,6 @@ export class CopilotGptManifestUtils {
         EmbeddedKnowledgeLocalDirectoryName,
         path.basename(filePath)
       );
-      await fs.ensureDir(path.dirname(savedAbsolutePath));
       await fs.copyFile(filePath, savedAbsolutePath);
       embeddedKnowledgeCapability.files.push({
         file: path.relative(path.dirname(manifestFilePath), savedAbsolutePath).replace(/\\/g, "/"),
