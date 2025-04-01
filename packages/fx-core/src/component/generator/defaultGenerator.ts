@@ -15,6 +15,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
+import { MetadataV3 } from "../../common/versionMetadata";
 import { ProgrammingLanguage, QuestionNames } from "../../question/constants";
 import { ProgressMessages, ProgressTitles } from "../messages";
 import { ActionContext, ActionExecutionMW } from "../middleware/actionExecutionMW";
@@ -25,6 +26,7 @@ import { getAllTemplatesOnPlatform, getDefaultTemplatesOnPlatform } from "./temp
 import { TemplateInfo } from "./templates/templateInfo";
 import { getTemplateReplaceMap } from "./templates/templateReplaceMap";
 import { convertToLangKey, renderTemplateFileData, renderTemplateFileName } from "./utils";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 
 export class DefaultTemplateGenerator implements IGenerator {
   // override this property to send telemetry event with different component name
@@ -98,7 +100,20 @@ export class DefaultTemplateGenerator implements IGenerator {
     const name = templateInfo.templateName;
     const language = convertToLangKey(templateInfo.language) ?? commonTemplateName;
     const replaceMap = templateInfo.replaceMap;
-    const filterFn = templateInfo.filterFn ?? (() => true);
+    const sandboxFilterFn = (fileName: string) => {
+      const sandboxFileList = [
+        `${MetadataV3.sandboxConfigFile}.tpl`,
+        ".env.sandbox",
+        ".env.sandbox.user.tpl",
+      ];
+      const parts = fileName.split("/");
+      const extractedFileName = parts[parts.length - 1];
+      return !sandboxFileList.includes(extractedFileName);
+    };
+    const filterFn =
+      templateInfo.filterFn ?? featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)
+        ? () => true
+        : sandboxFilterFn;
     const templateName = `${name}-${language}`;
     merge(actionContext?.telemetryProps, {
       [TelemetryProperty.TemplateName]: templateName,
