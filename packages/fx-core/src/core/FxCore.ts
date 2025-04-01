@@ -2619,7 +2619,6 @@ export class FxCore {
     }
     return await withFileLock(declarativeAgentManifestPath, async () => {
       const context = createContext();
-      // User confirm before adding knowledge
       const confirmMessage = getLocalizedString(
         "core.setSensitivityLabel.confirm",
         declarativeAgentManifestPath
