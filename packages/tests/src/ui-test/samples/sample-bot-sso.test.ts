@@ -36,10 +36,3 @@ new BotSSOTestCase(
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
   { debug: "cli" }
 ).test();
-
-new BotSSOTestCase(
-  TemplateProject.HelloWorldBotSSO,
-  14571876,
-  "v-ivanchen@microsoft.com",
-  "dev"
-).test();

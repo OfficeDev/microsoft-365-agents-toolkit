@@ -345,7 +345,7 @@ export abstract class CaseFactory {
         azSqlHelper = await onBefore(sampledebugContext, env, azSqlHelper);
       });
 
-      after(async function () {
+      afterEach(async function () {
         this.timeout(Timeout.finishTestCase);
         await onAfter(sampledebugContext, env);
         setTimeout(() => {
@@ -355,9 +355,7 @@ export abstract class CaseFactory {
       });
 
       it(
-        `[auto] ${
-          env === "local" ? env : "remote"
-        } debug for Sample ${sampleName}`,
+        `[auto] local debug for Sample ${sampleName}`,
         {
           testPlanCaseId,
           author,
@@ -383,53 +381,6 @@ export abstract class CaseFactory {
             } catch (error) {
               console.log("read file error", error);
             }
-            const debugEnvMap: Record<"local" | "dev", () => Promise<void>> = {
-              local: async () => {
-                // local debug with ttk
-                console.log("======= debug with ttk ========");
-                await debugInitMap[sampleName]();
-                for (const label of validate) {
-                  try {
-                    await debugMap[label]();
-                  } catch (error) {
-                    const errorMsg = error.toString();
-                    if (
-                      // skip can't find element
-                      errorMsg.includes(
-                        LocalDebugError.ElementNotInteractableError
-                      ) ||
-                      // skip timeout
-                      errorMsg.includes(LocalDebugError.TimeoutError)
-                    ) {
-                      console.log("[skip error] ", error);
-                    } else {
-                      expect.fail(errorMsg);
-                    }
-                  }
-                }
-              },
-              dev: async () => {
-                await sampledebugContext.provisionProject(
-                  sampledebugContext.appName,
-                  sampledebugContext.projectPath,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined,
-                  "DeprecationWarning"
-                );
-                if (options?.container) {
-                  await Executor.login();
-                }
-                if (!options?.skipDeploy) {
-                  await sampledebugContext.deployProject(
-                    sampledebugContext.projectPath,
-                    Timeout.botDeploy
-                  );
-                }
-              },
-            };
 
             if (options?.skipDebug) {
               console.log("skip ui skipDebug...");
@@ -544,7 +495,28 @@ export abstract class CaseFactory {
             }
 
             // ttk debug
-            await debugEnvMap[env]();
+            // local debug with ttk
+            console.log("======= debug with ttk ========");
+            await debugInitMap[sampleName]();
+            for (const label of validate) {
+              try {
+                await debugMap[label]();
+              } catch (error) {
+                const errorMsg = error.toString();
+                if (
+                  // skip can't find element
+                  errorMsg.includes(
+                    LocalDebugError.ElementNotInteractableError
+                  ) ||
+                  // skip timeout
+                  errorMsg.includes(LocalDebugError.TimeoutError)
+                ) {
+                  console.log("[skip error] ", error);
+                } else {
+                  expect.fail(errorMsg);
+                }
+              }
+            }
 
             // if no skip init step
             if (!options?.skipInit) {
@@ -573,6 +545,109 @@ export abstract class CaseFactory {
                   env: env,
                 });
               }
+
+              // if no skip vaildation
+              if (!options?.skipValidation) {
+                await onValidate(page, {
+                  context: sampledebugContext,
+                  displayName: Env.displayName,
+                  includeFunction: options?.includeFunction ?? false,
+                  npmName: options?.npmName ?? "",
+                  env: env,
+                });
+              } else {
+                console.log("skip ui skipValidation...");
+                console.log("debug finish!");
+              }
+              await stopDebugging();
+            } else {
+              console.log("skip ui skipInit...");
+              console.log("debug finish!");
+            }
+          } catch (error) {
+            successFlag = false;
+            errorMessage = "[Error]: " + error;
+            await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
+            await VSBrowser.instance.driver.sleep(
+              Timeout.playwrightDefaultTimeout
+            );
+          }
+
+          expect(successFlag, errorMessage).to.true;
+          console.log("debug finish!");
+        }
+      );
+
+      it(
+        `[auto] remote debug for Sample ${sampleName}`,
+        {
+          testPlanCaseId,
+          author,
+        },
+        async function () {
+          try {
+            // create project
+            await sampledebugContext.openResourceFolder();
+            // update manifest app name
+            await sampledebugContext.updateManifestAppName();
+            // use 1st middleware to process typical sample
+            await onAfterCreate(sampledebugContext, env, azSqlHelper);
+
+            try {
+              envFile = path.resolve(
+                sampledebugContext.projectPath,
+                "env",
+                ".env.local"
+              );
+              envContent = fs.readFileSync(envFile, "utf-8");
+              // if bot project setup devtunnel
+              botFlag = envContent.includes("BOT_DOMAIN");
+            } catch (error) {
+              console.log("read file error", error);
+            }
+
+            if (options?.skipDebug) {
+              console.log("skip ui skipDebug...");
+              console.log("debug finish!");
+              return;
+            }
+
+            // ttk debug
+            await sampledebugContext.provisionProject(
+              sampledebugContext.appName,
+              sampledebugContext.projectPath,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              "DeprecationWarning"
+            );
+            if (options?.container) {
+              await Executor.login();
+            }
+            if (!options?.skipDeploy) {
+              await sampledebugContext.deployProject(
+                sampledebugContext.projectPath,
+                Timeout.botDeploy
+              );
+            }
+
+            // if no skip init step
+            if (!options?.skipInit) {
+              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              expect(teamsAppId).to.not.be.empty;
+              // use 2nd middleware to process typical sample
+              await onBeforeBrowerStart(sampledebugContext, env, azSqlHelper);
+              // init
+              const page = await onInitPage(sampledebugContext, teamsAppId, {
+                includeFunction: options?.includeFunction ?? false,
+                npmName: options?.npmName ?? "",
+                dashboardFlag: options?.dashboardFlag ?? false,
+                type: options?.type ?? "",
+                teamsAppName: options?.teamsAppName ?? "",
+                env: env,
+              });
 
               // if no skip vaildation
               if (!options?.skipValidation) {
