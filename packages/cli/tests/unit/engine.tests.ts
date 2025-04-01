@@ -69,6 +69,7 @@ describe("CLI Engine", () => {
       assert.equal(result.cmd.name, m365SideloadingCommand.name);
       assert.deepEqual(result.remainingArgs, []);
     });
+
     it("should not find share command if feature flag is off", async () => {
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       const result = engine.findCommand(rootCommand, ["share"]);
@@ -81,6 +82,7 @@ describe("CLI Engine", () => {
       assert.equal(result.cmd.name, shareCommand.name);
       assert.deepEqual(result.remainingArgs, []);
     });
+
     it("should not find set sensitivity label command if feature flag is off", async () => {
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       const result = engine.findCommand(rootCommand, ["set", "sensitivityLabel"]);
