@@ -212,7 +212,7 @@ export class TypeSpecCompileDriver implements StepDriver {
     pluginManifestName: string
   ): Promise<void> {
     const generateRes = await ctx.ui!.runCommand!({
-      cmd: `npx --package=@microsoft/kiota-bundle kiota plugin add \
+      cmd: `kiota plugin add \
         -d ${openApiSpecsFolderPath}/${specName} \
         --plugin-name ${pluginManifestName} \
         --output ${outputFolderPath} \
@@ -229,7 +229,7 @@ export class TypeSpecCompileDriver implements StepDriver {
 
     // Remove all plugins from Kiota to avoid error when re-provision
     const removeRes = await ctx.ui!.runCommand!({
-      cmd: `npx --package=@microsoft/kiota-bundle kiota plugin remove \
+      cmd: `kiota plugin remove \
         --plugin-name ${pluginManifestName}`,
       workingDirectory: ctx.projectPath,
       env: {
