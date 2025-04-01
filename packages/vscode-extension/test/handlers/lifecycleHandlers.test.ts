@@ -652,6 +652,11 @@ describe("Lifecycle handlers", () => {
       await setSensitivityLabelHandler([]);
     });
 
+    it("runCommand successfully - undefined args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler([undefined]);
+    });
+
     it("runCommand fails", async () => {
       const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
       const error = new UserError("source", "name", "message");
