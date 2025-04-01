@@ -8,7 +8,7 @@ export async function start(binName: "teamsfx" | "teamsapp" = "teamsapp"): Promi
   rootCommand.name = binName;
   rootCommand.fullName = binName;
   logger.warning(
-    `Deprecation Warning: The CLI package "@microsoft/teamsapp-cli" and its "teamsapp" command are being renamed to "@microsoft/m365agentstoolkit-cli" and "atk" respectively, in the upcoming release. The existing package will no longer receive updates. Please switch to the new package and update your workflows accordingly once it's available.`
+    `Deprecation Warning: The CLI package "@microsoft/teamsapp-cli" and its "teamsapp" command are being renamed in the upcoming release. The existing package will no longer receive updates. Please switch to the new package and update your workflows accordingly once it's available.`
   );
   await engine.start(rootCommand);
   // process.exit(0);
