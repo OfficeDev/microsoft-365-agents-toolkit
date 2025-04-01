@@ -817,6 +817,32 @@ describe("Core basic APIs", () => {
     assert.isTrue(result.isOk());
   });
 
+  it("set sensitivity label - declarative agent manifest does not exist", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]: "fake path",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
+    const core = new FxCore(tools);
+    const res = await core.setSensitivityLabel(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.isTrue(
+        res.error.message.includes("declarativeAgentManifestPath is undefined or does not exist")
+      );
+    }
+  });
+
   it("set sensitivity label - read manifest error", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",

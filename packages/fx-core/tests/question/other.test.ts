@@ -682,4 +682,31 @@ describe("setSensitivityLabelNode", () => {
     const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
   });
+
+  it("should return error if declarativeAgentManifest path does not exist", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").callsFake((path: string) => {
+      if (path.includes("manifest")) {
+        return true;
+      }
+      return false;
+    });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      ok({
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              file: "agent.json",
+            },
+          ],
+        },
+      } as TeamsAppManifest)
+    );
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
+    assert.isUndefined(defaultPath);
+  });
 });
