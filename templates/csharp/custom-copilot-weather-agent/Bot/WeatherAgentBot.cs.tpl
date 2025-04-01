@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace {{SafeProjectName}}.Bot;
 
-public class WeatherBot : AgentApplication
+public class WeatherAgentBot : AgentApplication
 {
     private readonly WeatherForecastAgent _weatherAgent;
 
-    public WeatherBot(AgentApplicationOptions options, WeatherForecastAgent weatherAgent) : base(options)
+    public WeatherAgentBot(AgentApplicationOptions options, WeatherForecastAgent weatherAgent) : base(options)
     {
         _weatherAgent = weatherAgent ?? throw new ArgumentNullException(nameof(weatherAgent));
 
