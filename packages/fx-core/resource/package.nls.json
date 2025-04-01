@@ -1050,5 +1050,6 @@
   "action.devTool.nodeInstaller.SuccessDownload": "Successfully download NodeJS package: %s, size: %s, time: %s ms",
   "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms",
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
-  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment."
+  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment.",
+  "driver.typeSpec.compile.reprovision": "File %s is updated. Please run provision again."
 }
