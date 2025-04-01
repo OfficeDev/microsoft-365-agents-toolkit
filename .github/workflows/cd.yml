@@ -90,8 +90,8 @@ jobs:
 
       - name: Setup git
         run: |
-          git config --global user.name 'MSFT-yiz'
-          git config --global user.email 'yiz@microsoft.com'
+          git config --global user.name 'adashen'
+          git config --global user.email 'shenwe@microsoft.com'
 
       - name: release alpha npm packages to npmjs.org
         if: ${{ github.ref == 'refs/heads/dev' }}
