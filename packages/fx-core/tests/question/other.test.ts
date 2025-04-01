@@ -668,4 +668,18 @@ describe("setSensitivityLabelNode", () => {
     const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
   });
+
+  it("should return error if failed to read manifest for selectDeclarativeAgentManifestQuestion", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      err(new SystemError("TestError", "Test error message", "TestSource"))
+    );
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
+    assert.isUndefined(defaultPath);
+  });
 });

@@ -73,6 +73,17 @@ describe("withFileLock", () => {
     }
   });
 
+  it("should throw an error if lock fails for a reason other than ELOCKED", async () => {
+    const lockStub = sandbox.stub().throws(new Error("Some other error"));
+    sandbox.replace(require("proper-lockfile"), "lock", lockStub);
+    try {
+      await withFileLock(testFilePath, async () => "should not reach here");
+      assert.fail("Expected error was not thrown");
+    } catch (error) {
+      assert.strictEqual(error.message, "Some other error");
+    }
+  });
+
   it("should release the lock after the callback is executed", async () => {
     const releaseStub = sandbox.stub().resolves();
     const lockStub = sandbox.stub().resolves(releaseStub);
