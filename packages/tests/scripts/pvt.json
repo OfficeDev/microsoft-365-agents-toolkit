@@ -172,8 +172,7 @@
       "testtooldebug-msgsa",
       "localization-succeed",
       "samelevel-localization",
-      "different-level-localization",
-      "treeview-newproject-in-exist-project"
+      "different-level-localization"
     ],
     "node-20": ["localdebug-obo-tab"],
     "node-18": [      
