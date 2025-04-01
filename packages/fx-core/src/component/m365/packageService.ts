@@ -194,7 +194,7 @@ export class PackageService {
       const data = await fs.readFile(manifestPath);
       const content = new FormData();
       content.append("package", data);
-      content.append("info", { builderName: "TeamsToolKit" });
+      content.append("info", JSON.stringify({ builderName: "TeamsToolKit" }));
       const serviceUrl = await this.getTitleServiceUrl(token);
       this.logger?.debug("Uploading package with sideLoading V2 ...");
       const uploadHeaders = content.getHeaders();
