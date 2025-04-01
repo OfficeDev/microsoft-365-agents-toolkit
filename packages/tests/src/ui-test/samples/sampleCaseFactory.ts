@@ -318,7 +318,7 @@ export abstract class CaseFactory {
       onReopenPage,
       onCliValidate,
     } = this;
-    describe("Sample Tests", function () {
+    describe("Sample local Tests", function () {
       this.timeout(Timeout.testAzureCase);
       let sampledebugContext: SampledebugContext;
       let azSqlHelper: AzSqlHelper | undefined;
@@ -577,6 +577,43 @@ export abstract class CaseFactory {
           console.log("debug finish!");
         }
       );
+    });
+
+    describe("Sample remote Tests", function () {
+      this.timeout(Timeout.testAzureCase);
+      let sampledebugContext: SampledebugContext;
+      let azSqlHelper: AzSqlHelper | undefined;
+      let devtunnelProcess: ChildProcessWithoutNullStreams;
+      let debugProcess: ChildProcess;
+      let dockerProcess: ChildProcessWithoutNullStreams;
+      let successFlag = true;
+      let envContent = "";
+      let botFlag = false;
+      let envFile = "";
+      let errorMessage = "";
+
+      beforeEach(async function () {
+        // ensure workbench is ready
+        this.timeout(Timeout.prepareTestCase);
+        sampledebugContext = new SampledebugContext(
+          sampleName,
+          sampleProjectMap[sampleName],
+          options?.testRootFolder ?? "./resource",
+          options?.repoPath ?? "./resource"
+        );
+        await sampledebugContext.before();
+        // use before middleware to process typical sample
+        azSqlHelper = await onBefore(sampledebugContext, env, azSqlHelper);
+      });
+
+      afterEach(async function () {
+        this.timeout(Timeout.finishTestCase);
+        await onAfter(sampledebugContext, env);
+        setTimeout(() => {
+          if (successFlag) process.exit(0);
+          else process.exit(1);
+        }, 30000);
+      });
 
       it(
         `[auto] remote debug for Sample ${sampleName}`,
