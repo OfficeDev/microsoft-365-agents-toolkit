@@ -324,21 +324,27 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
   });
 
   try {
-    const res = await instance.get(`/external/connections?$select=id,name`);
+    const res = await instance.get(`/external/connections`);
     const data = res.data;
-    return data.value.map((item: { id: string; name: string }) => {
+    const result = data.value.map((item: { id: string; name: string }) => {
       return { id: item.id, label: item.id };
     });
+    return result;
   } catch (error) {
-    throw err(
-      new UserError(
+    if (error.response?.status === 403) {
+      const err = new UserError(
         "getGraphConnectors",
         "GraphApiError",
-        `Failed to get Graph Connector item: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-        error.response?.data?.message || error.message
-      )
-    );
+        getDefaultString("core.GCList.insufficientPermission"),
+        getDefaultString("core.GCList.insufficientPermission")
+      );
+      throw err;
+    } else {
+      const message = `Failed to get Graph Connector item: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+      const err = new UserError("getGraphConnectors", "GraphApiError", message, message);
+      throw err;
+    }
   }
 }

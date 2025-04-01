@@ -17,11 +17,12 @@ import {
   Result,
   TokenRequest,
   UserError,
+  signedIn,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 
 import { AppStudioScopes, AuthSvcScopes, teamsDevPortalClient } from "@microsoft/teamsfx-core";
 import { ConvertTokenToJson, ErrorMessage } from "./codeFlowLogin";
-import { signedIn, signedOut } from "./common/constant";
 import * as cfg from "./common/userPasswordConfig";
 import CLILogProvider from "./log";
 

@@ -14,6 +14,7 @@ import {
   UserErrorOptions,
   err,
   ok,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
@@ -24,6 +25,7 @@ import {
   DepsType,
   ErrorCategory,
   FindProcessError,
+  HttpClientError,
   LocalEnvManager,
   PackageService,
   PortsConflictError,
@@ -32,11 +34,12 @@ import {
   UserCancelError,
   assembleError,
   getSideloadingStatus,
+  isSandboxedEnabled,
 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import * as util from "util";
 import * as vscode from "vscode";
-import { signedOut } from "../../commonlib/common/constant";
+import axios from "axios";
 import VsCodeLogInstance from "../../commonlib/log";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { PanelType } from "../../controls/PanelType";
@@ -330,6 +333,8 @@ function getCheckPromise(
         `${step.getPrefix()} ${ProgressMessage[Checker.Ports]} ...`,
         additionalTelemetryProperties
       );
+    case Checker.SandboxedEnabled:
+      return checkSandboxedEnabled(step.getPrefix(), additionalTelemetryProperties);
   }
 }
 
@@ -464,6 +469,50 @@ async function ensureSideloding(
   }
 
   return m365Result;
+}
+
+function checkSandboxedEnabled(
+  prefix: string,
+  additionalTelemetryProperties: { [key: string]: string }
+): Promise<CheckResult> {
+  return runWithCheckResultTelemetryProperties(
+    TelemetryEvent.DebugPrereqsCheckSandbox,
+    additionalTelemetryProperties,
+    async (): Promise<CheckResult> => {
+      let result;
+      let error = undefined;
+      const failureMsg = doctorConstant.SandboxDisabled;
+      const successMsg = doctorConstant.SandboxSuccess;
+      try {
+        VsCodeLogInstance.outputChannel.appendLine(
+          `${prefix} ${ProgressMessage[Checker.SandboxedEnabled]} ...`
+        );
+
+        const isSandboxedAllowed = await isSandboxedEnabled(M365TokenInstance);
+        if (isSandboxedAllowed) {
+          result = ResultStatus.success;
+        } else {
+          result = ResultStatus.failed;
+        }
+      } catch (err: any) {
+        result = ResultStatus.failed;
+        if (axios.isAxiosError(err)) {
+          error = new HttpClientError(err, ExtensionSource, JSON.stringify(err.response!.data));
+        }
+        if (!error) {
+          error = assembleError(err);
+        }
+      }
+
+      return {
+        checker: Checker.SandboxedEnabled,
+        result: result,
+        successMsg: successMsg,
+        failureMsg: failureMsg,
+        error: error,
+      };
+    }
+  );
 }
 
 function checkM365Account(

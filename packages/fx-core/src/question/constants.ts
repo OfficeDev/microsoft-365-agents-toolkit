@@ -113,6 +113,7 @@ export enum QuestionNames {
   GCContent = "graph-connector-content",
   GCList = "graph-connector-list",
   GCInput = "graph-connector-input",
+  GCName = "graph-connector-name",
   AuthName = "auth-name",
   TemplateName = "template-name",
 
@@ -126,6 +127,8 @@ export enum QuestionNames {
   ApiKeyName = "api-key-name",
 
   TypeSpecProjectType = "type-spec-project-type",
+  DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
+  SensitivityLabel = "sensitivity-label",
 }
 
 export enum ProjectTypeGroup {

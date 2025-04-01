@@ -1,19 +1,20 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Bot.Builder.Adapters;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.BotBuilder.Compat;
+using Microsoft.Agents.BotBuilder.Dialogs;
+using Microsoft.Agents.BotBuilder.State;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Extensions.Teams.Models;
+using Microsoft.Agents.Storage;
+using Microsoft.Identity.Client;
 using Microsoft.TeamsFx.Bot;
 using Microsoft.TeamsFx.Configuration;
-using Microsoft.Bot.Connector;
-using Moq;
-using Microsoft.Bot.Schema.Teams;
-using Newtonsoft.Json.Linq;
-using Microsoft.Identity.Client;
 using Microsoft.TeamsFx.Helper;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Newtonsoft.Json.Linq;
 using System.Text.Json;
 
 namespace Microsoft.TeamsFx.Test;
@@ -198,7 +199,7 @@ public class TeamsBotSsoPromptTest
         })
         .AssertReply(a =>
         {
-            Assert.AreEqual(ActivityTypesEx.InvokeResponse, a.Type);
+            Assert.AreEqual(Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse, a.Type);
             var response = ((Activity)a).Value as InvokeResponse;
             Assert.IsNotNull(response);
             Assert.AreEqual(200, response!.Status);
@@ -272,7 +273,7 @@ public class TeamsBotSsoPromptTest
         })
         .AssertReply(a =>
         {
-            Assert.AreEqual(ActivityTypesEx.InvokeResponse, a.Type);
+            Assert.AreEqual(Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse, a.Type);
             var response = ((Activity)a).Value as InvokeResponse;
             Assert.IsNotNull(response);
             Assert.AreEqual(200, response!.Status);

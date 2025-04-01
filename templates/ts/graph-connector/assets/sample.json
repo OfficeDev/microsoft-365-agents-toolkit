@@ -1,0 +1,70 @@
+[
+  {
+    "name": "pnp-graph-connector-nodejs-typescript-policies",
+    "source": "pnp",
+    "title": "Microsoft Graph connector that ingests policies using TypeScript on Node.js",
+    "shortDescription": "This sample contains a Microsoft Graph connector that shows how to ingest local policies into Microsoft 365. For each file, it extracts the metadata from front matter, maps them to the external connection's schema and ingests the content retaining the content and metadata. The ingested content is set to be visible to everyone in the organization.",
+    "url": "https://github.com/pnp/graph-connectors-samples/tree/main/samples/nodejs-typescript-policies",
+    "downloadUrl": "https://pnp.github.io/download-partial/?url=https://github.com/pnp/graph-connectors-samples/tree/main/samples/nodejs-typescript-policies",
+    "longDescription": [
+      "This sample contains a Microsoft Graph connector that shows how to ingest local policies into Microsoft 365. For each file, it extracts the metadata from front matter, maps them to the external connection's schema and ingests the content retaining the content and metadata. The ingested content is set to be visible to everyone in the organization."
+    ],
+    "creationDateTime": "2024-08-27",
+    "updateDateTime": "2024-09-23",
+    "products": [
+      "Microsoft Graph connectors",
+      "Microsoft Graph",
+      "Microsoft 365 Copilot"
+    ],
+    "metadata": [
+      {
+        "key": "PLATFORM",
+        "value": "Node.js"
+      },
+      {
+        "key": "LANGUAGE",
+        "value": "TypeScript"
+      },
+      {
+        "key": "SEARCH-RESULTS-CARD",
+        "value": "No"
+      },
+      {
+        "key": "TEAMS-PACKAGE",
+        "value": "No"
+      }
+    ],
+    "thumbnails": [
+      {
+        "type": "image",
+        "order": 100,
+        "url": "https://github.com/pnp/graph-connectors-samples/raw/main/samples/nodejs-typescript-policies/assets/search-results.png",
+        "alt": "External content in Microsoft 365 search results"
+      }
+    ],
+    "authors": [
+      {
+        "gitHubAccount": "sebastienlevert",
+        "pictureUrl": "https://github.com/sebastienlevert.png",
+        "name": "Sébastien Levert"
+      },
+      {
+        "gitHubAccount": "waldekmastykarz",
+        "pictureUrl": "https://github.com/waldekmastykarz.png",
+        "name": "Waldek Mastykarz"
+      }
+    ],
+    "references": [
+      {
+        "name": "Integrate external content with Copilot for Microsoft 365 using Microsoft Graph connectors built with TypeScript",
+        "description": "Build Microsoft Graph connectors using TypeScript to import external content to Microsoft 365.",
+        "url": "https://learn.microsoft.com/training/modules/copilot-graph-connectors-typescript/"
+      },
+      {
+        "name": "Microsoft Graph connectors overview",
+        "description": "Learn more what Microsoft Graph connectors are and when you'd use them.",
+        "url": "https://learn.microsoft.com/graph/connecting-external-content-connectors-overview"
+      }
+    ]
+  }
+]

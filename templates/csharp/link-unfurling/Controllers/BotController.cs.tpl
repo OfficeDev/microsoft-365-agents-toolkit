@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Hosting.AspNetCore;
 
 namespace {{SafeProjectName}}.Controllers;
 
@@ -11,10 +11,10 @@ namespace {{SafeProjectName}}.Controllers;
 [ApiController]
 public class BotController : ControllerBase
 {
-    private readonly IBotFrameworkHttpAdapter Adapter;
+    private readonly IBotHttpAdapter Adapter;
     private readonly IBot Bot;
 
-    public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
+    public BotController(IBotHttpAdapter adapter, IBot bot)
     {
         Adapter = adapter;
         Bot = bot;

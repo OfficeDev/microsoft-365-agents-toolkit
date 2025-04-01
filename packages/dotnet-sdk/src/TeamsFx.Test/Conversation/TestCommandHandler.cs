@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
     using Microsoft.TeamsFx.Conversation;
     using System.Threading;
     using System.Threading.Tasks;

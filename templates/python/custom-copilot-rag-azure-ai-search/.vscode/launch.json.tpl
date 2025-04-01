@@ -72,6 +72,9 @@
         "args": [
             "start"
         ],
+        "env": {
+          "PATH": "${workspaceFolder}/devTools/nodejs{{pathDelimiter}}${env:PATH}"
+        },
         "cwd": "${workspaceFolder}",
         "console": "integratedTerminal",
         "internalConsoleOptions": "neverOpen"
@@ -184,7 +187,7 @@
         ],
         "preLaunchTask": "Deploy (Test Tool)",
         "presentation": {
-            "group": "2-local",
+            "group": "0-TestTool",
             "order": 1
         },
         "stopAll": true

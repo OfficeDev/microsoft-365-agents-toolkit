@@ -2,11 +2,12 @@ import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import { ExtensionContext, Uri } from "vscode";
+import "mocha";
 
 import * as globalVariables from "../../src/globalVariables";
 import * as projectSettingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { manifestUtils } from "@microsoft/teamsfx-core";
+import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
 
 describe("Global Variables", () => {
   describe("isSPFxProject", () => {
@@ -120,6 +121,81 @@ describe("Global Variables", () => {
 
       const res = globalVariables.checkIsDeclarativeCopilotApp("projectPath");
       chai.expect(res).to.be.false;
+    });
+  });
+
+  describe("checkIsSensitivityLabelSet", () => {
+    const sandbox = sinon.createSandbox();
+    const fakeDirectory = "fakeDir";
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("returns true when sensitivity label is set", () => {
+      const teamsManifest = new TeamsAppManifest();
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
+      };
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+        ok({
+          name: "test-agent",
+          description: "test description",
+          sensitivity_label: "test-label",
+        })
+      );
+
+      const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
+      chai.expect(result).to.be.true;
+    });
+
+    it("returns false when manifest read fails", () => {
+      sandbox
+        .stub(manifestUtils, "readAppManifestSync")
+        .returns(err(new SystemError("test", "test", "test", "test")));
+
+      const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false when manifest has no declarative agent path", () => {
+      const teamsManifest = new TeamsAppManifest();
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
+
+      const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false when declarative agent manifest read fails", () => {
+      const teamsManifest = new TeamsAppManifest();
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
+      };
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
+      sandbox
+        .stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync")
+        .returns(err(new SystemError("test", "test", "test", "test")));
+
+      const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false when declarative agent manifest has no sensitivity label", () => {
+      const teamsManifest = new TeamsAppManifest();
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [{ id: "test-id", file: "test.txt" }],
+      };
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
+      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+        ok({
+          name: "test-agent",
+          description: "test description",
+        })
+      );
+
+      const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
+      chai.expect(result).to.be.false;
     });
   });
 

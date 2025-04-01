@@ -148,6 +148,7 @@ export enum TelemetryEvent {
   DebugPrereqsCheckCert = "debug-prereqs-check-cert",
   DebugPrereqsCheckDependencies = "debug-prereqs-check-dependencies",
   DebugPrereqsCheckNpmInstall = "debug-prereqs-check-npm-install",
+  DebugPrereqsCheckSandbox = "debug-prereqs-check-sandbox",
   DebugPrereqsInstallPackages = "debug-prereqs-install-packages",
   DebugPreCheckCoreLocalDebug = "debug-precheck-core-local-debug",
   DebugTaskProvider = "debug-task-provider",
@@ -249,6 +250,7 @@ export enum TelemetryEvent {
   OpenFolder = "open-folder",
   ClickGetHelp = "click-get-help",
   MessageDebugInTestTool = "message-debugintesttool",
+  MessageDebugInSandbox = "message-debuginsandbox",
 
   // To track the event of opening in new window after creating a new project
   OpenNewProject = "open-new-project",
@@ -345,6 +347,12 @@ export enum TelemetryEvent {
 
   OpenOneDriveSharePointUrlStart = "open-one-drive-share-point-url-start",
   OpenOneDriveSharePointUrl = "open-one-drive-share-point-url",
+
+  SetSensitivityLabelStart = "set-sensitivity-label-start",
+  SetSensitivityLabel = "set-sensitivity-label",
+
+  m365PreAuthStart = "m365-pre-auth-start",
+  m365PreAuth = "m365-pre-auth",
 }
 
 export enum TelemetryProperty {

@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.Core.Models;
 
     /// <summary>
     /// Interface for a storage provider that stores and retrieves notification target references.

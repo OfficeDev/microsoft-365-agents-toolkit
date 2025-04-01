@@ -11,6 +11,8 @@ import {
   CoreCallbackEvent,
   err,
   ConfigFolderName,
+  signedIn,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   isValidProject,
@@ -23,7 +25,6 @@ import azureAccountManager from "../commonlib/azureLogin";
 import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
 import commandController from "../commandController";
-import { signedIn, signedOut } from "../commonlib/common/constant";
 import { showError } from "../error/common";
 import { ExtensionSource } from "../error/error";
 import {

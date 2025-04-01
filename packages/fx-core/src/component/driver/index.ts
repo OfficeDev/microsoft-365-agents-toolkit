@@ -12,6 +12,8 @@ import "./teamsApp/configure";
 import "./teamsApp/copyAppPackageToSPFx";
 import "./teamsApp/publishAppPackage";
 import "./teamsApp/syncManifest";
+import "./devChannel/create";
+import "./devChannel/installApp";
 import "./aad/create";
 import "./aad/update";
 import "./arm/deploy";

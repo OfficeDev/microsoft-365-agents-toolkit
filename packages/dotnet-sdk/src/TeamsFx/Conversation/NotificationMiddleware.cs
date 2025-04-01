@@ -3,9 +3,9 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Models;
 
     internal class NotificationMiddleware : IMiddleware
     {
@@ -52,7 +52,7 @@ namespace Microsoft.TeamsFx.Conversation
             await next(cancellationToken).ConfigureAwait(false);
         }
 
-        private ActivityType ClassifyActivity(Activity activity)
+        private ActivityType ClassifyActivity(IActivity activity)
         {
             var activityType = activity?.Type;
             if (ActivityTypes.InstallationUpdate.Equals(activityType, StringComparison.OrdinalIgnoreCase))

@@ -165,17 +165,6 @@ jobs:
           tag: "template-tag-list"
           allowUpdates: true
 
-      - name: replace sideloading placeholders
-        run: bash .github/scripts/sideloading-replace.sh
-        env:
-          SIDELOADING_SERVICE_ENDPOINT: ${{ secrets.SIDELOADING_SERVICE_ENDPOINT }}
-          SIDELOADING_SERVICE_SCOPE: ${{ secrets.SIDELOADING_SERVICE_SCOPE }}
-
-      - name: commit change on local
-        run: |
-          git add packages/fx-core/src/component/m365/serviceConstant.ts
-          git commit -m "build: replace sideloading placeholders"
-      
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |
@@ -268,6 +257,7 @@ jobs:
           retry_on: error
           command: |
             sleep 20
+            pnpm --filter=@microsoft/teamsfx-server... run build
             pnpm --filter @microsoft/teamsfx-server run package
             [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
 

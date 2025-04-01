@@ -3,8 +3,8 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Core.Models;
 
     /// <summary>
     /// Represents a message activity for a command response.

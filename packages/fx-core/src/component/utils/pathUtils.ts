@@ -20,6 +20,8 @@ class PathUtils {
         ? MetadataV3.localConfigFile
         : envName === environmentNameManager.getTestToolEnvName()
         ? MetadataV3.testToolConfigFile
+        : envName === environmentNameManager.getSandboxEnvName()
+        ? MetadataV3.sandboxConfigFile
         : MetadataV3.configFile
     );
     if (fs.pathExistsSync(ymlPath)) {

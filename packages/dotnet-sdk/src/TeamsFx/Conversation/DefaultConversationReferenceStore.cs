@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Schema;
+    using Microsoft.Agents.Core.Models;
 
     [Obsolete]
     internal sealed class DefaultConversationReferenceStore : IConversationReferenceStore

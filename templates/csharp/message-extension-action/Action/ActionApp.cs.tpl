@@ -1,9 +1,10 @@
-﻿using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Teams;
-using Microsoft.Bot.Schema;
-using Microsoft.Bot.Schema.Teams;
-using AdaptiveCards;
-using Newtonsoft.Json.Linq;
+﻿using AdaptiveCards;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
+using Microsoft.Agents.Extensions.Teams.Compat;
+using Microsoft.Agents.Extensions.Teams.Models;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace {{SafeProjectName}}.Action;
 
@@ -14,7 +15,9 @@ public class ActionApp : TeamsActivityHandler
     protected override async Task<MessagingExtensionActionResponse> OnTeamsMessagingExtensionSubmitActionAsync(ITurnContext<IInvokeActivity> turnContext, MessagingExtensionAction action, CancellationToken cancellationToken)
     {
         // The user has chosen to create a card by choosing the 'Create Card' context menu command.
-        var actionData = ((JObject)action.Data).ToObject<CardResponse>();
+        var jsonElement = (JsonElement)action.Data;
+        var jsonString = jsonElement.GetRawText();
+        var actionData = JsonConvert.DeserializeObject<CardResponse>(jsonString);
         var templateJson = await System.IO.File.ReadAllTextAsync(_adaptiveCardFilePath, cancellationToken);
         var template = new AdaptiveCards.Templating.AdaptiveCardTemplate(templateJson);
         var adaptiveCardJson = template.Expand(new {title=actionData.Title ?? "", subTitle=actionData.SubTitle ?? "", text=actionData.Text ?? ""});
@@ -22,7 +25,7 @@ public class ActionApp : TeamsActivityHandler
         var attachments = new MessagingExtensionAttachment() 
         { 
             ContentType = AdaptiveCard.ContentType,
-            Content = adaptiveCard
+            Content = adaptiveCard.ToJson()
         };
 
         return new MessagingExtensionActionResponse

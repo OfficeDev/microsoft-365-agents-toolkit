@@ -470,6 +470,9 @@ async function batchGenerate() {
 
   await generateCliOptions(questionNodes.addKnowledge(), "AddKnowledge");
   await generateInputs(questionNodes.addKnowledge(), "AddKnowledge");
+
+  await generateCliOptions(questionNodes.setSensitivityLabel(), "SetSensitivityLabel");
+  await generateInputs(questionNodes.setSensitivityLabel(), "SetSensitivityLabel");
 }
 
 void batchGenerate();

@@ -6,10 +6,11 @@ import { getAbsolutePath } from "../../../utils/common";
 import { DriverContext } from "../../interface/commonArgs";
 import { CreateApiKeyArgs } from "../interface/createApiKeyArgs";
 import { UpdateApiKeyArgs } from "../interface/updateApiKeyArgs";
-import { maxDomainPerApiKey } from "./constants";
+import { maxDomainPerApiKey, telemetryKeys } from "./constants";
 import { ApiKeyDomainInvalidError } from "../error/apiKeyDomainInvalid";
 import { ApiKeyFailedToGetDomainError } from "../error/apiKeyFailedToGetDomain";
 import { ApiKeyAuthMissingInSpecError } from "../error/apiKeyAuthMissingInSpec";
+import { WrapDriverContext } from "../../util/wrapUtil";
 
 // Needs to validate the parameters outside of the function
 export function loadStateFromEnv(
@@ -25,10 +26,10 @@ export function loadStateFromEnv(
 // TODO: need to add logic to read domain from env if need to support non-lifecycle commands
 export async function getDomain(
   args: CreateApiKeyArgs | UpdateApiKeyArgs,
-  context: DriverContext,
+  context: WrapDriverContext,
   actionName: string
 ): Promise<string[]> {
-  const absolutePath = getAbsolutePath(args.apiSpecPath, context.projectPath);
+  const absolutePath = getAbsolutePath(args.apiSpecPath!, context.projectPath);
   const parser = new SpecParser(absolutePath, {
     allowBearerTokenAuth: true, // Currently, API key auth support is actually bearer token auth
     allowMultipleParameters: true,
@@ -51,6 +52,11 @@ export async function getDomain(
     throw new ApiKeyAuthMissingInSpecError(actionName, args.name);
   }
 
+  const isCustomAPIKey =
+    filteredOperations[0].auth!.authScheme.type === "apiKey" ? "true" : "false";
+
+  context.addTelemetryProperties({ [telemetryKeys.isCustomAPIKey]: isCustomAPIKey });
+
   const servers = filteredOperations.map((value) => value.server);
 
   const uniqueServerUrls = servers.filter((value, index, self) => self.indexOf(value) === index);
@@ -65,5 +71,14 @@ export function validateDomain(domain: string[], actionName: string): void {
 
   if (domain.length === 0 || domain.includes("")) {
     throw new ApiKeyFailedToGetDomainError(actionName);
+  }
+}
+
+export function validateUrl(baseUrl: string): boolean {
+  try {
+    const url = new URL(baseUrl);
+    return url.protocol === "https:";
+  } catch (error) {
+    return false;
   }
 }

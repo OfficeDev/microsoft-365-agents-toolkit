@@ -67,7 +67,8 @@ describe("Express Notification Bot Local Debug Tests", function () {
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local" }
       );
       await validateNotificationBot(page);
     }

@@ -1,4 +1,5 @@
-using Microsoft.Bot.Builder;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
 
 namespace {{SafeProjectName}}.Commands
@@ -48,7 +49,7 @@ namespace {{SafeProjectName}}.Commands
                     break;
             }
 
-            // Build the response activity  
+            // Build the response activity using MessageFactory from Microsoft.Agents.Core.Models
             var activity = MessageFactory.Text(responseText);
 
             // Send response  

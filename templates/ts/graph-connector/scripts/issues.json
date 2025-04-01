@@ -1,0 +1,484 @@
+{
+    "issues": [
+        {
+            "title": "Graph Connector Deployment Fails for Azure Data Lake",
+            "description": "The Graph Connector fails to deploy properly when linked to Azure Data Lake, showing a configuration mismatch error."
+        },
+        {
+            "title": "Microsoft Copilot Suggestion Latency",
+            "description": "Copilot takes too long to generate suggestions when working with large enterprise datasets, causing workflow interruptions."
+        },
+        {
+            "title": "Error Handling Missing in Graph Connector APIs",
+            "description": "APIs lack proper error handling mechanisms, leading to unclear error messages during data source connection failures."
+        },
+        {
+            "title": "Unsupported Data Format in Graph Connector Sync",
+            "description": "Certain file formats, like legacy XML, are not supported during the data synchronization process."
+        },
+        {
+            "title": "Access Token Fails to Refresh",
+            "description": "The system fails to refresh OAuth tokens, causing connectivity issues between the Graph Connector and Microsoft 365 APIs."
+        },
+        {
+            "title": "Microsoft Copilot Misinterprets Query Context",
+            "description": "Copilot suggestions are irrelevant due to an inability to properly interpret the user’s natural language query."
+        },
+        {
+            "title": "Duplicate Data Entries in Graph Connector Index",
+            "description": "Graph Connector creates duplicate entries in the index due to incorrect deduplication logic during updates."
+        },
+        {
+            "title": "Permissions Misalignment with Graph Connector",
+            "description": "Graph Connector inherits incorrect user permissions, blocking certain groups from accessing essential data."
+        },
+        {
+            "title": "Inconsistent Data Sync Across Tenants",
+            "description": "Data synchronization fails to maintain consistency across multiple tenants using shared connectors."
+        },
+        {
+            "title": "Error Logging Mechanism Fails for Graph Connector",
+            "description": "Graph Connector does not log errors correctly, making it difficult to troubleshoot deployment issues."
+        },
+        {
+            "title": "Microsoft Copilot Suggests Incorrect Syntax",
+            "description": "Copilot suggests incorrect syntax when generating SQL queries for relational database connections."
+        },
+        {
+            "title": "Slow Data Query Execution in Graph",
+            "description": "Complex queries against large datasets lead to unacceptably high response times in Graph Connector APIs."
+        },
+        {
+            "title": "Graph API Version Incompatibility",
+            "description": "Applications fail to function due to mismatches between the Graph API version used in the connector and the system requirements."
+        },
+        {
+            "title": "Unsupported Source Authentication Protocols",
+            "description": "Certain enterprise authentication protocols are not supported by the Graph Connector, preventing integration."
+        },
+        {
+            "title": "Copilot Training Data Outdated",
+            "description": "Copilot fails to provide relevant suggestions because its training dataset does not reflect the latest API updates."
+        },
+        {
+            "title": "Graph Connector Crashes on Large Data Sync",
+            "description": "Connector crashes while attempting to process large datasets, suggesting memory allocation issues."
+        },
+        {
+            "title": "User Role Misconfiguration in Graph Connector",
+            "description": "Incorrect role assignments result in restricted access to essential features for certain users."
+        },
+        {
+            "title": "Copilot Fails to Interpret Multi-Language Codebase",
+            "description": "Copilot generates incorrect suggestions when dealing with projects using multiple programming languages."
+        },
+        {
+            "title": "Data Mapping Errors Between Source and Graph",
+            "description": "Incorrect mappings between source fields and Graph schema lead to data inconsistency issues."
+        },
+        {
+            "title": "Unexpected Null Values in Graph Query Results",
+            "description": "Queries against the Graph API return unexpected null values, disrupting dependent applications."
+        },
+        {
+            "title": "Graph Connector Deployment Times Out",
+            "description": "Deploying the connector exceeds the timeout threshold for initialization, causing system-level failures."
+        },
+        {
+            "title": "Unsupported File Types in Copilot Integration",
+            "description": "Copilot is unable to analyze and generate suggestions for proprietary or unsupported file formats."
+        },
+        {
+            "title": "Data Loss During Incremental Sync",
+            "description": "Incremental synchronization with the Graph Connector results in partial data loss from the source."
+        },
+        {
+            "title": "Copilot Suggests Deprecated APIs",
+            "description": "Generated code suggestions use APIs that are no longer supported, leading to runtime errors."
+        },
+        {
+            "title": "Network Latency Affects Graph Connector Performance",
+            "description": "High network latency causes delays in data synchronization between the source and Microsoft Graph."
+        },
+        {
+            "title": "Copilot Overwrites Custom Code Segments",
+            "description": "Generated code suggestions overwrite developer-customized logic, resulting in functional regressions."
+        },
+        {
+            "title": "API Rate Limits Cause Data Sync Failures",
+            "description": "Frequent API requests hit rate limits, halting the synchronization process for the Graph Connector."
+        },
+        {
+            "title": "Graph Connector Misinterprets Boolean Fields",
+            "description": "Boolean fields in the data source are misinterpreted, causing errors during synchronization."
+        },
+        {
+            "title": "Slow Copilot Response with Complex Prompts",
+            "description": "Copilot's suggestion engine struggles with complex or nested code prompts, delaying user workflow."
+        },
+        {
+            "title": "Graph Connector Overloads System Resources",
+            "description": "Excessive resource consumption during sync operations causes server slowdowns and system crashes."
+        },
+        {
+            "title": "Misaligned Time Zones in Graph Data Sync",
+            "description": "Data synchronization fails to account for time zone differences, leading to timestamp inconsistencies."
+        },
+        {
+            "title": "Copilot Suggests Non-Optimal Algorithms",
+            "description": "Generated solutions lack optimization, resulting in inefficient and slow-performing code."
+        },
+        {
+            "title": "Data Validation Rules Ignored During Sync",
+            "description": "The Graph Connector bypasses validation rules, resulting in corrupted or invalid data in the destination."
+        },
+        {
+            "title": "Unsupported OAuth Scopes in Authentication",
+            "description": "Required OAuth scopes for data access are not supported by the Graph Connector, blocking connectivity."
+        },
+        {
+            "title": "Graph Query Cache Fails to Refresh",
+            "description": "Cached query results are not refreshed as expected, leading to outdated information being retrieved."
+        },
+        {
+            "title": "Incomplete Documentation for Copilot API",
+            "description": "Developers face difficulties integrating Copilot due to incomplete or outdated documentation."
+        },
+        {
+            "title": "System Fails to Reconnect After Network Loss",
+            "description": "Graph Connector does not automatically reconnect after a temporary network failure."
+        },
+        {
+            "title": "Copilot Misinterprets Ambiguous Comments",
+            "description": "Ambiguous comments in the codebase result in incorrect suggestions from Copilot."
+        },
+        {
+            "title": "Data Encryption Errors in Graph Sync",
+            "description": "Encryption keys are mismatched during synchronization, causing data transfer errors."
+        },
+        {
+            "title": "Graph Connector Fails on Real-Time Updates",
+            "description": "The connector fails to process real-time data updates from dynamic sources, leading to outdated information in the Graph index."
+        },
+        {
+            "title": "Copilot Suggests Deprecated Data Structures",
+            "description": "Copilot-generated code includes data structures that are no longer efficient or recommended for modern applications."
+        },
+        {
+            "title": "Connector Lacks Retry Mechanism for API Calls",
+            "description": "Failed API calls are not retried, leading to frequent data synchronization interruptions."
+        },
+        {
+            "title": "Incorrect Handling of Date Formats in Sync",
+            "description": "Graph Connector misinterprets date formats from certain locales, causing errors in data alignment."
+        },
+        {
+            "title": "Copilot Overloads Logs with Debug Messages",
+            "description": "Debug-level messages from Copilot suggestions overwhelm logging systems, making issue tracking difficult."
+        },
+        {
+            "title": "Graph Connector Drops Large Attachments",
+            "description": "Attachments exceeding a certain size limit are dropped without warning during data synchronization."
+        },
+        {
+            "title": "Copilot Suggests Hardcoded Credentials",
+            "description": "Security issues arise as Copilot suggests using hardcoded credentials in generated code."
+        },
+        {
+            "title": "Graph Sync Fails on Nested Data Structures",
+            "description": "The connector is unable to handle nested data structures, resulting in incomplete synchronization."
+        },
+        {
+            "title": "Authentication Tokens Not Revoked After Logout",
+            "description": "Tokens remain active even after users log out, creating potential security vulnerabilities."
+        },
+        {
+            "title": "Graph Connector Ignores Indexed Column Limits",
+            "description": "The connector attempts to index columns exceeding allowed limits, resulting in synchronization errors."
+        },
+        {
+            "title": "Copilot Misinterprets AI Model Prompts",
+            "description": "Suggestions fail when prompts include advanced AI model configurations, leading to non-functional code."
+        },
+        {
+            "title": "Connector Does Not Support Multi-Factor Authentication",
+            "description": "Integration with systems requiring multi-factor authentication fails due to lack of connector support."
+        },
+        {
+            "title": "Data Sync Conflicts from Parallel Operations",
+            "description": "Running multiple sync operations in parallel causes conflicts and inconsistent data states."
+        },
+        {
+            "title": "Copilot Suggests Inefficient Memory Usage",
+            "description": "Generated solutions fail to optimize memory usage, impacting performance in resource-limited environments."
+        },
+        {
+            "title": "Connector Errors on Nested Permissions",
+            "description": "Permissions for nested data structures are not respected, causing access control issues."
+        },
+        {
+            "title": "Copilot Struggles with Sparse Documentation",
+            "description": "Incomplete documentation in the codebase leads to irrelevant or incorrect suggestions from Copilot."
+        },
+        {
+            "title": "Graph Connector Ignores Incremental Updates",
+            "description": "Incremental updates from the source are ignored, forcing full re-synchronizations each time."
+        },
+        {
+            "title": "Connector Does Not Validate Source Integrity",
+            "description": "Data from unreliable sources is not validated, leading to potential corruption in the Graph index."
+        },
+        {
+            "title": "Copilot Fails on Large Monolithic Codebases",
+            "description": "Code suggestions become less relevant and slower as the project size increases significantly."
+        },
+        {
+            "title": "Connector Ignores Case Sensitivity in Queries",
+            "description": "Case-insensitive queries cause data mismatches when interacting with case-sensitive data sources."
+        },
+        {
+            "title": "Copilot Suggests Deprecated Language Features",
+            "description": "Suggestions use language features that are no longer supported in newer runtime environments."
+        },
+        {
+            "title": "Graph Connector Incompatible with Legacy Systems",
+            "description": "Legacy systems cannot integrate with the Graph Connector due to outdated protocol support."
+        },
+        {
+            "title": "Data Filtering Rules Ignored During Sync",
+            "description": "Predefined filtering rules are bypassed, resulting in irrelevant or excessive data being synchronized."
+        },
+        {
+            "title": "Copilot Fails to Respect Project-Specific Conventions",
+            "description": "Suggestions do not align with coding conventions defined in the project, causing inconsistencies."
+        },
+        {
+            "title": "Graph Connector Performance Degrades Over Time",
+            "description": "Long-term use of the connector results in degraded performance due to inefficient resource cleanup."
+        },
+        {
+            "title": "Sync Errors on High-Latency Networks",
+            "description": "The connector is unable to handle high-latency network environments, leading to frequent timeouts."
+        },
+        {
+            "title": "Copilot Suggests Conflicting Design Patterns",
+            "description": "Generated code contains design patterns that conflict with the existing project architecture."
+        },
+        {
+            "title": "Graph Connector Ignores API Throttling Guidelines",
+            "description": "Excessive API calls from the connector exceed throttling limits, causing service disruptions."
+        },
+        {
+            "title": "Copilot Fails to Understand Custom Frameworks",
+            "description": "Suggestions are irrelevant when working with custom or niche frameworks not included in training data."
+        },
+        {
+            "title": "Connector Does Not Support Regional Settings",
+            "description": "The connector fails to adapt to regional settings, such as currency or number formats, causing sync errors."
+        },
+        {
+            "title": "Copilot Generates Excessive Boilerplate Code",
+            "description": "Generated suggestions include unnecessary boilerplate, increasing code complexity unnecessarily."
+        },
+        {
+            "title": "Graph Sync Breaks on Schema Changes",
+            "description": "Schema updates in the source system lead to synchronization failures due to lack of adaptability."
+        },
+        {
+            "title": "Copilot Struggles with Dynamic Imports",
+            "description": "Suggestions fail when working with projects that utilize dynamic imports or runtime module resolution."
+        },
+        {
+            "title": "Connector Logs Sensitive Data",
+            "description": "Sensitive information is inadvertently logged during connector operations, posing a security risk."
+        },
+        {
+            "title": "Copilot Suggests Unhandled Edge Cases",
+            "description": "Generated solutions fail to account for edge cases, leading to runtime errors in production."
+        },
+        {
+            "title": "Graph Connector Does Not Support Cloud Failover",
+            "description": "When a cloud failover occurs, the connector does not gracefully handle the transition, disrupting operations."
+        },
+        {
+            "title": "Copilot Fails with Modular Monorepos",
+            "description": "Generated suggestions are incomplete when working with large modular monorepositories."
+        },
+        {
+            "title": "Graph Connector Reindexes Unnecessarily",
+            "description": "The connector frequently reindexes unchanged data, leading to wasted resources and time."
+        },
+        {
+            "title": "Copilot Generates Unsafe Concurrent Code",
+            "description": "Suggestions include unsafe handling of concurrency, resulting in potential race conditions."
+        },
+        {
+            "title": "Graph Connector Schema Validation Fails",
+            "description": "The data schema provided does not match the expected schema, causing validation to fail during deployment."
+        },
+        {
+            "title": "Copilot Suggests Incomplete Function Signatures",
+            "description": "Generated function suggestions miss required parameters, leading to runtime errors in production."
+        },
+        {
+            "title": "Graph Connector Sync Ignores Incremental Changes",
+            "description": "The sync operation processes the entire dataset instead of detecting and updating only changed records."
+        },
+        {
+            "title": "Data Source Authentication Policy Mismatch",
+            "description": "Authentication policies between the Graph Connector and the data source conflict, causing connection issues."
+        },
+        {
+            "title": "Copilot Suggests Vulnerable Code Patterns",
+            "description": "Generated code includes practices that introduce security vulnerabilities, such as SQL injection risks."
+        },
+        {
+            "title": "Graph Connector Loses Connectivity to Hybrid Cloud",
+            "description": "Intermittent connectivity issues disrupt synchronization between on-premise systems and cloud data sources."
+        },
+        {
+            "title": "Timeout During Graph Query Execution",
+            "description": "Complex Graph queries fail to execute within the allowed time, disrupting dependent applications."
+        },
+        {
+            "title": "Graph Connector Fails to Process Nested Data",
+            "description": "The connector encounters errors when processing deeply nested data structures from the source."
+        },
+        {
+            "title": "Copilot Suggests Deprecated Libraries",
+            "description": "Copilot recommendations include libraries that are no longer maintained, increasing the risk of compatibility issues."
+        },
+        {
+            "title": "Misconfigured Webhook in Graph Connector",
+            "description": "Webhook settings are improperly configured, resulting in missed event triggers during data sync."
+        },
+        {
+            "title": "Graph API Filters Return Incorrect Results",
+            "description": "Filters applied in Graph API queries do not yield the expected dataset, leading to incorrect results."
+        },
+        {
+            "title": "Copilot Overuses Recursion in Suggestions",
+            "description": "Generated code relies heavily on recursion, causing performance issues with large datasets."
+        },
+        {
+            "title": "Graph Connector Skips Data Validation Rules",
+            "description": "The sync process bypasses important validation rules, introducing inaccurate records into the system."
+        },
+        {
+            "title": "Graph Connector Ignores Proxy Settings",
+            "description": "The connector does not respect proxy configurations, resulting in network errors during deployment."
+        },
+        {
+            "title": "Copilot Fails to Parse Legacy Code",
+            "description": "Suggestions generated for legacy codebases are incompatible with the existing project structure."
+        },
+        {
+            "title": "Graph Connector Logging Overload",
+            "description": "Excessive logging during data sync operations consumes system resources and degrades performance."
+        },
+        {
+            "title": "Data Retention Policy Misalignment",
+            "description": "Graph Connector does not enforce source system data retention policies, leading to compliance issues."
+        },
+        {
+            "title": "Graph Connector Misconfigures Index Priorities",
+            "description": "Index prioritization does not reflect the expected order, resulting in slower search performance."
+        },
+        {
+            "title": "Copilot Suggests Poorly Documented Code",
+            "description": "Generated suggestions lack adequate comments or documentation, making the code difficult to maintain."
+        },
+        {
+            "title": "Graph Connector Cache Eviction Fails",
+            "description": "Cached entries are not properly evicted, leading to outdated data being retrieved from the Graph Connector."
+        },
+        {
+            "title": "Copilot Misinterprets Design Patterns",
+            "description": "Recommendations do not align with established design patterns, leading to inconsistent code structures."
+        },
+        {
+            "title": "Data Source Encoding Mismatch",
+            "description": "Encoding mismatches between the data source and the Graph Connector cause synchronization failures."
+        },
+        {
+            "title": "Unsupported Graph Connector Deployment Environment",
+            "description": "The selected deployment environment lacks required dependencies for the Graph Connector."
+        },
+        {
+            "title": "Data Loss in Partial Sync Failures",
+            "description": "Partial synchronization failures result in incomplete data transfer to the Graph Connector index."
+        },
+        {
+            "title": "Copilot Suggests Inefficient Loop Structures",
+            "description": "Generated code relies on inefficient loop structures, negatively impacting runtime performance."
+        },
+        {
+            "title": "Graph API Throttling Affects Real-Time Operations",
+            "description": "Excessive API calls trigger throttling, delaying real-time data operations through the Graph Connector."
+        },
+        {
+            "title": "Copilot Suggests Excessive Dependencies",
+            "description": "Recommendations include unnecessary third-party dependencies, increasing project bloat."
+        },
+        {
+            "title": "Graph Connector Fails on Conditional Logic",
+            "description": "Complex conditional logic in the source system is not properly replicated during synchronization."
+        },
+        {
+            "title": "Copilot Omits Edge Cases in Suggested Code",
+            "description": "Generated solutions fail to account for edge cases, leading to potential runtime errors."
+        },
+        {
+            "title": "Graph Connector Overwrites Critical Metadata",
+            "description": "Synchronization processes unintentionally overwrite essential metadata fields in the destination system."
+        },
+        {
+            "title": "Copilot Suggests Redundant Code Blocks",
+            "description": "Code suggestions include unnecessary redundancy, complicating maintenance efforts."
+        },
+        {
+            "title": "Graph API Pagination Errors",
+            "description": "Errors in handling paginated results lead to incomplete data retrieval during API calls."
+        },
+        {
+            "title": "Copilot Struggles with Event-Driven Architectures",
+            "description": "Suggestions fail to integrate well into event-driven systems, causing unexpected behavior."
+        },
+        {
+            "title": "Graph Connector Ignores User Locale Settings",
+            "description": "Locale settings are not respected, leading to incorrect date and number formatting in the synchronized data."
+        },
+        {
+            "title": "Data Schema Evolution Not Supported",
+            "description": "Changes in the source data schema are not automatically detected, causing synchronization errors."
+        },
+        {
+            "title": "Copilot Generates Overly Verbose Code",
+            "description": "Recommendations are unnecessarily verbose, complicating readability and debugging."
+        },
+        {
+            "title": "Graph Connector Fails During High-Concurrency Operations",
+            "description": "Simultaneous synchronization jobs result in deadlocks and system crashes."
+        },
+        {
+            "title": "Copilot Suggests Non-Standard Naming Conventions",
+            "description": "Generated suggestions do not follow project-specific naming standards, causing inconsistencies."
+        }
+    ],
+    "users": [
+        {
+            "username": "sebastienlevert"
+        },
+        {
+            "username": "jthake"
+        }
+    ],
+    "repos": [
+        {
+            "name": "sebastienlevert/copilot-connectors-hub"
+        },
+        {
+            "name": "sebastienlevert/copilot-integration-toolkit"
+        }
+    ]
+}

@@ -17,11 +17,12 @@ With the declarative agent, you can build a custom version of Copilot that can b
 
 1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Update the `main.tsp` to configure your agent and import your tsp files.
-4. Create Teams app by clicking `Provision` in "Lifecycle" section.
-5. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
-6. Once the Copilot app is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.
-7. Ask a question to your declarative agent and it should respond based on the instructions provided.
+3. Run `npm install` to install dependencies before working with TypeSpec files.
+4. Update the `main.tsp` to configure your agent and its plugins. This is the default entry point for TypeSpec files. 
+5. Create Teams app by clicking `Provision` in "Lifecycle" section.
+6. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
+7. Once the Copilot app is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.
+8. Ask a question to your declarative agent and it should respond based on the instructions provided.
 
 ## What's included in the template
 
@@ -45,9 +46,9 @@ The following are Teams Toolkit specific project files. You can [visit a complet
 
 The following are TypeSpec template file. You need to customize this file to add your own agent.
 
-| File       | Contents                                                                                   |
-| ---------- | ------------------------------------------------------------------------------------------ |
-| `main.tsp` | This is the root file of TSP files. Please manually update this file to add your own agent |
+| File       | Contents                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| `main.tsp` | This is the root file of TSP files. Please manually update this file to add your own agent. |
 
 ## Extend the template
 
@@ -55,7 +56,6 @@ The following are TypeSpec template file. You need to customize this file to add
 - [Add web content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=4) for the ability to search web information.
 - [Add OneDrive and SharePoint content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=5) as grounding knowledge for the agent.
 - [Add Microsoft Graph connectors content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=6) to ground agent with enterprise knowledge.
-- [Add API plugins](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=7) for agent to interact with REST APIs.
 
 ## Addition information and references
 

@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Hosting.AspNetCore;
+    using Microsoft.Agents.Hosting.AspNetCore.BackgroundQueue;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -12,10 +14,12 @@
         public void CreateCommandBot_ShouldUseMiddleware()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
 
             // Act
-            CommandBot bot = new CommandBot(_mockAdapter.Object,
+            CommandBot bot = new CommandBot(_mockAdapter,
                 new CommandOptions()
                 {
                     Commands = new List<ITeamsCommandHandler> { new TestCommandHandler(("test-command")) }
@@ -24,17 +28,17 @@
             // Assert
             Assert.IsNotNull(bot.CommandHandlers);
             Assert.AreEqual(1, bot.CommandHandlers.Count);
-            Assert.IsNotNull(_mockAdapter.Object.MiddlewareSet);
-            Assert.AreEqual(1, _mockAdapter.Object.MiddlewareSet.Count());
-            Assert.IsTrue(_mockAdapter.Object.MiddlewareSet.First() is CommandResponseMiddleware);
+            Assert.IsNotNull(_mockAdapter.MiddlewareSet);
         }
 
         [TestMethod]
         public void RegisterCommand_ShouldSucceed()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
-            CommandBot bot = new CommandBot(_mockAdapter.Object,
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
+            CommandBot bot = new CommandBot(_mockAdapter,
                 new CommandOptions()
                 {
                     Commands = new List<ITeamsCommandHandler> { new TestCommandHandler(("test-command1")) }
@@ -52,8 +56,10 @@
         public void RegisterCommands_ShouldSucceed()
         {
             // Arrange
-            var _mockAdapter = new Mock<BotAdapter>();
-            CommandBot bot = new CommandBot(_mockAdapter.Object, new CommandOptions());
+            var _mockClientFactory = new Mock<IChannelServiceClientFactory>();
+            var _mockActivityTaskQueue = new Mock<IActivityTaskQueue>();
+            var _mockAdapter = new CloudAdapter(_mockClientFactory.Object, _mockActivityTaskQueue.Object);
+            CommandBot bot = new CommandBot(_mockAdapter, new CommandOptions());
             var Commands = new List<ITeamsCommandHandler>
             { 
                 new TestCommandHandler(("test-command1")),

@@ -115,7 +115,6 @@ export function isTdpTemplate(inputs: Inputs): boolean {
 
 export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeNode {
   const node: IQTreeNode = {
-    condition: isTdpTemplate,
     data: { type: "group" },
     children: [
       {

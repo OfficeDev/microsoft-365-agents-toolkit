@@ -32,6 +32,7 @@ namespace {{appName}} {
 
   // @server("<API URL endpoint>", "<API description>")
   // namespace <APIEndpointName> {
+  //   /** action description **/
   //   @route("<path>")
   //   @get
   //   op <functionName>(

@@ -244,7 +244,7 @@ class TreeViewManager {
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription"),
               "fx-extension.addKnowledge",
               "addKnowledge",
-              { name: "teamsfx-add-feature", custom: false }
+              { name: "diff-added", custom: false }
             ),
           ]
         : []),

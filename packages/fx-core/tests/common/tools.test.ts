@@ -18,11 +18,14 @@ import {
   listAllTenants,
   listDevTunnels,
   isTestToolEnabledProject,
+  isSandboxedEnabled,
 } from "../../src/common/tools";
 import { PackageService } from "../../src/component/m365/packageService";
 import { isVideoFilterProject } from "../../src/core/middleware/videoFilterAppBlocker";
 import { isUserCancelError } from "../../src/error/common";
-import { MockTools } from "../core/utils";
+import { MockedM365Provider, MockTools } from "../core/utils";
+import { GraphClient } from "../../src/client/graphClient";
+import { setTools } from "../../src/common/globalVars";
 
 chai.use(chaiAsPromised);
 
@@ -130,6 +133,30 @@ describe("tools", () => {
     });
   });
 
+  describe("isSandboxedEnabled", () => {
+    const sandbox = sinon.createSandbox();
+    const tokenProvider = new MockedM365Provider();
+
+    beforeEach(() => {
+      sandbox.restore();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return true when sandbox sensitivity label matches", async () => {
+      sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+        sandboxingConfiguration: {
+          isSideloadingEnabled: false,
+          sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
+        },
+      });
+      const res = await isSandboxedEnabled(tokenProvider);
+      chai.assert.isTrue(res);
+    });
+  });
+
   describe("listAllTenants", () => {
     const sandbox = sinon.createSandbox();
 
@@ -179,7 +206,9 @@ describe("tools", () => {
   describe("getCopilotStatus", () => {
     let mockGet: () => AxiosResponse;
     let errors: number;
+    const tools = new MockTools();
     beforeEach(() => {
+      setTools(tools);
       sinon.restore();
 
       const mockInstance = axios.create();

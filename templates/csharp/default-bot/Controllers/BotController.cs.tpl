@@ -1,30 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace {{SafeProjectName}}.Controllers;
 
-// This ASP Controller is created to handle a request. Dependency Injection will provide the Adapter and IBot
-// implementation at runtime. Multiple different IBot implementations running at different endpoints can be
-// achieved by specifying a more specific type for the bot constructor argument.
-[Route("api/messages")]
+// ASP.Net Controller that receives incoming HTTP requests from the Azure Bot Service or other configured event activity protocol sources.
+// When called, the request has already been authorized and credentials and tokens validated.
+[Authorize]
 [ApiController]
-public class BotController : ControllerBase
+[Route("api/messages")]
+public class BotController(IBotHttpAdapter adapter, IBot bot) : ControllerBase
 {
-    private readonly IBotFrameworkHttpAdapter Adapter;
-    private readonly IBot Bot;
+    [HttpPost]
+    public Task PostAsync(CancellationToken cancellationToken)
+        => adapter.ProcessAsync(Request, Response, bot, cancellationToken);
 
-    public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
-    {
-        Adapter = adapter;
-        Bot = bot;
-    }
-
-    [HttpPost, HttpGet]
-    public async Task PostAsync()
-    {
-        // Delegate the processing of the HTTP POST to the adapter.
-        // The adapter will invoke the bot.
-        await Adapter.ProcessAsync(Request, Response, Bot);
-    }
 }

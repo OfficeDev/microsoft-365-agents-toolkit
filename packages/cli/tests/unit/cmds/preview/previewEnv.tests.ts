@@ -1,7 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { err, FxError, IProgressHandler, ok, Result, UserError } from "@microsoft/teamsfx-api";
+import {
+  err,
+  FxError,
+  IProgressHandler,
+  ok,
+  Result,
+  UserError,
+  signedIn,
+  signedOut,
+} from "@microsoft/teamsfx-api";
 import { envUtil, FxCore, HubTypes, VersionCheckRes, VersionState } from "@microsoft/teamsfx-core";
 import * as packageJson from "@microsoft/teamsfx-core/build/component/local/packageJsonHelper";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
@@ -15,7 +24,6 @@ import * as launch from "../../../../src/cmds/preview/launch";
 import PreviewEnv from "../../../../src/cmds/preview/previewEnv";
 import { ServiceLogWriter } from "../../../../src/cmds/preview/serviceLogWriter";
 import { Task } from "../../../../src/cmds/preview/task";
-import { signedIn, signedOut } from "../../../../src/commonlib/common/constant";
 import cliLogger from "../../../../src/commonlib/log";
 import M365TokenInstance from "../../../../src/commonlib/m365Login";
 import cliTelemetry from "../../../../src/telemetry/cliTelemetry";

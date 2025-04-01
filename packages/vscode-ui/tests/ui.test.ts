@@ -47,6 +47,7 @@ describe("UI Unit Tests", async () => {
       await handler.next("First step");
       await handler.next("Second step");
       await handler.next("Third step");
+      await handler.text?.("Third step");
       await handler.end(true);
     });
   });

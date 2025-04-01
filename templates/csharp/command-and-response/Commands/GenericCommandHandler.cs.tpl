@@ -1,4 +1,5 @@
-﻿using Microsoft.Bot.Builder;
+﻿using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
 
 namespace {{SafeProjectName}}.Commands

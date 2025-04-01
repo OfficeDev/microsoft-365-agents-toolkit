@@ -20,12 +20,17 @@ import {
   PluginManifestSchema,
   SystemError,
   TeamsAppManifest,
+  UserError,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { InvalidFileOutsideOfTheDirectotryError } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { FeatureFlags, featureFlagManager } from "../../../../src/common/featureFlags";
+import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
+import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
+import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
+import { expandEnvironmentVariable } from "../../../../src/component/utils/common";
 
 describe("teamsApp/createAppPackage", async () => {
   const teamsAppDriver = new CreateAppPackageDriver();
@@ -1133,6 +1138,58 @@ describe("teamsApp/createAppPackage", async () => {
 
       await fs.remove(args.outputZipPath);
     }
+  });
+
+  it("Plugin file processed error when expandVariableWithFunction failed ", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputFolder: "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage",
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          file: "resources/declarativeAgent-namespace.json",
+          id: "dc1",
+        },
+      ],
+    };
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "chmod").callsFake(async () => {});
+    sinon.stub(fs, "writeFile").callsFake(async () => {});
+
+    sinon
+      .stub(envFunctionUtils, "expandVariableWithFunction")
+      .callsFake(
+        async (
+          content: string,
+          ctx: DriverContext,
+          envs: { [key in string]: string } | undefined,
+          isJson: boolean,
+          manifestType: ManifestType,
+          fromPath: string
+        ) => {
+          if (fromPath.endsWith("ai-plugin-with-underscore-namespace.json")) {
+            return err(new UserError("source", "name", "message"));
+          } else {
+            return ok(content);
+          }
+        }
+      );
+
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert.isTrue(result.isErr());
+
+    await fs.remove(args.outputZipPath);
   });
 
   it("happy path - Declarative Agent with external adaptive cards", async () => {

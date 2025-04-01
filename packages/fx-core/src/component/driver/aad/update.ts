@@ -33,8 +33,14 @@ export class UpdateAadAppDriver implements StepDriver {
   description = getLocalizedString(descriptionMessageKeys.update);
   readonly progressTitle = getLocalizedString("driver.aadApp.progressBar.updateAadAppTitle");
 
-  @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async execute(args: UpdateAadAppArgs, context: DriverContext): Promise<ExecutionResult> {
+    const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+    const result = await this._run(args, wrapDriverContext);
+    return result;
+  }
+
+  @hooks([addStartAndEndTelemetry(actionName, actionName)])
+  public async _run(args: UpdateAadAppArgs, context: WrapDriverContext): Promise<ExecutionResult> {
     const summaries: string[] = [];
 
     try {
@@ -49,10 +55,8 @@ export class UpdateAadAppDriver implements StepDriver {
       // MS Graph API does not allow adding new OAuth permissions and pre authorize it within one request
       // So split update Microsoft Entra app to two requests:
       // 1. If there's preAuthorizedApplications, remove it temporary and update Microsoft Entra app to create possible new permission
-      const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
-
       if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
-        wrapDriverContext.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "true" });
+        context.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "true" });
         manifest = manifest as AADApplication;
         if (
           manifest.api?.preAuthorizedApplications &&
@@ -64,7 +68,7 @@ export class UpdateAadAppDriver implements StepDriver {
           manifest.api.preAuthorizedApplications = preAuthorizedApplications;
         }
       } else {
-        wrapDriverContext.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "false" });
+        context.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "false" });
         manifest = manifest as AADManifest;
         if (manifest.preAuthorizedApplications && manifest.preAuthorizedApplications.length > 0) {
           const preAuthorizedApplications = manifest.preAuthorizedApplications;

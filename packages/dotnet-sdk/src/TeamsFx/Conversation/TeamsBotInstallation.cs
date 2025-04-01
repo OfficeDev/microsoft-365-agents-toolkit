@@ -3,10 +3,10 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
-    using Microsoft.Bot.Builder.Teams;
-    using Microsoft.Bot.Schema;
-    using Microsoft.Bot.Schema.Teams;
+    using Microsoft.Agents.Core.Models;
+    using Microsoft.Agents.Extensions.Teams.Connector;
+    using Microsoft.Agents.Extensions.Teams.Models;
+    using Microsoft.Agents.Hosting.AspNetCore;
 
     /// <summary>
     /// <para>
@@ -39,7 +39,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <remarks>
         /// It's recommended to get bot installations from <c>ConversationBot.Notification.GetInstallationsAsync</c>.
         /// </remarks>
-        public TeamsBotInstallation(string botAppId, BotAdapter adapter, ConversationReference conversationReference)
+        public TeamsBotInstallation(string botAppId, CloudAdapter adapter, ConversationReference conversationReference)
         {
             BotAppId = botAppId;
             Adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
@@ -50,7 +50,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <summary>
         /// The bot adapter.
         /// </summary>
-        public BotAdapter Adapter { get; private set; }
+        public CloudAdapter Adapter { get; private set; }
 
         /// <summary>
         /// The application ID of the bot.

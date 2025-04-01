@@ -11,7 +11,7 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddKnowledgeInputs extends Inputs {
-  /** @description Add Knowledge */
+  /** @description Add Capability */
   "knowledge-source"?:
     | "web-search"
     | "oneDrive-sharePoint"
@@ -28,7 +28,9 @@ export interface AddKnowledgeInputs extends Inputs {
   /** @description OneDrive or SharePoint Content */
   oneDriveSharePointContent?: string;
   /** @description Graph Connector Content */
-  "graph-connector-content"?: "inputConnectionId";
+  "graph-connector-content"?: "listConnections" | "inputConnectionId";
+  /** @description Select one or more Graph Connectors as capability source */
+  "graph-connector-list"?: string[];
   /** @description Connection ID */
   "graph-connector-input"?: string;
   /** @description Add embedded knowledge files */

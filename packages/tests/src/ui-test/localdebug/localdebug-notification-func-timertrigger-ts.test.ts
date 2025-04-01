@@ -104,7 +104,8 @@ describe("Func Hosted and Timer-trigger Notification Bot Local Debug Tests", fun
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local" }
       );
       await validateNotificationBot(page);
       await validateNotificationTimeBot(page);
