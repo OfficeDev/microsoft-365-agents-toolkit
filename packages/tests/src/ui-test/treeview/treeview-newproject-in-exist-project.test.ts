@@ -48,7 +48,7 @@ describe("New project in existing project Tests", function () {
   it(
     "[auto] Create Tab typescript project and validation",
     {
-      testPlanCaseId: "",
+      testPlanCaseId: 32080515,
       author: "v-ivanchen@microsoft.com",
     },
     async function () {
