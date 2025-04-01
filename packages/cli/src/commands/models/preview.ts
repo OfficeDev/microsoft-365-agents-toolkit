@@ -44,7 +44,9 @@ export const previewCommand: CLICommand = {
       name: "running-pattern",
       shortName: "p",
       type: "string",
-      description: `The ready signal output that service is launched. Work for 'local' environment only. If undefined, the command will use the default common pattern ("${constants.defaultRunningPattern.source}"). If empty, the command treats process start as ready signal.`,
+      description: `The ready signal indicates the service has launched and it works only in 'local' environment. If undefined, the command defaults to ("${constants.defaultRunningPattern.source}"), and if empty, the process start is used as the ready signal.
+
+@jayzhang	Reply...`,
     },
     {
       name: "open-only",

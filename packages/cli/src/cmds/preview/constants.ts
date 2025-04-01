@@ -123,7 +123,7 @@ export const runCommand = {
 export const manifestChangesHintMessage = (): string =>
   `If you changed the manifest file, please run '${process.env.TEAMSFX_CLI_BIN_NAME} provision %s' to install app again.`;
 export const m365TenantHintMessage =
-  "WARN: Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click https://aka.ms/teamsfx-m365-apps-prerequisites for more information about setting up dev environment for extending apps across Microsoft 365.";
+  "WARN: Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take a couple of days for the enrollment to take effect. Please click https://aka.ms/teamsfx-m365-apps-prerequisites for more information about setting up dev environment for extending apps across Microsoft 365.";
 export const m365SwitchedMessage =
   "WARN: You are now using a different Microsoft 365 tenant from what you previously used. Please visit https://aka.ms/teamsfx-switch-tenant to get more info.";
 

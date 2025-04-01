@@ -2,7 +2,7 @@
 
 Welcome, and thank you for your interest in contributing to Microsoft 365 Agents Toolkit CLI!
 
-Please review this document for setting up your development environment, debugging and run Microsoft 365 Agents Toolkit CLI. If you have any questions, please raise your issue on github.
+Please review this document for setting up your development environment, debugging, and run Microsoft 365 Agents Toolkit CLI. If you have any questions, please raise your issue on github.
 
 ## Prerequisites
 ---
