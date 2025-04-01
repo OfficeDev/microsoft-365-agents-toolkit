@@ -1,13 +1,13 @@
-# Overview of the AI Chat Bot template
+# Overview of the Weather Agent template
 
-This template showcases a bot app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
+This template showcases a bot app that responds to user questions about weather like an AI agent. This enables your users to talk with the AI agent in Teams to find weather information.
 
-The app template is built using the Teams AI library, which provides the capabilities to build AI-based Teams applications.
+The app template is built using the Microsoft 365 Agent library, which provides the capabilities to build AI-based Teams applications.
 
 ## Quick Start
 
 **Prerequisites**
-> To run the AI Chat Bot template in your local dev machine, you will need:
+> To run the Weather Agent template in your local dev machine, you will need:
 >
 {{#useOpenAI}}
 > - an account with [OpenAI](https://platform.openai.com).
@@ -66,12 +66,8 @@ The app template is built using the Teams AI library, which provides the capabil
 
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-## Extend the AI Chat Bot template with more AI capabilities
-
-You can follow [Get started with Teams AI library](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/how-conversation-ai-get-started) to extend the AI Chat Bot template with more AI capabilities.
-
 ## Additional information and references
-- [Teams AI library](https://aka.ms/teams-ai-library)
+- [Microsoft 365 Agent SDK](https://github.com/microsoft/Agents)
 - [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
