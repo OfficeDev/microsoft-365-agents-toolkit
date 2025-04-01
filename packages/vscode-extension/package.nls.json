@@ -287,7 +287,7 @@
   "teamstoolkit.handlers.provisionDescription": "[%s] is successfully created at [local address](%s). Continue to provision and then you can preview the app.",
   "teamstoolkit.handlers.provisionDescription.fallback": "[%s] is successfully created at %s. Continue to provision and then you can preview the app.",
   "teamstoolkit.handlers.provisionTitle": "Provision",
-  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens \"Get Sensitivity Label ID\"",
+  "teamstoolkit.handlers.SetsensitivityLabel": "Teams Toolkit was unable to assign a sensitivity label for this project. To manually set a label, you can go to the declarative agent json file and click the code lens above the \"sensitivity_label\"",
   "teamstoolkit.handlers.manualStepRequired": "[%s] is created at [local address](%s). Follow the instructions in README file to preview your app.",
   "teamstoolkit.handlers.manualStepRequired.fallback": "[%s] is created at %s. Follow the instructions in README file to preview your app.",
   "teamstoolkit.handlers.manualStepRequiredTitle": "Open README",
