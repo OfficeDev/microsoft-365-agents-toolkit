@@ -38,7 +38,7 @@ export const previewCommand: CLICommand = {
       type: "string",
       shortName: "c",
       description:
-        "The command to start local service. Work for 'local' environment only. If undefined, the command will use the auto detected one from project type (`npm run dev:teamsfx` or `dotnet run` or `func start`). If empty, the command will skip starting local service.",
+        "The command starts the service and works only in local environment. If undefined, it auto-detects the appropriate command from project type (npm run dev:teamsfx or dotnet run or func start), and if empty, it will skip starting the local service.",
     },
     {
       name: "running-pattern",

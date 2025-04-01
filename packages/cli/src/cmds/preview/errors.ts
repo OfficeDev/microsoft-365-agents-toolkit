@@ -59,7 +59,7 @@ export function TeamsAppIdNotExists(): UserError {
   return new UserError(
     constants.cliSource,
     "TeamsAppIdNotExists",
-    "Microsoft 365 App id does not exists."
+    "Microsoft 365 App id does not exist."
   );
 }
 
