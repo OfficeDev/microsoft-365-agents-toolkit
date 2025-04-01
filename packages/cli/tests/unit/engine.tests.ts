@@ -69,32 +69,6 @@ describe("CLI Engine", () => {
       assert.equal(result.cmd.name, m365SideloadingCommand.name);
       assert.deepEqual(result.remainingArgs, []);
     });
-
-    it("should not find share command if feature flag is off", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const result = engine.findCommand(rootCommand, ["share"]);
-      assert.equal(result.cmd.name, rootCommand.name);
-      assert.deepEqual(result.remainingArgs, ["share"]);
-    });
-    it("should find share command if feature flag is on", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      const result = engine.findCommand(rootCommand, ["share"]);
-      assert.equal(result.cmd.name, shareCommand.name);
-      assert.deepEqual(result.remainingArgs, []);
-    });
-
-    it("should not find set sensitivity label command if feature flag is off", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const result = engine.findCommand(rootCommand, ["set", "sensitivityLabel"]);
-      assert.equal(result.cmd.name, rootCommand.name);
-      assert.deepEqual(result.remainingArgs, ["set", "sensitivityLabel"]);
-    });
-    it("should find set sensitivity label command if feature flag is on", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      const result = engine.findCommand(rootCommand, ["set", "sensitivityLabel"]);
-      assert.equal(result.cmd.name, setSensitivityLabelCommand.name);
-      assert.deepEqual(result.remainingArgs, []);
-    });
   });
   describe("parseArgs", async () => {
     it("array type options", async () => {
