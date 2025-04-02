@@ -53,8 +53,11 @@ describe("kiotaClient", () => {
     assert.equal(result[0].description, "API Spec description");
   });
 
-  it("happy path: searchOpenAPISpec with empty result", async () => {
-    const mockSearchResult = {};
+  it("happy path: searchOpenAPISpec missing url", async () => {
+    const mockSearchResult = {
+      Description: "API Spec description",
+      Title: "API Spec Title",
+    };
 
     if (process.env.KIOTA_BINARY_PATH) {
       delete process.env.KIOTA_BINARY_PATH;
@@ -62,6 +65,27 @@ describe("kiotaClient", () => {
 
     const setKiotaConfigStub = sinon.stub().resolves();
     const searchDescriptionStub = sinon.stub().resolves(mockSearchResult);
+
+    const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
+      "@microsoft/kiota": {
+        setKiotaConfig: setKiotaConfigStub,
+        searchDescription: searchDescriptionStub,
+        "@noCallThru": true,
+      },
+    });
+
+    const result = await searchOpenAPISpec("test-query");
+    assert(setKiotaConfigStub.notCalled);
+    assert.equal(result.length, 0);
+  });
+
+  it("happy path: searchOpenAPISpec undefined result", async () => {
+    if (process.env.KIOTA_BINARY_PATH) {
+      delete process.env.KIOTA_BINARY_PATH;
+    }
+
+    const setKiotaConfigStub = sinon.stub().resolves();
+    const searchDescriptionStub = sinon.stub().resolves(undefined);
 
     const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
       "@microsoft/kiota": {
