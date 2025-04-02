@@ -6,7 +6,7 @@
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
-  "icon": "media/icon.png",
+  "icon": "media/m365-agents-toolkit-color.png",
   "main": "./out/src/extension.js",
   "repository": {
     "type": "git",
@@ -126,7 +126,7 @@
         {
           "id": "teamsfx",
           "title": "Microsoft 365 Agents Toolkit",
-          "icon": "media/teams.svg"
+          "icon": "media/m365-agents-toolkit-icon.svg"
         }
       ]
     },
