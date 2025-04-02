@@ -920,7 +920,7 @@ export function selectOpenApiSpecQuestion(): SingleSelectQuestion {
     staticOptions: [],
     dynamicOptions: (inputs: Inputs): OptionItem[] => {
       const searchResult = inputs["searchResult"] as SearchOpenAPISpecResult[];
-      if (searchResult) {
+      if (searchResult.length > 0) {
         const options: OptionItem[] = [];
         for (const api of searchResult) {
           options.push({

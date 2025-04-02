@@ -2755,6 +2755,13 @@ describe("scaffold question", () => {
           const validationOnAccept =
             question.additionalValidationOnAccept as FuncValidation<string>;
 
+          try {
+            await validationOnAccept.validFunc("petstore", undefined);
+            assert.fail("Should throw error");
+          } catch (e) {
+            assert.isTrue(e.message === "inputs is undefined");
+          }
+
           const kiotaClientStub = sandbox.stub(kiotaClient, "searchOpenAPISpec").resolves([
             {
               key: "petstore",
@@ -2782,7 +2789,7 @@ describe("scaffold question", () => {
 
         it("selectOpenApiSpecQuestion", async () => {
           const question = selectOpenApiSpecQuestion();
-          const inputs: Inputs = {
+          let inputs: Inputs = {
             platform: Platform.VSCode,
             [QuestionNames.ApiSpecLocation]: "apispec",
             searchResult: [
@@ -2801,6 +2808,16 @@ describe("scaffold question", () => {
           );
           assert.isTrue((result as OptionItem[])[0].label === "petstore");
           assert.isTrue((result as OptionItem[])[0].detail === "petstore openapi spec");
+
+          inputs = {
+            platform: Platform.VSCode,
+            [QuestionNames.ApiSpecLocation]: "apispec",
+            searchResult: [],
+          };
+
+          const result2 = question.dynamicOptions!(inputs);
+          assert.isDefined(result2);
+          assert.isTrue((result2 as OptionItem[]).length === 0);
         });
       });
 
