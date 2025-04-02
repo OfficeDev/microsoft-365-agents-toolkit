@@ -117,7 +117,9 @@ export default function FunctionBasedNotificationBot() {
         </p>
       </blockquote>
       <ol>
-        <li>First, select the Teams Toolkit icon on the left in the VS Code toolbar.</li>
+        <li>
+          First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
+        </li>
         <li>
           In the Account section, sign in with your{" "}
           <ExternalLink
@@ -599,7 +601,7 @@ export default function FunctionBasedNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit Documentations"
+            title="Microsoft 365 Agents Toolkit Documentations"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -607,7 +609,7 @@ export default function FunctionBasedNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit CLI"
+            title="Microsoft 365 Agents Toolkit CLI"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-cli"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -623,7 +625,7 @@ export default function FunctionBasedNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit Samples"
+            title="Microsoft 365 Agents Toolkit Samples"
             link="https://github.com/OfficeDev/TeamsFx-Samples"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}

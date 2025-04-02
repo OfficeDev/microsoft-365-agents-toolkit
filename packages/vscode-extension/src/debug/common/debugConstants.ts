@@ -121,7 +121,7 @@ export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   checkNumber: (n: number) =>
     `${stepPrefix(
       n
-    )} Teams Toolkit is checking if all required prerequisites are installed and will install them if not.`,
+    )} Microsoft 365 Agents Toolkit is checking if all required prerequisites are installed and will install them if not.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about get started prerequisites check.`,
@@ -140,7 +140,7 @@ export const v3PrerequisiteCheckTaskDisplayMessages: DisplayMessages = {
   taskName: TaskLabel.PrerequisiteCheckV3,
   title: "Running 'Validate prerequisites' Visual Studio Code task.",
   checkNumber: (n: number) =>
-    `${stepPrefix(n)} Teams Toolkit is checking the required prerequisites.`,
+    `${stepPrefix(n)} Microsoft 365 Agents Toolkit is checking the required prerequisites.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about 'Validate prerequisites' task.`,

@@ -117,7 +117,9 @@ export default function ExpressServerNotificationBot() {
         </p>
       </blockquote>
       <ol>
-        <li>First, select the Teams Toolkit icon on the left in the VS Code toolbar.</li>
+        <li>
+          First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
+        </li>
         <li>
           In the Account section, sign in with your{" "}
           <ExternalLink
@@ -250,10 +252,11 @@ export default function ExpressServerNotificationBot() {
           identifier="express-server-notification-bot-step1"
         >
           <p>
-            By default Teams Toolkit scaffolds a single <code className="code">express</code> entry
-            point in <code className="code">src/index.js</code>. When a HTTP request is sent to this
-            entry point, the default implementation sends a hard-coded Adaptive Card to Teams. You
-            can customize this behavior by customizing <code className="code">src/index.js</code>. A
+            By default Microsoft 365 Agents Toolkit scaffolds a single{" "}
+            <code className="code">express</code> entry point in{" "}
+            <code className="code">src/index.js</code>. When a HTTP request is sent to this entry
+            point, the default implementation sends a hard-coded Adaptive Card to Teams. You can
+            customize this behavior by customizing <code className="code">src/index.js</code>. A
             typical implementation might make an API call to retrieve some events and/or data, and
             then send an Adaptive Card as appropriate.
           </p>
@@ -506,7 +509,7 @@ export default function ExpressServerNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit Documentations"
+            title="Microsoft 365 Agents Toolkit Documentations"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -514,7 +517,7 @@ export default function ExpressServerNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit CLI"
+            title="Microsoft 365 Agents Toolkit CLI"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-cli"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -530,7 +533,7 @@ export default function ExpressServerNotificationBot() {
         </li>
         <li>
           <ExternalLink
-            title="Teams Toolkit Samples"
+            title="Microsoft 365 Agents Toolkit Samples"
             link="https://github.com/OfficeDev/TeamsFx-Samples"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}

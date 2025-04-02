@@ -98,17 +98,17 @@ export default function PrepareM365Account() {
       <div className="collapsibleSteps">
         <CollapsibleStep
           step={2}
-          title="Use your development account in Teams Toolkit for Visual Studio Code"
+          title="Use your development account in Microsoft 365 Agents Toolkit for Visual Studio Code"
           triggerFrom={TelemetryTriggerFrom.AccountHelp}
           identifier="account-help-step2"
         >
           <p>
-            Open Teams Toolkit for Visual Studio Code and log into the Teams Toolkit extension using
-            your developer account created in step 1.
+            Open Microsoft 365 Agents Toolkit for Visual Studio Code and log into the Microsoft 365
+            Agents Toolkit extension using your developer account created in step 1.
           </p>
           <p>The permission to upload custom app is already set up.</p>
           <p>
-            <img src={M365Account} alt="Teams Toolkit Microsoft 365 account" />
+            <img src={M365Account} alt="Microsoft 365 account" />
           </p>
         </CollapsibleStep>
       </div>
