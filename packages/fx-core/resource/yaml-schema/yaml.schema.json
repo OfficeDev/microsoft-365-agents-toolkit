@@ -83,7 +83,8 @@
           { "$ref": "#/definitions/oauthUpdate"},
           { "$ref": "#/definitions/shareToOthers"},
           { "$ref": "#/definitions/devChannelCreate"},
-          { "$ref": "#/definitions/devChannelInstallApp"}
+          { "$ref": "#/definitions/devChannelInstallApp"},
+          { "$ref": "#/definitions/typeSpecCompile"}
         ]
       }
     },
@@ -2048,6 +2049,43 @@
             "appPackagePath": {
               "type": "string",
               "description": "Path to zipped Teams app package file."
+            }
+          }
+        }
+      }
+    },
+    "typeSpecCompile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Compile TypeSpec project.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Compile TypeSpec project and generate files. Refer to https://aka.ms/teamsfx-actions/typeSpec-compile for more details.",
+          "const": "typeSpec/compile"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["path", "manifestPath", "outputDir", "typeSpecConfigPath"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to main file of TypeSpec project."
+            },
+            "manifestPath": {
+              "type": "string",
+              "description": "Path to app manifest file."
+            },
+            "outputDir": {
+              "type": "string",
+              "description": "Path to output directory."
+            },
+            "typeSpecConfigPath": {
+              "type": "string",
+              "description": "Path to TypeSpec config file."
             }
           }
         }
