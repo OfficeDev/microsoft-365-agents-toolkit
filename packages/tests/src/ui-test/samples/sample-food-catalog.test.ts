@@ -46,8 +46,8 @@ class FoodCatalogTestCase extends CaseFactory {
 new FoodCatalogTestCase(
   TemplateProject.FoodCatalog,
   27851421,
+  27851823,
   "v-ivanchen@microsoft.com",
-  "local",
   [
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.EnsureDevTunnnel,

@@ -39,8 +39,8 @@ class DashboardTestCase extends CaseFactory {
 new DashboardTestCase(
   TemplateProject.Dashboard,
   17290453,
+  24121453,
   "v-ivanchen@microsoft.com",
-  "local",
   [
     LocalDebugTaskLabel.StartFrontend,
     LocalDebugTaskLabel.WatchBackend,

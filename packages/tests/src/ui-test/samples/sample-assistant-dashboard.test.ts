@@ -39,8 +39,8 @@ class AssistDashboardTestCase extends CaseFactory {
 new AssistDashboardTestCase(
   TemplateProject.AssistDashboard,
   24121324,
+  24121439,
   "v-ivanchen@microsoft.com",
-  "local",
   [
     LocalDebugTaskLabel.StartFrontend,
     LocalDebugTaskLabel.WatchBackend,
@@ -49,6 +49,5 @@ new AssistDashboardTestCase(
   {
     dashboardFlag: true,
     skipInit: true,
-    debug: "cli",
   } // [TODO] skipInit browser security block
 ).test();

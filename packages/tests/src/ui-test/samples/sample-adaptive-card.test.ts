@@ -6,7 +6,7 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject } from "../../utils/constants";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateAdaptiveCard } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
@@ -25,7 +25,13 @@ class AdaptiveCardTestCase extends CaseFactory {
 
 new AdaptiveCardTestCase(
   TemplateProject.AdaptiveCard,
+  14524987,
   24121425,
   "v-ivanchen@microsoft.com",
-  "dev"
+  [
+    LocalDebugTaskLabel.StartLocalTunnel,
+    LocalDebugTaskLabel.Azurite,
+    LocalDebugTaskLabel.Compile,
+    LocalDebugTaskLabel.StartBotApp,
+  ]
 ).test();

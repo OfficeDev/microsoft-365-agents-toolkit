@@ -6,32 +6,33 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
+import {
+  TemplateProject,
+  LocalDebugTaskLabel,
+  ValidationContent,
+} from "../../utils/constants";
 import { validateBot } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
-import { Env } from "../../utils/env";
 
-class BotSSOTestCase extends CaseFactory {
+class GraphConnectorBotTestCase extends CaseFactory {
   override async onValidate(page: Page): Promise<void> {
     return await validateBot(page, {
-      botCommand: "show",
-      expected: Env.displayName,
-      consentPrompt: true,
+      botCommand: "welcome",
+      expected: ValidationContent.GraphBot,
     });
   }
-  public override async onCliValidate(page: Page): Promise<void> {
+  override async onCliValidate(page: Page): Promise<void> {
     return await validateBot(page, {
-      botCommand: "show",
-      expected: Env.displayName,
-      consentPrompt: true,
+      botCommand: "welcome",
+      expected: ValidationContent.GraphBot,
     });
   }
 }
 
-new BotSSOTestCase(
-  TemplateProject.HelloWorldBotSSO,
-  12462156,
-  14571876,
+new GraphConnectorBotTestCase(
+  TemplateProject.GraphConnectorBot,
+  25178457,
+  25960851,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication]
   //{ debug: "cli" }
