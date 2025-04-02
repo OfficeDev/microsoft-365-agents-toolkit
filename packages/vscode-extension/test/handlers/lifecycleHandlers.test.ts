@@ -652,9 +652,14 @@ describe("Lifecycle handlers", () => {
       await setSensitivityLabelHandler([]);
     });
 
-    it("runCommand successfully - undefined args", async () => {
+    it("runCommand successfully - undefined array args", async () => {
       sandbox.stub(shared, "runCommand").resolves(ok(undefined));
       await setSensitivityLabelHandler([undefined]);
+    });
+
+    it("runCommand successfully - undefined args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler(undefined as any);
     });
 
     it("runCommand fails", async () => {
