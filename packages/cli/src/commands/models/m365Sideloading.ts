@@ -108,7 +108,10 @@ export const m365SideloadingCommand: CLICommand = {
     const manifestPath = zipAppPackagePath ?? xmlPath;
     const tokenAndUpn = await m365utils.getTokenAndUpn();
     if (ctx.optionValues["file-path"] !== undefined) {
-      await packageService.sideLoading(tokenAndUpn[0], manifestPath, appScope);
+      const res = await packageService.sideLoading(tokenAndUpn[0], manifestPath, appScope);
+      if (res[2]) {
+        logger.info("Share link: " + res[2]);
+      }
     } else {
       await packageService.sideLoadXmlManifest(tokenAndUpn[0], manifestPath);
     }
