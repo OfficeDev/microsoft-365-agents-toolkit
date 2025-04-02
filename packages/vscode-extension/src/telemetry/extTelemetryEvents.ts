@@ -474,6 +474,8 @@ export enum TelemetryProperty {
   CopilotChatRequestToken = "copilot-chat-request-token",
   CopilotChatResponseToken = "copilot-chat-response-token",
   // Used in Copilot Chat UI
+  HasQueryForCopilotChat = "has-query-for-copilot-chat",
+  CopilotChatQuerySent = "copilot-chat-query-sent",
   TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
   TeamsAgentPreCheckResultSuccess = "teans-agent-pre-check-result-success",
 }
