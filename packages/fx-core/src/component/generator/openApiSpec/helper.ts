@@ -1708,9 +1708,9 @@ export async function parseAndUpdatePluginManifestForKiota(
     if ((runtime as RuntimeObjectOpenapi).auth) {
       const auth = (runtime as RuntimeObjectOpenapi).auth;
       if (
-        auth?.reference_id &&
-        auth?.reference_id.match(/{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
-        auth?.type !== "None"
+        auth!.reference_id &&
+        auth!.reference_id.match(/{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth!.type !== "None"
       ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         authData.push({
