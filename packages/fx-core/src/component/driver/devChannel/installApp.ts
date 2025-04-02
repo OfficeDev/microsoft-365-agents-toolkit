@@ -18,6 +18,7 @@ import { GraphClient } from "../../../client/graphClient";
 import { HttpClientError } from "../../../error/common";
 import { InvalidActionInputError, FileNotFoundError } from "../../../error/common";
 import { Constants } from "../teamsApp/constants";
+import { TelemetryProperty } from "../../../common/telemetry";
 
 const actionName = "devChannel/installApp";
 
@@ -45,14 +46,9 @@ export class InstallAppToChannelDriver implements StepDriver {
     context: WrapDriverContext,
     outputEnvVarNames: Map<string, string>
   ): Promise<Result<Map<string, string>, FxError>> {
-    // Need teamId and channelId to install app to channel
-    const teamId = process.env["TEAM_ID"];
-    const channelId = process.env["CHANNEL_ID"];
-    if (!teamId) {
-      return err(new InvalidActionInputError(actionName, ["teamId"]));
-    }
-    if (!channelId) {
-      return err(new InvalidActionInputError(actionName, ["channelId"]));
+    const argsValidationResult = this.validateArgs(args);
+    if (argsValidationResult.isErr()) {
+      return err(argsValidationResult.error);
     }
 
     let appPackagePath = args.appPackagePath;
@@ -68,13 +64,7 @@ export class InstallAppToChannelDriver implements StepDriver {
     const zipEntries = new AdmZip(archivedFile).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
-      return err(
-        new FileNotFoundError(
-          actionName,
-          Constants.MANIFEST_FILE,
-          "https://aka.ms/teamsfx-actions/teamsapp-publish"
-        )
-      );
+      return err(new FileNotFoundError(actionName, Constants.MANIFEST_FILE));
     }
     const manifestString = manifestFile.getData().toString();
     const manifest = JSON.parse(manifestString) as TeamsAppManifest;
@@ -84,15 +74,27 @@ export class InstallAppToChannelDriver implements StepDriver {
       const graphClient = new GraphClient(context.m365TokenProvider);
 
       // Get installed apps, delete it if externalId already exists.
-      const apps = await graphClient.GetAppInstallationForTeam(teamId);
+      const apps = await graphClient.GetAppInstallationForTeam(args.teamId);
       apps.map(async (app) => {
         if (app.teamsApp.externalId == teamsAppId) {
-          await graphClient.DeleteInstalledApp(teamId, app.id);
+          context.addTelemetryProperties({ [TelemetryProperty.DeleteInstalledApp]: "true" });
+          const message = getLocalizedString(
+            "driver.devChannel.install.summary.exists",
+            app.teamsApp.displayName,
+            args.teamId
+          );
+          context.logProvider.info(message);
+          context.addSummary(message);
+          await graphClient.DeleteInstalledApp(args.teamId, app.id);
         }
       });
 
-      await graphClient.InstallAppToChannelAsync(teamId, channelId, archivedFile);
-      const message = getLocalizedString("driver.devChannel.install.success", teamId, channelId);
+      await graphClient.InstallAppToChannelAsync(args.teamId, args.channelId, archivedFile);
+      const message = getLocalizedString(
+        "driver.devChannel.install.success",
+        args.teamId,
+        args.channelId
+      );
       context.logProvider.info(message);
       context.addSummary(message);
       return ok(new Map<string, string>());
@@ -104,6 +106,26 @@ export class InstallAppToChannelDriver implements StepDriver {
       } else {
         return err(error);
       }
+    }
+  }
+
+  private validateArgs(args: InstallAppArgs): Result<any, FxError> {
+    const invalidParams: string[] = [];
+
+    // Need teamId and channelId to install app to channel
+    if (!args.teamId || typeof args.teamId !== "string") {
+      invalidParams.push("teamId");
+    }
+    if (!args.channelId || typeof args.channelId !== "string") {
+      invalidParams.push("channelId");
+    }
+    if (!args.appPackagePath) {
+      invalidParams.push("appPackagePath");
+    }
+    if (invalidParams.length > 0) {
+      return err(new InvalidActionInputError(actionName, invalidParams));
+    } else {
+      return ok(undefined);
     }
   }
 }

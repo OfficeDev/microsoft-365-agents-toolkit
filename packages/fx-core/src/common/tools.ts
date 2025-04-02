@@ -19,7 +19,7 @@ export async function getSideloadingStatus(token: string): Promise<boolean | und
 }
 
 export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Promise<boolean> {
-  const SANDBOX_SENSITIVITY_LABEL = "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5";
+  const SANDBOX_SENSITIVITY_LABEL = "dfead1b2-7b60-46fe-ad38-77b545a5b57a";
   const graphClient = new GraphClient(tokenProvider);
   const teamsAppSettings = await graphClient.GetTeamsAppSettingsAsync();
   return (

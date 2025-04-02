@@ -96,6 +96,7 @@ export enum TelemetryProperty {
   IsDeclarativeAgent = "is-declarative-agent",
 
   SkipCreation = "skip-creation",
+  DeleteInstalledApp = "delete-installed-app",
 }
 
 export const TelemetryConstants = {

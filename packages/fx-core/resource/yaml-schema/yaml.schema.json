@@ -2043,9 +2043,17 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["appPackagePath"],
+          "required": ["appPackagePath", "teamId", "channelId"],
           "properties": {
             "appPackagePath": {
+              "type": "string",
+              "description": "Path to zipped Teams app package file."
+            },
+            "teamId": {
+              "type": "string",
+              "description": "Path to zipped Teams app package file."
+            },
+            "channelId": {
               "type": "string",
               "description": "Path to zipped Teams app package file."
             }

@@ -584,11 +584,8 @@ describe("Sandbox related APIs", () => {
   it("GetTeamsAppSettingsAsync should return teams app settings", async () => {
     const mockResponse = {
       data: {
-        value: {
-          sandboxingConfiguration: {
-            sensitivityLabelUsedToIdentifySandboxedContainers:
-              "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
-          },
+        sandboxingConfiguration: {
+          sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
         },
       },
     };
@@ -596,7 +593,7 @@ describe("Sandbox related APIs", () => {
 
     const result = await graphClient.GetTeamsAppSettingsAsync();
 
-    expect(result).to.deep.equal(mockResponse.data.value);
+    expect(result).to.deep.equal(mockResponse.data);
   });
 });
 
