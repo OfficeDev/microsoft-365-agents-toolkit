@@ -25,7 +25,7 @@ const [nodeRange, platform, arch] = target.split("-");
       "version-string": {
         CompanyName: "Microsoft",
         LegalCopyright: "\xA9 Microsoft Corporation. All rights reserved.",
-        ProductName: "Microsoft 365 Agents Toolkit ",
+        ProductName: "Microsoft 365 Agents Toolkit",
         FileDescription: "Microsoft 365 Agents Toolkit Server",
         InternalFilename: "server",
         OriginalFilename: "server.exe",
