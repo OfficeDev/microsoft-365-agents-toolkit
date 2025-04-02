@@ -132,9 +132,9 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
 
 export abstract class CaseFactory {
   public sampleName: TemplateProject;
-  public testPlanCaseId: number;
+  public testPlanCaseId_local: number;
+  public testPlanCaseId_dev: number;
   public author: string;
-  public env: "local" | "dev";
   public validate: LocalDebugTaskLabel[];
   public options?: {
     teamsAppName?: string;
@@ -156,9 +156,9 @@ export abstract class CaseFactory {
 
   public constructor(
     sampleName: TemplateProject,
-    testPlanCaseId: number,
+    testPlanCaseId_local: number,
+    testPlanCaseId_dev: number,
     author: string,
-    env: "local" | "dev",
     validate: LocalDebugTaskLabel[] = [],
     options: {
       teamsAppName?: string;
@@ -179,9 +179,9 @@ export abstract class CaseFactory {
     } = {}
   ) {
     this.sampleName = sampleName;
-    this.testPlanCaseId = testPlanCaseId;
+    this.testPlanCaseId_local = testPlanCaseId_local;
+    this.testPlanCaseId_dev = testPlanCaseId_dev;
     this.author = author;
-    this.env = env;
     this.validate = validate;
     this.options = options;
   }
@@ -304,7 +304,8 @@ export abstract class CaseFactory {
   public test(): void {
     const {
       sampleName,
-      testPlanCaseId,
+      testPlanCaseId_local,
+      testPlanCaseId_dev,
       author,
       validate,
       options,
@@ -358,7 +359,7 @@ export abstract class CaseFactory {
       it(
         `[auto] local debug for Sample ${sampleName}`,
         {
-          testPlanCaseId,
+          testPlanCaseId_local,
           author,
         },
         async function () {
@@ -590,7 +591,7 @@ export abstract class CaseFactory {
       it(
         `[auto] remote debug for Sample ${sampleName}`,
         {
-          testPlanCaseId,
+          testPlanCaseId_dev,
           author,
         },
         async function () {
