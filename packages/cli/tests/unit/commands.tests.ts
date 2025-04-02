@@ -767,12 +767,51 @@ describe("CLI commands", () => {
       const res = await m365SideloadingCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+    it("should success with zip package with Personal scope", async () => {
+      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
+      sandbox.stub(PackageService.prototype, "sideLoading").resolves();
+      const ctx: CLIContext = {
+        command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+        optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "Personal" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await m365SideloadingCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
     it("should success with zip package with Shared scope", async () => {
       sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
       sandbox.stub(PackageService.prototype, "sideLoading").resolves();
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "Shared" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await m365SideloadingCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+    it("should success with zip package with Shared scope - lower case", async () => {
+      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
+      sandbox.stub(PackageService.prototype, "sideLoading").resolves();
+      const ctx: CLIContext = {
+        command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+        optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "shared" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await m365SideloadingCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+    it("should success with zip package with unknown scope", async () => {
+      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
+      sandbox.stub(PackageService.prototype, "sideLoading").resolves();
+      const ctx: CLIContext = {
+        command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+        optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "unknown" },
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
