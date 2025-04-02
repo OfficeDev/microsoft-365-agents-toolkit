@@ -272,7 +272,7 @@ describe("Migration: upgrade cancel messages", () => {
       `Upgrade cancelled.`,
       `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please run command (Teams: Upgrade project) or click the "Upgrade project" button on Microsoft 365 Agents Toolkit sidebar to trigger the upgrade.`,
-      `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit 4.x.x.`,
+      `If you are not ready to upgrade, please continue to use the old version of Microsoft 365 Agents Toolkit 4.x.x.`,
     ];
     assert.equal(messageArray.join(""), groundTruth.join(""));
   });
@@ -283,7 +283,7 @@ describe("Migration: upgrade cancel messages", () => {
       `Upgrade cancelled.`,
       `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please trigger this command again.`,
-      `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit.`,
+      `If you are not ready to upgrade, please continue to use the old version of Microsoft 365 Agents Toolkit.`,
     ];
     assert.equal(messageArray.join(""), groundTruth.join(""));
   });
@@ -294,7 +294,7 @@ describe("Migration: upgrade cancel messages", () => {
       `Upgrade cancelled.`,
       `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please trigger this command again.`,
-      `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit CLI 1.x.x.`,
+      `If you are not ready to upgrade, please continue to use the old version of Microsoft 365 Agents Toolkit CLI 1.x.x.`,
     ];
     assert.equal(messageArray.join(""), groundTruth.join(""));
   });
