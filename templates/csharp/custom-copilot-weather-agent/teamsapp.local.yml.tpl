@@ -50,6 +50,8 @@ provision:
         Connections:
           BotServiceConnection:
             Settings:
+              AuthType: "ClientSecret"
+              AuthorityEndpoint: "https://login.microsoftonline.com/botframework.com"
               ClientId: ${{BOT_ID}}
               ClientSecret: ${{SECRET_BOT_PASSWORD}}
 {{#useOpenAI}}
