@@ -306,7 +306,6 @@ export abstract class CaseFactory {
       sampleName,
       testPlanCaseId,
       author,
-      env,
       validate,
       options,
       onBefore,
@@ -342,12 +341,14 @@ export abstract class CaseFactory {
         );
         await sampledebugContext.before();
         // use before middleware to process typical sample
-        azSqlHelper = await onBefore(sampledebugContext, env, azSqlHelper);
+        azSqlHelper = await onBefore(sampledebugContext, "local", azSqlHelper);
+        azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
       });
 
       afterEach(async function () {
         this.timeout(Timeout.finishTestCase);
-        await onAfter(sampledebugContext, env);
+        await onAfter(sampledebugContext, "local");
+        await onAfter(sampledebugContext, "dev");
         // setTimeout(() => {
         //   if (successFlag) process.exit(0);
         //   else process.exit(1);
@@ -367,7 +368,7 @@ export abstract class CaseFactory {
             // update manifest app name
             await sampledebugContext.updateManifestAppName();
             // use 1st middleware to process typical sample
-            await onAfterCreate(sampledebugContext, env, azSqlHelper);
+            await onAfterCreate(sampledebugContext, "local", azSqlHelper);
 
             try {
               envFile = path.resolve(
@@ -423,7 +424,9 @@ export abstract class CaseFactory {
                   options.dockerFolder || ""
                 );
               }
-              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              const teamsAppId = await sampledebugContext.getTeamsAppId(
+                "local"
+              );
               expect(teamsAppId).to.not.be.empty;
 
               debugProcess = Executor.debugProject(
@@ -464,7 +467,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
 
                 // if no skip vaildation
@@ -474,7 +477,7 @@ export abstract class CaseFactory {
                     displayName: Env.displayName,
                     includeFunction: options?.includeFunction ?? false,
                     npmName: options?.npmName ?? "",
-                    env: env,
+                    env: "local",
                   });
                 } else {
                   console.log("skip ui skipValidation...");
@@ -520,10 +523,16 @@ export abstract class CaseFactory {
 
             // if no skip init step
             if (!options?.skipInit) {
-              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              const teamsAppId = await sampledebugContext.getTeamsAppId(
+                "local"
+              );
               expect(teamsAppId).to.not.be.empty;
               // use 2nd middleware to process typical sample
-              await onBeforeBrowerStart(sampledebugContext, env, azSqlHelper);
+              await onBeforeBrowerStart(
+                sampledebugContext,
+                "local",
+                azSqlHelper
+              );
               // init
               let page: Page;
               if (options?.debug === "cli") {
@@ -533,7 +542,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
               } else {
                 page = await onInitPage(sampledebugContext, teamsAppId, {
@@ -542,7 +551,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
               }
 
@@ -553,7 +562,7 @@ export abstract class CaseFactory {
                   displayName: Env.displayName,
                   includeFunction: options?.includeFunction ?? false,
                   npmName: options?.npmName ?? "",
-                  env: env,
+                  env: "local",
                 });
               } else {
                 console.log("skip ui skipValidation...");
@@ -591,20 +600,7 @@ export abstract class CaseFactory {
             // update manifest app name
             await sampledebugContext.updateManifestAppName();
             // use 1st middleware to process typical sample
-            await onAfterCreate(sampledebugContext, env, azSqlHelper);
-
-            try {
-              envFile = path.resolve(
-                sampledebugContext.projectPath,
-                "env",
-                ".env.local"
-              );
-              envContent = fs.readFileSync(envFile, "utf-8");
-              // if bot project setup devtunnel
-              botFlag = envContent.includes("BOT_DOMAIN");
-            } catch (error) {
-              console.log("read file error", error);
-            }
+            await onAfterCreate(sampledebugContext, "dev", azSqlHelper);
 
             if (options?.skipDebug) {
               console.log("skip ui skipDebug...");
@@ -635,10 +631,10 @@ export abstract class CaseFactory {
 
             // if no skip init step
             if (!options?.skipInit) {
-              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              const teamsAppId = await sampledebugContext.getTeamsAppId("dev");
               expect(teamsAppId).to.not.be.empty;
               // use 2nd middleware to process typical sample
-              await onBeforeBrowerStart(sampledebugContext, env, azSqlHelper);
+              await onBeforeBrowerStart(sampledebugContext, "dev", azSqlHelper);
               // init
               const page = await onInitPage(sampledebugContext, teamsAppId, {
                 includeFunction: options?.includeFunction ?? false,
@@ -646,7 +642,7 @@ export abstract class CaseFactory {
                 dashboardFlag: options?.dashboardFlag ?? false,
                 type: options?.type ?? "",
                 teamsAppName: options?.teamsAppName ?? "",
-                env: env,
+                env: "dev",
               });
 
               // if no skip vaildation
@@ -656,7 +652,7 @@ export abstract class CaseFactory {
                   displayName: Env.displayName,
                   includeFunction: options?.includeFunction ?? false,
                   npmName: options?.npmName ?? "",
-                  env: env,
+                  env: "dev",
                 });
               } else {
                 console.log("skip ui skipValidation...");
