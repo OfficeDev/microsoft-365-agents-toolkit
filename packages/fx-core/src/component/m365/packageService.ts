@@ -195,7 +195,7 @@ export class PackageService {
       const content = new FormData();
       content.append("package", data);
       const serviceUrl = await this.getTitleServiceUrl(token);
-      this.logger?.debug("Uploading package with sideLoading V2 ...");
+      this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
       const uploadResponse = await this.axiosInstance.post(
