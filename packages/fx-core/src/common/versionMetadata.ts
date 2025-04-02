@@ -18,6 +18,7 @@ export const MetadataV3 = {
   configFile: "teamsapp.yml",
   localConfigFile: "teamsapp.local.yml",
   testToolConfigFile: "teamsapp.testtool.yml",
+  sandboxConfigFile: "teamsapp.sandbox.yml",
   defaultEnvironmentFolder: "env",
   envFilePrefix: ".env",
   secretFileSuffix: "user",

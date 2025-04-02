@@ -2039,11 +2039,13 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
         authName: "test",
         authType: "apiKey",
         registrationId: "TEST_REIGSTRATION_ID",
+        specPath: "mock_spec_url",
       },
       {
         authName: "test2",
         authType: "oauth2",
         registrationId: "TEST2_REIGSTRATION_ID",
+        specPath: "mock_spec_url",
       },
     ]);
   });
@@ -2088,6 +2090,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
         authName: "test",
         authType: "apiKey",
         registrationId: "TEST_REIGSTRATION_ID",
+        specPath: "mock_spec_url",
       },
     ]);
     assert.isTrue(writeJsonStub.notCalled);

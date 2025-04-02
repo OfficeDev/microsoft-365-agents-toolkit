@@ -6273,6 +6273,7 @@ describe("addPlugin", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6679,6 +6680,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6763,6 +6765,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox

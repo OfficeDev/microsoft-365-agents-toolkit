@@ -126,6 +126,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
           authName: "mockedAuthName",
           authType: "apiKey",
           registrationId: "MOCKED_REGISTRATION_ID",
+          specPath: "test.yaml",
         },
       ]);
       const res = await generator.getTemplateInfos(context, inputs, ".");

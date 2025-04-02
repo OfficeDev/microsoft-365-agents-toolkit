@@ -1,17 +1,16 @@
-import { sampleProvider } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import chaiPromised from "chai-as-promised";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as utils from "../../src/chat/utils";
-import { CancellationToken } from "../mocks/vsc";
-import * as vscodeMocks from "../mocks/vsc";
-import { Tokenizer } from "../../src/chat/tokenizer";
 import {
   BaseTokensPerCompletion,
   BaseTokensPerMessage,
   BaseTokensPerName,
 } from "../../src/chat/consts";
+import { Tokenizer } from "../../src/chat/tokenizer";
+import * as utils from "../../src/chat/utils";
+import * as vscodeMocks from "../mocks/vsc";
+import { CancellationToken } from "../mocks/vsc";
 
 chai.use(chaiPromised);
 
@@ -106,51 +105,6 @@ describe("chat utils", () => {
         utils.getCopilotResponseAsString("copilot-gpt-4", [], token),
         "No chat models available for the specified family"
       );
-    });
-  });
-
-  describe("getSampleDownloadUrlInfo()", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("returns download Url", async () => {
-      const testDownloadUrlInfo = {
-        owner: "test",
-        repository: "test",
-        ref: "test",
-        dir: "test",
-      };
-      sandbox.stub(sampleProvider, "SampleCollection").get(() => {
-        return Promise.resolve({
-          samples: [
-            {
-              id: "sampleId",
-              downloadUrlInfo: testDownloadUrlInfo,
-            },
-          ],
-        });
-      });
-      const result = await utils.getSampleDownloadUrlInfo("sampleId");
-      chai.assert.equal(result, testDownloadUrlInfo);
-    });
-
-    it("throws error if not found", async () => {
-      sandbox.stub(sampleProvider, "SampleCollection").get(() => {
-        return Promise.resolve({
-          samples: [
-            {
-              id: "sampleId2",
-              downloadUrlInfo: undefined,
-            },
-          ],
-        });
-      });
-      chai
-        .expect(utils.getSampleDownloadUrlInfo("sampleId"))
-        .to.be.rejectedWith("Sample not found");
     });
   });
 

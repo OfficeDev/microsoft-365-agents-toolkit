@@ -112,6 +112,9 @@ export const openTestToolDisplayMessage = () =>
     "[Debug in Test Tool](command:fx-extension.debugInTestToolFromMessage)"
   );
 
+export const openSandboxMessage = () =>
+  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Teams Sandbox (Edge)'");
+
 export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   taskName: "Get Started Prerequisites Check",
   title: "Get Started Prerequisites Check",

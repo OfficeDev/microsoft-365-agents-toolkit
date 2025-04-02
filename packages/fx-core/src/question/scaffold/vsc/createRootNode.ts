@@ -21,6 +21,7 @@ import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
+import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -108,6 +109,9 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
+            ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
+              ? [ProjectTypeOptions.graphConnector(platform)]
+              : []),
             ProjectTypeOptions.bot(platform),
             ProjectTypeOptions.tab(platform),
             ProjectTypeOptions.me(platform),
@@ -120,6 +124,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         children: [
           daProjectTypeNode(),
           customEngineAgentProjectTypeNode(),
+          graphConnectorProjectTypeNode(),
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),

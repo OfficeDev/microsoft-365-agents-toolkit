@@ -1694,9 +1694,15 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
 export async function parseAndUpdatePluginManifestForKiota(
   pluginManifestPath: string,
   updatePlaceholder: boolean
-): Promise<{ authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[]> {
-  const authData: { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] =
-    [];
+): Promise<
+  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
+> {
+  const authData: {
+    authName: string;
+    authType: "apiKey" | "oauth2";
+    registrationId: string;
+    specPath: string;
+  }[] = [];
   const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
   pluginManifest.runtimes?.forEach((runtime) => {
     if ((runtime as RuntimeObjectOpenapi).auth) {
@@ -1707,6 +1713,7 @@ export async function parseAndUpdatePluginManifestForKiota(
           authName: registrationId.split("_")[0],
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
           registrationId: registrationId.toUpperCase(),
+          specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
           auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;
