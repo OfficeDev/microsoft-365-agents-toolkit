@@ -20,7 +20,7 @@ import {
 import { ApiKeyNameTooLongError } from "./error/apiKeyNameTooLong";
 import { UpdateApiKeyArgs } from "./interface/updateApiKeyArgs";
 import { logMessageKeys } from "./utility/constants";
-import { getDomain, validateDomain } from "./utility/utility";
+import { getDomain, validateDomain, validateUrl } from "./utility/utility";
 import { WrapDriverContext } from "../util/wrapUtil";
 
 const actionName = "apiKey/update"; // DO NOT MODIFY the name
@@ -46,8 +46,13 @@ export class UpdateApiKeyDriver implements StepDriver {
       context.logProvider?.info(getLocalizedString(logMessageKeys.startExecuteDriver, actionName));
       this.validateArgs(args);
 
-      const domain = await getDomain(args, context, actionName);
-      validateDomain(domain, actionName);
+      let domain: string[] = [];
+      if (args.baseUrl) {
+        domain = [args.baseUrl];
+      } else {
+        domain = await getDomain(args, context, actionName);
+        validateDomain(domain, actionName);
+      }
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
@@ -147,7 +152,16 @@ export class UpdateApiKeyDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
+      invalidParameters.push("apiSpecPath");
+    }
+
+    if (!args.baseUrl && !args.apiSpecPath) {
+      invalidParameters.push("baseUrl");
       invalidParameters.push("apiSpecPath");
     }
 

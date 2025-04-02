@@ -145,8 +145,10 @@ export const TaskLabel = Object.freeze({
   GulpTrustDevCert: "gulp trust-dev-cert",
   GulpServe: "gulp serve",
   Provision: "Provision", // V3
+  ProvisionSandbox: "Provision (Sandbox)",
   Deploy: "Deploy", // V3
   DeployTestTool: "Deploy (Test Tool)", // V3
+  DeploySandbox: "Deploy (Sandbox)",
 });
 
 export const TaskDefaultValue = Object.freeze({
@@ -196,6 +198,7 @@ export const Prerequisite = Object.freeze({
   ngrok: "ngrok",
   dotnet: "dotnet",
   portOccupancy: "portOccupancy",
+  sandbox: "sandbox",
   vxTestApp: "vxTestApp", // TODO(aochengwang): maybe change app name
 });
 

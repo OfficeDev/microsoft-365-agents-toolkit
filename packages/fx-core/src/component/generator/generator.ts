@@ -117,6 +117,7 @@ export class Generator {
       )
         ? "true"
         : "",
+      SandBoxedTeam: featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam) ? "true" : "",
     };
   }
   @hooks([

@@ -62,6 +62,9 @@ function getOrderedCheckersForTask(
   ports?: number[]
 ): PrerequisiteOrderedChecker[] {
   const checkers: PrerequisiteOrderedChecker[] = [];
+  if (prerequisites.includes(Prerequisite.sandbox)) {
+    checkers.push({ info: { checker: Checker.SandboxedEnabled }, fastFail: false });
+  }
   if (prerequisites.includes(Prerequisite.nodejs)) {
     checkers.push({ info: { checker: DepsType.ProjectNode }, fastFail: true });
   }

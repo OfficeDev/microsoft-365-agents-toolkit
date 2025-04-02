@@ -100,6 +100,82 @@ describe("CreateApiKeyDriver", () => {
     }
   });
 
+  it("happy path: create registraionid, read domain from baseURL, clientSecret from input", async () => {
+    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+      id: "mockedRegistrationId",
+      clientSecrets: [],
+      targetUrlsShouldStartWith: [],
+      applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
+    });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      primaryClientSecret: "mockedClientSecret",
+      apiSpecPath: "mockedPath",
+      baseUrl: "https://test",
+    };
+    const result = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isOk()).to.be.true;
+    if (result.result.isOk()) {
+      expect(result.result.value.get(outputKeys.registrationId)).to.equal("mockedRegistrationId");
+      expect(result.summaries.length).to.equal(1);
+    }
+  });
+
+  it("should throw error if baseURL is not a valid https URL", async () => {
+    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+      id: "mockedRegistrationId",
+      clientSecrets: [],
+      targetUrlsShouldStartWith: [],
+      applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
+    });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      primaryClientSecret: "mockedClientSecret",
+      apiSpecPath: "mockedPath",
+      baseUrl: "http://test",
+    };
+    const result1 = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result1.result.isErr()).to.be.true;
+    if (result1.result.isErr()) {
+      expect(result1.result.error.name).to.equal("InvalidActionInputError");
+      expect(result1.result.error.message).contains("baseUrl");
+    }
+
+    args.baseUrl = "invalidURL";
+    const result2 = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result2.result.isErr()).to.be.true;
+    if (result2.result.isErr()) {
+      expect(result2.result.error.name).to.equal("InvalidActionInputError");
+      expect(result2.result.error.message).contains("baseUrl");
+    }
+  });
+
+  it("should throw error if baseURL and apiSpecPath are both missing", async () => {
+    sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
+      id: "mockedRegistrationId",
+      clientSecrets: [],
+      targetUrlsShouldStartWith: [],
+      applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
+    });
+
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      primaryClientSecret: "mockedClientSecret",
+    };
+    const result = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("InvalidActionInputError");
+      expect(result.result.error.message).contains("baseUrl");
+      expect(result.result.error.message).contains("apiSpecPath");
+    }
+  });
+
   it("happy path: create registraionid, read domain from api spec, clientSecret and secondaryClientSecret from input", async () => {
     sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",

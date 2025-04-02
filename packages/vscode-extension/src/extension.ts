@@ -22,24 +22,14 @@ import {
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
 import * as vscode from "vscode";
-import {
-  CHAT_EXECUTE_COMMAND_ID,
-  CHAT_OPENURL_COMMAND_ID,
-  IsChatParticipantEnabled,
-  chatParticipantId,
-} from "./chat/consts";
+import { IsChatParticipantEnabled } from "./chat/consts";
 import followupProvider from "./chat/followupProvider";
-import {
-  chatExecuteCommandHandler,
-  chatRequestHandler,
-  handleFeedback,
-  openUrlCommandHandler,
-} from "./chat/handlers";
 import {
   AadAppTemplateCodeLensProvider,
   ApiPluginCodeLensProvider,
   CopilotPluginCodeLensProvider,
   CryptoCodeLensProvider,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
   OneDriveSharePointCodeLensProvider,
@@ -133,9 +123,11 @@ import {
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
+  m365PreAuthHandler,
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  setSensitivityLabelHandler,
   shareHandler,
 } from "./handlers/lifecycleHandlers";
 import {
@@ -646,30 +638,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 }
 
 /**
- * Copilot Chat Participant
- */
-function registerChatParticipant(context: vscode.ExtensionContext) {
-  const participant = vscode.chat.createChatParticipant(chatParticipantId, (...args) =>
-    Correlator.run(chatRequestHandler, ...args)
-  );
-  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "teams.png");
-  participant.followupProvider = followupProvider;
-  participant.onDidReceiveFeedback((...args) => Correlator.run(handleFeedback, ...args));
-
-  context.subscriptions.push(
-    participant,
-    vscode.commands.registerCommand(CHAT_EXECUTE_COMMAND_ID, chatExecuteCommandHandler),
-    vscode.commands.registerCommand(CHAT_OPENURL_COMMAND_ID, openUrlCommandHandler)
-  );
-
-  const generateManifestGUID = vscode.commands.registerCommand(
-    "fx-extension.generateManifestGUID",
-    () => Correlator.run(officeDevHandlers.generateManifestGUID)
-  );
-  context.subscriptions.push(generateManifestGUID);
-}
-
-/**
  * Copilot Chat Participant for Office Add-in
  */
 function registerOfficeChatParticipant(context: vscode.ExtensionContext) {
@@ -992,6 +960,22 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     Correlator.run(refreshCopilotCallback, args)
   );
   context.subscriptions.push(refreshCopilot);
+
+  const setSensitivityLabelCmd = vscode.commands.registerCommand(
+    "fx-extension.setSensitivityLabel",
+    async (...args) => {
+      await Correlator.run(setSensitivityLabelHandler, args);
+    }
+  );
+  context.subscriptions.push(setSensitivityLabelCmd);
+
+  const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
+    "fx-extension.m365PreAuth",
+    async (...args) => {
+      await Correlator.run(m365PreAuthHandler, args);
+    }
+  );
+  context.subscriptions.push(m365PreAuthHandlerCmd);
 }
 
 /**
@@ -1345,6 +1329,21 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
       oneDriveSharePointCodeLensProvider
     )
   );
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+    const declarativeAgentManifestSelector: vscode.DocumentSelector = {
+      scheme: "file",
+      pattern: `**/${AppPackageFolderName}/*.{json}`,
+    };
+    const declarativeAgentSensitivityLabelCodeLensProvider =
+      new DeclarativeAgentSensitivityLabelCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        declarativeAgentManifestSelector,
+        declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {

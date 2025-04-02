@@ -115,13 +115,11 @@
         "cases": [
             "sample-localdebug-adaptive-card",
             "sample-localdebug-graph-connector",
-            "sample-localdebug-share-now",
             "sample-localdebug-dashboard",
             "sample-localdebug-hello-world-tab-outlook",
             "sample-localdebug-one-productivity-hub",
             "sample-localdebug-assistant-dashboard",
             "sample-localdebug-todo-list-sql",
-            "sample-remotedebug-share-now",
             "sample-remotedebug-todo-list-sql",
             "sample-remotedebug-large-scale-notification",
             "sample-localdebug-bot-sso-docker",

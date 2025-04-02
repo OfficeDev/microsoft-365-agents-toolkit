@@ -6,6 +6,7 @@ import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { hooks } from "@feathersjs/hooks";
 import { ErrorContextMW } from "../common/globalVars";
 import { getDefaultString } from "../common/localizeUtils";
+import { globalStateGet, globalStateUpdate } from "../common/globalState";
 
 export const listSensitivityLabelScope = "InformationProtectionPolicy.Read";
 
@@ -13,6 +14,7 @@ const graphAPIEndpoint = "https://graph.microsoft.com";
 const listSensitivityLabelAPIPath = "/beta/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
+const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
 
 export class SensitivityLabel {
   id?: string;
@@ -43,8 +45,25 @@ export class RetryHandler {
 
 export class GraphAPIClient {
   @hooks([ErrorContextMW({ source: "Graph", component: "GraphAPIClient" })])
-  async listSensitivityLabels(token: string): Promise<Result<SensitivityLabel[], FxError>> {
+  async listSensitivityLabels(
+    token: string,
+    useCache = false,
+    accountUniqueName = "",
+    tenantId = ""
+  ): Promise<Result<SensitivityLabel[], FxError>> {
     try {
+      if (useCache) {
+        // TTK supports switching tenant, so we need to add tenantId in the cache key.
+        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+        const cacheValueRes = await globalStateGet(cacheKey);
+        if (cacheValueRes) {
+          const timeStamp = cacheValueRes.unixTimestamp;
+          // if cache data is within 1 days, use the cache.
+          if (Date.now() - timeStamp < 1000 * 60 * 60 * 24) {
+            return ok(cacheValueRes.labels);
+          }
+        }
+      }
       const requester = WrappedAxiosClient.create({
         baseURL: graphAPIEndpoint,
       });
@@ -54,6 +73,24 @@ export class GraphAPIClient {
       const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
 
       if (response && response.data && response.data.value) {
+        if (useCache) {
+          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+          // only retrieve the necessary properties from the response.data.value
+          const labels = response.data.value.map(
+            (label: any) =>
+              ({
+                id: label?.id,
+                name: label?.name,
+                description: label?.description,
+                displayName: label?.displayName,
+              } as SensitivityLabel)
+          );
+          const cacheValue: ListSensitivityCacheValue = {
+            labels: labels,
+            unixTimestamp: Date.now(),
+          };
+          await globalStateUpdate(cacheKey, cacheValue);
+        }
         return ok(response.data.value);
       } else {
         return err(
@@ -106,6 +143,15 @@ export class GraphAPIClient {
       );
     }
   }
+
+  private buildCacheKey(accountUniqueName: string, tenantId: string): string {
+    return `${listSensitivityLabelCacheKeyPrefix}:${tenantId}:${accountUniqueName}`;
+  }
 }
 
 export const graphAPIClient = new GraphAPIClient();
+
+interface ListSensitivityCacheValue {
+  labels: SensitivityLabel[];
+  unixTimestamp: number;
+}

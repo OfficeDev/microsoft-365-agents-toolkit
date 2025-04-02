@@ -25,7 +25,7 @@ import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { CreateOauthArgs } from "./interface/createOauthArgs";
 import { CreateOauthOutputs, OutputKeys } from "./interface/createOauthOutputs";
 import { defaultRedirectUri, logMessageKeys } from "./utility/constants";
-import { OauthInfo, getandValidateOauthInfoFromSpec, validateSecret } from "./utility/utility";
+import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
 
 const actionName = "oauth/register"; // DO NOT MODIFY the name
@@ -95,10 +95,13 @@ export class CreateOauthDriver implements StepDriver {
 
         this.validateArgs(args);
 
-        const authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
+        const authInfo = await getAuthInfo(args, context, actionName);
 
         if (args.identityProvider === "MicrosoftEntra") {
-          if (!authInfo.authorizationEndpoint!.includes("microsoftonline")) {
+          if (
+            authInfo.authorizationEndpoint &&
+            !authInfo.authorizationEndpoint.includes("microsoftonline")
+          ) {
             throw new OauthIdentityProviderInvalid(actionName);
           }
         }
@@ -185,8 +188,48 @@ export class CreateOauthDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
       invalidParameters.push("apiSpecPath");
+    }
+
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (
+      args.authorizationUrl &&
+      (typeof args.authorizationUrl !== "string" || !validateUrl(args.authorizationUrl))
+    ) {
+      invalidParameters.push("authorizationUrl");
+    }
+
+    if (args.tokenUrl && (typeof args.tokenUrl !== "string" || !validateUrl(args.tokenUrl))) {
+      invalidParameters.push("tokenUrl");
+    }
+
+    if (args.scope && typeof args.scope !== "string") {
+      invalidParameters.push("scope");
+    }
+
+    if (!args.apiSpecPath) {
+      const missingProperties = [];
+      if (!args.baseUrl) {
+        missingProperties.push("baseUrl");
+      }
+
+      if (args.identityProvider !== "MicrosoftEntra") {
+        if (!args.authorizationUrl) {
+          missingProperties.push("authorizationUrl");
+        }
+        if (!args.tokenUrl) {
+          missingProperties.push("tokenUrl");
+        }
+      }
+
+      if (missingProperties.length > 0) {
+        missingProperties.push("apiSpecPath");
+        invalidParameters.push(...missingProperties);
+      }
     }
 
     if (

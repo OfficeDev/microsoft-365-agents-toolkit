@@ -6,7 +6,7 @@
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
-  "icon": "media/teams.png",
+  "icon": "media/icon.png",
   "main": "./out/src/extension.js",
   "repository": {
     "type": "git",
@@ -111,6 +111,13 @@
         "default": {
           "fontPath": "./media/font/teamstoolkit.woff",
           "fontCharacter": "\\E006"
+        }
+      },
+      "teamsfx-graph-connector": {
+        "description": "Graph Connector icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E007"
         }
       }
     },

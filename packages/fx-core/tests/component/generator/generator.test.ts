@@ -53,6 +53,7 @@ import { ActionContext } from "../../../src/component/middleware/actionExecution
 import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
+import os from "os";
 
 const mockedSampleInfo: SampleConfig = {
   id: "test-id",
@@ -1337,6 +1338,13 @@ describe("render template", () => {
         : Generator.getDefaultVariables("test");
       assert.equal(vars.ShareEnabled, "");
     });
+
+    it("template variables with graph connector scaffold", async () => {
+      inputs.projectId = "test-id";
+      inputs[QuestionNames.GCName] = "test-name";
+      const vars = getTemplateReplaceMap(inputs);
+      assert.equal(vars.gcName, "test-name");
+    });
   });
 });
 
@@ -1437,5 +1445,29 @@ describe("Generate sample using download directory", () => {
     }
     assert.isTrue(rmStub.calledOnce);
     assert.isTrue(existsStub.calledOnce);
+  });
+});
+
+describe("getTemplateReplaceMap", () => {
+  const sandbox = createSandbox();
+  const inputs = {
+    platform: Platform.VSCode,
+    [QuestionNames.AppName]: randomAppName(),
+    [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
+    [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+    [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
+  } as Inputs;
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("should return windows pathDelimiter", () => {
+    sandbox.stub(os, "platform").returns("win32");
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.pathDelimiter, ";");
+  });
+  it("should return windows pathDelimiter", () => {
+    sandbox.stub(os, "platform").returns("linux");
+    const map = getTemplateReplaceMap(inputs);
+    assert.equal(map.pathDelimiter, ":");
   });
 });

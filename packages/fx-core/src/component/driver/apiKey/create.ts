@@ -25,7 +25,7 @@ import { ApiKeyNameTooLongError } from "./error/apiKeyNameTooLong";
 import { CreateApiKeyArgs } from "./interface/createApiKeyArgs";
 import { CreateApiKeyOutputs, OutputKeys } from "./interface/createApiKeyOutputs";
 import { logMessageKeys, maxSecretLength, minSecretLength } from "./utility/constants";
-import { getDomain, loadStateFromEnv, validateDomain } from "./utility/utility";
+import { getDomain, loadStateFromEnv, validateDomain, validateUrl } from "./utility/utility";
 import { apiKeyFromScratchClientSecretInvalid } from "./error/apiKeyFromScratchClientSecretInvalid";
 import { WrapDriverContext } from "../util/wrapUtil";
 
@@ -100,8 +100,13 @@ export class CreateApiKeyDriver implements StepDriver {
 
         this.validateArgs(args);
 
-        const domains = await getDomain(args, context, actionName);
-        validateDomain(domains, actionName);
+        let domains: string[] = [];
+        if (args.baseUrl) {
+          domains = [args.baseUrl];
+        } else {
+          domains = await getDomain(args, context, actionName);
+          validateDomain(domains, actionName);
+        }
 
         const apiKey = await this.mapArgsToApiSecretRegistration(
           context.m365TokenProvider,
@@ -190,7 +195,16 @@ export class CreateApiKeyDriver implements StepDriver {
       throw new ApiKeyClientSecretInvalidError(actionName);
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
+      invalidParameters.push("apiSpecPath");
+    }
+
+    if (!args.baseUrl && !args.apiSpecPath) {
+      invalidParameters.push("baseUrl");
       invalidParameters.push("apiSpecPath");
     }
 

@@ -8,6 +8,7 @@ import {
 import { FxError, M365TokenProvider, Result, SystemError, err, ok } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { GraphClient } from "../client/graphClient";
 import { GraphReadUserScopes, SPFxScopes } from "./constants";
 import fs from "fs-extra";
 import path from "path";
@@ -15,6 +16,17 @@ import { MetadataV3 } from "./versionMetadata";
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
+}
+
+export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Promise<boolean> {
+  const SANDBOX_SENSITIVITY_LABEL = "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5";
+  const graphClient = new GraphClient(tokenProvider);
+  const teamsAppSettings = await graphClient.GetTeamsAppSettingsAsync();
+  return (
+    teamsAppSettings.sandboxingConfiguration &&
+    teamsAppSettings.sandboxingConfiguration.sensitivityLabelUsedToIdentifySandboxedContainers ===
+      SANDBOX_SENSITIVITY_LABEL
+  );
 }
 
 export async function listAllTenants(token: string): Promise<Record<string, any>[]> {

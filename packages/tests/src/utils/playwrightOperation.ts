@@ -390,12 +390,20 @@ export async function initCopilotPage(
     ]);
     await page.waitForTimeout(Timeout.longTimeWait);
     console.log("check copilot agent loaded");
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[title="Copilot"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
-    await frame?.waitForSelector(`span:has-text("Agents")`);
-    console.log("[success] copilot loaded");
+    try {
+      const frameElementHandle = await page.waitForSelector(
+        `iframe[title="Copilot"]`
+      );
+      const frame = await frameElementHandle?.contentFrame();
+      await frame?.waitForSelector(`span:has-text("Agents")`);
+      console.log("[success] copilot loaded");
+    } catch {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("copiloterror_page"),
+        fullPage: true,
+      });
+      throw "error to load copilot";
+    }
   });
 
   return page;
@@ -1742,7 +1750,7 @@ export async function validatePrompt(
     } catch {
       console.log("no allow button.");
     }
-    await frame?.waitForSelector(`p:has-text("${options?.expected}")`);
+    await frame?.waitForSelector(`div:has-text("${options?.expected}")`);
     console.log("verify prompt successfully!!!");
     console.log(`${options?.expected}`);
   } catch (error) {

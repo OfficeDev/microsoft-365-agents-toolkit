@@ -100,6 +100,7 @@ import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
+import "../component/feature/sso";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
@@ -2601,6 +2602,34 @@ export class FxCore {
       return err(error);
     }
 
+    return ok(undefined);
+  }
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.setSensitivityLabel }),
+    ErrorHandlerMW,
+    QuestionMW("setSensitivityLabel"),
+    ConcurrentLockerMW,
+  ])
+  async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
+    const declarativeAgentManifestPath = inputs[
+      QuestionNames.DeclarativeAgentManifestPath
+    ] as string;
+    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifestRes.isErr()) {
+      return err(declarativeAgentManifestRes.error);
+    }
+    const declarativeAgentManifest = declarativeAgentManifestRes.value;
+    declarativeAgentManifest.sensitivity_label = selectedLabel;
+    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    if (writeRes.isErr()) {
+      return err(writeRes.error);
+    }
     return ok(undefined);
   }
 

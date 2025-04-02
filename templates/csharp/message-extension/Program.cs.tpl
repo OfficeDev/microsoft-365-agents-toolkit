@@ -13,17 +13,20 @@ builder.AddBot<TeamsMessageExtension>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestTool")
+{
+    app.MapGet("/", () => "Message Extension Bot");
+    app.UseDeveloperExceptionPage();
+    app.MapControllers().AllowAnonymous();
+}
+else
+{
+    app.MapControllers();
+}
 
 app.Run();
 
