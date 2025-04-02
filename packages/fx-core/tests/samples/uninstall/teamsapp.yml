@@ -38,8 +38,7 @@ provision:
           parameters: ./infra/azure.parameters.json
           # Required when deploying ARM template
           deploymentName: Create-resources-for-tab
-      # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
-      # will use bicep CLI in PATH if you remove this config.
+      # Microsoft 365 Agents Toolkit will download this Bicep CLI version from GitHub. If you remove this config, it will use the Bicep CLI in your system's PATH.
       bicepCliVersion: v0.9.1
 
   # Validate using manifest schema

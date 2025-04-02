@@ -303,7 +303,7 @@
     "armDeploy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create Azure resources using the referenced Bicep/JSON files. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
+      "description": "Create Azure resources using the referenced Bicep/JSON files. For more details on the naming convention, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -319,7 +319,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs from Bicep/JSON will be persisted in the current Microsoft 365 Agents Toolkit environment following certain naming convertion. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
+          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs will be saved in the current Microsoft 365 Agents Toolkit environment using a specific naming convention. For more details, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
           "const": "arm/deploy"
         },
         "with": {

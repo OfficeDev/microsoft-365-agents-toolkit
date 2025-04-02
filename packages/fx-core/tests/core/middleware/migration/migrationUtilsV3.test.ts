@@ -270,7 +270,7 @@ describe("Migration: upgrade cancel messages", () => {
     v3MigrationUtils.outputCancelMessage("4.2.2", Platform.VSCode);
     const groundTruth = [
       `Upgrade cancelled.`,
-      `Notice upgrade to new configuration files is a must-have to continue to use current version Microsoft 365 Agents Toolkit. Get more info at https://aka.ms/teams-toolkit-5.0-upgrade.`,
+      `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please run command (Teams: Upgrade project) or click the "Upgrade project" button on Microsoft 365 Agents Toolkit sidebar to trigger the upgrade.`,
       `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit 4.x.x.`,
     ];
@@ -281,7 +281,7 @@ describe("Migration: upgrade cancel messages", () => {
     v3MigrationUtils.outputCancelMessage("4.2.2", Platform.VS);
     const groundTruth = [
       `Upgrade cancelled.`,
-      `Notice upgrade to new configuration files is a must-have to continue to use current version Microsoft 365 Agents Toolkit. Get more info at https://aka.ms/teams-toolkit-5.0-upgrade.`,
+      `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please trigger this command again.`,
       `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit.`,
     ];
@@ -292,7 +292,7 @@ describe("Migration: upgrade cancel messages", () => {
     v3MigrationUtils.outputCancelMessage("4.2.2", Platform.CLI);
     const groundTruth = [
       `Upgrade cancelled.`,
-      `Notice upgrade to new configuration files is a must-have to continue to use current version Microsoft 365 Agents Toolkit CLI. Get more info at https://aka.ms/teams-toolkit-5.0-upgrade.`,
+      `Upgrading to the new configuration files is required to keep using the current version of Microsoft 365 Agents Toolkit. For more details, please visit https://aka.ms/teams-toolkit-5.0-upgrade.`,
       `If you want to upgrade, please trigger this command again.`,
       `If you are not ready to upgrade, please continue to use the old version Microsoft 365 Agents Toolkit CLI 1.x.x.`,
     ];

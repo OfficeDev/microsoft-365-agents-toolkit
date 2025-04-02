@@ -1,6 +1,6 @@
 # Review project upgrade and changes
 
-Your project was automatically upgraded to work with this version of Microsoft 365 Agents Toolkit. The upgrade is one-way, and you will not be able to use the version of Microsoft 365 Agents Toolkit in which it was originally created unless you [roll back the changes](#how-to-roll-back-after-the-upgrade).
+Your project has been automatically upgraded to the latest version of the Microsoft 365 Agents Toolkit. This upgrade is irreversible; to revert to the previous version, follow the [rollback instructions](#how-to-roll-back-after-the-upgrade).
 
 > If you encountered a problem after the automatic upgrade, review the [known issues](https://aka.ms/teams-toolkit-5.0-upgrade#known-issues). If you are still having trouble, contact ttkfeedback@microsoft.com or [file an issue on GitHub](https://github.com/officedev/teamsfx/issues) with details about the problem.
 

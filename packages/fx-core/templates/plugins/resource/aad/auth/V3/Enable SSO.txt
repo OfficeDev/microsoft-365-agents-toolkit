@@ -1,4 +1,4 @@
-Enable Single Sign-on for Teams Applications
+Enable Single Sign-on for Teams App
 -------------------------
 
 On click of Visual Studio menu Project -> Microsoft 365 Agents Toolkit -> Add Authentication Code, couple of files for Single Sign-on are generated in "TeamsFx-Auth" folder, including a manifest template file for Microsoft Entra application and authentication redirect pages.  
@@ -9,7 +9,7 @@ Basically, you will need to take care of these configurations:
 
 * In the Microsoft Entra manifest file, you need to specify URIs such as the URI to identify the Microsoft Entra authentication app and the redirect URI for returning token. 
 * In the Teams manifest file, add the SSO application to link it with Teams application. 
-* Add SSO application information in Microsoft 365 Agents Toolkit configuration files in order to make sure the authentication app can be registered on backend service and started by Microsoft 365 Agents Toolkit when you debugging or previewing Teams application.
+* Add your SSO app details to the Microsoft 365 Agents Toolkit settings so that the authentication app registers with the backend and launches automatically when you debug or preview your Teams app.
 
 Refer to the step-by-step guide for Teams Tab Application at https://aka.ms/teamsfx-add-sso-vs-new-schema#for-teams-tab-application.
 Refer to the step-by-step guide for Teams Bot Applications at https://aka.ms/teamsfx-add-sso-vs-new-schema#for-teams-bot-applications. This guide use Command and Response bot as an example to show case how to enable SSO.

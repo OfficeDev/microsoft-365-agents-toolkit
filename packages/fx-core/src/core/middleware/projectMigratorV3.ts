@@ -912,9 +912,9 @@ export async function generateApimPluginEnvContent(context: MigrationContext): P
                   path.join(MetadataV3.defaultEnvironmentFolder, Constants.envFilePrefix + envName)
                 );
               const apimPluginAppendContent =
-                "APIM__PUBLISHEREMAIL= # Microsoft 365 Agents Toolkit does not record your mail to protect your privacy, please fill your mail address here before provision to avoid failures" +
+                "APIM__PUBLISHEREMAIL= # To protect your privacy, Microsoft 365 Agents Toolkit does not store your email address. Please enter your email address below before provisioning to avoid failures." +
                 EOL +
-                "APIM__PUBLISHERNAME= # Microsoft 365 Agents Toolkit does not record your name to protect your privacy, please fill your name here before provision to avoid failures" +
+                "APIM__PUBLISHERNAME= # To protect your privacy, Microsoft 365 Agents Toolkit does not store your name. Please enter your name below before provisioning to avoid failures." +
                 EOL;
               await context.fsWriteFile(
                 path.join(MetadataV3.defaultEnvironmentFolder, Constants.envFilePrefix + envName),

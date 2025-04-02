@@ -1,6 +1,6 @@
 # Enable single sign-on for tab applications
 
-Microsoft Teams provides a mechanism by which an application can obtain the signed-in Teams user token to access Microsoft Graph (and other APIs). Microsoft 365 Agents Toolkit facilitates this interaction by abstracting some of the Microsoft Entra flows and integrations behind some simple, high level APIs. This enables you to add single sign-on (SSO) features easily to your Teams application.
+Microsoft Teams lets your app obtain the signed-in user token to access Microsoft Graph and other APIs. The Microsoft 365 Agents Toolkit simplifies this by wrapping Microsoft Entra ID flows in easy-to-use APIs, making it simple to add SSO features to your Teams app.
 
 # Changes to your project
 
@@ -16,7 +16,7 @@ After you successfully added SSO into your project, Microsoft 365 Agents Toolkit
 
 # Update your code to add SSO
 
-As described above, the Microsoft 365 Agents Toolkit generated some configuration to set up your application for SSO, but you need to update your application business logic to take advantage of the SSO feature as appropriate.
+The Microsoft 365 Agents Toolkit has configured your app for SSO, but you'll need to update your business logic to fully utilize this feature.
 
 1. Move `auth-start.html` and `auth-end.html` in `auth/tab/public` folder to `tabs/public/`.
 These two HTML files are used for auth redirects.
