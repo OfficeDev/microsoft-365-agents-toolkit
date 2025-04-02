@@ -7,5 +7,8 @@
             ],
             "schema": {}
         }
-    ]
+    ],
+    "files.readonlyInclude": {
+        "appPackage/.generated/**/*": true     
+    }
 }
