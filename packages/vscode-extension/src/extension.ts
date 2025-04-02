@@ -292,6 +292,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await vscode.commands.executeCommand(
     "setContext",
+    "fx-extension.isSensitivityLabelEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
   );

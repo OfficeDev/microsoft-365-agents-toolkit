@@ -186,7 +186,14 @@ class CLIEngine {
       // discard other options and args for interactive mode
       const reservedOptionNames = (
         context.command.reservedOptionNamesInInteractiveMode || []
-      ).concat(["projectPath", "env", "correlationId", "platform", "nonInteractive"]);
+      ).concat([
+        "projectPath",
+        "projectPathSkipValidation",
+        "env",
+        "correlationId",
+        "platform",
+        "nonInteractive",
+      ]);
       const trimOptionValues = pick(context.optionValues, reservedOptionNames);
       if (
         Object.keys(trimOptionValues).length < Object.keys(context.optionValues).length ||
@@ -221,7 +228,11 @@ class CLIEngine {
       "validate",
       "deploy",
     ];
-    if (!skipCommands.includes(context.command.name) && context.optionValues.projectPath) {
+    if (
+      !skipCommands.includes(context.command.name) &&
+      context.optionValues.projectPath &&
+      !context.optionValues.projectPathSkipValidation
+    ) {
       const core = getFxCore();
       const res = await core.projectVersionCheck(inputs);
       if (res.isErr()) {
@@ -516,6 +527,7 @@ class CLIEngine {
       const projectPath = path.resolve(projectFolderOption.value as string);
       projectFolderOption.value = projectPath;
       context.optionValues.projectPath = projectPath;
+      context.optionValues.projectPathSkipValidation = (projectFolderOption as any).skipValidation;
       if (projectPath) {
         CliTelemetry.withRootFolder(projectPath);
       }

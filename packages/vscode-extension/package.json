@@ -965,6 +965,12 @@
         "enablement": "fx-extension.isSyncManifestEnabled"
       },
       {
+        "command": "fx-extension.setSensitivityLabel",
+        "title": "%teamstoolkit.commandsTreeViewProvider.setSensitivityLabel%",
+        "category": "Teams",
+        "enablement": "fx-extension.isSensitivityLabelEnabled"
+      },
+      {
         "command": "fx-extension.teamsAgentTroubleshootSelectedText",
         "title": "%teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title%",
         "enablement": "editor.hasSelection && fx-extension.isChatParticipantUIEntriesEnabled && fx-extension.hideTeamsAgentPreviewTag",

@@ -12,6 +12,7 @@ import {
   SingleSelectQuestion,
   SingleFileQuestion,
   AppPackageFolderName,
+  TeamsAppManifest,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -36,6 +37,7 @@ import {
 import { graphAPIClient } from "../../src/client/graphAPIClient";
 import { setTools, TOOLS } from "../../src/common/globalVars";
 import path from "path";
+import { manifestUtils, TeamsAppAdmin } from "../../src";
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -604,64 +606,107 @@ describe("setSensitivityLabelNode", () => {
     assert.equal(options?.length, 0);
   });
 
-  it("should return the correct default path for selectDeclarativeAgentManifestQuestion - CLI_HELP", () => {
+  it("should return the correct default path for selectDeclarativeAgentManifestQuestion - CLI_HELP", async () => {
     const inputs: Inputs = {
       platform: Platform.CLI_HELP,
       projectPath: "./testProject",
     };
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
-    const defaultPath = (question?.default as any)(inputs);
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.equal(defaultPath, "./appPackage/declarativeAgent.json");
   });
 
-  it("should return the correct default path for selectDeclarativeAgentManifestQuestion", () => {
+  it("should return the correct default path for selectDeclarativeAgentManifestQuestion", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./testProject",
     };
     sandbox.stub(fs, "pathExistsSync").returns(true);
-    sandbox.stub(fs, "readJsonSync").returns({
-      copilotAgents: {
-        declarativeAgents: [
-          {
-            file: "agent.json",
-          },
-        ],
-      },
-    });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      ok({
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              file: "agent.json",
+            },
+          ],
+        },
+      } as TeamsAppManifest)
+    );
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
-    const defaultPath = (question?.default as any)(inputs);
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.equal(defaultPath, path.join(inputs.projectPath!, AppPackageFolderName, "agent.json"));
   });
 
-  it("should return undefined if projectPath is not defined for selectDeclarativeAgentManifestQuestion", () => {
+  it("should return undefined if projectPath is not defined for selectDeclarativeAgentManifestQuestion", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
     };
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
-    const defaultPath = (question?.default as any)(inputs);
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
   });
 
-  it("should return undefined if manifest path does not exist for selectDeclarativeAgentManifestQuestion", () => {
+  it("should return undefined if manifest path does not exist for selectDeclarativeAgentManifestQuestion", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./nonExistentProject",
     };
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
-    const defaultPath = (question?.default as any)(inputs);
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
   });
 
-  it("should return undefined if manifest does not contain DA for selectDeclarativeAgentManifestQuestion", () => {
+  it("should return undefined if manifest does not contain DA for selectDeclarativeAgentManifestQuestion", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./testProject",
     };
     sandbox.stub(fs, "pathExistsSync").returns(true);
-    sandbox.stub(fs, "readJsonSync").returns({});
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as any));
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
-    const defaultPath = (question?.default as any)(inputs);
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
+    assert.isUndefined(defaultPath);
+  });
+
+  it("should return error if failed to read manifest for selectDeclarativeAgentManifestQuestion", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(err(new SystemError("TestError", "Test error message", "TestSource")));
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
+    assert.isUndefined(defaultPath);
+  });
+
+  it("should return error if declarativeAgentManifest path does not exist", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./testProject",
+    };
+    sandbox.stub(fs, "pathExistsSync").callsFake((path: string) => {
+      if (path.includes("manifest")) {
+        return true;
+      }
+      return false;
+    });
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      ok({
+        copilotAgents: {
+          declarativeAgents: [
+            {
+              file: "agent.json",
+            },
+          ],
+        },
+      } as TeamsAppManifest)
+    );
+    const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
+    const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
   });
 });

@@ -2144,6 +2144,59 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     );
     assert.isTrue(writeJsonStub.notCalled);
   });
+
+  it("happy path: do nothing if no placeholder", async () => {
+    sandbox.stub(fs, "readJSON").resolves({
+      schema_version: "v1",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: {
+            type: "ApiKeyPluginVault",
+            reference_id: "mocekd-reference-id",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "OAuthPluginVault",
+            reference_id: "mocekd-reference-id",
+          },
+          spec: {
+            url: "mock_spec_url",
+          },
+          run_for_functions: ["mockedOperationId"],
+        },
+        {
+          type: "OpenApi",
+          auth: {
+            type: "None",
+          },
+          spec: {
+            url: "mock_spec_url2",
+          },
+          run_for_functions: ["mockedOperationId2"],
+        },
+      ],
+    } as PluginManifestSchema);
+    sandbox.stub(fs, "writeJSON").callsFake((path, data) => {
+      const dataJson = JSON.parse(data);
+      assert.isTrue(dataJson.runtimes.length === 2);
+      assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
+    });
+
+    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+      "pluginManifestPath",
+      true
+    );
+    assert.deepEqual(result, []);
+  });
 });
 
 describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
