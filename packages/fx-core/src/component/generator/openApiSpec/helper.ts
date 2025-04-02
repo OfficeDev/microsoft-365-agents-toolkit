@@ -1694,19 +1694,30 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
 export async function parseAndUpdatePluginManifestForKiota(
   pluginManifestPath: string,
   updatePlaceholder: boolean
-): Promise<{ authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[]> {
-  const authData: { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] =
-    [];
+): Promise<
+  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
+> {
+  const authData: {
+    authName: string;
+    authType: "apiKey" | "oauth2";
+    registrationId: string;
+    specPath: string;
+  }[] = [];
   const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
   pluginManifest.runtimes?.forEach((runtime) => {
     if ((runtime as RuntimeObjectOpenapi).auth) {
-      const auth = (runtime as RuntimeObjectOpenapi).auth;
-      if (auth?.reference_id && auth?.type !== "None") {
+      const auth = (runtime as RuntimeObjectOpenapi).auth!;
+      if (
+        auth.reference_id &&
+        auth.reference_id.match(/{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth.type !== "None"
+      ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         authData.push({
           authName: registrationId.split("_")[0],
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
           registrationId: registrationId.toUpperCase(),
+          specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
           auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;

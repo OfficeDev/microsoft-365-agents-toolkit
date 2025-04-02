@@ -43,7 +43,7 @@ export async function getDomain(
     return (
       auth &&
       auth.name === args.name &&
-      ((auth.authScheme.type === "http" && auth.authScheme.scheme === "bearer") ||
+      ((auth.authScheme.type === "http" && auth.authScheme.scheme.toLowerCase() === "bearer") ||
         (auth.authScheme.type === "apiKey" && auth.authScheme.in !== "cookie"))
     );
   });

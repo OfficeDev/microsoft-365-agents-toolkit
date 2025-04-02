@@ -25,7 +25,7 @@ export interface ItemMetadata {
 export async function createGraphClientWithToken(
   context: Context
 ): Promise<Result<AxiosInstance, FxError>> {
-  const graphTokenRes = await context.tokenProvider?.m365TokenProvider.getAccessToken({
+  const graphTokenRes = await context.tokenProvider?.m365TokenProvider?.getAccessToken({
     scopes: GraphScopes,
   });
   if (!graphTokenRes?.isOk()) {

@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Teams Toolkit",
   "description": "Create, debug, and deploy Teams apps with Teams Toolkit",
-  "version": "5.14.0",
+  "version": "5.14.1",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -979,6 +979,12 @@
         "title": "%teamstoolkit.commandsTreeViewProvider.syncManifest%",
         "category": "Teams",
         "enablement": "fx-extension.isSyncManifestEnabled"
+      },
+      {
+        "command": "fx-extension.setSensitivityLabel",
+        "title": "%teamstoolkit.commandsTreeViewProvider.setSensitivityLabel%",
+        "category": "Teams",
+        "enablement": "fx-extension.isSensitivityLabelEnabled"
       },
       {
         "command": "fx-extension.teamsAgentTroubleshootSelectedText",

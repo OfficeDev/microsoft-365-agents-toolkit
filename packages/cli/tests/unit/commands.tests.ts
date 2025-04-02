@@ -68,6 +68,8 @@ import { addPluginCommand } from "../../src/commands/models/addPlugin";
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { shareCommand } from "../../src/commands/models/share";
+import { setCommand } from "../../src/commands/models/set";
+import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -1582,6 +1584,27 @@ describe("CLI read-only commands", () => {
       };
       const res = await teamsappDoctorCommand.handler!(ctx);
       assert.isTrue(res.isOk());
+    });
+    describe("getSetCommand", async () => {
+      it("set command", async () => {
+        const commands = setCommand();
+        assert.isTrue(commands.commands?.length === 1);
+      });
+    });
+
+    describe("set sensitivity label", async () => {
+      it("success", async () => {
+        sandbox.stub(FxCore.prototype, "setSensitivityLabel").resolves(ok(undefined));
+        const ctx: CLIContext = {
+          command: { ...setSensitivityLabelCommand, fullName: "set sensitivity label" },
+          optionValues: {},
+          globalOptionValues: {},
+          argumentValues: [],
+          telemetryProperties: {},
+        };
+        const res = await setSensitivityLabelCommand.handler!(ctx);
+        assert.isTrue(res.isOk());
+      });
     });
   });
 });
