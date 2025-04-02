@@ -32,7 +32,6 @@ const [nodeRange, platform, arch] = target.split("-");
       },
       "file-version": version,
       "product-version": version,
-      icon: "icons/M365Agent.ico",
       "requested-execution-level": "asInvoker",
       // "application-manifest": "",
     });
