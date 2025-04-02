@@ -5,6 +5,8 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+import fs from "fs-extra";
+import path from "path";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateTab, reopenPage } from "../../utils/playwrightOperation";
@@ -12,15 +14,19 @@ import { CaseFactory } from "./sampleCaseFactory";
 import { Env } from "../../utils/env";
 import { SampledebugContext } from "./sampledebugContext";
 
-class HelloWorldTabDockerTestCase extends CaseFactory {
+class HelloWorldTabBackEndTestCase extends CaseFactory {
   override async onValidate(
     page: Page,
     options?: { includeFunction: boolean }
   ): Promise<void> {
-    return await validateTab(page, {
-      displayName: Env.displayName,
-      includeFunction: options?.includeFunction,
-    });
+    return await validateTab(
+      page,
+      {
+        displayName: Env.displayName,
+        includeFunction: options?.includeFunction,
+      },
+      true
+    );
   }
   override async onCliValidate(
     page: Page,
@@ -38,19 +44,39 @@ class HelloWorldTabDockerTestCase extends CaseFactory {
     return await reopenPage(
       sampledebugContext.context!,
       teamsAppId,
-      Env.username,
-      Env.password,
       undefined,
-      true,
-      true
+      undefined,
+      {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
+      }
     );
+  }
+  override async onAfterCreate(
+    sampledebugContext: SampledebugContext,
+    env: "local" | "dev"
+  ): Promise<void> {
+    // update swa sku to standard
+    const bicepPath = path.join(
+      sampledebugContext.projectPath,
+      "infra",
+      "azure.parameters.json"
+    );
+    const bicep = fs.readJsonSync(bicepPath);
+    bicep["parameters"]["staticWebAppSku"]["value"] = "Standard";
+    fs.writeJsonSync(bicepPath, bicep);
   }
 }
 
-new HelloWorldTabDockerTestCase(
-  TemplateProject.HelloWorldTabDocker,
-  27085868,
+new HelloWorldTabBackEndTestCase(
+  TemplateProject.HelloWorldTabBackEnd,
+  12684063,
+  13523920,
   "v-ivanchen@microsoft.com",
-  "local",
-  [LocalDebugTaskLabel.DockerTask]
+  [
+    LocalDebugTaskLabel.StartFrontend,
+    LocalDebugTaskLabel.WatchBackend,
+    LocalDebugTaskLabel.StartBackend,
+  ]
+  //{ debug: "cli" }
 ).test();

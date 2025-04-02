@@ -49,5 +49,6 @@ new AssistDashboardTestCase(
   {
     dashboardFlag: true,
     skipInit: true,
+    // debug: "cli",
   } // [TODO] skipInit browser security block
 ).test();

@@ -5,12 +5,13 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+import * as uuid from "uuid";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateTodoList, reopenPage } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
-import { Env } from "../../utils/env";
+import { editDotEnvFile } from "../../utils/commonUtils";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
@@ -20,10 +21,24 @@ class TodoListM365TestCase extends CaseFactory {
     sampledebugContext: SampledebugContext,
     env: "local" | "dev"
   ): Promise<void> {
-    const targetPath = path.resolve(sampledebugContext.projectPath, "tabs");
-    const data = "src/";
-    // create .eslintignore
-    fs.writeFileSync(targetPath + "/.eslintignore", data);
+    if (env === "local") {
+      const targetPath = path.resolve(sampledebugContext.projectPath, "tabs");
+      const data = "src/";
+      // create .eslintignore
+      fs.writeFileSync(targetPath + "/.eslintignore", data);
+    } else {
+      const envFilePath = path.resolve(
+        sampledebugContext.projectPath,
+        "env",
+        ".env.dev.user"
+      );
+      editDotEnvFile(envFilePath, "SQL_USER_NAME", "Abc123321");
+      editDotEnvFile(
+        envFilePath,
+        "SQL_PASSWORD",
+        "Cab232332" + uuid.v4().substring(0, 6)
+      );
+    }
   }
   override async onValidate(
     page: Page,
@@ -57,12 +72,12 @@ class TodoListM365TestCase extends CaseFactory {
 new TodoListM365TestCase(
   TemplateProject.TodoListM365,
   12664741,
+  14571883,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartFrontend, LocalDebugTaskLabel.StartBackend],
   {
-    teamsAppName: "toDoList-local",
-    debug: "cli",
+    teamsAppName: "toDoList-",
+    //debug: "cli",
     testRootFolder: path.resolve(os.homedir(), "resourse"), // fix eslint error
   }
 ).test();

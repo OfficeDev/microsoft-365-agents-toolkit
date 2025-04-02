@@ -12,6 +12,7 @@ import { CaseFactory } from "./sampleCaseFactory";
 import { AzServiceBusHelper } from "../../utils/azureCliHelper";
 import { SampledebugContext } from "./sampledebugContext";
 import { validateLargeNotificationBot } from "../../utils/playwrightOperation";
+import { getBotSiteEndpoint } from "../../utils/commonUtils";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -74,8 +75,24 @@ class LargeNotiTestCase extends CaseFactory {
     );
   }
 
-  override async onValidate(page: Page): Promise<void> {
-    return await validateLargeNotificationBot(page);
+  override async onValidate(
+    page: Page,
+    options: {
+      context: SampledebugContext;
+      displayName: string;
+      includeFunction: boolean;
+      npmName: string;
+      env: "local" | "dev";
+    }
+  ): Promise<void> {
+    const funcEndpoint = await getBotSiteEndpoint(
+      options.context.projectPath,
+      options.env
+    );
+    return await validateLargeNotificationBot(
+      page,
+      funcEndpoint + "/api/notification"
+    );
   }
 
   public override async onCliValidate(page: Page): Promise<void> {
@@ -86,15 +103,12 @@ class LargeNotiTestCase extends CaseFactory {
 new LargeNotiTestCase(
   TemplateProject.LargeScaleBot,
   25929282,
+  25960873,
   "v-ivanchen@microsoft.com",
-  "local",
   [
     LocalDebugTaskLabel.StartLocalTunnel,
     LocalDebugTaskLabel.Compile,
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.StartApplication,
-  ],
-  {
-    debug: "ttk",
-  }
+  ]
 );

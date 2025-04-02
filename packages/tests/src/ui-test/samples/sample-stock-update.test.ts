@@ -6,7 +6,7 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject } from "../../utils/constants";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateStockUpdate } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
@@ -45,7 +45,13 @@ class StockUpdateTestCase extends CaseFactory {
 
 new StockUpdateTestCase(
   TemplateProject.StockUpdate,
+  17303802,
   24121504,
   "v-ivanchen@microsoft.com",
-  "dev"
+  [
+    LocalDebugTaskLabel.StartLocalTunnel,
+    LocalDebugTaskLabel.Azurite,
+    LocalDebugTaskLabel.Compile,
+    LocalDebugTaskLabel.StartBotApp,
+  ]
 ).test();

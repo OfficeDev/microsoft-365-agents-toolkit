@@ -34,8 +34,8 @@ class RedditLinkTestCase extends CaseFactory {
 new RedditLinkTestCase(
   TemplateProject.RedditLink,
   27851434,
+  27852468,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
   {
     skipValidation: true,

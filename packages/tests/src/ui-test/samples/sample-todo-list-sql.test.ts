@@ -76,6 +76,7 @@ class TodoListBackendTestCase extends CaseFactory {
     options?: {
       teamsAppName: string;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initTeamsPage(
@@ -85,7 +86,7 @@ class TodoListBackendTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "local",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -125,11 +126,11 @@ class TodoListBackendTestCase extends CaseFactory {
 new TodoListBackendTestCase(
   TemplateProject.TodoListBackend,
   9958511,
+  14571882,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartFrontend, LocalDebugTaskLabel.StartBackend],
   {
-    teamsAppName: "toDoList-local",
+    teamsAppName: "toDoList-",
     testRootFolder: path.resolve(os.homedir(), "resourse"), // fix eslint error
     type: "spfx",
   }

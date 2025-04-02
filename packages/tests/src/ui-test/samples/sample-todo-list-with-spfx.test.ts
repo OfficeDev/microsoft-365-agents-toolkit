@@ -5,17 +5,17 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
-import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
 import { Page } from "playwright";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import {
   initTeamsPage,
-  validateRetailDashboard,
+  validateTodoListSpfx,
 } from "../../utils/playwrightOperation";
+import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
 import { Env } from "../../utils/env";
 
-class RetailDashboardTestCase extends CaseFactory {
+class TodoListSpfxTestCase extends CaseFactory {
   public override async onInitPage(
     sampledebugContext: SampledebugContext,
     teamsAppId: string,
@@ -37,22 +37,19 @@ class RetailDashboardTestCase extends CaseFactory {
       }
     );
   }
-
-  override async onValidate(
-    page: Page,
-    options?: { context: SampledebugContext }
-  ): Promise<void> {
-    return await validateRetailDashboard(page, "react-retail-dashboardlocal");
+  public override async onValidate(page: Page): Promise<void> {
+    return await validateTodoListSpfx(page, "TodoLi");
   }
 }
 
-new RetailDashboardTestCase(
-  TemplateProject.RetailDashboard,
-  25051148,
+new TodoListSpfxTestCase(
+  TemplateProject.TodoListSpfx,
+  9958516,
+  24121511,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.GulpServe],
   {
-    teamsAppName: "react-retail-dashboard-local",
+    teamsAppName: "TodoLi",
+    type: "spfx",
   }
 ).test();

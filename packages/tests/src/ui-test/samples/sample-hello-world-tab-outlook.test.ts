@@ -5,15 +5,39 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+import * as fs from "fs-extra";
+import * as path from "path";
 import { Page } from "playwright";
-import { TemplateProject } from "../../utils/constants";
-import { validatePersonalTab } from "../../utils/playwrightOperation";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
+import {
+  validatePersonalTab,
+  reopenPage,
+} from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
-import fs from "fs-extra";
-import path from "path";
 
 class OutlookTabTestCase extends CaseFactory {
+  override async onValidate(page: Page): Promise<void> {
+    return await validatePersonalTab(page);
+  }
+  override async onCliValidate(page: Page): Promise<void> {
+    return await validatePersonalTab(page);
+  }
+  public override async onReopenPage(
+    sampledebugContext: SampledebugContext,
+    teamsAppId: string
+  ): Promise<Page> {
+    return await reopenPage(
+      sampledebugContext.context!,
+      teamsAppId,
+      undefined,
+      undefined,
+      {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
+      }
+    );
+  }
   override async onAfterCreate(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev"
@@ -28,14 +52,13 @@ class OutlookTabTestCase extends CaseFactory {
     bicep["parameters"]["staticWebAppSku"]["value"] = "Standard";
     fs.writeJsonSync(bicepPath, bicep);
   }
-  override async onValidate(page: Page): Promise<void> {
-    return await validatePersonalTab(page);
-  }
 }
 
 new OutlookTabTestCase(
   TemplateProject.OutlookTab,
+  17451443,
   24121457,
   "v-ivanchen@microsoft.com",
-  "dev"
+  [LocalDebugTaskLabel.StartFrontend]
+  //{ debug: "cli" }
 ).test();

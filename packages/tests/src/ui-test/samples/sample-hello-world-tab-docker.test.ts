@@ -12,19 +12,15 @@ import { CaseFactory } from "./sampleCaseFactory";
 import { Env } from "../../utils/env";
 import { SampledebugContext } from "./sampledebugContext";
 
-class HelloWorldTabBackEndTestCase extends CaseFactory {
+class HelloWorldTabDockerTestCase extends CaseFactory {
   override async onValidate(
     page: Page,
     options?: { includeFunction: boolean }
   ): Promise<void> {
-    return await validateTab(
-      page,
-      {
-        displayName: Env.displayName,
-        includeFunction: options?.includeFunction,
-      },
-      true
-    );
+    return await validateTab(page, {
+      displayName: Env.displayName,
+      includeFunction: options?.includeFunction,
+    });
   }
   override async onCliValidate(
     page: Page,
@@ -42,25 +38,19 @@ class HelloWorldTabBackEndTestCase extends CaseFactory {
     return await reopenPage(
       sampledebugContext.context!,
       teamsAppId,
+      Env.username,
+      Env.password,
       undefined,
-      undefined,
-      {
-        projectPath: sampledebugContext.projectPath,
-        env: "local",
-      }
+      true,
+      true
     );
   }
 }
 
-new HelloWorldTabBackEndTestCase(
-  TemplateProject.HelloWorldTabBackEnd,
-  12684063,
+new HelloWorldTabDockerTestCase(
+  TemplateProject.HelloWorldTabDocker,
+  27085868,
+  27852473,
   "v-ivanchen@microsoft.com",
-  "local",
-  [
-    LocalDebugTaskLabel.StartFrontend,
-    LocalDebugTaskLabel.WatchBackend,
-    LocalDebugTaskLabel.StartBackend,
-  ],
-  { debug: "cli" }
+  [LocalDebugTaskLabel.DockerTask]
 ).test();

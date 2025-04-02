@@ -64,7 +64,7 @@ class ShareNowTestCase extends CaseFactory {
     const envFilePath = path.resolve(
       sampledebugContext.projectPath,
       "env",
-      ".env.local.user"
+      `.env.${env}.user`
     );
     editDotEnvFile(envFilePath, "SQL_USER_NAME", azSqlHelper?.sqlAdmin ?? "");
     editDotEnvFile(envFilePath, "SQL_PASSWORD", azSqlHelper?.sqlPassword ?? "");
@@ -83,7 +83,7 @@ class ShareNowTestCase extends CaseFactory {
 new ShareNowTestCase(
   TemplateProject.ShareNow,
   9958523,
+  24121485,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartFrontend, LocalDebugTaskLabel.StartBackend]
 ).test();

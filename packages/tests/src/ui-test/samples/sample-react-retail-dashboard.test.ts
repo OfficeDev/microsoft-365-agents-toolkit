@@ -5,7 +5,7 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
-import { TemplateProject } from "../../utils/constants";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 import { Page } from "playwright";
 import {
@@ -22,6 +22,7 @@ class RetailDashboardTestCase extends CaseFactory {
     options?: {
       teamsAppName: string;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initTeamsPage(
@@ -31,7 +32,7 @@ class RetailDashboardTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "dev",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -42,17 +43,17 @@ class RetailDashboardTestCase extends CaseFactory {
     page: Page,
     options?: { context: SampledebugContext }
   ): Promise<void> {
-    return await validateRetailDashboard(page, "fxuiContosdev");
+    return await validateRetailDashboard(page);
   }
 }
 
 new RetailDashboardTestCase(
   TemplateProject.RetailDashboard,
+  25051148,
   25051150,
   "v-ivanchen@microsoft.com",
-  "dev",
-  [],
+  [LocalDebugTaskLabel.GulpServe],
   {
-    teamsAppName: "react-retail-dashboard-dev",
+    teamsAppName: "react-retail-dashboard-",
   }
 ).test();

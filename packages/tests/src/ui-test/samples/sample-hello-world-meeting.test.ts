@@ -77,12 +77,12 @@ class MyFirstMeetingTestCase extends CaseFactory {
 new MyFirstMeetingTestCase(
   TemplateProject.MyFirstMeeting,
   9958524,
+  14571880,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartFrontend],
   {
-    teamsAppName: "fxuiMyFirslocal",
+    teamsAppName: "fxuiMyFirs",
     type: "meeting",
-    debug: "cli",
+    //debug: "cli",
   }
 ).test();

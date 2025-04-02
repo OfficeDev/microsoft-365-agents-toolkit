@@ -5,6 +5,9 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
+import * as fs from "fs-extra";
+import * as path from "path";
+import { SampledebugContext } from "./sampledebugContext";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateTab } from "../../utils/playwrightOperation";
@@ -21,15 +24,29 @@ class SsotabApimTestCase extends CaseFactory {
       includeFunction: options?.includeFunction,
     });
   }
+  override async onAfterCreate(
+    sampledebugContext: SampledebugContext,
+    env: "local" | "dev"
+  ): Promise<void> {
+    // update swa sku to standard
+    const bicepPath = path.join(
+      sampledebugContext.projectPath,
+      "infra",
+      "azure.parameters.json"
+    );
+    const bicep = fs.readJsonSync(bicepPath);
+    bicep["parameters"]["staticWebAppSku"]["value"] = "Standard";
+    fs.writeJsonSync(bicepPath, bicep);
+  }
 }
 
 new SsotabApimTestCase(
   TemplateProject.TabSSOApimProxy,
   25190654,
+  25191534,
   "v-ivanchen@microsoft.com",
-  "local",
-  [LocalDebugTaskLabel.StartFrontend],
-  {
-    debug: "cli",
-  }
+  [LocalDebugTaskLabel.StartFrontend]
+  // {
+  //   //debug: "cli",
+  // }
 ).test();

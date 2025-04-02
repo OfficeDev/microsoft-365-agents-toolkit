@@ -10,6 +10,7 @@ import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { validateProactiveMessaging } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
+import { setBotSkuNameToB1Bicep } from "../remotedebug/remotedebugContext";
 
 class ProactiveMessagingTestCase extends CaseFactory {
   override async onValidate(
@@ -21,13 +22,24 @@ class ProactiveMessagingTestCase extends CaseFactory {
       context: options?.context,
     });
   }
+
+  override async onAfterCreate(
+    sampledebugContext: SampledebugContext,
+    env: "local" | "dev"
+  ): Promise<void> {
+    // fix quota issue
+    await setBotSkuNameToB1Bicep(
+      sampledebugContext.projectPath,
+      "templates/azure/azure.parameters.dev.json"
+    );
+  }
 }
 
 new ProactiveMessagingTestCase(
   TemplateProject.ProactiveMessaging,
   17303781,
+  24121478,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBot],
   {
     repoPath: "./resource/samples",

@@ -6,29 +6,20 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject } from "../../utils/constants";
-import {
-  initTeamsPage,
-  validateTodoListSpfx,
-} from "../../utils/playwrightOperation";
+import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
+import { initTeamsPage } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
 import { Env } from "../../utils/env";
 
-class TodoListSpfxTestCase extends CaseFactory {
-  public override async onAfter(
-    sampledebugContext: SampledebugContext
-  ): Promise<void> {
-    await sampledebugContext.sampleAfter(
-      `${sampledebugContext.appName}-dev-rg`
-    );
-  }
+class SpfxProductivityTestCase extends CaseFactory {
   public override async onInitPage(
     sampledebugContext: SampledebugContext,
     teamsAppId: string,
     options?: {
       teamsAppName: string;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initTeamsPage(
@@ -38,22 +29,22 @@ class TodoListSpfxTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "dev",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
     );
   }
-  public override async onValidate(page: Page): Promise<void> {
-    return await validateTodoListSpfx(page, "fxuiTodoLidev");
-  }
 }
 
-new TodoListSpfxTestCase(
-  TemplateProject.TodoListSpfx,
-  24121511,
+new SpfxProductivityTestCase(
+  TemplateProject.SpfxProductivity,
+  24753063,
+  24753065,
   "v-ivanchen@microsoft.com",
-  "dev",
-  [],
-  { teamsAppName: "TodoListSPFx-dev", type: "spfx" }
+  [LocalDebugTaskLabel.GulpServe],
+  {
+    teamsAppName: "SPFx productivity dashboard",
+    skipValidation: true,
+  }
 ).test();

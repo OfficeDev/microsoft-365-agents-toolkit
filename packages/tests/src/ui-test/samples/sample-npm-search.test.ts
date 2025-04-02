@@ -36,8 +36,8 @@ class NpmSearchTestCase extends CaseFactory {
 new NpmSearchTestCase(
   TemplateProject.NpmSearch,
   12664761,
+  14571879,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBotApp],
-  { npmName: "axios", debug: "ttk" }
+  { npmName: "axios" }
 ).test();

@@ -12,7 +12,6 @@ import { validateIntelligentDataChart } from "../../utils/playwrightOperation";
 import { SampledebugContext } from "./sampledebugContext";
 import { expect } from "chai";
 import * as path from "path";
-import * as fs from "fs";
 import { editDotEnvFile } from "../../utils/commonUtils";
 import { OpenAiKey } from "../../utils/env";
 import { Page } from "playwright";
@@ -117,7 +116,7 @@ class IntelligentDataChartTestCase extends CaseFactory {
 new IntelligentDataChartTestCase(
   TemplateProject.IntelligentDataChart,
   26461509,
+  27852477,
   "v-ivanchen@microsoft.com",
-  "local",
   [LocalDebugTaskLabel.WatchBackend, LocalDebugTaskLabel.StartBackend]
 ).test();

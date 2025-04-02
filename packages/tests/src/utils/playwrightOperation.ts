@@ -3303,28 +3303,15 @@ export async function validateCustomapi(
   }
 }
 
-export async function validateRetailDashboard(page: Page, tabName: string) {
-  try {
-    console.log("start to verify dashboard tab");
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[name="embedded-page-container"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
-    await frame?.waitForSelector("span:has-text('Global Return Volume')");
-    await frame?.waitForSelector(
-      "span:has-text('Global Customer Satisfaction')"
-    );
-    console.log("Dashboard tab loaded successfully");
-
-    // cleanup
-    await cleanupInstalledApp(page, tabName);
-  } catch (error) {
-    await page.screenshot({
-      path: getPlaywrightScreenshotPath("error"),
-      fullPage: true,
-    });
-    throw error;
-  }
+export async function validateRetailDashboard(page: Page) {
+  console.log("start to verify dashboard tab");
+  const frameElementHandle = await page.waitForSelector(
+    `iframe[name="embedded-page-container"]`
+  );
+  const frame = await frameElementHandle?.contentFrame();
+  await frame?.waitForSelector("span:has-text('Global Return Volume')");
+  await frame?.waitForSelector("span:has-text('Global Customer Satisfaction')");
+  console.log("Dashboard tab loaded successfully");
 }
 
 export async function cleanupInstalledApp(page: Page, appName: string) {

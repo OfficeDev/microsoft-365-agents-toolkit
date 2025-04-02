@@ -152,6 +152,7 @@ export abstract class CaseFactory {
     container?: boolean;
     dockerFolder?: string;
     skipDeploy?: boolean;
+    skipRemote?: boolean;
   };
 
   public constructor(
@@ -176,6 +177,7 @@ export abstract class CaseFactory {
       container?: boolean;
       dockerFolder?: string;
       skipDeploy?: boolean;
+      skipRemote?: boolean;
     } = {}
   ) {
     this.sampleName = sampleName;
@@ -595,6 +597,10 @@ export abstract class CaseFactory {
           author,
         },
         async function () {
+          if (options?.skipRemote) {
+            console.log("there is no remote debug for this sample");
+            this.skip();
+          }
           try {
             // create project
             await sampledebugContext.openResourceFolder();
