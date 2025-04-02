@@ -66,7 +66,6 @@ describe("TeamsDevPortalClient Test", () => {
     applicableToApps: ApiSecretRegistrationAppType.AnyApp,
     targetUrlsShouldStartWith: ["https://www.example.com"],
   };
-
   const fakeOauthRegistration: OauthRegistration = {
     description: "fake-description",
     scopes: ["fake-scope"],
