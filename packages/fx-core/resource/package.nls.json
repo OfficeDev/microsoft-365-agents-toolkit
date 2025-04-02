@@ -375,7 +375,7 @@
   "core.createProjectQuestion.capability.customCopilotAssistant.title": "AI Agent",
   "core.createProjectQuestion.capability.customCopilotAssistant.placeholder": "Choose how you want to manage your AI tasks",
   "core.createProjectQuestion.capability.customCopilotWeatherOption.label": "Weather Agent",
-  "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "A weather forecast agent which is built with Microsoft 365 Agent SDK and Semantic Kernel",
+  "core.createProjectQuestion.capability.customCopilotWeatherOption.detail": "A weather forecast agent, which is built with Microsoft 365 Agent SDK and Semantic Kernel",
   "core.createProjectQuestion.capability.customEngineAgent.description": "Works in Teams and Microsoft 365 Copilot",
   "core.createProjectQuestion.capability.knowledgeWebSearch.label": "Web Search",
   "core.createProjectQuestion.capability.knowledgeWebSearch.detail": "Search the web for grounding information.",
