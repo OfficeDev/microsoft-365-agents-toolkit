@@ -833,6 +833,7 @@ export class FxCore {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
+    QuestionMW("share"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,

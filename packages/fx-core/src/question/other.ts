@@ -1656,3 +1656,61 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
     skipValidation: true,
   };
 }
+
+export function shareNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: shareOptionQuestion(),
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.ShareOption] === QuestionNames.ShareOptionShareToUser;
+            },
+            data: ShareToUserQuestion(),
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function shareOptionQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ShareOption,
+    title: getLocalizedString("core.shareOptionQuestion.title"),
+    type: "singleSelect",
+    placeholder: getLocalizedString("core.shareOptionQuestion.placeholder"),
+    staticOptions: [
+      {
+        id: QuestionNames.ShareOptionShareApp,
+        label: getLocalizedString("core.shareOptionQuestion.share"),
+        detail: getLocalizedString("core.shareOptionQuestion.share"),
+      },
+      {
+        id: QuestionNames.ShareOptionShareToUser,
+        label: getLocalizedString("core.shareOptionQuestion.shareToUser"),
+        detail: getLocalizedString("core.shareOptionQuestion.shareToUser"),
+      },
+    ],
+  };
+}
+
+function ShareToUserQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.ShareToUser,
+    title: getLocalizedString("core.shareToUser.title"),
+    type: "text",
+    cliDescription: getLocalizedString("core.shareToUser.title"),
+    validation: {
+      validFunc: (input) => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.addUserQuestion.validation");
+        }
+      },
+    },
+  };
+}
