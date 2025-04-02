@@ -7,7 +7,6 @@ import { SideloadingNode } from "../../../src/treeview/account/sideloadingNode";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
-import { SANDBOX_SENSITIVITY_LABEL } from "@microsoft/teamsfx-core/src/common/tools";
 
 describe("sideloadingNode", () => {
   const sandbox = sinon.createSandbox();
@@ -52,7 +51,7 @@ describe("sideloadingNode", () => {
     sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
-        sensitivityLabelUsedToIdentifySandboxedContainers: SANDBOX_SENSITIVITY_LABEL,
+        sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
       },
     });
     sandbox.stub(checkAccessCallback, "checkSandboxCallback");

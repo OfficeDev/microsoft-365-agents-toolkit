@@ -14,8 +14,6 @@ import fs from "fs-extra";
 import path from "path";
 import { MetadataV3 } from "./versionMetadata";
 
-export const SANDBOX_SENSITIVITY_LABEL = "dfead1b2-7b60-46fe-ad38-77b545a5b57a";
-
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
 }
@@ -25,8 +23,8 @@ export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Prom
   const teamsAppSettings = await graphClient.GetTeamsAppSettingsAsync();
   return (
     teamsAppSettings.sandboxingConfiguration &&
-    teamsAppSettings.sandboxingConfiguration.sensitivityLabelUsedToIdentifySandboxedContainers ===
-      SANDBOX_SENSITIVITY_LABEL
+    teamsAppSettings.sandboxingConfiguration.sensitivityLabelUsedToIdentifySandboxedContainers !==
+      ""
   );
 }
 

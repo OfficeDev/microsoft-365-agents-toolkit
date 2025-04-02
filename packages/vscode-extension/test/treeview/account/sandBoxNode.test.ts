@@ -6,7 +6,6 @@ import { passIcon, warningIcon } from "../../../src/treeview/account/common";
 import { MockedM365Provider } from "@microsoft/teamsfx-core/tests/core/utils";
 import { GraphClient } from "@microsoft/teamsfx-core";
 import { localize } from "../../../src/utils/localizeUtils";
-import { SANDBOX_SENSITIVITY_LABEL } from "@microsoft/teamsfx-core/src/common/tools";
 
 describe("SandboxNode", () => {
   let sandbox: SinonSandbox;
@@ -29,7 +28,7 @@ describe("SandboxNode", () => {
     sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
-        sensitivityLabelUsedToIdentifySandboxedContainers: SANDBOX_SENSITIVITY_LABEL,
+        sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
       },
     });
 
