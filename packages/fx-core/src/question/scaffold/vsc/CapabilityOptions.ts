@@ -503,6 +503,19 @@ export class ActionStartOptions {
     };
   }
 
+  static apiSpecWithSearch(): OptionItem {
+    return {
+      id: "api-spec-with-search",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+      ),
+      data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    };
+  }
+
   static existingPlugin(): OptionItem {
     return {
       id: "existing-plugin",

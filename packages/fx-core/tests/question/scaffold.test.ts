@@ -41,7 +41,10 @@ import {
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import {
+  apiSpecNode,
+  apiSpecWithSearchNode,
+} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -230,6 +233,23 @@ describe("m365ProjectTypeNode", () => {
     const condition = node.children?.[1].condition as ConditionFunc;
     const res = condition?.(inputs);
     assert.isTrue(res);
+  });
+
+  it("apiSpecWithSearchNode", () => {
+    const node = apiSpecWithSearchNode();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpecWithSearch().id,
+      [QuestionNames.ActionManifestPath]: "test",
+      [QuestionNames.SelectOpenApiSpec]: "test",
+    };
+    const condition = node.children?.[0].children?.[0]?.children?.[0].condition as ConditionFunc;
+    const res = condition?.(inputs);
+    assert.isFalse(res);
+
+    const condition2 = node.children?.[0]?.children?.[1]?.children?.[1]?.condition as ConditionFunc;
+    const res2 = condition2?.(inputs);
+    assert.isTrue(res2);
   });
 });
 
