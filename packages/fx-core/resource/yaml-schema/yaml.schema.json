@@ -2051,11 +2051,11 @@
             },
             "teamId": {
               "type": "string",
-              "description": "Path to zipped Teams app package file."
+              "description": "App will be installed in which team."
             },
             "channelId": {
               "type": "string",
-              "description": "Path to zipped Teams app package file."
+              "description": "App will be installed in which channel."
             }
           }
         }

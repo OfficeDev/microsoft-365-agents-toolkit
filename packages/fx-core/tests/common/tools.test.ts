@@ -19,6 +19,7 @@ import {
   listDevTunnels,
   isTestToolEnabledProject,
   isSandboxedEnabled,
+  SANDBOX_SENSITIVITY_LABEL,
 } from "../../src/common/tools";
 import { PackageService } from "../../src/component/m365/packageService";
 import { isVideoFilterProject } from "../../src/core/middleware/videoFilterAppBlocker";
@@ -149,7 +150,7 @@ describe("tools", () => {
       sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
         sandboxingConfiguration: {
           isSideloadingEnabled: false,
-          sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
+          sensitivityLabelUsedToIdentifySandboxedContainers: SANDBOX_SENSITIVITY_LABEL,
         },
       });
       const res = await isSandboxedEnabled(tokenProvider);

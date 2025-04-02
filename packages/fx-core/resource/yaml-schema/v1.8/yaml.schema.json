@@ -2043,11 +2043,19 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["appPackagePath"],
+          "required": ["appPackagePath", "teamId", "channelId"],
           "properties": {
             "appPackagePath": {
               "type": "string",
               "description": "Path to zipped Teams app package file."
+            },
+            "teamId": {
+              "type": "string",
+              "description": "App will be installed in which team."
+            },
+            "channelId": {
+              "type": "string",
+              "description": "App will be installed in which channel."
             }
           }
         }

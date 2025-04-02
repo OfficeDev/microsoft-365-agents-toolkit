@@ -97,6 +97,8 @@ deploy:
   # Sideload app in sandboxed team.
   - uses: devChannel/installApp
     with:
+      teamId: ${{TEAM_ID}}
+      channelId: ${{CHANNEL_ID}}
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/SandBoxedTeam}}
 
