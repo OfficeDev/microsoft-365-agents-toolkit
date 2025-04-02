@@ -45,7 +45,7 @@ import {
   teamsDevPortalClient,
 } from "../../src";
 import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
-import { setTools } from "../../src/common/globalVars";
+import { setTools, TOOLS } from "../../src/common/globalVars";
 import {
   TeamsfxConfigType,
   TeamsfxVersionState,
@@ -798,7 +798,8 @@ describe("Core basic APIs", () => {
   it("set sensitivity label - happy path", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -808,15 +809,45 @@ describe("Core basic APIs", () => {
       } as DeclarativeCopilotManifestSchema)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isOk());
   });
 
-  it("set sensitivity label - read manifest errir", async () => {
+  it("set sensitivity label - declarative agent manifest does not exist", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]: "fake path",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
+    const core = new FxCore(tools);
+    const res = await core.setSensitivityLabel(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.isTrue(
+        res.error.message.includes("declarativeAgentManifestPath is undefined or does not exist")
+      );
+    }
+  });
+
+  it("set sensitivity label - read manifest error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -824,6 +855,9 @@ describe("Core basic APIs", () => {
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isErr());
@@ -832,7 +866,8 @@ describe("Core basic APIs", () => {
   it("set sensitivity label - write error", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -844,6 +879,49 @@ describe("Core basic APIs", () => {
     sandbox
       .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - user cancel error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - user cancel", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isErr());
@@ -6195,6 +6273,7 @@ describe("addPlugin", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6601,6 +6680,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6685,6 +6765,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox

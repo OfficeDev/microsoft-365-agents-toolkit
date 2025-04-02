@@ -90,8 +90,8 @@ jobs:
 
       - name: Setup git
         run: |
-          git config --global user.name 'MSFT-yiz'
-          git config --global user.email 'yiz@microsoft.com'
+          git config --global user.name 'adashen'
+          git config --global user.email 'shenwe@microsoft.com'
 
       - name: release alpha npm packages to npmjs.org
         if: ${{ github.ref == 'refs/heads/dev' }}
@@ -165,17 +165,6 @@ jobs:
           tag: "template-tag-list"
           allowUpdates: true
 
-      - name: replace sideloading placeholders
-        run: bash .github/scripts/sideloading-replace.sh
-        env:
-          SIDELOADING_SERVICE_ENDPOINT: ${{ secrets.SIDELOADING_SERVICE_ENDPOINT }}
-          SIDELOADING_SERVICE_SCOPE: ${{ secrets.SIDELOADING_SERVICE_SCOPE }}
-
-      - name: commit change on local
-        run: |
-          git add packages/fx-core/src/component/m365/serviceConstant.ts
-          git commit -m "build: replace sideloading placeholders"
-      
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |

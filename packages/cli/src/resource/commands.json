@@ -61,6 +61,12 @@
   "add.capability": {
     "description": "A capability to extend Copilot using your APIs."
   },
+  "set": {
+    "description": "Set configurations for your Microsoft Teams application."
+  },
+  "set.sensitivityLabel": {
+    "description": "Set sensitivity label for the Declarative Agent app."
+  },
   "create": {
     "description": "Create a new Microsoft Teams application."
   },

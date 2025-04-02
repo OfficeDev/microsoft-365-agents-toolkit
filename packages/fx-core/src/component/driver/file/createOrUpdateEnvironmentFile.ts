@@ -1,29 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { hooks } from "@feathersjs/hooks/lib";
+import { FxError, Result, SystemError, UserError, Void, ok } from "@microsoft/teamsfx-api";
 import * as dotenv from "dotenv";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { Service } from "typedi";
-import { hooks } from "@feathersjs/hooks/lib";
-import { FxError, Result, SystemError, UserError, Void, ok } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { InvalidActionInputError, assembleError } from "../../../error/common";
+import {
+  azureOpenAIDeploymentNameQuestion,
+  azureOpenAIEndpointQuestion,
+  azureOpenAIKeyQuestion,
+  openAIKeyQuestion,
+} from "../../../question";
+import { OpenAIEnvironmentVariables } from "../../constants";
 import { wrapRun } from "../../utils/common";
+import { pathUtils } from "../../utils/pathUtils";
 import { logMessageKeys } from "../aad/utility/constants";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { GenerateEnvArgs } from "./interface/generateEnvArgs";
-import { pathUtils } from "../../utils/pathUtils";
-import { OpenAIEnvironmentVariables } from "../../constants";
-import {
-  azureOpenAIKeyQuestion,
-  azureOpenAIDeploymentNameQuestion,
-  azureOpenAIEndpointQuestion,
-  openAIKeyQuestion,
-} from "../../../question";
 
 const actionName = "file/createOrUpdateEnvironmentFile";
 const helpLink = "https://aka.ms/teamsfx-actions/file-createOrUpdateEnvironmentFile";
@@ -212,6 +212,7 @@ export class CreateOrUpdateEnvironmentFileDriver implements StepDriver {
         const result = await ctx.ui!.inputText({
           name: openAIKeyQuestion().name,
           title: openAIKeyQuestion().title as string,
+          password: true,
           validation: (input: string): string | undefined => {
             if (input.length < 1) {
               return getLocalizedString(

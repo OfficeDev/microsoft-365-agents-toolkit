@@ -30,7 +30,7 @@ export class Utils {
   }
 
   static isBearerTokenAuth(authScheme: AuthType): boolean {
-    return authScheme.type === "http" && authScheme.scheme === "bearer";
+    return authScheme.type === "http" && authScheme.scheme.toLowerCase() === "bearer";
   }
 
   static isAPIKeyAuth(authScheme: AuthType): boolean {

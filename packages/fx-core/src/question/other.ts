@@ -60,6 +60,7 @@ import {
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
+import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -1583,21 +1584,25 @@ export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
       "Specify the path for the Declarative Agent manifest. It can be either absolute path or relative path to the project root folder, with default at './appPackage/declarativeAgent.json'",
     title: getLocalizedString("core.selectDeclarativeAgentManifestQuestion.title"),
     type: "singleFile",
-    default: (inputs: Inputs): string | undefined => {
+    default: async (inputs: Inputs): Promise<string | undefined> => {
       if (inputs.platform === Platform.CLI_HELP) {
         return "./appPackage/declarativeAgent.json";
       } else {
         if (!inputs.projectPath) {
-          return undefined;
+          return Promise.resolve(undefined);
         }
         const manifestPath = path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
         if (!fs.pathExistsSync(manifestPath)) {
-          return undefined;
+          return Promise.resolve(undefined);
         }
-        const manifestRes = fs.readJsonSync(manifestPath) as TeamsAppManifest;
-        const declarativeAgentPath = manifestRes?.copilotAgents?.declarativeAgents?.[0]?.file;
+        const manifestRes = await manifestUtils._readAppManifest(manifestPath);
+        if (manifestRes.isErr()) {
+          return Promise.resolve(undefined);
+        }
+        const manifest = manifestRes.value;
+        const declarativeAgentPath = manifest?.copilotAgents?.declarativeAgents?.[0]?.file;
         if (!declarativeAgentPath) {
-          return undefined;
+          return Promise.resolve(undefined);
         }
         const declarativeAgentAbsolutePath = path.join(
           inputs.projectPath,
@@ -1605,7 +1610,7 @@ export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
           declarativeAgentPath
         );
         if (!fs.pathExistsSync(declarativeAgentAbsolutePath)) {
-          return undefined;
+          return Promise.resolve(undefined);
         }
         return declarativeAgentAbsolutePath;
       }
