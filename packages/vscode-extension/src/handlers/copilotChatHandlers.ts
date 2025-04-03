@@ -28,6 +28,12 @@ enum errorNames {
   openCopilotError = "openCopilotError",
 }
 
+enum failedPreCheckSteps {
+  GitHubCopilotInstalled = "GitHubCopilotInstalled",
+  TeamsAgentInstalled = "TeamsAgentInstalled",
+  GitHubCopilotSetup = "GitHubCopilotSetup",
+}
+
 function githubCopilotInstalled(): boolean {
   const extension = vscode.extensions.getExtension(githubCopilotChatExtensionId);
   return !!extension;
@@ -199,6 +205,25 @@ async function invoke(
   const hasGitHubCopilotInstalled = githubCopilotInstalled();
   const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
   const hasGitHubCopilotSetup = await isGithubLoggedIn();
+  const failedSteps: failedPreCheckSteps[] = [];
+  if (!hasGitHubCopilotInstalled) {
+    failedSteps.push(failedPreCheckSteps.GitHubCopilotInstalled);
+  }
+
+  if (!hasTeamsAgentInstalled) {
+    failedSteps.push(failedPreCheckSteps.TeamsAgentInstalled);
+  }
+
+  if (!hasGitHubCopilotSetup) {
+    failedSteps.push(failedPreCheckSteps.GitHubCopilotSetup);
+  }
+
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.TeamsAgentPreCheckResult, {
+    [TelemetryProperty.TeamsAgentPreCheckFailure]: failedSteps.join(","),
+    [TelemetryProperty.TeamsAgentPreCheckResultSuccess]:
+      failedSteps.length === 0 ? "true" : "false",
+    ...triggerFromProperty,
+  });
 
   if (hasGitHubCopilotInstalled && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
     if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {

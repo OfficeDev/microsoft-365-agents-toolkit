@@ -90,6 +90,7 @@ import {
 } from "./constants";
 import { OneDriveSharePointItemType } from "../component/generator/constant";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { searchOpenAPISpec, SearchOpenAPISpecResult } from "../common/kiotaClient";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -850,6 +851,91 @@ export function selectBotIdsQuestion(): MultiSelectQuestion {
   };
 }
 
+export function apiSpecTypeSelectQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.OpenAPISpecType,
+    title: "OpenAPI Spec Document",
+    cliDescription: "The type of the API spec.",
+    staticOptions: [
+      {
+        id: "enter-url-or-open-local-file",
+        label: getLocalizedString(
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label"
+        ),
+      },
+      {
+        id: "search-api",
+        label: getLocalizedString(
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label"
+        ),
+      },
+    ],
+  };
+}
+
+export function searchOpenAPISpecQueryQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.SearchOpenAPISpecQuery,
+    title: getLocalizedString(
+      "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label"
+    ),
+    default: "",
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder"
+    ),
+    additionalValidationOnAccept: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        const searchResult = await searchOpenAPISpec(input);
+
+        if (searchResult.length > 0) {
+          inputs["searchResult"] = searchResult;
+        } else {
+          return "No search result found";
+        }
+      },
+    },
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!input || input.trim().length === 0) {
+          return "Please enter a search query.";
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+export function selectOpenApiSpecQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.SelectOpenApiSpec,
+    title: getLocalizedString(
+      "core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label"
+    ),
+    staticOptions: [],
+    dynamicOptions: (inputs: Inputs): OptionItem[] => {
+      const searchResult = inputs["searchResult"] as SearchOpenAPISpecResult[];
+      if (searchResult.length > 0) {
+        const options: OptionItem[] = [];
+        for (const api of searchResult) {
+          options.push({
+            id: api.url,
+            label: api.key,
+            detail: api.description,
+          });
+        }
+        return options;
+      }
+      return [];
+    },
+  };
+}
+
 const maximumLengthOfDetailsErrorMessageInInputBox = 90;
 
 export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileOrInputQuestion {
@@ -1061,7 +1147,21 @@ export function apiOperationQuestion(
         inputs.apiAuthData = uniqueAuthApis.map((authApi) => authApi.data);
       },
     },
-    dynamicOptions: (inputs: Inputs) => {
+    dynamicOptions: async (inputs: Inputs) => {
+      if (inputs[QuestionNames.SelectOpenApiSpec]) {
+        const specUrl = inputs[QuestionNames.SelectOpenApiSpec] as string;
+        inputs[QuestionNames.ApiSpecLocation] = specUrl;
+        const context = createContext();
+
+        // TODO: will use kiota npm package for this api
+        const res = await listOperations(context, specUrl, inputs, true, false);
+        if (res.isOk()) {
+          inputs.supportedApisFromApiSpec = res.value;
+        } else {
+          throw res.error;
+        }
+      }
+
       if (!inputs.supportedApisFromApiSpec) {
         throw new EmptyOptionError(QuestionNames.ApiOperation, "question");
       }

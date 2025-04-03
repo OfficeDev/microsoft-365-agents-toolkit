@@ -178,7 +178,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     declarativeAgentManifestPath: string
   ): Promise<void> {
     try {
-      const loginStatusRes = await context.tokenProvider?.m365TokenProvider.getStatus({
+      const loginStatusRes = await context.tokenProvider?.m365TokenProvider?.getStatus({
         scopes: [listSensitivityLabelScope],
       });
       if (!loginStatusRes || loginStatusRes.isErr()) {

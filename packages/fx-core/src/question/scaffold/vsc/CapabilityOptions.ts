@@ -503,6 +503,19 @@ export class ActionStartOptions {
     };
   }
 
+  static apiSpecWithSearch(): OptionItem {
+    return {
+      id: "api-spec-with-search",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+      ),
+      data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    };
+  }
+
   static existingPlugin(): OptionItem {
     return {
       id: "existing-plugin",
@@ -517,6 +530,7 @@ export class ActionStartOptions {
       id: "type-spec",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
       data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }

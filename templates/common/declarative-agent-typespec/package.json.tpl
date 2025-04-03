@@ -1,4 +1,3 @@
-
 {
   "name": "{{SafeProjectNameLowerCase}}",
   "version": "1.0.0",
@@ -8,7 +7,6 @@
     "@typespec/http": "latest",
     "@typespec/rest": "latest",
     "@typespec/openapi": "latest",
-    "@typespec/openapi3": "latest",
-    "@microsoft/kiota-bundle": "latest"
+    "@typespec/openapi3": "latest"
   }
 }

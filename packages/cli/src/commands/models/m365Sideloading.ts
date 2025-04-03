@@ -92,7 +92,7 @@ export const m365SideloadingCommand: CLICommand = {
   handler: async (ctx) => {
     const zipAppPackagePath = ctx.optionValues["file-path"] as string;
     const xmlPath = ctx.optionValues["xml-path"] as string;
-    let appScope = ctx.optionValues["scope"] as AppScope;
+    let appScope = parseAppScope(ctx.optionValues["scope"] as string | undefined);
     if (!appScope) {
       appScope = AppScope.Personal;
     }
@@ -108,10 +108,27 @@ export const m365SideloadingCommand: CLICommand = {
     const manifestPath = zipAppPackagePath ?? xmlPath;
     const tokenAndUpn = await m365utils.getTokenAndUpn();
     if (ctx.optionValues["file-path"] !== undefined) {
-      await packageService.sideLoading(tokenAndUpn[0], manifestPath, appScope);
+      const res = await packageService.sideLoading(tokenAndUpn[0], manifestPath, appScope);
+      if (res[2]) {
+        logger.info("Share link: " + res[2]);
+      }
     } else {
       await packageService.sideLoadXmlManifest(tokenAndUpn[0], manifestPath);
     }
     return ok(undefined);
   },
 };
+
+export function parseAppScope(scope?: string): AppScope {
+  if (!scope) {
+    return AppScope.Personal;
+  }
+  switch (scope.toLowerCase()) {
+    case AppScope.Shared.toLowerCase():
+      return AppScope.Shared;
+    case AppScope.Personal.toLowerCase():
+      return AppScope.Personal;
+    default:
+      return AppScope.Personal;
+  }
+}

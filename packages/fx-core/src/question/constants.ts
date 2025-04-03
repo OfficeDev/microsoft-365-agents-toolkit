@@ -37,6 +37,9 @@ export enum QuestionNames {
   ValidateMethod = "validate-method",
   AppPackagePath = "appPackagePath",
   FromExistingApi = "from-existing-api", // group name for creating an App from existing api
+  SearchOpenAPISpecQuery = "search-openapi-spec-query",
+  SelectOpenApiSpec = "select-openapi-spec",
+  OpenAPISpecType = "openapi-spec-type",
   ApiSpecLocation = "openapi-spec-location",
   ApiOperation = "api-operation",
   ActionManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.

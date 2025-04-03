@@ -13,6 +13,18 @@ export const ProjectFolderOption: CLICommandOption = {
   required: true,
   default: "./",
 };
+
+export const ProjectFolderOptionWithoutValidation: CLICommandOption = {
+  name: "folder",
+  questionName: "projectPath",
+  shortName: "f",
+  description: "Project folder.",
+  type: "string",
+  required: true,
+  default: "./",
+  skipValidation: true,
+};
+
 export const TeamsAppManifestFileOption: CLICommandOption = {
   name: "manifest-file",
   type: "string",

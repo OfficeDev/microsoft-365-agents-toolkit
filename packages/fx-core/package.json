@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx-core",
-  "version": "2.0.16",
+  "version": "2.1.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
@@ -98,6 +98,7 @@
     "@feathersjs/hooks": "^0.6.5",
     "@microsoft/dev-tunnels-contracts": "1.1.9",
     "@microsoft/dev-tunnels-management": "1.1.9",
+    "@microsoft/kiota": "^1.25.0",
     "@microsoft/m365-spec-parser": "workspace:^",
     "@microsoft/teamsfx-api": "workspace:*",
     "adm-zip": "^0.5.10",

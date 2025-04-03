@@ -11,7 +11,6 @@ import {
   WarningType,
 } from "@microsoft/m365-spec-parser";
 import {
-  CLIPlatforms,
   DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
@@ -29,6 +28,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
 import jsyaml from "js-yaml";
@@ -44,9 +44,13 @@ import {
   getUuid,
   teamsDevPortalClient,
 } from "../../src";
-import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
-import { setTools } from "../../src/common/globalVars";
+import { ConstantString } from "../../src/common/constants";
+import { FeatureFlagName, featureFlagManager } from "../../src/common/featureFlags";
+import { TOOLS, setTools } from "../../src/common/globalVars";
+import * as projectHelper from "../../src/common/projectSettingsHelper";
 import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
+import { TelemetryEvent } from "../../src/common/telemetry";
+import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import {
   DriverDefinition,
   DriverInstance,
@@ -65,6 +69,8 @@ import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
+import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
+import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
@@ -73,8 +79,10 @@ import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/vali
 import { ValidateAppPackageDriver } from "../../src/component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../../src/component/driver/util/utils";
+import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
+import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
@@ -84,6 +92,9 @@ import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
+import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
+import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
+import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
   InputValidationError,
@@ -108,22 +119,9 @@ import {
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import { CoreHookContext } from "../../src/core/types";
-import * as projectHelper from "../../src/common/projectSettingsHelper";
-import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
-import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
-import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
-import { ConstantString } from "../../src/common/constants";
-import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
-import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
-import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
-import axios from "axios";
-import { TelemetryEvent } from "../../src/common/telemetry";
-import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 
 const tools = new MockTools();
 
@@ -794,7 +792,8 @@ describe("Core basic APIs", () => {
   it("set sensitivity label - happy path", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -804,15 +803,45 @@ describe("Core basic APIs", () => {
       } as DeclarativeCopilotManifestSchema)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isOk());
   });
 
-  it("set sensitivity label - read manifest errir", async () => {
+  it("set sensitivity label - declarative agent manifest does not exist", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]: "fake path",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
+    const core = new FxCore(tools);
+    const res = await core.setSensitivityLabel(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.isTrue(
+        res.error.message.includes("declarativeAgentManifestPath is undefined or does not exist")
+      );
+    }
+  });
+
+  it("set sensitivity label - read manifest error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -820,6 +849,9 @@ describe("Core basic APIs", () => {
       .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isErr());
@@ -828,7 +860,8 @@ describe("Core basic APIs", () => {
   it("set sensitivity label - write error", async () => {
     const inputs: Inputs = {
       [QuestionNames.SensitivityLabel]: "Public",
-      [QuestionNames.DeclarativeAgentManifestPath]: "path/to/declarativeAgentManifest.json",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
@@ -840,6 +873,49 @@ describe("Core basic APIs", () => {
     sandbox
       .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox
+      .stub(TOOLS.ui, "showMessage")
+      .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - user cancel error", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
+    const core = new FxCore(tools);
+    const result = await core.setSensitivityLabel(inputs);
+    assert.isTrue(result.isErr());
+  });
+
+  it("set sensitivity label - user cancel", async () => {
+    const inputs: Inputs = {
+      [QuestionNames.SensitivityLabel]: "Public",
+      [QuestionNames.DeclarativeAgentManifestPath]:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/resources/declarativeAgent.json",
+      platform: Platform.VSCode,
+      ignoreLockByUT: true,
+    };
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      ok({
+        actions: [{}],
+      } as DeclarativeCopilotManifestSchema)
+    );
+    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
     assert.isTrue(result.isErr());
@@ -6191,6 +6267,7 @@ describe("addPlugin", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6597,6 +6674,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox
@@ -6681,6 +6759,7 @@ describe("kiotaRegenerate", async () => {
         authName: "mockedAuthName",
         authType: "apiKey",
         registrationId: "MOCKED_REGISTRATION_ID",
+        specPath: "test.yaml",
       },
     ]);
     sandbox

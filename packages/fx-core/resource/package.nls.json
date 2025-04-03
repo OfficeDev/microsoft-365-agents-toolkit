@@ -5,6 +5,8 @@
   "core.addApi.continue": "Add",
   "core.addKnowledge.confirm": "Teams Toolkit will modify files in your \"%s\" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addKnowledge.continue": "Add",
+  "core.setSensitivityLabel.confirm": "Teams Toolkit will modify the file \"%s\" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
+  "core.setSensitivityLabel.continue": "Set",
   "core.provision.provision": "Provision",
   "core.provision.learnMore": "More info",
   "core.provision.azureAccount": "Azure account: %s",
@@ -342,6 +344,13 @@
   "core.createProjectQuestion.capability.messageExtensionNewApiOption.detail": "Create a message extension with a new API from Azure Functions",
   "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label": "Start with an OpenAPI Description Document",
   "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail": "Create an action from your existing API",
+
+  "core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label":"Enter OpenAPI Description Document Location or Open File...",
+  "core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label":"Search OpenAPI Description Document...",
+  "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label": "Search OpenAPI Description Document",
+  "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder": "Input text to search OpenAPI description document",
+  "core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label": "Select OpenAPI Description Document",
+
   "core.createProjectQuestion.capability.messageExtensionApiSpecOption.detail": "Create a message extension from your existing API",
   "core.createProjectQuestion.capability.customCopilotBasicOption.label": "Basic AI Chatbot",
   "core.createProjectQuestion.capability.customCopilotBasicOption.detail": "Build a basic AI chatbot in Teams",
@@ -1054,5 +1063,6 @@
   "action.devTool.nodeInstaller.SuccessDownload": "Successfully download NodeJS package: %s, size: %s, time: %s ms",
   "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms",
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
-  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment."
+  "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment.",
+  "driver.typeSpec.compile.reprovision": "File %s is updated. Please run provision again."
 }

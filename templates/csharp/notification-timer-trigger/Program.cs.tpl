@@ -25,6 +25,7 @@ builder.Services.AddBotAspNetAuthentication(builder.Configuration);
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add ApplicationOptions
 builder.Services.AddTransient(sp =>

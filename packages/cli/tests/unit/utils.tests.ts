@@ -169,7 +169,7 @@ describe("Utils Tests", function () {
               configuration: "",
               thumbnailPath: "",
               suggested: false,
-              minimumCliVersion: "3.1.0",
+              minimumCliVersion: "100.1.0",
               downloadUrlInfo: {
                 owner: "",
                 repository: "",

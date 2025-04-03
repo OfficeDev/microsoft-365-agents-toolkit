@@ -4,11 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-{{#enableTestToolByDefault}}
-    <ActiveDebugProfile>Teams App Test Tool (browser)</ActiveDebugProfile>
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
     <ActiveDebugProfile>Microsoft Teams (browser)</ActiveDebugProfile>
-{{/enableTestToolByDefault}}
   </PropertyGroup>
 </Project>
