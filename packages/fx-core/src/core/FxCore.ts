@@ -2974,7 +2974,11 @@ export class FxCore {
       );
     }
     const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
-    const resolvedAppPackagePath = (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath;
+    const resolvedAppPackagePath = path.resolve(
+      projectPath,
+      (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath as string
+    );
+    console.log("resolvedAppPackagePath", resolvedAppPackagePath);
     const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
