@@ -1,4 +1,4 @@
-import { ItemsExtractorMaybeAsync, NextPageUrlExtractorMaybeAsync, PagedItemsService } from "../services/itemsService";
+import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, PagedItemsService, ProcessArgs, ResponseBasedPagingParameters } from "../services/itemsService";
 import { asPromise } from "../utils";
 
 /**
@@ -25,9 +25,9 @@ export async function extractItemsFromJsonResponse<T>(response: Response): Promi
  * Gets the next page's link from the HTTP Link response header.
  * 
  * @param response The Fetch API response object.
- * @returns A promise that resolves to the next page's URL or null if there's no next page.
+ * @returns The next page's URL or null if there's no next page.
  */
-export function nextPageFromLinkResponseHeaderSync(response: Response): string | null {
+export function nextPageFromLinkResponseHeaderSync({response}: ResponseBasedPagingParameters<Response>): string | null {
   // Format outlined in: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Link#pagination_through_links
   let nextLink = response.headers.get("link").split(",").find((link) => link.includes('rel="next"'));
   let nextPageUrl = nextLink?.match(/<(.+)>/)[1];
@@ -39,7 +39,7 @@ export function nextPageFromLinkResponseHeaderSync(response: Response): string |
  * 
  * Adds paging and item transform capabilities.
  */
-export class UrlFetchService<T> implements PagedItemsService<T> {
+export class UrlFetchService<T> implements PagedItemsService<T>, ItemsService<T> {
   url: string;
   options?: RequestInit;
   nextPageUrl?: string;
@@ -74,10 +74,16 @@ export class UrlFetchService<T> implements PagedItemsService<T> {
     }
     // check if response has next page
     if (this.nextPageExtractor) {
-      this.nextPageUrl = await asPromise(this.nextPageExtractor(response));
+      this.nextPageUrl = await asPromise(this.nextPageExtractor({response}));
     } else {
       this.nextPageUrl = null;
     }
     return asPromise(this.itemsExtractor(response));
+  }
+  async processAllAsync({ processor }: ProcessArgs<T>): Promise<void> {
+    while (this.hasNextPage()) {
+      var page = await this.getNextPageAsync();
+      await asPromise(processor(page));
+    }
   }
 }

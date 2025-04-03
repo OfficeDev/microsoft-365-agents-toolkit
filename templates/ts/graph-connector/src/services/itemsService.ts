@@ -32,6 +32,12 @@ export interface PagedItemsService<T> {
   getNextPageAsync(): Promise<T[]>;
 }
 
+export interface ResponseBasedPagingParameters<TResponse> {
+  response: TResponse;
+}
+
+export type PagingParameters<TResponse> = ResponseBasedPagingParameters<TResponse>;
+
 /**
  * Base interface for transformer functions
  */
@@ -64,11 +70,11 @@ type NextPageResult = string | null | undefined;
  * 
  * Should return null or undefined if there's no next page.
  */
-export type NextPageUrlExtractor<A> = Transformer<A, Promise<NextPageResult>>;
+export type NextPageUrlExtractor<A> = Transformer<PagingParameters<A>, Promise<NextPageResult>>;
 /**
  * Function that gets the next page's URL synchronously.
  * 
  * Should return null or undefined if there's no next page.
  */
-export type NextPageUrlExtractorSync<A> = Transformer<A, NextPageResult>;
+export type NextPageUrlExtractorSync<A> = Transformer<PagingParameters<A>, NextPageResult>;
 export type NextPageUrlExtractorMaybeAsync<A> = NextPageUrlExtractor<A> | NextPageUrlExtractorSync<A>;

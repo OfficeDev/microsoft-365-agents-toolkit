@@ -1,86 +1,17 @@
 import { Config } from "../models/Config";
 import { Item } from "../models/Item";
-import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, PagedItemsService, ProcessArgs } from "../services/itemsService";
-import { asPromise } from "../utils";
+import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, ProcessArgs } from "../services/itemsService";
 import { UrlFetchService } from "./urlFetchService";
 
 /**
  * Options used to construct the GitHub issues fetch service.
  */
-interface GitHubIssuesFetchServiceParameters {
+interface GitHubIssuesFetchParameters {
   config: Config;
   pageSize?: number;
   since?: Date;
   itemsExtractor?: ItemsExtractorMaybeAsync<Response, Item[]>;
   nextPageExtractor?: NextPageUrlExtractorMaybeAsync<Response>;
-}
-
-/**
- * Fetches GitHub issues from a GitHub repository.
- * 
- * Uses the generic URL fetch service.
- */
-export class GitHubIssuesFetchService implements PagedItemsService<Item>, ItemsService<Item> {
-  repo: string;
-  pageSize: number;
-  since: Date | null;
-  config: Config;
-  urlFetchSvc: UrlFetchService<Item>;
-
-  constructor(
-    repo: string,
-    {
-      config,
-      pageSize = 100,
-      since,
-      itemsExtractor,
-      nextPageExtractor
-    }: GitHubIssuesFetchServiceParameters
-  ) {
-    this.config = config;
-    this.repo = repo;
-    this.pageSize = pageSize;
-    this.since = since;
-
-    const sinceStr = since ? `&since=${since.toISOString()}` : ""
-    const url = `https://api.github.com/repos/${repo}/issues?state=all&per_page=${this.pageSize}${sinceStr}`;
-    const init: RequestInit = {};
-    if (config.connector.accessToken) {
-      init.headers = { Authorization: `Bearer ${this.config.connector.accessToken}` }
-    }
-    this.urlFetchSvc = new UrlFetchService({
-      url, init, itemsExtractor, nextPageExtractor
-    });
-  }
-
-  hasNextPage(): boolean { return this.urlFetchSvc.hasNextPage(); }
-
-  async getNextPageAsync(): Promise<Item[]> {
-    const result = (await this.urlFetchSvc.getNextPageAsync()).filter((issue: any) => !issue.pull_request);
-    return result.map((issue: any) => {
-      return {
-        id: issue.id,
-        issueNumber: issue.number as string,
-        owner: issue.repository_url.split("/").slice(-2)[0],
-        repo: issue.repository_url.split("/").slice(-1)[0],
-        assignedTo: issue.assignees?.map((assignee) => assignee.login).join(", "),
-        state: issue.state,
-        lastModified: new Date(issue.updated_at).toISOString().slice(0, -5) + "Z",
-        title: issue.title,
-        abstract: issue.body,
-        author: issue.user.login,
-        content: `${issue.title} - ${issue.body}`,
-        url: issue.html_url,
-      }
-    });
-  }
-
-  async processAllAsync({ processor }: ProcessArgs<Item>): Promise<void> {
-    while (this.hasNextPage()) {
-      var page = await this.getNextPageAsync();
-      await asPromise(processor(page));
-    }
-  }
 }
 
 export class MultiRepoIssuesFetchService implements ItemsService<Item> {
@@ -92,12 +23,21 @@ export class MultiRepoIssuesFetchService implements ItemsService<Item> {
 
   static forRepositories(
     repositories: string[],
-    options: GitHubIssuesFetchServiceParameters,
+    options: GitHubIssuesFetchParameters,
   ): MultiRepoIssuesFetchService {
     if (repositories.length < 1) {
       throw Error('repositories must have at least one element');
     }
-    let services = repositories.map(repo => new GitHubIssuesFetchService(repo, options));
+    let services = repositories.map(repo => {
+      const url = buildGitHubUrl(repo, options.pageSize, options.since);
+      const init: RequestInit = {};
+      if (options.config.connector.accessToken) {
+        init.headers = { Authorization: `Bearer ${options.config.connector.accessToken}` }
+      }
+      return new UrlFetchService({
+        url, init, itemsExtractor: githubItemsExtractor
+      });
+    });
     return new MultiRepoIssuesFetchService(services);
   }
 
@@ -106,4 +46,32 @@ export class MultiRepoIssuesFetchService implements ItemsService<Item> {
       await svc.processAllAsync({ processor })
     }));
   }
+}
+
+async function githubItemsExtractor(response: Response): Promise<Item[]> {
+  const allItems = await response.json();
+  const issues = allItems.filter((issue: any) => !issue.pull_request);
+
+  return issues.map((issue: any) => {
+    return {
+      id: issue.id,
+      issueNumber: issue.number as string,
+      owner: issue.repository_url.split("/").slice(-2)[0],
+      repo: issue.repository_url.split("/").slice(-1)[0],
+      assignedTo: issue.assignees?.map((assignee) => assignee.login).join(", "),
+      state: issue.state,
+      lastModified: new Date(issue.updated_at).toISOString().slice(0, -5) + "Z",
+      title: issue.title,
+      abstract: issue.body,
+      author: issue.user.login,
+      content: `${issue.title} - ${issue.body}`,
+      url: issue.html_url,
+    }
+  });
+}
+
+function buildGitHubUrl(repo: string, pageSize?: number, since?: Date) : string {
+  const perPage = pageSize ? `&per_page=${pageSize}` : '';
+  const sinceStr = since ? `&since=${since.toISOString()}` : '';
+  return `https://api.github.com/repos/${repo}/issues?state=all${perPage}${sinceStr}`;
 }
