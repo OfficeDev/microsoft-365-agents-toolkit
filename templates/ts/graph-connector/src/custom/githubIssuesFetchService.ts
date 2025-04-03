@@ -2,7 +2,7 @@ import { Config } from "../models/Config";
 import { Item } from "../models/Item";
 import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, PagedItemsService, ProcessArgs } from "../services/itemsService";
 import { asPromise } from "../utils";
-import { defaultExtractItemsFromJsonResponse, UrlFetchService } from "./urlFetchService";
+import { UrlFetchService } from "./urlFetchService";
 
 /**
  * Options used to construct the GitHub issues fetch service.
@@ -33,8 +33,8 @@ export class GitHubIssuesFetchService implements PagedItemsService<Item>, ItemsS
       config,
       pageSize = 100,
       since,
-      itemsExtractor = defaultExtractItemsFromJsonResponse,
-      nextPageExtractor = gitHubNextPageFromResponseSync
+      itemsExtractor,
+      nextPageExtractor
     }: GitHubIssuesFetchServiceParameters
   ) {
     this.config = config;
@@ -81,18 +81,6 @@ export class GitHubIssuesFetchService implements PagedItemsService<Item>, ItemsS
       await asPromise(processor(page));
     }
   }
-}
-
-/**
- * Gets the next page's link from a GitHub API response.
- * 
- * @param response The Fetch API response object.
- * @returns A promise that resolves to the next page's URL or null if there's no next page.
- */
-export function gitHubNextPageFromResponseSync(response: Response): string | null {
-  let nextLink = response.headers.get("link").split(",").find((link) => link.includes('rel="next"'));
-  let nextPageUrl = nextLink?.match(/<(.+)>/)[1];
-  return nextPageUrl
 }
 
 export class MultiRepoIssuesFetchService implements ItemsService<Item> {

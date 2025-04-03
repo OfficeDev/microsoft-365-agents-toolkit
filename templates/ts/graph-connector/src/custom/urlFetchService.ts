@@ -17,8 +17,21 @@ interface UrlFetchServiceParameters<T> {
  * @param response The Fetch API response object.
  * @returns A promise that resolves to the items
  */
-export async function defaultExtractItemsFromJsonResponse<T>(response: Response): Promise<T> {
+export async function extractItemsFromJsonResponse<T>(response: Response): Promise<T> {
   return await response.json();
+}
+
+/**
+ * Gets the next page's link from the HTTP Link response header.
+ * 
+ * @param response The Fetch API response object.
+ * @returns A promise that resolves to the next page's URL or null if there's no next page.
+ */
+export function nextPageFromLinkResponseHeaderSync(response: Response): string | null {
+  // Format outlined in: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Link#pagination_through_links
+  let nextLink = response.headers.get("link").split(",").find((link) => link.includes('rel="next"'));
+  let nextPageUrl = nextLink?.match(/<(.+)>/)[1];
+  return nextPageUrl
 }
 
 /**
@@ -33,7 +46,14 @@ export class UrlFetchService<T> implements PagedItemsService<T> {
   itemsExtractor: ItemsExtractorMaybeAsync<Response, T[]>;
   nextPageExtractor?: NextPageUrlExtractorMaybeAsync<Response>;
 
-  constructor({ url, init, itemsExtractor = defaultExtractItemsFromJsonResponse, nextPageExtractor }: UrlFetchServiceParameters<T>) {
+  constructor(
+    {
+      url,
+      init,
+      itemsExtractor = extractItemsFromJsonResponse,
+      nextPageExtractor = nextPageFromLinkResponseHeaderSync
+    }: UrlFetchServiceParameters<T>
+  ) {
     this.url = url;
     this.options = init;
     this.nextPageUrl = url;
