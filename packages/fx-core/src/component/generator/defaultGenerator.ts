@@ -101,6 +101,9 @@ export class DefaultTemplateGenerator implements IGenerator {
     const language = convertToLangKey(templateInfo.language) ?? commonTemplateName;
     const replaceMap = templateInfo.replaceMap;
     const sandboxFilterFn = (fileName: string) => {
+      if (featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
+        return true;
+      }
       const sandboxFileList = [
         `${MetadataV3.sandboxConfigFile}.tpl`,
         ".env.sandbox",
@@ -110,10 +113,9 @@ export class DefaultTemplateGenerator implements IGenerator {
       const extractedFileName = parts[parts.length - 1];
       return !sandboxFileList.includes(extractedFileName);
     };
-    const filterFn =
-      templateInfo.filterFn ?? featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)
-        ? () => true
-        : sandboxFilterFn;
+    const filterFn = templateInfo.filterFn
+      ? templateInfo.filterFn && sandboxFilterFn
+      : sandboxFilterFn;
     const templateName = `${name}-${language}`;
     merge(actionContext?.telemetryProps, {
       [TelemetryProperty.TemplateName]: templateName,
