@@ -31,11 +31,11 @@ export default function PrepareM365Account() {
   return (
     <div className="markdown-body">
       <h1 id="prepare-a-qualified-Microsoft-365-account-for-Teams-app-development">
-        Prepare a Qualified Microsoft 365 Account for Teams App Development
+        Prepare a Qualified Microsoft 365 Account for Microsoft 365 Agents Development
       </h1>
       <h2 id="account-requirements">Account Requirements </h2>
       <p>
-        The following two conditions are required for Teams app development:
+        The following two conditions are required for Microsoft 365 Agents development:
         <ol>
           <li>
             The Microsoft 365 account should be your work or school account, not your personal

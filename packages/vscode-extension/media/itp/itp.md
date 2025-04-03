@@ -1,8 +1,8 @@
-# Prepare a Qualified Microsoft 365 Account for Teams App Development
+# Prepare a Qualified Microsoft 365 Account for Microsoft 365 Agents Development
 
 ## Account Requirements
 
-The following two conditions are required for Teams app development:
+The following two conditions are required for Microsoft 365 Agents development:
 
 1. The Microsoft 365 account should be your work or school account, not your personal account.
 2. The Microsoft 365 account needs permission to upload custom app in Teams.
