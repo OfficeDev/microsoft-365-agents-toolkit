@@ -89,8 +89,8 @@ export class UrlFetchService<TRaw, TTransformed> implements PagedItemsService<TT
   options?: RequestInit;
   nextPageUrl?: string;
   itemsExtractor: ItemsExtractor<Response, TRaw>;
-  itemsTransformer: ItemsTransformer<TRaw, TTransformed>;
-  totalItemsExtractor: TotalItemsExtractor<TRaw>;
+  itemsTransformer?: ItemsTransformer<TRaw, TTransformed>;
+  totalItemsExtractor?: TotalItemsExtractor<TRaw>;
   nextPageExtractor?: NextPageUrlExtractor<Response>;
 
   constructor(
@@ -98,8 +98,7 @@ export class UrlFetchService<TRaw, TTransformed> implements PagedItemsService<TT
       url,
       init,
       itemsExtractor = extractItemsFromJsonResponse,
-      // default transformer is an identity function
-      itemsTransformer = (a) => a as any as TTransformed,
+      itemsTransformer,
       totalItemsExtractor,
       nextPageExtractor = new NextPageFromLinkResponseHeader()
     }: UrlFetchServiceParameters<TRaw, TTransformed>
@@ -125,7 +124,7 @@ export class UrlFetchService<TRaw, TTransformed> implements PagedItemsService<TT
       throw new Error(`Failed to fetch from URL ${url}: ${response?.statusText}`);
     }
     var jsonResult = await this.itemsExtractor(response);
-    var transformed = this.itemsTransformer(jsonResult);
+    var transformed = this.itemsTransformer ? this.itemsTransformer(jsonResult) : jsonResult as any;
     var totalItems = this.totalItemsExtractor?.call(null, jsonResult);
     // check if response has next page
     this.nextPageUrl = this.nextPageExtractor?.nextPageLink({ response, totalItems });
