@@ -29,7 +29,7 @@
   "files": [
     "dist/*js",
     "dist/*js.map",
-    "types/teamsfx.d.ts",
+    "dist/types/teamsfx.d.ts",
     "README.md",
     "LICENSE"
   ],
