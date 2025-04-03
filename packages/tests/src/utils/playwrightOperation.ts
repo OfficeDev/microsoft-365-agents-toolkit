@@ -3367,7 +3367,7 @@ export async function validateMeeting(page: Page, name: string) {
     console.log("meeting tab loaded successfully");
 
     // clean up
-    await cleanupInstalledApp(page, "Home");
+    // await cleanupInstalledApp(page, "Home");
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
