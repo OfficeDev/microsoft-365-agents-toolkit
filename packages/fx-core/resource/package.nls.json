@@ -880,7 +880,7 @@
   "driver.devChannel.install.success": "App installed into team %s with channel %s successfully.",
   "driver.devChannel.install.description": "Install Teams app into sandboxed channel.",
   "driver.devChannel.install.progress.message": "Installing app...",
-  "driver.devChannel.install.summary.exists": "App %s already installed in team %s, will be updated with latest app package.",
+  "driver.devChannel.install.summary.exists": "App '%s' already installed in team '%s', will be updated with latest app package.",
   "error.yaml.InvalidYamlSchemaError": "Unable to parse yaml file: %s. Please open the yaml file for detailed errors.",
   "error.yaml.InvalidYamlSchemaErrorWithReason": "Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.",
   "error.yaml.VersionNotSupported": "version %s is not supported. Supported versions: %s.",
