@@ -83,7 +83,7 @@ import {
   MicrosoftEntraAuthType,
   OAuthAuthType,
 } from "../component/configManager/constant";
-import { ILifecycle, LifecycleName } from "../component/configManager/interface";
+import { DriverDefinition, ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
 import {
   AadConstants,
@@ -210,6 +210,7 @@ import { withFileLock } from "./middleware/fileLocker";
 import * as shareToOthers from "../component/driver/share/shareToOthers";
 import AdmZip from "adm-zip";
 import { Constants } from "../component/driver/teamsApp/constants";
+import { resolve } from "../component/configManager/lifecycle";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2950,7 +2951,7 @@ export class FxCore {
       );
     }
     const shareToOthersAction = projectModel.share.driverDefs.find(
-      (d) => d.name === shareToOthers.actionName
+      (d) => d.uses === shareToOthers.actionName
     );
     if (!shareToOthersAction) {
       return err(
@@ -2972,7 +2973,9 @@ export class FxCore {
         )
       );
     }
-    const zipEntries = new AdmZip(appPackagePath).getEntries();
+    const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
+    const resolvedAppPackagePath = (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath;
+    const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
       return err(
