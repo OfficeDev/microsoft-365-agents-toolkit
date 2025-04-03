@@ -114,7 +114,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       return !sandboxFileList.includes(extractedFileName);
     };
     const filterFn = templateInfo.filterFn
-      ? templateInfo.filterFn && sandboxFilterFn
+      ? (fileName: string) => templateInfo.filterFn!(fileName) && sandboxFilterFn(fileName)
       : sandboxFilterFn;
     const templateName = `${name}-${language}`;
     merge(actionContext?.telemetryProps, {
