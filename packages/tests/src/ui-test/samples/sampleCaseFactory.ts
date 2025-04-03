@@ -205,12 +205,13 @@ export abstract class CaseFactory {
       (options?: { rgName: string }) => Promise<void>
     > = {
       local: async () => await sampledebugContext.after(),
-      dev: async (options?: { rgName: string }) =>
-        await sampledebugContext.sampleAfter(options?.rgName ?? ""),
+      dev: async (options?: { rgName: string }) => {
+        try {
+          await sampledebugContext.sampleAfter(options?.rgName ?? "");
+        } catch (error) {}
+      },
     };
-    try {
-      await envMap[env]({ rgName: `${sampledebugContext.appName}-dev-rg` });
-    } catch (error) {}
+    await envMap[env]({ rgName: `${sampledebugContext.appName}-dev-rg` });
   }
 
   public async onAfterCreate(
@@ -345,15 +346,23 @@ export abstract class CaseFactory {
           options?.repoPath ?? "./resource"
         );
         await sampledebugContext.before();
-        // use before middleware to process typical sample
-        azSqlHelper = await onBefore(sampledebugContext, "local", azSqlHelper);
-        azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
+        try {
+          // use before middleware to process typical sample
+          azSqlHelper = await onBefore(
+            sampledebugContext,
+            "local",
+            azSqlHelper
+          );
+          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
+        } catch (error) {}
       });
 
       afterEach(async function () {
         this.timeout(Timeout.finishTestCase);
-        await onAfter(sampledebugContext, "local");
-        await onAfter(sampledebugContext, "dev");
+        try {
+          await onAfter(sampledebugContext, "local");
+          await onAfter(sampledebugContext, "dev");
+        } catch (error) {}
         // setTimeout(() => {
         //   if (successFlag) process.exit(0);
         //   else process.exit(1);
