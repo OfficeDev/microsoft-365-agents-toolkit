@@ -17,11 +17,11 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 
-interface ShareArgs {
+export interface ShareArgs {
   appPackagePath?: string; // The path of the app package
 }
 
-const actionName = "teamsApp/shareToOthers";
+export const actionName = "teamsApp/shareToOthers";
 
 const outputKeys = {
   titleId: "titleId",

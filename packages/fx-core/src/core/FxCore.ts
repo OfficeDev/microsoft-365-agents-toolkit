@@ -38,6 +38,7 @@ import {
   Stage,
   SystemError,
   TeamsAppInputs,
+  TeamsAppManifest,
   Tools,
   UserError,
   err,
@@ -182,7 +183,12 @@ import { createProjectCliHelpNode } from "../question/create";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
-import { checkPermission, grantPermission, listCollaborator } from "./collaborator";
+import {
+  checkPermission,
+  CollaborationUtil,
+  grantPermission,
+  listCollaborator,
+} from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
@@ -201,6 +207,9 @@ import {
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { withFileLock } from "./middleware/fileLocker";
+import * as shareToOthers from "../component/driver/share/shareToOthers";
+import AdmZip from "adm-zip";
+import { Constants } from "../component/driver/teamsApp/constants";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -847,16 +856,56 @@ export class FxCore {
     if (!featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
       return err(new SystemError("FxCore", "", "share is not enabled"));
     }
-    inputs.stage = Stage.share;
-    const context = createDriverContext(inputs);
-    const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-    if (res.isOk()) {
-      ctx!.envVars = res.value;
+    const options = inputs[QuestionNames.ShareOption];
+    if (options === QuestionNames.ShareOptionShareApp) {
+      inputs.stage = Stage.share;
+      const context = createDriverContext(inputs);
+      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
+      if (res.isOk()) {
+        ctx!.envVars = res.value;
+        return ok(undefined);
+      } else {
+        // for partial success scenario, output is set in inputs object
+        ctx!.envVars = inputs.envVars;
+        return err(res.error);
+      }
+    } else if (options === QuestionNames.ShareOptionShareToUser) {
+      const parseRes = await this.parseShareToOthersActionYamlConfig(inputs.projectPath!);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      const teamsAppId = parseRes.value[0];
+      const sharedTitleId = parseRes.value[1];
+      const sharedAppId = parseRes.value[2];
+
+      const emails = (inputs[QuestionNames.ShareToUser] as string).split(",").map((e) => e.trim());
+      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+      const appStudioTokenRes = await tokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (appStudioTokenRes.isErr()) {
+        return err(appStudioTokenRes.error);
+      }
+      const appStudioToken = appStudioTokenRes.value;
+      const mosTokenRes = await tokenProvider.getAccessToken({
+        scopes: [MosServiceScope],
+      });
+      if (mosTokenRes.isErr()) {
+        return err(mosTokenRes.error);
+      }
+      const mosToken = mosTokenRes.value;
+      // 1. grant TDP permission
+      for (const email of emails) {
+        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+        if (!userInfo) {
+          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
+        }
+        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+      }
+      // 2. grant mos permission
       return ok(undefined);
     } else {
-      // for partial success scenario, output is set in inputs object
-      ctx!.envVars = inputs.envVars;
-      return err(res.error);
+      return err(new InputValidationError("shareOption", "Invalid share option"));
     }
   }
   /**
@@ -2878,5 +2927,98 @@ export class FxCore {
       const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
       void context.userInteraction.showMessage("info", successMessage, false);
     }
+  }
+
+  // Read teamsapp.yaml and get the value of teamsapp id, shared title id, and shared app id
+  // Output [teamsapp id, shared title id, shared app id]
+  private async parseShareToOthersActionYamlConfig(
+    projectPath: string
+  ): Promise<Result<string[], FxError>> {
+    const templatePath = pathUtils.getYmlFilePath(projectPath, "dev");
+    const maybeProjectModel = await metadataUtil.parse(templatePath, "dev");
+    if (maybeProjectModel.isErr()) {
+      return err(maybeProjectModel.error);
+    }
+    const projectModel = maybeProjectModel.value;
+    if (!projectModel.share || !projectModel.share.driverDefs) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.yamlConfigNotFound")
+        )
+      );
+    }
+    const shareToOthersAction = projectModel.share.driverDefs.find(
+      (d) => d.name === shareToOthers.actionName
+    );
+    if (!shareToOthersAction) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.shareActionConfigNotFound", shareToOthers.actionName)
+        )
+      );
+    }
+    // 1. get manifest id
+    const appPackagePath = (shareToOthersAction.with as shareToOthers.ShareArgs)?.appPackagePath;
+    if (!appPackagePath) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.appPackageConfigNotFound")
+        )
+      );
+    }
+    const zipEntries = new AdmZip(appPackagePath).getEntries();
+    const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
+    if (!manifestFile) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.manifestFileNotFound")
+        )
+      );
+    }
+    const manifest = JSON.parse(manifestFile.getData().toString()) as TeamsAppManifest;
+    const manifestId = manifest.id;
+    if (!manifestId) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.manifestIdNotFound")
+        )
+      );
+    }
+
+    // 2. get shared title id and shared app id
+    const sharedTitleIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.titleId;
+    const sharedAppIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.appId;
+    if (!sharedTitleIdEnvName || !sharedAppIdEnvName) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.sharedConfigNotFound")
+        )
+      );
+    }
+    // env file has already been loaded before calling this function.
+    const sharedTitleId = process.env[sharedTitleIdEnvName];
+    const sharedAppId = process.env[sharedAppIdEnvName];
+    if (!sharedTitleId || !sharedAppId) {
+      return err(
+        new UserError(
+          "FxCore",
+          "Share to Users",
+          getLocalizedString("error.share.sharedIdNotFound", sharedTitleId, sharedAppId)
+        )
+      );
+    }
+    return ok([manifestId, sharedTitleId, sharedAppId]);
   }
 }
