@@ -48,7 +48,7 @@ async function loadContent(config: Config, client: Client, item: ExternalConnect
  * Ensures that the content is ingested into the Graph API.
  * @param config - The configuration object.
  */
-export async function ingestContent(config: Config, client: Client, service: ItemsService<Item>): Promise<void> {
+export async function ingestContent(config: Config, client: Client, service: ItemsService<Item[]>): Promise<void> {
   await service.processAllAsync({
     processor: async (items) => {
       for (const doc of transformContent(items)) {

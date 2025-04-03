@@ -1,6 +1,6 @@
 import { Config } from "../models/Config";
 import { Item } from "../models/Item";
-import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, ProcessArgs } from "../services/itemsService";
+import { ItemsExtractor, ItemsService, NextPageUrlExtractor, ProcessArgs } from "../services/itemsService";
 import { UrlFetchService } from "./urlFetchService";
 
 /**
@@ -10,14 +10,14 @@ interface GitHubIssuesFetchParameters {
   config: Config;
   pageSize?: number;
   since?: Date;
-  itemsExtractor?: ItemsExtractorMaybeAsync<Response, Item[]>;
-  nextPageExtractor?: NextPageUrlExtractorMaybeAsync<Response>;
+  itemsExtractor?: ItemsExtractor<Response, Item[]>;
+  nextPageExtractor?: NextPageUrlExtractor<Response>;
 }
 
-export class MultiRepoIssuesFetchService implements ItemsService<Item> {
-  services: ItemsService<Item>[];
+export class MultiRepoIssuesFetchService implements ItemsService<Item[]> {
+  services: ItemsService<Item[]>[];
 
-  constructor(services: ItemsService<Item>[]) {
+  constructor(services: ItemsService<Item[]>[]) {
     this.services = services;
   }
 
@@ -35,22 +35,21 @@ export class MultiRepoIssuesFetchService implements ItemsService<Item> {
         init.headers = { Authorization: `Bearer ${options.config.connector.accessToken}` }
       }
       return new UrlFetchService({
-        url, init, itemsExtractor: githubItemsExtractor
+        url, init, itemsTransformer: githubItemsTransformer,
       });
     });
     return new MultiRepoIssuesFetchService(services);
   }
 
-  async processAllAsync({ processor }: ProcessArgs<Item>): Promise<void> {
+  async processAllAsync({ processor }: ProcessArgs<Item[]>): Promise<void> {
     await Promise.all(this.services.map(async svc => {
       await svc.processAllAsync({ processor })
     }));
   }
 }
 
-async function githubItemsExtractor(response: Response): Promise<Item[]> {
-  const allItems = await response.json();
-  const issues = allItems.filter((issue: any) => !issue.pull_request);
+function githubItemsTransformer(items: Item[]): Item[] {
+  const issues = items.filter((issue: any) => !issue.pull_request);
 
   return issues.map((issue: any) => {
     return {

@@ -29,11 +29,12 @@ export interface PagedItemsService<T> {
    * 
    * If there's no next page, an empty list should be returned.
    */
-  getNextPageAsync(): Promise<T[]>;
+  getNextPageAsync(): Promise<T>;
 }
 
 export interface ResponseBasedPagingParameters<TResponse> {
   response: TResponse;
+  totalItems?: number;
 }
 
 export type PagingParameters<TResponse> = ResponseBasedPagingParameters<TResponse>;
@@ -48,33 +49,31 @@ interface Transformer<A, B> {
 /**
  * A function that is used to process items from a data source.
  */
-export type ItemsProcessor<T> = Transformer<T[], Promise<void>>;
+export type ItemsProcessor<T> = Transformer<T, Promise<void>>;
 /**
  * A function that is used to process items from a data source synchronously.
  */
-export type ItemsProcessorSync<T> = Transformer<T[], void>;
+export type ItemsProcessorSync<T> = Transformer<T, void>;
 export type ItemsProcessorMaybeAsync<T> = ItemsProcessor<T> | ItemsProcessorSync<T>;
 /**
  * Function that gets the items from an API response.
  */
 export type ItemsExtractor<A, B> = Transformer<A, Promise<B>>;
-/**
- * Function that gets the items from an API response synchronously.
- */
-export type ItemsExtractorSync<A, B> = Transformer<A, B>;
-export type ItemsExtractorMaybeAsync<A, B> = ItemsExtractor<A, B> | ItemsExtractorSync<A, B>;
+export type ItemsTransformer<A, B> = Transformer<A, B>;
+export type TotalItemsExtractor<A> = Transformer<A, number | null | undefined>;
 
-type NextPageResult = string | null | undefined;
+export type NextPageLinkResult = string | null | undefined;
 /**
- * Function that gets the next page's URL.
+ * Interface for getting the next page's URL.
  * 
  * Should return null or undefined if there's no next page.
  */
-export type NextPageUrlExtractor<A> = Transformer<PagingParameters<A>, Promise<NextPageResult>>;
-/**
- * Function that gets the next page's URL synchronously.
- * 
- * Should return null or undefined if there's no next page.
- */
-export type NextPageUrlExtractorSync<A> = Transformer<PagingParameters<A>, NextPageResult>;
-export type NextPageUrlExtractorMaybeAsync<A> = NextPageUrlExtractor<A> | NextPageUrlExtractorSync<A>;
+export interface NextPageUrlExtractor<A> {
+  /**
+   * Gets the next page's link.
+   * 
+   * @param params The paging parameters.
+   * @returns The next page's URL or null if there's no next page.
+   */
+  nextPageLink(params: PagingParameters<A>): NextPageLinkResult;
+}

@@ -128,7 +128,7 @@ export async function ensureConnection(config: Config): Promise<boolean> {
  * Clears all items from the connection.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function clearConnectionItems(config: Config, service: ItemsService<Item>): Promise<boolean> {
+export async function clearConnectionItems(config: Config, service: ItemsService<Item[]>): Promise<boolean> {
   try {
     const connection = await getConnection(config);
 
