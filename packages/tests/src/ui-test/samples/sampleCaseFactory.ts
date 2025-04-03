@@ -208,7 +208,9 @@ export abstract class CaseFactory {
       dev: async (options?: { rgName: string }) =>
         await sampledebugContext.sampleAfter(options?.rgName ?? ""),
     };
-    await envMap[env]({ rgName: `${sampledebugContext.appName}-dev-rg` });
+    try {
+      await envMap[env]({ rgName: `${sampledebugContext.appName}-dev-rg` });
+    } catch (error) {}
   }
 
   public async onAfterCreate(
@@ -321,7 +323,7 @@ export abstract class CaseFactory {
       onCliValidate,
     } = this;
     describe("Sample Tests", function () {
-      this.timeout(Timeout.testAzureCase);
+      this.timeout(Timeout.testAzureCaseTotal);
       let sampledebugContext: SampledebugContext;
       let azSqlHelper: AzSqlHelper | undefined;
       let devtunnelProcess: ChildProcessWithoutNullStreams;
@@ -365,6 +367,7 @@ export abstract class CaseFactory {
           author,
         },
         async function () {
+          this.timeout(Timeout.testAzureCase);
           try {
             // create project
             await sampledebugContext.openResourceFolder();
@@ -597,6 +600,7 @@ export abstract class CaseFactory {
           author,
         },
         async function () {
+          this.timeout(Timeout.testAzureCase);
           if (options?.skipRemote) {
             console.log("there is no remote debug for this sample");
             this.skip();

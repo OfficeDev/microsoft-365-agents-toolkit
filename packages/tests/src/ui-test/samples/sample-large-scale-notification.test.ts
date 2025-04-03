@@ -111,4 +111,4 @@ new LargeNotiTestCase(
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.StartApplication,
   ]
-);
+).test();
