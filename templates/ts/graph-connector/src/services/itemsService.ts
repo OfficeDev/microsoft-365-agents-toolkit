@@ -1,14 +1,5 @@
 export interface ProcessArgs<T> {
   /**
-   * Whether to disable batching during processing.
-   * 
-   * Disabling batching will increase memory consumption while processing items.
-   * 
-   * When false, the process function is allowed to repeatedly call processor as new data becomes available
-   * When true, the process function must only call the processor once with all the items in the data source
-   */
-  disableBatching?: boolean
-  /**
    * A function that is called with items from the data source
    */
   processor: ItemsProcessorMaybeAsync<T>

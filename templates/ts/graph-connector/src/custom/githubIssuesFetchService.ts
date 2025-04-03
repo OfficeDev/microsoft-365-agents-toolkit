@@ -2,7 +2,7 @@ import { Config } from "../models/Config";
 import { Item } from "../models/Item";
 import { ItemsExtractorMaybeAsync, ItemsService, NextPageUrlExtractorMaybeAsync, PagedItemsService, ProcessArgs } from "../services/itemsService";
 import { asPromise } from "../utils";
-import { UrlFetchService } from "./urlFetchService";
+import { defaultExtractItemsFromJsonResponse, UrlFetchService } from "./urlFetchService";
 
 /**
  * Options used to construct the GitHub issues fetch service.
@@ -33,7 +33,7 @@ export class GitHubIssuesFetchService implements PagedItemsService<Item>, ItemsS
       config,
       pageSize = 100,
       since,
-      itemsExtractor = gitHubExtractItemsFromResponse,
+      itemsExtractor = defaultExtractItemsFromJsonResponse,
       nextPageExtractor = gitHubNextPageFromResponseSync
     }: GitHubIssuesFetchServiceParameters
   ) {
@@ -75,31 +75,12 @@ export class GitHubIssuesFetchService implements PagedItemsService<Item>, ItemsS
     });
   }
 
-  async processAllAsync({ disableBatching, processor }: ProcessArgs<Item>): Promise<void> {
-    if (!disableBatching) {
-      while (this.hasNextPage()) {
-        var page = await this.getNextPageAsync();
-        await asPromise(processor(page));
-      }
-    } else {
-      const allItems = [];
-      while (this.hasNextPage()) {
-        var page = await this.getNextPageAsync();
-        allItems.push(...page);
-      }
-      await asPromise(processor(allItems));
+  async processAllAsync({ processor }: ProcessArgs<Item>): Promise<void> {
+    while (this.hasNextPage()) {
+      var page = await this.getNextPageAsync();
+      await asPromise(processor(page));
     }
   }
-}
-
-/**
- * Extracts items from a GitHub API response.
- * 
- * @param response The Fetch API response object.
- * @returns A promise that resolves to the items
- */
-export async function gitHubExtractItemsFromResponse(response: Response): Promise<Item[]> {
-  return await response.json();
 }
 
 /**
@@ -132,25 +113,9 @@ export class MultiRepoIssuesFetchService implements ItemsService<Item> {
     return new MultiRepoIssuesFetchService(services);
   }
 
-  async processAllAsync({ disableBatching, processor }: ProcessArgs<Item>): Promise<void> {
-    if (!disableBatching) {
-      await Promise.all(this.services.map(async svc => {
-        await svc.processAllAsync({ disableBatching, processor })
-      }));
-    } else {
-      const allItems = [];
-      await Promise.all(this.services.map(async svc => {
-        await svc.processAllAsync({
-          disableBatching,
-          processor: items => {
-            for (let i = 0; i < items.length; i++) {
-              const it = items[i];
-              allItems.push(it);
-            }
-          }
-        })
-      }));
-      await processor(allItems);
-    }
+  async processAllAsync({ processor }: ProcessArgs<Item>): Promise<void> {
+    await Promise.all(this.services.map(async svc => {
+      await svc.processAllAsync({ processor })
+    }));
   }
 }
