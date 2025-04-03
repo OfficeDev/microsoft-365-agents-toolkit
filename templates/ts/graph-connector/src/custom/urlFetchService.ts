@@ -36,6 +36,7 @@ export class NextPageForOffsetPagination implements NextPageUrlExtractor<Respons
   pageParam: string;
   totalItems?: number;
   url: URL;
+  firstPageUrl: string;
 
   constructor(url: string | URL, pageSize: number, pageParam: string = 'page', pageSizeParam: string = 'pageSize') {
     this.url = new URL(url);
@@ -43,8 +44,11 @@ export class NextPageForOffsetPagination implements NextPageUrlExtractor<Respons
     this.pageSize = pageSize;
     this.pageParam = pageParam;
     this.url.searchParams.set(pageSizeParam, this.pageSize.toString());
+    this.firstPageUrl = this.url.toString();
   }
-
+  firstPageLink(): NextPageLinkResult {
+    return this.firstPageUrl;
+  }
   nextPageLink({totalItems}: PagingParameters<Response>): NextPageLinkResult {
     if (!this.totalItems && totalItems) {
       this.totalItems = totalItems;
@@ -65,6 +69,14 @@ export class NextPageForOffsetPagination implements NextPageUrlExtractor<Respons
  * Gets the next page's link from the HTTP Link response header.
  */
 export class NextPageFromLinkResponseHeader implements NextPageUrlExtractor<Response> {
+  firstPageUrl: string;
+
+  constructor(url: string) {
+    this.firstPageUrl = url;
+  }
+  firstPageLink(): NextPageLinkResult {
+    return this.firstPageUrl;
+  }
   /**
    * Gets the next page's link from the HTTP Link response header.
    * 
@@ -100,12 +112,12 @@ export class UrlFetchService<TRaw, TTransformed> implements PagedItemsService<TT
       itemsExtractor = extractItemsFromJsonResponse,
       itemsTransformer,
       totalItemsExtractor,
-      nextPageExtractor = new NextPageFromLinkResponseHeader()
+      nextPageExtractor = new NextPageFromLinkResponseHeader(url)
     }: UrlFetchServiceParameters<TRaw, TTransformed>
   ) {
     this.url = url;
     this.options = init;
-    this.nextPageUrl = url;
+    this.nextPageUrl = nextPageExtractor?.firstPageLink() ?? url;
     this.itemsExtractor = itemsExtractor;
     this.itemsTransformer = itemsTransformer;
     this.totalItemsExtractor = totalItemsExtractor;

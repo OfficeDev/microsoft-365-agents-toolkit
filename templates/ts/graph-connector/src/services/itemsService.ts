@@ -69,6 +69,7 @@ export type NextPageLinkResult = string | null | undefined;
  * Should return null or undefined if there's no next page.
  */
 export interface NextPageUrlExtractor<A> {
+  firstPageLink(): NextPageLinkResult;
   /**
    * Gets the next page's link.
    * 
