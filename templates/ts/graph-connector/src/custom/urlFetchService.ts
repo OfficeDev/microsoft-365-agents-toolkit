@@ -9,7 +9,7 @@ interface UrlFetchServiceParameters<T1, T2> {
   // Extracts items from the response
   itemsExtractor?: ItemsExtractor<Response, T1>;
   // Performs any needed transformations on the extracted items
-  itemsTransformer: ItemsTransformer<T1, T2>;
+  itemsTransformer?: ItemsTransformer<T1, T2>;
   // Extracts the total number of items from the response
   totalItemsExtractor?: TotalItemsExtractor<T1>;
   nextPageExtractor?: NextPageUrlExtractor<Response>;
@@ -30,8 +30,8 @@ export async function extractItemsFromJsonResponse<T>(response: Response): Promi
 /**
  * Calculates the next page's link using tracked parameters.
  */
-export class NextPageForOffsetPagination implements NextPageUrlExtractor<void> {
-  currentPage: number = 0;
+export class NextPageForOffsetPagination implements NextPageUrlExtractor<Response> {
+  currentPage: number = 1;
   pageSize: number;
   pageParam: string;
   totalItems?: number;
@@ -45,7 +45,7 @@ export class NextPageForOffsetPagination implements NextPageUrlExtractor<void> {
     this.url.searchParams.set(pageSizeParam, this.pageSize.toString());
   }
 
-  nextPageLink({totalItems}: PagingParameters<void>): NextPageLinkResult {
+  nextPageLink({totalItems}: PagingParameters<Response>): NextPageLinkResult {
     if (!this.totalItems && totalItems) {
       this.totalItems = totalItems;
     }
