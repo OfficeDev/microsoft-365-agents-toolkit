@@ -1688,12 +1688,10 @@ function shareOptionQuestion(): SingleSelectQuestion {
       {
         id: QuestionNames.ShareOptionShareApp,
         label: getLocalizedString("core.shareOptionQuestion.share"),
-        detail: getLocalizedString("core.shareOptionQuestion.share"),
       },
       {
         id: QuestionNames.ShareOptionShareToUser,
         label: getLocalizedString("core.shareOptionQuestion.shareToUser"),
-        detail: getLocalizedString("core.shareOptionQuestion.shareToUser"),
       },
     ],
   };
