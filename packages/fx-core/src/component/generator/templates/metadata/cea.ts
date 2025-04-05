@@ -143,4 +143,10 @@ export const customEngineAgentTemplates: Template[] = [
     language: "python",
     description: "",
   },
+  {
+    id: "custom-copilot-weather-agent-csharp",
+    name: TemplateNames.CustomCopilotWeatherAgent,
+    language: "csharp",
+    description: "",
+  },
 ];
