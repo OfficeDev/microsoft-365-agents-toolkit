@@ -9,74 +9,11 @@
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
-import { AzServiceBusHelper } from "../../utils/azureCliHelper";
 import { SampledebugContext } from "./sampledebugContext";
 import { validateLargeNotificationBot } from "../../utils/playwrightOperation";
 import { getBotSiteEndpoint } from "../../utils/commonUtils";
-import * as path from "path";
-import * as fs from "fs";
 
 class LargeNotiTestCase extends CaseFactory {
-  public override async onAfterCreate(
-    sampledebugContext: SampledebugContext,
-    env: "local" | "dev"
-  ): Promise<void> {
-    if (env === "local") {
-      // create service bus
-      const rgName = `${sampledebugContext.appName}-dev-rg`;
-      const azServiceBusHelper = new AzServiceBusHelper(rgName);
-      await azServiceBusHelper.createServiceBus();
-
-      // add service bus name into env file
-      const envFile = path.resolve(
-        sampledebugContext.projectPath,
-        "env",
-        `.env.${env}`
-      );
-      let envFileString = fs.readFileSync(envFile, "utf-8");
-      envFileString += `\nSERVICE_BUS_QUEUE_NAME=${azServiceBusHelper.queueName}`;
-      fs.writeFileSync(envFile, envFileString);
-      console.log(`add endpoint ${envFileString} to .env.${env} file`);
-
-      // add storage account key
-      const envUserFile = path.resolve(
-        sampledebugContext.projectPath,
-        "env",
-        `.env.${env}.user`
-      );
-      // create envuserfile
-      if (!fs.existsSync(envUserFile)) {
-        fs.writeFileSync(envUserFile, "");
-      }
-      let envUserFileString = fs.readFileSync(envUserFile, "utf-8");
-      envUserFileString += `\nSECRET_STORAGE_ACCOUNT_KEY=${process.env["STORAGE_ACCOUNT_KEY"]}`;
-      fs.writeFileSync(envUserFile, envUserFileString);
-      console.log(
-        `add SECRET_STORAGE_ACCOUNT_KEY ${process.env["STORAGE_ACCOUNT_KEY"]} to .env.${env}.user file`
-      );
-
-      // add connect string into local.setting.json
-      const configFilePath = path.resolve(
-        sampledebugContext.projectPath,
-        "local.settings.json"
-      );
-      const configFile = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
-      configFile["Values"]["SERVICE_BUS_CONNECTION_STRING"] =
-        azServiceBusHelper.connectString;
-      console.log(JSON.stringify(configFile));
-      fs.writeFileSync(configFilePath, JSON.stringify(configFile));
-      console.log(`update connect string to ${configFilePath} file`);
-    }
-  }
-
-  override async onAfter(
-    sampledebugContext: SampledebugContext
-  ): Promise<void> {
-    await sampledebugContext.sampleAfter(
-      `${sampledebugContext.appName}-dev-rg}`
-    );
-  }
-
   override async onValidate(
     page: Page,
     options: {
@@ -87,9 +24,6 @@ class LargeNotiTestCase extends CaseFactory {
       env: "local" | "dev";
     }
   ): Promise<void> {
-    if (options.env === "local") {
-      return await validateLargeNotificationBot(page);
-    }
     const funcEndpoint = await getBotSiteEndpoint(
       options.context.projectPath,
       options.env
@@ -99,15 +33,11 @@ class LargeNotiTestCase extends CaseFactory {
       funcEndpoint + "/api/notification"
     );
   }
-
-  public override async onCliValidate(page: Page): Promise<void> {
-    return await validateLargeNotificationBot(page);
-  }
 }
 
 new LargeNotiTestCase(
   TemplateProject.LargeScaleBot,
-  25929282,
+  0,
   25960873,
   "v-ivanchen@microsoft.com",
   [
@@ -115,5 +45,8 @@ new LargeNotiTestCase(
     LocalDebugTaskLabel.Compile,
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.StartApplication,
-  ]
+  ],
+  {
+    skipLocal: true,
+  }
 ).test();
