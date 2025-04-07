@@ -692,6 +692,10 @@ export abstract class CaseFactory {
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
           await onAfter(sampledebugContext, "dev");
+          setTimeout(() => {
+            if (successFlag) process.exit(0);
+            else process.exit(1);
+          }, 30000);
         }
       );
     });
