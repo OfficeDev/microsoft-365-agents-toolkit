@@ -4,10 +4,11 @@
 import * as os from "os";
 
 export class Extension {
-  public static readonly displayName: string = "Teams Toolkit";
+  public static readonly displayName: string = "Microsoft 365 Agents Toolkit";
   public static readonly treeViewSectionName: string = "Development";
   public static readonly activatedItemName: string = "DEVELOPMENT";
-  public static readonly sidebarWelcomeSectionName: string = "Teams Toolkit";
+  public static readonly sidebarWelcomeSectionName: string =
+    "Microsoft 365 Agents Toolkit";
   public static readonly sidebarWelcomeContentName: string = "Create a New App";
   public static readonly sidebarCommandContentName: string = "Create New App";
   public static readonly sidebarCommandContentNameOfficeDev: string =
