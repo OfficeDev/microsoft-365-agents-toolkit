@@ -5,27 +5,33 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   ManifestUtil,
+  signedIn,
   TeamsAppManifest,
   TemplateFolderName,
 } from "@microsoft/teamsfx-api";
 import {
+  FeatureFlags,
   MetadataV3,
   envUtil,
   environmentNameManager,
+  featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
+  listSensitivityLabelScope,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
 import isUUID from "validator/lib/isUUID";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "./constants";
-import { commandIsRunning } from "./globalVariables";
+import { commandIsRunning, core, tools } from "./globalVariables";
 import { getSystemInputs } from "./utils/systemEnvUtils";
 import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
+import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
+import * as util from "util";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
   // Get environment variables
@@ -90,6 +96,38 @@ export class PlaceholderCodeLens extends vscode.CodeLens {
     command?: vscode.Command | undefined
   ) {
     super(range, command);
+  }
+}
+
+export class SharePointIdCodeLens extends vscode.CodeLens {
+  constructor(
+    public readonly ids: string,
+    range: vscode.Range,
+    command?: vscode.Command | undefined
+  ) {
+    super(range, command);
+  }
+
+  static extractSharePointIds(text: string): { [key: string]: string | null } {
+    const keys = ["site_id", "web_id", "list_id", "unique_id"];
+    const result: { [key: string]: string | null } = {};
+
+    try {
+      const jsonObj = JSON.parse(text);
+
+      // Initialize each key with either the found value or null
+      keys.forEach((key) => {
+        result[key] = jsonObj[key] || null;
+      });
+
+      return result;
+    } catch (e) {
+      // If JSON parsing fails, return all null values
+      keys.forEach((key) => {
+        result[key] = null;
+      });
+      return result;
+    }
   }
 }
 
@@ -610,6 +648,113 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
   }
 }
 
+export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.CodeLensProvider {
+  async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
+    const inputs = getSystemInputs();
+    if (!inputs.projectPath) {
+      return [];
+    }
+    const manifestFilePath = path.join(
+      inputs.projectPath,
+      AppPackageFolderName,
+      ManifestTemplateFileName
+    );
+    if (!fs.existsSync(manifestFilePath)) {
+      return [];
+    }
+    const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+    const manifest = JSON.parse(manifestContent) as TeamsAppManifest;
+    const declarativeAgentFilePath = manifest.copilotAgents?.declarativeAgents?.[0]?.file;
+    if (!declarativeAgentFilePath) {
+      return [];
+    }
+    const declarativeAgentFileAbsolutePath = path.resolve(
+      inputs.projectPath,
+      AppPackageFolderName,
+      declarativeAgentFilePath
+    );
+    // only target the first declarative agent
+    if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
+      return [];
+    }
+    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
+    const text = document.getText();
+    const regex = new RegExp(Labelregex);
+    const matches = regex.exec(text);
+    if (matches == null) {
+      const startPosition = new vscode.Position(0, 0);
+      const endPosition = document.positionAt(text.indexOf("\n"));
+      const range = new vscode.Range(startPosition, endPosition);
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabel"),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    }
+    const line = document.lineAt(document.positionAt(matches.index).line);
+    const labelValue = matches[1];
+    const startPosition = new vscode.Position(line.lineNumber, 0);
+    const endPosition = new vscode.Position(line.lineNumber, 1);
+    const range = new vscode.Range(startPosition, endPosition);
+
+    // check if user has already logged in to the sensitivity label scope
+    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider?.getStatus({
+      scopes: [listSensitivityLabelScope],
+    });
+    // not logged in
+    if (
+      !loginStatusRes ||
+      loginStatusRes.isErr() ||
+      loginStatusRes.value.status != signedIn ||
+      !loginStatusRes.value.token
+    ) {
+      const command = {
+        title: localize("teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn"),
+        command: "fx-extension.m365PreAuth",
+        arguments: [{ scopes: [listSensitivityLabelScope] }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    } else {
+      let labelDisplayName: string | undefined;
+      // query display name of the current label
+      const token = loginStatusRes.value.token;
+      const accountInfo = loginStatusRes.value.accountInfo;
+      const accountUniqueName =
+        typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
+      const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
+
+      const result = await graphAPIClient.listSensitivityLabels(
+        token,
+        !!accountUniqueName && !!tenantId,
+        accountUniqueName,
+        tenantId
+      );
+      if (result.isOk()) {
+        for (const label of result.value) {
+          if (label.id === labelValue) {
+            labelDisplayName = label.displayName;
+            break;
+          }
+        }
+      }
+
+      const command = {
+        title: util.format(
+          localize("teamstoolkit.codeLens.setSensitivityLabelWithDisplayName"),
+          labelDisplayName ?? "Unknown"
+        ),
+        command: "fx-extension.setSensitivityLabel",
+        arguments: [{ declarativeAgentManifestPath: document.uri.fsPath }],
+      };
+      const codeLens = new vscode.CodeLens(range, command);
+      return [codeLens];
+    }
+  }
+}
+
 export class TeamsAppYamlCodeLensProvider implements vscode.CodeLensProvider {
   private provisionRegex = /^provision:/m;
   private deployRegex = /^deploy:/m;
@@ -697,6 +842,112 @@ export class OfficeDevManifestCodeLensProvider implements vscode.CodeLensProvide
       };
       if (range) {
         codeLenses.push(new vscode.CodeLens(range, command));
+      }
+    }
+    return codeLenses;
+  }
+}
+
+export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvider {
+  private sharePointIdsRegex: RegExp;
+
+  constructor() {
+    // This regex matches JSON objects containing SharePoint IDs with the following pattern:
+    // - Matches whitespace and opening curly brace: \s*{\s*
+    // - Matches any of these property names: "site_id", "web_id", "list_id", "unique_id"
+    // - [\s\S]*? matches any characters (including newlines) non-greedily until closing brace
+    // - Matches closing curly brace: }
+    // - /g flag for global matching (find all occurrences)
+    this.sharePointIdsRegex = /{\s*(?:"site_id"|"web_id"|"list_id"|"unique_id")[\s\S]*?}/g;
+  }
+
+  public provideCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)) {
+      return [];
+    }
+
+    const inputs = getSystemInputs();
+
+    if (inputs.projectPath) {
+      const manifestFilePath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        ManifestTemplateFileName
+      );
+      if (!fs.existsSync(manifestFilePath)) {
+        return [];
+      }
+      const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+      const manifest = JSON.parse(manifestContent);
+      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      if (!manifestProperties.capabilities.includes("copilotGpt")) {
+        return [];
+      }
+
+      let agentFileName: string | undefined;
+      if ((manifest as TeamsAppManifest).copilotAgents?.declarativeAgents) {
+        const agents = (manifest as TeamsAppManifest).copilotAgents?.declarativeAgents;
+        if (agents && agents.length > 0) {
+          agentFileName = agents[0].file;
+        }
+      }
+      if (!commandIsRunning && agentFileName && document.fileName.includes(agentFileName)) {
+        return this.computeCodeLenses(document);
+      }
+    }
+    return [];
+  }
+
+  public async resolveCodeLens(
+    lens: vscode.CodeLens,
+    _token: vscode.CancellationToken
+  ): Promise<vscode.CodeLens> {
+    if (lens instanceof SharePointIdCodeLens) {
+      const ids = SharePointIdCodeLens.extractSharePointIds(lens.ids);
+
+      let title = `👉`;
+      if (ids.site_id && ids.unique_id) {
+        const details = await core.getODSPItemDetails(ids.site_id, ids.unique_id);
+        if (details.isOk()) {
+          title = `${title} ${details.value.name}`;
+          lens.command = {
+            title: title,
+            command: "fx-extension.openOneDriveSharePointUrl",
+            arguments: [details.value.webUrl],
+          };
+        } else {
+          lens.command = {
+            title: `${title} ${details.error.message}`,
+            command: "",
+          };
+        }
+      } else {
+        lens.command = {
+          title: `${title} Missing required SharePoint IDs`,
+          command: "",
+        };
+      }
+    }
+    return lens;
+  }
+
+  private computeCodeLenses(
+    document: vscode.TextDocument
+  ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+    const codeLenses: vscode.CodeLens[] = [];
+    const text = document.getText();
+    const regex = new RegExp(this.sharePointIdsRegex);
+    let matches;
+    while ((matches = regex.exec(text)) !== null) {
+      const match = matches[0];
+      const line = document.lineAt(document.positionAt(matches.index).line);
+      const indexOf = line.text.indexOf("{");
+      const position = new vscode.Position(line.lineNumber, indexOf);
+      const range = new vscode.Range(position, new vscode.Position(line.lineNumber, indexOf + 1));
+      if (range) {
+        codeLenses.push(new SharePointIdCodeLens(match, range, undefined));
       }
     }
     return codeLenses;

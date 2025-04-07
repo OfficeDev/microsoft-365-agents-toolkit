@@ -90,7 +90,7 @@ export class AzureZipDeployImpl extends AzureDeployImpl {
     this.context.logProvider.debug("Start to get Azure account info for deploy");
     const config = await this.createAzureDeployConfig(azureResource, azureCredential);
     this.context.logProvider.debug("Get Azure account info for deploy complete");
-    const endpoint = this.getZipDeployEndpoint(azureResource.instanceId);
+    const endpoint = await AzureZipDeployImpl.getZipDeployEndpoint(azureResource, config);
     this.context.logProvider.debug(`Start to upload code to ${endpoint}`);
     const startTime = Date.now();
     const location = await this.zipDeployPackage(
@@ -239,14 +239,29 @@ export class AzureZipDeployImpl extends AzureDeployImpl {
 
   /**
    * create azure zip deploy endpoint
-   * @param siteName azure app service or azure function name
-   * @protected
+   * @param azureResource resource id of the website
+   * @param config azure upload config, including azure account credential
    */
-  protected getZipDeployEndpoint(siteName: string): string {
-    return `https://${siteName}.scm.azurewebsites.net/api/zipdeploy?isAsync=true`;
+  public static async getZipDeployEndpoint(
+    azureResource: AzureResourceInfo,
+    config: AzureUploadConfig
+  ): Promise<string> {
+    const response = await fetch(
+      `https://management.azure.com/subscriptions/${azureResource.subscriptionId}/resourceGroups/${azureResource.resourceGroupName}/providers/Microsoft.Web/sites/${azureResource.instanceId}?api-version=2024-04-01`,
+      {
+        headers: config.headers,
+      }
+    );
+    const responseData = await response.json();
+    const hostNames: string[] = responseData.properties.enabledHostNames;
+    const scmHostName = hostNames.find((host) => host.includes("scm"));
+    if (!scmHostName) {
+      throw new Error(`Cannot find SCM host name. Available host names: ${hostNames.join(", ")}`);
+    }
+    return `https://${scmHostName}/api/zipdeploy?isAsync=true`;
   }
 
-  updateProgressbar() {
+  updateProgressbar(): void {
     this.progressBar?.next(ProgressMessages.deployToAzure(this.workingDirectory, this.serviceName));
   }
 }

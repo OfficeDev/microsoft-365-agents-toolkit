@@ -37,6 +37,18 @@ export interface OauthRegistration {
 
   // Identity provider, can be Custom or MicrosoftEntra
   identityProvider?: string;
+
+  /**
+   * Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody
+   * BasicAuthorizationHeader denoting that the token exchange is done via HTTP headers
+   * PostRequestBody denoting that the token exchange is done via sending it in request body
+   */
+  tokenExchangeMethodType?: TokenExchangeMethodType;
+}
+
+export enum TokenExchangeMethodType {
+  BasicAuthorizationHeader = "BasicAuthorizationHeader",
+  PostRequestBody = "PostRequestBody",
 }
 
 export enum OauthRegistrationAppType {

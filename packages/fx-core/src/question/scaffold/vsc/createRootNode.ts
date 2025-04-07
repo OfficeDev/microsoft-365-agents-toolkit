@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
@@ -21,6 +21,7 @@ import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
+import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -36,7 +37,7 @@ export function getLanguageOptions(inputs: Inputs): OptionItem[] {
   const languages = getAllTemplatesOnPlatform(inputs.platform)
     .filter((t) => t.name === templateName)
     .map((t) => t.language)
-    .filter((lang) => lang !== "none" && lang !== undefined);
+    .filter((lang) => lang !== undefined);
   const languageOptions = languages.map(
     (lang) =>
       (LanguageOptionMap.get(lang) as OptionItem) || {
@@ -80,20 +81,23 @@ export function languageNode(): IQTreeNode {
 }
 
 export function folderAndAppNameCondition(inputs: Inputs): boolean {
-  // Only skip this project when need to rediect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
-  return !(
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-    (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
-      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
-    !inputs[QuestionNames.ActionManifestPath]
+  // skip this project when need to redirect to Kiota: 1. Feature flag enabled 2. Creating plugin/declarative copilot from existing spec 3. No plugin manifest path
+  // or start with github copilot
+  return (
+    !(
+      featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+      (inputs[QuestionNames.ProjectType] === ProjectTypeOptions.copilotAgentOptionId ||
+        inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id) &&
+      !inputs[QuestionNames.ActionManifestPath]
+    ) && inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.startWithGithubCopilotOptionId
   );
 }
 
 /**
  * Scaffold question model dedicated for VS Code platform
  */
-export function scaffoldQuestionForVSCode(): IQTreeNode {
+export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode): IQTreeNode {
   const node: IQTreeNode = {
     data: { type: "group" },
     children: [
@@ -103,12 +107,15 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
           title: getLocalizedString("core.createProjectQuestion.title"),
           type: "singleSelect",
           staticOptions: [
-            ProjectTypeOptions.declarativeAgent(),
-            ProjectTypeOptions.customEngineAgent(),
-            ProjectTypeOptions.bot(),
-            ProjectTypeOptions.tab(),
-            ProjectTypeOptions.me(),
-            ProjectTypeOptions.officeAddin(),
+            ProjectTypeOptions.declarativeAgent(platform),
+            ProjectTypeOptions.customEngineAgent(platform),
+            ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
+              ? [ProjectTypeOptions.graphConnector(platform)]
+              : []),
+            ProjectTypeOptions.bot(platform),
+            ProjectTypeOptions.tab(platform),
+            ProjectTypeOptions.me(platform),
+            ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
               : []),
@@ -117,6 +124,7 @@ export function scaffoldQuestionForVSCode(): IQTreeNode {
         children: [
           daProjectTypeNode(),
           customEngineAgentProjectTypeNode(),
+          graphConnectorProjectTypeNode(),
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),

@@ -22,6 +22,7 @@ import {
 import { DotnetChecker } from "../../deps-checker/internal/dotnetChecker";
 import { FuncToolChecker } from "../../deps-checker/internal/funcToolChecker";
 import { TestToolChecker } from "../../deps-checker/internal/testToolChecker";
+import { createSymlink } from "../../deps-checker/util/fileHelper";
 import { LocalCertificate, LocalCertificateManager } from "../../local/localCertificateManager";
 import { wrapRun } from "../../utils/common";
 import { DriverContext } from "../interface/commonArgs";
@@ -39,6 +40,7 @@ import { DotnetInstallationUserError } from "./error/dotnetInstallationUserError
 import { FuncInstallationUserError } from "./error/funcInstallationUserError";
 import { TestToolInstallationUserError } from "./error/testToolInstallationUserError";
 import { InstallToolArgs } from "./interfaces/InstallToolArgs";
+import { nodejsInstaller } from "./nodeInstaller";
 
 const ACTION_NAME = "devTool/install";
 const helpLink = "https://aka.ms/teamsfx-actions/devtool-install";
@@ -123,6 +125,10 @@ export class ToolsInstallDriverImpl {
     if (args.dotnet) {
       const dotnetRes = await this.resolveDotnet(outputEnvVarNames);
       dotnetRes.forEach((v, k) => res.set(k, v));
+    }
+
+    if (args.nodejs) {
+      await this.resolveNodeJS(args.nodejs.symlinkDir);
     }
 
     if (args.testTool) {
@@ -295,7 +301,34 @@ export class ToolsInstallDriverImpl {
     }
   }
 
-  private validateArgs(args: InstallToolArgs): void {
+  /**
+   * return nodejs install path, if nodejs is installed in system environment, return "", else return installed path (./devTools/nodejs)
+   */
+  async resolveNodeJS(symlinkDir: string): Promise<void> {
+    const ensureRes = await nodejsInstaller.ensureNodeJS(this.context, true, true);
+    if (ensureRes.isOk()) {
+      const status = ensureRes.value;
+      if (status.installPath) {
+        const symLinkDir = path.join(this.context.projectPath, symlinkDir);
+        await createSymlink(status.installPath, symLinkDir);
+        this.context.addSummary(
+          getLocalizedString(
+            "action.devTool.nodeInstaller.Summary.installInPath",
+            status.installPath
+          )
+        );
+        process.env.PATH = `${status.installPath}${path.delimiter}${process.env.PATH as string}`;
+      } else {
+        this.context.addSummary(
+          getLocalizedString("action.devTool.nodeInstaller.Summary.installInSystem")
+        );
+      }
+      return;
+    }
+    throw ensureRes.error;
+  }
+
+  public validateArgs(args: InstallToolArgs): void {
     if (!!args.devCert && typeof args.devCert?.trust !== "boolean") {
       throw new InvalidActionInputError(ACTION_NAME, ["devCert.trust"], helpLink);
     }
@@ -328,6 +361,14 @@ export class ToolsInstallDriverImpl {
       }
       if (typeof args.testTool.symlinkDir !== "string") {
         throw new InvalidActionInputError(ACTION_NAME, ["testTool.symlinkDir"], helpLink);
+      }
+    }
+    if (typeof args.nodejs !== "undefined") {
+      if (typeof args.nodejs !== "object") {
+        throw new InvalidActionInputError(ACTION_NAME, ["nodejs"], helpLink);
+      }
+      if (typeof args.nodejs.symlinkDir !== "string") {
+        throw new InvalidActionInputError(ACTION_NAME, ["nodejs.symlinkDir"], helpLink);
       }
     }
   }

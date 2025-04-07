@@ -3,7 +3,7 @@
 
 "use strict";
 
-import { Colors, err, FxError, LogLevel, ok, Result } from "@microsoft/teamsfx-api";
+import { Colors, err, FxError, LogLevel, ok, Result, signedOut } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
   assembleError,
@@ -21,7 +21,6 @@ import fs from "fs-extra";
 import * as path from "path";
 import * as util from "util";
 import activate from "../../activate";
-import { signedOut } from "../../commonlib/common/constant";
 import cliLogger from "../../commonlib/log";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { cliSource } from "../../constants";

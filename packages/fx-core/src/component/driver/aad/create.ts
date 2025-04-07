@@ -43,6 +43,7 @@ import {
 } from "./utility/constants";
 import { AadSet } from "../../../common/globalVars";
 import { isTestToolEnabledProject } from "../../../common/tools";
+import { environmentNameManager } from "../../../core/environmentName";
 
 const actionName = "aadApp/create"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-create";
@@ -88,6 +89,13 @@ export class CreateAadAppDriver implements StepDriver {
 
       this.validateArgs(args);
 
+      const tokenJson = await context.m365TokenProvider.getJsonObject({ scopes: GraphScopes });
+      const isMsftAccount: boolean =
+        tokenJson.isOk() &&
+        tokenJson.value &&
+        typeof tokenJson.value.unique_name === "string" &&
+        tokenJson.value.unique_name.endsWith("@microsoft.com");
+
       const aadAppClient = new AadAppClient(context.m365TokenProvider, context.logProvider);
       if (!aadAppState.clientId) {
         context.logProvider?.info(
@@ -97,12 +105,6 @@ export class CreateAadAppDriver implements StepDriver {
           )
         );
         context.addTelemetryProperties({ [telemetryKeys.newAadApp]: "true" });
-
-        const tokenJson = await context.m365TokenProvider.getJsonObject({ scopes: GraphScopes });
-        const isMsftAccount =
-          tokenJson.isOk() &&
-          tokenJson.value.unique_name &&
-          (tokenJson.value.unique_name as string).endsWith("@microsoft.com");
 
         // Create new Microsoft Entra app if no client id exists
         const signInAudience = args.signInAudience
@@ -116,7 +118,8 @@ export class CreateAadAppDriver implements StepDriver {
         const aadApp = await aadAppClient.createAadApp(
           args.name,
           signInAudience,
-          serviceManagementReference
+          serviceManagementReference,
+          isMsftAccount
         );
         aadAppState.clientId = aadApp.appId!;
         aadAppState.objectId = aadApp.id!;
@@ -163,7 +166,8 @@ export class CreateAadAppDriver implements StepDriver {
           aadAppState.clientSecret = await aadAppClient.generateClientSecret(
             aadAppState.objectId,
             clientSecretExpireDays,
-            clientSecretDescription
+            clientSecretDescription,
+            isMsftAccount
           );
           outputs.set(outputEnvVarNames.get(OutputKeys.clientSecret)!, aadAppState.clientSecret);
 
@@ -212,16 +216,19 @@ export class CreateAadAppDriver implements StepDriver {
           if (
             error.response!.status === 403 &&
             message.includes(constants.insufficientPermissionErrorMessage) &&
-            !isTestToolEnabledProject(context.projectPath)
+            !isTestToolEnabledProject(context.projectPath) &&
+            process.env.TEAMSFX_ENV == environmentNameManager.getLocalEnvName()
           ) {
             context.addTelemetryProperties({
               [telemetryKeys.insufficientPermissionAadApp]: "true",
             });
             const res = await this.askForAADAppIdAndSecret(context, aadAppState, outputEnvVarNames);
             if (res.isOk()) {
+              await this.setAadEndpointInfo(context.m365TokenProvider, aadAppState);
+              const outputs = mapStateToEnv(aadAppState, outputEnvVarNames);
               context.addTelemetryProperties({ [telemetryKeys.userInputAadApp]: "true" });
               return {
-                result: ok(res.value),
+                result: ok(outputs),
                 summaries: summaries,
               };
             } else {

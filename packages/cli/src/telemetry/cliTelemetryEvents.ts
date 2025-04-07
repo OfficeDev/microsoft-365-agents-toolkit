@@ -37,8 +37,8 @@ export enum TelemetryEvent {
   UpdateProjectStart = "add-resource-start",
   UpdateProject = "add-resource",
 
-  AddCapStart = "add-capability-start",
-  AddCap = "add-capability",
+  AddCapStart = "add-knowledge-start",
+  AddCap = "add-knowledge",
 
   ValidateManifestStart = "validate-manifest-start",
   ValidateManifest = "validate-manifest",
@@ -124,7 +124,8 @@ export enum TelemetryEvent {
 
   AddCopilotPlugin = "add-copilot-plugin",
   AddAuthAction = "add-auth-action",
-  AddKnowledge = "add-knowledge",
+
+  SetSensitivityLabel = "set-sensitivity-label",
 }
 
 export enum TelemetryProperty {

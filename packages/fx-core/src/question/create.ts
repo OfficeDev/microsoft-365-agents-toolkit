@@ -50,7 +50,11 @@ import {
   needTabAndBotCode,
   needTabCode,
 } from "../component/driver/teamsApp/utils/utils";
-import { validateSourcePluginManifest } from "../component/generator/declarativeAgent/helper";
+import {
+  getGraphConnectors,
+  getODSPItemInfo,
+  validateSourcePluginManifest,
+} from "../component/generator/declarativeAgent/helper";
 import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
@@ -81,7 +85,12 @@ import {
   SPFxVersionOptionIds,
   capabilitiesHavePythonOption,
   getRuntime,
+  GCSelectOptions,
+  KnowledgeSearchTypeOptions,
 } from "./constants";
+import { OneDriveSharePointItemType } from "../component/generator/constant";
+import { TemplateNames } from "../component/generator/templates/templateNames";
+import { searchOpenAPISpec, SearchOpenAPISpecResult } from "../common/kiotaClient";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -842,6 +851,91 @@ export function selectBotIdsQuestion(): MultiSelectQuestion {
   };
 }
 
+export function apiSpecTypeSelectQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.OpenAPISpecType,
+    title: "OpenAPI Spec Document",
+    cliDescription: "The type of the API spec.",
+    staticOptions: [
+      {
+        id: "enter-url-or-open-local-file",
+        label: getLocalizedString(
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label"
+        ),
+      },
+      {
+        id: "search-api",
+        label: getLocalizedString(
+          "core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label"
+        ),
+      },
+    ],
+  };
+}
+
+export function searchOpenAPISpecQueryQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.SearchOpenAPISpecQuery,
+    title: getLocalizedString(
+      "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label"
+    ),
+    default: "",
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder"
+    ),
+    additionalValidationOnAccept: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        const searchResult = await searchOpenAPISpec(input);
+
+        if (searchResult.length > 0) {
+          inputs["searchResult"] = searchResult;
+        } else {
+          return "No search result found";
+        }
+      },
+    },
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!input || input.trim().length === 0) {
+          return "Please enter a search query.";
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+export function selectOpenApiSpecQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.SelectOpenApiSpec,
+    title: getLocalizedString(
+      "core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label"
+    ),
+    staticOptions: [],
+    dynamicOptions: (inputs: Inputs): OptionItem[] => {
+      const searchResult = inputs["searchResult"] as SearchOpenAPISpecResult[];
+      if (searchResult.length > 0) {
+        const options: OptionItem[] = [];
+        for (const api of searchResult) {
+          options.push({
+            id: api.url,
+            label: api.key,
+            detail: api.description,
+          });
+        }
+        return options;
+      }
+      return [];
+    },
+  };
+}
+
 const maximumLengthOfDetailsErrorMessageInInputBox = 90;
 
 export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileOrInputQuestion {
@@ -1053,7 +1147,21 @@ export function apiOperationQuestion(
         inputs.apiAuthData = uniqueAuthApis.map((authApi) => authApi.data);
       },
     },
-    dynamicOptions: (inputs: Inputs) => {
+    dynamicOptions: async (inputs: Inputs) => {
+      if (inputs[QuestionNames.SelectOpenApiSpec]) {
+        const specUrl = inputs[QuestionNames.SelectOpenApiSpec] as string;
+        inputs[QuestionNames.ApiSpecLocation] = specUrl;
+        const context = createContext();
+
+        // TODO: will use kiota npm package for this api
+        const res = await listOperations(context, specUrl, inputs, true, false);
+        if (res.isOk()) {
+          inputs.supportedApisFromApiSpec = res.value;
+        } else {
+          throw res.error;
+        }
+      }
+
       if (!inputs.supportedApisFromApiSpec) {
         throw new EmptyOptionError(QuestionNames.ApiOperation, "question");
       }
@@ -1363,8 +1471,201 @@ export function addKnowledgeStartQuestion(doesProjectExists?: boolean): SingleSe
     cliDescription: "Knowledge source.",
     staticOptions: KnowledgeSourceOptions.all(),
     default: KnowledgeSourceOptions.webSearch().id,
+    required: true,
     dynamicOptions: (inputs: Inputs) => {
       return KnowledgeSourceOptions.allWithFeatureFlags();
+    },
+  };
+}
+
+export function oneDriveSharePointItemQuestion(): TextInputQuestion {
+  const validationOnAccept = async (
+    input: string,
+    inputs?: Inputs
+  ): Promise<string | undefined> => {
+    try {
+      if (!inputs) {
+        throw new Error("inputs is undefined"); // should never happen
+      }
+      const context = createContext();
+      const res = await getODSPItemInfo(context, input.trim());
+      if (res.isOk()) {
+        inputs.oneDriveSharePointItem = res.value;
+      } else {
+        return res.error.displayMessage;
+      }
+    } catch (e) {
+      const error = assembleError(e);
+      throw error;
+    }
+  };
+  return {
+    type: "text",
+    name: QuestionNames.OneDriveSharePointURL,
+    title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
+        if (!isValidHttpUrl(input.trim())) {
+          return "Please input a valid URL";
+        }
+        return await validationOnAccept(input.trim(), inputs);
+      },
+    },
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.oneDriveSharePointItem.placeholder"
+    ),
+  };
+}
+
+export function oneDriveSharePointItemConfirmQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.OneDriveSharePointContent,
+    title: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.title"),
+    type: "singleSelect",
+    staticOptions: [],
+    dynamicOptions: (inputs: Inputs) => {
+      const icon =
+        inputs.oneDriveSharePointItem[0].itemType === OneDriveSharePointItemType.Folder
+          ? "$(folder)"
+          : "$(file)";
+      return [
+        {
+          id: inputs.oneDriveSharePointItem[0].id,
+          label: `${icon} ${(inputs.oneDriveSharePointItem as { name: string }[])[0].name}`,
+        },
+      ];
+    },
+    placeholder: getLocalizedString("core.createProjectQuestion.oneDriveSharePointItem.confirm"),
+    forgetLastValue: true,
+  };
+}
+
+export function GCItemQuestion(): SingleSelectQuestion {
+  const options = [GCSelectOptions.list(), GCSelectOptions.input()];
+
+  return {
+    name: QuestionNames.GCContent,
+    title: getLocalizedString("core.GCSelectQuestion.title"),
+    staticOptions: options,
+    type: "singleSelect",
+  };
+}
+
+export function GCListQuestion(): MultiSelectQuestion {
+  return {
+    type: "multiSelect",
+    name: QuestionNames.GCList,
+    title: getLocalizedString("core.GCListQuestion.title"),
+    staticOptions: [],
+    dynamicOptions: getGraphConnectors,
+    default: [],
+    placeholder: getLocalizedString("core.GCListQuestion.placeholder"),
+    forgetLastValue: true,
+    validation: {
+      validFunc: async (input: string[], inputs?: Inputs): Promise<string | undefined> => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        if (
+          inputs[QuestionNames.KnowledgeSource] == KnowledgeSourceOptions.graphConnector().id &&
+          inputs[QuestionNames.GCContent] == GCSelectOptions.list().id &&
+          input.length < 1
+        ) {
+          return Promise.resolve(
+            getLocalizedString("core.GCListQuestion.invalidMessage", input.length)
+          );
+        }
+      },
+    },
+  };
+}
+
+export function GCInputQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.GCInput,
+    title: getLocalizedString("core.GCInputQuestion.title"),
+    cliDescription: "a connection ID for Graph Connector",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.GCInput] = input;
+        return;
+      },
+    },
+  };
+}
+
+export function webContentQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.WebContent,
+    title: getLocalizedString("core.addKnowledgeQuestion.webContent.title"),
+    placeholder: getLocalizedString("core.addKnowledgeQuestion.webContent.placeholder"),
+    type: "text",
+    cliDescription: "An absolute URL to a site to be searched for content.",
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        if (!isValidHttpUrl(input.trim())) {
+          return getLocalizedString("core.addKnowledgeQuestion.invalidWebContent.message");
+        } else {
+          inputs.webSearchUrl = input;
+        }
+        return;
+      },
+    },
+  };
+}
+
+export function searchTypeQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SearchType,
+    title: getLocalizedString("core.addKnowledgeQuestion.searchType.title"),
+    staticOptions: KnowledgeSearchTypeOptions.all(),
+    type: "singleSelect",
+    required: true,
+    default: KnowledgeSearchTypeOptions.url().id,
+    dynamicOptions: (inputs: Inputs) => {
+      const options = [KnowledgeSearchTypeOptions.url()];
+      if (inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id) {
+        options.push(KnowledgeSearchTypeOptions.allWeb());
+      } else if (
+        inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
+      ) {
+        options.push(KnowledgeSearchTypeOptions.allOneDriveSharepoint());
+      }
+      return options;
+    },
+  };
+}
+
+export function GCNameQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.GCName,
+    title: getLocalizedString("core.GCNameQuestion.title"),
+    placeholder: getLocalizedString("core.GCNameQuestion.placeholder"),
+    cliDescription: "a connection ID for Graph Connector",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+
+        process.env[QuestionNames.GCName] = input;
+        inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
+        inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
+        inputs[QuestionNames.AppName] = input;
+        return;
+      },
     },
   };
 }
@@ -1624,14 +1925,14 @@ export function createProjectQuestionNode(): IQTreeNode {
         children: [
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.websiteUrl) || []).length >
-              0,
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.websiteUrl) || [])
+                .length > 0,
             data: selectTabWebsiteUrlQuestion(),
           },
           {
             condition: (inputs: Inputs) =>
-              (inputs.teamsAppFromTdp?.staticTabs.filter((o: any) => !!o.contentUrl) || []).length >
-              0,
+              (inputs.teamsAppFromTdp?.staticTabs.filter((o: StaticTab) => !!o.contentUrl) || [])
+                .length > 0,
             data: selectTabsContentUrlQuestion(),
           },
         ],

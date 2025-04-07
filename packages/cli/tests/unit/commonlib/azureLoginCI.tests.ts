@@ -6,7 +6,7 @@ import sinon from "sinon";
 import AzureLoginCI from "../../../src/commonlib/azureLoginCI";
 import { expect } from "../utils";
 import fs, { WriteFileOptions } from "fs-extra";
-import { signedOut } from "../../../src/commonlib/common/constant";
+import { signedOut } from "@microsoft/teamsfx-api";
 import { AzureSPConfig, AzureSpCrypto } from "../../../src/commonlib/cacheAccess";
 
 describe("Azure Service Principal login Tests", function () {

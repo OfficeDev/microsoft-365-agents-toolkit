@@ -100,7 +100,7 @@ deploy:
   - uses: cli/runNpxCommand
     name: deploy to Azure Static Web Apps
     with:
-      args: '@azure/static-web-apps-cli deploy ./dist -d ${{SECRET_TAB_SWA_DEPLOYMENT_TOKEN}} --env production'
+      args: '--yes @azure/static-web-apps-cli deploy ./dist -d ${{SECRET_TAB_SWA_DEPLOYMENT_TOKEN}} --env production'
 
 # Triggered when 'teamsapp publish' is executed
 publish:

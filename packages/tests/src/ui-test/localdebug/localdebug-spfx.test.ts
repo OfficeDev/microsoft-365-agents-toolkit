@@ -13,6 +13,7 @@ import { LocalDebugTestContext } from "./localdebugContext";
 import { Timeout } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
+import * as path from "path";
 
 describe("SPFx local debug", function () {
   this.timeout(Timeout.testCase);
@@ -39,6 +40,10 @@ describe("SPFx local debug", function () {
       author: "v-annefu@microsoft.com",
     },
     async () => {
+      const projectPath = path.resolve(
+        localDebugTestContext.testRootFolder,
+        localDebugTestContext.appName
+      );
       await startDebugging("Teams workbench (Chrome)");
 
       // await waitForTerminal(LocalDebugTaskLabel.TabsNpmInstall);
@@ -50,7 +55,8 @@ describe("SPFx local debug", function () {
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local" }
       );
       await validateTeamsWorkbench(page, localDebugTestContext.appName);
     }

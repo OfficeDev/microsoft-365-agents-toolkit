@@ -26,7 +26,9 @@ model = OpenAIModel(
         api_key=config.AZURE_OPENAI_API_KEY,
         default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
-        {{#CEAEnabled}} 
+        {{#CEAEnabled}}
+        # The agent is currently not working in any Teams group chats or Teams channels
+        # when the stream response is enabled.
         stream=True,
         {{/CEAEnabled}}
     )
@@ -37,7 +39,9 @@ model = OpenAIModel(
     OpenAIModelOptions(
         api_key=config.OPENAI_API_KEY,
         default_model=config.OPENAI_MODEL_NAME,
-        {{#CEAEnabled}} 
+        {{#CEAEnabled}}
+        # The agent is currently not working in any Teams group chats or Teams channels
+        # when the stream response is enabled.
         stream=True,
         {{/CEAEnabled}}
     )

@@ -30,6 +30,8 @@ class RetailDashboardTestCase extends CaseFactory {
       Env.username,
       Env.password,
       {
+        projectPath: sampledebugContext.projectPath,
+        env: "dev",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -52,6 +54,5 @@ new RetailDashboardTestCase(
   [],
   {
     teamsAppName: "react-retail-dashboard-dev",
-    type: "spfx",
   }
 ).test();

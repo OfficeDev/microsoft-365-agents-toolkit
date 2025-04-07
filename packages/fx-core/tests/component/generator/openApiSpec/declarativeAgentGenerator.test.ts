@@ -6,7 +6,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { err, ok } from "neverthrow";
 import * as sinon from "sinon";
-import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlagName } from "../../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
@@ -21,6 +21,7 @@ import {
 } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
 
 const tools = new MockTools();
 
@@ -125,6 +126,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
           authName: "mockedAuthName",
           authType: "apiKey",
           registrationId: "MOCKED_REGISTRATION_ID",
+          specPath: "test.yaml",
         },
       ]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
@@ -597,6 +599,119 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const result = await generator.post(context, inputs, "projectPath");
       assert.isTrue(result.isOk());
       assert.isTrue(copyKiotaFolder.calledOnce);
+    });
+
+    it("add embedded knowledge folder success - CLI", async function () {
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "path",
+        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ApiSpecLocation]: "https://test.com",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        supportedApisFromApiSpec: apiOperations,
+        templateState: {
+          templateName: "api-plugin-existing-api",
+          isPlugin: true,
+          uri: "https://test.com",
+          isYaml: true,
+          type: ProjectType.Copilot,
+        },
+      };
+      const context = createContext();
+      sandbox
+        .stub(SpecParser.prototype, "validate")
+        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      sandbox.stub(fs, "ensureDir").resolves();
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+      const generateBasedOnSpec = sandbox
+        .stub(SpecParser.prototype, "generateForCopilot")
+        .resolves({ allSuccess: true, warnings: [] });
+      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+      const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+
+      assert.isTrue(result.isOk());
+    });
+
+    it("add embedded knowledge folder success - VSC", async function () {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "path",
+        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ApiSpecLocation]: "https://test.com",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        supportedApisFromApiSpec: apiOperations,
+        templateState: {
+          templateName: "api-plugin-existing-api",
+          isPlugin: true,
+          uri: "https://test.com",
+          isYaml: true,
+          type: ProjectType.Copilot,
+        },
+      };
+      const context = createContext();
+      sandbox
+        .stub(SpecParser.prototype, "validate")
+        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      sandbox.stub(fs, "ensureDir").resolves();
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+      const generateBasedOnSpec = sandbox
+        .stub(SpecParser.prototype, "generateForCopilot")
+        .resolves({ allSuccess: true, warnings: [] });
+      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+      const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+
+      assert.isTrue(result.isOk());
+    });
+
+    it("add embedded knowledge folder skipped - VS", async function () {
+      const inputs: Inputs = {
+        platform: Platform.VS,
+        projectPath: "path",
+        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        [QuestionNames.ApiSpecLocation]: "https://test.com",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        supportedApisFromApiSpec: apiOperations,
+        templateState: {
+          templateName: "api-plugin-existing-api",
+          isPlugin: true,
+          uri: "https://test.com",
+          isYaml: true,
+          type: ProjectType.Copilot,
+        },
+      };
+      const context = createContext();
+      sandbox
+        .stub(SpecParser.prototype, "validate")
+        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      sandbox.stub(fs, "ensureDir").callsFake((path) => {
+        if (path.includes(EmbeddedKnowledgeLocalDirectoryName)) {
+          throw new Error("fail");
+        }
+        return Promise.resolve();
+      });
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+      const generateBasedOnSpec = sandbox
+        .stub(SpecParser.prototype, "generateForCopilot")
+        .resolves({ allSuccess: true, warnings: [] });
+      sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
+      sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+      const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+
+      assert.isTrue(result.isOk());
     });
   });
 });

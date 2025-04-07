@@ -439,7 +439,7 @@ export interface IProgressHandler {
    * ${currentStep} = 0 and ${detail} = detail.
    * @param detail the detail message of the next work.
    */
-  start: (detail?: string) => Promise<void>;
+  start: (detail?: string) => Promise<void> | void;
 
   /**
    * Update the progress bar's message. After calling it, the progress bar will be seen to
@@ -447,13 +447,15 @@ export interface IProgressHandler {
    * This func must be called after calling start().
    * @param detail the detail message of the next work.
    */
-  next: (detail?: string) => Promise<void>;
+  next: (detail?: string) => Promise<void> | void;
 
   /**
    * End the progress bar and tell if success. After calling it, the progress bar will disappear. This handler
    * can be reused after calling end().
    */
-  end: (success: boolean, hideAfterFinish?: boolean) => Promise<void>;
+  end: (success: boolean, hideAfterFinish?: boolean) => Promise<void> | void;
+
+  text?: (detail: string) => Promise<void> | void;
 }
 
 export enum DiagnosticSeverity {

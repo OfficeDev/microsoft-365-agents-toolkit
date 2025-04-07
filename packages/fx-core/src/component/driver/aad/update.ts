@@ -18,11 +18,12 @@ import { UpdateAadAppArgs } from "./interface/updateAadAppArgs";
 import { UpdateAadAppOutput } from "./interface/updateAadAppOutput";
 import { AadAppClient } from "./utility/aadAppClient";
 import { buildAadManifest } from "./utility/buildAadManifest";
-import { descriptionMessageKeys, logMessageKeys } from "./utility/constants";
+import { descriptionMessageKeys, logMessageKeys, telemetryKeys } from "./utility/constants";
 import { AadManifestHelper } from "./utility/aadManifestHelper";
 import { AADApplication } from "./interface/AADApplication";
 import { AADManifest } from "./interface/AADManifest";
 import path from "path";
+import { WrapDriverContext } from "../util/wrapUtil";
 
 export const actionName = "aadApp/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/aadapp-update";
@@ -32,8 +33,14 @@ export class UpdateAadAppDriver implements StepDriver {
   description = getLocalizedString(descriptionMessageKeys.update);
   readonly progressTitle = getLocalizedString("driver.aadApp.progressBar.updateAadAppTitle");
 
-  @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async execute(args: UpdateAadAppArgs, context: DriverContext): Promise<ExecutionResult> {
+    const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+    const result = await this._run(args, wrapDriverContext);
+    return result;
+  }
+
+  @hooks([addStartAndEndTelemetry(actionName, actionName)])
+  public async _run(args: UpdateAadAppArgs, context: WrapDriverContext): Promise<ExecutionResult> {
     const summaries: string[] = [];
 
     try {
@@ -48,8 +55,8 @@ export class UpdateAadAppDriver implements StepDriver {
       // MS Graph API does not allow adding new OAuth permissions and pre authorize it within one request
       // So split update Microsoft Entra app to two requests:
       // 1. If there's preAuthorizedApplications, remove it temporary and update Microsoft Entra app to create possible new permission
-
       if (AadManifestHelper.isNewAADManifestSchema(manifest)) {
+        context.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "true" });
         manifest = manifest as AADApplication;
         if (
           manifest.api?.preAuthorizedApplications &&
@@ -61,6 +68,7 @@ export class UpdateAadAppDriver implements StepDriver {
           manifest.api.preAuthorizedApplications = preAuthorizedApplications;
         }
       } else {
+        context.addTelemetryProperties({ [telemetryKeys.isNewAadSchema]: "false" });
         manifest = manifest as AADManifest;
         if (manifest.preAuthorizedApplications && manifest.preAuthorizedApplications.length > 0) {
           const preAuthorizedApplications = manifest.preAuthorizedApplications;

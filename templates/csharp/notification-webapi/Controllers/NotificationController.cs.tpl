@@ -44,7 +44,7 @@ namespace {{SafeProjectName}}.Controllers
                             NotificationUrl = "https://aka.ms/teamsfx-notification-new",
                         }
                     );
-                    await installation.SendAdaptiveCard(JsonConvert.DeserializeObject(cardContent), cancellationToken);
+                    await installation.SendAdaptiveCard(cardContent, cancellationToken);
                 }
 
             } while (!string.IsNullOrEmpty(continuationToken));

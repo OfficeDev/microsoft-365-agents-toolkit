@@ -1,0 +1,14 @@
+{
+    "schema_version": "v2",
+    "name_for_human": "Plugin${{APP_NAME_SUFFIX}}",
+    "description_for_model": "Plugin",
+    "namespace": "plugin_namespace",
+    "runtimes": 
+    [
+        { 
+          "type": "OpenApi", 
+          "auth": { "type": "none" },
+          "spec": { "url": "./openai.yml" }
+        }
+    ]
+}

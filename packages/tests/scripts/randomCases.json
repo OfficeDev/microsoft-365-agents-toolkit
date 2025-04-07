@@ -2,24 +2,20 @@
     {
         "os": {
             "windows-latest": {
-                "node-18": []
+                "node-22": []
             },
             "ubuntu-latest": {
-                "node-18": []
+                "node-22": []
             },
             "macos-latest": {
-                "node-18": []
+                "node-22": []
             }
         },
         "cases": [
             "sample-localdebug-query-org",
             "sample-localdebug-stock-update",
             "sample-localdebug-incoming-webhook",
-            "sample-remotedebug-todo-list-with-spfx",
             "sample-remotedebug-todo-list-with-m365",
-            "sample-localdebug-spfx-productivity-dashboard",
-            "sample-remotedebug-react-retail-dashboard",
-            "sample-remotedebug-spfx-productivity-dashboard",
             "sample-localdebug-npm-search",
             "sample-localdebug-proactive-message",
             "sample-remotedebug-dice-roller",
@@ -43,9 +39,36 @@
         "os": {
             "ubuntu-latest": {
                 "node-18": []
-            },
+            }
+        },
+        "cases": [
+            "sample-localdebug-todo-list-with-spfx",
+            "sample-localdebug-spfx-productivity-dashboard",
+            "sample-localdebug-react-retail-dashboard"
+        ]
+    },
+    {
+        "os": {
             "windows-latest": {
                 "node-18": []
+            },
+            "ubuntu-latest": {
+                "node-18": []
+            }
+        },
+        "cases": [
+            "sample-remotedebug-todo-list-with-spfx",
+            "sample-remotedebug-spfx-productivity-dashboard",
+            "sample-remotedebug-react-retail-dashboard"
+        ]
+    },
+    {
+        "os": {
+            "ubuntu-latest": {
+                "node-22": []
+            },
+            "windows-latest": {
+                "node-22": []
             }
         },
         "cases": [
@@ -60,7 +83,7 @@
     {
         "os": {
             "windows-latest": {
-                "node-18": []
+                "node-22": []
             }
         },
         "cases": [
@@ -86,28 +109,24 @@
     {
         "os": {
             "ubuntu-latest": {
-                "node-18": []
+                "node-22": []
             }
         },
         "cases": [
             "sample-localdebug-adaptive-card",
             "sample-localdebug-graph-connector",
-            "sample-localdebug-share-now",
             "sample-localdebug-dashboard",
             "sample-localdebug-hello-world-tab-outlook",
             "sample-localdebug-one-productivity-hub",
             "sample-localdebug-assistant-dashboard",
             "sample-localdebug-todo-list-sql",
-            "sample-remotedebug-share-now",
             "sample-remotedebug-todo-list-sql",
             "sample-remotedebug-large-scale-notification",
             "sample-localdebug-bot-sso-docker",
             "sample-remotedebug-bot-sso-docker",
             "sample-localdebug-hello-world-tab-docker",
             "sample-remotedebug-hello-world-tab-docker",
-            "sample-localdebug-todo-list-with-spfx",
             "sample-localdebug-todo-list-with-m365",
-            "sample-localdebug-react-retail-dashboard",
             "sample-localdebug-intelligent-data-chart",
             "sample-remotedebug-intelligent-data-chart"
         ]
@@ -115,10 +134,10 @@
     {
         "os": {
             "ubuntu-latest": {
-                "node-18": []
+                "node-22": []
             },
             "macos-latest": {
-                "node-18": []
+                "node-22": []
             }
         },
         "cases": [

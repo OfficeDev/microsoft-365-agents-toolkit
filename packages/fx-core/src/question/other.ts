@@ -16,6 +16,7 @@ import {
   PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
+  TeamsAppManifest,
   TextInputQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -32,10 +33,12 @@ import { environmentNameManager } from "../core/environmentName";
 import {
   ActionStartOptions,
   AddAuthActionAuthTypeOptions,
+  GCSelectOptions,
   HubOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
+  KnowledgeSearchTypeOptions,
 } from "./constants";
 import {
   SPFxFrameworkQuestion,
@@ -47,8 +50,17 @@ import {
   apiSpecLocationQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
+  oneDriveSharePointItemQuestion,
+  oneDriveSharePointItemConfirmQuestion,
+  GCItemQuestion,
+  GCListQuestion,
+  GCInputQuestion,
+  searchTypeQuestion,
+  webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
+import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
+import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -816,21 +828,92 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
   return {
     data: addKnowledgeStartQuestion(true),
     children: [
+      // Web Content
+      {
+        data: searchTypeQuestion(),
+        condition: (inputs: Inputs) => {
+          return inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.webSearch().id;
+        },
+        children: [
+          {
+            data: webContentQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // OneDrive SharePoint
+      {
+        data: searchTypeQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.oneDriveSharePoint().id
+          );
+        },
+        children: [
+          {
+            data: oneDriveSharePointItemQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: oneDriveSharePointItemConfirmQuestion(),
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.SearchType] === KnowledgeSearchTypeOptions.url().id;
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // Graph Connector
+      {
+        data: GCItemQuestion(),
+        condition: {
+          equals: KnowledgeSourceOptions.graphConnector().id,
+        },
+        children: [
+          {
+            data: GCListQuestion(),
+            condition: {
+              equals: GCSelectOptions.list().id,
+            },
+          },
+          {
+            data: GCInputQuestion(),
+            condition: {
+              equals: GCSelectOptions.input().id,
+            },
+          },
+          {
+            data: selectTeamsAppManifestQuestion(),
+          },
+        ],
+      },
+      // Embedded Knowledge
       {
         data: selectTeamsAppManifestQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
+        condition: (inputs: Inputs) => {
+          return (
+            inputs[QuestionNames.KnowledgeSource] === KnowledgeSourceOptions.embeddedKnowledge().id
+          );
         },
-      },
-      {
-        data: addEmbeddedKnowledgeFilesQuestion(),
-        condition: {
-          equals: KnowledgeSourceOptions.embeddedKnowledge().id,
-        },
+        children: [
+          {
+            data: addEmbeddedKnowledgeFilesQuestion(),
+          },
+        ],
       },
     ],
   };
 }
+
 export function addEmbeddedKnowledgeFilesQuestion(): MultiFileQuestion {
   return {
     name: QuestionNames.EmbeddedKnowledgeFiles,
@@ -1473,5 +1556,103 @@ export function syncManifestQuestionNode(): IQTreeNode {
         },
       },
     ],
+  };
+}
+
+export function setSensitivityLabelNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: selectDeclarativeAgentManifestQuestion(),
+      },
+      {
+        data: SelectSensitivityLabelQuestion(),
+      },
+    ],
+  };
+}
+
+export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
+  return {
+    name: QuestionNames.DeclarativeAgentManifestPath,
+    cliName: "declarative-agent-manifest-file",
+    cliShortName: "d",
+    cliDescription:
+      "Specify the path for the Declarative Agent manifest. It can be either absolute path or relative path to the project root folder, with default at './appPackage/declarativeAgent.json'",
+    title: getLocalizedString("core.selectDeclarativeAgentManifestQuestion.title"),
+    type: "singleFile",
+    default: async (inputs: Inputs): Promise<string | undefined> => {
+      if (inputs.platform === Platform.CLI_HELP) {
+        return "./appPackage/declarativeAgent.json";
+      } else {
+        if (!inputs.projectPath) {
+          return Promise.resolve(undefined);
+        }
+        const manifestPath = path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
+        if (!fs.pathExistsSync(manifestPath)) {
+          return Promise.resolve(undefined);
+        }
+        const manifestRes = await manifestUtils._readAppManifest(manifestPath);
+        if (manifestRes.isErr()) {
+          return Promise.resolve(undefined);
+        }
+        const manifest = manifestRes.value;
+        const declarativeAgentPath = manifest?.copilotAgents?.declarativeAgents?.[0]?.file;
+        if (!declarativeAgentPath) {
+          return Promise.resolve(undefined);
+        }
+        const declarativeAgentAbsolutePath = path.join(
+          inputs.projectPath,
+          AppPackageFolderName,
+          declarativeAgentPath
+        );
+        if (!fs.pathExistsSync(declarativeAgentAbsolutePath)) {
+          return Promise.resolve(undefined);
+        }
+        return declarativeAgentAbsolutePath;
+      }
+    },
+  };
+}
+
+export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SensitivityLabel,
+    cliName: "sensitivity-label",
+    cliShortName: "s",
+    cliDescription: "Specify the sensitivity label to be set.",
+    title: getLocalizedString("core.selectSensitivityLabelQuestion.title"),
+    type: "singleSelect",
+    // Different tenant may have different sensitivity labels, so the options are always dynamic
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      try {
+        const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+          scopes: [listSensitivityLabelScope],
+        });
+        if (tokenRes.isErr()) {
+          return [];
+        }
+        const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+        if (res.isErr()) {
+          return [];
+        }
+        const options = [];
+        for (const label of res.value) {
+          options.push({
+            id: label.id ?? "",
+            label: label.displayName ?? "",
+            description: label.description ?? "",
+          });
+        }
+        return options;
+      } catch (e) {
+        return [];
+      }
+    },
+    skipValidation: true,
   };
 }

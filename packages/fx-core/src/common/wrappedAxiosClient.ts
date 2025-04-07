@@ -17,6 +17,7 @@ import { TelemetryEvent, TelemetryProperty, TelemetrySuccess } from "./telemetry
 import { DeveloperPortalAPIFailedSystemError } from "../error/teamsApp";
 import { HttpMethod } from "../component/constant/commonConstant";
 import { getDefaultString } from "./localizeUtils";
+import { MOS3Api, MOS3ApiDefinitions } from "../component/m365/serviceConstant";
 
 /**
  * This client will send telemetries to record API request trace
@@ -140,11 +141,24 @@ export class WrappedAxiosClient {
       properties[TelemetryProperty.ErrorMessage] = finalMessage;
       properties[TelemetryProperty.MOSTraceId] = tracingId;
       const relativePath = (error.request.path || "") as string;
-      properties[TelemetryProperty.MOSPATH] = method + " " + relativePath.replace(/\//g, "__");
+      const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
+      if (mosApiDef) {
+        properties.url = `mos_${mosApiDef.key}`;
+      }
     }
 
     TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
     return Promise.reject(error);
+  }
+
+  static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
+    for (const key of Object.keys(MOS3ApiDefinitions)) {
+      const api = MOS3ApiDefinitions[key];
+      if (api.method === method && url.match(api.path)) {
+        return api;
+      }
+    }
+    return undefined;
   }
 
   /**

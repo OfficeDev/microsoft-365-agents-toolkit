@@ -15,11 +15,12 @@ import {
   OauthRegistration,
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { UpdateOauthArgs } from "./interface/updateOauthArgs";
 import { logMessageKeys } from "./utility/constants";
-import { getandValidateOauthInfoFromSpec, OauthInfo, validateSecret } from "./utility/utility";
+import { getAuthInfo, OauthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthDisablePKCEError } from "./error/oauthDisablePKCEError";
 
 const actionName = "oauth/update"; // DO NOT MODIFY the name
@@ -48,7 +49,8 @@ export class UpdateOauthDriver implements StepDriver {
         throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
       }
 
-      const authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
+      const authInfo = await getAuthInfo(args, context, actionName);
+
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
       });
@@ -63,6 +65,10 @@ export class UpdateOauthDriver implements StepDriver {
 
       const isCustomIdentityProvider =
         !getOauthRes.identityProvider || getOauthRes.identityProvider === "Custom";
+
+      if (!getOauthRes.m365AppId && args.applicableToApps === "SpecificApp" && !args.appId) {
+        invalidParameters.push("appId");
+      }
 
       if (isCustomIdentityProvider) {
         if (args.isPKCEEnabled && typeof args.isPKCEEnabled !== "boolean") {
@@ -173,12 +179,31 @@ export class UpdateOauthDriver implements StepDriver {
       throw new OauthNameTooLongError(actionName);
     }
 
-    if (typeof args.appId !== "string" || !args.appId) {
+    if (args.appId && typeof args.appId !== "string") {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
       invalidParameters.push("apiSpecPath");
+    }
+
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (
+      args.authorizationUrl &&
+      (typeof args.authorizationUrl !== "string" || !validateUrl(args.authorizationUrl))
+    ) {
+      invalidParameters.push("authorizationUrl");
+    }
+
+    if (args.tokenUrl && (typeof args.tokenUrl !== "string" || !validateUrl(args.tokenUrl))) {
+      invalidParameters.push("tokenUrl");
+    }
+
+    if (args.scope && typeof args.scope !== "string") {
+      invalidParameters.push("scope");
     }
 
     if (
@@ -187,6 +212,14 @@ export class UpdateOauthDriver implements StepDriver {
       args.applicableToApps !== OauthRegistrationAppType.SpecificApp
     ) {
       invalidParameters.push("applicableToApps");
+    }
+
+    if (
+      args.tokenExchangeMethodType &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.BasicAuthorizationHeader &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.PostRequestBody
+    ) {
+      invalidParameters.push("tokenExchangeMethodType");
     }
 
     if (
@@ -214,7 +247,7 @@ export class UpdateOauthDriver implements StepDriver {
     if (input.applicableToApps && current.applicableToApps !== input.applicableToApps) {
       let msg = `applicableToApps: ${current.applicableToApps} => ${input.applicableToApps}`;
       if (input.applicableToApps === "SpecificApp") {
-        msg += `, m365AppId: ${input.appId}`;
+        msg += `, m365AppId: ${input.appId!}`;
       }
       diffMsgs.push(msg);
     }
@@ -225,12 +258,24 @@ export class UpdateOauthDriver implements StepDriver {
       );
     }
 
+    if (
+      input.tokenExchangeMethodType &&
+      current.tokenExchangeMethodType !== input.tokenExchangeMethodType
+    ) {
+      diffMsgs.push(
+        `tokenExchangeMethodType: ${current.tokenExchangeMethodType as string} => ${
+          input.tokenExchangeMethodType
+        }`
+      );
+    }
+
     // Compare domain
     const domain = authInfo.domain;
     if (
-      current.targetUrlsShouldStartWith.length !== domain.length ||
-      !current.targetUrlsShouldStartWith.every((value) => domain.includes(value)) ||
-      !domain.every((value) => current.targetUrlsShouldStartWith.includes(value))
+      domain &&
+      (current.targetUrlsShouldStartWith.length !== domain.length ||
+        !current.targetUrlsShouldStartWith.every((value) => domain.includes(value)) ||
+        !domain.every((value) => current.targetUrlsShouldStartWith.includes(value)))
     ) {
       diffMsgs.push(
         `targetUrlsShouldStartWith: ${current.targetUrlsShouldStartWith.join(",")} => ${domain.join(
@@ -271,7 +316,11 @@ export class UpdateOauthDriver implements StepDriver {
     }
 
     // Compare tokenRefreshEndpoint
-    if (!isMicrosoftEntra && current.tokenRefreshEndpoint !== authInfo.tokenRefreshEndpoint) {
+    if (
+      !isMicrosoftEntra &&
+      authInfo.tokenRefreshEndpoint &&
+      current.tokenRefreshEndpoint !== authInfo.tokenRefreshEndpoint
+    ) {
       diffMsgs.push(
         `tokenRefreshEndpoint: ${current.tokenRefreshEndpoint!} => ${
           authInfo.tokenRefreshEndpoint ?? "Undefined"
@@ -280,12 +329,12 @@ export class UpdateOauthDriver implements StepDriver {
     }
 
     // Compare scopes
-    if (!isMicrosoftEntra && !this.compareScopes(current.scopes, authInfo.scopes)) {
-      diffMsgs.push(
-        `scopes: ${current.scopes.join(",")} => ${
-          authInfo.scopes ? authInfo.scopes.join(",") : "Undefined"
-        }`
-      );
+    if (
+      !isMicrosoftEntra &&
+      authInfo.scopes &&
+      !this.compareScopes(current.scopes, authInfo.scopes)
+    ) {
+      diffMsgs.push(`scopes: ${current.scopes.join(",")} => ${authInfo.scopes.join(",")}`);
     }
 
     if (!!current.isPKCEEnabled !== !!input.isPKCEEnabled) {
@@ -301,9 +350,13 @@ export class UpdateOauthDriver implements StepDriver {
   private shouldSkipConfirm(
     diffMsgs: string[],
     getDomain: string[],
-    domain: string[],
+    domain: string[] | undefined,
     isCustomIdentityProvider: boolean
   ): boolean {
+    if (!domain) {
+      return diffMsgs.length === 1 && diffMsgs[0].includes("clientId");
+    }
+
     const targetUrlChangesWithDevTunnel =
       getDomain.length === domain.length &&
       getDomain.every((value) => value.includes("devtunnel")) &&
@@ -331,6 +384,10 @@ export class UpdateOauthDriver implements StepDriver {
       ? (args.applicableToApps as OauthRegistrationAppType)
       : undefined;
 
+    const tokenExchangeMethodType = args.tokenExchangeMethodType
+      ? (args.tokenExchangeMethodType as TokenExchangeMethodType)
+      : TokenExchangeMethodType.BasicAuthorizationHeader;
+
     const result = {
       description: args.name,
       targetUrlsShouldStartWith: authInfo.domain,
@@ -338,6 +395,7 @@ export class UpdateOauthDriver implements StepDriver {
       m365AppId: applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId : "",
       targetAudience: targetAudience,
       isPKCEEnabled: !!args.isPKCEEnabled,
+      tokenExchangeMethodType: tokenExchangeMethodType,
       scopes: authInfo.scopes ?? [],
     } as OauthRegistration;
 

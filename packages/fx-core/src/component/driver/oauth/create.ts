@@ -18,13 +18,14 @@ import {
   OauthRegistration,
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
+  TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
 import { loadStateFromEnv } from "../util/utils";
 import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { CreateOauthArgs } from "./interface/createOauthArgs";
 import { CreateOauthOutputs, OutputKeys } from "./interface/createOauthOutputs";
 import { defaultRedirectUri, logMessageKeys } from "./utility/constants";
-import { OauthInfo, getandValidateOauthInfoFromSpec, validateSecret } from "./utility/utility";
+import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
 
 const actionName = "oauth/register"; // DO NOT MODIFY the name
@@ -94,10 +95,13 @@ export class CreateOauthDriver implements StepDriver {
 
         this.validateArgs(args);
 
-        const authInfo = await getandValidateOauthInfoFromSpec(args, context, actionName);
+        const authInfo = await getAuthInfo(args, context, actionName);
 
         if (args.identityProvider === "MicrosoftEntra") {
-          if (!authInfo.authorizationEndpoint!.includes("microsoftonline")) {
+          if (
+            authInfo.authorizationEndpoint &&
+            !authInfo.authorizationEndpoint.includes("microsoftonline")
+          ) {
             throw new OauthIdentityProviderInvalid(actionName);
           }
         }
@@ -184,8 +188,48 @@ export class CreateOauthDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
       invalidParameters.push("apiSpecPath");
+    }
+
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (
+      args.authorizationUrl &&
+      (typeof args.authorizationUrl !== "string" || !validateUrl(args.authorizationUrl))
+    ) {
+      invalidParameters.push("authorizationUrl");
+    }
+
+    if (args.tokenUrl && (typeof args.tokenUrl !== "string" || !validateUrl(args.tokenUrl))) {
+      invalidParameters.push("tokenUrl");
+    }
+
+    if (args.scope && typeof args.scope !== "string") {
+      invalidParameters.push("scope");
+    }
+
+    if (!args.apiSpecPath) {
+      const missingProperties = [];
+      if (!args.baseUrl) {
+        missingProperties.push("baseUrl");
+      }
+
+      if (args.identityProvider !== "MicrosoftEntra") {
+        if (!args.authorizationUrl) {
+          missingProperties.push("authorizationUrl");
+        }
+        if (!args.tokenUrl) {
+          missingProperties.push("tokenUrl");
+        }
+      }
+
+      if (missingProperties.length > 0) {
+        missingProperties.push("apiSpecPath");
+        invalidParameters.push(...missingProperties);
+      }
     }
 
     if (
@@ -194,6 +238,14 @@ export class CreateOauthDriver implements StepDriver {
       args.applicableToApps !== OauthRegistrationAppType.SpecificApp
     ) {
       invalidParameters.push("applicableToApps");
+    }
+
+    if (
+      args.tokenExchangeMethodType &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.BasicAuthorizationHeader &&
+      args.tokenExchangeMethodType !== TokenExchangeMethodType.PostRequestBody
+    ) {
+      invalidParameters.push("tokenExchangeMethodType");
     }
 
     if (
@@ -260,6 +312,10 @@ export class CreateOauthDriver implements StepDriver {
       ? (args.applicableToApps as OauthRegistrationAppType)
       : OauthRegistrationAppType.AnyApp;
 
+    const tokenExchangeMethodType = args.tokenExchangeMethodType
+      ? (args.tokenExchangeMethodType as TokenExchangeMethodType)
+      : TokenExchangeMethodType.BasicAuthorizationHeader;
+
     if (args.identityProvider === "MicrosoftEntra") {
       return {
         description: args.name,
@@ -269,6 +325,7 @@ export class CreateOauthDriver implements StepDriver {
         targetAudience: targetAudience,
         clientId: args.clientId,
         identityProvider: "MicrosoftEntra",
+        tokenExchangeMethodType: tokenExchangeMethodType,
       } as OauthRegistration;
     }
 
@@ -286,6 +343,7 @@ export class CreateOauthDriver implements StepDriver {
       tokenRefreshEndpoint: args.refreshUrl ?? authInfo.tokenRefreshEndpoint,
       scopes: authInfo.scopes,
       identityProvider: "Custom",
+      tokenExchangeMethodType: tokenExchangeMethodType,
       // TODO: add this part back after TDP update
       // manageableByUsers: [
       //   {

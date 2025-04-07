@@ -157,6 +157,23 @@
             ]
         {{/CEAEnabled}}
         }
+{{#SandBoxedTeam}}
+        {
+            "name": "Launch App to channel (Edge)",
+            "type": "msedge",
+            "request": "launch",
+            "url": "https://teams.microsoft.com/l/channel/${{sandbox:CHANNEL_ID}}?webjoin=true",
+            "cascadeTerminateToConfigurations": [
+                "Attach to Local Service"
+            ],
+            "presentation": {
+                "group": "all",
+                "hidden": true
+            },
+            "internalConsoleOptions": "neverOpen",
+            "perScriptSourcemaps": "yes"
+        },
+{{/SandBoxedTeam}}
     ],
     "compounds": [
         {
@@ -177,6 +194,21 @@
             },
             "stopAll": true
         },
+{{#SandBoxedTeam}}
+        {
+            "name": "Debug in Teams Sandbox (Edge)",
+            "configurations": [
+                "Launch App to channel (Edge)",
+                "Attach to Local Service"
+            ],
+            "preLaunchTask": "Start Teams App (Sandbox)",
+            "presentation": {
+                "group": "1-local",
+                "order": 1
+            },
+            "stopAll": true
+        },
+{{/SandBoxedTeam}}
         {
             "name": "Debug in Teams (Chrome)",
             "configurations": [

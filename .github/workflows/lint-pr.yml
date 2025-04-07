@@ -21,6 +21,11 @@ on:
         required: true
         default: "origin/dev"
 
+  workflow_run:
+    workflows: ["CD"]
+    types:
+      - completed
+
 permissions:
   contents: write
   actions: read
@@ -124,7 +129,7 @@ jobs:
         run: |
           pip install yamllint
           npm install mustache -g
-          echo "{}" > test.json
+          echo '{"appName":"test"}'>test.json
       
       - name: check origin or remote
         id: remote
@@ -184,6 +189,81 @@ jobs:
           head: ${{ github.ref_name }}
           extra_args: --only-verified
 
+  cherry-pick-version-change:
+    if: ${{ github.event_name == 'workflow_run' && 
+      github.event.workflow.name == 'CD' && 
+      contains(github.event.workflow_run.run_name, 'stable') &&
+      github.event.workflow_run.conclusion == 'success'}}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Get workflow information
+        id: workflow-info
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const workflow_run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id
+            });
+            return {
+              actor: workflow_run.data.actor.login,
+              branch: workflow_run.data.head_branch
+            }
+
+      - name: Create Version Change Issue
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const actor = '${{ steps.workflow-info.outputs.result }}'.actor;
+            const sourceBranch = '${{ steps.workflow-info.outputs.result }}'.branch;
+            
+            const issueBody = `
+            ### Version Change Cherry-pick Reminder
+            
+            @${actor} Hello!
+            
+            This is an automatically created reminder for version change cherry-pick.
+            The stable version has been released from branch \`${sourceBranch}\`.
+            
+            Please cherry-pick the version change commit to the following branch:
+            - [ ] cherry-pick version change to \`dev\` branch
+            
+            #### Steps to Follow:
+            1. Find the version change commit from branch \`${sourceBranch}\`
+            2. Execute the following commands:
+               \`\`\`bash
+               git fetch origin
+               git checkout dev
+               git cherry-pick <version_change_commit_hash>
+               git push origin dev
+               \`\`\`
+            
+            After completion, please check the item above ✓
+            
+            > Note: This is an automatically created issue. You can close this issue after completing the operation.
+            `;
+            
+            try {
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `[Version Change] Cherry-pick version changes from ${sourceBranch} to dev branch`,
+                body: issueBody,
+                labels: ['cherry-pick-required'],
+                assignees: [actor]
+              });
+              
+              console.log(`Created issue #${issue.data.number}`);
+            } catch (error) {
+              console.log('Error creating issue:', error);
+              core.setFailed(error.message);
+            }
+
   create-cherry-pick-issue:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'release') && !contains(github.event.pull_request.labels.*.name, 'cherry-pick-hotfix') }}
     runs-on: ubuntu-latest
@@ -201,10 +281,10 @@ jobs:
       - name: Get latest release branch
         id: get-latest-release
         run: |
-          # 找出版本号最大的 release 分支，分为两类：
-          # 1. release/NUM 或 release/NUM.NUM 格式
+          # Find the release branch with the highest version number, divided into two types:
+          # 1. Format: release/NUM or release/NUM.NUM
           LATEST_NUM_RELEASE=$(git branch -r | grep -Eo 'release/[0-9]+\.[0-9]+(\.[0-9]+)?' | sort -t/ -k2 -V | tail -n1)
-          # 2. release/VSNUMPNUM 格式
+          # 2. Format: release/VSNUMPNUM
           LATEST_VS_RELEASE=$(git branch -r | grep -E '^  origin/release/[Vv][Ss][0-9]+[Pp][0-9]+$' | tr '[:upper:]' '[:lower:]'  | sed 's/origin\///' | sort -t'/' -k2 -V | tail -n1)
           echo "latest_vsc_release=$LATEST_NUM_RELEASE" >> $GITHUB_OUTPUT
           echo "latest_vs_release=$LATEST_VS_RELEASE" >> $GITHUB_OUTPUT

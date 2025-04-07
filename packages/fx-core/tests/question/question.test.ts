@@ -33,12 +33,20 @@ import {
 } from "../../src/component/utils/ResourceGroupHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
-import { SPFxImportFolderQuestion, questionNodes } from "../../src/question";
+import {
+  GCInputQuestion,
+  GCListQuestion,
+  GCNameQuestion,
+  SPFxImportFolderQuestion,
+  questionNodes,
+} from "../../src/question";
 import {
   ActionStartOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
+  KnowledgeSearchTypeOptions,
+  GCSelectOptions,
 } from "../../src/question/constants";
 import {
   apiSpecApiKeyQuestion,
@@ -1360,7 +1368,7 @@ describe("addKnowledgeQuestionNode", async () => {
     mockedEnvRestore();
   });
 
-  it("success: can add a knowledge from Web Search", async () => {
+  it("success: can add a knowledge from Web Search(by url)", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1378,18 +1386,33 @@ describe("addKnowledgeQuestionNode", async () => {
       await callFuncs(question, inputs);
       if (question.name === QuestionNames.KnowledgeSource) {
         return ok({ type: "success", result: KnowledgeSourceOptions.webSearch().id });
+      } else if (question.name === QuestionNames.SearchType) {
+        return ok({ type: "success", result: KnowledgeSearchTypeOptions.url().id });
+      } else if (question.name === QuestionNames.TeamsAppManifestFilePath) {
+        return ok({
+          type: "success",
+          result: "manifest.json",
+        });
       }
       return ok({ type: "success", result: undefined });
     };
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+    assert.deepEqual(questionNames, [
+      QuestionNames.KnowledgeSource,
+      QuestionNames.SearchType,
+      QuestionNames.WebContent,
+      QuestionNames.TeamsAppManifestFilePath,
+    ]);
   });
 
-  it("success: can add a knowledge from OneDrive and SharePoint", async () => {
+  it("success: can add a knowledge from OneDrive and SharePoint(by url)", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.oneDriveSharePoint().id,
+      [QuestionNames.SearchType]: KnowledgeSearchTypeOptions.url().id,
     };
 
     const questionNames: string[] = [];
@@ -1404,15 +1427,29 @@ describe("addKnowledgeQuestionNode", async () => {
       await callFuncs(question, inputs);
       if (question.name === QuestionNames.KnowledgeSource) {
         return ok({ type: "success", result: KnowledgeSourceOptions.oneDriveSharePoint().id });
+      } else if (question.name === QuestionNames.SearchType) {
+        return ok({ type: "success", result: KnowledgeSearchTypeOptions.url().id });
+      } else if (question.name === QuestionNames.TeamsAppManifestFilePath) {
+        return ok({
+          type: "success",
+          result: "manifest.json",
+        });
       }
       return ok({ type: "success", result: undefined });
     };
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+    assert.deepEqual(questionNames, [
+      QuestionNames.KnowledgeSource,
+      QuestionNames.SearchType,
+      QuestionNames.OneDriveSharePointURL,
+      QuestionNames.OneDriveSharePointContent,
+      QuestionNames.TeamsAppManifestFilePath,
+    ]);
   });
 
-  it.skip("success: can add a knowledge from Graph Connector", async () => {
+  it("success: can add a knowledge from Graph Connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1436,6 +1473,44 @@ describe("addKnowledgeQuestionNode", async () => {
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+  });
+
+  it("GCInput validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCInputQuestion();
+    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc("test", inputs);
+  });
+
+  it("GCList validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+      [QuestionNames.KnowledgeSource]: KnowledgeSourceOptions.graphConnector().id,
+      [QuestionNames.GCContent]: GCSelectOptions.list().id,
+    };
+    const question = GCListQuestion();
+    question.dynamicOptions = async () => {
+      return [
+        {
+          id: "1",
+          label: "1",
+        },
+      ];
+    };
+    const validation = question.validation as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc([] as any, inputs);
   });
 
   it("success: can add a knowledge from Embedded Knowledge", async () => {
@@ -1462,5 +1537,28 @@ describe("addKnowledgeQuestionNode", async () => {
     const node = questionNodes.addKnowledge();
 
     await traverse(node, inputs, ui, undefined, visitor);
+  });
+});
+
+describe("scaffold graph connector", async () => {
+  const sandbox = sinon.createSandbox();
+  const mockedEnvRestore: RestoreFn = () => {};
+  afterEach(() => {
+    sandbox.restore();
+    mockedEnvRestore();
+  });
+
+  it("GCName validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCNameQuestion();
+    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
+    try {
+      const res = validation.validFunc("test");
+      assert.fail("Should throw error");
+    } catch (error) {}
+    validation.validFunc("test", inputs);
   });
 });

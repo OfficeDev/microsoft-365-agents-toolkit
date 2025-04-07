@@ -21,6 +21,7 @@ import {
   CryptoProvider,
   DefaultApiSpecFolderName,
   Err,
+  File,
   Func,
   FxError,
   IGenerator,
@@ -32,6 +33,8 @@ import {
   PluginManifestSchema,
   ResponseTemplatesFolderName,
   Result,
+  SharePointIDs,
+  Site,
   Stage,
   SystemError,
   TeamsAppInputs,
@@ -97,6 +100,7 @@ import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
+import "../component/feature/sso";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
@@ -120,7 +124,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
@@ -156,6 +159,7 @@ import {
   UnhandledError,
   UserCancelError,
   assembleError,
+  isUserCancelError,
 } from "../error/common";
 import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
@@ -166,6 +170,7 @@ import {
   AppNamePattern,
   DeclarativeAgentApiSpecOptionId,
   HubTypes,
+  KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
   ProjectTypeOptions,
   QuestionNames,
@@ -191,6 +196,12 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import {
+  getODSPItemDetailById,
+  ItemMetadata,
+} from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
+import { withFileLock } from "./middleware/fileLocker";
+import { listAPIInfo } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -199,6 +210,7 @@ export class FxCore {
 
   /**
    * @todo this's a really primitive implement. Maybe could use Subscription Model to
+// Copyright (c) Microsoft Corporation.
    * refactor later.
    */
   public on(event: CoreCallbackEvent, callback: CoreCallbackFunc): void {
@@ -1694,7 +1706,6 @@ export class FxCore {
     const newOperations = inputs[QuestionNames.ApiOperation] as string[];
     const url = inputs[QuestionNames.ApiSpecLocation];
     const manifestPath = inputs[QuestionNames.ManifestPath];
-    const isPlugin = inputs[QuestionNames.ActionType] === DeclarativeAgentApiSpecOptionId;
     const context = createContext();
 
     // Get API spec file path from manifest
@@ -1716,35 +1727,20 @@ export class FxCore {
       return err(new UserCancelError());
     }
 
-    // Merge existing operations in manifest.json
-    const specParser = new SpecParser(
-      url,
-      getParserOptions(isPlugin ? ProjectType.Copilot : ProjectType.SME)
-    );
     try {
+      // Merge existing operations in manifest.json
+      const specParser = new SpecParser(url, getParserOptions(ProjectType.SME));
+
       const listResult = await specParser.list();
+
       const apiResultList = listResult.APIs.filter((value) => value.isValid);
 
-      let existingOperations: string[];
-      let outputApiSpecPath: string;
-      if (isPlugin) {
-        if (!inputs[QuestionNames.DestinationApiSpecFilePath]) {
-          return err(new MissingRequiredInputError(QuestionNames.DestinationApiSpecFilePath));
-        }
-        outputApiSpecPath = inputs[QuestionNames.DestinationApiSpecFilePath];
-        existingOperations = await listPluginExistingOperations(
-          manifestRes.value,
-          manifestPath,
-          inputs[QuestionNames.DestinationApiSpecFilePath]
-        );
-      } else {
-        const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
-        existingOperations = apiResultList
-          .filter((operation) => existingOperationIds.includes(operation.operationId))
-          .map((operation) => operation.api);
-        const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
-        outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
-      }
+      const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
+      const existingOperations = apiResultList
+        .filter((operation) => existingOperationIds.includes(operation.operationId))
+        .map((operation) => operation.api);
+      const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
+      const outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
 
       const operations = [...existingOperations, ...newOperations];
 
@@ -1789,23 +1785,13 @@ export class FxCore {
 
       let pluginPath: string | undefined;
 
-      if (isPlugin) {
-        const pluginPathRes = await manifestUtils.getPluginFilePath(
-          manifestRes.value,
-          manifestPath
-        );
-        if (pluginPathRes.isErr()) {
-          return err(pluginPathRes.error);
-        }
-        pluginPath = pluginPathRes.value;
-      }
       const generateResult = await generateFromApiSpec(
         specParser,
         manifestPath,
         inputs,
         context,
         "copilotPluginAddAPI",
-        isPlugin ? ProjectType.Copilot : ProjectType.SME,
+        ProjectType.SME,
         {
           destinationApiSpecFilePath: outputApiSpecPath,
           responseTemplateFolder: adaptiveCardFolder,
@@ -1996,7 +1982,7 @@ export class FxCore {
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
-      const listResult = await specParser.list();
+      const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
       if (
         inputs.platform === Platform.VSCode &&
         featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
@@ -2209,7 +2195,6 @@ export class FxCore {
   /**
    * Add Knowledge
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.addKnowledge }),
     ErrorHandlerMW,
@@ -2217,26 +2202,107 @@ export class FxCore {
     ConcurrentLockerMW,
   ])
   async addKnowledge(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    const konwledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
-    switch (konwledgeSource) {
-      case KnowledgeSourceOptions.embeddedKnowledge().id:
-        const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
-        const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
-        const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(
-          manifestFilePath,
-          filePath
-        );
-        if (res.isOk()) {
-          void TOOLS.ui.showMessage(
-            "info",
-            getLocalizedString("core.addEmbeddedKnowledge.success"),
-            false
-          );
-        }
-        return res;
-      default:
-        return ok(undefined);
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
     }
+
+    const context = createContext();
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    // Validate the project is valid for adding knowledge
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const teamsManifest = manifestRes.value;
+    const agent = teamsManifest.copilotExtensions
+      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
+      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
+    if (!agent?.file) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+            "declarativeAgents",
+            teamsManifestPath
+          )
+        )
+      );
+    }
+    const agentFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (agentFilePathRes.isErr()) {
+      return err(agentFilePathRes.error);
+    }
+
+    const agentManifestPath = agentFilePathRes.value;
+
+    // User confirm before adding knowledge
+    const confirmMessage = getLocalizedString(
+      "core.addKnowledge.confirm",
+      path.relative(inputs.projectPath, appPackageFolder)
+    );
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.addKnowledge.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.addKnowledge.continue")) {
+      return err(new UserCancelError());
+    }
+
+    let result: Result<undefined, FxError>;
+    const knowledgeSource = inputs[QuestionNames.KnowledgeSource] as string;
+    switch (knowledgeSource) {
+      case KnowledgeSourceOptions.webSearch().id:
+        result = await this.addWebSearchKnowledge(context, inputs, agentManifestPath);
+        break;
+      case KnowledgeSourceOptions.oneDriveSharePoint().id:
+        result = await this.addOneDriveSharePointKnowledge(inputs, agentManifestPath);
+        break;
+      case KnowledgeSourceOptions.graphConnector().id:
+        result = await this.addGCKnowledge(inputs, agentManifestPath);
+        break;
+      case KnowledgeSourceOptions.embeddedKnowledge().id:
+        result = await this.addEmbeddedKnowledge(inputs);
+        break;
+      default:
+        return err(
+          new UserError("FxCore", "UnsupportedKnowledgeSource", "Unsupported knowledge source")
+        );
+    }
+    if (result.isErr()) {
+      if (isUserCancelError(result.error)) {
+        return err(new UserCancelError());
+      }
+      await context.userInteraction.showMessage("warn", result.error.message, true);
+      return ok(undefined);
+    }
+
+    this.showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
+
+    return ok(result);
+  }
+
+  /**
+   * only for vs code extension
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "getODSPItemDetails", reset: true }),
+    ErrorHandlerMW,
+  ])
+  async getODSPItemDetails(siteId: string, itemId: string): Promise<Result<ItemMetadata, FxError>> {
+    const context = createContext();
+    const res = await getODSPItemDetailById(context, siteId, itemId);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    return ok(res.value[0]);
   }
 
   /**
@@ -2515,6 +2581,56 @@ export class FxCore {
     return ok(undefined);
   }
 
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.setSensitivityLabel }),
+    ErrorHandlerMW,
+    QuestionMW("setSensitivityLabel"),
+  ])
+  async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const declarativeAgentManifestPath = inputs[
+      QuestionNames.DeclarativeAgentManifestPath
+    ] as string;
+    if (!declarativeAgentManifestPath || !(await fs.pathExists(declarativeAgentManifestPath))) {
+      throw new Error("declarativeAgentManifestPath is undefined or does not exist");
+    }
+    return await withFileLock(declarativeAgentManifestPath, async () => {
+      const context = createContext();
+      const confirmMessage = getLocalizedString(
+        "core.setSensitivityLabel.confirm",
+        declarativeAgentManifestPath
+      );
+      const confirmRes = await context.userInteraction.showMessage(
+        "warn",
+        confirmMessage,
+        true,
+        getLocalizedString("core.setSensitivityLabel.continue")
+      );
+
+      if (confirmRes.isErr()) {
+        return err(confirmRes.error);
+      } else if (confirmRes.value !== getLocalizedString("core.setSensitivityLabel.continue")) {
+        return err(new UserCancelError());
+      }
+      const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
+      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+        declarativeAgentManifestPath
+      );
+      if (declarativeAgentManifestRes.isErr()) {
+        return err(declarativeAgentManifestRes.error);
+      }
+      const declarativeAgentManifest = declarativeAgentManifestRes.value;
+      declarativeAgentManifest.sensitivity_label = selectedLabel;
+      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+        declarativeAgentManifest,
+        declarativeAgentManifestPath
+      );
+      if (writeRes.isErr()) {
+        return err(writeRes.error);
+      }
+      return ok(undefined);
+    });
+  }
+
   private async updateAuthActionInYaml(
     authName: string | undefined,
     authScheme: AuthType | undefined,
@@ -2592,5 +2708,149 @@ export class FxCore {
       return err(manifestRes.error);
     }
     return ok(IsDeclarativeAgentManifest(manifestRes.value));
+  }
+
+  private async addOneDriveSharePointKnowledge(
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    let oneDriveSharePointIds: SharePointIDs | null = null;
+    let oneDriveSharePointUrls: Site | null = null;
+
+    const sharePointItem = inputs.oneDriveSharePointItem?.[0];
+    if (
+      sharePointItem &&
+      inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allOneDriveSharepoint().id
+    ) {
+      if (sharePointItem.url) {
+        oneDriveSharePointUrls = { url: sharePointItem.url };
+      } else {
+        oneDriveSharePointIds = {
+          site_id: sharePointItem.siteId,
+          web_id: sharePointItem.webId,
+          ...(sharePointItem.listId && { list_id: sharePointItem.listId }),
+          ...(sharePointItem.uniqueId && { unique_id: sharePointItem.uniqueId }),
+        };
+      }
+    }
+
+    const addOneDriveSharePointCapabilityRes =
+      await copilotGptManifestUtils.addOneDriveSharePointCapability(
+        agentManifestPath,
+        oneDriveSharePointIds,
+        oneDriveSharePointUrls,
+        manifestRes
+      );
+
+    if (addOneDriveSharePointCapabilityRes.isErr()) {
+      return err(addOneDriveSharePointCapabilityRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async addWebSearchKnowledge(
+    context: Context,
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    let webSearchUrl: Site | null = null;
+    if (inputs[QuestionNames.SearchType] !== KnowledgeSearchTypeOptions.allWeb().id) {
+      webSearchUrl = {
+        url: inputs.webSearchUrl,
+      };
+    }
+
+    const addWebSearchCapabilityRes = await copilotGptManifestUtils.addWebSearchCapability(
+      context,
+      agentManifestPath,
+      webSearchUrl,
+      manifestRes
+    );
+
+    if (addWebSearchCapabilityRes.isErr()) {
+      return err(addWebSearchCapabilityRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async addGCKnowledge(
+    inputs: Inputs,
+    agentManifestPath: string
+  ): Promise<Result<undefined, FxError>> {
+    const manifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(agentManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    let connectionIds: string[];
+    if (inputs[QuestionNames.GCInput]) {
+      connectionIds = [inputs[QuestionNames.GCInput]];
+    } else {
+      connectionIds = inputs[QuestionNames.GCList];
+    }
+    const addGCCapabilityRes = await copilotGptManifestUtils.addGCCapability(
+      agentManifestPath,
+      connectionIds,
+      manifestRes
+    );
+
+    if (addGCCapabilityRes.isErr()) {
+      return err(addGCCapabilityRes.error);
+    }
+
+    return ok(undefined);
+  }
+
+  private async addEmbeddedKnowledge(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const manifestFilePath = inputs[QuestionNames.ManifestPath] as string;
+    const filePath = inputs[QuestionNames.EmbeddedKnowledgeFiles] as string[];
+    const res = await copilotGptManifestUtils.addEmbeddedKnowledgeFiles(manifestFilePath, filePath);
+    return res;
+  }
+
+  private showAddKnowledgeSuccessMessage(
+    context: Context,
+    inputs: Inputs,
+    agentManifestPath: string,
+    knowledgeSource: string
+  ): void {
+    if (knowledgeSource === KnowledgeSourceOptions.embeddedKnowledge().id) {
+      void TOOLS.ui.showMessage(
+        "info",
+        getLocalizedString("core.addEmbeddedKnowledge.success"),
+        false
+      );
+      return;
+    }
+
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addKnowledge.success.vsc");
+      const viewAgentManifest = getLocalizedString("core.addKnowledge.success.viewAgentManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewAgentManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewAgentManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewAgentManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(agentManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
   }
 }

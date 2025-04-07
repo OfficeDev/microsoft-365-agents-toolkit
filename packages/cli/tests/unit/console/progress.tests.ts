@@ -97,7 +97,12 @@ describe("Progress", () => {
     expect(instance["currentStep"]).equals(4);
     expect(instance["totalSteps"]).equals(4);
   });
-
+  it("text", async () => {
+    const instance = new Progress("Test next", 3);
+    instance["currentStep"] = 3;
+    await instance.text("step 1");
+    expect(instance["currentStep"]).equals(3);
+  });
   it("updatePercentage", () => {
     const instance = new Progress("Test next", 3);
     instance["currentPercentage"] = 0;

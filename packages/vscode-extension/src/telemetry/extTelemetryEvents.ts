@@ -148,6 +148,7 @@ export enum TelemetryEvent {
   DebugPrereqsCheckCert = "debug-prereqs-check-cert",
   DebugPrereqsCheckDependencies = "debug-prereqs-check-dependencies",
   DebugPrereqsCheckNpmInstall = "debug-prereqs-check-npm-install",
+  DebugPrereqsCheckSandbox = "debug-prereqs-check-sandbox",
   DebugPrereqsInstallPackages = "debug-prereqs-install-packages",
   DebugPreCheckCoreLocalDebug = "debug-precheck-core-local-debug",
   DebugTaskProvider = "debug-task-provider",
@@ -249,6 +250,7 @@ export enum TelemetryEvent {
   OpenFolder = "open-folder",
   ClickGetHelp = "click-get-help",
   MessageDebugInTestTool = "message-debugintesttool",
+  MessageDebugInSandbox = "message-debuginsandbox",
 
   // To track the event of opening in new window after creating a new project
   OpenNewProject = "open-new-project",
@@ -303,9 +305,8 @@ export enum TelemetryEvent {
   OpenInstallTeamsAgent = "open-install-teams-agent",
   MarkTeamsAgentInstallationDoneStart = "mark-teams-agent-installation-done-start",
   MarkTeamsAgentInstallationDone = "mark-teams-agent-installation-done",
-  MarkGitHubCopilotSetupDoneStart = "mark-github-copilot-setup-done-start",
-  MarkGitHubCopilotSetupDone = "mark-github-copilot-setup-done",
   OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
+  TeamsAgentPreCheckResult = "teams-agent-pre-check-result",
 
   // Copilot Chat
   CopilotChatStart = "copilot-chat-start",
@@ -342,6 +343,15 @@ export enum TelemetryEvent {
   AddAuthActionStart = "add-auth-action-start",
   AddAuthAction = "add-auth-action",
   ProvisionFromAddAuthConfig = "provision-from-add-auth-config",
+
+  OpenOneDriveSharePointUrlStart = "open-one-drive-share-point-url-start",
+  OpenOneDriveSharePointUrl = "open-one-drive-share-point-url",
+
+  SetSensitivityLabelStart = "set-sensitivity-label-start",
+  SetSensitivityLabel = "set-sensitivity-label",
+
+  m365PreAuthStart = "m365-pre-auth-start",
+  m365PreAuth = "m365-pre-auth",
 }
 
 export enum TelemetryProperty {
@@ -466,6 +476,8 @@ export enum TelemetryProperty {
   // Used in Copilot Chat UI
   HasQueryForCopilotChat = "has-query-for-copilot-chat",
   CopilotChatQuerySent = "copilot-chat-query-sent",
+  TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
+  TeamsAgentPreCheckResultSuccess = "teans-agent-pre-check-result-success",
 }
 
 export enum TelemetryMeasurements {

@@ -189,6 +189,16 @@ class TreeViewManager {
   }
 
   private getDevelopmentCommands(): TreeViewCommand[] {
+    const getHelpFromCopilotTitle = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    )
+      ? localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle")
+      : localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle.preview");
+    const getHelpFromCopilotCommand: string = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    )
+      ? "fx-extension.invokeChat"
+      : "fx-extension.invokeChatWithPreviewTag";
     const treeviewCommands = [
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.createProjectTitle"),
@@ -227,14 +237,14 @@ class TreeViewManager {
             ),
           ]
         : []),
-      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
+      ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle"),
               localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription"),
               "fx-extension.addKnowledge",
               "addKnowledge",
-              { name: "teamsfx-add-feature", custom: false }
+              { name: "diff-added", custom: false }
             ),
           ]
         : []),
@@ -256,9 +266,9 @@ class TreeViewManager {
       ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
         ? [
             new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle"),
+              getHelpFromCopilotTitle,
               localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription"),
-              "fx-extension.invokeChat",
+              getHelpFromCopilotCommand,
               undefined,
               { name: "comment-discussion", custom: false }
             ),
@@ -325,13 +335,6 @@ class TreeViewManager {
         "deploy",
         { name: "cloud-upload", custom: false }
       ),
-      new TreeViewCommand(
-        localize("teamstoolkit.commandsTreeViewProvider.publishTitle"),
-        localize("teamstoolkit.commandsTreeViewProvider.publishDescription"),
-        "fx-extension.publish",
-        "publish",
-        { name: "export", custom: false }
-      ),
       ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)
         ? [
             new TreeViewCommand(
@@ -343,6 +346,13 @@ class TreeViewManager {
             ),
           ]
         : []),
+      new TreeViewCommand(
+        localize("teamstoolkit.commandsTreeViewProvider.publishTitle"),
+        localize("teamstoolkit.commandsTreeViewProvider.publishDescription"),
+        "fx-extension.publish",
+        "publish",
+        { name: "export", custom: false }
+      ),
     ];
 
     const deployProvider = new CommandsTreeViewProvider(deployCommand);

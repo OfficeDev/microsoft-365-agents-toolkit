@@ -11,10 +11,28 @@
 import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface AddKnowledgeInputs extends Inputs {
-  /** @description Add Knowledge */
-  "knowledge-source"?: "web-search" | "oneDrive-sharePoint" | "embedded-knowledge";
+  /** @description Add Capability */
+  "knowledge-source"?:
+    | "web-search"
+    | "oneDrive-sharePoint"
+    | "graph-connector"
+    | "embedded-knowledge";
+  /** @description Select Search Type */
+  "search-type"?: "url" | "all-web" | "all-oneDrive-sharePoint";
+  /** @description Web Content */
+  "web-content"?: string;
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;
+  /** @description OneDrive or SharePoint Content */
+  oneDriveSharePointURL?: string;
+  /** @description OneDrive or SharePoint Content */
+  oneDriveSharePointContent?: string;
+  /** @description Graph Connector Content */
+  "graph-connector-content"?: "listConnections" | "inputConnectionId";
+  /** @description Select one or more Graph Connectors as capability source */
+  "graph-connector-list"?: string[];
+  /** @description Connection ID */
+  "graph-connector-input"?: string;
   /** @description Add embedded knowledge files */
   "embedded-knowledge-files"?: string[];
 }

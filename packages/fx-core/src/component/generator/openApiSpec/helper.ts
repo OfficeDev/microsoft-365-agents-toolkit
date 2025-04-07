@@ -15,7 +15,6 @@ import {
   ErrorType,
   InvalidAPIInfo,
   ListAPIInfo,
-  ListAPIResult,
   ParseOptions,
   ProjectType,
   SpecParser,
@@ -75,6 +74,7 @@ import {
 } from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
+import { listAPIInfo } from "../../../common/daSpecParser";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -86,6 +86,9 @@ const enum telemetryProperties {
   bearerTokenAuthCount = "bearer-token-auth-count",
   oauth2AuthCount = "oauth2-auth-count",
   otherAuthCount = "other-auth-count",
+  noneAuthCount = "none-auth-count",
+  apiKeyAuthCount = "api-key-auth-count",
+  multipleAuthCount = "multiple-auth-count",
   isFromAddingApi = "is-from-adding-api",
   failedReason = "failed-reason",
   generateType = "generate-type",
@@ -214,8 +217,12 @@ export async function listOperations(
     if (validationRes.status === ValidationStatus.Error) {
       return err(validationRes.errors);
     }
-
-    const listResult: ListAPIResult = await specParser.list();
+    let listResult;
+    if (projectType === ProjectType.Copilot) {
+      listResult = await listAPIInfo(apiSpecUrl as string, inputs.platform);
+    } else {
+      listResult = await specParser.list();
+    }
 
     const invalidAPIs = listResult.APIs.filter((value) => !value.isValid);
     for (const invalidAPI of invalidAPIs) {
@@ -234,11 +241,22 @@ export async function listOperations(
       (api) => api.auth && Utils.isOAuthWithAuthCodeFlow(api.auth.authScheme)
     );
 
+    const apiKeyAuthAPIs = listResult.APIs.filter(
+      (api) => api.auth && Utils.isAPIKeyAuthButNotInCookie(api.auth.authScheme)
+    );
+
+    const multipleAuthAPIs = listResult.APIs.filter(
+      (api) => api.auth && api.auth.authScheme?.type === "multipleAuth"
+    );
+
+    const noneAuthAPIs = listResult.APIs.filter((api) => !api.auth);
+
     const otherAuthAPIs = listResult.APIs.filter(
       (api) =>
         api.auth &&
         !Utils.isOAuthWithAuthCodeFlow(api.auth.authScheme) &&
-        !Utils.isBearerTokenAuth(api.auth.authScheme)
+        !Utils.isBearerTokenAuth(api.auth.authScheme) &&
+        !Utils.isAPIKeyAuthButNotInCookie(api.auth.authScheme)
     );
 
     let operations = listResult.APIs.filter((value) => value.isValid);
@@ -248,6 +266,9 @@ export async function listOperations(
       [telemetryProperties.allApisCount]: listResult.allAPICount.toString(),
       [telemetryProperties.isFromAddingApi]: (!includeExistingAPIs).toString(),
       [telemetryProperties.bearerTokenAuthCount]: bearerTokenAuthAPIs.length.toString(),
+      [telemetryProperties.noneAuthCount]: noneAuthAPIs.length.toString(),
+      [telemetryProperties.multipleAuthCount]: multipleAuthAPIs.length.toString(),
+      [telemetryProperties.apiKeyAuthCount]: apiKeyAuthAPIs.length.toString(),
       [telemetryProperties.oauth2AuthCount]: oauth2AuthAPIs.length.toString(),
       [telemetryProperties.otherAuthCount]: otherAuthAPIs.length.toString(),
       [telemetryProperties.specHash]: validationRes.specHash!,
@@ -429,8 +450,7 @@ export async function listPluginExistingOperations(
     );
   }
 
-  const specParser = new SpecParser(apiSpecFilePath, getParserOptions(ProjectType.Copilot));
-  const listResult = await specParser.list();
+  const listResult = await listAPIInfo(apiSpecFilePath);
   return listResult.APIs.map((o) => o.api);
 }
 
@@ -797,11 +817,12 @@ function formatApiSpecValidationWarningMessage(
 
   specialCharactersWarnings.forEach((warning) => {
     resultWarnings.push(
-      getLocalizedString(
-        "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
-        warning.data.operationId,
-        warning.data.operationId.replace(/[^a-zA-Z0-9]/g, "_")
-      )
+      `${SummaryConstant.NotExecuted} ` +
+        getLocalizedString(
+          "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
+          warning.data,
+          warning.data.replace(/[^a-zA-Z0-9]/g, "_")
+        )
     );
   });
 
@@ -1676,19 +1697,30 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
 export async function parseAndUpdatePluginManifestForKiota(
   pluginManifestPath: string,
   updatePlaceholder: boolean
-): Promise<{ authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[]> {
-  const authData: { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] =
-    [];
+): Promise<
+  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
+> {
+  const authData: {
+    authName: string;
+    authType: "apiKey" | "oauth2";
+    registrationId: string;
+    specPath: string;
+  }[] = [];
   const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
   pluginManifest.runtimes?.forEach((runtime) => {
     if ((runtime as RuntimeObjectOpenapi).auth) {
-      const auth = (runtime as RuntimeObjectOpenapi).auth;
-      if (auth?.reference_id && auth?.type !== "None") {
+      const auth = (runtime as RuntimeObjectOpenapi).auth!;
+      if (
+        auth.reference_id &&
+        auth.reference_id.match(/{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth.type !== "None"
+      ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         authData.push({
           authName: registrationId.split("_")[0],
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
           registrationId: registrationId.toUpperCase(),
+          specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
           auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;
@@ -1709,10 +1741,11 @@ export async function generateAdaptiveCardInPluginManifestForKiota(
   context: Context
 ): Promise<void> {
   try {
-    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
-    const operation = (await specParser.list()).APIs.filter((value) => value.isValid).map(
+    const operation = (await listAPIInfo(specPath)).APIs.filter((value) => value.isValid).map(
       (value) => value.api
     );
+
+    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
     await specParser.generateAdaptiveCardInPlugin(pluginManifestPath, operation, undefined);
   } catch (error) {
     // create ac error, should not block the whole process

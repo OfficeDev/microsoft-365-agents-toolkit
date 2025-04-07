@@ -13,7 +13,7 @@ import {
   setTemplateName,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { apiSpecNode } from "./teamsProjectTypeNode";
+import { apiSpecNode, apiSpecWithSearchNode } from "./teamsProjectTypeNode";
 
 export function daProjectTypeNode(
   parentValue = ProjectTypeOptions.copilotAgentOptionId
@@ -57,8 +57,13 @@ export function daProjectTypeNode(
               ),
               staticOptions: [
                 ActionStartOptions.newApi(),
-                ActionStartOptions.apiSpec(),
+                featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+                  ? ActionStartOptions.apiSpecWithSearch()
+                  : ActionStartOptions.apiSpec(),
                 ActionStartOptions.existingPlugin(),
+                ...(featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)
+                  ? [ActionStartOptions.typeSpec()]
+                  : []),
               ],
               default: ActionStartOptions.newApi().id,
               onDidSelection: setTemplateName,
@@ -86,11 +91,13 @@ export function daProjectTypeNode(
                   onDidSelection: setTemplateName,
                 },
               },
-              apiSpecNode(
-                (inputs: Inputs) =>
-                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
-                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
-              ),
+              featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+                ? apiSpecWithSearchNode()
+                : apiSpecNode(
+                    (inputs: Inputs) =>
+                      inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
+                      !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)
+                  ),
               {
                 condition: { equals: ActionStartOptions.existingPlugin().id },
                 data: { type: "group", name: QuestionNames.ImportPlugin },

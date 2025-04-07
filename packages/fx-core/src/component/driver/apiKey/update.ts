@@ -20,7 +20,8 @@ import {
 import { ApiKeyNameTooLongError } from "./error/apiKeyNameTooLong";
 import { UpdateApiKeyArgs } from "./interface/updateApiKeyArgs";
 import { logMessageKeys } from "./utility/constants";
-import { getDomain, validateDomain } from "./utility/utility";
+import { getDomain, validateDomain, validateUrl } from "./utility/utility";
+import { WrapDriverContext } from "../util/wrapUtil";
 
 const actionName = "apiKey/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/apiKey-update";
@@ -30,8 +31,14 @@ export class UpdateApiKeyDriver implements StepDriver {
   description = getLocalizedString("driver.apiKey.description.update");
   readonly progressTitle = getLocalizedString("driver.aadApp.apiKey.title.update");
 
-  @hooks([addStartAndEndTelemetry(actionName, actionName)])
   public async execute(args: UpdateApiKeyArgs, context: DriverContext): Promise<ExecutionResult> {
+    const wrapDriverContext = new WrapDriverContext(context, actionName, actionName);
+    const result = await this._run(args, wrapDriverContext);
+    return result;
+  }
+
+  @hooks([addStartAndEndTelemetry(actionName, actionName)])
+  public async _run(args: UpdateApiKeyArgs, context: WrapDriverContext): Promise<ExecutionResult> {
     const summaries: string[] = [];
     const outputs: Map<string, string> = new Map<string, string>();
 
@@ -39,8 +46,13 @@ export class UpdateApiKeyDriver implements StepDriver {
       context.logProvider?.info(getLocalizedString(logMessageKeys.startExecuteDriver, actionName));
       this.validateArgs(args);
 
-      const domain = await getDomain(args, context, actionName);
-      validateDomain(domain, actionName);
+      let domain: string[] = [];
+      if (args.baseUrl) {
+        domain = [args.baseUrl];
+      } else {
+        domain = await getDomain(args, context, actionName);
+        validateDomain(domain, actionName);
+      }
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
@@ -140,7 +152,16 @@ export class UpdateApiKeyDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
-    if (typeof args.apiSpecPath !== "string" || !args.apiSpecPath) {
+    if (args.baseUrl && (typeof args.baseUrl !== "string" || !validateUrl(args.baseUrl))) {
+      invalidParameters.push("baseUrl");
+    }
+
+    if (args.apiSpecPath && typeof args.apiSpecPath !== "string") {
+      invalidParameters.push("apiSpecPath");
+    }
+
+    if (!args.baseUrl && !args.apiSpecPath) {
+      invalidParameters.push("baseUrl");
       invalidParameters.push("apiSpecPath");
     }
 

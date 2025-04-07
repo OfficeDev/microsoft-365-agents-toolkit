@@ -5,6 +5,7 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import { QuestionNames } from "../../../question/constants";
 import { LocalCrypto } from "../../../core/crypto";
+import os from "os";
 
 export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string } {
   const appName = inputs[QuestionNames.AppName] as string;
@@ -23,6 +24,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   const openAIEmbeddingModel: string | undefined = inputs[QuestionNames.OpenAIEmbeddingModel];
   const azureOpenAIEmbeddingDeploymentName: string | undefined =
     inputs[QuestionNames.AzureOpenAIEmbeddingDeploymentName];
+  const gcName: string | undefined = inputs[QuestionNames.GCName];
 
   if (inputs.projectId !== undefined && (openAIKey || azureOpenAIKey)) {
     const cryptoProvider = new LocalCrypto(inputs.projectId);
@@ -65,6 +67,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     azureOpenAIDeploymentName: azureOpenAIDeploymentName ?? "",
     azureOpenAIEmbeddingDeploymentName: azureOpenAIEmbeddingDeploymentName ?? "",
     azureAISearchEndpoint: azureAISearchEndpoint ?? "",
+    gcName: gcName ?? "",
     openAIEmbeddingModel: openAIEmbeddingModel ?? "",
     isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
       ? "true"
@@ -78,5 +81,12 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
       ? "true"
       : "",
     ShareEnabled: featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? "true" : "",
+    SensitivityLabelEnabled: featureFlagManager.getBooleanValue(
+      FeatureFlags.SensitivityLabelEnabled
+    )
+      ? "true"
+      : "",
+    SandBoxedTeam: featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam) ? "true" : "",
+    pathDelimiter: os.platform() === "win32" ? ";" : ":",
   };
 }

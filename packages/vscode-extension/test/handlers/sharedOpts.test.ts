@@ -202,6 +202,13 @@ describe("SharedOpts", () => {
       await runCommand(Stage.syncManifest);
       sinon.assert.calledOnce(syncManifest);
     });
+    it("setSensitivityLabel", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const setSensitivityLabel = sandbox.spy(globalVariables.core, "setSensitivityLabel");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.setSensitivityLabel);
+      sinon.assert.calledOnce(setSensitivityLabel);
+    });
   });
 
   describe("processResult", () => {

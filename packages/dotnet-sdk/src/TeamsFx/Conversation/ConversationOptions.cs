@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Bot.Builder;
+    using Microsoft.Agents.Hosting.AspNetCore;
 
     /// <summary>
     /// Represents the options used to initialize a <see cref="ConversationBot"/>.
@@ -13,7 +13,7 @@ namespace Microsoft.TeamsFx.Conversation
         /// <summary>
         /// Gets or sets the bot adapter 
         /// </summary>
-        public BotAdapter Adapter { get; set; }
+        public CloudAdapter Adapter { get; set; }
 
         /// <summary>
         /// Gets or sets the notification option used to initialize <see cref="ConversationBot.Notification"/>.

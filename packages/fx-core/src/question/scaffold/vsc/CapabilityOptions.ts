@@ -503,12 +503,35 @@ export class ActionStartOptions {
     };
   }
 
+  static apiSpecWithSearch(): OptionItem {
+    return {
+      id: "api-spec-with-search",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.copilotPluginApiSpecOption.detail"
+      ),
+      data: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+    };
+  }
+
   static existingPlugin(): OptionItem {
     return {
       id: "existing-plugin",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
       data: TemplateNames.DeclarativeAgentWithExistingAction,
+    };
+  }
+
+  static typeSpec(): OptionItem {
+    return {
+      id: "type-spec",
+      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
+      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
 }

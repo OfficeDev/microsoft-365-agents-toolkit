@@ -73,8 +73,15 @@ export function getAppStudioEndpoint(): string {
 
 export const AuthSvcScopes = ["https://api.spaces.skype.com/Region.ReadWrite"];
 export const GraphScopes = ["Application.ReadWrite.All", "TeamsAppInstallation.ReadForUser"];
+export const GCScopes = ["ExternalConnection.Read.All"];
 export const GraphReadUserScopes = ["https://graph.microsoft.com/User.ReadBasic.All"];
 export const SPFxScopes = (tenant: string) => [`${tenant}/Sites.FullControl.All`];
 export const AzureScopes = ["https://management.core.windows.net/user_impersonation"];
 export const AppStudioScopes = [`${getAppStudioEndpoint()}/AppDefinitions.ReadWrite`];
 export const SpecParserSource = "SpecParser";
+export const GraphTeamsAppSettingsReadScopes = ["TeamworkAppSettings.Read.All"];
+export const GraphTeamsTeamCreateScopes = ["Team.Create"];
+export const GraphTeamsChannelCreateScopes = ["Channel.Create"];
+export const GraphTeamsTeamReadScopes = ["Team.ReadBasic.All"];
+export const GraphTeamsChannelReadScopes = ["Channel.ReadBasic.All"];
+export const GraphTeamsInstallAppScopes = ["TeamsAppInstallation.ReadWriteAndConsentForTeam"];

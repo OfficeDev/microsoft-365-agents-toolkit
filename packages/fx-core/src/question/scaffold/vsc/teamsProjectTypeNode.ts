@@ -13,6 +13,9 @@ import { QuestionNames } from "../../constants";
 import {
   apiOperationQuestion,
   apiSpecLocationQuestion,
+  apiSpecTypeSelectQuestion,
+  searchOpenAPISpecQueryQuestion,
+  selectOpenApiSpecQuestion,
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxPackageSelectQuestion,
@@ -20,6 +23,7 @@ import {
   SPFxWebpartNameQuestion,
 } from "../../create";
 import {
+  ActionStartOptions,
   ApiAuthOptions,
   BotCapabilityOptions,
   MeArchitectureOptions,
@@ -43,6 +47,48 @@ export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTree
           return !inputs[QuestionNames.ActionManifestPath];
         },
         data: apiOperationQuestion(),
+      },
+    ],
+  };
+}
+
+export function apiSpecWithSearchNode(): IQTreeNode {
+  return {
+    data: { type: "group", name: QuestionNames.FromExistingApi },
+    condition: { equals: "api-spec-with-search" },
+    children: [
+      {
+        data: apiSpecTypeSelectQuestion(),
+        children: [
+          {
+            condition: { equals: "enter-url-or-open-local-file" },
+            data: apiSpecLocationQuestion(),
+            children: [
+              {
+                condition: (inputs: Inputs) => {
+                  return !inputs[QuestionNames.ActionManifestPath];
+                },
+                data: apiOperationQuestion(),
+              },
+            ],
+          },
+          {
+            condition: { equals: "search-api" },
+            data: searchOpenAPISpecQueryQuestion(),
+            children: [
+              {
+                data: selectOpenApiSpecQuestion(),
+              },
+              {
+                condition: (inputs: Inputs) => {
+                  inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
+                  return !!inputs[QuestionNames.SelectOpenApiSpec];
+                },
+                data: apiOperationQuestion(),
+              },
+            ],
+          },
+        ],
       },
     ],
   };

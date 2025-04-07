@@ -357,14 +357,16 @@ class Coordinator {
       unresolvedPlaceholders = unresolvedPlaceholders.concat(cycle.resolvePlaceholders());
     }
     if (unresolvedPlaceholders.length > 0) {
-      return err(new LifeCycleUndefinedError(unresolvedPlaceholders.join(",")));
+      return err(
+        new MissingEnvironmentVariablesError("coordinator", unresolvedPlaceholders.join(","))
+      );
     }
 
     for (const action of projectModel.provision?.driverDefs ?? []) {
       if (action.uses === "teamsApp/create") {
         const teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
         if (!process.env[teamsAppIdKeyName]) {
-          return err(new LifeCycleUndefinedError(unresolvedPlaceholders.join(",")));
+          return err(new MissingEnvironmentVariablesError("coordinator", teamsAppIdKeyName));
         }
         break;
       }
@@ -699,7 +701,8 @@ class Coordinator {
     if (projectModel.deploy) {
       if (
         inputs.env !== environmentNameManager.getLocalEnvName() &&
-        inputs.env !== environmentNameManager.getTestToolEnvName()
+        inputs.env !== environmentNameManager.getTestToolEnvName() &&
+        inputs.env !== environmentNameManager.getSandboxEnvName()
       ) {
         const consent = await deployUtils.askForDeployConsentV3(ctx);
         if (consent.isErr()) {

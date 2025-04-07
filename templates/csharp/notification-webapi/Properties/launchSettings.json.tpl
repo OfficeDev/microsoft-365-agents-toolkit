@@ -1,22 +1,6 @@
 {
   "profiles": {
 {{^isNewProjectTypeEnabled}}
-{{#enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchTestTool": true,
-      "launchUrl": "http://localhost:56150",
-      "applicationUrl": "http://localhost:5130",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
-      },
-      "hotReloadProfile": "aspnetcore"
-    },
-{{/enableTestToolByDefault}}
     // Debug project within Teams
     "Microsoft Teams (browser)": {
       "commandName": "Project",
@@ -29,22 +13,6 @@
       },
       "hotReloadProfile": "aspnetcore"
     },
-{{^enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchTestTool": true,
-      "launchUrl": "http://localhost:56150",
-      "applicationUrl": "http://localhost:5130",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
-      },
-      "hotReloadProfile": "aspnetcore"
-    },
-{{/enableTestToolByDefault}}
     //// Uncomment following profile to debug project only (without launching Teams)
     //,
     //"Start Project (not in Teams)": {
@@ -58,19 +26,6 @@
     //}
 {{/isNewProjectTypeEnabled}}
 {{#isNewProjectTypeEnabled}}
-{{#enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5130",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
-      },
-      "hotReloadProfile": "aspnetcore"
-    },
-{{/enableTestToolByDefault}}
     // Debug project within Teams
     "Start Project": {
       "commandName": "Project",
@@ -81,19 +36,6 @@
       },
       "hotReloadProfile": "aspnetcore"
     },
-{{^enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5130",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
-      },
-      "hotReloadProfile": "aspnetcore"
-    },
-{{/enableTestToolByDefault}}
 {{/isNewProjectTypeEnabled}}
   }
 }

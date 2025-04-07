@@ -18,31 +18,21 @@ import {
   FeatureFlags,
   VersionState,
   featureFlagManager,
-  globalStateGet,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import * as semver from "semver";
 import * as vscode from "vscode";
-import {
-  CHAT_EXECUTE_COMMAND_ID,
-  CHAT_OPENURL_COMMAND_ID,
-  IsChatParticipantEnabled,
-  chatParticipantId,
-} from "./chat/consts";
+import { IsChatParticipantEnabled } from "./chat/consts";
 import followupProvider from "./chat/followupProvider";
-import {
-  chatExecuteCommandHandler,
-  chatRequestHandler,
-  handleFeedback,
-  openUrlCommandHandler,
-} from "./chat/handlers";
 import {
   AadAppTemplateCodeLensProvider,
   ApiPluginCodeLensProvider,
   CopilotPluginCodeLensProvider,
   CryptoCodeLensProvider,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
+  OneDriveSharePointCodeLensProvider,
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
@@ -67,6 +57,7 @@ import { TreatmentVariableValue, TreatmentVariables } from "./exp/treatmentVaria
 import {
   diagnosticCollection,
   initializeGlobalVariables,
+  isDeclarativeCopilotApp,
   isExistingUser,
   isOfficeAddInProject,
   isOfficeManifestOnlyProject,
@@ -74,7 +65,6 @@ import {
   isTeamsFxProject,
   unsetIsTeamsFxProject,
   workspaceUri,
-  isDeclarativeCopilotApp,
 } from "./globalVariables";
 import {
   convertAadToNewSchemaHandler,
@@ -87,13 +77,19 @@ import {
   cmpAccountsHandler,
   createAccountHandler,
 } from "./handlers/accounts/accountHandlers";
-import { activate as activateHandlers } from "./handlers/activate";
-import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import {
   checkCopilotCallback,
   checkSideloadingCallback,
 } from "./handlers/accounts/checkAccessCallback";
 import { checkCopilotAccessHandler } from "./handlers/accounts/checkCopilotAccess";
+import {
+  refreshCopilotCallback,
+  refreshSideloadingCallback,
+} from "./handlers/accounts/refreshAccessHandlers";
+import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
+import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
+import { activate as activateHandlers } from "./handlers/activate";
+import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import { manageCollaboratorHandler } from "./handlers/collaboratorHandlers";
 import {
   openFolderHandler,
@@ -103,6 +99,8 @@ import {
   saveTextDocumentHandler,
 } from "./handlers/controlHandlers";
 import * as copilotChatHandlers from "./handlers/copilotChatHandlers";
+import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
+import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
 import {
   debugInTestToolHandler,
   selectAndDebugHandler,
@@ -116,17 +114,20 @@ import {
   openConfigStateFile,
   refreshEnvironment,
 } from "./handlers/envHandlers";
+import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import {
   addAuthActionHandler,
+  addKnowledgeHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
+  m365PreAuthHandler,
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
-  addKnowledgeHandler,
+  setSensitivityLabelHandler,
   shareHandler,
 } from "./handlers/lifecycleHandlers";
 import {
@@ -159,6 +160,7 @@ import {
   openResourceGroupInPortal,
   openSubscriptionInPortal,
 } from "./handlers/openLinkHandlers";
+import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 import {
   checkUpgrade,
   getDotnetPathHandler,
@@ -168,18 +170,14 @@ import {
   validateGetStartedPrerequisitesHandler,
 } from "./handlers/prerequisiteHandlers";
 import { openReadMeHandler } from "./handlers/readmeHandlers";
-import {
-  refreshCopilotCallback,
-  refreshSideloadingCallback,
-} from "./handlers/accounts/refreshAccessHandlers";
 import { showOutputChannelHandler } from "./handlers/showOutputChannel";
-import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
 import { openTutorialHandler, selectTutorialsHandler } from "./handlers/tutorialHandlers";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
 } from "./handlers/walkthrough";
 import { ManifestTemplateHoverProvider } from "./hoverProvider";
+import { manifestListener } from "./manifestListener";
 import {
   CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
   officeChatParticipantId,
@@ -190,6 +188,7 @@ import {
   officeChatRequestHandler,
 } from "./officeChat/handlers";
 import { initVSCodeUI } from "./qm/vsc_ui";
+import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import accountTreeViewProviderInstance from "./treeview/account/accountTreeViewProvider";
@@ -205,12 +204,6 @@ import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/project
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
-import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
-import { manifestListener } from "./manifestListener";
-import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
-import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
-import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
-import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
   const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
@@ -222,6 +215,13 @@ export async function activate(context: vscode.ExtensionContext) {
   featureFlagManager.setBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries,
     shouldEnableChatParticipantUIEntries
+  );
+
+  const shouldHideGitHubCopilotPreviewTag =
+    releaseControlledFeatureSettings.shouldHideTeamsAgentPreviewTag;
+  featureFlagManager.setBooleanValue(
+    CoreFeatureFlags.HideGitHubCopilotPreviewTag,
+    shouldHideGitHubCopilotPreviewTag
   );
 
   context.subscriptions.push(new ExtTelemetry.Reporter(context));
@@ -266,6 +266,11 @@ export async function activate(context: vscode.ExtensionContext) {
     "fx-extension.isChatParticipantUIEntriesEnabled",
     shouldEnableChatParticipantUIEntries
   );
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.hideTeamsAgentPreviewTag",
+    shouldHideGitHubCopilotPreviewTag
+  );
 
   await vscode.commands.executeCommand(
     "setContext",
@@ -287,20 +292,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await vscode.commands.executeCommand(
     "setContext",
-    "fx-extension.isDeclarativeCopilotApp",
-    isDeclarativeCopilotApp
+    "fx-extension.isSensitivityLabelEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
   );
 
   await vscode.commands.executeCommand(
     "setContext",
-    "fx-extension.isAddKnowledgeEnabled",
-    featureFlagManager.getBooleanValue(FeatureFlags.AddKnowledge)
+    "fx-extension.isDeclarativeCopilotApp",
+    isDeclarativeCopilotApp
   );
-  void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
+
+  void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
   await vscode.commands.executeCommand("setContext", "fx-extension.initialized", true);
+
+  await configMgr.checkKiotaInstallation();
 }
 
 // this method is called when your extension is deactivated
@@ -484,11 +492,23 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(invokeTeamsAgent);
 
+  const invokeTeamsAgentWithPreviewTag = vscode.commands.registerCommand(
+    "fx-extension.invokeChatWithPreviewTag",
+    (...args) => Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
+  );
+  context.subscriptions.push(invokeTeamsAgentWithPreviewTag);
+
   const troubleshootSelectedText = vscode.commands.registerCommand(
     "fx-extension.teamsAgentTroubleshootSelectedText",
     (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
   );
   context.subscriptions.push(troubleshootSelectedText);
+
+  const troubleshootSelectedTextWithPreviewTag = vscode.commands.registerCommand(
+    "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
+    (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
+  );
+  context.subscriptions.push(troubleshootSelectedTextWithPreviewTag);
 
   const troubleshootError = vscode.commands.registerCommand(
     "fx-extension.teamsAgentTroubleshootError",
@@ -621,30 +641,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(kiotaRegenerateCommand);
   }
-}
-
-/**
- * Copilot Chat Participant
- */
-function registerChatParticipant(context: vscode.ExtensionContext) {
-  const participant = vscode.chat.createChatParticipant(chatParticipantId, (...args) =>
-    Correlator.run(chatRequestHandler, ...args)
-  );
-  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "teams.png");
-  participant.followupProvider = followupProvider;
-  participant.onDidReceiveFeedback((...args) => Correlator.run(handleFeedback, ...args));
-
-  context.subscriptions.push(
-    participant,
-    vscode.commands.registerCommand(CHAT_EXECUTE_COMMAND_ID, chatExecuteCommandHandler),
-    vscode.commands.registerCommand(CHAT_OPENURL_COMMAND_ID, openUrlCommandHandler)
-  );
-
-  const generateManifestGUID = vscode.commands.registerCommand(
-    "fx-extension.generateManifestGUID",
-    () => Correlator.run(officeDevHandlers.generateManifestGUID)
-  );
-  context.subscriptions.push(generateManifestGUID);
 }
 
 /**
@@ -797,6 +793,12 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(addAuthActionHandler, args)
   );
   context.subscriptions.push(addAuthActionCmd);
+
+  const openOneDriveSharePointUrlCmd = vscode.commands.registerCommand(
+    "fx-extension.openOneDriveSharePointUrl",
+    (...args) => Correlator.run(openOneDriveSharePointUrlHandler, args)
+  );
+  context.subscriptions.push(openOneDriveSharePointUrlCmd);
 }
 
 /**
@@ -964,6 +966,22 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     Correlator.run(refreshCopilotCallback, args)
   );
   context.subscriptions.push(refreshCopilot);
+
+  const setSensitivityLabelCmd = vscode.commands.registerCommand(
+    "fx-extension.setSensitivityLabel",
+    async (...args) => {
+      await Correlator.run(setSensitivityLabelHandler, args);
+    }
+  );
+  context.subscriptions.push(setSensitivityLabelCmd);
+
+  const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
+    "fx-extension.m365PreAuth",
+    async (...args) => {
+      await Correlator.run(m365PreAuthHandler, args);
+    }
+  );
+  context.subscriptions.push(m365PreAuthHandlerCmd);
 }
 
 /**
@@ -1185,6 +1203,12 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
     pattern: `**/${AppPackageFolderName}/apiSpecificationFile/*.{yml,yaml,json}`,
   };
 
+  const agentManifestSelector = {
+    language: "json",
+    scheme: "file",
+    pattern: `**/${AppPackageFolderName}/**/*.json`,
+  };
+
   const aadAppTemplateCodeLensProvider = new AadAppTemplateCodeLensProvider();
 
   const aadAppTemplateSelectorV3 = {
@@ -1303,6 +1327,29 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(diagnosticCollection);
+
+  const oneDriveSharePointCodeLensProvider = new OneDriveSharePointCodeLensProvider();
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      agentManifestSelector,
+      oneDriveSharePointCodeLensProvider
+    )
+  );
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+    const declarativeAgentManifestSelector: vscode.DocumentSelector = {
+      scheme: "file",
+      pattern: `**/${AppPackageFolderName}/*.{json}`,
+    };
+    const declarativeAgentSensitivityLabelCodeLensProvider =
+      new DeclarativeAgentSensitivityLabelCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        declarativeAgentManifestSelector,
+        declarativeAgentSensitivityLabelCodeLensProvider
+      )
+    );
+  }
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {

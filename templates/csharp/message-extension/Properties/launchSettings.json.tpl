@@ -12,7 +12,8 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -51,7 +52,8 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -77,7 +79,8 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },
@@ -98,7 +101,8 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json"
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
     },

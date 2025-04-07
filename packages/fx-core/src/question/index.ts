@@ -22,6 +22,7 @@ import {
   syncManifestQuestionNode,
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
+  setSensitivityLabelNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -35,10 +36,10 @@ export class QuestionNodes {
   createProject(platform: Platform): IQTreeNode {
     // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
-    return scaffoldQuestionForVSCode();
+    return scaffoldQuestionForVSCode(platform);
   }
-  createFromTdp(): IQTreeNode {
-    return createFromTdpNode();
+  createFromTdp(platform: Platform): IQTreeNode {
+    return createFromTdpNode(platform);
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
@@ -99,6 +100,9 @@ export class QuestionNodes {
   }
   addKnowledge(): IQTreeNode {
     return addKnowledgeQuestionNode();
+  }
+  setSensitivityLabel(): IQTreeNode {
+    return setSensitivityLabelNode();
   }
 }
 

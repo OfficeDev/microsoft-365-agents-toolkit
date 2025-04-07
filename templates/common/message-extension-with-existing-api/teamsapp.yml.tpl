@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.7
+version: v1.8
 
 environmentFolderPath: ./env
 
@@ -41,6 +41,8 @@ provision:
       appId: ${{TEAMS_APP_ID}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
+      # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
+      # tokenExchangeMethodType: BasicAuthorizationHeader
       # Uncomment below property to use proof key for code exchange (PKCE)
       # isPKCEEnabled: true      
     writeToEnvironmentFile:

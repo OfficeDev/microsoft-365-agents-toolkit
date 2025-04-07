@@ -7,12 +7,14 @@ import {
   ConcurrentError,
   featureFlagManager,
   FeatureFlags as CoreFeatureFlags,
+  isSandboxedEnabled,
 } from "@microsoft/teamsfx-core";
 import { Uri, commands, window } from "vscode";
 import {
   RecommendedOperations,
   openTestToolMessage,
   openTestToolDisplayMessage,
+  openSandboxMessage,
 } from "../debug/common/debugConstants";
 import {
   setOutputTroubleshootNotificationCount,
@@ -33,6 +35,7 @@ import { ExtensionSource, ExtensionErrors } from "./error";
 import { MaximumNotificationOutputTroubleshootCount } from "../constants";
 import { sleep } from "@microsoft/vscode-ui";
 import * as util from "util";
+import M365TokenInstance from "../commonlib/m365Login";
 
 export async function showError(e: UserError | SystemError) {
   let notificationMessage = e.displayMessage ?? e.message;
@@ -45,16 +48,38 @@ export async function showError(e: UserError | SystemError) {
       return ok<unknown, FxError>(null);
     },
   };
+
+  const runSandbox = {
+    title: localize("teamstoolkit.accountTree.sandboxedTeam.button"),
+    run: async () => {
+      ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MessageDebugInSandbox);
+      await commands.executeCommand(
+        "workbench.action.quickOpen",
+        "debug Debug in Teams Sandbox (Edge)"
+      );
+      return ok<unknown, FxError>(null);
+    },
+  };
+
   const recommendTestTool =
     e.recommendedOperation === RecommendedOperations.DebugInTestTool &&
     workspaceUri?.fsPath &&
     isTestToolEnabledProject(workspaceUri.fsPath);
 
+  const recommendSandbox =
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.SandBoxedTeam) &&
+    (await isSandboxedEnabled(M365TokenInstance));
+
   const shouldRecommendTeamsAgent = featureFlagManager.getBooleanValue(
     CoreFeatureFlags.ChatParticipantUIEntries
   );
+  const troubleshootButtonText = featureFlagManager.getBooleanValue(
+    CoreFeatureFlags.HideGitHubCopilotPreviewTag
+  )
+    ? localize("teamstoolkit.commmands.teamsAgentResolve.title")
+    : localize("teamstoolkit.commmands.teamsAgentResolve.title.preview");
   const troubleshootErrorWithTeamsAgentButton = {
-    title: localize("teamstoolkit.commmands.teamsAgentResolve.title"),
+    title: troubleshootButtonText,
     run: async () => {
       await commands.executeCommand(
         "fx-extension.teamsAgentTroubleshootError",
@@ -64,12 +89,17 @@ export async function showError(e: UserError | SystemError) {
     },
   };
 
-  if (recommendTestTool) {
+  if (recommendSandbox) {
+    const recommendSandboxMessage = openSandboxMessage();
+    e.message += ` ${recommendSandboxMessage}`;
+    notificationMessage += ` ${recommendSandboxMessage}`;
+  } else if (recommendTestTool) {
     const recommendTestToolMessage = openTestToolMessage();
     const recommendTestToolDisplayMessage = openTestToolDisplayMessage();
     e.message += ` ${recommendTestToolMessage}`;
     notificationMessage += ` ${recommendTestToolDisplayMessage}`;
   }
+
   if (isUserCancelError(e)) {
     return;
   } else if ("helpLink" in e && e.helpLink && typeof e.helpLink != "undefined") {
@@ -88,7 +118,11 @@ export async function showError(e: UserError | SystemError) {
     VsCodeLogInstance.error(`code:${errorCode}, message: ${e.message}\n Help link: ${e.helpLink}`);
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     VsCodeLogInstance.debug(`Call stack: ${e.stack || e.innerError?.stack || ""}`);
-    const buttons = recommendTestTool ? [runTestTool, help] : [help];
+    const buttons = recommendSandbox
+      ? [runSandbox]
+      : recommendTestTool
+      ? [runTestTool, help]
+      : [help];
     if (shouldRecommendTeamsAgent) {
       buttons.push(troubleshootErrorWithTeamsAgentButton);
     }
@@ -119,7 +153,11 @@ export async function showError(e: UserError | SystemError) {
         await commands.executeCommand("fx-extension.findSimilarIssue", errorCode);
       },
     };
-    const buttons = recommendTestTool ? [runTestTool, issue] : [issue];
+    const buttons = recommendSandbox
+      ? [runSandbox]
+      : recommendTestTool
+      ? [runTestTool, issue]
+      : [issue];
     if (shouldRecommendTeamsAgent) {
       if (buttons.length >= 2) {
         buttons.push(troubleshootErrorWithTeamsAgentButton);

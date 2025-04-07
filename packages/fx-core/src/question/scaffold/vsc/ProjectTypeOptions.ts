@@ -14,6 +14,7 @@ export class ProjectTypeOptions {
   static officeMetaOSOptionId = "office-meta-os-type";
   static copilotAgentOptionId = "copilot-agent-type";
   static customCopilotOptionId = "custom-copilot-type";
+  static graphConnectorOptionId = "graph-connector-type";
   static startWithGithubCopilotOptionId = "start-with-github-copilot";
 
   static groupName(group: ProjectTypeGroup): string | undefined {
@@ -111,7 +112,21 @@ export class ProjectTypeOptions {
     };
   }
 
+  static graphConnector(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: ProjectTypeOptions.graphConnectorOptionId,
+      label: `${
+        platform === Platform.VSCode ? "$(teamsfx-graph-connector) " : ""
+      }${getLocalizedString("core.createProjectQuestion.createGraphConnector.label")}`,
+      detail: getLocalizedString("core.createProjectQuestion.createGraphConnector.detail"),
+      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.AIAgent),
+    };
+  }
+
   static startWithGithubCopilot(): OptionItem {
+    const description = featureFlagManager.getBooleanValue(FeatureFlags.HideGitHubCopilotPreviewTag)
+      ? undefined
+      : getLocalizedString("core.createProjectQuestion.option.description.preview");
     return {
       id: ProjectTypeOptions.startWithGithubCopilotOptionId,
       label: `$(comment-discussion) ${getLocalizedString(
@@ -119,6 +134,7 @@ export class ProjectTypeOptions {
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),
       groupName: getLocalizedString("core.createProjectQuestion.projectType.copilotGroup.title"),
+      description,
     };
   }
 }

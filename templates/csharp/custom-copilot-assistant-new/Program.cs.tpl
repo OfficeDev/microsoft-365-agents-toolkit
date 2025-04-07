@@ -46,9 +46,6 @@ builder.Services.AddSingleton<OpenAIModel>(sp => new(
 {{/useAzureOpenAI}}
     {
         LogRequests = true,
-{{#CEAEnabled}}
-        Stream = false,
-{{/CEAEnabled}}
     },
     sp.GetService<ILoggerFactory>()
 ));

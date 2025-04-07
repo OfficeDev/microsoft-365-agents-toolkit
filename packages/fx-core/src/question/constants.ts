@@ -37,6 +37,9 @@ export enum QuestionNames {
   ValidateMethod = "validate-method",
   AppPackagePath = "appPackagePath",
   FromExistingApi = "from-existing-api", // group name for creating an App from existing api
+  SearchOpenAPISpecQuery = "search-openapi-spec-query",
+  SelectOpenApiSpec = "select-openapi-spec",
+  OpenAPISpecType = "openapi-spec-type",
   ApiSpecLocation = "openapi-spec-location",
   ApiOperation = "api-operation",
   ActionManifestPath = "external-api-plugin-manifest-path", // manifest path for creating project from existing plugin manifest. Use in Kiota integration, etc.
@@ -106,7 +109,14 @@ export enum QuestionNames {
   PluginManifestFilePath = "plugin-manifest-path",
   PluginOpenApiSpecFilePath = "plugin-opeanapi-spec-path",
   KnowledgeSource = "knowledge-source",
-
+  OneDriveSharePointURL = "oneDriveSharePointURL",
+  OneDriveSharePointContent = "oneDriveSharePointContent",
+  WebContent = "web-content",
+  SearchType = "search-type",
+  GCContent = "graph-connector-content",
+  GCList = "graph-connector-list",
+  GCInput = "graph-connector-input",
+  GCName = "graph-connector-name",
   AuthName = "auth-name",
   TemplateName = "template-name",
 
@@ -118,6 +128,10 @@ export enum QuestionNames {
   OauthPKCE = "oauth-pkce",
   ApiKeyIn = "api-key-in",
   ApiKeyName = "api-key-name",
+
+  TypeSpecProjectType = "type-spec-project-type",
+  DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
+  SensitivityLabel = "sensitivity-label",
 }
 
 export enum ProjectTypeGroup {
@@ -1259,6 +1273,31 @@ export class ActionStartOptions {
   }
 }
 
+export class GCSelectOptions {
+  static list(): OptionItem {
+    return {
+      id: "listConnections",
+      label: getLocalizedString("core.GCSelectOptions.listOption.title"),
+      detail: getLocalizedString("core.GCSelectOptions.listOption.description"),
+    };
+  }
+  static input(): OptionItem {
+    return {
+      id: "inputConnectionId",
+      label: getLocalizedString("core.GCSelectOptions.inputOption.title"),
+      detail: getLocalizedString("core.GCSelectOptions.inputOption.description"),
+      data: "https://aka.ms/teamsfx-graph-connector-id",
+      buttons: [
+        {
+          iconPath: "file-symlink-file",
+          tooltip: getLocalizedString("core.option.tutorial"),
+          command: "fx-extension.openTutorial",
+        },
+      ],
+    };
+  }
+}
+
 export class KnowledgeSourceOptions {
   static webSearch(): OptionItem {
     return {
@@ -1308,6 +1347,7 @@ export class KnowledgeSourceOptions {
     const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
       KnowledgeSourceOptions.oneDriveSharePoint(),
+      KnowledgeSourceOptions.graphConnector(),
       KnowledgeSourceOptions.embeddedKnowledge(),
     ];
     return items;
@@ -1316,11 +1356,43 @@ export class KnowledgeSourceOptions {
   static allWithFeatureFlags(): OptionItem[] {
     const items: OptionItem[] = [
       KnowledgeSourceOptions.webSearch(),
-      KnowledgeSourceOptions.oneDriveSharePoint(),
+      ...(featureFlagManager.getBooleanValue(FeatureFlags.AddODSPKnowledge)
+        ? [KnowledgeSourceOptions.oneDriveSharePoint()]
+        : []),
+      KnowledgeSourceOptions.graphConnector(),
     ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled)) {
       items.push(KnowledgeSourceOptions.embeddedKnowledge());
     }
+    return items;
+  }
+}
+
+export class KnowledgeSearchTypeOptions {
+  static url(): OptionItem {
+    return {
+      id: "url",
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.url"),
+    };
+  }
+  static allWeb(): OptionItem {
+    return {
+      id: "all-web",
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.web"),
+    };
+  }
+  static allOneDriveSharepoint(): OptionItem {
+    return {
+      id: "all-oneDrive-sharePoint",
+      label: getLocalizedString("core.addKnowledgeQuestion.searchType.oneDriveSharepoint"),
+    };
+  }
+  static all(): OptionItem[] {
+    const items: OptionItem[] = [
+      KnowledgeSearchTypeOptions.url(),
+      KnowledgeSearchTypeOptions.allWeb(),
+      KnowledgeSearchTypeOptions.allOneDriveSharepoint(),
+    ];
     return items;
   }
 }

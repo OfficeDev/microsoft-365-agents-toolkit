@@ -894,6 +894,10 @@ describe("aadAppCreate", async () => {
       generateClientSecret: false,
     };
 
+    envRestore = mockedEnv({
+      ["TEAMSFX_ENV"]: "local",
+    });
+
     const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isOk()).to.be.true;
   });
@@ -919,6 +923,10 @@ describe("aadAppCreate", async () => {
       name: "test",
       generateClientSecret: false,
     };
+
+    envRestore = mockedEnv({
+      ["TEAMSFX_ENV"]: "local",
+    });
 
     const result = await createAadAppDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     expect(result.result.isErr()).to.be.true;

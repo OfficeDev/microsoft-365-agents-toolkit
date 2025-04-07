@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   Colors,
   DeclarativeCopilotManifestSchema,
@@ -13,24 +12,35 @@ import {
   Result,
   err,
   ok,
+  Site,
+  DeclarativeCopilotCapabilityName,
+  OneDriveAndSharePointCapability,
+  WebSearchCapability,
+  SharePointIDs,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { EOL } from "os";
 import path from "path";
 import stripBom from "strip-bom";
 import { getDefaultString, getLocalizedString } from "../../../../common/localizeUtils";
-import { FileNotFoundError, JSONSyntaxError, WriteFileError } from "../../../../error/common";
+import {
+  FileNotFoundError,
+  JSONSyntaxError,
+  UserCancelError,
+  WriteFileError,
+} from "../../../../error/common";
 import { SummaryConstant } from "../../../configManager/constant";
-import { getParserOptions } from "../../../generator/openApiSpec/helper";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
-import { EmbeddedKnowledgeCapabilityName, EmbeddedKnowledgeLocalDirectoryName } from "../constants";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../constants";
 import { AppStudioError } from "../errors";
 import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
 import { AppStudioResultFactory } from "../results";
 import { manifestUtils } from "./ManifestUtils";
 import { pluginManifestUtils } from "./PluginManifestUtils";
 import { getResolvedManifest } from "./utils";
+import { Context } from "vm";
+import { listAPIInfo } from "../../../../common/daSpecParser";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -52,6 +62,23 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public readCopilotGptManifestFileSync(
+    path: string
+  ): Result<DeclarativeCopilotManifestSchema, FxError> {
+    if (!fs.existsSync(path)) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+    // Be compatible with UTF8-BOM encoding
+    // Avoid Unexpected token error at JSON.parse()
+    let content = fs.readFileSync(path, { encoding: "utf-8" });
+    content = stripBom(content);
+    try {
+      const manifest = JSON.parse(content) as DeclarativeCopilotManifestSchema;
+      return ok(manifest);
+    } catch (e) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+  }
   /**
    * Get Declarative Copilot Manifest with env value filled.
    * @param path path of declaraitve Copilot
@@ -154,8 +181,8 @@ export class CopilotGptManifestUtils {
       return err(teamsManifestRes.error);
     }
     const filePath = teamsManifestRes.value.copilotExtensions
-      ? teamsManifestRes.value.copilotExtensions.declarativeCopilots?.[0].file
-      : teamsManifestRes.value.copilotAgents?.declarativeAgents?.[0].file;
+      ? teamsManifestRes.value.copilotExtensions.declarativeCopilots?.[0]?.file
+      : teamsManifestRes.value.copilotAgents?.declarativeAgents?.[0]?.file;
     if (!filePath) {
       return err(
         AppStudioResultFactory.UserError(
@@ -189,11 +216,7 @@ export class CopilotGptManifestUtils {
           const specPath = path.resolve(path.dirname(actionPath), specPathRelativePath);
 
           if (await fs.pathExists(specPath)) {
-            const specParser = new SpecParser(
-              specPath,
-              getParserOptions(ProjectType.Copilot, true)
-            );
-            const listResult = await specParser.list();
+            const listResult = await listAPIInfo(specPath);
             const operationIds = actionManifest.functions?.map((func: any) => func.name);
             const newStarters = listResult.APIs.filter(
               (item) =>
@@ -405,11 +428,11 @@ export class CopilotGptManifestUtils {
     }
     let embeddedKnowledgeCapability: any;
     embeddedKnowledgeCapability = declarativeAgentManifest.capabilities.find(
-      (capability) => capability.name === EmbeddedKnowledgeCapabilityName
+      (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
     );
     if (!embeddedKnowledgeCapability) {
       embeddedKnowledgeCapability = {
-        name: EmbeddedKnowledgeCapabilityName,
+        name: DeclarativeCopilotCapabilityName.EmbeddedKnowledge,
         files: [],
       };
       declarativeAgentManifest.capabilities.push(embeddedKnowledgeCapability);
@@ -468,6 +491,189 @@ export class CopilotGptManifestUtils {
     }
 
     return ok(undefined);
+  }
+
+  public async addOneDriveSharePointCapability(
+    agentManifestPath: string,
+    items_by_sharepoint_ids: SharePointIDs | null,
+    items_by_url: Site | null,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const newCapabilityData: OneDriveAndSharePointCapability = {
+      name: DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+    };
+
+    const capability = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.OneDriveAndSharePoint
+    ) as OneDriveAndSharePointCapability | undefined;
+
+    if (items_by_url) {
+      newCapabilityData.items_by_url = capability ? capability.items_by_url || [] : [];
+      newCapabilityData.items_by_url.push(items_by_url);
+    }
+    if (items_by_sharepoint_ids) {
+      newCapabilityData.items_by_sharepoint_ids = capability
+        ? capability.items_by_sharepoint_ids || []
+        : [];
+      newCapabilityData.items_by_sharepoint_ids.push(items_by_sharepoint_ids);
+    }
+
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      DeclarativeCopilotCapabilityName.OneDriveAndSharePoint,
+      manifestRes,
+      newCapabilityData
+    );
+  }
+
+  public async addWebSearchCapability(
+    context: Context,
+    agentManifestPath: string,
+    items_by_url: Site | null,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const newCapabilityData: WebSearchCapability = {
+      name: DeclarativeCopilotCapabilityName.WebSearch,
+    };
+    const capability = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.WebSearch
+    ) as WebSearchCapability | undefined;
+
+    // del capability warning
+    if (items_by_url === null && capability?.sites?.length) {
+      const confirmRes = await context.userInteraction.showMessage(
+        "warn",
+        getLocalizedString("core.addKnowledge.doubleConfirm"),
+        true,
+        getLocalizedString("core.addKnowledge.continue")
+      );
+
+      if (confirmRes.isErr()) {
+        return err(confirmRes.error);
+      } else if (confirmRes.value !== getLocalizedString("core.addKnowledge.continue")) {
+        return err(new UserCancelError());
+      }
+    }
+
+    if (items_by_url) {
+      newCapabilityData.sites = capability ? capability.sites || [] : [];
+      newCapabilityData.sites.push(items_by_url);
+    }
+
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      DeclarativeCopilotCapabilityName.WebSearch,
+      manifestRes,
+      newCapabilityData
+    );
+  }
+
+  public async addGCCapability(
+    agentManifestPath: string,
+    inputConnectionIds: string[],
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    let capability: any = agentManifest.capabilities.find(
+      (cap) => cap.name === DeclarativeCopilotCapabilityName.GraphConnectors
+    );
+    if (!capability) {
+      capability = { name: DeclarativeCopilotCapabilityName.GraphConnectors, connections: [] };
+      agentManifest.capabilities.push(capability);
+    }
+    if (!capability.connections) {
+      capability.connections = [];
+    }
+    const connections = capability.connections;
+    inputConnectionIds.forEach((id) => {
+      if (
+        !connections.some(
+          (connection: { connection_id: string }) => connection.connection_id === id
+        )
+      ) {
+        connections.push({ connection_id: id });
+      }
+    });
+
+    return this.addOrUpdateCapability(
+      agentManifestPath,
+      DeclarativeCopilotCapabilityName.GraphConnectors,
+      manifestRes,
+      {
+        connections,
+      }
+    );
+  }
+
+  /**
+   * Updates or adds a capability in the agent manifest.
+   *
+   * @param agentManifestPath - The path to the agent manifest file.
+   * @param capabilityName - The name of the capability to update or add.
+   * @param manifestRes - The result containing the agent manifest schema.
+   * @param capabilityData - The data for the capability to update or add.
+   */
+  async addOrUpdateCapability(
+    agentManifestPath: string,
+    capabilityName: DeclarativeCopilotCapabilityName,
+    manifestRes: Result<DeclarativeCopilotManifestSchema, FxError>,
+    capabilityData: any
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const agentManifest = manifestRes.value;
+    if (!agentManifest.capabilities) {
+      agentManifest.capabilities = [];
+    }
+
+    const newCapability: any = { name: capabilityName, ...capabilityData };
+
+    const capabilityIndex = agentManifest.capabilities.findIndex(
+      (cap) => cap.name === capabilityName
+    );
+    if (capabilityIndex !== -1) {
+      agentManifest.capabilities[capabilityIndex] = newCapability;
+    } else {
+      agentManifest.capabilities.push(newCapability);
+    }
+
+    const updateGptManifestRes = await this.writeCopilotGptManifestFile(
+      agentManifest,
+      agentManifestPath
+    );
+    if (updateGptManifestRes.isErr()) {
+      return err(updateGptManifestRes.error);
+    } else {
+      return ok(agentManifest);
+    }
   }
 }
 

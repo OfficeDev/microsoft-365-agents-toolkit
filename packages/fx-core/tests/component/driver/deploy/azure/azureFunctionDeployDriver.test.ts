@@ -14,7 +14,7 @@ import * as Models from "@azure/arm-appservice/src/models";
 import * as fileOpt from "../../../../../src/component/utils/fileOperation";
 import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
 import { assert, expect } from "chai";
-import fs from "fs-extra";
+import * as fs from "fs-extra";
 import { AzureFunctionDeployDriver } from "../../../../../src/component/driver/deploy/azure/azureFunctionDeployDriver";
 import {
   MockedAzureAccountProvider,
@@ -58,6 +58,24 @@ describe("Azure Function Deploy Driver test", () => {
 
   beforeEach(() => {
     sandbox.stub(tools, "waitSeconds").resolves();
+    const fetchStub = sandbox.stub(global, "fetch");
+    fetchStub.callsFake((input: any) => {
+      const url: string = typeof input === "string" ? input : input.url;
+      const info = url.split(/[\/|?]/);
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            properties: {
+              enabledHostNames: [
+                `${info[info.length - 2]}.azurewebsites.net`,
+                `${info[info.length - 2]}.scm.azurewebsites.net`,
+              ],
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        )
+      );
+    });
   });
 
   afterEach(() => {

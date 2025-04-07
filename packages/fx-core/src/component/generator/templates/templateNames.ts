@@ -11,6 +11,7 @@ export enum TemplateNames {
   DeclarativeAgentWithActionFromScratchOAuth = "api-plugin-from-scratch-oauth", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithActionFromExistingApiSpec = "api-plugin-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
 
   // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
@@ -20,6 +21,9 @@ export enum TemplateNames {
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
+
+  // graph connector
+  GraphConnector = "graph-connector", // vsc only
 
   // tab
   Tab = "non-sso-tab",

@@ -17,7 +17,20 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "Knowledge source.",
     required: true,
     default: "web-search",
-    choices: ["web-search", "oneDrive-sharePoint", "embedded-knowledge"],
+    choices: ["web-search", "oneDrive-sharePoint", "graph-connector", "embedded-knowledge"],
+  },
+  {
+    name: "search-type",
+    type: "string",
+    description: "Select Search Type",
+    required: true,
+    default: "url",
+    choices: ["url", "all-web", "all-oneDrive-sharePoint"],
+  },
+  {
+    name: "web-content",
+    type: "string",
+    description: "An absolute URL to a site to be searched for content.",
   },
   {
     name: "teams-manifest-file",
@@ -26,7 +39,35 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     shortName: "t",
     description:
       "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    required: true,
     default: "./appPackage/manifest.json",
+  },
+  {
+    name: "oneDriveSharePointURL",
+    type: "string",
+    description: "OneDrive or SharePoint Content",
+  },
+  {
+    name: "oneDriveSharePointContent",
+    type: "string",
+    description: "OneDrive or SharePoint Content",
+  },
+  {
+    name: "graph-connector-content",
+    type: "string",
+    description: "Graph Connector Content",
+    choices: ["listConnections", "inputConnectionId"],
+  },
+  {
+    name: "graph-connector-list",
+    type: "array",
+    description: "Select one or more Graph Connectors as capability source",
+    default: [],
+  },
+  {
+    name: "graph-connector-input",
+    type: "string",
+    description: "a connection ID for Graph Connector",
   },
   {
     name: "embedded-knowledge-files",

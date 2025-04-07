@@ -22,17 +22,23 @@ export class FeatureFlagName {
   static readonly NewProjectType = "TEAMSFX_NEW_PROJECT_TYPE";
   static readonly ChatParticipant = "TEAMSFX_CHAT_PARTICIPANT";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
+  static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
   static readonly SMEOAuth = "SME_OAUTH";
   static readonly ShowDiagnostics = "TEAMSFX_SHOW_DIAGNOSTICS";
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
+  static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
   static readonly ShareEnabled = "TEAMSFX_SHARE";
-  static readonly AddKnowledge = "TEAMSFX_ADD_KNOWLEDGE";
+  static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
+  static readonly TypeSpec = "TEAMSFX_TYPESPEC";
+  static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
+  static readonly GraphConnector = "TEAMSFX_GRAPH_CONNECTOR";
+  static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
 }
 
 export interface FeatureFlag {
@@ -66,6 +72,10 @@ export class FeatureFlags {
     name: FeatureFlagName.ChatParticipantUIEntries,
     defaultValue: "false",
   };
+  static readonly HideGitHubCopilotPreviewTag = {
+    name: FeatureFlagName.HideGitHubCopilotPreviewTag,
+    defaultValue: "false",
+  };
   static readonly SMEOAuth = { name: FeatureFlagName.SMEOAuth, defaultValue: "false" };
   static readonly ShowDiagnostics = {
     name: FeatureFlagName.ShowDiagnostics,
@@ -87,6 +97,11 @@ export class FeatureFlags {
     name: FeatureFlagName.KiotaIntegration,
     defaultValue: "false",
   };
+
+  static readonly KiotaNPMIntegration = {
+    name: FeatureFlagName.KiotaNPMIntegration,
+    defaultValue: "false",
+  };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
     defaultValue: "false",
@@ -103,8 +118,24 @@ export class FeatureFlags {
     name: FeatureFlagName.ShareEnabled,
     defaultValue: "false",
   };
-  static readonly AddKnowledge = {
-    name: FeatureFlagName.AddKnowledge,
+  static readonly AddODSPKnowledge = {
+    name: FeatureFlagName.AddODSPKnowledge,
+    defaultValue: "false",
+  };
+  static readonly TypeSpec = {
+    name: FeatureFlagName.TypeSpec,
+    defaultValue: "false",
+  };
+  static readonly SandBoxedTeam = {
+    name: FeatureFlagName.SandBoxedTeam,
+    defaultValue: "false",
+  };
+  static readonly GraphConnector = {
+    name: FeatureFlagName.GraphConnector,
+    defaultValue: "false",
+  };
+  static readonly SensitivityLabelEnabled = {
+    name: FeatureFlagName.SensitivityLabelEnabled,
     defaultValue: "false",
   };
 }

@@ -84,6 +84,8 @@ provision:
       clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
+      # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
+      # tokenExchangeMethodType: BasicAuthorizationHeader
       identityProvider: MicrosoftEntra
     writeToEnvironmentFile:
       configurationId: AADAUTHCODE_CONFIGURATION_ID
@@ -95,6 +97,8 @@ provision:
       appId: ${{TEAMS_APP_ID}}
       clientId: ${{AAD_APP_CLIENT_ID}}
       clientSecret: ${{SECRET_AAD_APP_CLIENT_SECRET}}
+      # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
+      # tokenExchangeMethodType: BasicAuthorizationHeader
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
     writeToEnvironmentFile:

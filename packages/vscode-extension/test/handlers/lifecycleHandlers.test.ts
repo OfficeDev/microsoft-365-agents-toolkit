@@ -1,4 +1,4 @@
-import { err, ok, Platform, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   AppDefinition,
   FeatureFlagName,
@@ -25,19 +25,20 @@ import {
   scaffoldFromDeveloperPortalHandler,
   addKnowledgeHandler,
   shareHandler,
+  setSensitivityLabelHandler,
+  m365PreAuthHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
-import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import * as workspaceUtils from "../../src/utils/workspaceUtils";
 import M365TokenInstance from "../../src/commonlib/m365Login";
 import { MockCore } from "../mocks/mockCore";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import VsCodeLogInstance from "../../src/commonlib/log";
+import { MockTools } from "../mocks/mockTools";
 
 describe("Lifecycle handlers", () => {
   const sandbox = sinon.createSandbox();
@@ -636,6 +637,57 @@ describe("Lifecycle handlers", () => {
       await addKnowledgeHandler();
 
       sinon.assert.calledOnce(addKnowledge);
+    });
+  });
+
+  describe("setSensitivityLabelHandler", () => {
+    it("runCommand successfully", async () => {
+      const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler(args);
+    });
+
+    it("runCommand successfully - no args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler([]);
+    });
+
+    it("runCommand successfully - undefined array args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler([undefined]);
+    });
+
+    it("runCommand successfully - undefined args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler(undefined as any);
+    });
+
+    it("runCommand fails", async () => {
+      const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
+      const error = new UserError("source", "name", "message");
+      sandbox.stub(shared, "runCommand").resolves(err(error));
+
+      await setSensitivityLabelHandler(args);
+    });
+  });
+
+  describe("m365PreAuthHandler", () => {
+    globalVariables.setTools(new MockTools());
+    it("get access token successfully", async () => {
+      const args = [{ scopes: ["scope1"] }];
+      sandbox
+        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(ok("token"));
+      await m365PreAuthHandler(args);
+    });
+
+    it("get access token fails", async () => {
+      const args = [{ scopes: ["scope1"] }];
+      const error = new UserError("source", "name", "message");
+      sandbox
+        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(err(error));
+      await m365PreAuthHandler(args);
     });
   });
 });

@@ -25,7 +25,16 @@ class OutlookTabTestCase extends CaseFactory {
     sampledebugContext: SampledebugContext,
     teamsAppId: string
   ): Promise<Page> {
-    return await reopenPage(sampledebugContext.context!, teamsAppId);
+    return await reopenPage(
+      sampledebugContext.context!,
+      teamsAppId,
+      undefined,
+      undefined,
+      {
+        projectPath: sampledebugContext.projectPath,
+        env: "local",
+      }
+    );
   }
 }
 

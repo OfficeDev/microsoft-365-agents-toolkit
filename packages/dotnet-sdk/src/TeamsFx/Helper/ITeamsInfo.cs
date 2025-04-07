@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema.Teams;
+using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Extensions.Teams.Models;
 
 namespace Microsoft.TeamsFx.Helper
 {

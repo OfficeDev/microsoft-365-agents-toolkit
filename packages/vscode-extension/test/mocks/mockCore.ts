@@ -126,6 +126,9 @@ export class MockCore {
   async syncManifest(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
+  async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
   async getProjectInfo(
     projectPath: string,
     env: string
