@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>{{TargetFramework}}</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>$(NoWarn);SKEXP0110;SKEXP0010</NoWarn>
   </PropertyGroup>
 
