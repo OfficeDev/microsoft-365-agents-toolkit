@@ -120,9 +120,6 @@ export class CustomCopilotCapabilityOptions {
   }
 
   static weatherAgentBot(): OptionItem {
-    const description = featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
-      ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
-      : undefined;
     return {
       id: "custom-copilot-weather-agent",
       label: getLocalizedString(
@@ -131,7 +128,6 @@ export class CustomCopilotCapabilityOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
       ),
-      description: description,
       data: TemplateNames.CustomCopilotWeatherAgent,
     };
   }
