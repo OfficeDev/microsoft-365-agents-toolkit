@@ -71,7 +71,7 @@ class IntelligentDataChartTestCase extends CaseFactory {
     const envFilePath = path.resolve(
       sampledebugContext.projectPath,
       "env",
-      ".env.local.user"
+      `.env.${env}.user`
     );
     editDotEnvFile(envFilePath, "SQL_USER", azSqlHelper?.sqlAdmin ?? "fake");
     editDotEnvFile(
