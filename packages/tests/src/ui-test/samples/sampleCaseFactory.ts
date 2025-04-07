@@ -345,27 +345,10 @@ export abstract class CaseFactory {
           options?.repoPath ?? "./resource"
         );
         await sampledebugContext.before();
-        try {
-          // use before middleware to process typical sample
-          azSqlHelper = await onBefore(
-            sampledebugContext,
-            "local",
-            azSqlHelper
-          );
-          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
-        } catch (error) {}
       });
 
       afterEach(async function () {
         this.timeout(Timeout.finishTestCase);
-        try {
-          await onAfter(sampledebugContext, "local");
-          await onAfter(sampledebugContext, "dev");
-        } catch (error) {}
-        // setTimeout(() => {
-        //   if (successFlag) process.exit(0);
-        //   else process.exit(1);
-        // }, 30000);
       });
 
       it(
@@ -380,6 +363,11 @@ export abstract class CaseFactory {
             console.log("there is no local debug for this sample");
             this.skip();
           }
+          azSqlHelper = await onBefore(
+            sampledebugContext,
+            "local",
+            azSqlHelper
+          );
           try {
             // create project
             await sampledebugContext.openResourceFolder();
@@ -602,6 +590,11 @@ export abstract class CaseFactory {
 
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
+          await onAfter(sampledebugContext, "local");
+          setTimeout(() => {
+            if (successFlag) process.exit(0);
+            else process.exit(1);
+          }, 30000);
         }
       );
 
@@ -617,6 +610,7 @@ export abstract class CaseFactory {
             console.log("there is no remote debug for this sample");
             this.skip();
           }
+          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
           try {
             // create project
             await sampledebugContext.openResourceFolder();
@@ -697,6 +691,7 @@ export abstract class CaseFactory {
 
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
+          await onAfter(sampledebugContext, "dev");
         }
       );
     });
