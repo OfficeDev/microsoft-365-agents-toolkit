@@ -13,7 +13,6 @@ export const shareCommand: CLICommand = {
   telemetry: {
     event: TelemetryEvent.Share,
   },
-  defaultInteractiveOption: false,
   handler: async (ctx: CLIContext) => {
     const inputs = ctx.optionValues as InputsWithProjectPath;
     const core = getFxCore();

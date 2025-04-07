@@ -2,7 +2,16 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { LogProvider, SystemError, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
+import {
+  err,
+  FxError,
+  LogProvider,
+  ok,
+  Result,
+  SystemError,
+  TeamsAppManifest,
+  UserError,
+} from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";
@@ -23,6 +32,9 @@ import { MosServiceEndpoint } from "./serviceConstant";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import stripBom from "strip-bom";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import { title } from "process";
+import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
+import { M365AppDefinition, M365AppOwners, M365OwnerType } from "./interface";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -496,6 +508,81 @@ export class PackageService {
     }
   }
 
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async grantPermission(
+    token: string,
+    titleId: string,
+    user: AppUser
+  ): Promise<Result<undefined, FxError>> {
+    try {
+      const appRes = await this.previewApp(token, titleId);
+      if (appRes.isErr()) {
+        return err(appRes.error);
+      }
+      const owners = appRes.value.owners;
+      if (this.isExistingUser(owners, user)) {
+        return ok(undefined);
+      }
+      const newOwners = owners.map((owner) => {
+        return {
+          EntityId: owner.entityId,
+          EntityType: "User",
+        };
+      });
+      newOwners.push({
+        EntityId: user.aadId,
+        EntityType: "User",
+      });
+
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      this.logger?.verbose(`Granting permission to user ${user.displayName} ...`);
+      const response = await this.axiosInstance.put(
+        `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
+        {
+          Identities: newOwners,
+        },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async previewApp(
+    token: string,
+    titleId: string
+  ): Promise<Result<M365AppDefinition, FxError>> {
+    try {
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      const response = await this.axiosInstance.get(
+        `/marketplace/v1/users/titles/${titleId}/preview?idType=TitleId`,
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return ok(response.data);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
   public async getCopilotStatus(
     token: string,
     ensureUpToDate = false
@@ -529,6 +616,19 @@ export class PackageService {
       );
       return undefined;
     }
+  }
+
+  private isExistingUser(owners: M365AppOwners[], user: AppUser): boolean {
+    if (owners.length === 0) {
+      return false;
+    }
+    // check entityid and aad id
+    for (const owner of owners) {
+      if (owner.entityId === user.aadId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private traceError(error: any): any {

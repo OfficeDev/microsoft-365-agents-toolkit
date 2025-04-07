@@ -895,15 +895,26 @@ export class FxCore {
         return err(mosTokenRes.error);
       }
       const mosToken = mosTokenRes.value;
-      // 1. grant TDP permission
       for (const email of emails) {
+        // 1. grant TDP permission
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
         if (!userInfo) {
           return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
         }
         await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+
+        // 2. grant mos permission
+        const res = await PackageService.GetSharedInstance().grantPermission(
+          mosToken,
+          sharedTitleId,
+          userInfo
+        );
+        if (res.isErr()) {
+          return err(res.error);
+        }
       }
-      // 2. grant mos permission
+      const msg = getLocalizedString("core.common.shareToUser.success", emails);
+      TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else {
       return err(new InputValidationError("shareOption", "Invalid share option"));
@@ -2978,7 +2989,6 @@ export class FxCore {
       projectPath,
       (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath as string
     );
-    console.log("resolvedAppPackagePath", resolvedAppPackagePath);
     const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
