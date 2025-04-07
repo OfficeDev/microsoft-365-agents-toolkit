@@ -122,6 +122,7 @@
       "treeview-tab-manifest",
       "treeview-quickstart",
       "treeview-samples",
+      "treeview-newproject-in-exist-project",
       "telemetry@open-vscode",
       "localdebug-bot-ts",
       "localdebug-obo-tab-ts",
