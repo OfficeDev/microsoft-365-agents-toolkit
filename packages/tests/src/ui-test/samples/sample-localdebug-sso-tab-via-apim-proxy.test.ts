@@ -47,7 +47,6 @@ new SsotabApimTestCase(
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],
   {
-    debug: "cli",
     skipRemote: true,
   }
 ).test();
