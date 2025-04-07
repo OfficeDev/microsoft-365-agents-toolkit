@@ -152,6 +152,7 @@ export abstract class CaseFactory {
     container?: boolean;
     dockerFolder?: string;
     skipDeploy?: boolean;
+    skipLocal?: boolean;
     skipRemote?: boolean;
   };
 
@@ -177,6 +178,7 @@ export abstract class CaseFactory {
       container?: boolean;
       dockerFolder?: string;
       skipDeploy?: boolean;
+      skipLocal?: boolean;
       skipRemote?: boolean;
     } = {}
   ) {
@@ -377,6 +379,10 @@ export abstract class CaseFactory {
         },
         async function () {
           this.timeout(Timeout.testAzureCase);
+          if (options?.skipLocal) {
+            console.log("there is no local debug for this sample");
+            this.skip();
+          }
           try {
             // create project
             await sampledebugContext.openResourceFolder();
