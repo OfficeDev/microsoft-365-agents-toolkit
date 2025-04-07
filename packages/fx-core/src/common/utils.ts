@@ -22,6 +22,7 @@ import { DriverDefinition } from "../component/configManager/interface";
 import * as path from "path";
 import AdmZip from "adm-zip";
 import { Constants } from "../component/driver/teamsApp/constants";
+import { envUtil } from "../component/utils/envUtil";
 
 export async function waitSeconds(second: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, second * 1000));
@@ -102,6 +103,11 @@ export async function parseShareAppActionYamlConfig(
         getLocalizedString("error.share.appPackageConfigNotFound")
       )
     );
+  }
+
+  const readEnvRes = await envUtil.readEnv(projectPath, "dev");
+  if (readEnvRes.isErr()) {
+    return err(readEnvRes.error);
   }
   const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
   const resolvedAppPackagePath = path.resolve(
