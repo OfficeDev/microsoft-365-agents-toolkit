@@ -166,7 +166,6 @@ export function customEngineAgentProjectTypeNode(): IQTreeNode {
         CustomCopilotCapabilityOptions.basicChatbot(),
         CustomCopilotCapabilityOptions.customCopilotRag(),
         CustomCopilotCapabilityOptions.aiAgent(),
-        CustomCopilotCapabilityOptions.weatherAgentBot(),
       ],
       placeholder: getLocalizedString(
         "core.createProjectQuestion.projectType.customCopilot.placeholder"
