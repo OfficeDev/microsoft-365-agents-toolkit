@@ -86,7 +86,7 @@
     }
   },
   "deploy": {
-    "description": "Run the deploy stage in m365agents.yml or tem365agentsamsapp.local.yml."
+    "description": "Run the deploy stage in m365agents.yml or 365agents.local.yml."
   },
   "doctor": {
     "description": "Prerequiste checker for building Microsoft Teams apps."
