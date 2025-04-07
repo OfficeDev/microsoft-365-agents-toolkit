@@ -33,13 +33,7 @@ class LargeNotiTestCase extends CaseFactory {
         "env",
         `.env.${env}`
       );
-
-      let envFileString = "";
-      try {
-        envFileString = fs.readFileSync(envFile, "utf-8");
-      } catch (error) {
-        envFileString = "";
-      }
+      let envFileString = fs.readFileSync(envFile, "utf-8");
       envFileString += `\nSERVICE_BUS_QUEUE_NAME=${azServiceBusHelper.queueName}`;
       fs.writeFileSync(envFile, envFileString);
       console.log(`add endpoint ${envFileString} to .env.${env} file`);
@@ -61,17 +55,17 @@ class LargeNotiTestCase extends CaseFactory {
         `add SECRET_STORAGE_ACCOUNT_KEY ${process.env["STORAGE_ACCOUNT_KEY"]} to .env.${env}.user file`
       );
 
-      // add service bus name into local.settings.json
+      // add connect string into local.setting.json
       const configFilePath = path.resolve(
         sampledebugContext.projectPath,
         "local.settings.json"
       );
       const configFile = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
-      configFile["Values"]["SERVICE_BUS_QUEUE_NAME"] =
-        azServiceBusHelper.queueName;
+      configFile["Values"]["SERVICE_BUS_CONNECTION_STRING"] =
+        azServiceBusHelper.connectString;
       console.log(JSON.stringify(configFile));
       fs.writeFileSync(configFilePath, JSON.stringify(configFile));
-      console.log(`update queue name to ${configFilePath} file`);
+      console.log(`update connect string to ${configFilePath} file`);
     }
   }
 
