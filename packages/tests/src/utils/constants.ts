@@ -326,26 +326,33 @@ export class TreeViewCommands {
 }
 
 export class CommandPaletteCommands {
-  public static readonly QuickStartCommand: string = "Teams: Get Started";
-  public static readonly AccountsCommand: string = "Teams: Accounts";
-  public static readonly SamplesCommand: string = "Teams: View Samples";
-  public static readonly CreateProjectCommand: string = "Teams: Create New App";
+  public static readonly QuickStartCommand: string =
+    "Microsoft 365 Agents: Get Started";
+  public static readonly AccountsCommand: string =
+    "Microsoft 365 Agents: Accounts";
+  public static readonly SamplesCommand: string =
+    "Microsoft 365 Agents: View Samples";
+  public static readonly CreateProjectCommand: string =
+    "Microsoft 365 Agents: Create New App";
   public static readonly ManifestValidateCommand: string =
-    "Teams: Validate Application";
+    "Microsoft 365 Agents: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
-    "Teams: Zip Teams App Package";
-  public static readonly ProvisionCommand: string = "Teams: Provision";
-  public static readonly DeployCommand: string = "Teams: Deploy";
-  public static readonly PublishCommand: string = "Teams: Publish";
+    "Microsoft 365 Agents: Zip Teams App Package";
+  public static readonly ProvisionCommand: string =
+    "Microsoft 365 Agents: Provision";
+  public static readonly DeployCommand: string = "Microsoft 365 Agents: Deploy";
+  public static readonly PublishCommand: string =
+    "Microsoft 365 Agents: Publish";
   public static readonly CreateEnvironmentCommand: string =
-    "Teams: Create New Environment";
+    "Microsoft 365 Agents: Create New Environment";
   public static readonly DeployAadAppManifestCommand: string =
-    "Teams: Update Microsoft Entra App";
+    "Microsoft 365 Agents: Update Microsoft Entra App";
   public static readonly UpgradeProjectCommand: string =
-    "Teams: Upgrade Project";
+    "Microsoft 365 Agents: Upgrade Project";
   public static readonly InstallTTK: string =
     "Extensions: Install Specific Version of Extension";
-  public static readonly AddSpfxWebPart: string = "Teams: Add SPFx web part";
+  public static readonly AddSpfxWebPart: string =
+    "Microsoft 365 Agents: Add SPFx web part";
 }
 
 export type AppType =
