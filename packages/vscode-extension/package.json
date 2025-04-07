@@ -1020,6 +1020,12 @@
         "title": "%teamsagent.walkthrough.title%",
         "category": "Teams",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
+      },
+      {
+        "command": "fx-extension.removeSharedAccess",
+        "title": "%teamstoolkit.commands.removeSharedAccess%",
+        "category": "Teams",
+        "enablement": "fx-extension.isSharedEnabled"
       }
     ],
     "taskDefinitions": [

@@ -129,6 +129,7 @@ import {
   scaffoldFromDeveloperPortalHandler,
   setSensitivityLabelHandler,
   shareHandler,
+  shareRemoveHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -294,6 +295,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isSensitivityLabelEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isSharedEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.ShareEnabled)
   );
 
   await vscode.commands.executeCommand(
@@ -974,6 +981,14 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     }
   );
   context.subscriptions.push(setSensitivityLabelCmd);
+
+  const removeSharedAccessCmd = vscode.commands.registerCommand(
+    "fx-extension.removeSharedAccess",
+    async (...args) => {
+      await Correlator.run(shareRemoveHandler, args);
+    }
+  );
+  context.subscriptions.push(removeSharedAccessCmd);
 
   const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
     "fx-extension.m365PreAuth",

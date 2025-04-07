@@ -121,6 +121,11 @@ export async function shareHandler(...args: unknown[]): Promise<Result<null, FxE
   return await runCommand(Stage.share);
 }
 
+export async function shareRemoveHandler(...args: unknown[]): Promise<Result<null, FxError>> {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareRemoveStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.shareRemove);
+}
+
 export async function addWebpartHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddWebpartStart, getTriggerFromProperty(args));
   return await runCommand(Stage.addWebpart);

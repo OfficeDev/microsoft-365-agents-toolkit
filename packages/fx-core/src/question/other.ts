@@ -1719,7 +1719,7 @@ export function removeSharedAccessNode(): IQTreeNode {
     },
     children: [
       {
-        data: shareOptionQuestion(),
+        data: selectUsersToRemoveSharedAccess(),
       },
     ],
   };
@@ -1766,7 +1766,7 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
 
       const options = [];
       for (const user of app.userList) {
-        if (user.aadId == operatorId) {
+        if (user.aadId === operatorId) {
           continue;
         }
         options.push({

@@ -19,10 +19,9 @@ import { pathUtils } from "../component/utils/pathUtils";
 import { metadataUtil } from "../component/utils/metadataUtil";
 import { resolve } from "../component/configManager/lifecycle";
 import { DriverDefinition } from "../component/configManager/interface";
-import path from "path";
+import * as path from "path";
 import AdmZip from "adm-zip";
 import { Constants } from "../component/driver/teamsApp/constants";
-import * as shareToOthers from "../component/driver/share/shareToOthers";
 
 export async function waitSeconds(second: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, second * 1000));
@@ -82,19 +81,19 @@ export async function parseShareAppActionYamlConfig(
     );
   }
   const shareToOthersAction = projectModel.share.driverDefs.find(
-    (d) => d.uses === shareToOthers.actionName
+    (d) => d.uses === "teamsApp/shareToOthers"
   );
   if (!shareToOthersAction) {
     return err(
       new UserError(
         "FxCore",
         "Share to Users",
-        getLocalizedString("error.share.shareActionConfigNotFound", shareToOthers.actionName)
+        getLocalizedString("error.share.shareActionConfigNotFound", "teamsApp/shareToOthers")
       )
     );
   }
   // 1. get manifest id
-  const appPackagePath = (shareToOthersAction.with as shareToOthers.ShareArgs)?.appPackagePath;
+  const appPackagePath = (shareToOthersAction.with as any)?.appPackagePath;
   if (!appPackagePath) {
     return err(
       new UserError(
@@ -107,7 +106,7 @@ export async function parseShareAppActionYamlConfig(
   const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
   const resolvedAppPackagePath = path.resolve(
     projectPath,
-    (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath as string
+    (resolvedDriver.with as any).appPackagePath as string
   );
   const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
   const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
