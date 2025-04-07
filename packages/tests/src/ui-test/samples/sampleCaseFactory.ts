@@ -347,8 +347,12 @@ export abstract class CaseFactory {
         await sampledebugContext.before();
       });
 
-      afterEach(async function () {
+      after(async function () {
         this.timeout(Timeout.finishTestCase);
+        setTimeout(() => {
+          if (successFlag) process.exit(0);
+          else process.exit(1);
+        }, 30000);
       });
 
       it(
@@ -591,10 +595,6 @@ export abstract class CaseFactory {
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
           await onAfter(sampledebugContext, "local");
-          setTimeout(() => {
-            if (successFlag) process.exit(0);
-            else process.exit(1);
-          }, 30000);
         }
       );
 
@@ -692,10 +692,6 @@ export abstract class CaseFactory {
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
           await onAfter(sampledebugContext, "dev");
-          setTimeout(() => {
-            if (successFlag) process.exit(0);
-            else process.exit(1);
-          }, 30000);
         }
       );
     });
