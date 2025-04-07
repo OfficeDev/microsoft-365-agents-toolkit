@@ -54,17 +54,19 @@ class LargeNotiTestCase extends CaseFactory {
       `add SECRET_STORAGE_ACCOUNT_KEY ${process.env["STORAGE_ACCOUNT_KEY"]} to .env.${env}.user file`
     );
 
-    // add connect string into local.setting.json
-    const configFilePath = path.resolve(
-      sampledebugContext.projectPath,
-      "local.settings.json"
-    );
-    const configFile = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
-    configFile["Values"]["SERVICE_BUS_CONNECTION_STRING"] =
-      azServiceBusHelper.connectString;
-    console.log(JSON.stringify(configFile));
-    fs.writeFileSync(configFilePath, JSON.stringify(configFile));
-    console.log(`update connect string to ${configFilePath} file`);
+    if (env === "local") {
+      // add service bus name into local.settings.json
+      const configFilePath = path.resolve(
+        sampledebugContext.projectPath,
+        "local.settings.json"
+      );
+      const configFile = JSON.parse(fs.readFileSync(configFilePath, "utf-8"));
+      configFile["Values"]["SERVICE_BUS_QUEUE_NAME"] =
+        azServiceBusHelper.queueName;
+      console.log(JSON.stringify(configFile));
+      fs.writeFileSync(configFilePath, JSON.stringify(configFile));
+      console.log(`update queue name to ${configFilePath} file`);
+    }
   }
 
   override async onAfter(
