@@ -73,7 +73,8 @@
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}"
+                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}",
+                  "DEFAULT_CHANNEL_ID": "emulator"
                 }
             },
             "windows": {

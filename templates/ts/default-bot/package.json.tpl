@@ -23,11 +23,8 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/agents-activity-schema": "^0.1.23-g0d130f8332",
-        "@microsoft/agents-bot-hosting": "^0.1.24",
-        "@microsoft/agents-bot-hosting-teams": "^0.1.24",
-        "express": "^5.0.1",
-        "express-rate-limit": "^7.5.0"
+        "@microsoft/agents-hosting": "^0.1.49",
+        "express": "^5.0.1"
     },
     "devDependencies": {
         "@types/express": "^5.0.0",

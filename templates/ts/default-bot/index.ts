@@ -1,18 +1,17 @@
 import {
+  AuthConfiguration,
+  authorizeJWT,
   CloudAdapter,
+  loadAuthConfigFromEnv,
   Request,
   TurnContext,
-  authorizeJWT,
-  loadBotAuthConfigFromEnv,
-} from "@microsoft/agents-bot-hosting";
+} from "@microsoft/agents-hosting";
 import express, { Response } from "express";
-import rateLimit from "express-rate-limit";
 
-// This bot's main dialog
-import { TeamsBot } from "./teamsBot";
+import { agentApp } from "./agent";
 
 // Create authentication configuration
-const authConfig = loadBotAuthConfigFromEnv();
+const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
 
 // Create adapter
 const adapter = new CloudAdapter(authConfig);
@@ -43,24 +42,27 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 // Set the onTurnError for the singleton CloudAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-// Create the bot that will handle incoming messages.
-const bot = new TeamsBot();
-
 // Create express application with rate limiting
-const app = express();
-app.use(rateLimit({ validate: { xForwardedForHeader: false } }));
-app.use(express.json());
-app.use(authorizeJWT(authConfig));
+const server = express();
+server.use(express.json());
+server.use(authorizeJWT(authConfig));
 
 // Listen for incoming requests.
-app.post("/api/messages", async (req: Request, res: Response) => {
+server.post("/api/messages", async (req: Request, res: Response) => {
   await adapter.process(req, res, async (context) => {
-    await bot.run(context);
+    await agentApp.run(context);
   });
 });
 
 // Start the server
 const port = process.env.PORT || 3978;
-app.listen(port, () => {
-  console.log(`\napp listening to port ${port} for appId ${authConfig.clientId}`);
-});
+server
+  .listen(port, () => {
+    console.log(
+      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+    );
+  })
+  .on("error", (err) => {
+    console.error(err);
+    process.exit(1);
+  });
