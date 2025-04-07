@@ -32,7 +32,13 @@ class LargeNotiTestCase extends CaseFactory {
       "env",
       `.env.${env}`
     );
-    let envFileString = fs.readFileSync(envFile, "utf-8");
+
+    let envFileString = "";
+    try {
+      envFileString = fs.readFileSync(envFile, "utf-8");
+    } catch (error) {
+      envFileString = "";
+    }
     envFileString += `\nSERVICE_BUS_QUEUE_NAME=${azServiceBusHelper.queueName}`;
     fs.writeFileSync(envFile, envFileString);
     console.log(`add endpoint ${envFileString} to .env.${env} file`);

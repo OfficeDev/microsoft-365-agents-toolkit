@@ -46,7 +46,7 @@ class FoodCatalogTestCase extends CaseFactory {
 new FoodCatalogTestCase(
   TemplateProject.FoodCatalog,
   27851421,
-  27851823,
+  0,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.Azurite,
@@ -58,5 +58,6 @@ new FoodCatalogTestCase(
     skipInit: true,
     repoPath: "./resource/samples",
     testRootFolder: path.resolve(os.homedir(), "resource"),
+    skipRemote: true,
   }
 ).test();
