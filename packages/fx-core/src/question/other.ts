@@ -61,6 +61,9 @@ import {
 import { UninstallInputs } from "./inputs";
 import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
+import { parseShareAppActionYamlConfig } from "../common/utils";
+import { PackageService } from "../component/m365/packageService";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -1629,29 +1632,25 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
     // Different tenant may have different sensitivity labels, so the options are always dynamic
     staticOptions: [],
     dynamicOptions: async (inputs: Inputs) => {
-      try {
-        const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-          scopes: [listSensitivityLabelScope],
-        });
-        if (tokenRes.isErr()) {
-          return [];
-        }
-        const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
-        if (res.isErr()) {
-          return [];
-        }
-        const options = [];
-        for (const label of res.value) {
-          options.push({
-            id: label.id ?? "",
-            label: label.displayName ?? "",
-            description: label.description ?? "",
-          });
-        }
-        return options;
-      } catch (e) {
-        return [];
+      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: [listSensitivityLabelScope],
+      });
+      if (tokenRes.isErr()) {
+        throw tokenRes.error;
       }
+      const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+      if (res.isErr()) {
+        throw res.error;
+      }
+      const options = [];
+      for (const label of res.value) {
+        options.push({
+          id: label.id ?? "",
+          label: label.displayName ?? "",
+          description: label.description ?? "",
+        });
+      }
+      return options;
     },
     skipValidation: true,
   };
@@ -1710,5 +1709,73 @@ function ShareToUserQuestion(): TextInputQuestion {
         }
       },
     },
+  };
+}
+
+export function removeSharedAccessNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: shareOptionQuestion(),
+      },
+    ],
+  };
+}
+
+export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.RemoveUsers,
+    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    type: "multiSelect",
+    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        throw new Error("Project path is not defined");
+      }
+      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (tokenRes.isErr()) {
+        throw tokenRes.error;
+      }
+      const token = tokenRes.value;
+      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      if (configRes.isErr()) {
+        throw configRes.error;
+      }
+      const teamsAppId = configRes.value[0];
+      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
+      if (!app.userList || app.userList.length === 0) {
+        throw new Error("No owner found in the app");
+      }
+
+      const loginRes = await TOOLS.tokenProvider.m365TokenProvider.getStatus({
+        scopes: AppStudioScopes,
+      });
+      if (loginRes.isErr()) {
+        throw loginRes.error;
+      }
+      const operatorId = loginRes.value.accountInfo?.["aad_id"];
+      if (!operatorId) {
+        throw new Error("Cannot get the account info.");
+      }
+
+      const options = [];
+      for (const user of app.userList) {
+        if (user.aadId == operatorId) {
+          continue;
+        }
+        options.push({
+          id: user.aadId,
+          label: user.displayName,
+        });
+      }
+      return options;
+    },
+    skipValidation: true,
   };
 }

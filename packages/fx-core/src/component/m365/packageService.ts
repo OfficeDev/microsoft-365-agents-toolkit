@@ -509,6 +509,46 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async removePermission(
+    token: string,
+    titleId: string,
+    user: AppUser
+  ): Promise<Result<undefined, FxError>> {
+    try {
+      const appRes = await this.previewApp(token, titleId);
+      if (appRes.isErr()) {
+        return err(appRes.error);
+      }
+      const owners = appRes.value.owners;
+      if (!this.isExistingUser(owners, user)) {
+        return ok(undefined);
+      }
+      const newOwners = owners.filter((owner) => owner.entityId !== user.aadId);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      this.logger?.verbose(`Removing permission to user ${user.displayName} ...`);
+      await this.axiosInstance.put(
+        `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
+        {
+          Identities: newOwners,
+        },
+        {
+          baseURL: serviceUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return ok(undefined);
+    } catch (error: any) {
+      if (error.response) {
+        error = this.traceError(error);
+      }
+      return err(assembleError(error, M365ErrorSource));
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async grantPermission(
     token: string,
     titleId: string,
@@ -536,7 +576,7 @@ export class PackageService {
 
       const serviceUrl = await this.getTitleServiceUrl(token);
       this.logger?.verbose(`Granting permission to user ${user.displayName} ...`);
-      const response = await this.axiosInstance.put(
+      await this.axiosInstance.put(
         `/builder/v1/users/titles/${titleId}/owners?idType=TitleId`,
         {
           Identities: newOwners,

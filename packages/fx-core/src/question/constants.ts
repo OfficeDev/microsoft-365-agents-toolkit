@@ -134,6 +134,7 @@ export enum QuestionNames {
   ShareOptionShareApp = "share-option-share-app",
   ShareOptionShareToUser = "share-option-share-to-user",
   ShareToUser = "share-to-user",
+  RemoveUsers = "remove-users",
 }
 
 export enum ProjectTypeGroup {

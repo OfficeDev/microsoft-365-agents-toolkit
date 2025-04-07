@@ -24,6 +24,7 @@ import {
   validateTeamsAppQuestionNode,
   setSensitivityLabelNode,
   shareNode,
+  removeSharedAccessNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -107,6 +108,9 @@ export class QuestionNodes {
   }
   share(): IQTreeNode {
     return shareNode();
+  }
+  removeSharedAccess(): IQTreeNode {
+    return removeSharedAccessNode();
   }
 }
 

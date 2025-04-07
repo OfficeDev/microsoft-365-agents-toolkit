@@ -76,14 +76,14 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
-import { generateDriverContext } from "../common/utils";
+import { generateDriverContext, parseShareAppActionYamlConfig } from "../common/utils";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
   OAuthAuthType,
 } from "../component/configManager/constant";
-import { DriverDefinition, ILifecycle, LifecycleName } from "../component/configManager/interface";
+import { ILifecycle, LifecycleName } from "../component/configManager/interface";
 import { YamlParser } from "../component/configManager/parser";
 import {
   AadConstants,
@@ -207,10 +207,6 @@ import {
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import * as shareToOthers from "../component/driver/share/shareToOthers";
-import AdmZip from "adm-zip";
-import { Constants } from "../component/driver/teamsApp/constants";
-import { resolve } from "../component/configManager/lifecycle";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -843,6 +839,86 @@ export class FxCore {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
+    QuestionMW("removeSharedAccess"),
+    ProjectMigratorMWV3,
+    EnvLoaderMW(false),
+    ConcurrentLockerMW,
+    ContextInjectorMW,
+  ])
+  async removeSharedAccess(
+    inputs: Inputs,
+    ctx?: CoreHookContext
+  ): Promise<Result<undefined, FxError>> {
+    const context = createDriverContext(inputs);
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const teamsAppId = parseRes.value[0];
+    const sharedTitleId = parseRes.value[1];
+    const sharedAppId = parseRes.value[2];
+
+    const emails = (inputs[QuestionNames.RemoveUsers] as string).split(",").map((e) => e.trim());
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const appStudioTokenRes = await tokenProvider.getAccessToken({
+      scopes: AppStudioScopes,
+    });
+    if (appStudioTokenRes.isErr()) {
+      return err(appStudioTokenRes.error);
+    }
+    const appStudioToken = appStudioTokenRes.value;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+
+    // should never remove permission of the operator
+    const loginStatusRes = await tokenProvider.getStatus({
+      scopes: AppStudioScopes,
+    });
+    if (loginStatusRes.isErr()) {
+      return err(loginStatusRes.error);
+    }
+    const loginStatus = loginStatusRes.value;
+    for (const email of emails) {
+      if (loginStatus.accountInfo?.["aad_id"] === email) {
+        return err(new UserError("FxCore", "removeSharedAccess", "Cannot remove your own access"));
+      }
+    }
+
+    for (const email of emails) {
+      const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+      if (!userInfo) {
+        return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
+      }
+
+      // 1. remove TDP permission
+      await teamsDevPortalClient.removePermission(appStudioToken, teamsAppId, userInfo);
+
+      // 2. remove mos permission
+      const res = await PackageService.GetSharedInstance().removePermission(
+        mosToken,
+        sharedTitleId,
+        userInfo
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+    }
+    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    TOOLS.ui?.showMessage("info", msg, false);
+    return ok(undefined);
+  }
+
+  /**
+   * lifecycle command: share
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
+    ErrorHandlerMW,
     QuestionMW("share"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
@@ -871,7 +947,7 @@ export class FxCore {
         return err(res.error);
       }
     } else if (options === QuestionNames.ShareOptionShareToUser) {
-      const parseRes = await this.parseShareToOthersActionYamlConfig(inputs.projectPath!);
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
       if (parseRes.isErr()) {
         return err(parseRes.error);
       }
@@ -896,11 +972,12 @@ export class FxCore {
       }
       const mosToken = mosTokenRes.value;
       for (const email of emails) {
-        // 1. grant TDP permission
         const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
         if (!userInfo) {
           return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
         }
+
+        // 1. grant TDP permission
         await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
 
         // 2. grant mos permission
@@ -2939,103 +3016,5 @@ export class FxCore {
       const successMessage = getLocalizedString("core.addKnowledge.success", agentManifestPath);
       void context.userInteraction.showMessage("info", successMessage, false);
     }
-  }
-
-  // Read teamsapp.yaml and get the value of teamsapp id, shared title id, and shared app id
-  // Output [teamsapp id, shared title id, shared app id]
-  private async parseShareToOthersActionYamlConfig(
-    projectPath: string
-  ): Promise<Result<string[], FxError>> {
-    const templatePath = pathUtils.getYmlFilePath(projectPath, "dev");
-    const maybeProjectModel = await metadataUtil.parse(templatePath, "dev");
-    if (maybeProjectModel.isErr()) {
-      return err(maybeProjectModel.error);
-    }
-    const projectModel = maybeProjectModel.value;
-    if (!projectModel.share || !projectModel.share.driverDefs) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.yamlConfigNotFound")
-        )
-      );
-    }
-    const shareToOthersAction = projectModel.share.driverDefs.find(
-      (d) => d.uses === shareToOthers.actionName
-    );
-    if (!shareToOthersAction) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.shareActionConfigNotFound", shareToOthers.actionName)
-        )
-      );
-    }
-    // 1. get manifest id
-    const appPackagePath = (shareToOthersAction.with as shareToOthers.ShareArgs)?.appPackagePath;
-    if (!appPackagePath) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.appPackageConfigNotFound")
-        )
-      );
-    }
-    const resolvedDriver = resolve(shareToOthersAction, [], []) as DriverDefinition;
-    const resolvedAppPackagePath = path.resolve(
-      projectPath,
-      (resolvedDriver.with as shareToOthers.ShareArgs).appPackagePath as string
-    );
-    const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
-    const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
-    if (!manifestFile) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.manifestFileNotFound")
-        )
-      );
-    }
-    const manifest = JSON.parse(manifestFile.getData().toString()) as TeamsAppManifest;
-    const manifestId = manifest.id;
-    if (!manifestId) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.manifestIdNotFound")
-        )
-      );
-    }
-
-    // 2. get shared title id and shared app id
-    const sharedTitleIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.titleId;
-    const sharedAppIdEnvName = (shareToOthersAction.writeToEnvironmentFile as any)?.appId;
-    if (!sharedTitleIdEnvName || !sharedAppIdEnvName) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.sharedConfigNotFound")
-        )
-      );
-    }
-    // env file has already been loaded before calling this function.
-    const sharedTitleId = process.env[sharedTitleIdEnvName];
-    const sharedAppId = process.env[sharedAppIdEnvName];
-    if (!sharedTitleId || !sharedAppId) {
-      return err(
-        new UserError(
-          "FxCore",
-          "Share to Users",
-          getLocalizedString("error.share.sharedIdNotFound", sharedTitleId, sharedAppId)
-        )
-      );
-    }
-    return ok([manifestId, sharedTitleId, sharedAppId]);
   }
 }
