@@ -207,11 +207,8 @@ export abstract class CaseFactory {
       (options?: { rgName: string }) => Promise<void>
     > = {
       local: async () => await sampledebugContext.after(),
-      dev: async (options?: { rgName: string }) => {
-        try {
-          await sampledebugContext.sampleAfter(options?.rgName ?? "");
-        } catch (error) {}
-      },
+      dev: async (options?: { rgName: string }) =>
+        await sampledebugContext.sampleAfter(options?.rgName ?? ""),
     };
     await envMap[env]({ rgName: `${sampledebugContext.appName}-dev-rg` });
   }
