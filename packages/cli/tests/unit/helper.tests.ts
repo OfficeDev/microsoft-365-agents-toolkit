@@ -177,27 +177,27 @@ describe("CLI helper", () => {
   describe("prettifyReturnLine", async () => {
     it("happy path 1", async () => {
       const res = helper.prettifyReturnLine(
-        `--capability -c        [Required]  Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`,
+        `--capability -c        [Required]  Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`,
         159,
         35,
         40
       );
       assert.equal(
         res,
-        `--capability -c        [Required]  Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help\n                                   --list-capabilities' to see all available options.`
+        `--capability -c        [Required]  Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help\n                                   --list-capabilities' to see all available options.`
       );
     });
 
     it("happy path 2", async () => {
       const res = helper.prettifyReturnLine(
-        `--capability -c        [Required]  Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`,
+        `--capability -c        [Required]  Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`,
         60,
         35,
         40
       );
       assert.equal(
         res,
-        `--capability -c        [Required]  Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
+        `--capability -c        [Required]  Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
       );
     });
   });
@@ -207,15 +207,15 @@ describe("CLI helper", () => {
       sandbox.stub(helper, "termWidth").value(40);
       const res = helper.formatItem(
         "--capability -c        [Required]",
-        `Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
+        `Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
       );
       // console.log(res);
       // console.log(
-      //   `--capability -c        [Required]         Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
+      //   `--capability -c        [Required]         Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
       // );
       assert.equal(
         res,
-        `--capability -c        [Required]         Specifies the Teams App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
+        `--capability -c        [Required]         Specifies the Microsoft 365 App capability. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to see all available options.`
       );
     });
     it("happy path 2", async () => {
