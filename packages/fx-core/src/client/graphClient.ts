@@ -21,9 +21,11 @@ import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
 import { waitSeconds } from "../common/utils";
 import { getLocalizedString } from "../common/localizeUtils";
+import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
 
 export class GraphClient {
-  private readonly baseUrl: string = "https://graph.microsoft.com/beta";
+  private readonly baseUrl: string =
+    process.env.GRAPH_ENDPOINT ?? "https://graph.microsoft.com/beta";
   private readonly tokenProvider: M365TokenProvider;
   private readonly logProvider: LogProvider | undefined;
 
@@ -40,6 +42,10 @@ export class GraphClient {
     return instance;
   }
 
+  /**
+   * Get sandboxing configuration of team app settings.
+   * @returns
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async GetTeamsAppSettingsAsync(): Promise<GetTeamsAppSettingsResponse> {
     const tokenResponse = await this.tokenProvider.getAccessToken({
@@ -53,7 +59,7 @@ export class GraphClient {
     const response = await requester.get(
       `/teamwork/teamsAppSettings?$select=sandboxingConfiguration`
     );
-    return <GetTeamsAppSettingsResponse>response.data.value;
+    return <GetTeamsAppSettingsResponse>response.data;
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
@@ -85,6 +91,12 @@ export class GraphClient {
     return data.webUrl;
   }
 
+  /**
+   * Install Teams app package into a channel.
+   * @param teamId
+   * @param channelId
+   * @param file Teams app package zip file
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async InstallAppToChannelAsync(
     teamId: string,
@@ -99,9 +111,39 @@ export class GraphClient {
     }
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
-    await requester.post(`/teams/${teamId}/installApps?targetChannelId=${channelId}`, file, {
+    await requester.post(`/teams/${teamId}/installedApps?targetChannelId=${channelId}`, file, {
       headers: { "Content-Type": "application/zip" },
     });
+  }
+
+  /**
+   * Get installed apps in a team.
+   * @param teamId
+   * @returns An array of installed apps, the externalId is the Teams app id.
+   */
+  public async GetAppInstallationForTeam(teamId: string): Promise<GetAppInstallationResponse[]> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({
+      scopes: GraphTeamsInstallAppScopes,
+    });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+
+    const response = await requester.get(`/teams/${teamId}/installedApps?$expand=teamsapp`);
+    return <GetAppInstallationResponse[]>response.data.value;
+  }
+
+  public async DeleteInstalledApp(teamId: string, installationId: string): Promise<void> {
+    const tokenResponse = await this.tokenProvider.getAccessToken({
+      scopes: GraphTeamsInstallAppScopes,
+    });
+    if (tokenResponse.isErr()) {
+      throw tokenResponse.error;
+    }
+    const requester = this.createRequesterWithToken(tokenResponse.value);
+
+    await requester.delete(`/teams/${teamId}/installedApps/${installationId}`);
   }
 
   /**

@@ -23,14 +23,7 @@ describe("CreateDevChannelDriver", () => {
 
   const driver = new CreateDevChannelDriver();
 
-  beforeEach(() => {
-    // sandbox.stub(GraphClient.prototype, "CreateTeamAndChannelAsync").resolves(
-    //     {
-    //         teamId: "fake-team-id",
-    //         channelId: "fake-channel-id",
-    //     }
-    // );
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
     sandbox.restore();
@@ -46,9 +39,6 @@ describe("CreateDevChannelDriver", () => {
       ["teamId", "TEAM_ID"],
       ["channelId", "CHANNEL_ID"],
     ]);
-
-    // sandbox.stub(outputEnvVarNames, "get").withArgs("teamId").returns("existing-team-id");
-    // sandbox.stub(outputEnvVarNames, "get").withArgs("channelId").returns("existing-channel-id");
 
     const restore = mockedEnv({
       TEAM_ID: "existing-team-id",

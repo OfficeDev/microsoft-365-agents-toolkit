@@ -14,6 +14,7 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { GraphClient } from "../../../client/graphClient";
 import { HttpClientError } from "../../../error/common";
 import { loadStateFromEnv } from "../util/utils";
+import { TelemetryProperty } from "../../../common/telemetry";
 
 const actionName = "devChannel/create";
 
@@ -51,6 +52,7 @@ export class CreateDevChannelDriver implements StepDriver {
       );
       context.logProvider.info(message);
       context.addSummary(message);
+      context.addTelemetryProperties({ [TelemetryProperty.SkipCreation]: "true" });
       return ok(new Map());
     }
 
