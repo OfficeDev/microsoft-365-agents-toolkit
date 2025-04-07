@@ -390,7 +390,11 @@ describe("generatePlugin", async () => {
         "specPath",
         "outputPath",
         "pluginName",
-        "workingDirectory"
+        "workingDirectory",
+        "OAuthPluginVault",
+        "mockedRefId",
+        ["includePattern"],
+        ["excludePattern"]
       );
     } catch (error) {
       assert.equal(
