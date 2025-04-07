@@ -31,7 +31,8 @@ export const MetadataV3 = {
     "# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project." +
     EOL,
   secretComment:
-    "# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs." + EOL,
+    "# Secrets. Keys prefixed with `SECRET_` will be masked in Microsoft 365 Agents Toolkit logs." +
+    EOL,
   envFileDevComment:
     "# This file includes environment variables that will be committed to git by default." + EOL,
   envFileLocalComment:

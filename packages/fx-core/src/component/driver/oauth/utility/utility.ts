@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import { getAbsolutePath } from "../../../utils/common";
 import { DriverContext } from "../../interface/commonArgs";
 import { CreateOauthArgs } from "../interface/createOauthArgs";
-import { FeatureFlags, featureFlagManager } from "../../../../common/featureFlags";
 import { OpenAPIV3 } from "openapi-types";
 import { isEqual } from "lodash";
 import { maxDomainPerOauth, maxSecretLength, minSecretLength } from "./constants";
@@ -14,6 +12,7 @@ import { OauthFailedToGetDomainError } from "../error/oauthFailedToGetDomain";
 import { OauthAuthInfoInvalid } from "../error/oauthAuthInfoInvalid";
 import { UpdateOauthArgs } from "../interface/updateOauthArgs";
 import { OauthAuthMissingInSpec } from "../error/oauthAuthMissingInSpec";
+import { listAPIInfo } from "../../../../common/daSpecParser";
 
 export interface OauthInfo {
   domain?: string[];
@@ -73,17 +72,7 @@ async function getandValidateOauthInfoFromSpec(
   actionName: string
 ): Promise<OauthInfo> {
   const absolutePath = getAbsolutePath(args.apiSpecPath!, context.projectPath);
-  const parser = new SpecParser(absolutePath, {
-    allowAPIKeyAuth: false,
-    allowBearerTokenAuth: true,
-    allowMultipleParameters: true,
-    allowOauth2: true,
-    projectType: ProjectType.Copilot,
-    allowMissingId: true,
-    allowSwagger: true,
-    allowMethods: ["get", "post", "put", "delete", "patch", "head", "connect", "options", "trace"],
-  });
-  const listResult = await parser.list();
+  const listResult = await listAPIInfo(absolutePath);
   const operations = listResult.APIs.filter((value) => {
     const auth = value.auth;
     return auth && auth.authScheme.type === "oauth2" && auth.name === args.name;
