@@ -21,46 +21,46 @@ class LargeNotiTestCase extends CaseFactory {
     sampledebugContext: SampledebugContext,
     env: "local" | "dev"
   ): Promise<void> {
-    // create service bus
-    const rgName = `${sampledebugContext.appName}-dev-rg`;
-    const azServiceBusHelper = new AzServiceBusHelper(rgName);
-    await azServiceBusHelper.createServiceBus();
-
-    // add service bus name into env file
-    const envFile = path.resolve(
-      sampledebugContext.projectPath,
-      "env",
-      `.env.${env}`
-    );
-
-    let envFileString = "";
-    try {
-      envFileString = fs.readFileSync(envFile, "utf-8");
-    } catch (error) {
-      envFileString = "";
-    }
-    envFileString += `\nSERVICE_BUS_QUEUE_NAME=${azServiceBusHelper.queueName}`;
-    fs.writeFileSync(envFile, envFileString);
-    console.log(`add endpoint ${envFileString} to .env.${env} file`);
-
-    // add storage account key
-    const envUserFile = path.resolve(
-      sampledebugContext.projectPath,
-      "env",
-      `.env.${env}.user`
-    );
-    // create envuserfile
-    if (!fs.existsSync(envUserFile)) {
-      fs.writeFileSync(envUserFile, "");
-    }
-    let envUserFileString = fs.readFileSync(envUserFile, "utf-8");
-    envUserFileString += `\nSECRET_STORAGE_ACCOUNT_KEY=${process.env["STORAGE_ACCOUNT_KEY"]}`;
-    fs.writeFileSync(envUserFile, envUserFileString);
-    console.log(
-      `add SECRET_STORAGE_ACCOUNT_KEY ${process.env["STORAGE_ACCOUNT_KEY"]} to .env.${env}.user file`
-    );
-
     if (env === "local") {
+      // create service bus
+      const rgName = `${sampledebugContext.appName}-dev-rg`;
+      const azServiceBusHelper = new AzServiceBusHelper(rgName);
+      await azServiceBusHelper.createServiceBus();
+
+      // add service bus name into env file
+      const envFile = path.resolve(
+        sampledebugContext.projectPath,
+        "env",
+        `.env.${env}`
+      );
+
+      let envFileString = "";
+      try {
+        envFileString = fs.readFileSync(envFile, "utf-8");
+      } catch (error) {
+        envFileString = "";
+      }
+      envFileString += `\nSERVICE_BUS_QUEUE_NAME=${azServiceBusHelper.queueName}`;
+      fs.writeFileSync(envFile, envFileString);
+      console.log(`add endpoint ${envFileString} to .env.${env} file`);
+
+      // add storage account key
+      const envUserFile = path.resolve(
+        sampledebugContext.projectPath,
+        "env",
+        `.env.${env}.user`
+      );
+      // create envuserfile
+      if (!fs.existsSync(envUserFile)) {
+        fs.writeFileSync(envUserFile, "");
+      }
+      let envUserFileString = fs.readFileSync(envUserFile, "utf-8");
+      envUserFileString += `\nSECRET_STORAGE_ACCOUNT_KEY=${process.env["STORAGE_ACCOUNT_KEY"]}`;
+      fs.writeFileSync(envUserFile, envUserFileString);
+      console.log(
+        `add SECRET_STORAGE_ACCOUNT_KEY ${process.env["STORAGE_ACCOUNT_KEY"]} to .env.${env}.user file`
+      );
+
       // add service bus name into local.settings.json
       const configFilePath = path.resolve(
         sampledebugContext.projectPath,
@@ -93,6 +93,9 @@ class LargeNotiTestCase extends CaseFactory {
       env: "local" | "dev";
     }
   ): Promise<void> {
+    if (options.env === "local") {
+      return await validateLargeNotificationBot(page);
+    }
     const funcEndpoint = await getBotSiteEndpoint(
       options.context.projectPath,
       options.env
