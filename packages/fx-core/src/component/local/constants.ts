@@ -115,9 +115,9 @@ export const TaskOverallLabel = Object.freeze({
   NextDefault: "Pre Debug Check & Start All",
   NextM365: "Pre Debug Check & Start All & Install App",
   NextSPFx: "prepare dev env",
-  TransparentDefault: "Start Microsoft 365 App Locally",
-  TransparentM365: "Start Microsoft 365 App Locally & Install App",
-  TestToolDefault: "Start Microsoft 365 App (Test Tool)",
+  TransparentDefault: "Start Teams App Locally",
+  TransparentM365: "Start Teams App Locally & Install App",
+  TestToolDefault: "Start Teams App (Test Tool)",
 });
 
 export const TaskLabel = Object.freeze({
