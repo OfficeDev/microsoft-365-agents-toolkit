@@ -360,7 +360,7 @@ describe("generatePlugin", async () => {
     } catch (error) {
       assert.equal(
         error.message,
-        "Failed to generate plugin manifest using Kiota. Error: Get empty result from kiota"
+        "Unable to generate plugin manifest file using Kiota. Error: Get empty result from kiota"
       );
       assert.equal(error.source, "kiota");
     }
@@ -399,7 +399,7 @@ describe("generatePlugin", async () => {
     } catch (error) {
       assert.equal(
         error.message,
-        "Failed to generate plugin manifest using Kiota. Error: mocked error"
+        "Unable to generate plugin manifest file using Kiota. Error: mocked error"
       );
       assert.equal(error.source, "kiota");
     }
