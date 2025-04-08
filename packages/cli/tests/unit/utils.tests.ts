@@ -126,7 +126,7 @@ describe("Utils Tests", function () {
         })
       );
       const templates = await getTemplates();
-      expect(templates.length).equals(1);
+      expect(templates.length).equals(2);
     });
 
     it("filters samples have minimum cli verion", async () => {
