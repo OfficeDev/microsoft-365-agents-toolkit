@@ -14,6 +14,16 @@ export const shareRemoveCommand: CLICommand = {
   telemetry: {
     event: TelemetryEvent.AddCap,
   },
+  examples: [
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share remove`,
+      description: "Remove shared owner access under current project folder in interactive mode",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share remove --users 'a@example.com,b@example.com' -i false`,
+      description: "Remove shared owner access from users",
+    },
+  ],
   handler: async (ctx) => {
     const inputs = ctx.optionValues as InputsWithProjectPath;
     const core = getFxCore();

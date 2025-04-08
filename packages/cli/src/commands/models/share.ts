@@ -21,5 +21,19 @@ export const shareCommand: CLICommand = {
     const res = await core.shareApplication(inputs);
     return res;
   },
+  examples: [
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share`,
+      description: "Share under current project folder in interactive mode",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-app -i false`,
+      description: "Share the app under current project folder",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-to-users --users 'a@example.com,b@example.com' -i false`,
+      description: "Share owner access to users",
+    },
+  ],
   commands: [shareRemoveCommand],
 };
