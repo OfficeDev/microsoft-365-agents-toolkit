@@ -89,7 +89,7 @@ describe("component coordinator test", () => {
       });
     const openUrlStub = sandbox.stub(tools.ui, "openUrl").resolves(ok(true));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -143,7 +143,7 @@ describe("component coordinator test", () => {
       end: progressEndStub,
     } as any as IProgressHandler);
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.CLI,
@@ -179,7 +179,7 @@ describe("component coordinator test", () => {
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -213,7 +213,7 @@ describe("component coordinator test", () => {
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VS,
@@ -264,7 +264,7 @@ describe("component coordinator test", () => {
       end: progressEndStub,
     } as any as IProgressHandler);
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -309,7 +309,7 @@ describe("component coordinator test", () => {
     sandbox.stub(tools.ui, "createProgressBar").returns(undefined as any as IProgressHandler);
     const showMessageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok(""));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
@@ -328,7 +328,7 @@ describe("component coordinator test", () => {
       version: "1.0.0",
     };
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     const inputs: InputsWithProjectPath = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -344,7 +344,7 @@ describe("component coordinator test", () => {
       version: "1.0.0",
     };
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     const inputs: InputsWithProjectPath = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -360,7 +360,7 @@ describe("component coordinator test", () => {
       version: "1.0.0",
     };
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(pathUtils, "getYmlFilePath").resolves(ok("teamsapp.yml"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     const inputs: InputsWithProjectPath = {
       platform: Platform.VSCode,
       projectPath: ".",

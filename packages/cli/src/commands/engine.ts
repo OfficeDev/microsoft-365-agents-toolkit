@@ -406,8 +406,7 @@ class CLIEngine {
           }
           const isCommandOption =
             command.options?.includes(option) &&
-            command.fullName !== "teamsfx" &&
-            command.fullName !== "teamsapp";
+            command.fullName !== process.env.TEAMSFX_CLI_BIN_NAME;
           const inputValues = isCommandOption ? context.optionValues : context.globalOptionValues;
           const inputKey = this.optionInputKey(option);
           const logObject = {

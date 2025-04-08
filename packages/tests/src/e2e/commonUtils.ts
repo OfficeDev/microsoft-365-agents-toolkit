@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import MockAzureAccountProvider from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
-import m365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
+import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import {
   AppPackageFolderName,
   ConfigFolderName,

@@ -207,6 +207,7 @@ import {
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { withFileLock } from "./middleware/fileLocker";
+import { listAPIInfo } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -1844,7 +1845,6 @@ export class FxCore {
     const newOperations = inputs[QuestionNames.ApiOperation] as string[];
     const url = inputs[QuestionNames.ApiSpecLocation];
     const manifestPath = inputs[QuestionNames.ManifestPath];
-    const isPlugin = inputs[QuestionNames.ActionType] === DeclarativeAgentApiSpecOptionId;
     const context = createContext();
 
     // Get API spec file path from manifest
@@ -1866,35 +1866,20 @@ export class FxCore {
       return err(new UserCancelError());
     }
 
-    // Merge existing operations in manifest.json
-    const specParser = new SpecParser(
-      url,
-      getParserOptions(isPlugin ? ProjectType.Copilot : ProjectType.SME)
-    );
     try {
+      // Merge existing operations in manifest.json
+      const specParser = new SpecParser(url, getParserOptions(ProjectType.SME));
+
       const listResult = await specParser.list();
+
       const apiResultList = listResult.APIs.filter((value) => value.isValid);
 
-      let existingOperations: string[];
-      let outputApiSpecPath: string;
-      if (isPlugin) {
-        if (!inputs[QuestionNames.DestinationApiSpecFilePath]) {
-          return err(new MissingRequiredInputError(QuestionNames.DestinationApiSpecFilePath));
-        }
-        outputApiSpecPath = inputs[QuestionNames.DestinationApiSpecFilePath];
-        existingOperations = await listPluginExistingOperations(
-          manifestRes.value,
-          manifestPath,
-          inputs[QuestionNames.DestinationApiSpecFilePath]
-        );
-      } else {
-        const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
-        existingOperations = apiResultList
-          .filter((operation) => existingOperationIds.includes(operation.operationId))
-          .map((operation) => operation.api);
-        const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
-        outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
-      }
+      const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
+      const existingOperations = apiResultList
+        .filter((operation) => existingOperationIds.includes(operation.operationId))
+        .map((operation) => operation.api);
+      const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
+      const outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
 
       const operations = [...existingOperations, ...newOperations];
 
@@ -1939,23 +1924,13 @@ export class FxCore {
 
       let pluginPath: string | undefined;
 
-      if (isPlugin) {
-        const pluginPathRes = await manifestUtils.getPluginFilePath(
-          manifestRes.value,
-          manifestPath
-        );
-        if (pluginPathRes.isErr()) {
-          return err(pluginPathRes.error);
-        }
-        pluginPath = pluginPathRes.value;
-      }
       const generateResult = await generateFromApiSpec(
         specParser,
         manifestPath,
         inputs,
         context,
         "copilotPluginAddAPI",
-        isPlugin ? ProjectType.Copilot : ProjectType.SME,
+        ProjectType.SME,
         {
           destinationApiSpecFilePath: outputApiSpecPath,
           responseTemplateFolder: adaptiveCardFolder,
@@ -2146,7 +2121,7 @@ export class FxCore {
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
-      const listResult = await specParser.list();
+      const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
       if (
         inputs.platform === Platform.VSCode &&
         featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
@@ -2471,7 +2446,7 @@ export class FxCore {
 
   /**
    * Kiota regenerate
-   * Need to update da manifest and update teamsapp.yml
+   * Need to update da manifest and update m365agents.yml
    */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.addPlugin }),

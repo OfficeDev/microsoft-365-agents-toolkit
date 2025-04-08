@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-export const CONFIGURATION_PREFIX = "fx-extension";
+export const CONFIGURATION_PREFIX = "M365AgentsToolkit";
 export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",
@@ -78,7 +78,7 @@ export const PublishAppLearnMoreLink = "https://aka.ms/teamsfx-publish";
 
 export const DeveloperPortalHomeLink = "https://dev.teams.microsoft.com/home";
 
-export const TerminalName = "Teams Toolkit";
+export const TerminalName = "Microsoft 365 Agents Toolkit";
 
 export const InstallCopilotChatLink = "https://aka.ms/install-github-copilot-chat";
 

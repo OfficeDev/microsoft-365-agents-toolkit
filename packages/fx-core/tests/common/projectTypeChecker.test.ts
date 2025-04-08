@@ -9,12 +9,11 @@ import sinon from "sinon";
 import {
   ProjectTypeResult,
   SPFxKey,
-  TeamsfxConfigType,
   TeamsfxVersionState,
   getCapabilities,
   projectTypeChecker,
 } from "../../src/common/projectTypeChecker";
-import { MetadataV3 } from "../../src/common/versionMetadata";
+import { MetadataV2, MetadataV3 } from "../../src/common/versionMetadata";
 import { IsDeclarativeAgentManifest } from "../../build/common/projectTypeChecker";
 
 describe("ProjectTypeChecker", () => {
@@ -343,7 +342,7 @@ describe("ProjectTypeChecker", () => {
       const res = await projectTypeChecker.findTeamsFxCallback(path.resolve("./.fx"), result);
       assert.isFalse(res);
       assert.isTrue(result.isTeamsFx);
-      assert.equal(result.teamsfxConfigType, TeamsfxConfigType.projectSettingsJson);
+      assert.equal(result.teamsfxConfigType, MetadataV2.configFile);
       assert.equal(result.teamsfxConfigVersion, "1.0.0");
       assert.equal(result.teamsfxProjectId, "xxx-xxx-xxx");
       assert.equal(result.teamsfxVersionState, TeamsfxVersionState.Invalid);
@@ -366,7 +365,7 @@ describe("ProjectTypeChecker", () => {
       const res = await projectTypeChecker.findTeamsFxCallback(path.resolve("./.fx"), result);
       assert.isFalse(res);
       assert.isTrue(result.isTeamsFx);
-      assert.equal(result.teamsfxConfigType, TeamsfxConfigType.projectSettingsJson);
+      assert.equal(result.teamsfxConfigType, MetadataV2.configFile);
       assert.equal(result.teamsfxConfigVersion, "1.0.0");
       assert.equal(result.teamsfxProjectId, "xxx-xxx-xxx");
       assert.equal(result.teamsfxVersionState, TeamsfxVersionState.Unsupported);
@@ -389,7 +388,7 @@ describe("ProjectTypeChecker", () => {
       const res = await projectTypeChecker.findTeamsFxCallback(path.resolve("./.fx"), result);
       assert.isFalse(res);
       assert.isTrue(result.isTeamsFx);
-      assert.equal(result.teamsfxConfigType, TeamsfxConfigType.projectSettingsJson);
+      assert.equal(result.teamsfxConfigType, MetadataV2.configFile);
       assert.equal(result.teamsfxConfigVersion, "2.1.0");
       assert.equal(result.teamsfxProjectId, "xxx-xxx-xxx");
       assert.equal(result.teamsfxVersionState, TeamsfxVersionState.Upgradable);
@@ -414,7 +413,7 @@ describe("ProjectTypeChecker", () => {
       );
       assert.isFalse(res);
       assert.isTrue(result.isTeamsFx);
-      assert.equal(result.teamsfxConfigType, TeamsfxConfigType.teamsappYml);
+      assert.equal(result.teamsfxConfigType, MetadataV3.configFile);
       assert.equal(result.teamsfxConfigVersion, "2.0.0");
       assert.equal(result.teamsfxProjectId, "xxx-xxx-xxx");
       assert.equal(result.teamsfxVersionState, TeamsfxVersionState.Unsupported);

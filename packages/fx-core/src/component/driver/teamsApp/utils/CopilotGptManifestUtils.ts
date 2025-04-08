@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   Colors,
   DeclarativeCopilotManifestSchema,
@@ -31,7 +30,6 @@ import {
   WriteFileError,
 } from "../../../../error/common";
 import { SummaryConstant } from "../../../configManager/constant";
-import { getParserOptions } from "../../../generator/openApiSpec/helper";
 import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../constants";
@@ -42,6 +40,7 @@ import { manifestUtils } from "./ManifestUtils";
 import { pluginManifestUtils } from "./PluginManifestUtils";
 import { getResolvedManifest } from "./utils";
 import { Context } from "vm";
+import { listAPIInfo } from "../../../../common/daSpecParser";
 
 export class CopilotGptManifestUtils {
   public async readCopilotGptManifestFile(
@@ -217,11 +216,7 @@ export class CopilotGptManifestUtils {
           const specPath = path.resolve(path.dirname(actionPath), specPathRelativePath);
 
           if (await fs.pathExists(specPath)) {
-            const specParser = new SpecParser(
-              specPath,
-              getParserOptions(ProjectType.Copilot, true)
-            );
-            const listResult = await specParser.list();
+            const listResult = await listAPIInfo(specPath);
             const operationIds = actionManifest.functions?.map((func: any) => func.name);
             const newStarters = listResult.APIs.filter(
               (item) =>

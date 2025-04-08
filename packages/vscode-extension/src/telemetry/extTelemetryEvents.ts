@@ -480,7 +480,7 @@ export enum TelemetryProperty {
   HasQueryForCopilotChat = "has-query-for-copilot-chat",
   CopilotChatQuerySent = "copilot-chat-query-sent",
   TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
-  TeamsAgentPreCheckResultSuccess = "teans-agent-pre-check-result-success",
+  TeamsAgentPreCheckResultSuccess = "teams-agent-pre-check-result-success",
 }
 
 export enum TelemetryMeasurements {

@@ -3,13 +3,13 @@
 
 "use strict";
 
-import { LogLevel, LogProvider, Colors } from "@microsoft/teamsfx-api";
-import * as vscode from "vscode";
-import fs from "fs-extra";
-import { defaultExtensionLogPath } from "../globalVariables";
+import { Colors, LogLevel, LogProvider } from "@microsoft/teamsfx-api";
 import { SummaryConstant } from "@microsoft/teamsfx-core";
+import fs from "fs-extra";
+import * as vscode from "vscode";
+import { defaultExtensionLogPath } from "../globalVariables";
 
-const outputChannelDisplayName = "Teams Toolkit";
+const outputChannelDisplayName = "Microsoft 365 Agents Toolkit";
 
 export class VsCodeLogProvider implements LogProvider {
   logLevel: LogLevel = LogLevel.Info;
