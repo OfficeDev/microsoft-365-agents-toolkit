@@ -14,6 +14,7 @@ provision:
     writeToEnvironmentFile:
       channelId: CHANNEL_ID # The ID of the created channel.
       teamId: TEAM_ID # The ID of the team in which the channel was created.
+      channelWebUrl: CHANNEL_WEB_URL # A hyperlink to open Teams client
 {{/SandBoxedTeam}}
 
   # Creates a Teams app
