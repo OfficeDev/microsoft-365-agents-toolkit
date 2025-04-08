@@ -22,6 +22,7 @@ import {
   getConfigurableTabsTplExistingAppBasedOnVersion,
   CONFIGURABLE_TABS_TPL_EXISTING_APP,
   CONFIGURABLE_TABS_TPL_EXISTING_APP_V2,
+  ErrorMessages,
 } from "../../../../src/component/driver/teamsApp/constants";
 
 describe("constants", async () => {
@@ -84,5 +85,10 @@ describe("constants", async () => {
 
     const resultPreview = getConfigurableTabsTplExistingAppBasedOnVersion("devPreview");
     expect(resultPreview).to.equal(CONFIGURABLE_TABS_TPL_EXISTING_APP_V2);
+  });
+
+  it("ErrorMessages", async () => {
+    const result = ErrorMessages.TeamsAppNotFound("mockedAppId");
+    expect(result).to.includes("Cannot find Microsoft 365 App with id");
   });
 });
