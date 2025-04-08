@@ -11,7 +11,6 @@ import {
   WarningType,
 } from "@microsoft/m365-spec-parser";
 import {
-  CLIPlatforms,
   DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
@@ -29,6 +28,7 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
 import jsyaml from "js-yaml";
@@ -44,13 +44,13 @@ import {
   getUuid,
   teamsDevPortalClient,
 } from "../../src";
-import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
-import { setTools, TOOLS } from "../../src/common/globalVars";
-import {
-  TeamsfxConfigType,
-  TeamsfxVersionState,
-  projectTypeChecker,
-} from "../../src/common/projectTypeChecker";
+import { ConstantString } from "../../src/common/constants";
+import { FeatureFlagName, featureFlagManager } from "../../src/common/featureFlags";
+import { TOOLS, setTools } from "../../src/common/globalVars";
+import * as projectHelper from "../../src/common/projectSettingsHelper";
+import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
+import { TelemetryEvent } from "../../src/common/telemetry";
+import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import {
   DriverDefinition,
   DriverInstance,
@@ -69,6 +69,8 @@ import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
+import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
+import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
@@ -77,8 +79,10 @@ import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/vali
 import { ValidateAppPackageDriver } from "../../src/component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../../src/component/driver/util/utils";
+import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
+import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
@@ -88,6 +92,9 @@ import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
+import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
+import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
+import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
   InputValidationError,
@@ -112,22 +119,9 @@ import {
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import { CoreHookContext } from "../../src/core/types";
-import * as projectHelper from "../../src/common/projectSettingsHelper";
-import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
-import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
-import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
-import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
-import { ConstantString } from "../../src/common/constants";
-import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
-import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
-import { AadManifestHelper } from "../../src/component/driver/aad/utility/aadManifestHelper";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
-import axios from "axios";
-import { TelemetryEvent } from "../../src/common/telemetry";
-import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 
 const tools = new MockTools();
 
@@ -470,7 +464,7 @@ describe("Core basic APIs", () => {
 
       assert.include(
         res.error.message,
-        "For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly."
+        "For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly."
       );
     }
   });
@@ -2028,7 +2022,7 @@ describe("getProjectMetadata", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").returns(true);
     sandbox.stub(fs, "readFileSync").returns("version: 1.1.1\nprojectId: 12345" as any);
     const core = new FxCore(tools);
@@ -2042,7 +2036,7 @@ describe("getProjectMetadata", async () => {
     }
   });
   it("yml not exist", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").resolves(false);
     const core = new FxCore(tools);
     const res = await core.getProjectMetadata(".");
@@ -2052,7 +2046,7 @@ describe("getProjectMetadata", async () => {
     }
   });
   it("throw error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").throws(new Error("mocked error"));
     const core = new FxCore(tools);
     const res = await core.getProjectMetadata(".");
@@ -2068,7 +2062,7 @@ describe("getTeamsAppName", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "12345",
       provision: {
@@ -2092,7 +2086,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "testappname-");
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "12345",
       provision: {
@@ -2116,7 +2110,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "testappname");
   });
   it("return empty value", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {};
     sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
     const core = new FxCore(tools);
@@ -2124,7 +2118,7 @@ describe("getTeamsAppName", async () => {
     assert.isTrue(res.isOk() && res.value === "");
   });
   it("parse yml error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(err(new UserError({})));
     const core = new FxCore(tools);
     const res = await core.getTeamsAppName(".");
@@ -2138,7 +2132,7 @@ describe("getProjectInfo", async () => {
     sandbox.restore();
   });
   it("happy path", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     const mockProjectModel: any = {
       projectId: "mock-project-id",
       provision: {
@@ -2176,14 +2170,14 @@ describe("getProjectInfo", async () => {
     }
   });
   it("parse yml error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(err(new UserError({})));
     const core = new FxCore(tools);
     const res = await core.getProjectInfo(".", "dev");
     assert.isTrue(res.isErr());
   });
   it("read env error", async () => {
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("./teamsapp.yml");
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
     sandbox.stub(metadataUtil, "parse").resolves(ok({} as any));
     sandbox.stub(envUtil, "readEnv").resolves(err(new UserError({})));
     const core = new FxCore(tools);
@@ -2212,7 +2206,7 @@ describe("checkProjectType", async () => {
   it("happy 2", async () => {
     sandbox.stub(projectTypeChecker, "checkProjectType").resolves({
       isTeamsFx: true,
-      teamsfxConfigType: TeamsfxConfigType.teamsappYml,
+      teamsfxConfigType: MetadataV3.configFile,
       teamsfxConfigVersion: "1.0.0",
       teamsfxVersionState: TeamsfxVersionState.Compatible,
       teamsfxProjectId: "xxxx-xxxx-xxxx",
@@ -2538,193 +2532,6 @@ describe("copilotPlugin", async () => {
     assert.isTrue(showMessage.calledOnce);
   });
 
-  it("add API - Copilot plugin", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ApiSpecLocation]: "test.json",
-      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.DestinationApiSpecFilePath]: "destination.json",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      plugins: [
-        {
-          file: "ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
-    };
-
-    const listResult: ListAPIResult = {
-      APIs: [
-        {
-          operationId: "getUserById",
-          server: "https://server",
-          api: "GET /user/{userId}",
-          isValid: true,
-          reason: [],
-        },
-        {
-          operationId: "getStoreOrder",
-          server: "https://server",
-          api: "GET /store/order",
-          isValid: true,
-          reason: [],
-        },
-      ],
-      validAPICount: 2,
-      allAPICount: 2,
-    };
-
-    const core = new FxCore(tools);
-    sinon.stub(SpecParser.prototype, "generateForCopilot").resolves({
-      warnings: [],
-      allSuccess: true,
-    });
-    sinon.stub(SpecParser.prototype, "list").resolves(listResult);
-    sinon.stub(SpecParser.prototype, "validate").resolves({
-      warnings: [],
-      status: ValidationStatus.Valid,
-      errors: [],
-    });
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sinon.stub(manifestUtils, "getPluginFilePath").resolves(ok("ai-plugin.json"));
-    sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
-    sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
-    sinon.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
-    const result = await core.copilotPluginAddAPI(inputs);
-    if (result.isErr()) {
-      console.log(result.error);
-    }
-    assert.isTrue(result.isOk());
-  });
-
-  it("add API missing required input - Copilot plugin", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ApiSpecLocation]: "test.json",
-      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      plugins: [
-        {
-          file: "ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
-    };
-    const listResult: ListAPIResult = {
-      APIs: [
-        {
-          operationId: "getUserById",
-          server: "https://server",
-          api: "GET /user/{userId}",
-          isValid: true,
-          reason: [],
-        },
-        {
-          operationId: "getStoreOrder",
-          server: "https://server",
-          api: "GET /store/order",
-          isValid: true,
-          reason: [],
-        },
-      ],
-      validAPICount: 2,
-      allAPICount: 2,
-    };
-
-    const core = new FxCore(tools);
-    sinon.stub(SpecParser.prototype, "generateForCopilot").resolves({
-      warnings: [],
-      allSuccess: true,
-    });
-    sinon.stub(SpecParser.prototype, "list").resolves(listResult);
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
-    sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
-    const result = await core.copilotPluginAddAPI(inputs);
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.isTrue(result.error instanceof MissingRequiredInputError);
-    }
-  });
-
-  it("add API error when getting plugin path - Copilot plugin", async () => {
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      [QuestionNames.ApiSpecLocation]: "test.json",
-      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
-      [QuestionNames.ManifestPath]: "manifest.json",
-      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      [QuestionNames.DestinationApiSpecFilePath]: "destination.json",
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const manifest = new TeamsAppManifest();
-    manifest.copilotExtensions = {
-      plugins: [
-        {
-          file: "ai-plugin.json",
-          id: "plugin1",
-        },
-      ],
-    };
-    const listResult: ListAPIResult = {
-      APIs: [
-        {
-          operationId: "getUserById",
-          server: "https://server",
-          api: "GET /user/{userId}",
-          isValid: true,
-          reason: [],
-        },
-        {
-          operationId: "getStoreOrder",
-          server: "https://server",
-          api: "GET /store/order",
-          isValid: true,
-          reason: [],
-        },
-      ],
-      validAPICount: 2,
-      allAPICount: 2,
-    };
-
-    const core = new FxCore(tools);
-    sinon.stub(SpecParser.prototype, "generateForCopilot").resolves({
-      warnings: [],
-      allSuccess: true,
-    });
-    sinon.stub(SpecParser.prototype, "list").resolves(listResult);
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sinon
-      .stub(manifestUtils, "getPluginFilePath")
-      .resolves(err(new SystemError("testError", "testError", "", "")));
-    sinon.stub(validationUtils, "validateInputs").resolves(undefined);
-    sinon.stub(openApiSpecHelper, "listPluginExistingOperations").resolves([]);
-    sinon.stub(tools.ui, "showMessage").resolves(ok("Add"));
-    const result = await core.copilotPluginAddAPI(inputs);
-
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "testError");
-    }
-  });
   it("add API - return multiple auth", async () => {
     const appName = await mockV3Project();
     mockedEnvRestore = mockedEnv({

@@ -85,7 +85,7 @@ export class UnknownCommandError extends UserError {
   constructor(token: string, fullName: string, mostSimilar?: string) {
     super({
       source: constants.cliSource,
-      message: `'${token}' is misspelled or not recognized by Teams Toolkit CLI.${
+      message: `'${token}' is misspelled or not recognized by Microsoft 365 Agents Toolkit CLI.${
         mostSimilar ? " Did you mean '" + fullName + " " + mostSimilar + "'?" : ""
       } Use '${fullName} -h' for more command information.`,
     });

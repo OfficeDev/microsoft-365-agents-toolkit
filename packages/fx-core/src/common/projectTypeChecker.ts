@@ -5,13 +5,9 @@ import fs from "fs-extra";
 import path from "path";
 import semver from "semver";
 import { parseDocument } from "yaml";
-import { MetadataV2, MetadataV3 } from "./versionMetadata";
+import { isYamlFileName, MetadataV2, MetadataV3 } from "./versionMetadata";
 import { isValidOfficeAddInProject } from "./projectSettingsHelper";
 
-export enum TeamsfxConfigType {
-  projectSettingsJson = "projectSettings.json",
-  teamsappYml = "teamsapp.yml",
-}
 export const TeamsJsModule = "@microsoft/teams-js";
 
 export const SPFxKey = "@microsoft/generator-sharepoint";
@@ -25,7 +21,7 @@ export enum TeamsfxVersionState {
 
 export interface ProjectTypeResult {
   isTeamsFx: boolean;
-  teamsfxConfigType?: TeamsfxConfigType;
+  teamsfxConfigType?: string;
   teamsfxConfigVersion?: string;
   teamsfxVersionState?: TeamsfxVersionState;
   teamsfxProjectId?: string;
@@ -139,7 +135,7 @@ class ProjectTypeChecker {
       const exists = await fs.pathExists(settingFile);
       if (exists) {
         data.isTeamsFx = true;
-        data.teamsfxConfigType = TeamsfxConfigType.projectSettingsJson;
+        data.teamsfxConfigType = MetadataV2.configFile;
         const json = await fs.readJson(settingFile);
         data.teamsfxConfigVersion = json.version;
         data.teamsfxProjectId = json.projectId;
@@ -162,9 +158,9 @@ class ProjectTypeChecker {
         }
         return false;
       }
-    } else if (fileName === MetadataV3.configFile || fileName === MetadataV3.localConfigFile) {
+    } else if (isYamlFileName(fileName)) {
       data.isTeamsFx = true;
-      data.teamsfxConfigType = TeamsfxConfigType.teamsappYml;
+      data.teamsfxConfigType = fileName;
       if (fileName === MetadataV3.configFile) {
         const yamlFileContent: string = await fs.readFile(filePath, "utf8");
         const appYaml = parseDocument(yamlFileContent);

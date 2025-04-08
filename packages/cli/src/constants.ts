@@ -7,7 +7,6 @@ import chalk from "chalk";
 export const cliSource = "TeamsfxCLI";
 export const cliName = "teamsfx";
 export const cliTelemetryPrefix = "teamsfx-cli";
-export const teamsAppFileName = "teamsapp.yml";
 
 export enum CLILogLevel {
   error = 0,
@@ -20,6 +19,6 @@ export const AddFeatureFunc = {
   method: Stage.addFeature,
 };
 
-export const FooterText = `For more information about the Teams Toolkit: ${chalk.cyanBright(
+export const FooterText = `For more information about the Microsoft 365 Agents Toolkit: ${chalk.cyanBright(
   "https://aka.ms/teamsfx-toolkit-cli"
 )}.`;

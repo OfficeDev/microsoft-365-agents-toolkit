@@ -5,16 +5,28 @@ import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
 import yaml from "yaml";
-import { MetadataV3 } from "../../common/versionMetadata";
+import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
-import { MissingRequiredFileError, MissingRequiredInputError } from "../../error/common";
+import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
   getYmlFilePath(projectPath: string, env?: string): string {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
     const envName = env || process.env.TEAMSFX_ENV || "dev";
-    if (!envName) throw new MissingRequiredInputError("env", "PathUtils");
-    const ymlPath = path.join(
+    const ymlPathV4 = path.join(
+      projectPath,
+      envName === environmentNameManager.getLocalEnvName()
+        ? MetadataV4.localConfigFile
+        : envName === environmentNameManager.getTestToolEnvName()
+        ? MetadataV4.testToolConfigFile
+        : envName === environmentNameManager.getSandboxEnvName()
+        ? MetadataV4.sandboxConfigFile
+        : MetadataV4.configFile
+    );
+    if (fs.pathExistsSync(ymlPathV4)) {
+      return ymlPathV4;
+    }
+    const ymlPathV3 = path.join(
       projectPath,
       envName === environmentNameManager.getLocalEnvName()
         ? MetadataV3.localConfigFile
@@ -24,13 +36,13 @@ class PathUtils {
         ? MetadataV3.sandboxConfigFile
         : MetadataV3.configFile
     );
-    if (fs.pathExistsSync(ymlPath)) {
-      return ymlPath;
+    if (fs.pathExistsSync(ymlPathV3)) {
+      return ymlPathV3;
     }
     if (environmentNameManager.isRemoteEnvironment(envName)) {
-      throw new MissingRequiredFileError("core", "", ymlPath);
+      throw new MissingRequiredFileError("core", "", ymlPathV3);
     } else {
-      throw new MissingRequiredFileError("core", "Debug ", ymlPath);
+      throw new MissingRequiredFileError("core", "Debug ", ymlPathV3);
     }
   }
   async getEnvFolderPath(projectPath: string): Promise<Result<string | undefined, FxError>> {
