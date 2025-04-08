@@ -25,7 +25,7 @@ export const CreateSampleProjectArguments: CLICommandArgument[] = [
     name: "sample-name",
     questionName: "samples",
     type: "string",
-    description: "Specifies the Microsoft Teams App sample name.",
+    description: "Specifies the Microsoft 365 App sample name.",
     required: true,
     choices: [
       "hello-world-tab-with-backend",

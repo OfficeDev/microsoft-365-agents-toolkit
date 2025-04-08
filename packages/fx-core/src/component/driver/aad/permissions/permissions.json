@@ -427,8 +427,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs for any user, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage only its own tabs for all users",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs for any user, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage only its own tabs for all users",
           "id": "3c42dec6-49e8-4a0a-b469-36cff0d9da93",
           "isEnabled": true,
           "origin": "Application",
@@ -438,8 +438,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs in any team, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage only its own tabs for all teams",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs in any team, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage only its own tabs for all teams",
           "id": "91c32b81-0ef0-453f-a5c7-4ce2e562f449",
           "isEnabled": true,
           "origin": "Application",
@@ -449,8 +449,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs for any chat, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage only its own tabs for all chats",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs for any chat, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage only its own tabs for all chats",
           "id": "9f62e4a2-a2d6-4350-b28b-d244728c4f86",
           "isEnabled": true,
           "origin": "Application",
@@ -2506,8 +2506,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read the Teams apps that are installed in any chat, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Read installed Teams apps for all chats",
+          "description": "Allows the app to read the Microsoft 365 Apps that are installed in any chat, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Read installed Microsoft 365 Apps for all chats",
           "id": "cc7e7635-2586-41d6-adaa-a8d3bcad5ee5",
           "isEnabled": true,
           "origin": "Application",
@@ -2517,8 +2517,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read the Teams apps that are installed in any team, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Read installed Teams apps for all teams",
+          "description": "Allows the app to read the Microsoft 365 Apps that are installed in any team, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Read installed Microsoft 365 Apps for all teams",
           "id": "1f615aea-6bf9-4b05-84bd-46388e138537",
           "isEnabled": true,
           "origin": "Application",
@@ -2528,8 +2528,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read the Teams apps that are installed for any user, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Read installed Teams apps for all users",
+          "description": "Allows the app to read the Microsoft 365 Apps that are installed for any user, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Read installed Microsoft 365 Apps for all users",
           "id": "9ce09611-f4f7-4abd-a629-a05450422a97",
           "isEnabled": true,
           "origin": "Application",
@@ -2539,8 +2539,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read, install, upgrade, and uninstall Teams apps in any chat, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Manage Teams apps for all chats",
+          "description": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in any chat, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Manage Microsoft 365 Apps for all chats",
           "id": "9e19bae1-2623-4c4f-ab6e-2664615ff9a0",
           "isEnabled": true,
           "origin": "Application",
@@ -2550,8 +2550,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read, install, upgrade, and uninstall Teams apps in any team, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Manage Teams apps for all teams",
+          "description": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in any team, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Manage Microsoft 365 Apps for all teams",
           "id": "5dad17ba-f6cc-4954-a5a2-a0dcc95154f0",
           "isEnabled": true,
           "origin": "Application",
@@ -2561,8 +2561,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read, install, upgrade, and uninstall Teams apps for any user, without a signed-in user. Does not give the ability to read application-specific settings.",
-          "displayName": "Manage Teams apps for all users",
+          "description": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps for any user, without a signed-in user. Does not give the ability to read application-specific settings.",
+          "displayName": "Manage Microsoft 365 Apps for all users",
           "id": "74ef0291-ca83-4d02-8c7e-d2391e6a444f",
           "isEnabled": true,
           "origin": "Application",
@@ -2572,8 +2572,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall itself for any chat, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage itself for all chats",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself for any chat, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage itself for all chats",
           "id": "73a45059-f39c-4baf-9182-4954ac0e55cf",
           "isEnabled": true,
           "origin": "Application",
@@ -2583,8 +2583,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall itself in any team, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage itself for all teams",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself in any team, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage itself for all teams",
           "id": "9f67436c-5415-4e7f-8ac1-3014a7132630",
           "isEnabled": true,
           "origin": "Application",
@@ -2594,7 +2594,7 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall itself to any user, without a signed-in user.",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself to any user, without a signed-in user.",
           "displayName": "Allow the app to manage itself for all users",
           "id": "908de74d-f8b2-4d6b-a9ed-2a17b3b78179",
           "isEnabled": true,
@@ -2737,8 +2737,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall all tabs for any chat, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage all tabs for all chats",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs for any chat, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage all tabs for all chats",
           "id": "fd9ce730-a250-40dc-bd44-8dc8d20f39ea",
           "isEnabled": true,
           "origin": "Application",
@@ -2748,8 +2748,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall all tabs in any team, without a signed-in user.",
-          "displayName": "Allow the Teams app to manage all tabs for all teams",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs in any team, without a signed-in user.",
+          "displayName": "Allow the Microsoft 365 App to manage all tabs for all teams",
           "id": "6163d4f4-fbf8-43da-a7b4-060fe85ed148",
           "isEnabled": true,
           "origin": "Application",
@@ -2759,7 +2759,7 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows a Teams app to read, install, upgrade, and uninstall all tabs for any user, without a signed-in user.",
+          "description": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs for any user, without a signed-in user.",
           "displayName": "Allow the app to manage all tabs for all users",
           "id": "425b4b59-d5af-45c8-832f-bb0b7402348a",
           "isEnabled": true,
@@ -3012,8 +3012,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read and write the Teams app settings without a signed-in user.",
-          "displayName": "Read and write Teams app settings",
+          "description": "Allows the app to read and write the Microsoft 365 App settings without a signed-in user.",
+          "displayName": "Read and write Microsoft 365 App settings",
           "id": "ab5b445e-8f10-45f4-9c79-dd3f8062cc4e",
           "isEnabled": true,
           "origin": "Application",
@@ -3122,8 +3122,8 @@
           "allowedMemberTypes": [
             "Application"
           ],
-          "description": "Allows the app to read the Teams app settings without a signed-in user.",
-          "displayName": "Read Teams app settings",
+          "description": "Allows the app to read the Microsoft 365 App settings without a signed-in user.",
+          "displayName": "Read Microsoft 365 App settings",
           "id": "475ebe88-f071-4bd7-af2b-642952bd4986",
           "isEnabled": true,
           "origin": "Application",
@@ -3442,13 +3442,13 @@
           "value": "ThreatHunting.Read.All"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself to teams the signed-in user can access.",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself to teams the signed-in user can access.",
           "adminConsentDisplayName": "Allow the app to manage itself in teams",
           "id": "0f4595f7-64b1-4e13-81bc-11a249df07a9",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself to teams you can access.",
-          "userConsentDisplayName": "Allow the Teams app to manage itself in teams",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself to teams you can access.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage itself in teams",
           "value": "TeamsAppInstallation.ReadWriteSelfForTeam"
         },
         {
@@ -3492,13 +3492,13 @@
           "value": "IdentityRiskyServicePrincipal.ReadWrite.All"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs to teams the signed-in user can access.",
-          "adminConsentDisplayName": "Allow the Teams app to manage only its own tabs in teams",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs to teams the signed-in user can access.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs in teams",
           "id": "f266662f-120a-4314-b26a-99b08617c7ef",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs to teams you can access.",
-          "userConsentDisplayName": "Allow the Teams app to manage only its own tabs in teams",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs to teams you can access.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs in teams",
           "value": "TeamsTab.ReadWriteSelfForTeam"
         },
         {
@@ -3532,23 +3532,23 @@
           "value": "SubjectRightsRequest.ReadWrite.All"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs for the signed-in user.",
-          "adminConsentDisplayName": "Allow the Teams app to manage only its own tabs for a user",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs for the signed-in user.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs for a user",
           "id": "395dfec1-a0b9-465f-a783-8250a430cb8c",
           "isEnabled": true,
           "type": "User",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs for you.",
-          "userConsentDisplayName": "Allow the Teams app to manage only its own tabs for you",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs for you.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs for you",
           "value": "TeamsTab.ReadWriteSelfForUser"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs in chats the signed-in user can access.",
-          "adminConsentDisplayName": "Allow the Teams app to manage only its own tabs in chats",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs in chats the signed-in user can access.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs in chats",
           "id": "0c219d04-3abf-47f7-912d-5cca239e90e6",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall its own tabs in chats you can access.",
-          "userConsentDisplayName": "Allow the Teams app to manage only its own tabs in chats",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall its own tabs in chats you can access.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage only its own tabs in chats",
           "value": "TeamsTab.ReadWriteSelfForChat"
         },
         {
@@ -5932,73 +5932,73 @@
           "value": "AppCatalog.Submit"
         },
         {
-          "adminConsentDescription": "Allows the app to read the Teams apps that are installed in chats the signed-in user can access. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Read installed Teams apps in chats",
+          "adminConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed in chats the signed-in user can access. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Read installed Microsoft 365 Apps in chats",
           "id": "bf3fbf03-f35f-4e93-963e-47e4d874c37a",
           "isEnabled": true,
           "type": "User",
-          "userConsentDescription": "Allows the app to read the Teams apps that are installed in chats that you can access. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Read installed Teams apps in chats",
+          "userConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed in chats that you can access. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Read installed Microsoft 365 Apps in chats",
           "value": "TeamsAppInstallation.ReadForChat"
         },
         {
-          "adminConsentDescription": "Allows the app to read the Teams apps that are installed in teams the signed-in user can access. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Read installed Teams apps in teams",
+          "adminConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed in teams the signed-in user can access. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Read installed Microsoft 365 Apps in teams",
           "id": "5248dcb1-f83b-4ec3-9f4d-a4428a961a72",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows the app to read the Teams apps that are installed in teams that you can access. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Read installed Teams apps in teams",
+          "userConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed in teams that you can access. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Read installed Microsoft 365 Apps in teams",
           "value": "TeamsAppInstallation.ReadForTeam"
         },
         {
-          "adminConsentDescription": "Allows the app to read the Teams apps that are installed for the signed-in user. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Read user's installed Teams apps",
+          "adminConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed for the signed-in user. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Read user's installed Microsoft 365 Apps",
           "id": "c395395c-ff9a-4dba-bc1f-8372ba9dca84",
           "isEnabled": true,
           "type": "User",
-          "userConsentDescription": "Allows the app to read the Teams apps that are installed for you. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Read your installed Teams apps",
+          "userConsentDescription": "Allows the app to read the Microsoft 365 Apps that are installed for you. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Read your installed Microsoft 365 Apps",
           "value": "TeamsAppInstallation.ReadForUser"
         },
         {
-          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps in teams the signed-in user can access. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Manage installed Teams apps in teams",
+          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in teams the signed-in user can access. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Manage installed Microsoft 365 Apps in teams",
           "id": "2e25a044-2580-450d-8859-42eeb6e996c0",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps in teams you can access. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Manage installed Teams apps in teams",
+          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in teams you can access. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Manage installed Microsoft 365 Apps in teams",
           "value": "TeamsAppInstallation.ReadWriteForTeam"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself in chats the signed-in user can access.",
-          "adminConsentDisplayName": "Allow the Teams app to manage itself in chats",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself in chats the signed-in user can access.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage itself in chats",
           "id": "0ce33576-30e8-43b7-99e5-62f8569a4002",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself in chats you can access.",
-          "userConsentDisplayName": "Allow the Teams app to manage itself in chats",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself in chats you can access.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage itself in chats",
           "value": "TeamsAppInstallation.ReadWriteSelfForChat"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself for the signed-in user.",
-          "adminConsentDisplayName": "Allow the Teams app to manage itself for a user",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself for the signed-in user.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage itself for a user",
           "id": "207e0cb1-3ce7-4922-b991-5a760c346ebc",
           "isEnabled": true,
           "type": "User",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall itself for you.",
-          "userConsentDisplayName": "Allow the Teams app to manage itself for you",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall itself for you.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage itself for you",
           "value": "TeamsAppInstallation.ReadWriteSelfForUser"
         },
         {
-          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps installed for the signed-in user. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Manage user's installed Teams apps",
+          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps installed for the signed-in user. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Manage user's installed Microsoft 365 Apps",
           "id": "093f8818-d05f-49b8-95bc-9d2a73e9a43c",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps installed for you. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Manage your installed Teams apps",
+          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps installed for you. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Manage your installed Microsoft 365 Apps",
           "value": "TeamsAppInstallation.ReadWriteForUser"
         },
         {
@@ -6142,13 +6142,13 @@
           "value": "CloudPC.Read.All"
         },
         {
-          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps in chats the signed-in user can access. Does not give the ability to read application-specific settings.",
-          "adminConsentDisplayName": "Manage installed Teams apps in chats",
+          "adminConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in chats the signed-in user can access. Does not give the ability to read application-specific settings.",
+          "adminConsentDisplayName": "Manage installed Microsoft 365 Apps in chats",
           "id": "aa85bf13-d771-4d5d-a9e6-bca04ce44edf",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Teams apps in chats you can access. Does not give the ability to read application-specific settings.",
-          "userConsentDisplayName": "Manage installed Teams apps in chats",
+          "userConsentDescription": "Allows the app to read, install, upgrade, and uninstall Microsoft 365 Apps in chats you can access. Does not give the ability to read application-specific settings.",
+          "userConsentDisplayName": "Manage installed Microsoft 365 Apps in chats",
           "value": "TeamsAppInstallation.ReadWriteForChat"
         },
         {
@@ -6182,33 +6182,33 @@
           "value": "ChatMessage.Read"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs in chats the signed-in user can access.",
-          "adminConsentDisplayName": "Allow the Teams app to manage all tabs in chats",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs in chats the signed-in user can access.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage all tabs in chats",
           "id": "ee928332-e9c2-4747-b4a0-f8c164b68de6",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs in chats you can access.",
-          "userConsentDisplayName": "Allow the Teams app to manage all tabs in chats",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs in chats you can access.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage all tabs in chats",
           "value": "TeamsTab.ReadWriteForChat"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs to teams the signed-in user can access.",
-          "adminConsentDisplayName": "Allow the Teams app to manage all tabs in teams",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs to teams the signed-in user can access.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage all tabs in teams",
           "id": "c975dd04-a06e-4fbb-9704-62daad77bb49",
           "isEnabled": true,
           "type": "Admin",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs to teams you can access.",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs to teams you can access.",
           "userConsentDisplayName": "Allow the app to manage all tabs in teams",
           "value": "TeamsTab.ReadWriteForTeam"
         },
         {
-          "adminConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs for the signed-in user.",
-          "adminConsentDisplayName": "Allow the Teams app to manage all tabs for a user",
+          "adminConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs for the signed-in user.",
+          "adminConsentDisplayName": "Allow the Microsoft 365 App to manage all tabs for a user",
           "id": "c37c9b61-7762-4bff-a156-afc0005847a0",
           "isEnabled": true,
           "type": "User",
-          "userConsentDescription": "Allows a Teams app to read, install, upgrade, and uninstall all tabs for you.",
-          "userConsentDisplayName": "Allow the Teams app to manage all tabs for you",
+          "userConsentDescription": "Allows a Microsoft 365 App to read, install, upgrade, and uninstall all tabs for you.",
+          "userConsentDisplayName": "Allow the Microsoft 365 App to manage all tabs for you",
           "value": "TeamsTab.ReadWriteForUser"
         },
         {
@@ -6625,7 +6625,7 @@
       "passwordCredentials": [],
       "resourceSpecificApplicationPermissions": [
         {
-          "description": "Allows the app to read the Teams apps that are installed in this team, without a signed-in user. ",
+          "description": "Allows the app to read the Microsoft 365 Apps that are installed in this team, without a signed-in user. ",
           "displayName": "Read which apps are installed in this team",
           "id": "ba4beb29-863b-4f02-8969-37a289cd91c0",
           "isEnabled": true,

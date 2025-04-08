@@ -318,7 +318,7 @@ export function selectTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "teams-manifest-file",
     cliShortName: "t",
     cliDescription:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+      "Specify the path for Microsoft 365 App manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     title: getLocalizedString("core.selectTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -343,7 +343,7 @@ export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "local-teams-manifest-file",
     cliShortName: "l",
     cliDescription:
-      "Specifies the Microsoft Teams app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
+      "Specifies the Microsoft 365 App manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
     title: getLocalizedString("core.selectLocalTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -446,7 +446,7 @@ function selectTeamsAppPackageQuestion(): SingleFileQuestion {
     name: QuestionNames.TeamsAppPackageFilePath,
     title: getLocalizedString("core.selectTeamsAppPackageQuestion.title"),
     cliDescription:
-      "Specifies the zipped Microsoft Teams app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
+      "Specifies the zipped Microsoft 365 App package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
     cliName: "app-package-file",
     cliShortName: "p",
     type: "singleFile",
@@ -1552,7 +1552,7 @@ export function syncManifestQuestionNode(): IQTreeNode {
           type: "text",
           name: QuestionNames.TeamsAppId,
           title: getLocalizedString("core.syncManifest.teamsAppId"),
-          cliDescription: "Teams App ID (optional)",
+          cliDescription: "Microsoft 365 App ID (optional)",
         },
       },
     ],

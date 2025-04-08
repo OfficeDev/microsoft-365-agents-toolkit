@@ -26,7 +26,7 @@ export const ValidateTeamsAppOptions: CLICommandOption[] = [
     type: "string",
     shortName: "p",
     description:
-      "Specifies the zipped Microsoft Teams app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
+      "Specifies the zipped Microsoft 365 App package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
   },
 ];
 export const ValidateTeamsAppArguments: CLICommandArgument[] = [];

@@ -247,7 +247,10 @@ export class FxCore {
     if (inputs.teamsAppFromTdp) {
       if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
         return err(
-          new InputValidationError("manifest.json", "Teams app contains unsupported features")
+          new InputValidationError(
+            "manifest.json",
+            "Microsoft 365 App contains unsupported features"
+          )
         );
       } else {
         context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {

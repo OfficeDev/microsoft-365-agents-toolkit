@@ -316,7 +316,7 @@ export class ErrorMessages {
     `Failed to get configuration value "${configName}" for ${plugin}.`;
   static readonly GrantPermissionFailed = "Response is empty or user is not added.";
   static readonly TeamsAppNotFound = (teamsAppId: string) =>
-    `Cannot find Teams App with id: ${teamsAppId}. Maybe your current M365 account doesn't not have permission, or the Teams App has already been deleted.`;
+    `Cannot find Microsoft 365 App with id: ${teamsAppId}. Maybe your current M365 account doesn't not have permission, or the Microsoft 365 App has already been deleted.`;
 }
 
 export class APP_STUDIO_API_NAMES {
@@ -349,7 +349,7 @@ export class APP_STUDIO_API_NAMES {
 }
 
 /**
- * Config keys that are useful for generating remote teams app manifest
+ * Config keys that are useful for generating remote Microsoft 365 App manifest
  */
 export const MANIFEST_TEMPLATE_CONSOLIDATE = "manifest.template.json";
 export const COLOR_TEMPLATE = "plugins/resource/appstudio/defaultIcon.png";

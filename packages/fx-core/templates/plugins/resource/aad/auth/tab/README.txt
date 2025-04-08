@@ -7,7 +7,7 @@ Files generated/updated in your project
 1. New file - 'aad.template.json' is created in folder 'templates/appPackage'
    - The Microsoft Entra application manifest that is used to register the application with Microsoft Entra.
 2. Update file - 'templates/appPackage/manifest.template.json'
-   - An 'webApplicationInfo' object will be added into your Teams app manifest template. This field is required by Teams when enabling SSO.
+   - An 'webApplicationInfo' object will be added into your Microsoft 365 App manifest template. This field is required by Teams when enabling SSO.
 3. New file - 'Auth/tab'
    - Sample code and a 'README.txt' file. These files are provided for reference. See below for more information.
 4. Update file - 'appsettings.json' and 'appsettings.Development.json'
@@ -25,7 +25,7 @@ You need to update your application code to take advantage of the SSO authentica
 Debug your application
 -------------------------
 
-1. Right-click your project and select Microsoft 365 Agents Toolkit > Prepare Teams app dependencies
+1. Right-click your project and select Microsoft 365 Agents Toolkit > Prepare Microsoft 365 App dependencies
 2. If prompted, sign in with an M365 account for the Teams organization you want 
 to install the app to
 3. Press F5, or select the Debug > Start Debugging menu in Visual Studio
