@@ -84,7 +84,6 @@
             "sample-assistant-dashboard",
             "sample-hello-world-tab-outlook",
             "sample-bot-sso",
-            "sample-localdebug-sso-tab-via-apim-proxy",
             "sample-remotedebug-sso-tab-via-apim-proxy",
             "sample-graph-connector-bot"
         ]
