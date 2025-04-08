@@ -172,6 +172,10 @@ describe("kiotaClient", () => {
         logs: [],
       };
 
+      if (process.env.KIOTA_BINARY_PATH) {
+        delete process.env.KIOTA_BINARY_PATH;
+      }
+
       const includeFilters = ["GET /users"];
       const excludeFilters = ["DELETE /users"];
 
