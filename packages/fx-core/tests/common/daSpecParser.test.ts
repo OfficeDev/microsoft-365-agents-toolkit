@@ -341,5 +341,68 @@ describe("daSpecParser", () => {
       assert.equal(result.allAPICount, 1);
       assert.equal(result.validAPICount, 1);
     });
+
+    it("should handle undefined or empty security information", async () => {
+      const mockTreeInfoNoSecurity: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          security: undefined,
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: undefined,
+        securitySchemes: {},
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfoNoSecurity);
+      const resultNoSecurity = await daSpecParser.listAPIInfo("path/to/spec");
+      assert.isUndefined(resultNoSecurity.APIs[0].auth);
+
+      const mockTreeInfoEmptySecurity: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfoEmptySecurity);
+      const resultEmptySecurity = await daSpecParser.listAPIInfo("path/to/spec");
+      assert.isUndefined(resultEmptySecurity.APIs[0].auth);
+
+      const mockTreeInfoEmptyRequirement: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [{}],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfoEmptyRequirement);
+      const resultEmptyRequirement = await daSpecParser.listAPIInfo("path/to/spec");
+      assert.isUndefined(resultEmptyRequirement.APIs[0].auth);
+    });
   });
 });

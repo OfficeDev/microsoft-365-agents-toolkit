@@ -38,9 +38,9 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
     if (treeInfo && treeInfo.rootNode) {
       const operations: ListAPIInfo[] = extractOperations(
         treeInfo.rootNode,
-        treeInfo.servers,
-        treeInfo.security,
-        treeInfo.securitySchemes
+        treeInfo.servers ?? [],
+        treeInfo.security ?? [],
+        treeInfo.securitySchemes ?? {}
       );
 
       return {
@@ -71,11 +71,11 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
 
 function extractOperations(
   node: KiotaOpenApiNode,
-  parentServer: string[] = [],
-  parentSecurity: SecurityRequirementObject[] = [],
+  parentServer: string[],
+  parentSecurity: SecurityRequirementObject[],
   securitySchemes: {
     [key: string]: SecuritySchemeObject;
-  } = {}
+  }
 ): ListAPIInfo[] {
   const operations: ListAPIInfo[] = [];
 
@@ -125,7 +125,12 @@ function extractOperations(
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      const childOps: ListAPIInfo[] = extractOperations(child, server, security, securitySchemes);
+      const childOps: ListAPIInfo[] = extractOperations(
+        child,
+        server,
+        security ?? [],
+        securitySchemes
+      );
       operations.push(...childOps);
     }
   }
