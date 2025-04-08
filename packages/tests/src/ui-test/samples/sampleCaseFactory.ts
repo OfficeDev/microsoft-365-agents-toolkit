@@ -190,6 +190,21 @@ export abstract class CaseFactory {
     this.options = options;
   }
 
+  public async onProvision(
+    sampledebugContext: SampledebugContext
+  ): Promise<void> {
+    return await sampledebugContext.provisionProject(
+      sampledebugContext.appName,
+      sampledebugContext.projectPath,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "DeprecationWarning"
+    );
+  }
+
   public onBefore(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
@@ -321,6 +336,7 @@ export abstract class CaseFactory {
       onValidate,
       onReopenPage,
       onCliValidate,
+      onProvision,
     } = this;
     describe("Sample Tests", function () {
       this.timeout(Timeout.testAzureCaseTotal);
@@ -626,16 +642,7 @@ export abstract class CaseFactory {
             }
 
             // ttk debug
-            await sampledebugContext.provisionProject(
-              sampledebugContext.appName,
-              sampledebugContext.projectPath,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              "DeprecationWarning"
-            );
+            await onProvision(sampledebugContext);
             if (options?.container) {
               await Executor.login();
             }

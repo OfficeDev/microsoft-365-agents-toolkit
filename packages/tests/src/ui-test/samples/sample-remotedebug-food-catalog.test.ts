@@ -41,6 +41,21 @@ class FoodCatalogTestCase extends CaseFactory {
       fs.chmodSync(scriptPath, "755");
     }
   }
+
+  override async onProvision(
+    sampledebugContext: SampledebugContext
+  ): Promise<void> {
+    return await sampledebugContext.provisionProject(
+      sampledebugContext.appName,
+      sampledebugContext.projectPath,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "@azure/data-tables"
+    );
+  }
 }
 
 new FoodCatalogTestCase(

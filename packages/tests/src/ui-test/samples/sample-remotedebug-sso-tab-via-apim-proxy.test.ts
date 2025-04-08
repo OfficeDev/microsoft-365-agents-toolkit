@@ -10,7 +10,7 @@ import * as path from "path";
 import { SampledebugContext } from "./sampledebugContext";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { validateTab } from "../../utils/playwrightOperation";
+import { validateTabApim } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { Env } from "../../utils/env";
 
@@ -19,9 +19,8 @@ class SsotabApimTestCase extends CaseFactory {
     page: Page,
     options?: { includeFunction: boolean }
   ): Promise<void> {
-    return await validateTab(page, {
+    return await validateTabApim(page, {
       displayName: Env.displayName,
-      includeFunction: options?.includeFunction,
     });
   }
   override async onAfterCreate(
@@ -47,7 +46,6 @@ new SsotabApimTestCase(
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],
   {
-    debug: "cli",
     skipLocal: true,
   }
 ).test();
