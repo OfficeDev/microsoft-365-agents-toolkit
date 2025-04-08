@@ -599,7 +599,7 @@
   "core.common.SendingApiRequest": "Sending API request: %s. Request body: %s",
   "core.common.ReceiveApiResponse": "Received API response: %s.",
   "core.common.shareToUser.success": "Successfully shared the app with users: %s.",
-  "core.common.removeShareAccess.success": "Successfully removed access to the shared app for users: %s.",
+  "core.common.removeShareAccess.success": "Successfully removed access to the shared app from users: %s.",
   "core.envFunc.unsupportedFile.errorLog": "\"%s\" is an invalid file. Supported format: %s.",
   "core.envFunc.unsupportedFile.errorMessage": "Invalid file. %s",
   "core.envFunc.unsupportedFunction.errorLog": "\"%s\" is an invalid function. Supported function: \"%s\".",

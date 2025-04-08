@@ -130,11 +130,11 @@ export enum QuestionNames {
   DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
   SensitivityLabel = "sensitivity-label",
 
-  ShareOption = "share-option",
-  ShareOptionShareApp = "share-option-share-app",
-  ShareOptionShareToUser = "share-option-share-to-user",
-  ShareToUser = "share-to-user",
-  RemoveUsers = "remove-users",
+  ShareOption = "option",
+  ShareOptionShareApp = "share-app",
+  ShareOptionShareToUser = "share-to-users",
+  ShareToUsers = "users",
+  RemoveUsers = "users",
 }
 
 export enum ProjectTypeGroup {

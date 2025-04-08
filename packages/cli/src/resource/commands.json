@@ -160,7 +160,10 @@
     "description": "Run the publish stage in teamsapp.yml."
   },
   "share": {
-    "description": "Run the share stage in teamsapp.yml."
+    "description": "Run the share stage in teamsapp.yml or share the app to other users."
+  },
+  "share.remove": {
+    "description": "Remove access to the app from specified users."
   },
   "uninstall": {
     "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Teams Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",

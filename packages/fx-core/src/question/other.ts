@@ -1699,7 +1699,7 @@ function shareOptionQuestion(): SingleSelectQuestion {
 
 function ShareToUserQuestion(): TextInputQuestion {
   return {
-    name: QuestionNames.ShareToUser,
+    name: QuestionNames.ShareToUsers,
     title: getLocalizedString("core.shareToUser.title"),
     type: "text",
     cliDescription: getLocalizedString("core.shareToUser.title"),

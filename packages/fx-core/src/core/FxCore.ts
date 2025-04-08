@@ -945,7 +945,7 @@ export class FxCore {
         return err(res.error);
       }
     } else if (options === QuestionNames.ShareOptionShareToUser) {
-      const emails = (inputs[QuestionNames.ShareToUser] as string).split(",").map((e) => e.trim());
+      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
       if (!emails || emails.length === 0) {
         return err(new MissingRequiredInputError("emails", "FxCore"));
       }
