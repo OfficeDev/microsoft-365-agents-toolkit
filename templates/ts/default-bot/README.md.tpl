@@ -30,7 +30,8 @@ An agent interaction can be a quick question and answer, or it can be a complex 
 
 **Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
 
-![basic bot](https://github.com/OfficeDev/TeamsFx/assets/9698542/bdf87809-7dd7-4926-bff0-4546ada25e4b)
+![basic bot](https://github.com/user-attachments/assets/2b9e3fa1-7438-4c18-8458-6ff7a5e67cac)
+
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
