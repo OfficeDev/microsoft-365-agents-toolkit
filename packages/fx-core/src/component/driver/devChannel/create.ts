@@ -59,8 +59,7 @@ export class CreateDevChannelDriver implements StepDriver {
         context.addTelemetryProperties({ [TelemetryProperty.SkipCreation]: "true" });
 
         // Update the channel web URL, incase user manually modify teamId or channelId
-        state.channelWebUrl = await this.getChannelWebUrl(
-          graphClient,
+        state.channelWebUrl = await graphClient.GetChannelDeeplinkAsync(
           state.teamId,
           state.channelId
         );
@@ -87,7 +86,10 @@ export class CreateDevChannelDriver implements StepDriver {
       context.addSummary(
         getLocalizedString("driver.devChannel.summary", args.teamName, args.channelName)
       );
-      state.channelWebUrl = await this.getChannelWebUrl(graphClient, state.teamId, state.channelId);
+      state.channelWebUrl = await graphClient.GetChannelDeeplinkAsync(
+        state.teamId,
+        state.channelId
+      );
       const outputs = mapStateToEnv(state, outputEnvVarNames);
       return ok(outputs);
     } catch (error: any) {
@@ -99,14 +101,5 @@ export class CreateDevChannelDriver implements StepDriver {
         return err(error);
       }
     }
-  }
-
-  private async getChannelWebUrl(
-    graphClient: GraphClient,
-    channelId: string,
-    teamId: string
-  ): Promise<string> {
-    const res = await graphClient.GetChannelDeeplinkAsync(teamId, channelId);
-    return res;
   }
 }
