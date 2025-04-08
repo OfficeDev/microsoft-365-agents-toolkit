@@ -99,4 +99,148 @@ describe("kiotaClient", () => {
     assert(setKiotaConfigStub.notCalled);
     assert.equal(result.length, 0);
   });
+
+  describe("listAPITreeInfo", () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(async () => {
+      sandbox.restore();
+    });
+
+    it("happy path: listAPITreeInfo with default parameters", async () => {
+      const mockTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          children: [],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      const result = await listAPITreeInfo("path/to/spec");
+
+      assert(getKiotaTreeStub.calledOnce);
+      assert(
+        getKiotaTreeStub.calledWith({
+          includeFilters: undefined,
+          descriptionPath: "path/to/spec",
+          excludeFilters: undefined,
+          clearCache: true,
+          includeKiotaValidationRules: true,
+        })
+      );
+
+      assert.deepEqual(result, mockTreeResult);
+    });
+
+    it("happy path: listAPITreeInfo with include and exclude filters", async () => {
+      const mockTreeResult = {
+        rootNode: {
+          isOperation: false,
+          path: "",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/users",
+              segment: "GET",
+              operationId: "getUsers",
+              children: [],
+            },
+          ],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      const includeFilters = ["GET /users"];
+      const excludeFilters = ["DELETE /users"];
+
+      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+      const setKiotaConfigStub = sinon.stub().resolves();
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      const result = await listAPITreeInfo("path/to/spec", includeFilters, excludeFilters);
+
+      assert(getKiotaTreeStub.calledOnce);
+      assert(
+        getKiotaTreeStub.calledWith({
+          includeFilters: includeFilters,
+          descriptionPath: "path/to/spec",
+          excludeFilters: excludeFilters,
+          clearCache: true,
+          includeKiotaValidationRules: true,
+        })
+      );
+
+      assert.deepEqual(result, mockTreeResult);
+    });
+
+    it("edge case: listAPITreeInfo returns undefined", async () => {
+      const getKiotaTreeStub = sinon.stub().resolves(undefined);
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      const result = await listAPITreeInfo("path/to/spec");
+
+      assert(getKiotaTreeStub.calledOnce);
+      assert.isUndefined(result);
+    });
+
+    it("error path: listAPITreeInfo throws exception", async () => {
+      const errorMessage = "Failed to parse OpenAPI spec";
+      const getKiotaTreeStub = sinon.stub().rejects(new Error(errorMessage));
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      try {
+        await listAPITreeInfo("path/to/spec");
+        assert.fail("Should have thrown an error");
+      } catch (error) {
+        assert.equal((error as Error).message, errorMessage);
+      }
+    });
+  });
 });
