@@ -78,5 +78,5 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        MicrosoftAppId: ${{BOT_ID}}
-        MicrosoftAppPassword: ${{SECRET_BOT_PASSWORD}}
+        clientId: ${{BOT_ID}}
+        clientSecret: ${{SECRET_BOT_PASSWORD}}
