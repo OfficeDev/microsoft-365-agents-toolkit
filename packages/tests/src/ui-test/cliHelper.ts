@@ -533,13 +533,13 @@ export class CliHelper {
     console.log(`install CLI with version ${version}`);
     if (global) {
       const { success } = await Executor.execute(
-        `npm install -g @microsoft/teamsapp-cli@${version}`,
+        `npm install -g @microsoft/m365agentstoolkit-cli@${version}`,
         cwd
       );
       //chai.expect(success).to.be.true;
     } else {
       const { success } = await Executor.execute(
-        `npm install @microsoft/teamsapp-cli@${version}`,
+        `npm install @microsoft/m365agentstoolkit-cli@${version}`,
         cwd
       );
       //chai.expect(success).to.be.true;
