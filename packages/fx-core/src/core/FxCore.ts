@@ -849,16 +849,17 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const context = createDriverContext(inputs);
+    const emails = inputs[QuestionNames.RemoveUsers] as string[];
+    if (!emails || emails.length === 0) {
+      return err(new MissingRequiredInputError("emails", "FxCore"));
+    }
     const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
     const teamsAppId = parseRes.value[0];
     const sharedTitleId = parseRes.value[1];
-    const sharedAppId = parseRes.value[2];
 
-    const emails = inputs[QuestionNames.RemoveUsers] as string[];
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const appStudioTokenRes = await tokenProvider.getAccessToken({
       scopes: AppStudioScopes,
@@ -930,9 +931,6 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
-      return err(new SystemError("FxCore", "", "share is not enabled"));
-    }
     const options = inputs[QuestionNames.ShareOption];
     if (options === QuestionNames.ShareOptionShareApp) {
       inputs.stage = Stage.share;
@@ -947,15 +945,17 @@ export class FxCore {
         return err(res.error);
       }
     } else if (options === QuestionNames.ShareOptionShareToUser) {
+      const emails = (inputs[QuestionNames.ShareToUser] as string).split(",").map((e) => e.trim());
+      if (!emails || emails.length === 0) {
+        return err(new MissingRequiredInputError("emails", "FxCore"));
+      }
       const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
       if (parseRes.isErr()) {
         return err(parseRes.error);
       }
       const teamsAppId = parseRes.value[0];
       const sharedTitleId = parseRes.value[1];
-      const sharedAppId = parseRes.value[2];
 
-      const emails = (inputs[QuestionNames.ShareToUser] as string).split(",").map((e) => e.trim());
       const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
       const appStudioTokenRes = await tokenProvider.getAccessToken({
         scopes: AppStudioScopes,
