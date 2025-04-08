@@ -31,6 +31,8 @@
     "test:aadDriver": "nyc mocha \"tests/component/driver/aad/*.test.ts\"",
     "test:apiKey": "nyc mocha \"tests/component/driver/apiKey/*.test.ts\"",
     "test:oauth": "nyc mocha \"tests/component/driver/oauth/*.test.ts\"",
+    "test:typeSpec": "nyc mocha \"tests/component/driver/typeSpec/*.test.ts\"",
+    "test:kiotaClient": "nyc mocha \"tests/common/kiotaClient.test.ts\"",
     "test:botAadAppDriver": "nyc mocha \"tests/component/driver/botAadApp/*.test.ts\"",
     "test:armDriver": "nyc mocha \"tests/component/driver/arm/*.test.ts\"",
     "test:teamsAppDriver": "nyc mocha \"tests/component/driver/teamsApp/*.test.ts\"",
