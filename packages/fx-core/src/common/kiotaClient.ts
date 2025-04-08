@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { KiotaSearchResultItem, searchDescription, setKiotaConfig } from "@microsoft/kiota";
+import {
+  KiotaSearchResultItem,
+  searchDescription,
+  setKiotaConfig,
+  getKiotaTree,
+  KiotaTreeResult,
+} from "@microsoft/kiota";
 
 export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpecResult[]> {
   if (process.env.KIOTA_BINARY_PATH) {
@@ -29,6 +35,25 @@ export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpe
   }
 
   return result;
+}
+
+export async function listAPITreeInfo(
+  specPath: string,
+  includeFilters?: string[],
+  excludeFilters?: string[]
+): Promise<KiotaTreeResult | undefined> {
+  if (process.env.KIOTA_BINARY_PATH) {
+    setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
+  }
+  const treeInfo = await getKiotaTree({
+    includeFilters: includeFilters,
+    descriptionPath: specPath,
+    excludeFilters: excludeFilters,
+    clearCache: true,
+    includeKiotaValidationRules: true,
+  });
+
+  return treeInfo;
 }
 
 export interface SearchOpenAPISpecResult {
