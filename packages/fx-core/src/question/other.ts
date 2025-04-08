@@ -12,6 +12,7 @@ import {
   Inputs,
   MultiFileQuestion,
   MultiSelectQuestion,
+  OptionItem,
   Platform,
   PluginManifestSchema,
   SingleFileQuestion,
@@ -1753,25 +1754,23 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
         throw new Error("No owner found in the app");
       }
 
-      const loginRes = await TOOLS.tokenProvider.m365TokenProvider.getStatus({
-        scopes: AppStudioScopes,
-      });
-      if (loginRes.isErr()) {
-        throw loginRes.error;
+      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
+        TOOLS.tokenProvider.m365TokenProvider
+      );
+      if (currentUserInfoRes.isErr()) {
+        throw currentUserInfoRes.error;
       }
-      const operatorId = loginRes.value.accountInfo?.["aad_id"];
-      if (!operatorId) {
-        throw new Error("Cannot get the account info.");
-      }
+      const operatorId = currentUserInfoRes.value.aadId;
 
-      const options = [];
+      const options: OptionItem[] = [];
       for (const user of app.userList) {
         if (user.aadId === operatorId) {
           continue;
         }
         options.push({
-          id: user.aadId,
+          id: user.userPrincipalName,
           label: user.displayName,
+          description: user.userPrincipalName,
         });
       }
       return options;

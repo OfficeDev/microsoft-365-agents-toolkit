@@ -114,6 +114,15 @@ export async function parseShareAppActionYamlConfig(
     projectPath,
     (resolvedDriver.with as any).appPackagePath as string
   );
+  if (!fs.existsSync(resolvedAppPackagePath)) {
+    return err(
+      new UserError(
+        "FxCore",
+        "Share",
+        getLocalizedString("error.share.appPackageNotFound", resolvedAppPackagePath)
+      )
+    );
+  }
   const zipEntries = new AdmZip(resolvedAppPackagePath).getEntries();
   const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
   if (!manifestFile) {

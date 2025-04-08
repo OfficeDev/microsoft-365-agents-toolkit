@@ -858,7 +858,7 @@ export class FxCore {
     const sharedTitleId = parseRes.value[1];
     const sharedAppId = parseRes.value[2];
 
-    const emails = (inputs[QuestionNames.RemoveUsers] as string).split(",").map((e) => e.trim());
+    const emails = inputs[QuestionNames.RemoveUsers] as string[];
     const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
     const appStudioTokenRes = await tokenProvider.getAccessToken({
       scopes: AppStudioScopes,
@@ -876,23 +876,23 @@ export class FxCore {
     const mosToken = mosTokenRes.value;
 
     // should never remove permission of the operator
-    const loginStatusRes = await tokenProvider.getStatus({
-      scopes: AppStudioScopes,
-    });
-    if (loginStatusRes.isErr()) {
-      return err(loginStatusRes.error);
+    const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(tokenProvider);
+    if (currentUserInfoRes.isErr()) {
+      return err(currentUserInfoRes.error);
     }
-    const loginStatus = loginStatusRes.value;
-    for (const email of emails) {
-      if (loginStatus.accountInfo?.["aad_id"] === email) {
-        return err(new UserError("FxCore", "removeSharedAccess", "Cannot remove your own access"));
-      }
-    }
-
+    const currentUserInfo = currentUserInfoRes.value;
     for (const email of emails) {
       const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
       if (!userInfo) {
         return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
+      }
+      if (userInfo.aadId === currentUserInfo.aadId) {
+        return err(
+          new InputValidationError(
+            "removeSharedAccess",
+            getLocalizedString("core.share.removeAccess.operator", email)
+          )
+        );
       }
 
       // 1. remove TDP permission
