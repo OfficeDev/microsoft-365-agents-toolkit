@@ -162,7 +162,7 @@
             "name": "Launch App to channel (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "${{sandbox:CHANNEL_WEB_URL}}",
+            "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
             "cascadeTerminateToConfigurations": [
                 "Attach to Local Service"
             ],
