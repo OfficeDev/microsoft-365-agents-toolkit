@@ -48,12 +48,9 @@ class FoodCatalogTestCase extends CaseFactory {
     return await sampledebugContext.provisionProject(
       sampledebugContext.appName,
       sampledebugContext.projectPath,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      "@azure/data-tables"
+      {
+        skipErrorMessage: "@azure/data-tables",
+      }
     );
   }
 }

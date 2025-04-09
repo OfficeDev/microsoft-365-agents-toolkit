@@ -194,12 +194,9 @@ export abstract class CaseFactory {
     return await sampledebugContext.provisionProject(
       sampledebugContext.appName,
       sampledebugContext.projectPath,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      "DeprecationWarning"
+      {
+        skipErrorMessage: "DeprecationWarning",
+      }
     );
   }
 

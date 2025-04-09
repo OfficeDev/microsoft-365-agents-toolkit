@@ -443,22 +443,31 @@ export class SampledebugContext extends TestContext {
   public async provisionProject(
     appName: string,
     projectPath = "",
-    createRg = true,
-    tool: "ttk" | "cli" = "cli",
-    option = "",
-    env: "dev" | "local" = "dev",
-    processEnv?: NodeJS.ProcessEnv,
-    skipErrorMessage?: string
-  ) {
-    if (tool === "cli") {
+    options: {
+      createRg?: boolean;
+      tool?: "ttk" | "cli";
+      option?: string;
+      env?: "dev" | "local";
+      processEnv?: NodeJS.ProcessEnv;
+      skipErrorMessage?: string;
+    } = {
+      createRg: true,
+      tool: "cli",
+      option: "",
+      env: "dev",
+      processEnv: undefined,
+      skipErrorMessage: undefined,
+    }
+  ): Promise<void> {
+    if (options.tool === "cli") {
       await this.runCliProvision(
         projectPath,
         appName,
-        createRg,
-        option,
-        env,
-        processEnv,
-        skipErrorMessage
+        options.createRg,
+        options.option,
+        options.env,
+        options.processEnv,
+        options.skipErrorMessage
       );
     } else {
       await runProvision(appName);
