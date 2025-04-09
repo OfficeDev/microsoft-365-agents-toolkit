@@ -55,6 +55,10 @@
     "botbuilder-dialogs": "^4.23.2",
     "botframework-connector": "^4.23.2",
     "botframework-schema": "^4.23.2",
+    "@microsoft/agents-activity": "^0.1.49",
+    "@microsoft/agents-hosting": "^0.1.49",
+    "@microsoft/agents-hosting-dialogs": "^0.1.49",
+    "@microsoft/agents-hosting-teams": "^0.1.49",
     "jwt-decode": "^4.0.0",
     "uuid": "^10.0.0"
   },

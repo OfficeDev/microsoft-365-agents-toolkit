@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { DialogContext, DialogTurnResult } from "botbuilder-dialogs";
+import { DialogContext, DialogTurnResult } from "@microsoft/agents-hosting-dialogs";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { formatString } from "../util/utils";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";

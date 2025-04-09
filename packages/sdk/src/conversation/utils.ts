@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference, TurnContext } from "botbuilder";
+import { ConversationReference, TurnContext } from "@microsoft/agents-hosting";
 import { NotificationTargetType } from "./interface";
 
 /**
@@ -50,7 +50,7 @@ export function getTeamsBotInstallationId(context: TurnContext): string | undefi
 
   // Fallback to use conversation id.
   // The conversation id is equal to team id only when the bot app is installed into the General channel.
-  if (context.activity.conversation.name === undefined) {
+  if (context.activity.conversation?.name === undefined && context.activity.conversation?.id) {
     return context.activity.conversation.id;
   }
 
