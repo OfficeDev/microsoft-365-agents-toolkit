@@ -9,4 +9,4 @@ To use GitHub Copilot Chat with `@m365agents`, you must complete the following s
 2. **[Install GitHub Copilot Chat for Visual Studio Code](command:fx-extension.installCopilotChat?%5B%22TeamsAgentWalkthrough%22%5D)**
 3. **[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit](command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)**
 
-After completing these steps, you can use `@m365agents` to chat with GitHub Copilot and explore Teams app or Microsoft 365 Copilot agent development.
+After completing these steps, you can use `@m365agents` to chat with GitHub Copilot and explore Microsoft 365 app or Microsoft 365 Copilot agent development.
