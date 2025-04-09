@@ -20,7 +20,6 @@ import { Constants } from "../../src/component/driver/teamsApp/constants";
 import { UserError } from "@microsoft/teamsfx-api";
 import os from "os";
 import path from "path";
-import { writeFileSync } from "fs";
 
 // Helper function to create a temporary ZIP file
 function createMockZipFile(): string {
