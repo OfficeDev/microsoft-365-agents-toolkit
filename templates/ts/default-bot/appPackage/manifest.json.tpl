@@ -39,6 +39,10 @@
                       {
                           "title": "Hi",
                           "description": "Say hi to the bot."
+                      },
+                      {
+                          "title": "/reset",
+                          "description": "Delete conversation state."
                       }
                   ]
                 }
