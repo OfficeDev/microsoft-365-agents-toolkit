@@ -20,6 +20,7 @@ import {
   SpecParser,
   SpecParserError,
   Utils,
+  ValidateResult,
   ValidationStatus,
   WarningResult,
   WarningType,
@@ -74,7 +75,7 @@ import {
 } from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
-import { listAPIInfo } from "../../../common/daSpecParser";
+import { listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -201,7 +202,14 @@ export async function listOperations(
       apiSpecUrl as string,
       getParserOptions(projectType, undefined, inputs.platform)
     );
-    const validationRes = await specParser.validate();
+
+    let validationRes: ValidateResult;
+    if (projectType === ProjectType.Copilot) {
+      validationRes = await validateOpenAPISpec(apiSpecUrl as string, inputs.platform);
+    } else {
+      validationRes = await specParser.validate();
+    }
+
     validationRes.errors = formatValidationErrors(validationRes.errors, inputs);
 
     logValidationResults(
@@ -470,10 +478,17 @@ export async function generateFromApiSpec(
   context: Context,
   sourceComponent: string,
   projectType: ProjectType,
-  outputFilePath: SpecParserOutputFilePath
+  outputFilePath: SpecParserOutputFilePath,
+  specPath: string
 ): Promise<Result<SpecParserGenerateResult, FxError>> {
   const operations = inputs[QuestionNames.ApiOperation] as string[];
-  const validationRes = await specParser.validate();
+
+  let validationRes: ValidateResult;
+  if (projectType === ProjectType.Copilot) {
+    validationRes = await validateOpenAPISpec(specPath, inputs.platform);
+  } else {
+    validationRes = await specParser.validate();
+  }
   const warnings = validationRes.warnings;
   const operationIdWarning = warnings.find((w) => w.type === WarningType.OperationIdMissing);
 

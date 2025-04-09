@@ -1796,7 +1796,8 @@ export class FxCore {
           destinationApiSpecFilePath: outputApiSpecPath,
           responseTemplateFolder: adaptiveCardFolder,
           pluginManifestFilePath: pluginPath,
-        }
+        },
+        url
       );
 
       if (generateResult.isErr()) {
@@ -2112,7 +2113,8 @@ export class FxCore {
           {
             destinationApiSpecFilePath: destinationApiSpecPath,
             pluginManifestFilePath: destinationPluginManifestPath,
-          }
+          },
+          inputs[QuestionNames.ApiSpecLocation].trim()
         );
         if (generateRes.isErr()) {
           return err(generateRes.error);
