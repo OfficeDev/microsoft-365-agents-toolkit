@@ -556,7 +556,7 @@ describe("setSensitivityLabelNode", () => {
     assert.equal((options?.[0] as any).label, "Label1");
   });
 
-  it("should handle graphAPI exception", async () => {
+  it("throw graphAPI exception", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -565,11 +565,16 @@ describe("setSensitivityLabelNode", () => {
     sandbox.stub(graphAPIClient, "listSensitivityLabels").throws(new Error("Graph API error"));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Graph API error"));
   });
 
-  it("should handle token error in sensitivity label question", async () => {
+  it("throw token error", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -577,17 +582,23 @@ describe("setSensitivityLabelNode", () => {
     };
     sandbox
       .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(err(new SystemError("TestError", "Test error message", "TestSource")));
+      .resolves(err(new SystemError("TestSource", "TestError", "Test error message")));
     const mockLabels = [
       { id: "1", displayName: "Label1" },
       { id: "2", displayName: "Label2" },
     ];
     sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Test error message"));
   });
 
-  it("should handle error in sensitivity label question", async () => {
+  it("throw list sensitivity label error", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -602,8 +613,13 @@ describe("setSensitivityLabelNode", () => {
         })
       )
     );
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Test error message"));
   });
 
   it("should return the correct default path for selectDeclarativeAgentManifestQuestion - CLI_HELP", async () => {
