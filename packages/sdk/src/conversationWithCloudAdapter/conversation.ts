@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import {} from "@microsoft/agents-activity";
 import {
   CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
   TurnContext,
   Request,
-  Response,
-} from "botbuilder";
+  AuthConfiguration,
+  loadAuthConfigFromEnv,
+} from "@microsoft/agents-hosting";
 import { CardActionBot } from "./cardAction";
 import { CommandBot } from "./command";
 import { BotSsoExecutionActivityHandler } from "../conversation/interface";
@@ -138,20 +138,9 @@ export class ConversationBot {
     }
   }
 
-  private createDefaultAdapter(adapterConfig?: { [key: string]: unknown }): CloudAdapter {
-    const credentialsFactory =
-      adapterConfig === undefined
-        ? new ConfigurationServiceClientCredentialFactory({
-            MicrosoftAppId: process.env.BOT_ID,
-            MicrosoftAppPassword: process.env.BOT_PASSWORD,
-            MicrosoftAppType: "MultiTenant",
-          })
-        : new ConfigurationServiceClientCredentialFactory(adapterConfig);
-    const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-      {},
-      credentialsFactory
-    );
-    const adapter = new CloudAdapter(botFrameworkAuthentication);
+  private createDefaultAdapter(adapterConfig?: AuthConfiguration): CloudAdapter {
+    const authConfig: AuthConfiguration = adapterConfig ?? loadAuthConfigFromEnv();
+    const adapter = new CloudAdapter(authConfig);
 
     // the default error handler
     adapter.onTurnError = async (context, error) => {
@@ -204,7 +193,7 @@ export class ConversationBot {
    */
   public async requestHandler(
     req: Request,
-    res: Response,
+    res: any,
     logic?: (context: TurnContext) => Promise<any>
   ): Promise<void> {
     if (logic === undefined) {

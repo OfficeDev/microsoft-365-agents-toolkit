@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 /* eslint-disable @typescript-eslint/require-await */
-import { SigninStateVerificationQuery, TurnContext } from "botbuilder";
+import { TurnContext } from "@microsoft/agents-hosting";
+import { SigninStateVerificationQuery } from "@microsoft/agents-hosting-teams";
 
 import { BotSsoConfig, BotSsoExecutionDialogHandler, TriggerPatterns } from "../interface";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../../core/errors";

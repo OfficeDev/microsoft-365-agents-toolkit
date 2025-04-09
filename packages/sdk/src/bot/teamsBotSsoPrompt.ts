@@ -11,21 +11,25 @@ import {
   TurnContext,
   OAuthCard,
   ActionTypes,
-  verifyStateOperationName,
   StatusCodes,
   TokenExchangeInvokeRequest,
-  tokenExchangeOperationName,
   TokenExchangeResource,
+  TokenPostResource,
+  SigningResource,
+} from "@microsoft/agents-hosting";
+import {
   TeamsInfo,
   TeamsChannelAccount,
-} from "botbuilder";
+  verifyStateOperationName,
+  tokenExchangeOperationName,
+} from "@microsoft/agents-hosting-teams";
 import {
   Dialog,
   DialogContext,
   DialogTurnResult,
   PromptOptions,
   PromptRecognizerResult,
-} from "botbuilder-dialogs";
+} from "@microsoft/agents-hosting-dialogs";
 import { TeamsBotSsoPromptTokenResponse } from "./teamsBotSsoPromptTokenResponse";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
@@ -292,7 +296,7 @@ export class TeamsBotSsoPrompt extends Dialog {
 
     const account: TeamsChannelAccount = await TeamsInfo.getMember(
       context,
-      context.activity.from.id
+      context.activity.from!.id!
     );
     internalLogger.verbose(
       "Get Teams member account user principal name: " +
@@ -301,18 +305,12 @@ export class TeamsBotSsoPrompt extends Dialog {
 
     const loginHint: string = account.userPrincipalName ? account.userPrincipalName : "";
     const signInResource = this.getSignInResource(loginHint);
-    const card = CardFactory.oauthCard(
-      "",
-      "Teams SSO Sign In",
-      "Sign In",
-      signInResource.signInLink,
-      signInResource.tokenExchangeResource
-    );
+    const card = CardFactory.oauthCard("", "Teams SSO Sign In", "Sign In", signInResource);
     (card.content as OAuthCard).buttons[0].type = ActionTypes.Signin;
     const msg: Partial<Activity> = MessageFactory.attachment(card);
 
     // Send prompt
-    await context.sendActivity(msg);
+    await context.sendActivity(msg as Activity);
   }
 
   /**
@@ -322,7 +320,7 @@ export class TeamsBotSsoPrompt extends Dialog {
    *
    * @internal
    */
-  private getSignInResource(loginHint: string) {
+  private getSignInResource(loginHint: string): SigningResource {
     internalLogger.verbose("Get sign in authentication configuration");
 
     const signInLink = `${this.initiateLoginEndpoint}?scope=${encodeURI(
@@ -337,9 +335,12 @@ export class TeamsBotSsoPrompt extends Dialog {
       id: uuidv4(),
     };
 
+    const tokenPostResource: TokenPostResource = {};
+
     return {
-      signInLink: signInLink,
+      singingLink: signInLink,
       tokenExchangeResource: tokenExchangeResource,
+      tokenPostResource: tokenPostResource,
     };
   }
 
@@ -399,7 +400,10 @@ export class TeamsBotSsoPrompt extends Dialog {
     } else if (this.isTeamsVerificationInvoke(context)) {
       internalLogger.verbose("Receive Teams state verification request");
       await this.sendOAuthCardAsync(dc.context);
-      await context.sendActivity({ type: invokeResponseType, value: { status: StatusCodes.OK } });
+      await context.sendActivity({
+        type: invokeResponseType,
+        value: { status: StatusCodes.OK },
+      } as Activity);
     }
 
     return tokenResponse !== undefined

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CloudAdapter } from "@microsoft/agents-hosting";
+import { AuthConfiguration, CloudAdapter } from "@microsoft/agents-hosting";
 import {
   BotSsoConfig,
   CommandOptions,
@@ -54,7 +54,7 @@ export interface ConversationOptions {
    * @remarks
    * If neither `adapter` nor `adapterConfig` is provided, will use BOT_ID and BOT_PASSWORD from environment variables.
    */
-  adapterConfig?: { [key: string]: unknown };
+  adapterConfig?: AuthConfiguration;
 
   /**
    * Configurations for sso command bot

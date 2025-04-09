@@ -11,7 +11,7 @@ import {
   O365ConnectorCard,
   ReceiptCard,
   ThumbnailCard,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
 import * as ACData from "adaptivecards-templating";
 
 /**
@@ -119,9 +119,10 @@ export class MessageBuilder {
    * @remarks
    * For channels that don't natively support sign-in cards, an alternative message is rendered.
    */
-  public static attachSigninCard(title: string, url: string, text?: string): Partial<Activity> {
-    return MessageBuilder.attachContent(CardFactory.signinCard(title, url, text));
-  }
+  // TODO: add this back when the sign-in card is supported in agent sdk
+  // public static attachSigninCard(title: string, url: string, text?: string): Partial<Activity> {
+  //   return MessageBuilder.attachContent(CardFactory.signinCard(title, url, text));
+  // }
 
   /**
    * Build a bot message activity attached with an Office 365 connector card.

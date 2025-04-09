@@ -8,16 +8,16 @@ import {
   DialogSet,
   DialogTurnStatus,
   DialogContext,
-} from "botbuilder-dialogs";
+} from "@microsoft/agents-hosting-dialogs";
 import {
   Activity,
   ActivityTypes,
   Channels,
-  StatePropertyAccessor,
+  AgentStatePropertyAccessor,
   Storage,
-  tokenExchangeOperationName,
   TurnContext,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
+import { tokenExchangeOperationName } from "@microsoft/agents-hosting-teams";
 import { CommandMessage, BotSsoExecutionDialogHandler, TriggerPatterns } from "../interface";
 import { TeamsBotSsoPrompt, TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt";
 import { TeamsBotSsoPromptTokenResponse } from "../../bot/teamsBotSsoPromptTokenResponse";
@@ -137,7 +137,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    * @param context The context object for the current turn.
    * @param accessor The instance of StatePropertyAccessor for dialog system.
    */
-  public async run(context: TurnContext, accessor: StatePropertyAccessor) {
+  public async run(context: TurnContext, accessor: AgentStatePropertyAccessor) {
     const dialogSet = new DialogSet(accessor);
     dialogSet.add(this);
 
@@ -156,8 +156,8 @@ export class BotSsoExecutionDialog extends ComponentDialog {
   }
 
   private getActivityText(activity: Activity): string {
-    let text = activity.text;
-    const removedMentionText = TurnContext.removeRecipientMention(activity);
+    let text = activity.text!;
+    const removedMentionText = activity.removeRecipientMention();
     if (removedMentionText) {
       text = removedMentionText
         .toLowerCase()
@@ -178,7 +178,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
       return await stepContext.beginDialog(commandId);
     }
 
-    const errorMsg = formatString(ErrorMessage.CannotFindCommand, turnContext.activity.text);
+    const errorMsg = formatString(ErrorMessage.CannotFindCommand, turnContext.activity.text!);
     internalLogger.error(errorMsg);
     throw new ErrorWithCode(errorMsg, ErrorCode.CannotFindCommand);
   }
@@ -235,7 +235,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    * @param context Context for the current turn of conversation.
    */
   protected async onEndDialog(context: TurnContext) {
-    const conversationId = context.activity.conversation.id;
+    const conversationId = context.activity.conversation!.id;
     const currentDedupKeys = this.dedupStorageKeys.filter((key) => key.indexOf(conversationId) > 0);
     await this.dedupStorage.delete(currentDedupKeys);
     this.dedupStorageKeys = this.dedupStorageKeys.filter((key) => key.indexOf(conversationId) < 0);
@@ -251,7 +251,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    */
   private async shouldDedup(context: TurnContext): Promise<boolean> {
     const storeItem = {
-      eTag: context.activity.value.id,
+      eTag: (context.activity.value as any).id,
     };
 
     const key = this.getStorageKey(context);
@@ -274,16 +274,16 @@ export class BotSsoExecutionDialog extends ComponentDialog {
       throw new Error("Invalid context, can not get storage key!");
     }
     const activity = context.activity;
-    const channelId = activity.channelId;
-    const conversationId = activity.conversation.id;
+    const channelId = activity.channelId!;
+    const conversationId = activity.conversation!.id;
     if (activity.type !== ActivityTypes.Invoke || activity.name !== tokenExchangeOperationName) {
       throw new Error("TokenExchangeState can only be used with Invokes of signin/tokenExchange.");
     }
     const value = activity.value;
-    if (!value || !value.id) {
+    if (!value || !(value as any).id) {
       throw new Error("Invalid signin/tokenExchange. Missing activity.value.id.");
     }
-    return `${channelId}/${conversationId}/${value.id as string}`;
+    return `${channelId}/${conversationId}/${(value as any).id as string}`;
   }
 
   private matchPattern(pattern: string | RegExp, text: string): boolean | RegExpMatchArray {

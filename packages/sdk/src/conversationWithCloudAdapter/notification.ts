@@ -4,15 +4,18 @@
 import {
   CloudAdapter,
   CardFactory,
-  ChannelInfo,
   ConversationParameters,
   ConversationReference,
+  TurnContext,
+  ConnectorClient,
+  Activity,
+} from "@microsoft/agents-hosting";
+import {
+  ChannelInfo,
+  TeamsInfo,
   TeamDetails,
   TeamsChannelAccount,
-  TeamsInfo,
-  TurnContext,
-} from "botbuilder";
-import type { ConnectorClient } from "botframework-connector";
+} from "@microsoft/agents-hosting-teams";
 import * as path from "path";
 import {
   NotificationTarget,
@@ -112,27 +115,22 @@ export class Channel implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.parent.adapter.continueConversationAsync(
-      this.parent.botAppId,
-      this.parent.conversationReference,
+    await this.parent.adapter.continueConversation(
+      this.parent.conversationReference as ConversationReference,
       async (context) => {
         const conversation = await this.newConversation(context);
-        await this.parent.adapter.continueConversationAsync(
-          this.parent.botAppId,
-          conversation,
-          async (ctx: TurnContext) => {
-            try {
-              const res = await ctx.sendActivity(text);
-              response.id = res?.id;
-            } catch (error) {
-              if (onError) {
-                await onError(ctx, error as Error);
-              } else {
-                throw error;
-              }
+        await this.parent.adapter.continueConversation(conversation, async (ctx: TurnContext) => {
+          try {
+            const res = await ctx.sendActivity(text);
+            response.id = res?.id;
+          } catch (error) {
+            if (onError) {
+              await onError(ctx, error as Error);
+            } else {
+              throw error;
             }
           }
-        );
+        });
       }
     );
     return response;
@@ -152,29 +150,24 @@ export class Channel implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.parent.adapter.continueConversationAsync(
-      this.parent.botAppId,
-      this.parent.conversationReference,
+    await this.parent.adapter.continueConversation(
+      this.parent.conversationReference as ConversationReference,
       async (context) => {
         const conversation = await this.newConversation(context);
-        await this.parent.adapter.continueConversationAsync(
-          this.parent.botAppId,
-          conversation,
-          async (ctx: TurnContext) => {
-            try {
-              const res = await ctx.sendActivity({
-                attachments: [CardFactory.adaptiveCard(card)],
-              });
-              response.id = res?.id;
-            } catch (error) {
-              if (onError) {
-                await onError(ctx, error as Error);
-              } else {
-                throw error;
-              }
+        await this.parent.adapter.continueConversation(conversation, async (ctx: TurnContext) => {
+          try {
+            const res = await ctx.sendActivity({
+              attachments: [CardFactory.adaptiveCard(card)],
+            } as Activity);
+            response.id = res?.id;
+          } catch (error) {
+            if (onError) {
+              await onError(ctx, error as Error);
+            } else {
+              throw error;
             }
           }
-        );
+        });
       }
     );
     return response;
@@ -184,7 +177,7 @@ export class Channel implements NotificationTarget {
    * @internal
    */
   private newConversation(context: TurnContext): Promise<ConversationReference> {
-    const reference = TurnContext.getConversationReference(context.activity);
+    const reference = context.activity.getConversationReference();
     const channelConversation = utils.cloneConversation(reference);
     channelConversation.conversation.id = this.info.id || "";
 
@@ -242,27 +235,22 @@ export class Member implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.parent.adapter.continueConversationAsync(
-      this.parent.botAppId,
-      this.parent.conversationReference,
+    await this.parent.adapter.continueConversation(
+      this.parent.conversationReference as ConversationReference,
       async (context) => {
         const conversation = await this.newConversation(context);
-        await this.parent.adapter.continueConversationAsync(
-          this.parent.botAppId,
-          conversation,
-          async (ctx: TurnContext) => {
-            try {
-              const res = await ctx.sendActivity(text);
-              response.id = res?.id;
-            } catch (error) {
-              if (onError) {
-                await onError(ctx, error as Error);
-              } else {
-                throw error;
-              }
+        await this.parent.adapter.continueConversation(conversation, async (ctx: TurnContext) => {
+          try {
+            const res = await ctx.sendActivity(text);
+            response.id = res?.id;
+          } catch (error) {
+            if (onError) {
+              await onError(ctx, error as Error);
+            } else {
+              throw error;
             }
           }
-        );
+        });
       }
     );
     return response;
@@ -282,29 +270,24 @@ export class Member implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.parent.adapter.continueConversationAsync(
-      this.parent.botAppId,
-      this.parent.conversationReference,
+    await this.parent.adapter.continueConversation(
+      this.parent.conversationReference as ConversationReference,
       async (context) => {
         const conversation = await this.newConversation(context);
-        await this.parent.adapter.continueConversationAsync(
-          this.parent.botAppId,
-          conversation,
-          async (ctx: TurnContext) => {
-            try {
-              const res = await ctx.sendActivity({
-                attachments: [CardFactory.adaptiveCard(card)],
-              });
-              response.id = res?.id;
-            } catch (error) {
-              if (onError) {
-                await onError(ctx, error as Error);
-              } else {
-                throw error;
-              }
+        await this.parent.adapter.continueConversation(conversation, async (ctx: TurnContext) => {
+          try {
+            const res = await ctx.sendActivity({
+              attachments: [CardFactory.adaptiveCard(card)],
+            } as Activity);
+            response.id = res?.id;
+          } catch (error) {
+            if (onError) {
+              await onError(ctx, error as Error);
+            } else {
+              throw error;
             }
           }
-        );
+        });
       }
     );
     return response;
@@ -314,19 +297,22 @@ export class Member implements NotificationTarget {
    * @internal
    */
   private async newConversation(context: TurnContext): Promise<ConversationReference> {
-    const reference = TurnContext.getConversationReference(context.activity);
+    const reference = context.activity.getConversationReference();
     const personalConversation = utils.cloneConversation(reference);
 
     const connectorClient: ConnectorClient = context.turnState.get(
       this.parent.adapter.ConnectorClientKey
     );
-    const conversation = await connectorClient.conversations.createConversation({
-      isGroup: false,
-      tenantId: context.activity.conversation.tenantId,
-      bot: context.activity.recipient,
+
+    const conversationParams: ConversationParameters = {
       members: [this.account],
-      channelData: {},
-    } as ConversationParameters);
+      isGroup: false,
+      bot: context.activity.recipient!,
+      tenantId: context.activity.conversation!.tenantId,
+      activity: context.activity,
+      channelData: context.activity.channelData,
+    };
+    const conversation = await connectorClient.createConversationAsync(conversationParams);
     personalConversation.conversation.id = conversation.id;
 
     return personalConversation;
@@ -402,9 +388,8 @@ export class TeamsBotInstallation implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      this.conversationReference,
+    await this.adapter.continueConversation(
+      this.conversationReference as ConversationReference,
       async (context) => {
         try {
           const res = await context.sendActivity(text);
@@ -435,14 +420,13 @@ export class TeamsBotInstallation implements NotificationTarget {
     onError?: (context: TurnContext, error: Error) => Promise<void>
   ): Promise<MessageResponse> {
     const response: MessageResponse = {};
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      this.conversationReference,
+    await this.adapter.continueConversation(
+      this.conversationReference as ConversationReference,
       async (context) => {
         try {
           const res = await context.sendActivity({
             attachments: [CardFactory.adaptiveCard(card)],
-          });
+          } as Activity);
           response.id = res?.id;
         } catch (error) {
           if (onError) {
@@ -468,9 +452,8 @@ export class TeamsBotInstallation implements NotificationTarget {
     }
 
     let teamsChannels: ChannelInfo[] = [];
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      this.conversationReference,
+    await this.adapter.continueConversation(
+      this.conversationReference as ConversationReference,
       async (context) => {
         const teamId = utils.getTeamsBotInstallationId(context);
         if (teamId !== undefined) {
@@ -502,9 +485,8 @@ export class TeamsBotInstallation implements NotificationTarget {
       continuationToken: "",
     };
 
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      this.conversationReference,
+    await this.adapter.continueConversation(
+      this.conversationReference as ConversationReference,
       async (context) => {
         const pagedMembers = await TeamsInfo.getPagedMembers(context, pageSize, continuationToken);
 
@@ -529,9 +511,8 @@ export class TeamsBotInstallation implements NotificationTarget {
     }
 
     let teamDetails: TeamDetails | undefined;
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      this.conversationReference,
+    await this.adapter.continueConversation(
+      this.conversationReference as ConversationReference,
       async (context) => {
         const teamId = utils.getTeamsBotInstallationId(context);
         if (teamId !== undefined) {
@@ -604,9 +585,8 @@ export class NotificationBot {
     conversationReference: Partial<ConversationReference>
   ): Promise<boolean> {
     let isValid = true;
-    await this.adapter.continueConversationAsync(
-      this.botAppId,
-      conversationReference,
+    await this.adapter.continueConversation(
+      conversationReference as ConversationReference,
       async (context) => {
         try {
           // try get member to see if the installation is still valid
