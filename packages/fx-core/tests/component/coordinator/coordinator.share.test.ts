@@ -89,8 +89,8 @@ describe("component coordinator test", () => {
       platform: Platform.VSCode,
       projectPath: ".",
       ignoreLockByUT: true,
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(tools);
     const res = await fxCore.shareApplication(inputs);
@@ -144,8 +144,8 @@ describe("component coordinator test", () => {
       platform: Platform.CLI,
       projectPath: ".",
       ignoreLockByUT: true,
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(tools);
     const res = await fxCore.shareApplication(inputs);
@@ -184,8 +184,8 @@ describe("component coordinator test", () => {
       projectPath: ".",
       ignoreLockByUT: true,
       env: "dev",
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(mockTools);
     const res = await fxCore.shareApplication(inputs);
@@ -221,8 +221,8 @@ describe("component coordinator test", () => {
       projectPath: ".",
       ignoreLockByUT: true,
       env: "dev",
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(mockTools);
     const res = await fxCore.shareApplication(inputs);
@@ -274,8 +274,8 @@ describe("component coordinator test", () => {
       platform: Platform.VSCode,
       projectPath: ".",
       ignoreLockByUT: true,
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(tools);
     const res = await fxCore.shareApplication(inputs);
@@ -322,8 +322,8 @@ describe("component coordinator test", () => {
       platform: Platform.VSCode,
       projectPath: ".",
       ignoreLockByUT: true,
-      nonInteractive : true,
-      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const fxCore = new FxCore(tools);
     const res = await fxCore.shareApplication(inputs);
@@ -344,7 +344,7 @@ describe("component coordinator test", () => {
       projectPath: ".",
       env: "dev",
       ignoreLockByUT: true,
-      nonInteractive : true,
+      nonInteractive: true,
       [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareApp,
     };
     const context = createDriverContext(inputs);
