@@ -550,7 +550,7 @@
   "teamsagent.walkthrough.use.title": "Start to use @m365agents",
   "_teamsagent.walkthrough.use.title.comment": "@m365agents is used to call Teams agent in GitHub Copilot Chat and should not be translated.",
   "teamsagent.walkthrough.use.title.preview": "Start to use @m365agents (preview)",
-  "teamsagent.walkthrough.use.description": "Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Teams apps or customize and extend Microsoft 365 Copilot.",
+  "teamsagent.walkthrough.use.description": "Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.",
   "_teamsagent.walkthrough.use.description.comment": "@m365agents is used to call Teams agent in GitHub Copilot Chat and should not be translated.",
   "teamstoolkit.handlers.installCopilotChatExtensionAlreadyInstalled": "GitHub Copilot Chat extension is already installed.",
   "teamstoolkit.officeAddIn.terminal.installDependency": "Installing dependency...",
