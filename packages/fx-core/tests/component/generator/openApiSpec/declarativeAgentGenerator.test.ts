@@ -629,8 +629,10 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
 
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
@@ -665,7 +667,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
 
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
@@ -706,7 +710,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
 
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
