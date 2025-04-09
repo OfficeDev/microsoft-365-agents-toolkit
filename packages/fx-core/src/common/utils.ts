@@ -1,28 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  Context,
-  err,
-  FxError,
-  InputsWithProjectPath,
-  Result,
-  TeamsAppManifest,
-  UserError,
-  ok,
-} from "@microsoft/teamsfx-api";
+import { Context, InputsWithProjectPath } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import fs from "fs-extra";
 import { DriverContext } from "../component/driver/interface/commonArgs";
-import { getLocalizedString } from "./localizeUtils";
-import { pathUtils } from "../component/utils/pathUtils";
-import { metadataUtil } from "../component/utils/metadataUtil";
-import { resolve } from "../component/configManager/lifecycle";
-import { DriverDefinition } from "../component/configManager/interface";
-import * as path from "path";
-import AdmZip from "adm-zip";
-import { Constants } from "../component/driver/teamsApp/constants";
-import { envUtil } from "../component/utils/envUtil";
 
 export async function waitSeconds(second: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, second * 1000));
