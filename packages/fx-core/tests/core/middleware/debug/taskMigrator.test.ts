@@ -825,12 +825,12 @@ describe("debugMigration", () => {
       ]`;
       const expectedTaskContent = `[
         {
-          // Teams Toolkit now uses Dev Tunnel as default tunnel solution.
+          // Microsoft 365 Agents Toolkit now uses Dev Tunnel as default tunnel solution.
           // See https://aka.ms/teamsfx-tasks/local-tunnel for more details.
           // If you still prefer to use ngrok, please refer to https://aka.ms/teamsfx-tasks/customize-tunnel-service to learn how to use your own tunnel service.
           "label": "Start local tunnel 1",
           "type": "shell",
-          "command": "echo 'Teams Toolkit now uses Dev Tunnel as default tunnel solution. For manual updates, see https://aka.ms/teamsfx-tasks/local-tunnel.' && exit 1",
+          "command": "echo 'Microsoft 365 Agents Toolkit now uses Dev Tunnel as default tunnel solution. For manual updates, see https://aka.ms/teamsfx-tasks/local-tunnel.' && exit 1",
           "windows": {
               "options": {
                   "shell": {

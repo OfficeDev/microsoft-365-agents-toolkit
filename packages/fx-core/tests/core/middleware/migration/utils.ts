@@ -124,7 +124,6 @@ export const Constants = {
   happyPathTestProject: "happyPath",
   settingsFilePath: "teamsfx/settings.json",
   oldProjectSettingsFilePath: ".fx/configs/projectSettings.json",
-  appYmlPath: "teamsapp.yml",
   manifestsMigrationHappyPath: "manifestsHappyPath",
   manifestsMigrationHappyPathWithoutAad: "manifestsHappyPathWithoutAad",
   manifestsMigrationHappyPathSpfx: "manifestsHappyPathSpfx",

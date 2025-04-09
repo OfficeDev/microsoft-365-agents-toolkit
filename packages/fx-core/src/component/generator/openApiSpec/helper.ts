@@ -15,7 +15,6 @@ import {
   ErrorType,
   InvalidAPIInfo,
   ListAPIInfo,
-  ListAPIResult,
   ParseOptions,
   ProjectType,
   SpecParser,
@@ -75,6 +74,7 @@ import {
 } from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
+import { listAPIInfo } from "../../../common/daSpecParser";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -217,8 +217,12 @@ export async function listOperations(
     if (validationRes.status === ValidationStatus.Error) {
       return err(validationRes.errors);
     }
-
-    const listResult: ListAPIResult = await specParser.list();
+    let listResult;
+    if (projectType === ProjectType.Copilot) {
+      listResult = await listAPIInfo(apiSpecUrl as string, inputs.platform);
+    } else {
+      listResult = await specParser.list();
+    }
 
     const invalidAPIs = listResult.APIs.filter((value) => !value.isValid);
     for (const invalidAPI of invalidAPIs) {
@@ -446,8 +450,7 @@ export async function listPluginExistingOperations(
     );
   }
 
-  const specParser = new SpecParser(apiSpecFilePath, getParserOptions(ProjectType.Copilot));
-  const listResult = await specParser.list();
+  const listResult = await listAPIInfo(apiSpecFilePath);
   return listResult.APIs.map((o) => o.api);
 }
 
@@ -1694,19 +1697,30 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
 export async function parseAndUpdatePluginManifestForKiota(
   pluginManifestPath: string,
   updatePlaceholder: boolean
-): Promise<{ authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[]> {
-  const authData: { authName: string; authType: "apiKey" | "oauth2"; registrationId: string }[] =
-    [];
+): Promise<
+  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
+> {
+  const authData: {
+    authName: string;
+    authType: "apiKey" | "oauth2";
+    registrationId: string;
+    specPath: string;
+  }[] = [];
   const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
   pluginManifest.runtimes?.forEach((runtime) => {
     if ((runtime as RuntimeObjectOpenapi).auth) {
-      const auth = (runtime as RuntimeObjectOpenapi).auth;
-      if (auth?.reference_id && auth?.type !== "None") {
+      const auth = (runtime as RuntimeObjectOpenapi).auth!;
+      if (
+        auth.reference_id &&
+        auth.reference_id.match(/{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth.type !== "None"
+      ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         authData.push({
           authName: registrationId.split("_")[0],
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
           registrationId: registrationId.toUpperCase(),
+          specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
           auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;
@@ -1727,10 +1741,11 @@ export async function generateAdaptiveCardInPluginManifestForKiota(
   context: Context
 ): Promise<void> {
   try {
-    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
-    const operation = (await specParser.list()).APIs.filter((value) => value.isValid).map(
+    const operation = (await listAPIInfo(specPath)).APIs.filter((value) => value.isValid).map(
       (value) => value.api
     );
+
+    const specParser = new SpecParser(specPath, getParserOptions(ProjectType.Copilot, true));
     await specParser.generateAdaptiveCardInPlugin(pluginManifestPath, operation, undefined);
   } catch (error) {
     // create ac error, should not block the whole process

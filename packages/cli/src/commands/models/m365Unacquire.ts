@@ -58,7 +58,7 @@ export const m365UnacquireCommand: CLICommand = {
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} uninstall -i false --mode env --env xxx --options 'm365-app,app-registration,bot-framework-registration' --folder ./myapp`,
       description:
-        "Remove the acquired Microsoft 365 Application using environment in Teams Toolkit generated project",
+        "Remove the acquired Microsoft 365 Application using environment in Microsoft 365 Agents Toolkit generated project",
     },
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} uninstall`,

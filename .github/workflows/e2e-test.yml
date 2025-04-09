@@ -217,12 +217,12 @@ jobs:
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@${{ github.event.inputs.cli-version }}
+          npm install -g @microsoft/m365agentstoolkit-cli@${{ github.event.inputs.cli-version }}
 
       - name: install cli for schedule
         if: ${{  github.event_name == 'schedule' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@alpha
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
       
       - name: link cli for workflow_dispatch
         if: ${{  github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
@@ -232,7 +232,7 @@ jobs:
       - name: Update CLI and legacy-peer-deps for PR cases
         if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@alpha
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
           npm config set legacy-peer-deps false
 
       - name: print system info

@@ -31,7 +31,8 @@ export const MetadataV3 = {
     "# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project." +
     EOL,
   secretComment:
-    "# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs." + EOL,
+    "# Secrets. Keys prefixed with `SECRET_` will be masked in Microsoft 365 Agents Toolkit logs." +
+    EOL,
   envFileDevComment:
     "# This file includes environment variables that will be committed to git by default." + EOL,
   envFileLocalComment:
@@ -61,6 +62,26 @@ export const MetadataV3Abandoned = {
   configFolder: "teamsfx",
   configFile: "settings.json",
 };
+
+export const MetadataV4 = {
+  configFile: "m365agents.yml",
+  localConfigFile: "m365agents.local.yml",
+  testToolConfigFile: "m365agents.testtool.yml",
+  sandboxConfigFile: "m365agents.sandbox.yml",
+};
+
+export function isYamlFileName(fileName: string): boolean {
+  return (
+    fileName === MetadataV3.configFile ||
+    fileName === MetadataV3.localConfigFile ||
+    fileName === MetadataV3.testToolConfigFile ||
+    fileName === MetadataV3.sandboxConfigFile ||
+    fileName === MetadataV4.configFile ||
+    fileName === MetadataV4.localConfigFile ||
+    fileName === MetadataV4.testToolConfigFile ||
+    fileName === MetadataV4.sandboxConfigFile
+  );
+}
 
 export enum VersionState {
   // project version compatible

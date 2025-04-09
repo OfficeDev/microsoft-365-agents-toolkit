@@ -700,7 +700,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     const range = new vscode.Range(startPosition, endPosition);
 
     // check if user has already logged in to the sensitivity label scope
-    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider.getStatus({
+    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider?.getStatus({
       scopes: [listSensitivityLabelScope],
     });
     // not logged in

@@ -10,12 +10,8 @@
       "treeview-newproject-outlook-add-in",
       "treeview-newproject-tab",
       "treeview-collaboration-win-only",
-      "remotedebug-bot-ts-win-only",
-      "remotedebug-bot-win-only",
       "remotedebug-command-and-response-ts-win-only",
       "remotedebug-command-and-response-win-only",
-      "remotedebug-m365lp-ts-win-only",
-      "remotedebug-m365lp-win-only",
       "remotedebug-msg-ts-win-only",
       "remotedebug-msg-win-only",
       "remotedebug-msgsa-ts-win-only",
@@ -103,18 +99,19 @@
       "remotedebug-spfxreact-addwebpart",
       "remotedebug-spfxreact-import-single",
       "remotedebug-spfxreact-import-multiple",
-      "remotedebug-spfx-none",
       "remotedebug-spfx-minimal",
       "remotedebug-spfx-react"
     ],
     "node-22": [
-      "localdebug-obo-tab"
+    "obo-tab",
+    "obo-tab-ts",
+    "basic-bot",      
+    "basic-bot-ts"
     ]
   },
   "ubuntu-latest": {
     "node-22": [
       "treeview-invalidname",
-      "localdebug-bot",
       "localdebug-command-and-response",
       "localdebug-notification-func",
       "localdebug-notification-express",
@@ -124,8 +121,6 @@
       "treeview-samples",
       "treeview-newproject-in-exist-project",
       "telemetry@open-vscode",
-      "localdebug-bot-ts",
-      "localdebug-obo-tab-ts",
       "localdebug-msg-ts",
       "localdebug-msg",
       "localdebug-msgsa-ts",
@@ -175,14 +170,17 @@
       "samelevel-localization",
       "different-level-localization"
     ],
-    "node-20": ["localdebug-obo-tab"],
+    "node-20": [
+      "obo-tab-ts",
+      "basic-bot-ts"
+    ],
     "node-18": [      
       "remotedebug-spfx-publish",
       "treeview-spfx-manifest",
       "localdebug-spfx-minimal",
-      "localdebug-spfx-none",
       "localdebug-spfx",
-      "localdebug-spfx-import-multiple"
+      "localdebug-spfx-import-multiple",
+      "spfx-none"
     ]
   },
   "macos-latest": {

@@ -7,7 +7,7 @@ import axios, { AxiosInstance } from "axios";
 
 import { M365TokenProvider } from "@microsoft/teamsfx-api";
 
-import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { GraphScopes } from "@microsoft/teamsfx-core";
 
 interface IAadAppInfo {

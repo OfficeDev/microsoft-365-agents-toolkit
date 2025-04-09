@@ -1,22 +1,22 @@
-# Contributing to Teams Toolkit CLI 
+# Contributing to Microsoft 365 Agents Toolkit CLI 
 
-Welcome, and thank you for your interest in contributing to Teams Toolkit CLI!
+Welcome, and thank you for your interest in contributing to Microsoft 365 Agents Toolkit CLI!
 
-Please review this document for setting up your development environment, debugging and run Teams Toolkit CLI. If you have any questions, please raise your issue on github.
+Please review this document for setting up your development environment, debugging, and run Microsoft 365 Agents Toolkit CLI. If you have any questions, please raise your issue on github.
 
 ## Prerequisites
 ---
 
-Verify you have the right prerequisites for building Teams apps:
+Verify you have the right prerequisites for building Microsoft 365 Apps:
 
 ### M365 account
 
-The Teams Toolkit CLI requires a Microsoft 365 organizationl account where Teams is running and has been registered.
+The Microsoft 365 Agents Toolkit CLI requires a Microsoft 365 organizational account where Microsoft 365 App is running and has been registered.
 
 ### Azure account
-The Teams Toolkit CLI may require an Azure account and subscription to deploy the Azure resources for your project.
+The Microsoft 365 Agents Toolkit CLI may require an Azure account and subscription to deploy the Azure resources for your project.
 
-**_NOTE:_** Don't have a M365 to experience building Teams app? Sign up for [M365 Developer Program](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant), which allows you to have a testing tenant with preconfigured permissions.
+**_NOTE:_** Don't have a M365 to experience building Microsoft 365 App? Sign up for [M365 Developer Program](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant), which allows you to have a testing tenant with preconfigured permissions.
 
 ## Setup Development Environment
 ---
@@ -50,8 +50,8 @@ This will run "pnpm install && npm run build" to link packages in monorepo local
 4. Hit 'F5' or click start debugging button
 
 ### Install the published package
-1. Run: `npm install -g @microsoft/teamsapp-cli` (Pls check the version is the latest version)
-2. Now the package is installed in your global npm folder. You can type 'teamsapp -h' to see how to use the cli tool.
+1. Run: `npm install -g @microsoft/m365agentstoolkit-cli` (Pls check the version is the latest version)
+2. Now the package is installed in your global npm folder. You can type 'atk -h' to see how to use the cli tool.
 
 ## Test the proejct
 ---

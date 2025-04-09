@@ -11,7 +11,7 @@ import * as path from "path";
 
 import { it } from "@microsoft/extra-shot-mocha";
 
-import m365Provider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import m365Provider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { AadValidator } from "../../commonlib/aadValidate";
 import { CliHelper } from "../../commonlib/cliHelper";
 import { Capability } from "../../utils/constants";

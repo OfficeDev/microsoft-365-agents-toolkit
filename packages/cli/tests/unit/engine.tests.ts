@@ -9,6 +9,7 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import {
+  featureFlagManager,
   FxCore,
   InputValidationError,
   MissingEnvironmentVariablesError,
@@ -42,6 +43,8 @@ import * as main from "../../src/index";
 import CliTelemetry from "../../src/telemetry/cliTelemetry";
 import { getVersion } from "../../src/utils";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import { shareCommand } from "../../src/commands/models/share";
+import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
 
 describe("CLI Engine", () => {
   const sandbox = sinon.createSandbox();
@@ -564,7 +567,7 @@ describe("CLI Engine", () => {
     it("happy path", async () => {
       sandbox.stub(main, "initTelemetryReporter").returns();
       sandbox.stub(engine, "start").resolves();
-      await start();
+      await start("atk");
       assert.isTrue(true);
     });
   });

@@ -27,6 +27,8 @@ import { teamsappValidateCommand } from "./teamsapp/validate";
 import { upgradeCommand } from "./upgrade";
 import { commands } from "../../resource";
 import { shareCommand } from "./share";
+import { setCommand } from "./set";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 
 export const helpCommand: CLICommand = {
   name: "help",
@@ -38,9 +40,9 @@ export const helpCommand: CLICommand = {
   },
 };
 export const rootCommand: CLICommand = {
-  name: "teamsapp",
-  fullName: "teamsapp",
-  description: "Microsoft Teams Toolkit CLI.",
+  name: "atk",
+  fullName: "atk",
+  description: "Microsoft 365 Agents Toolkit CLI.",
   version: getVersion(),
   footer: FooterText,
   commands: [
@@ -49,7 +51,7 @@ export const rootCommand: CLICommand = {
     addCommand(),
     provisionCommand,
     deployCommand,
-    shareCommand,
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [shareCommand] : []),
     previewCommand,
     envCommand,
     permissionCommand,
@@ -65,6 +67,9 @@ export const rootCommand: CLICommand = {
     m365SideloadingCommand,
     m365UnacquireCommand,
     m365LaunchInfoCommand,
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)
+      ? [setCommand()]
+      : []),
   ],
   sortCommands: true,
   options: [

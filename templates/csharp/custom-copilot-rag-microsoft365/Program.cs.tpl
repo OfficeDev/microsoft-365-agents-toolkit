@@ -102,7 +102,19 @@ builder.Services.AddTransient<IBot>(sp =>
     IConfidentialClientApplication msal = sp.GetService<IConfidentialClientApplication>();
     string signInLink = $"https://{config.BOT_DOMAIN}/auth-start.html";
     AuthenticationOptions<AppState> authOptions = new();
-    authOptions.AutoSignIn = (context, cancellationToken) => Task.FromResult(true);
+    authOptions.AutoSignIn = (context, cancellationToken) => {
+        if (context.Activity.Value == null)
+        {
+            return Task.FromResult(true);
+        }
+        string command = (context.Activity.Value as JObject).Value<string>("commandId");
+        bool signOutActivity = command == "signOutCommand";
+        if (signOutActivity)
+        {
+            return Task.FromResult(false);
+        }
+        return Task.FromResult(true);
+    };
     authOptions.AddAuthentication("graph", new TeamsSsoSettings(new string[] { "Files.Read.All" }, signInLink, msal));
 
     Application<AppState> app = new ApplicationBuilder<AppState>()

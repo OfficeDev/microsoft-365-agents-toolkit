@@ -292,11 +292,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
   await vscode.commands.executeCommand(
     "setContext",
+    "fx-extension.isSensitivityLabelEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
   );
 
-  void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
+  void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);

@@ -1,15 +1,15 @@
 {
-  "name": "@microsoft/teamsapp-cli",
-  "version": "3.0.9",
+  "name": "@microsoft/m365agentstoolkit-cli",
+  "version": "1.0.0-alpha",
   "author": "Microsoft Corporation",
-  "description": "",
+  "description": "Microsoft 365 Agents Toolkit CLI",
   "license": "MIT",
   "engines": {
     "node": ">=12"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OfficeDev/TeamsFx.git"
+    "url": "git+https://github.com/OfficeDev/teams-toolkit.git"
   },
   "scripts": {
     "copy-files": "copyfiles -u 1 src/**/*.html src/**/*.css lib/",
@@ -37,11 +37,15 @@
     "teamsfx",
     "teamsfx-cli",
     "teamsapp-cli",
-    "teamsapp"
+    "m365agentstoolkit-cli",
+    "teamsapp",
+    "m365agents",
+    "atk"
   ],
   "preferGlobal": true,
   "bin": {
-    "teamsapp": "./cli.js"
+    "teamsapp": "./cliold.js",
+    "atk": "./cli.js"
   },
   "aiKey": "1c56be97-bb74-42cf-b04b-8f1aabf04592",
   "devDependencies": {
@@ -129,7 +133,8 @@
     "resource",
     "templates",
     "deletePS1.js",
-    "cli.js"
+    "cli.js",
+    "cli_teamsapp.js"
   ],
   "gitHead": "7d60c0765c0ea8c023a26c10d1c93001c597afbb",
   "publishConfig": {

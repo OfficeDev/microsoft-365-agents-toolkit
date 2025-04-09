@@ -19,6 +19,8 @@ import {
   TeamsAppManifest,
 } from "@microsoft/teamsfx-api";
 import { TypeSpecCompileDriver } from "../../../../src/component/driver/typeSpec/compile";
+import * as helper from "../../../../src/component/generator/openApiSpec/helper";
+import * as kiotaClient from "../../../../src/common/kiotaClient";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -112,7 +114,15 @@ describe("typeSpecCompilt", async () => {
         "specs",
       ] as any)
       .onSecondCall()
-      .returns(["openapi.yaml"] as any);
+      .returns(["openapi.yaml"] as any)
+      .onThirdCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any);
     sandbox
       .stub(fs, "readJSON")
       .onFirstCall()
@@ -123,8 +133,171 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        specPath: "mockedSpecPath",
+        registrationId: "mockedRegistrationId",
+        authType: "apiKey",
+      },
+    ]);
+    sandbox.stub(helper, "injectAuthAction").resolves(undefined);
+    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: true,
+      logs: [],
+    });
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isOk()).to.be.true;
+  });
+
+  it("happy path: with one action with oauth", async () => {
+    const args: TypeSpecCompileArgs = {
+      path: "mockedPath",
+      manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
+    };
+    const pluginManifest: DeclarativeCopilotManifestSchema = {
+      id: "mockedId",
+      name: "mockedName",
+      description: "mockedDescription",
+      actions: [
+        {
+          id: "mockedActionId",
+          file: "mockedFile",
+        },
+      ],
+    };
+
+    sandbox.stub(fs, "existsSync").returns(true);
+    sandbox.stub(fs, "rmSync").returns();
+    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
+    sandbox
+      .stub(fs, "readdirSync")
+      .onFirstCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any)
+      .onSecondCall()
+      .returns(["openapi.yaml"] as any)
+      .onThirdCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any);
+    sandbox
+      .stub(fs, "readJSON")
+      .onFirstCall()
+      .resolves(pluginManifest)
+      .onSecondCall()
+      .resolves(manifest);
+    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
+      const dataToWrite = JSON.stringify(data);
+      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
+    });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        specPath: "mockedSpecPath",
+        registrationId: "mockedRegistrationId",
+        authType: "oauth2",
+      },
+    ]);
+    sandbox.stub(helper, "injectAuthAction").resolves(undefined);
+    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: true,
+      logs: [],
+    });
+    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
+    expect(result.result.isOk()).to.be.true;
+  });
+
+  it("happy path: should fail if update yaml", async () => {
+    const args: TypeSpecCompileArgs = {
+      path: "mockedPath",
+      manifestPath: "mockedManifestPath",
+      outputDir: "mockedOutputDir",
+      typeSpecConfigPath: "mockedTypeSpecConfigPath",
+    };
+    const pluginManifest: DeclarativeCopilotManifestSchema = {
+      id: "mockedId",
+      name: "mockedName",
+      description: "mockedDescription",
+      actions: [
+        {
+          id: "mockedActionId",
+          file: "mockedFile",
+        },
+      ],
+    };
+
+    sandbox.stub(fs, "existsSync").returns(true);
+    sandbox.stub(fs, "rmSync").returns();
+    sandbox.stub(mockedDriverContext.ui, "runCommand").resolves(ok("mockedCommandResult"));
+    sandbox
+      .stub(fs, "readdirSync")
+      .onFirstCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any)
+      .onSecondCall()
+      .returns(["openapi.yaml"] as any)
+      .onThirdCall()
+      .returns([
+        "test-openapi.yaml",
+        "test-apiplugin.json",
+        "declarativeAgent.json",
+        "manifest.json",
+        "specs",
+      ] as any);
+    sandbox
+      .stub(fs, "readJSON")
+      .onFirstCall()
+      .resolves(pluginManifest)
+      .onSecondCall()
+      .resolves(manifest);
+    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
+      const dataToWrite = JSON.stringify(data);
+      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
+    });
+    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      {
+        authName: "mockedAuthName",
+        specPath: "mockedSpecPath",
+        registrationId: "mockedRegistrationId",
+        authType: "apiKey",
+      },
+    ]);
+    sandbox.stub(helper, "injectAuthAction").resolves({
+      defaultRegistrationIdEnvName: "mockedDefaultRegistrationIdEnvName",
+      registrationIdEnvName: "mockedRegistrationIdEnvName",
+    });
+    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: true,
+      logs: [],
+    });
+    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.be.equal("ReProvisionError");
+    }
   });
 
   it("happy path: with one action in cli", async () => {
@@ -161,6 +334,12 @@ describe("typeSpecCompilt", async () => {
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
     mockedDriverContext.platform = Platform.CLI;
+    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: true,
+      logs: [],
+    });
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isOk()).to.be.true;
   });
@@ -206,9 +385,15 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
+    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: true,
+      logs: [],
+    });
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isOk()).to.be.true;
-    expect(runCommandStub.callCount).to.equal(5);
+    expect(runCommandStub.callCount).to.equal(1);
   });
 
   it("should throw error if missing input", async () => {
@@ -280,92 +465,6 @@ describe("typeSpecCompilt", async () => {
     sandbox.stub(fs, "rmSync").returns();
     sandbox
       .stub(mockedDriverContext.ui, "runCommand")
-      .returns(err(new SystemError("mockedSource", "mockedError", "mockedErrorMessage")));
-    sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
-    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
-      const dataToWrite = JSON.stringify(data);
-      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
-    });
-    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
-    expect(result.result.isErr()).to.be.true;
-  });
-
-  it("should throw error if failed to run kiota command", async () => {
-    const args: TypeSpecCompileArgs = {
-      path: "mockedPath",
-      manifestPath: "mockedManifestPath",
-      outputDir: "mockedOutputDir",
-      typeSpecConfigPath: "mockedTypeSpecConfigPath",
-    };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
-      id: "mockedId",
-      name: "mockedName",
-      description: "mockedDescription",
-      actions: [
-        {
-          id: "mockedActionId",
-          file: "mockedFile",
-        },
-      ],
-    };
-
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "rmSync").returns();
-    sandbox
-      .stub(mockedDriverContext.ui, "runCommand")
-      .onFirstCall()
-      .resolves(ok("mockedCommandResult"))
-      .onSecondCall()
-      .returns(err(new SystemError("mockedSource", "mockedError", "mockedErrorMessage")));
-    sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
-    sandbox
-      .stub(fs, "readJSON")
-      .onFirstCall()
-      .resolves(pluginManifest)
-      .onSecondCall()
-      .resolves(manifest);
-    sandbox.stub(fs, "writeJSON").callsFake((path: string, data: any) => {
-      const dataToWrite = JSON.stringify(data);
-      expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
-    });
-    const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
-    expect(result.result.isErr()).to.be.true;
-  });
-
-  it("should throw error if failed to run kiota remove command", async () => {
-    const args: TypeSpecCompileArgs = {
-      path: "mockedPath",
-      manifestPath: "mockedManifestPath",
-      outputDir: "mockedOutputDir",
-      typeSpecConfigPath: "mockedTypeSpecConfigPath",
-    };
-    const pluginManifest: DeclarativeCopilotManifestSchema = {
-      id: "mockedId",
-      name: "mockedName",
-      description: "mockedDescription",
-      actions: [
-        {
-          id: "mockedActionId",
-          file: "mockedFile",
-        },
-      ],
-    };
-
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "rmSync").returns();
-    sandbox
-      .stub(mockedDriverContext.ui, "runCommand")
-      .onFirstCall()
-      .resolves(ok("mockedCommandResult"))
-      .onSecondCall()
-      .resolves(ok("mockedCommandResult"))
-      .onThirdCall()
       .returns(err(new SystemError("mockedSource", "mockedError", "mockedErrorMessage")));
     sandbox.stub(fs, "readdirSync").returns(["openapi.yaml"] as any);
     sandbox

@@ -52,5 +52,8 @@
   "spec-parser": [
     "packages/spec-parser",
     "packages/manifest"
+  ],
+  "single-sdk": [
+    "packages/sdk"
   ]
 }

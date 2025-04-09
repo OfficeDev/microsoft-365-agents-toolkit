@@ -3,7 +3,7 @@
 
 import { M365TokenProvider, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import axios, { AxiosInstance } from "axios";
-import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import AdmZip from "adm-zip";
 import FormData from "form-data";
 import fs from "fs-extra";

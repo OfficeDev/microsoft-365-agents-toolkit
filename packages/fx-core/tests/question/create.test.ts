@@ -53,6 +53,7 @@ import {
   apiAuthQuestion,
   apiOperationQuestion,
   apiSpecLocationQuestion,
+  apiSpecTypeSelectQuestion,
   appNameQuestion,
   capabilityQuestion,
   createProjectQuestionNode,
@@ -64,6 +65,8 @@ import {
   pluginApiSpecQuestion,
   pluginManifestQuestion,
   programmingLanguageQuestion,
+  searchOpenAPISpecQueryQuestion,
+  selectOpenApiSpecQuestion,
   webContentQuestion,
 } from "../../src/question";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
@@ -74,6 +77,8 @@ import * as generatorHelper from "../../src/component/generator/declarativeAgent
 import { OneDriveSharePointItemType } from "../../src/component/generator/constant";
 import * as stringUtils from "../../src/common/stringUtils";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
+import * as kiotaClient from "../../src/common/kiotaClient";
+import * as apiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
   try {
@@ -2684,6 +2689,135 @@ describe("scaffold question", () => {
           }
 
           assert.isTrue(fxError !== undefined);
+        });
+
+        it("list operations dynamic question for kiota", async () => {
+          const question = apiOperationQuestion();
+          const inputs: Inputs = {
+            platform: Platform.VSCode,
+            [QuestionNames.SelectOpenApiSpec]: "apispec-url",
+          };
+
+          const result = [
+            {
+              id: "operation1",
+              label: "operation1",
+              groupName: "1",
+              data: { serverUrl: "https://server1" },
+            },
+            {
+              id: "operation2",
+              label: "operation2",
+              groupName: "2",
+              data: { serverUrl: "https://server2" },
+            },
+          ];
+
+          const listOperationsStub = sandbox
+            .stub(apiSpecHelper, "listOperations")
+            .resolves(ok(result));
+
+          const options = await question.dynamicOptions!(inputs);
+          assert.deepEqual(options, result);
+
+          listOperationsStub.restore();
+          sandbox.stub(apiSpecHelper, "listOperations").resolves(err([]));
+
+          try {
+            await question.dynamicOptions!(inputs);
+            assert.fail("Should throw error");
+          } catch (e) {
+            // expected error
+          }
+        });
+      });
+
+      describe("kiota search related questions", async () => {
+        it("apiSpecTypeSelectQuestion", async () => {
+          const question = apiSpecTypeSelectQuestion();
+          assert.isTrue(question.staticOptions.length === 2);
+          assert.isTrue(
+            (question.staticOptions[0] as OptionItem).id === "enter-url-or-open-local-file"
+          );
+          assert.isTrue((question.staticOptions[1] as OptionItem).id === "search-api");
+        });
+
+        it("searchOpenAPISpecQueryQuestion", async () => {
+          const question = searchOpenAPISpecQueryQuestion();
+          const inputs: Inputs = {
+            platform: Platform.VSCode,
+          };
+          const validation = question.validation as FuncValidation<string>;
+          assert.isTrue(validation.validFunc("petstore", inputs) === undefined);
+          assert.isTrue(validation.validFunc("", inputs) === "Please enter a search query.");
+          assert.isTrue(validation.validFunc("  ", inputs) === "Please enter a search query.");
+
+          const validationOnAccept =
+            question.additionalValidationOnAccept as FuncValidation<string>;
+
+          try {
+            await validationOnAccept.validFunc("petstore", undefined);
+            assert.fail("Should throw error");
+          } catch (e) {
+            assert.isTrue(e.message === "inputs is undefined");
+          }
+
+          const kiotaClientStub = sandbox.stub(kiotaClient, "searchOpenAPISpec").resolves([
+            {
+              key: "petstore",
+              url: " https://petstore.swagger.io/v2/swagger.json",
+              description: "petstore openapi spec",
+            },
+          ]);
+
+          const result = await validationOnAccept.validFunc("petstore", inputs);
+          assert.isUndefined(result);
+          assert.deepEqual(inputs["searchResult"], [
+            {
+              key: "petstore",
+              url: " https://petstore.swagger.io/v2/swagger.json",
+              description: "petstore openapi spec",
+            },
+          ]);
+
+          kiotaClientStub.restore();
+          sandbox.stub(kiotaClient, "searchOpenAPISpec").resolves([]);
+          const result2 = await validationOnAccept.validFunc("petstore", inputs);
+          assert.isDefined(result2);
+          assert.equal(result2, "No search result found");
+        });
+
+        it("selectOpenApiSpecQuestion", async () => {
+          const question = selectOpenApiSpecQuestion();
+          let inputs: Inputs = {
+            platform: Platform.VSCode,
+            [QuestionNames.ApiSpecLocation]: "apispec",
+            searchResult: [
+              {
+                key: "petstore",
+                url: "https://petstore.swagger.io/v2/swagger.json",
+                description: "petstore openapi spec",
+              },
+            ],
+          };
+          const result = question.dynamicOptions!(inputs);
+          assert.isDefined(result);
+          assert.isTrue((result as OptionItem[]).length === 1);
+          assert.isTrue(
+            (result as OptionItem[])[0].id === "https://petstore.swagger.io/v2/swagger.json"
+          );
+          assert.isTrue((result as OptionItem[])[0].label === "petstore");
+          assert.isTrue((result as OptionItem[])[0].detail === "petstore openapi spec");
+
+          inputs = {
+            platform: Platform.VSCode,
+            [QuestionNames.ApiSpecLocation]: "apispec",
+            searchResult: [],
+          };
+
+          const result2 = question.dynamicOptions!(inputs);
+          assert.isDefined(result2);
+          assert.isTrue((result2 as OptionItem[]).length === 0);
         });
       });
 

@@ -200,6 +200,8 @@ import {
   getODSPItemDetailById,
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
+import { withFileLock } from "./middleware/fileLocker";
+import { listAPIInfo } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -1704,7 +1706,6 @@ export class FxCore {
     const newOperations = inputs[QuestionNames.ApiOperation] as string[];
     const url = inputs[QuestionNames.ApiSpecLocation];
     const manifestPath = inputs[QuestionNames.ManifestPath];
-    const isPlugin = inputs[QuestionNames.ActionType] === DeclarativeAgentApiSpecOptionId;
     const context = createContext();
 
     // Get API spec file path from manifest
@@ -1726,35 +1727,20 @@ export class FxCore {
       return err(new UserCancelError());
     }
 
-    // Merge existing operations in manifest.json
-    const specParser = new SpecParser(
-      url,
-      getParserOptions(isPlugin ? ProjectType.Copilot : ProjectType.SME)
-    );
     try {
+      // Merge existing operations in manifest.json
+      const specParser = new SpecParser(url, getParserOptions(ProjectType.SME));
+
       const listResult = await specParser.list();
+
       const apiResultList = listResult.APIs.filter((value) => value.isValid);
 
-      let existingOperations: string[];
-      let outputApiSpecPath: string;
-      if (isPlugin) {
-        if (!inputs[QuestionNames.DestinationApiSpecFilePath]) {
-          return err(new MissingRequiredInputError(QuestionNames.DestinationApiSpecFilePath));
-        }
-        outputApiSpecPath = inputs[QuestionNames.DestinationApiSpecFilePath];
-        existingOperations = await listPluginExistingOperations(
-          manifestRes.value,
-          manifestPath,
-          inputs[QuestionNames.DestinationApiSpecFilePath]
-        );
-      } else {
-        const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
-        existingOperations = apiResultList
-          .filter((operation) => existingOperationIds.includes(operation.operationId))
-          .map((operation) => operation.api);
-        const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
-        outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
-      }
+      const existingOperationIds = manifestUtils.getOperationIds(manifestRes.value);
+      const existingOperations = apiResultList
+        .filter((operation) => existingOperationIds.includes(operation.operationId))
+        .map((operation) => operation.api);
+      const apiSpecificationFile = manifestRes.value.composeExtensions![0].apiSpecificationFile;
+      const outputApiSpecPath = path.join(path.dirname(manifestPath), apiSpecificationFile!);
 
       const operations = [...existingOperations, ...newOperations];
 
@@ -1799,23 +1785,13 @@ export class FxCore {
 
       let pluginPath: string | undefined;
 
-      if (isPlugin) {
-        const pluginPathRes = await manifestUtils.getPluginFilePath(
-          manifestRes.value,
-          manifestPath
-        );
-        if (pluginPathRes.isErr()) {
-          return err(pluginPathRes.error);
-        }
-        pluginPath = pluginPathRes.value;
-      }
       const generateResult = await generateFromApiSpec(
         specParser,
         manifestPath,
         inputs,
         context,
         "copilotPluginAddAPI",
-        isPlugin ? ProjectType.Copilot : ProjectType.SME,
+        ProjectType.SME,
         {
           destinationApiSpecFilePath: outputApiSpecPath,
           responseTemplateFolder: adaptiveCardFolder,
@@ -2006,7 +1982,7 @@ export class FxCore {
         inputs[QuestionNames.ApiSpecLocation].trim(),
         getParserOptions(ProjectType.Copilot, true)
       );
-      const listResult = await specParser.list();
+      const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
       if (
         inputs.platform === Platform.VSCode &&
         featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
@@ -2331,7 +2307,7 @@ export class FxCore {
 
   /**
    * Kiota regenerate
-   * Need to update da manifest and update teamsapp.yml
+   * Need to update da manifest and update m365agents.yml
    */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.addPlugin }),
@@ -2604,33 +2580,55 @@ export class FxCore {
 
     return ok(undefined);
   }
+
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.setSensitivityLabel }),
     ErrorHandlerMW,
     QuestionMW("setSensitivityLabel"),
-    ConcurrentLockerMW,
   ])
   async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
     const declarativeAgentManifestPath = inputs[
       QuestionNames.DeclarativeAgentManifestPath
     ] as string;
-    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      declarativeAgentManifestPath
-    );
-    if (declarativeAgentManifestRes.isErr()) {
-      return err(declarativeAgentManifestRes.error);
+    if (!declarativeAgentManifestPath || !(await fs.pathExists(declarativeAgentManifestPath))) {
+      throw new Error("declarativeAgentManifestPath is undefined or does not exist");
     }
-    const declarativeAgentManifest = declarativeAgentManifestRes.value;
-    declarativeAgentManifest.sensitivity_label = selectedLabel;
-    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
-      declarativeAgentManifest,
-      declarativeAgentManifestPath
-    );
-    if (writeRes.isErr()) {
-      return err(writeRes.error);
-    }
-    return ok(undefined);
+    return await withFileLock(declarativeAgentManifestPath, async () => {
+      const context = createContext();
+      const confirmMessage = getLocalizedString(
+        "core.setSensitivityLabel.confirm",
+        declarativeAgentManifestPath
+      );
+      const confirmRes = await context.userInteraction.showMessage(
+        "warn",
+        confirmMessage,
+        true,
+        getLocalizedString("core.setSensitivityLabel.continue")
+      );
+
+      if (confirmRes.isErr()) {
+        return err(confirmRes.error);
+      } else if (confirmRes.value !== getLocalizedString("core.setSensitivityLabel.continue")) {
+        return err(new UserCancelError());
+      }
+      const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
+      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+        declarativeAgentManifestPath
+      );
+      if (declarativeAgentManifestRes.isErr()) {
+        return err(declarativeAgentManifestRes.error);
+      }
+      const declarativeAgentManifest = declarativeAgentManifestRes.value;
+      declarativeAgentManifest.sensitivity_label = selectedLabel;
+      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+        declarativeAgentManifest,
+        declarativeAgentManifestPath
+      );
+      if (writeRes.isErr()) {
+        return err(writeRes.error);
+      }
+      return ok(undefined);
+    });
   }
 
   private async updateAuthActionInYaml(

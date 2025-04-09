@@ -174,7 +174,7 @@ jobs:
     needs: setup
     permissions:
       contents: read
-    timeout-minutes: 50
+    timeout-minutes: 70
     env:
       CI_ENABLED: true
       NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
@@ -334,7 +334,7 @@ jobs:
       - name: Update npm packages for UI Test
         working-directory: packages/tests
         run: |
-          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/teamsapp-cli@latest
+          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/m365agentstoolkit-cli@latest
 
       - name: Install npm packages
         working-directory: packages/tests
@@ -355,7 +355,7 @@ jobs:
       - name: Install teamsfx cli
         working-directory: packages/tests
         run: |
-          npm install @microsoft/teamsapp-cli@${{ needs.setup.outputs.npm-tag }}
+          npm install @microsoft/m365agentstoolkit-cli@${{ needs.setup.outputs.npm-tag }}
 
       - name: Download samples
         if: startsWith(matrix.test-case, 'sample-') && contains(matrix.test-case, 'proactive-message') == false && contains(matrix.test-case, 'reddit-link') == false && contains(matrix.test-case, 'chef-bot') == false && contains(matrix.test-case, 'food-catalog') == false && contains(matrix.test-case, 'outlook-signature') == false
@@ -492,7 +492,7 @@ jobs:
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() || cancelled()
         with:
           name: screenshots ${{ matrix.test-case }} ${{ matrix.os }}
           path: packages/tests/.test-resources/screenshots/

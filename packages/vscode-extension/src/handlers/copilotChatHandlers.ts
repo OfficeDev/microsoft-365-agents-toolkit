@@ -28,6 +28,12 @@ enum errorNames {
   openCopilotError = "openCopilotError",
 }
 
+enum failedPreCheckSteps {
+  GitHubCopilotInstalled = "GitHubCopilotInstalled",
+  TeamsAgentInstalled = "TeamsAgentInstalled",
+  GitHubCopilotSetup = "GitHubCopilotSetup",
+}
+
 function githubCopilotInstalled(): boolean {
   const extension = vscode.extensions.getExtension(githubCopilotChatExtensionId);
   return !!extension;
@@ -173,7 +179,7 @@ export async function openTeamsAgentWalkthrough(args?: any[]) {
 }
 
 /**
- * Invoke @teamsapp
+ * Invoke @m365agents
  * @param query query
  * @param triggerFromProperty trigger-from property
  * @param skipPreCheck skip pre-check or not. Default value is false.
@@ -199,6 +205,25 @@ async function invoke(
   const hasGitHubCopilotInstalled = githubCopilotInstalled();
   const hasTeamsAgentInstalled = await globalStateGet(GlobalKey.TeamsAgentInstalled, false);
   const hasGitHubCopilotSetup = await isGithubLoggedIn();
+  const failedSteps: failedPreCheckSteps[] = [];
+  if (!hasGitHubCopilotInstalled) {
+    failedSteps.push(failedPreCheckSteps.GitHubCopilotInstalled);
+  }
+
+  if (!hasTeamsAgentInstalled) {
+    failedSteps.push(failedPreCheckSteps.TeamsAgentInstalled);
+  }
+
+  if (!hasGitHubCopilotSetup) {
+    failedSteps.push(failedPreCheckSteps.GitHubCopilotSetup);
+  }
+
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.TeamsAgentPreCheckResult, {
+    [TelemetryProperty.TeamsAgentPreCheckFailure]: failedSteps.join(","),
+    [TelemetryProperty.TeamsAgentPreCheckResultSuccess]:
+      failedSteps.length === 0 ? "true" : "false",
+    ...triggerFromProperty,
+  });
 
   if (hasGitHubCopilotInstalled && hasTeamsAgentInstalled && hasGitHubCopilotSetup) {
     if (triggerFromProperty[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Notification) {
@@ -236,27 +261,28 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     case TelemetryTriggerFrom.TreeView:
     case TelemetryTriggerFrom.CommandPalette:
       query =
-        "@teamsapp Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
+        "@m365agents Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
       shouldSkipPreCheck = true;
-      query = "@teamsapp What's the difference between declarative and custom agents?";
+      query = "@m365agents What's the difference between declarative and custom agents?";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
       shouldSkipPreCheck = true;
-      query = "@teamsapp I want to create a ToDo Teams app.";
+      query = "@m365agents I want to create a ToDo Teams app.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
-      query = "@teamsapp My Teams app doesn't sideload when debugging with Teams Toolkit.";
+      query =
+        "@m365agents My Teams app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
       break;
     case TelemetryTriggerFrom.WalkThrough:
       shouldSkipPreCheck = true;
-      query = "@teamsapp What can you do?";
+      query = "@m365agents What can you do?";
       break;
     default:
       query =
-        "@teamsapp Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @teamsapp create an AI assistant bot that can complete common tasks.";
+        "@m365agents Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @m365agents create an AI assistant bot that can complete common tasks.";
   }
 
   const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);
@@ -310,7 +336,7 @@ export async function troubleshootSelectedText(args?: any[]): Promise<Result<boo
     );
   }
 
-  const query = `@teamsapp I'm encountering an issue in Teams Toolkit.
+  const query = `@m365agents I'm encountering an issue in Microsoft 365 Agents Toolkit.
 \`\`\`
 {
   Error context: ${selectedText}
@@ -356,7 +382,7 @@ export async function troubleshootError(args?: any[]): Promise<Result<boolean, F
     telemtryProperties
   );
 
-  const query = `@teamsapp I'm encountering the following error in Teams Toolkit.
+  const query = `@m365agents I'm encountering the following error in Microsoft 365 Agents Toolkit.
   \`\`\`
   {
     Error code: ${errorCode}

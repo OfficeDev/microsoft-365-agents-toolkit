@@ -27,6 +27,13 @@ import {
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { NoSpecError } from "./error/noSpecError";
 import { MultipleActionError } from "./error/multipleActionError";
+import {
+  injectAuthAction,
+  parseAndUpdatePluginManifestForKiota,
+} from "../../generator/openApiSpec/helper";
+import { MetadataV3 } from "../../../common/versionMetadata";
+import { ReProvisionError } from "./error/reProvisionError";
+import { kiotageneratePlugin } from "../../../common/kiotaClient";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
 
@@ -95,12 +102,11 @@ export class TypeSpecCompileDriver implements StepDriver {
             }
 
             const pluginManifestName = actions[0].id;
-            await this.generatePluginManifestWithKiota(
-              ctx,
-              outputFolderPath,
-              openApiSpecsFolderPath,
-              spec,
-              pluginManifestName
+            await kiotageneratePlugin(
+              `${openApiSpecsFolderPath}/${spec}`,
+              `${outputFolderPath}`,
+              `${pluginManifestName}`,
+              ctx.projectPath
             );
           } else {
             for (const spec of openapiSpecs) {
@@ -115,12 +121,11 @@ export class TypeSpecCompileDriver implements StepDriver {
                 continue;
               }
               const pluginManifestName = action.id;
-              await this.generatePluginManifestWithKiota(
-                ctx,
-                outputFolderPath,
-                openApiSpecsFolderPath,
-                spec,
-                pluginManifestName
+              await kiotageneratePlugin(
+                `${openApiSpecsFolderPath}/${spec}`,
+                `${outputFolderPath}`,
+                `${pluginManifestName}`,
+                ctx.projectPath
               );
             }
           }
@@ -142,6 +147,43 @@ export class TypeSpecCompileDriver implements StepDriver {
           },
         ];
         await fs.writeJSON(generatedManifestFilePath, manifest, { spaces: 2 });
+
+        // 4. If env exists in plugin manifest, update yaml file
+        const generatedFolder = fs.readdirSync(outputFolderPath);
+        let showAlert = false;
+        for (const file of generatedFolder) {
+          if (file.match(/[^-]+\-apiplugin\.json/)) {
+            const pluginManifestPath = path.join(outputFolderPath, file);
+            const authData = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
+            for (const authInfo of authData) {
+              const addAuthRes = await injectAuthAction(
+                ctx.projectPath,
+                authInfo.authName,
+                undefined,
+                path.join(outputFolderPath, authInfo.specPath),
+                false,
+                authInfo.authType === "apiKey" ? "ApiKeyPluginVault" : "OAuthPluginVault",
+                false,
+                authInfo.registrationId
+              );
+
+              if (addAuthRes) {
+                showAlert = true;
+              }
+            }
+          }
+        }
+        if (showAlert) {
+          void ctx.ui.showMessage(
+            "warn",
+            getLocalizedString("driver.typeSpec.compile.reprovision", MetadataV3.configFile),
+            false
+          );
+          return {
+            result: err(new ReProvisionError(actionName, MetadataV3.configFile)),
+            summaries: summaries,
+          };
+        }
       }
 
       if (ctx.platform === Platform.VSCode) {
@@ -201,43 +243,6 @@ export class TypeSpecCompileDriver implements StepDriver {
 
     if (invalidParameters.length > 0) {
       throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
-    }
-  }
-
-  private async generatePluginManifestWithKiota(
-    ctx: DriverContext,
-    outputFolderPath: string,
-    openApiSpecsFolderPath: string,
-    specName: string,
-    pluginManifestName: string
-  ): Promise<void> {
-    const generateRes = await ctx.ui!.runCommand!({
-      cmd: `npx --package=@microsoft/kiota-bundle kiota plugin add \
-        -d ${openApiSpecsFolderPath}/${specName} \
-        --plugin-name ${pluginManifestName} \
-        --output ${outputFolderPath} \
-        --type apiplugin`,
-      workingDirectory: ctx.projectPath,
-      env: {
-        KIOTA_CONFIG_PREVIEW: "true",
-      },
-    });
-
-    if (generateRes.isErr()) {
-      throw generateRes.error;
-    }
-
-    // Remove all plugins from Kiota to avoid error when re-provision
-    const removeRes = await ctx.ui!.runCommand!({
-      cmd: `npx --package=@microsoft/kiota-bundle kiota plugin remove \
-        --plugin-name ${pluginManifestName}`,
-      workingDirectory: ctx.projectPath,
-      env: {
-        KIOTA_CONFIG_PREVIEW: "true",
-      },
-    });
-    if (removeRes.isErr()) {
-      throw removeRes.error;
     }
   }
 

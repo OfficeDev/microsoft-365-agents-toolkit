@@ -62,11 +62,11 @@ export const accountLoginAzureCommand: CLICommand = {
     const isSP = args["service-principal"] as boolean;
     if (isSP === true) {
       if (!args.username || !args.password || !args.tenant) {
-        return err(new UserError(loginComponent, usageError, servicePrincipalLoginFormat));
+        return err(new UserError(loginComponent, usageError, servicePrincipalLoginFormat()));
       }
     } else {
       if (args.username || args.password) {
-        return err(new UserError(loginComponent, usageError, codeFlowLoginFormat));
+        return err(new UserError(loginComponent, usageError, codeFlowLoginFormat()));
       }
     }
     await AzureTokenProvider.signout();
