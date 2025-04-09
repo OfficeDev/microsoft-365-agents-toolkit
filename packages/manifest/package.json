@@ -29,11 +29,11 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-no-secrets": "^0.8.9",
     "eslint-plugin-prettier": "^4.0.0",
-    "json-schema-to-typescript": "^10.1.5",
     "lint-staged": "^10.5.4",
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
+    "quicktype": "^23.0.171",
     "rimraf": "^3.0.0",
     "sinon": "^9.2.2",
     "ts-node": "^10.1.0",
@@ -49,7 +49,7 @@
     "lint": "eslint \"**/*.ts\"",
     "precommit": "lint-staged",
     "lint:staged": "lint-staged",
-    "generate-manifest": "npx json2ts -i devPreviewSchema.json -o src/devPreviewManifest.ts --ignoreMinAndMaxItems"
+    "generate-manifest": "npx quicktype -s schema devPreviewSchema.json -o src/devPreviewManifest.ts"
   },
   "files": [
     "build/**/*"
