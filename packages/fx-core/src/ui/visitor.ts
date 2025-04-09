@@ -536,10 +536,11 @@ export async function traverse(
   telemetryReporter?: TelemetryReporter,
   visitor: QuestionTreeVisitor = questionVisitor
 ): Promise<Result<undefined, FxError>> {
+  // The reason to clone is that we don't want to change the original inputs if user cancel the process
   const clonedInputs = cloneDeep(inputs);
   const parentMap = new Map<IQTreeNode, IQTreeNode>();
   const stack: IQTreeNode[] = [];
-  const traversedNodeList: IQTreeNode[] = []; // node traverse history
+  const traversedNodeList: IQTreeNode[] = []; // traverse history node list
   const traversedNodeSet = new Set<IQTreeNode>(); // a set to record whether a node has been traversed to avoid duplicate visit
   stack.push(root);
   let step = 1; // step number means the number of nodes that is really visited by UI, except cases for: group node, skip node and node with condition failure
@@ -592,24 +593,21 @@ export async function traverse(
           let prevNode = traversedNodeList.pop();
           while (prevNode) {
             traversedNodeSet.delete(prevNode);
-            if (
-              prevNode.conditionResult &&
-              prevNode.data.type !== "group" &&
-              prevNode.data.valueType !== "skip"
-            ) {
-              break;
+            if (prevNode.conditionResult && prevNode.data.type !== "group") {
+              delete prevNode.data.value;
+              delete prevNode.data.valueType;
+              delete clonedInputs[prevNode.data.name];
+              if (prevNode.data.valueType !== "skip") {
+                break;
+              }
             }
+            stack.push(prevNode);
             prevNode = traversedNodeList.pop();
           }
           if (!prevNode) {
             return err(new UserCancelError());
           }
           step--;
-          if (prevNode.data.type !== "group") {
-            delete prevNode.data.value;
-            delete prevNode.data.valueType;
-            delete clonedInputs[prevNode.data.name];
-          }
           stack.push(prevNode);
           continue;
         } else {
