@@ -496,15 +496,15 @@ export async function traverse(
         if (!prevNode) {
           return err(new UserCancelError());
         }
+        // clear prevNode data
+        if (prevNode.data.type !== "group") {
+          delete prevNode.data.value;
+          delete prevNode.data.valueType;
+          delete clonedInputs[prevNode.data.name];
+        }
         for (--i; i >= 0; --i) {
           const tmpNode = nodeList[i];
           visitedNodeSet.delete(tmpNode);
-          // clear prevNode data
-          if (tmpNode.data.type !== "group") {
-            delete tmpNode.data.value;
-            delete tmpNode.data.valueType;
-            delete clonedInputs[tmpNode.data.name];
-          }
           if (tmpNode === prevNode) {
             break;
           }
