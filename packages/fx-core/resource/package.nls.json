@@ -666,7 +666,6 @@
   "core.shareOptionQuestion.shareToUser": "Share to user(s)",
   "core.shareOptionQuestion.placeholder": "Select an option",
   "core.shareToUser.title": "Enter user emails (separated by commas)",
-  "core.shareToUser.validation": "Invalid format of email address",
   "core.share.removeAccess.operator": "Cannot remove permission of the operator. Email: %s.",
   "core.syncManifest.projectPath": "Project path",
   "core.syncManifest.env": "Target Microsoft 365 Agents Toolkit Environment",
