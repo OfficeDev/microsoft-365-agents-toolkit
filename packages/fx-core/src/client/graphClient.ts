@@ -76,6 +76,12 @@ export class GraphClient {
     return <GetJoinedTeamsResponse>response.data.value;
   }
 
+  /**
+   * Get weburl of a channel.
+   * @param teamId
+   * @param channelId
+   * @returns
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async GetChannelDeeplinkAsync(teamId: string, channelId: string): Promise<string> {
     const tokenResponse = await this.tokenProvider.getAccessToken({
@@ -87,7 +93,7 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     const response = await requester.get(`/teams/${teamId}/channels/${channelId}`);
-    const data = <GetChannelResponse>response.data.value;
+    const data = <GetChannelResponse>response.data;
     return data.webUrl;
   }
 

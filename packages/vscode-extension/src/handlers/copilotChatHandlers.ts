@@ -261,7 +261,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     case TelemetryTriggerFrom.TreeView:
     case TelemetryTriggerFrom.CommandPalette:
       query =
-        "@m365agents Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
+        "@m365agents Use this GitHub Copilot extension to ask questions about Microsoft 365 app and Microsoft 365 Copilot agent development.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
       shouldSkipPreCheck = true;
@@ -269,12 +269,12 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
       shouldSkipPreCheck = true;
-      query = "@m365agents I want to create a ToDo Teams app.";
+      query = "@m365agents I want to create a ToDo Microsoft 365 app.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
       query =
-        "@m365agents My Teams app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
+        "@m365agents My Microsoft 365 app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
       break;
     case TelemetryTriggerFrom.WalkThrough:
       shouldSkipPreCheck = true;
@@ -282,7 +282,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     default:
       query =
-        "@m365agents Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @m365agents create an AI assistant bot that can complete common tasks.";
+        "@m365agents Write your own query message to find relevant templates or samples to build your Microsoft 365 app and agent as per your description. E.g. @m365agents create an AI assistant bot that can complete common tasks.";
   }
 
   const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);

@@ -60,7 +60,7 @@ export async function getAllCollaborators(): Promise<string> {
     console.log("already maximized");
   }
   // This api is not work on macos, it will throw: Error: Channel Teams Toolkit not found
-  await output.selectChannel("Teams Toolkit");
+  await output.selectChannel("Microsoft 365 Agents Toolkit");
   // Clear output
   console.log("start Clear output");
   await output.clearText();

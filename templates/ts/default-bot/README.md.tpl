@@ -30,7 +30,7 @@ An agent interaction can be a quick question and answer, or it can be a complex 
 
 **Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
 
-![basic bot](https://github.com/user-attachments/assets/2b9e3fa1-7438-4c18-8458-6ff7a5e67cac)
+![basic bot](./img/echo-bot.png)
 
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
@@ -57,8 +57,8 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsBot.ts`| Handles business logics for the Basic Bot.|
-|`index.ts`|`index.ts` is used to setup and configure the Basic Bot.|
+|`agent.ts`| Handles business logics for the echo bot.|
+|`index.ts`|`index.ts` is used to setup and configure the echo bot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 

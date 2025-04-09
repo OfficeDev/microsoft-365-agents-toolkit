@@ -8,6 +8,11 @@ import {
   ProjectType,
   SpecParser,
   AuthInfo,
+  ValidateResult,
+  ValidationStatus,
+  ErrorType,
+  Utils,
+  InvalidAPIInfo,
 } from "@microsoft/m365-spec-parser";
 import { Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "./featureFlags";
@@ -17,6 +22,7 @@ import {
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from "@microsoft/kiota";
+import { createHash } from "crypto";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -32,6 +38,10 @@ const daProjectConfig: ParseOptions = {
 };
 
 export async function listAPIInfo(specPath: string, platform?: string): Promise<ListAPIResult> {
+  const allowAPIKeyAuth = platform !== Platform.VS;
+  const allowBearerTokenAuth = platform !== Platform.VS;
+  const allowOauth2 = platform !== Platform.VS;
+
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
     const treeInfo = await listAPITreeInfo(specPath);
 
@@ -42,6 +52,33 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
         treeInfo.security ?? [],
         treeInfo.securitySchemes ?? {}
       );
+
+      for (const operation of operations) {
+        if (!operation.server) {
+          operation.reason.push(ErrorType.NoServerInformation);
+        } else {
+          const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
+          operation.reason.push(...serverValidateResult.map((item) => item.type));
+        }
+
+        if (operation.auth) {
+          if (operation.auth?.authScheme.type === "multipleAuth") {
+            operation.reason.push(ErrorType.MultipleAuthNotSupported);
+          } else if (
+            !(
+              (allowAPIKeyAuth && Utils.isAPIKeyAuth(operation.auth.authScheme)) ||
+              (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)) ||
+              (allowBearerTokenAuth && Utils.isBearerTokenAuth(operation.auth.authScheme))
+            )
+          ) {
+            operation.reason.push(ErrorType.AuthTypeIsNotSupported);
+          }
+        }
+
+        if (operation.reason.length > 0) {
+          operation.isValid = false;
+        }
+      }
 
       return {
         allAPICount: operations.length,
@@ -59,14 +96,72 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
 
   const options: ParseOptions = {
     ...daProjectConfig,
+    allowAPIKeyAuth,
+    allowBearerTokenAuth,
+    allowOauth2,
+  };
+
+  const parser = new SpecParser(specPath, options);
+
+  return await parser.list();
+}
+
+export async function validateOpenAPISpec(
+  specPath: string,
+  platform?: string
+): Promise<ValidateResult> {
+  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
+    let hash = "";
+    let apiInfo: ListAPIResult;
+    try {
+      apiInfo = await listAPIInfo(specPath, platform);
+    } catch (e) {
+      return {
+        status: ValidationStatus.Error,
+        warnings: [],
+        errors: [{ type: ErrorType.SpecNotValid, content: (e as Error).toString() }],
+        specHash: hash,
+      };
+    }
+
+    if (apiInfo.allAPICount === 0 || apiInfo.validAPICount === 0) {
+      const data = [];
+      for (const info of apiInfo.APIs) {
+        const apiInvalidReason: InvalidAPIInfo = { api: info.api, reason: info.reason };
+        data.push(apiInvalidReason);
+      }
+
+      return {
+        status: ValidationStatus.Error,
+        warnings: [],
+        errors: [{ type: ErrorType.NoSupportedApi, content: "", data: data }],
+        specHash: hash,
+      };
+    }
+
+    const serverUrl = apiInfo.APIs.find((api) => api.isValid)?.server;
+    if (serverUrl) {
+      const serverString = JSON.stringify(serverUrl);
+      hash = createHash("sha256").update(serverString).digest("hex");
+    }
+
+    return {
+      status: ValidationStatus.Valid,
+      warnings: [],
+      errors: [],
+      specHash: hash,
+    };
+  }
+
+  const options: ParseOptions = {
+    ...daProjectConfig,
     allowAPIKeyAuth: platform !== Platform.VS,
     allowBearerTokenAuth: platform !== Platform.VS,
     allowOauth2: platform !== Platform.VS,
   };
 
   const parser = new SpecParser(specPath, options);
-
-  return await parser.list();
+  return await parser.validate();
 }
 
 function extractOperations(

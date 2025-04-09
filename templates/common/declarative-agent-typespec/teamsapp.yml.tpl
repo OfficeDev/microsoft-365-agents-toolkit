@@ -17,11 +17,6 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
-  - uses: cli/runDotnetCommand
-    name: install Kiota
-    with:
-      args: tool install --global Microsoft.OpenApi.Kiota
-
   - uses: cli/runNpmCommand
     name: install dependencies
     with:

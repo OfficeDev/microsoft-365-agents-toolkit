@@ -338,7 +338,7 @@
   "core.createProjectQuestion.projectType.customCopilot.title": "App Features Using Teams AI Library",
   "core.createProjectQuestion.projectType.customCopilot.placeholder": "Select an option",
   "core.createProjectQuestion.projectType.copilotHelp.label": "Don't know how to start? Use GitHub Copilot Chat",
-  "core.createProjectQuestion.projectType.copilotHelp.detail": "Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app or Microsoft 365 Copilot agent.",
+  "core.createProjectQuestion.projectType.copilotHelp.detail": "Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.",
   "core.createProjectQuestion.projectType.copilotGroup.title": "Use GitHub Copilot",
   "core.createProjectQuestion.projectType.createGroup.aiAgent": "AI Agent",
   "core.createProjectQuestion.projectType.createGroup.m365Apps": "Apps for Microsoft 365",
@@ -1083,5 +1083,6 @@
   "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms",
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
   "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment.",
-  "driver.typeSpec.compile.reprovision": "File %s is updated. Please run provision again."
+  "driver.typeSpec.compile.reprovision": "File %s is updated. Please run provision again.",
+  "error.kiota.KiotaGeneratePluginError": "Unable to generate plugin manifest file using Kiota. Error: %s"
 }
