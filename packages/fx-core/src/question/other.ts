@@ -63,7 +63,6 @@ import { UninstallInputs } from "./inputs";
 import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { parseShareAppActionYamlConfig } from "../common/utils";
-import { PackageService } from "../component/m365/packageService";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {

@@ -32,9 +32,8 @@ import { MosServiceEndpoint } from "./serviceConstant";
 import { IsDeclarativeAgentManifest } from "../../common/projectTypeChecker";
 import stripBom from "strip-bom";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
-import { title } from "process";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
-import { M365AppDefinition, M365AppOwners, M365OwnerType } from "./interface";
+import { M365AppDefinition, M365AppOwners } from "./interface";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
