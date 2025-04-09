@@ -41,7 +41,7 @@ class SsotabApimTestCase extends CaseFactory {
 
 new SsotabApimTestCase(
   TemplateProject.TabSSOApimProxy,
-  0,
+  undefined,
   25191534,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],

@@ -132,8 +132,8 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
 
 export abstract class CaseFactory {
   public sampleName: TemplateProject;
-  public testPlanCaseId_local: number;
-  public testPlanCaseId_dev: number;
+  public testPlanCaseId_local: number | undefined;
+  public testPlanCaseId_dev: number | undefined;
   public author: string;
   public validate: LocalDebugTaskLabel[];
   public options?: {
@@ -158,8 +158,8 @@ export abstract class CaseFactory {
 
   public constructor(
     sampleName: TemplateProject,
-    testPlanCaseId_local: number,
-    testPlanCaseId_dev: number,
+    testPlanCaseId_local: number | undefined,
+    testPlanCaseId_dev: number | undefined,
     author: string,
     validate: LocalDebugTaskLabel[] = [],
     options: {

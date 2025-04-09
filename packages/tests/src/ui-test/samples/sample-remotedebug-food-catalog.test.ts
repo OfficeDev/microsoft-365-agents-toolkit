@@ -60,7 +60,7 @@ class FoodCatalogTestCase extends CaseFactory {
 
 new FoodCatalogTestCase(
   TemplateProject.FoodCatalog,
-  0,
+  undefined,
   27851823,
   "v-ivanchen@microsoft.com",
   [

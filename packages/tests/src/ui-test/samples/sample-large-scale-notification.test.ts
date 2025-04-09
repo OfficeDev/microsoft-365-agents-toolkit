@@ -37,7 +37,7 @@ class LargeNotiTestCase extends CaseFactory {
 
 new LargeNotiTestCase(
   TemplateProject.LargeScaleBot,
-  0,
+  undefined,
   25960873,
   "v-ivanchen@microsoft.com",
   [
