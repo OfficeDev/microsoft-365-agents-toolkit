@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CloudAdapter } from "botbuilder";
+import { CloudAdapter } from "@microsoft/agents-hosting";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../core/errors";
 import { internalLogger } from "../util/logger";
 import {

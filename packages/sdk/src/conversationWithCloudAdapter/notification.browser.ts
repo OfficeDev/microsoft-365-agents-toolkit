@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  CloudAdapter,
-  ChannelInfo,
-  ConversationReference,
-  TeamDetails,
-  TeamsChannelAccount,
-  TurnContext,
-} from "botbuilder";
+import { CloudAdapter, ConversationReference, TurnContext } from "@microsoft/agents-hosting";
+import { ChannelInfo, TeamDetails, TeamsChannelAccount } from "@microsoft/agents-hosting-teams";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { formatString } from "../util/utils";
 import {

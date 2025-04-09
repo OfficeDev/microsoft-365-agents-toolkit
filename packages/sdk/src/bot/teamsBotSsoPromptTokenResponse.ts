@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { TokenResponse } from "botframework-schema";
 
 /**
  * Token response provided by Teams Bot SSO prompt
  */
-export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
+export interface TeamsBotSsoPromptTokenResponse {
   /**
    * SSO token for user
    */
@@ -15,4 +14,11 @@ export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
    * Expire time of SSO token
    */
   ssoTokenExpiration: string;
+  channelId?: string;
+  connectionName: string;
+  expiration: string;
+  properties?: {
+    [propertyName: string]: any;
+  };
+  token: string;
 }

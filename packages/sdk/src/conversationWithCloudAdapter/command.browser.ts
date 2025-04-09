@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CloudAdapter } from "botbuilder";
+import { CloudAdapter } from "@microsoft/agents-hosting";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 import { formatString } from "../util/utils";
 import { TeamsFxBotCommandHandler, TeamsFxBotSsoCommandHandler } from "../conversation/interface";

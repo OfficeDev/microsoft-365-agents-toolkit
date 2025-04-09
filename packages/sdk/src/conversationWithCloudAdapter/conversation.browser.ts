@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CloudAdapter, TurnContext, Request, Response } from "botbuilder";
+import { TurnContext, Request } from "@microsoft/agents-hosting";
+import { CloudAdapter } from "@microsoft/agents-hosting";
 import { CommandBot } from "./command.browser";
 import { ConversationOptions } from "./interface";
 import { NotificationBot } from "./notification.browser";
@@ -68,7 +69,7 @@ export class ConversationBot {
    */
   public requestHandler(
     req: Request,
-    res: Response,
+    res: any,
     logic?: (context: TurnContext) => Promise<any>
   ): Promise<void> {
     return Promise.reject(
