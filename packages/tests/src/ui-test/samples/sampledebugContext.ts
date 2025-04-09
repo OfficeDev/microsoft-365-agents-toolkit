@@ -460,15 +460,7 @@ export class SampledebugContext extends TestContext {
     }
   ): Promise<void> {
     if (options.tool === "cli") {
-      await this.runCliProvision(
-        projectPath,
-        appName,
-        options.createRg,
-        options.option,
-        options.env,
-        options.processEnv,
-        options.skipErrorMessage
-      );
+      await this.runCliProvision(projectPath, appName, options);
     } else {
       await runProvision(appName);
     }
@@ -501,23 +493,31 @@ export class SampledebugContext extends TestContext {
   public async runCliProvision(
     projectPath: string,
     appName: string,
-    createRg = true,
-    option = "",
-    env: "dev" | "local" = "dev",
-    processEnv?: NodeJS.ProcessEnv,
-    skipErrorMessage?: string
-  ) {
-    if (createRg) {
-      await createResourceGroup(appName, env, "westus");
+    options: {
+      createRg?: boolean;
+      option?: string;
+      env?: "dev" | "local";
+      processEnv?: NodeJS.ProcessEnv;
+      skipErrorMessage?: string;
+    } = {
+      createRg: true,
+      option: "",
+      env: "dev",
+      processEnv: undefined,
+      skipErrorMessage: undefined,
     }
-    const resourceGroupName = `${appName}-${env}-rg`;
+  ): Promise<void> {
+    if (options.createRg) {
+      await createResourceGroup(appName, options.env, "westus");
+    }
+    const resourceGroupName = `${appName}-${options.env}-rg`;
     process.env["AZURE_RESOURCE_GROUP_NAME"] = resourceGroupName;
-    await CliHelper.showVersion(projectPath, processEnv);
+    await CliHelper.showVersion(projectPath, options.processEnv);
     const { success, stderr, stdout } = await Executor.provision(
       projectPath,
-      env,
+      options.env,
       true,
-      skipErrorMessage
+      options.skipErrorMessage
     );
     console.log(`stdout: ${stdout}`);
     if (!success) {
