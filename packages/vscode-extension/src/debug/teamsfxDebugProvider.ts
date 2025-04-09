@@ -79,7 +79,10 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
 
       // resolve env
       let url: string = debugConfiguration.url;
-      const host = new URL(url).host;
+      let host: string | undefined;
+      if (url.startsWith("https")) {
+        host = new URL(url).host;
+      }
       let env: string | undefined = undefined;
 
       // match ${{xxx:yyy}}

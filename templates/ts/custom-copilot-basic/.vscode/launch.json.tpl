@@ -157,6 +157,7 @@
             ]
         {{/CEAEnabled}}
 {{#SandBoxedTeam}}
+        },
         {
             "name": "Launch App to channel (Edge)",
             "type": "msedge",
@@ -171,7 +172,6 @@
             },
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes"
-        },
 {{/SandBoxedTeam}}
         }
     ],

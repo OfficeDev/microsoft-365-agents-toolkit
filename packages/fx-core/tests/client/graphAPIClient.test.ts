@@ -484,9 +484,7 @@ describe("Sandbox related APIs", () => {
     const channelId = "fake-channel-id";
     const mockResponse = {
       data: {
-        value: {
-          webUrl: "https://teams.microsoft.com/l/channel/fake-channel",
-        },
+        webUrl: "https://teams.microsoft.com/l/channel/fake-channel",
       },
     };
     sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
