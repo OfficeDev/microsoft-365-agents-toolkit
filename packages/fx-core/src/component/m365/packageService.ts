@@ -194,21 +194,18 @@ export class PackageService {
       const data = await fs.readFile(manifestPath);
       const content = new FormData();
       content.append("package", data);
+      content.append("info", JSON.stringify({ builderName: "TeamsToolKit" }));
       const serviceUrl = await this.getTitleServiceUrl(token);
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const uploadResponse = await this.axiosInstance.post(
-        "/builder/v1/users/packages",
-        content.getBuffer(),
-        {
-          baseURL: serviceUrl,
-          headers: uploadHeaders,
-          params: {
-            scope: appScope,
-          },
-        }
-      );
+      const uploadResponse = await this.axiosInstance.post("/builder/v1/users/packages", content, {
+        baseURL: serviceUrl,
+        headers: uploadHeaders,
+        params: {
+          scope: appScope,
+        },
+      });
 
       const statusId = uploadResponse.data.statusId;
       this.logger?.debug(`Acquiring package with statusId: ${statusId as string} ...`);

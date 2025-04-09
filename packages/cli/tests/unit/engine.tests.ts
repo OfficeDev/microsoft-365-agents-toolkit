@@ -567,7 +567,7 @@ describe("CLI Engine", () => {
     it("happy path", async () => {
       sandbox.stub(main, "initTelemetryReporter").returns();
       sandbox.stub(engine, "start").resolves();
-      await start();
+      await start("atk");
       assert.isTrue(true);
     });
   });

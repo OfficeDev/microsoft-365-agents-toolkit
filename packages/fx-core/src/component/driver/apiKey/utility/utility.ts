@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import { getAbsolutePath } from "../../../utils/common";
-import { DriverContext } from "../../interface/commonArgs";
 import { CreateApiKeyArgs } from "../interface/createApiKeyArgs";
 import { UpdateApiKeyArgs } from "../interface/updateApiKeyArgs";
 import { maxDomainPerApiKey, telemetryKeys } from "./constants";
@@ -11,6 +9,7 @@ import { ApiKeyDomainInvalidError } from "../error/apiKeyDomainInvalid";
 import { ApiKeyFailedToGetDomainError } from "../error/apiKeyFailedToGetDomain";
 import { ApiKeyAuthMissingInSpecError } from "../error/apiKeyAuthMissingInSpec";
 import { WrapDriverContext } from "../../util/wrapUtil";
+import { listAPIInfo } from "../../../../common/daSpecParser";
 
 // Needs to validate the parameters outside of the function
 export function loadStateFromEnv(
@@ -30,12 +29,8 @@ export async function getDomain(
   actionName: string
 ): Promise<string[]> {
   const absolutePath = getAbsolutePath(args.apiSpecPath!, context.projectPath);
-  const parser = new SpecParser(absolutePath, {
-    allowBearerTokenAuth: true, // Currently, API key auth support is actually bearer token auth
-    allowMultipleParameters: true,
-    projectType: ProjectType.Copilot,
-  });
-  const listResult = await parser.list();
+
+  const listResult = await listAPIInfo(absolutePath);
   const operations = listResult.APIs;
 
   const filteredOperations = operations.filter((value) => {

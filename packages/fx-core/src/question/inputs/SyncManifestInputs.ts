@@ -13,7 +13,7 @@ import { Inputs } from "@microsoft/teamsfx-api";
 export interface SyncManifestInputs extends Inputs {
   /** @description Project path */
   projectPath?: string;
-  /** @description Target Teams Toolkit Environment */
+  /** @description Target Microsoft 365 Agents Toolkit Environment */
   env?: string;
   /** @description Teams App ID (optional) */
   "teams-app-id"?: string;

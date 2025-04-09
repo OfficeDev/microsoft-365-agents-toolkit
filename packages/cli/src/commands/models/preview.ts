@@ -38,13 +38,15 @@ export const previewCommand: CLICommand = {
       type: "string",
       shortName: "c",
       description:
-        "The command to start local service. Work for 'local' environment only. If undefined, teamsapp will use the auto detected one from project type (`npm run dev:teamsfx` or `dotnet run` or `func start`). If empty, teamsapp will skip starting local service.",
+        "The command starts the service and works only in local environment. If undefined, it auto-detects the appropriate command from project type (npm run dev:teamsfx or dotnet run or func start), and if empty, it will skip starting the local service.",
     },
     {
       name: "running-pattern",
       shortName: "p",
       type: "string",
-      description: `The ready signal output that service is launched. Work for 'local' environment only. If undefined, teamsapp will use the default common pattern ("${constants.defaultRunningPattern.source}"). If empty, teamsapp treats process start as ready signal.`,
+      description: `The ready signal indicates the service has launched and it works only in 'local' environment. If undefined, the command defaults to ("${constants.defaultRunningPattern.source}"), and if empty, the process start is used as the ready signal.
+
+@jayzhang	Reply...`,
     },
     {
       name: "open-only",

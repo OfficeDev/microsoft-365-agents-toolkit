@@ -6,12 +6,13 @@ import {
   LocalFunc,
   Platform,
   SingleSelectQuestion,
+  StringValidation,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
 import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
-import { featureFlagManager } from "../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
@@ -41,7 +42,11 @@ import {
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
-import { apiSpecNode } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import {
+  apiSpecNode,
+  apiSpecWithSearchNode,
+} from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -221,6 +226,79 @@ describe("getTemplateName", () => {
   });
 });
 
+describe("daProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("daProjectTypeNode basic structure", () => {
+    const node = daProjectTypeNode();
+    const conditionFunc = node?.condition as StringValidation;
+
+    assert.equal(conditionFunc.equals, ProjectTypeOptions.copilotAgentOptionId);
+    assert.isDefined(node.children);
+  });
+
+  it("should return apiSpecWithSearchNode when KiotaNPMIntegration is enabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.KiotaNPMIntegration) {
+        return true;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const apiSpecChildNode = actionTypeNode?.children?.[1];
+
+    assert.isDefined(apiSpecChildNode);
+
+    const firstChild = apiSpecChildNode?.children?.[0];
+    assert.isDefined(firstChild);
+
+    const selectApiSpecQuestion = firstChild?.data;
+    assert.isDefined(selectApiSpecQuestion);
+    assert.equal(selectApiSpecQuestion?.name, QuestionNames.OpenAPISpecType);
+  });
+
+  it("should return apiSpecNode when KiotaNPMIntegration is disabled", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.KiotaNPMIntegration) {
+        return false;
+      }
+      return false;
+    });
+
+    const node = daProjectTypeNode();
+    const withPluginNode = node.children?.[0];
+    assert.isDefined(withPluginNode);
+
+    const actionTypeNode = withPluginNode?.children?.[0];
+    assert.isDefined(actionTypeNode);
+
+    const apiSpecChildNode = actionTypeNode?.children?.[1];
+
+    assert.isDefined(apiSpecChildNode);
+
+    assert.isFunction(apiSpecChildNode?.condition);
+
+    const testInputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+    };
+
+    const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
+    assert.isTrue(conditionFunc(testInputs));
+  });
+});
+
 describe("m365ProjectTypeNode", () => {
   it("apiSpecNode", () => {
     const node = apiSpecNode({ equals: "a" });
@@ -230,6 +308,28 @@ describe("m365ProjectTypeNode", () => {
     const condition = node.children?.[1].condition as ConditionFunc;
     const res = condition?.(inputs);
     assert.isTrue(res);
+  });
+
+  it("apiSpecWithSearchNode", () => {
+    const node = apiSpecWithSearchNode();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpecWithSearch().id,
+      [QuestionNames.ActionManifestPath]: "test",
+      [QuestionNames.SelectOpenApiSpec]: "test",
+    };
+    const condition = node.children?.[0].children?.[0]?.children?.[0].condition as ConditionFunc;
+    const res = condition?.(inputs);
+    assert.isFalse(res);
+
+    const condition2 = node.children?.[0]?.children?.[1]?.children?.[1]?.condition as ConditionFunc;
+    const res2 = condition2?.(inputs);
+    assert.isTrue(res2);
+
+    const condition3 = node.children?.[0]?.condition as ConditionFunc;
+    const res3 = condition3?.(inputs);
+    assert.isTrue(res3);
+    assert.isTrue(inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id);
   });
 });
 

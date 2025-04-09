@@ -584,11 +584,8 @@ describe("Sandbox related APIs", () => {
   it("GetTeamsAppSettingsAsync should return teams app settings", async () => {
     const mockResponse = {
       data: {
-        value: {
-          sandboxingConfiguration: {
-            sensitivityLabelUsedToIdentifySandboxedContainers:
-              "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
-          },
+        sandboxingConfiguration: {
+          sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
         },
       },
     };
@@ -596,7 +593,53 @@ describe("Sandbox related APIs", () => {
 
     const result = await graphClient.GetTeamsAppSettingsAsync();
 
+    expect(result).to.deep.equal(mockResponse.data);
+  });
+
+  it("GetAppInstallationForTeam should return installed apps successfully", async () => {
+    const teamId = "fake-team-id";
+    const mockResponse = {
+      data: {
+        value: [
+          {
+            id: "installation-id-1",
+            teamsApp: {
+              externalId: "app-external-id-1",
+              displayName: "App 1",
+            },
+          },
+          {
+            id: "installation-id-2",
+            teamsApp: {
+              externalId: "app-external-id-2",
+              displayName: "App 2",
+            },
+          },
+        ],
+      },
+    };
+
+    sandbox.stub(fakeAxiosInstance, "get").resolves(mockResponse);
+
+    const result = await graphClient.GetAppInstallationForTeam(teamId);
+
     expect(result).to.deep.equal(mockResponse.data.value);
+  });
+
+  it("DeleteInstalledApp should delete app installation successfully", async () => {
+    const teamId = "fake-team-id";
+    const installationId = "fake-installation-id";
+
+    sandbox.stub(fakeAxiosInstance, "delete").resolves({ status: 204 });
+
+    let error: any = undefined;
+    try {
+      await graphClient.DeleteInstalledApp(teamId, installationId);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).to.be.undefined;
   });
 });
 
@@ -690,6 +733,28 @@ describe("Sandbox related APIs - failed token", () => {
     let error: any = undefined;
     try {
       await graphClient.GetChannelsInTeamAsync("fake-team-id");
+    } catch (e) {
+      error = e;
+    }
+    expect(error).to.not.be.undefined;
+    expect(error.name).to.equal("TokenError");
+  });
+
+  it("GetAppInstallationForTeam failed to get access token", async () => {
+    let error: any = undefined;
+    try {
+      await graphClient.GetAppInstallationForTeam("fake-team-id");
+    } catch (e) {
+      error = e;
+    }
+    expect(error).to.not.be.undefined;
+    expect(error.name).to.equal("TokenError");
+  });
+
+  it("DeleteInstalledApp failed to get access token", async () => {
+    let error: any = undefined;
+    try {
+      await graphClient.DeleteInstalledApp("fake-team-id", "installation-id");
     } catch (e) {
       error = e;
     }

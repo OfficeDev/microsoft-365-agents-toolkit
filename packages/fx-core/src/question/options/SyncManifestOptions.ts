@@ -21,7 +21,7 @@ export const SyncManifestOptions: CLICommandOption[] = [
   {
     name: "env",
     type: "string",
-    description: "Target Teams Toolkit Environment",
+    description: "Target Microsoft 365 Agents Toolkit Environment",
     required: true,
   },
   {

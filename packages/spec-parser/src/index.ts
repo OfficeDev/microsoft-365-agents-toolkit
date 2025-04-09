@@ -20,6 +20,7 @@ export {
   AuthType,
   AdaptiveCardUpdateStrategy,
   ListAPIInfo,
+  AuthInfo,
 } from "./interfaces";
 
 export { ConstantString } from "./constants";

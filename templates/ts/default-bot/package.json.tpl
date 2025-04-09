@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit hello world Bot sample",
+    "description": "Microsoft 365 Agents Toolkit echo bot sample",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -23,16 +23,16 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "botbuilder": "^4.23.1",
+        "@microsoft/agents-hosting": "^0.1.49",
         "express": "^5.0.1"
     },
     "devDependencies": {
         "@types/express": "^5.0.0",
         "@types/node": "^18.0.0",
         "env-cmd": "^10.1.0",
-        "ts-node": "^10.4.0",
-        "typescript": "^4.4.4",
         "nodemon": "^3.1.7",
-        "shx": "^0.3.3"
+        "shx": "^0.3.3",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.4.4"
     }
 }

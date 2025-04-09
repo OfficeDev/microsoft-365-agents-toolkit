@@ -246,7 +246,7 @@ describe("copilotChatHandler", async () => {
       chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
-    it("open walkthrough successfully from treeview if @teamsapp not installed", async () => {
+    it("open walkthrough successfully from treeview if @m365agents not installed", async () => {
       const args = [TelemetryTriggerFrom.TreeView];
       sandbox.stub(globalState, "globalStateGet").resolves(false);
       sandbox

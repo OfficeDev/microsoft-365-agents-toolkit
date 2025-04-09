@@ -396,7 +396,7 @@ describe("Control Handlers", () => {
       sinon.restore();
     });
 
-    it("should select the Teams Toolkit walkthrough", async () => {
+    it("should select the Microsoft 365 Agents Toolkit walkthrough", async () => {
       quickPickStub.resolves({
         label: getDefaultString("teamstoolkit.walkthroughs.title"),
         detail: "Some description",
@@ -415,7 +415,7 @@ describe("Control Handlers", () => {
       chai.assert.isTrue(result.isOk());
     });
 
-    it("should select the Teams Toolkit walkthrough with chat", async () => {
+    it("should select the Microsoft 365 Agents Toolkit walkthrough with chat", async () => {
       sinon.stub(featureFlagManager, "getBooleanValue").returns(true);
       quickPickStub.callsFake(
         (items: vscode.QuickPickItem[], options?: vscode.QuickPickOptions) => {

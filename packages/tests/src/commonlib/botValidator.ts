@@ -7,7 +7,7 @@ import * as chai from "chai";
 import * as fs from "fs";
 import * as path from "path";
 
-import MockAzureAccountProvider from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import { EnvConstants, PluginId, StateConfigKey } from "./constants";
 
 import {
@@ -134,7 +134,8 @@ export class BotValidator {
     );
     chai.assert.exists(response);
     chai.assert.equal(
-      response[BaseConfig.BOT_ID],
+      response[BaseConfig.BOT_ID] ||
+        response["Connections__BotServiceConnection__Settings__ClientId"],
       this.ctx[EnvConstants.BOT_ID] as string
     );
     if (includeAAD) {

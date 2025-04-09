@@ -18,12 +18,12 @@
     },
     "additionalMetadata": {
       "type": "object",
-      "description": "Metadata property, used by Teams Toolkit only.",
+      "description": "Metadata property, used by Microsoft 365 Agents Toolkit only.",
       "additionalProperties": true,
       "properties": {
         "sampleTag": {
           "type": ["number","string","boolean","object","array", "null", "integer"],
-          "description": "A tag for the sample app used to track telemetry events sent by Teams Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
+          "description": "A tag for the sample app used to track telemetry events sent by Microsoft 365 Agents Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
         }
       }
     },
@@ -83,7 +83,8 @@
           { "$ref": "#/definitions/oauthUpdate"},
           { "$ref": "#/definitions/shareToOthers"},
           { "$ref": "#/definitions/devChannelCreate"},
-          { "$ref": "#/definitions/devChannelInstallApp"}
+          { "$ref": "#/definitions/devChannelInstallApp"},
+          { "$ref": "#/definitions/typeSpecCompile"}
         ]
       }
     },
@@ -303,7 +304,7 @@
     "armDeploy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create Azure resources using the referenced Bicep/JSON files. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
+      "description": "Create Azure resources using the referenced Bicep/JSON files. For more details on the naming convention, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -319,7 +320,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs from Bicep/JSON will be persisted in the current Teams Toolkit environment following certain naming convertion. Refer to https://aka.ms/teamsfx-actions/arm-deploy for more details on the naming convertion rule.",
+          "description": "Create Azure resources using the referenced Bicep/JSON files. Outputs will be saved in the current Microsoft 365 Agents Toolkit environment using a specific naming convention. For more details, please refer https://aka.ms/teamsfx-actions/arm-deploy.",
           "const": "arm/deploy"
         },
         "with": {
@@ -338,7 +339,7 @@
             },
             "bicepCliVersion": {
               "type": "string",
-              "description": "The Bicep CLI version. Bicep CLI will be downloaded to {Home}/.fx/bin/bicep.\n Teams Toolkit defaults to Bicep in PATH if version is not defined."
+              "description": "The Bicep CLI version. Bicep CLI will be downloaded to {Home}/.fx/bin/bicep.\n Microsoft 365 Agents Toolkit defaults to Bicep in PATH if version is not defined."
             },
             "templates": {
               "type": "array",
@@ -358,7 +359,7 @@
                   },
                   "parameters": {
                     "type": "string",
-                    "description": "Relative path to ARM parameters file. Teams Toolkit will expand the environment variable in the parameters file"
+                    "description": "Relative path to ARM parameters file. Microsoft 365 Agents Toolkit will expand the environment variable in the parameters file"
                   }
                 }
               }
@@ -2043,11 +2044,56 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Parameters for this action",
-          "required": ["appPackagePath"],
+          "required": ["appPackagePath", "teamId", "channelId"],
           "properties": {
             "appPackagePath": {
               "type": "string",
               "description": "Path to zipped Teams app package file."
+            },
+            "teamId": {
+              "type": "string",
+              "description": "App will be installed in which team."
+            },
+            "channelId": {
+              "type": "string",
+              "description": "App will be installed in which channel."
+            }
+          }
+        }
+      }
+    },
+    "typeSpecCompile": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Compile TypeSpec project.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Compile TypeSpec project and generate files. Refer to https://aka.ms/teamsfx-actions/typeSpec-compile for more details.",
+          "const": "typeSpec/compile"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["path", "manifestPath", "outputDir", "typeSpecConfigPath"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to main file of TypeSpec project."
+            },
+            "manifestPath": {
+              "type": "string",
+              "description": "Path to app manifest file."
+            },
+            "outputDir": {
+              "type": "string",
+              "description": "Path to output directory."
+            },
+            "typeSpecConfigPath": {
+              "type": "string",
+              "description": "Path to TypeSpec config file."
             }
           }
         }
