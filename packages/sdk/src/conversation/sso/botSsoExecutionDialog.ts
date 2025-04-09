@@ -279,11 +279,11 @@ export class BotSsoExecutionDialog extends ComponentDialog {
     if (activity.type !== ActivityTypes.Invoke || activity.name !== tokenExchangeOperationName) {
       throw new Error("TokenExchangeState can only be used with Invokes of signin/tokenExchange.");
     }
-    const value = activity.value;
-    if (!value || !(value as any).id) {
+    const value = activity.value as any;
+    if (!value || !value.id) {
       throw new Error("Invalid signin/tokenExchange. Missing activity.value.id.");
     }
-    return `${channelId}/${conversationId}/${(value as any).id as string}`;
+    return `${channelId}/${conversationId}/${value.id as string}`;
   }
 
   private matchPattern(pattern: string | RegExp, text: string): boolean | RegExpMatchArray {
