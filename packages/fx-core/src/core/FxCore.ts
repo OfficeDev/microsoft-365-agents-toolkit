@@ -76,7 +76,7 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
-import { generateDriverContext, parseShareAppActionYamlConfig } from "../common/utils";
+import { generateDriverContext } from "../common/utils";
 import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
 import {
   APIKeyAuthType,
@@ -98,6 +98,7 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
