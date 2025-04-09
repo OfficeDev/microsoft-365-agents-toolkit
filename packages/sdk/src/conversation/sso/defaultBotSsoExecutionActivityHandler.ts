@@ -2,15 +2,17 @@
 // Licensed under the MIT license.
 
 import {
-  BotState,
+  AgentState,
   ConversationState,
   MemoryStorage,
-  SigninStateVerificationQuery,
-  StatePropertyAccessor,
-  TeamsActivityHandler,
+  AgentStatePropertyAccessor,
   TurnContext,
   UserState,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
+import {
+  SigninStateVerificationQuery,
+  TeamsActivityHandler,
+} from "@microsoft/agents-hosting-teams";
 import { TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt";
 import {
   BotSsoConfig,
@@ -29,9 +31,9 @@ export class DefaultBotSsoExecutionActivityHandler
   implements BotSsoExecutionActivityHandler
 {
   private ssoExecutionDialog: BotSsoExecutionDialog;
-  private userState: BotState;
-  private conversationState: BotState;
-  private dialogState: StatePropertyAccessor;
+  private userState: AgentState;
+  private conversationState: AgentState;
+  private dialogState: AgentStatePropertyAccessor;
 
   /**
    * Creates a new instance of the DefaultBotSsoExecutionActivityHandler.

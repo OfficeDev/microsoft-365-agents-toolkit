@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 import { AccessToken } from "@azure/identity";
-import { TurnContext, MessagingExtensionResponse, ActivityTypes } from "botbuilder";
+import { TurnContext, ActivityTypes, Activity } from "@microsoft/agents-hosting";
+import { MessagingExtensionResponse } from "@microsoft/agents-hosting-teams";
 import { parseJwt, getScopesArray, formatString } from "../util/utils";
 import { MessageExtensionTokenResponse } from "./teamsMsgExtTokenResponse";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
@@ -103,7 +104,7 @@ export async function executionWithTokenAndConfig(
   scopes: string | string[],
   logic?: (token: MessageExtensionTokenResponse) => Promise<any>
 ): Promise<MessagingExtensionResponse | void> {
-  const valueObj = context.activity.value;
+  const valueObj = context.activity.value as any;
   if (!valueObj.authentication || !valueObj.authentication.token) {
     internalLogger.verbose("No AccessToken in request, return silentAuth for AccessToken");
     return getSignInResponseForMessageExtensionWithSilentAuthConfig(
@@ -134,7 +135,10 @@ export async function executionWithTokenAndConfig(
     ) {
       internalLogger.verbose("User not consent yet, return 412 to user consent first.");
       const response = { status: 412 };
-      await context.sendActivity({ value: response, type: ActivityTypes.InvokeResponse });
+      await context.sendActivity({
+        value: response,
+        type: ActivityTypes.InvokeResponse,
+      } as Activity);
       return;
     } else if (
       err instanceof ErrorWithCode &&
@@ -150,7 +154,7 @@ export async function executionWithTokenAndConfig(
       await context.sendActivity({
         value: { status: 200, body: response },
         type: ActivityTypes.InvokeResponse,
-      });
+      } as Activity);
       return;
     }
     throw err;

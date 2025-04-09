@@ -4,9 +4,10 @@
 import { formatString } from "../../util/utils";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../../core/errors";
 import { BotSsoExecutionDialogHandler, TriggerPatterns } from "../interface";
-import { StatePropertyAccessor, TurnContext, Storage } from "botbuilder";
+import { AgentStatePropertyAccessor, TurnContext, Storage } from "@microsoft/agents-hosting";
 import { OnBehalfOfCredentialAuthConfig } from "../../models/configuration";
 import { TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt.browser";
+
 /*
  * Sso execution dialog, use to handle sso command
  */
@@ -55,7 +56,7 @@ export class BotSsoExecutionDialog {
    * @param context The context object for the current turn.
    * @param accessor The instance of StatePropertyAccessor for dialog system.
    */
-  public run(context: TurnContext, accessor: StatePropertyAccessor) {
+  public run(context: TurnContext, accessor: AgentStatePropertyAccessor) {
     throw new ErrorWithCode(
       formatString(ErrorMessage.BrowserRuntimeNotSupported, "BotSsoExecutionDialog"),
       ErrorCode.RuntimeNotSupported

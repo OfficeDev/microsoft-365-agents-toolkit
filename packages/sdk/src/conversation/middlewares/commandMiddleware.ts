@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Activity, ActivityTypes, Middleware, TurnContext } from "botbuilder";
+import { Activity, ActivityTypes } from "@microsoft/agents-activity";
+import { TurnContext } from "@microsoft/agents-hosting";
+import { Middleware } from "@microsoft/agents-hosting/dist/src/middlewareSet";
 import { TeamsBotSsoPromptTokenResponse } from "../../bot/teamsBotSsoPromptTokenResponse";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../../core/errors";
 import { internalLogger } from "../../util/logger";
@@ -111,7 +113,7 @@ export class CommandResponseMiddleware implements Middleware {
     } else {
       const replyActivity = response as Partial<Activity>;
       if (replyActivity) {
-        await context.sendActivity(replyActivity);
+        await context.sendActivity(replyActivity as Activity);
       }
     }
   }
@@ -144,8 +146,8 @@ export class CommandResponseMiddleware implements Middleware {
   }
 
   private getActivityText(activity: Activity): string {
-    let text = activity.text;
-    const removedMentionText = TurnContext.removeRecipientMention(activity);
+    let text = activity.text!;
+    const removedMentionText = activity.removeRecipientMention();
     if (removedMentionText) {
       text = removedMentionText
         .toLowerCase()
