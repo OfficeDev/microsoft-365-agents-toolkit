@@ -4,7 +4,7 @@
     "msteams": {
       "teamsAppId": null
     },
-    "description": "Microsoft Teams Toolkit hello world Bot sample",
+    "description": "Microsoft 365 Agents Toolkit echo bot sample",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -21,7 +21,7 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "botbuilder": "^4.23.1",
+        "@microsoft/agents-hosting": "^0.1.49",
         "express": "^5.0.1"
     },
     "devDependencies": {
