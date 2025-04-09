@@ -49,8 +49,10 @@ class HelloWorldTabDockerTestCase extends CaseFactory {
 
 new HelloWorldTabDockerTestCase(
   TemplateProject.HelloWorldTabDocker,
-  27085868,
-  27852473,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.DockerTask]
+  [LocalDebugTaskLabel.DockerTask],
+  {
+    testPlanCaseId_local: 27085868,
+    testPlanCaseId_dev: 27852473,
+  }
 ).test();

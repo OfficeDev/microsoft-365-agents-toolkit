@@ -45,13 +45,15 @@ class StockUpdateTestCase extends CaseFactory {
 
 new StockUpdateTestCase(
   TemplateProject.StockUpdate,
-  17303802,
-  24121504,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.StartLocalTunnel,
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.Compile,
     LocalDebugTaskLabel.StartBotApp,
-  ]
+  ],
+  {
+    testPlanCaseId_local: 17303802,
+    testPlanCaseId_dev: 24121504,
+  }
 ).test();

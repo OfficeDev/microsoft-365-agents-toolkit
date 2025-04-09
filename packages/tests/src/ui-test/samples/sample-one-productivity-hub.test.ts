@@ -40,8 +40,10 @@ class OneProductivityHubTestCase extends CaseFactory {
 
 new OneProductivityHubTestCase(
   TemplateProject.OneProductivityHub,
-  15090375,
-  24121468,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartFrontend]
+  [LocalDebugTaskLabel.StartFrontend],
+  {
+    testPlanCaseId_local: 15090375,
+    testPlanCaseId_dev: 24121468,
+  }
 ).test();

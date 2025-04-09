@@ -30,9 +30,11 @@ class BotSSOTestCase extends CaseFactory {
 
 new BotSSOTestCase(
   TemplateProject.HelloWorldBotSSO,
-  12462156,
-  14571876,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication]
+  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
+  {
+    testPlanCaseId_local: 12462156,
+    testPlanCaseId_dev: 14571876,
+  }
   // { debug: "cli" }
 ).test();

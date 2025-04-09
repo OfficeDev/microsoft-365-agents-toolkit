@@ -38,8 +38,6 @@ class DashboardTestCase extends CaseFactory {
 
 new DashboardTestCase(
   TemplateProject.Dashboard,
-  17290453,
-  24121453,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.StartFrontend,
@@ -48,5 +46,7 @@ new DashboardTestCase(
   ],
   {
     dashboardFlag: true,
+    testPlanCaseId_local: 17290453,
+    testPlanCaseId_dev: 24121453,
   }
 ).test();

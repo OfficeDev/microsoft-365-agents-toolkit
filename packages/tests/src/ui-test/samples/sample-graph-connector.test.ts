@@ -19,13 +19,15 @@ class GraphConnectorTestCase extends CaseFactory {
 
 new GraphConnectorTestCase(
   TemplateProject.GraphConnector,
-  14171510,
-  14571877,
   "v-ivanchen@microsoft.com",
   [
     // [BUG] warning error message block the frontend validation
     // LocalDebugTaskLabel.StartFrontend,
     LocalDebugTaskLabel.WatchBackend,
     LocalDebugTaskLabel.StartBackend,
-  ]
+  ],
+  {
+    testPlanCaseId_local: 14171510,
+    testPlanCaseId_dev: 14571877,
+  }
 ).test();

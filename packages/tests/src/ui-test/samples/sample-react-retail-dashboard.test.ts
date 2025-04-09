@@ -49,11 +49,11 @@ class RetailDashboardTestCase extends CaseFactory {
 
 new RetailDashboardTestCase(
   TemplateProject.RetailDashboard,
-  25051148,
-  25051150,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "react-retail-dashboard-",
+    testPlanCaseId_local: 25051148,
+    testPlanCaseId_dev: 25051150,
   }
 ).test();

@@ -30,8 +30,10 @@ class BotSSODockerTestCase extends CaseFactory {
 
 new BotSSODockerTestCase(
   TemplateProject.BotSSODocker,
-  26577671,
-  27852471,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.DockerRun]
+  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.DockerRun],
+  {
+    testPlanCaseId_local: 26577671,
+    testPlanCaseId_dev: 27852471,
+  }
 ).test();

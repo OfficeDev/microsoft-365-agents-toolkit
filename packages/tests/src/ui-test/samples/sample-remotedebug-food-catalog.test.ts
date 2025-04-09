@@ -60,8 +60,6 @@ class FoodCatalogTestCase extends CaseFactory {
 
 new FoodCatalogTestCase(
   TemplateProject.FoodCatalog,
-  undefined,
-  27851823,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.Azurite,
@@ -74,5 +72,6 @@ new FoodCatalogTestCase(
     repoPath: "./resource/samples",
     testRootFolder: path.resolve(os.homedir(), "resource"),
     skipLocal: true,
+    testPlanCaseId_dev: 27851823,
   }
 ).test();

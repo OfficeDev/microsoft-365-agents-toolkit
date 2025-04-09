@@ -31,9 +31,11 @@ class GraphConnectorBotTestCase extends CaseFactory {
 
 new GraphConnectorBotTestCase(
   TemplateProject.GraphConnectorBot,
-  25178457,
-  25960851,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication]
+  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
+  {
+    testPlanCaseId_local: 25178457,
+    testPlanCaseId_dev: 25960851,
+  }
   //{ debug: "cli" }
 ).test();

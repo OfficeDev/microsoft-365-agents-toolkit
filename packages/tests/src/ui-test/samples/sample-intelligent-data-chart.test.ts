@@ -115,8 +115,10 @@ class IntelligentDataChartTestCase extends CaseFactory {
 
 new IntelligentDataChartTestCase(
   TemplateProject.IntelligentDataChart,
-  26461509,
-  27852477,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.WatchBackend, LocalDebugTaskLabel.StartBackend]
+  [LocalDebugTaskLabel.WatchBackend, LocalDebugTaskLabel.StartBackend],
+  {
+    testPlanCaseId_local: 26461509,
+    testPlanCaseId_dev: 27852477,
+  }
 ).test();

@@ -37,8 +37,6 @@ class LargeNotiTestCase extends CaseFactory {
 
 new LargeNotiTestCase(
   TemplateProject.LargeScaleBot,
-  undefined,
-  25960873,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.StartLocalTunnel,
@@ -48,5 +46,6 @@ new LargeNotiTestCase(
   ],
   {
     skipLocal: true,
+    testPlanCaseId_dev: 25960873,
   }
 ).test();

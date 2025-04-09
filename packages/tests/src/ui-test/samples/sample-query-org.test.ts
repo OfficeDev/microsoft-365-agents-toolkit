@@ -43,8 +43,10 @@ class QueryOrgTestCase extends CaseFactory {
 
 new QueryOrgTestCase(
   TemplateProject.QueryOrg,
-  15554404,
-  24121481,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBot]
+  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBot],
+  {
+    testPlanCaseId_local: 15554404,
+    testPlanCaseId_dev: 24121481,
+  }
 ).test();

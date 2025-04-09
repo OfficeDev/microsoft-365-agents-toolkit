@@ -39,12 +39,12 @@ class SpfxProductivityTestCase extends CaseFactory {
 
 new SpfxProductivityTestCase(
   TemplateProject.SpfxProductivity,
-  24753063,
-  24753065,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "SPFx productivity dashboard",
     skipValidation: true,
+    testPlanCaseId_local: 24753063,
+    testPlanCaseId_dev: 24753065,
   }
 ).test();

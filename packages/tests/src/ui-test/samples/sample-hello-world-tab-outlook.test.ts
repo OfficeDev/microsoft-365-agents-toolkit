@@ -56,9 +56,12 @@ class OutlookTabTestCase extends CaseFactory {
 
 new OutlookTabTestCase(
   TemplateProject.OutlookTab,
-  17451443,
-  24121457,
+
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartFrontend]
+  [LocalDebugTaskLabel.StartFrontend],
+  {
+    testPlanCaseId_local: 17451443,
+    testPlanCaseId_dev: 24121457,
+  }
   //{ debug: "cli" }
 ).test();

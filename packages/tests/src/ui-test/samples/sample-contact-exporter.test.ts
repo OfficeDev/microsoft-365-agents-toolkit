@@ -19,8 +19,10 @@ class ContactExporterTestCase extends CaseFactory {
 
 new ContactExporterTestCase(
   TemplateProject.ContactExporter,
-  12599484,
-  14571878,
   "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartFrontend]
+  [LocalDebugTaskLabel.StartFrontend],
+  {
+    testPlanCaseId_local: 12599484,
+    testPlanCaseId_dev: 14571878,
+  }
 ).test();

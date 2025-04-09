@@ -41,11 +41,10 @@ class SsotabApimTestCase extends CaseFactory {
 
 new SsotabApimTestCase(
   TemplateProject.TabSSOApimProxy,
-  undefined,
-  25191534,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],
   {
     skipLocal: true,
+    testPlanCaseId_dev: 25191534,
   }
 ).test();

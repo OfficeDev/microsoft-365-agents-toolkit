@@ -76,13 +76,14 @@ class MyFirstMeetingTestCase extends CaseFactory {
 
 new MyFirstMeetingTestCase(
   TemplateProject.MyFirstMeeting,
-  9958524,
-  14571880,
+
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],
   {
     teamsAppName: "fxuiMyFirs",
     type: "meeting",
+    testPlanCaseId_local: 9958524,
+    testPlanCaseId_dev: 14571880,
     //debug: "cli",
   }
 ).test();

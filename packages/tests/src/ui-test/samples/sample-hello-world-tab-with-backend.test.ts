@@ -70,13 +70,15 @@ class HelloWorldTabBackEndTestCase extends CaseFactory {
 
 new HelloWorldTabBackEndTestCase(
   TemplateProject.HelloWorldTabBackEnd,
-  12684063,
-  13523920,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.StartFrontend,
     LocalDebugTaskLabel.WatchBackend,
     LocalDebugTaskLabel.StartBackend,
-  ]
+  ],
+  {
+    testPlanCaseId_local: 12684063,
+    testPlanCaseId_dev: 13523920,
+  }
   //{ debug: "cli" }
 ).test();

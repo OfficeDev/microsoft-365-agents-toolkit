@@ -45,12 +45,12 @@ class OutlookSignatureTestCase extends CaseFactory {
 
 new OutlookSignatureTestCase(
   TemplateProject.OutlookSignature,
-  21044484,
-  24121523,
   "v-ivanchen@microsoft.com",
   [],
   {
     skipInit: true,
     repoPath: "./resource/Samples",
+    testPlanCaseId_local: 21044484,
+    testPlanCaseId_dev: 24121523,
   }
 ).test();

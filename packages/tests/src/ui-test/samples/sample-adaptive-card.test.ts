@@ -25,13 +25,15 @@ class AdaptiveCardTestCase extends CaseFactory {
 
 new AdaptiveCardTestCase(
   TemplateProject.AdaptiveCard,
-  14524987,
-  24121425,
   "v-ivanchen@microsoft.com",
   [
     LocalDebugTaskLabel.StartLocalTunnel,
     LocalDebugTaskLabel.Azurite,
     LocalDebugTaskLabel.Compile,
     LocalDebugTaskLabel.StartBotApp,
-  ]
+  ],
+  {
+    testPlanCaseId_local: 14524987,
+    testPlanCaseId_dev: 24121425,
+  }
 ).test();

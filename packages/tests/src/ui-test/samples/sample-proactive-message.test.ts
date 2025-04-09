@@ -37,11 +37,11 @@ class ProactiveMessagingTestCase extends CaseFactory {
 
 new ProactiveMessagingTestCase(
   TemplateProject.ProactiveMessaging,
-  17303781,
-  24121478,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBot],
   {
     repoPath: "./resource/samples",
+    testPlanCaseId_local: 17303781,
+    testPlanCaseId_dev: 24121478,
   }
 ).test();

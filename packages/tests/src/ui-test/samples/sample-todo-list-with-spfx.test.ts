@@ -44,12 +44,12 @@ class TodoListSpfxTestCase extends CaseFactory {
 
 new TodoListSpfxTestCase(
   TemplateProject.TodoListSpfx,
-  9958516,
-  24121511,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.GulpServe],
   {
     teamsAppName: "TodoLi",
     type: "spfx",
+    testPlanCaseId_local: 9958516,
+    testPlanCaseId_dev: 24121511,
   }
 ).test();

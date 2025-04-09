@@ -12,9 +12,11 @@ class DiceRollerTestCase extends CaseFactory {}
 
 new DiceRollerTestCase(
   TemplateProject.DiceRoller,
-  21320394,
-  24121529,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartWebServer],
-  { skipInit: true }
+  {
+    skipInit: true,
+    testPlanCaseId_local: 21320394,
+    testPlanCaseId_dev: 24121529,
+  }
 ).test();

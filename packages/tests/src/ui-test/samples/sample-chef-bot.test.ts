@@ -57,12 +57,12 @@ class ChefBotTestCase extends CaseFactory {
 
 new ChefBotTestCase(
   TemplateProject.ChefBot,
-  24409837,
-  24409842,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartBotApp],
   {
     repoPath: "./resource/js/samples/04.ai-apps",
     testRootFolder: path.resolve(os.homedir(), "resource"),
+    testPlanCaseId_local: 24409837,
+    testPlanCaseId_dev: 24409842,
   }
 ).test();

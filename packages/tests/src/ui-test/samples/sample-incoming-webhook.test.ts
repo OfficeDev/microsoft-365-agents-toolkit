@@ -36,9 +36,7 @@ class IncomingWebhookTestCase extends CaseFactory {
 
 new IncomingWebhookTestCase(
   TemplateProject.IncomingWebhook,
-  14524902,
-  undefined,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartWebhook],
-  { skipInit: true, skipRemote: true }
+  { skipInit: true, skipRemote: true, testPlanCaseId_local: 14524902 }
 ).test();

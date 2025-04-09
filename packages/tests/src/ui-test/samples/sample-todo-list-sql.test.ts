@@ -125,13 +125,14 @@ class TodoListBackendTestCase extends CaseFactory {
 
 new TodoListBackendTestCase(
   TemplateProject.TodoListBackend,
-  9958511,
-  14571882,
+
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend, LocalDebugTaskLabel.StartBackend],
   {
     teamsAppName: "toDoList-",
     testRootFolder: path.resolve(os.homedir(), "resourse"), // fix eslint error
     type: "spfx",
+    testPlanCaseId_local: 9958511,
+    testPlanCaseId_dev: 14571882,
   }
 ).test();

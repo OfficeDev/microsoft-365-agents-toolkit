@@ -71,13 +71,15 @@ class TodoListM365TestCase extends CaseFactory {
 
 new TodoListM365TestCase(
   TemplateProject.TodoListM365,
-  12664741,
-  14571883,
+
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend, LocalDebugTaskLabel.StartBackend],
   {
     teamsAppName: "toDoList-",
     //debug: "cli",
     testRootFolder: path.resolve(os.homedir(), "resourse"), // fix eslint error
+    testPlanCaseId_local: 12664741,
+
+    testPlanCaseId_dev: 14571883,
   }
 ).test();
