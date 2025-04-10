@@ -964,6 +964,55 @@ describe("Core basic APIs", () => {
     const result = await core.removeSharedAccess(inputs);
     assert.isTrue(result.isOk());
   });
+  it("remove shared access - invalid email", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+
+    const inputs2: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: [],
+    };
+    const result2 = await core.removeSharedAccess(inputs2);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+  });
   it("remove shared access - parse error", async () => {
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")

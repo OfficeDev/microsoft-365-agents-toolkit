@@ -1191,7 +1191,7 @@ describe("TeamsDevPortalClient Test", () => {
       }
     });
 
-    it("Empty response", async () => {
+    it("Empty response data", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -1215,6 +1215,40 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Post response is empty
       const postResponse = {};
+      sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
+
+      try {
+        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+        chai.assert.fail("Should throw error");
+      } catch (e) {
+        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+
+    it("undefined response", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+
+      // Post response is empty
+      const postResponse = undefined;
       sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
 
       try {
