@@ -78,7 +78,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               >
                 Github Copilot
               </Link>{" "}
-              assists you in selecting the right sample to create your Microsoft 365 Agents.
+              assists you in selecting the right sample to create your Teams app.
             </h3>
           ) : this.props.shouldShowChat === "true" &&
             this.props.shouldHideTeamsAgentPreviewTag === "false" ? (
@@ -92,7 +92,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               >
                 Github Copilot (preview)
               </Link>{" "}
-              assists you in selecting the right sample to create your Microsoft 365 Agents.
+              assists you in selecting the right sample to create your Teams app.
             </h3>
           ) : (
             <h3>

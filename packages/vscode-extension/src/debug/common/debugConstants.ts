@@ -253,9 +253,7 @@ export const ngrokTunnelDisplayMessages = Object.freeze(
 export const sideloadingDisplayMessages = Object.freeze({
   title: (hub: Hub) => `Launching ${hub as string} web client.`,
   sideloadingUrlMessage: (hub: Hub, url: string) =>
-    `${
-      hub as string
-    } web client is being launched for you to debug the Microsoft 365 Agents: ${url}.`,
+    `${hub as string} web client is being launched for you to debug the Teams app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });
@@ -263,7 +261,7 @@ export const sideloadingDisplayMessages = Object.freeze({
 export const launchingTeamsClientDisplayMessages = Object.freeze({
   title: "Launching Teams web client.",
   launchUrlMessage: (url: string) =>
-    `Teams web client is being launched for you to debug the Microsoft 365 Agents: ${url}.`,
+    `Teams web client is being launched for you to debug the Teams app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });

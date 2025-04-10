@@ -1,6 +1,6 @@
 # Changelog
 
-> Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit. For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
+> Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 ## 5.14.0 - Mar 24, 2025
 This update represents a minor version increment of the Teams Toolkit, below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.

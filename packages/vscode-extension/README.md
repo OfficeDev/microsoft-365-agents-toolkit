@@ -1,12 +1,12 @@
-# Microsoft 365 Agents Toolkit for Visual Studio Code
+# Microsoft Teams Toolkit for Visual Studio Code
 
-## What is Microsoft 365 Agents Toolkit?
+## What is Teams Toolkit?
 
-The Microsoft 365 Agents Toolkit helps developers create and deploy Teams apps with integrated identity, access to cloud storage, data from [Microsoft Graph](https://docs.microsoft.com/graph/teams-concept-overview), and other services in [Azure](https://docs.microsoft.com/microsoftteams/platform/build-your-first-app/build-bot) and [Microsoft 365](https://docs.microsoft.com/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant) with a "zero-configuration" approach to the developer experience.
+The Teams Toolkit helps developers create and deploy Teams apps with integrated identity, access to cloud storage, data from [Microsoft Graph](https://docs.microsoft.com/graph/teams-concept-overview), and other services in [Azure](https://docs.microsoft.com/microsoftteams/platform/build-your-first-app/build-bot) and [Microsoft 365](https://docs.microsoft.com/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant) with a "zero-configuration" approach to the developer experience.
 
 ![TTK GIF](https://github.com/OfficeDev/TeamsFx/assets/11220663/fa963c9b-0957-4366-ab39-9ab03130e406)
 
-## What are Microsoft 365 Agents "Capabilities"?
+## What are Teams app "Capabilities"?
 
 Teams apps are a combination of [capabilities](https://aka.ms/teamsfx-capabilities-overview) and [entry points](https://aka.ms/teamsfx-understand-usecase). For example, people can chat with your app's bot (capability) in a channel (entry point).
 
@@ -24,13 +24,13 @@ Teams apps are a combination of [capabilities](https://aka.ms/teamsfx-capabiliti
 
 ## Getting started
 
-Open Microsoft 365 Agents Toolkit to create a new app and start coding!
+Open Teams Toolkit to create a new app and start coding!
 
 ![GettingStarted](https://user-images.githubusercontent.com/11220663/236784320-0e8b3815-67dc-4e51-9dfb-c903316f6c68.png)
 
 follow the [Get Started](https://aka.ms/teamsfx-build-first-app) instructions in our documentation to start with a new project.
 
-In the Microsoft 365 Agents Toolkit for Visual Studio Code, you can easily discover all applicable commands in the sidebar and Command Palette with the keyword "Teams". It also supports [Command Line Interface (CLI)](https://www.npmjs.com/package/@microsoft/teamsapp-cli) to increase efficiency.
+In the Teams Toolkit for Visual Studio Code, you can easily discover all applicable commands in the sidebar and Command Palette with the keyword "Teams". It also supports [Command Line Interface (CLI)](https://www.npmjs.com/package/@microsoft/teamsapp-cli) to increase efficiency.
 
 ## Prerequisites
 
@@ -39,26 +39,26 @@ Verify you have the right prerequisites for building Teams apps and install some
 <table>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_nodejs.png"></td>
-        <td><h3>Node.js</h3>As a fundamental runtime context for Microsoft 365 Agents, Node.js v14.x, v16.x or v18.x is required. If you develop SPFx Tab app, please install v16.x.</td>
+        <td><h3>Node.js</h3>As a fundamental runtime context for Teams app, Node.js v14.x, v16.x or v18.x is required. If you develop SPFx Tab app, please install v16.x.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_m365.png"></td>
-        <td><h3>Microsoft 365</h3>The Microsoft 365 Agents Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
+        <td><h3>Microsoft 365</h3>The Teams Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_azure.png"></td>
-        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to deploy the Azure resources for your project.</td>
+        <td><h3>Azure</h3> The Teams Toolkit may require an Azure account and subscription to deploy the Azure resources for your project.</td>
     </tr>
 </table>
 
-> Don’t have a Microsoft 365 account to experience building Microsoft 365 Agents? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
+> Don’t have a Microsoft 365 account to experience building Teams app? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
 
 ### Create your project
 
-Use the Microsoft 365 Agents Toolkit for Visual Studio Code to set up your first app project. Create your tab app project using the following steps:
+Use the Teams Toolkit for Visual Studio Code to set up your first app project. Create your tab app project using the following steps:
 
-- Ensure you've installed the Microsoft 365 Agents Toolkit for Visual Studio Code
-- Select the Microsoft 365 Agents Toolkit icon in the Visual Studio Code sidebar.
+- Ensure you've installed the Microsoft Teams Toolkit for Visual Studio Code
+- Select the Teams Toolkit icon in the Visual Studio Code sidebar.
 - Select `Create a New App` button from the sidebar.
 - Select a capability that you want to build in your app.
 - Select an app template from the list of available templates.
@@ -70,11 +70,11 @@ Read more on [creating new projects](https://docs.microsoft.com/microsoftteams/p
 
 ### Configure your app
 
-At its core, the Microsoft 365 Agents embraces three components:
+At its core, the Teams app embraces three components:
 
 - The Microsoft Teams client (web, desktop or mobile) where users interact with your app.
 - A server that responds to requests for content that will be displayed in Teams, e.g., HTML tab content or an adaptive card.
-- A Microsoft 365 Agents package consisting of three files:
+- A Teams app package consisting of three files:
 
   ✔️ The manifest.json.
 
@@ -91,7 +91,7 @@ Read more on [Preview and customize the manifest file](https://docs.microsoft.co
 
 ### Preview your app on your local/remote dev environment
 
-Simply press F5 to run your first Microsoft 365 Agents or navigate to the Debug tab in the activity bar and select the `Run and Debug` icon to display the Run and Debug view. By default, the toolkit will automatically help you to set up a local environment and load the app in Teams.
+Simply press F5 to run your first Teams app or navigate to the Debug tab in the activity bar and select the `Run and Debug` icon to display the Run and Debug view. By default, the toolkit will automatically help you to set up a local environment and load the app in Teams.
 
 ![Run and debug](https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/debug.gif)
 
@@ -119,17 +119,17 @@ Read more on [provision](https://docs.microsoft.com/microsoftteams/platform/tool
 
 ### Publish your application to Teams
 
-When your application resources and infrastructure are deployed successfully, you can publish and register your app to the Microsoft 365 Agents catalog to share with others in your organization.
+When your application resources and infrastructure are deployed successfully, you can publish and register your app to the Teams app catalog to share with others in your organization.
 
 - In the Visual Studio Code Command Palette, enter "teams" and choose the command `Teams: Publish`.
 - Depending on your permission, you can send your app to the admin portal directly, or manually submit the app package file to your admin to check.
-- Once your app is approved by your admin, you can see it under the `Built for your org` section in the Microsoft 365 Agents store.
+- Once your app is approved by your admin, you can see it under the `Built for your org` section in the Teams app store.
 
 Read more on [publishing](https://docs.microsoft.com/microsoftteams/platform/toolkit/publish) Teams apps.
 
 ## Explore Code Samples
 
-Explore our [samples](https://github.com/OfficeDev/TeamsFx-Samples) to help you quickly get started with the basic Microsoft 365 Agents concepts and code structures.
+Explore our [samples](https://github.com/OfficeDev/TeamsFx-Samples) to help you quickly get started with the basic Teams app concepts and code structures.
 
 ## Contributing
 

@@ -12,17 +12,17 @@ Verify you have the right prerequisites for building Teams apps and install some
 
 <table>
     <tr>
-        <td><h3>Node.js and PNPM</h3>As a fundamental runtime context for Microsoft 365 Agents, Node.js v18 or higher, PNPM v8 or higher.</td>
+        <td><h3>Node.js and PNPM</h3>As a fundamental runtime context for Teams app, Node.js v18 or higher, PNPM v8 or higher.</td>
     </tr>
     <tr>
-        <td><h3>Microsoft 365</h3>The Microsoft 365 Agents Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
+        <td><h3>Microsoft 365</h3>The Teams Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
     </tr>
     <tr>
-        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to deploy the Azure resources for your project.</td>
+        <td><h3>Azure</h3> The Teams Toolkit may require an Azure account and subscription to deploy the Azure resources for your project.</td>
     </tr>
 </table>
 
-> Don’t have a Microsoft 365 account to experience building Microsoft 365 Agents? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/en-us/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
+> Don’t have a Microsoft 365 account to experience building Teams app? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/en-us/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
 
 ### Built the project
 

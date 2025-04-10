@@ -152,7 +152,7 @@
                     </dict>
                 </dict>
                 <key>match</key>
-                <string>Starting list all Microsoft 365 Agents owners for environment: (.*)</string>
+                <string>Starting list all teams app owners for environment: (.*)</string>
                 <key>name</key>
                 <string>teamsfx-toolkit.listCollaborator.env</string>
             </dict>
