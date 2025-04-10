@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  Settings,
-} from "@microsoft/teamsfx-api";
+import { TokenCredential } from "@azure/identity";
+import { AzureAccountProvider, Settings, SubscriptionInfo } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";

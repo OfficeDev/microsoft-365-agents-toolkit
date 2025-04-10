@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TokenCredential } from "@azure/identity";
-import { AzureAccountProvider, Settings, SubscriptionInfo } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
 import "mocha";
 import { isValidProject, validateProjectSettings } from "../../src/common/projectSettingsHelper";
