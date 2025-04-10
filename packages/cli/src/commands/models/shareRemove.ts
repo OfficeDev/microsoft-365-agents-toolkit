@@ -12,7 +12,7 @@ export const shareRemoveCommand: CLICommand = {
   description: commands["share.remove"].description,
   options: [EnvOption, ProjectFolderOption, IgnoreLoadEnvOption, ...removeSharedAccessOptions],
   telemetry: {
-    event: TelemetryEvent.AddCap,
+    event: TelemetryEvent.ShareRemove,
   },
   examples: [
     {
