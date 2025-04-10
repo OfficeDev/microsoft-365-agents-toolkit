@@ -280,7 +280,7 @@ export class ToolsInstallDriverImpl {
       projectPath,
     });
     this.context.logProvider.debug(
-      `Teams App Test Tool result: ${JSON.stringify({
+      `Microsoft 365 Agents playground result: ${JSON.stringify({
         isInstalled: status.isInstalled,
         version: status.details.installVersion,
         bin: status.details.binFolders,
