@@ -626,7 +626,7 @@
   "core.uninstallQuestion.manifestIdMode": "Manifest-ID",
   "core.uninstallQuestion.manifestIdMode.detail": "Bereinigen Sie ressourcen, die der Manifest-ID zugeordnet sind. Dies umfasst die App-Registrierung in Teams Entwicklerportal, die Botregistrierung in Bot Framework Portal und benutzerdefinierte Apps, die in Microsoft 365 hochgeladen wurden. Sie finden die Manifest-ID in der Umgebungsdatei (Standardumgebungsschlüssel: Teams_App_ID) im projekt, das vom Teams Toolkit erstellt wurde.",
   "core.uninstallQuestion.envMode": "Projekt \"Umgebung in Teams Toolkit erstellt\"",
-  "core.uninstallQuestion.envMode.detail": "Bereinigen Sie Ressourcen, die einer bestimmten Umgebung im von Teams Toolkit erstellten Projekt zugeordnet sind. Zu den Ressourcen gehören die App-Registrierung in Teams Entwicklerportal, die Botregistrierung in Bot Framework Portal und benutzerdefinierte Apps, die in Microsoft 365 Apps hochgeladen wurden.",
+  "core.uninstallQuestion.envMode.detail": "Bereinigen Sie Ressourcen, die einer bestimmten Umgebung im von Teams Toolkit erstellten Projekt zugeordnet sind. Zu den Ressourcen gehören die App-Registrierung in Teams Entwicklerportal, die Botregistrierung in Bot Framework Portal und benutzerdefinierte Apps, die in  hochgeladen wurden.",
   "core.uninstallQuestion.titleIdMode": "Titel-ID",
   "core.uninstallQuestion.titleIdMode.detail": "Deinstallieren Sie die hochgeladene benutzerdefinierte App, die der Titel-ID zugeordnet ist. Die Titel-ID befindet sich in der Umgebungsdatei im im Teams Toolkit erstellten Projekt.",
   "core.uninstallQuestion.chooseOption": "Zu deinstallierende Ressourcen auswählen",

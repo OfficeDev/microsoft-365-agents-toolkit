@@ -47,7 +47,7 @@
     "description": "Display all connected Microsoft 365 and Azure accounts."
   },
   "add": {
-    "description": "Add feature to your Microsoft 365 App."
+    "description": "Add feature to your app."
   },
   "add.spfx-web-part": {
     "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
@@ -62,19 +62,19 @@
     "description": "A capability to extend Copilot using your APIs."
   },
   "set": {
-    "description": "Set configurations for your Microsoft 365 App."
+    "description": "Set configurations for your app."
   },
   "set.sensitivityLabel": {
     "description": "Set sensitivity label for the Declarative Agent app."
   },
   "create": {
-    "description": "Create a new Microsoft 365 App."
+    "description": "Create a new app."
   },
   "create.sample": {
     "description": "Create an app from existing sample."
   },
   "collaborator": {
-    "description": "Check, grant and list permissions for who can access and manage Microsoft 365 App and Microsoft Entra application."
+    "description": "Check, grant and list permissions for who can access and manage app and Microsoft Entra application."
   },
   "collaborator.grant": {
     "description": "Grant permission for another account."
@@ -89,7 +89,7 @@
     "description": "Run the deploy stage in m365agents.yml or m365agents.local.yml."
   },
   "doctor": {
-    "description": "Prerequisite checker for building Microsoft 365 Apps."
+    "description": "Prerequisite checker for building apps."
   },
   "entra-app": {
     "description": "Manage the Microsoft Entra app in the current application."
@@ -110,16 +110,16 @@
     "description": "Reset environment file."
   },
   "list": {
-    "description": "List available Microsoft 365 App templates and samples."
+    "description": "List available app templates and samples."
   },
   "list.samples": {
-    "description": "List available Microsoft 365 App samples.",
+    "description": "List available app samples.",
     "options": {
       "tag": "Specifies the tag to filter the samples."
     }
   },
   "list.templates": {
-    "description": "List available Microsoft 365 App templates.",
+    "description": "List available app templates.",
     "options": {
       "format": "Specifies the format of the results."
     }
@@ -150,7 +150,7 @@
     "description": "Preview the current application."
   },
   "package": {
-    "description": "Build your Microsoft 365 App into a package for publishing.",
+    "description": "Build your app into a package for publishing.",
     "options": {
       "output-zip-path": "Specifies the output path of the zipped app package, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'.",
       "output-manifest-path": "Specifies the output path of the generated manifest path, defaults to '${folder}/appPackage/build/manifest.${env}.json'"
@@ -163,7 +163,7 @@
     "description": "Run the share stage in m365agents.yml."
   },
   "uninstall": {
-    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Developer portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
+    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Developer portal, bot registration in Bot Framework Portal, and uploaded custom apps in apps.",
     "options": {
       "mode": "Choose a way to clean up resources.",
       "title-id": "Title ID of the App.",
@@ -184,7 +184,7 @@
     "success": "Upgrade project successfully."
   },
   "validate": {
-    "description": "Validate the Microsoft 365 App using manifest schema, validation rules, or test cases."
+    "description": "Validate the app using manifest schema, validation rules, or test cases."
   }
 }
 

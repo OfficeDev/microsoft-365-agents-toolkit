@@ -699,7 +699,7 @@
     "teamsAppCreate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create a Microsoft 365 App in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
+      "description": "Create a app in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "name": {
@@ -715,7 +715,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will create a new Microsoft 365 App for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
           "const": "teamsApp/create"
         },
         "with": {
@@ -726,7 +726,7 @@
           "properties": {
             "name": {
               "type": "string",
-              "description": "Name of the Microsoft 365 App"
+              "description": "Name of the app"
             }
           }
         },
@@ -906,7 +906,7 @@
     "teamsAppUpdate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Update Microsoft 365 App in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+      "description": "Update app in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -922,7 +922,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Apply the app manifest to an existing Microsoft 365 App in Developer portal. Will use the app id in manifest.json file to determine which Microsoft 365 App to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+          "description": "Apply the app manifest to an existing app in Developer portal. Will use the app id in manifest.json file to determine which app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
           "const": "teamsApp/update"
         },
         "with": {
@@ -1357,7 +1357,7 @@
     "teamsAppExtendToM365": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Extend Microsoft 365 App across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+      "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -1373,7 +1373,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Extend Microsoft 365 App across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+          "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
           "const": "teamsApp/extendToM365"
         },
         "with": {
@@ -1658,7 +1658,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of Microsoft 365 App."
+              "description": "The app ID of app."
             },
             "primaryClientSecret": {
               "type": "string",
@@ -1762,7 +1762,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of Microsoft 365 App."
+              "description": "The app ID of app."
             },
             "apiSpecPath": {
               "type": "string",
@@ -2036,12 +2036,12 @@
     "devChannelInstallApp": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Install Microsoft 365 App to a sandboxed team and channel.",
+      "description": "Install app to a sandboxed team and channel.",
       "required": ["uses", "with"],
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Install Microsoft 365 App to a sandboxed team and channel.",
+          "description": "Install app to a sandboxed team and channel.",
           "const": "devChannel/installApp"
         },
         "with": {

@@ -27,7 +27,7 @@ export const SyncManifestOptions: CLICommandOption[] = [
   {
     name: "teams-app-id",
     type: "string",
-    description: "Microsoft 365 App ID (optional)",
+    description: "App ID (optional)",
     required: true,
   },
 ];

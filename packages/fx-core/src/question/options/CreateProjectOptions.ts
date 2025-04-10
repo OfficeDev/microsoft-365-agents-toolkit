@@ -24,7 +24,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
     questionName: "capabilities",
     type: "string",
     shortName: "c",
-    description: "Specifies the Microsoft 365 App feature.",
+    description: "Specifies the app feature.",
     required: true,
     choices: [
       "empty",

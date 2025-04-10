@@ -438,7 +438,7 @@
             "onboardDate": "2023-06-25",
             "title": "Teams Chef Bot",
             "shortDescription": "Demonstrates how to build bot with Microsoft Teams AI Library.",
-            "fullDescription": "This is a conversational bot for Microsoft Teams that impersonates a Chef to help you you cook Microsoft 365 Apps.",
+            "fullDescription": "This is a conversational bot for Microsoft Teams that impersonates a Chef to help you you cook apps.",
             "types": [
                 "Bot"
             ],
