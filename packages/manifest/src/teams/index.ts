@@ -24,7 +24,27 @@ import {
   MicrosoftTeamsVDevPreview,
   Convert as MicrosoftTeamsVDevPreviewConvert,
 } from "./MicrosoftTeams.vDevPreview";
-
+export { MicrosoftTeamsV1D0 } from "./MicrosoftTeams.v1d0";
+export { MicrosoftTeamsV1D1 } from "./MicrosoftTeams.v1d1";
+export { MicrosoftTeamsV1D2 } from "./MicrosoftTeams.v1d2";
+export { MicrosoftTeamsV1D3 } from "./MicrosoftTeams.v1d3";
+export { MicrosoftTeamsV1D4 } from "./MicrosoftTeams.v1d4";
+export { MicrosoftTeamsV1D5 } from "./MicrosoftTeams.v1d5";
+export { MicrosoftTeamsV1D6 } from "./MicrosoftTeams.v1d6";
+export { MicrosoftTeamsV1D7 } from "./MicrosoftTeams.v1d7";
+export { MicrosoftTeamsV1D8 } from "./MicrosoftTeams.v1d8";
+export { MicrosoftTeamsV1D9 } from "./MicrosoftTeams.v1d9";
+export { MicrosoftTeamsV1D10 } from "./MicrosoftTeams.v1d10";
+export { MicrosoftTeamsV1D11 } from "./MicrosoftTeams.v1d11";
+export { MicrosoftTeamsV1D12 } from "./MicrosoftTeams.v1d12";
+export { MicrosoftTeamsV1D13 } from "./MicrosoftTeams.v1d13";
+export { MicrosoftTeamsV1D14 } from "./MicrosoftTeams.v1d14";
+export { MicrosoftTeamsV1D15 } from "./MicrosoftTeams.v1d15";
+export { MicrosoftTeamsV1D16 } from "./MicrosoftTeams.v1d16";
+export { MicrosoftTeamsV1D17 } from "./MicrosoftTeams.v1d17";
+export { MicrosoftTeamsV1D19 } from "./MicrosoftTeams.v1d19";
+export { MicrosoftTeamsV1D20 } from "./MicrosoftTeams.v1d20";
+export { MicrosoftTeamsVDevPreview } from "./MicrosoftTeams.vDevPreview";
 export type MicrosoftTeamsManifest =
   | MicrosoftTeamsV1D0
   | MicrosoftTeamsV1D1
