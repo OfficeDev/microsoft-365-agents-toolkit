@@ -459,6 +459,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotAppInfo = "App Started";
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
+  static readonly AppListening = "app listening";
 }
 
 export class DebugItemSelect {

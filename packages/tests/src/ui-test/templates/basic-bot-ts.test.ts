@@ -16,6 +16,7 @@ import {
   Timeout,
   LocalDebugTaskLabel,
   DebugItemSelect,
+  LocalDebugTaskInfo,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -72,7 +73,10 @@ describe("Local Debug Tests", function () {
         console.log("======= debug with ttk ========");
         await startDebugging(DebugItemSelect.DebugInTeamsUsingChrome);
         await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
-        await waitForTerminal(LocalDebugTaskLabel.StartBotApp, "Bot Started");
+        await waitForTerminal(
+          LocalDebugTaskLabel.StartBotApp,
+          LocalDebugTaskInfo.AppListening
+        );
 
         const teamsAppId = await localDebugTestContext.getTeamsAppId();
         expect(teamsAppId).to.not.be.empty;
