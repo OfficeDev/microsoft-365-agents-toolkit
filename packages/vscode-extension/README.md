@@ -103,14 +103,14 @@ Read more on [local debug](https://docs.microsoft.com/microsoftteams/platform/to
 
 Deployment happens in two steps: Provisioning and Deployment. Provisioning creates all the necessary Azure resources that your application uses. It is typically done once. To provision your backend to an active Azure subscription:
 
-- In the Visual Studio Code Command Palette, enter "teams" and choose the command `Teams: Provision`.
+- In the Visual Studio Code Command Palette, enter "provision" and choose the command `Microsoft 365 Agents: Provision`.
 - You will be asked to sign into your Azure account. This is the account where Azure resources will be provisioned. Typically this is different from the Microsoft 365 account you used to sign in earlier.
 - You will be asked to select a subscription to use from the Azure account.
 - Once provisioning is completed, Visual Studio Code will pop up the notification with the message "'app name' successfully provisioned in the cloud.".
 
 Deploy copies of your application to the provisioned Azure resources. It is typically done after every change to your application. To deploy your application to the provisioned resources in an active Azure subscription:
 
-- In the Visual Studio Code Command Palette, enter "teams" and choose the command `Teams: Deploy`.
+- In the Visual Studio Code Command Palette, enter "deploy" and choose the command `Microsoft 365 Agents: Deploy`.
 - Select Tab app and Backend to deploy.
 - Once deployment is finished, go to the Visual Studio Code Debug Panel (Ctrl+Shift+D / ⌘⇧-D or View -> Run) and select Launch Remote (Edge).
 - Press the start button (green arrow) to launch your app - now running remotely on Azure!
@@ -121,7 +121,7 @@ Read more on [provision](https://docs.microsoft.com/microsoftteams/platform/tool
 
 When your application resources and infrastructure are deployed successfully, you can publish and register your app to the app catalog to share with others in your organization.
 
-- In the Visual Studio Code Command Palette, enter "teams" and choose the command `Teams: Publish`.
+- In the Visual Studio Code Command Palette, enter "publish" and choose the command `Microsoft 365 Agents: Publish`.
 - Depending on your permission, you can send your app to the admin portal directly, or manually submit the app package file to your admin to check.
 - Once your app is approved by your admin, you can see it under the `Built for your org` section in the app store.
 
