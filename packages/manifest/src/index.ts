@@ -7,7 +7,7 @@ import Ajv from "ajv-draft-04";
 import { JSONSchemaType } from "ajv";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
-import { DevPreviewSchema } from "./devPreviewManifest";
+import { MicrosoftTeamsVDevPreview as DevPreviewSchema } from "./teams/MicrosoftTeams.vDevPreview";
 import { ManifestCommonProperties } from "./ManifestCommonProperties";
 import { SharePointAppId } from "./constants";
 import fetch from "node-fetch";
@@ -16,7 +16,7 @@ import { PluginManifestSchema } from "./pluginManifest";
 import { jsonToManifest, MicrosoftTeamsManifest } from "./teams";
 
 export * from "./manifest";
-export * as devPreview from "./devPreviewManifest";
+export * as devPreview from "./teams/MicrosoftTeams.vDevPreview";
 export * from "./pluginManifest";
 export * from "./declarativeCopilotManifest";
 export * from "./teams";

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams-manifest",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
@@ -42,14 +42,12 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "prebuild": "npm run generate-manifest",
     "build": "tsc -p ./ --incremental",
     "test": "npm run test:unit",
     "test:unit": "npx nyc --reporter=lcov mocha --no-timeouts --require ts-node/register test/**/*.test.ts ",
     "lint": "eslint \"**/*.ts\"",
     "precommit": "lint-staged",
     "lint:staged": "lint-staged",
-    "generate-manifest": "npx json2ts -i devPreviewSchema.json -o src/devPreviewManifest.ts --ignoreMinAndMaxItems",
     "convert": "node convert.js"
   },
   "files": [
