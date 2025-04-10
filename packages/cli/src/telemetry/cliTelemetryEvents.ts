@@ -79,7 +79,7 @@ export enum TelemetryEvent {
 
   ShareRemoveStart = "share-remove-start",
   ShareRemove = "share-remove",
-  
+
   Preview = "preview",
   PreviewNpmInstallStart = "preview-npm-install-start",
   PreviewNpmInstall = "preview-npm-install",
