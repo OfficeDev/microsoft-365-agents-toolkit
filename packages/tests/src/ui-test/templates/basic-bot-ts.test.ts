@@ -60,7 +60,9 @@ describe("Local Debug Tests", function () {
     },
     async function () {
       let errorMessage = "";
-      const localDebugTestContext = new LocalDebugTestContext("bot");
+      const localDebugTestContext = new LocalDebugTestContext("bot", {
+        lang: "typescript",
+      });
       await localDebugTestContext.before();
       try {
         const projectPath = path.resolve(
