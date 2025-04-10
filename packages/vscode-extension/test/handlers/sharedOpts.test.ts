@@ -65,6 +65,15 @@ describe("SharedOpts", () => {
       chai.assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
     });
 
+    it("metaOSExtendToDA", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      const metaOSExtendToDA = sandbox.spy(globalVariables.core, "metaOSExtendToDA");
+
+      await runCommand(Stage.metaOSExtendToDA);
+      sinon.assert.calledOnce(metaOSExtendToDA);
+    });
+
     it("provisionResources", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
       const provisionResources = sandbox.spy(globalVariables.core, "provisionResources");

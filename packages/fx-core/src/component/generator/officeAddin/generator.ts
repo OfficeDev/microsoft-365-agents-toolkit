@@ -27,6 +27,7 @@ import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { HelperMethods } from "./helperMethods";
+import { MetaOSHelper } from "./metaOSHelper";
 
 /**
  * case 1: project-type=office-xml-addin-type AND addin-host=outlook
@@ -123,6 +124,8 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
       TemplateNames.OutlookTaskpane,
       TemplateNames.WXPTaskpane,
       TemplateNames.OfficeAddinCommon,
+      TemplateNames.DeclarativeAgentMetaOSNewProject,
+      TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
     ].includes(templateName);
   }
 
@@ -133,6 +136,26 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     actionContext?: ActionContext
   ): Promise<Result<TemplateInfo[], FxError>> {
     const templateName = inputs[QuestionNames.TemplateName];
+
+    // Handle the Declarative Agent MetaOS project
+    if (
+      [
+        TemplateNames.DeclarativeAgentMetaOSNewProject,
+        TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
+      ].includes(templateName)
+    ) {
+      return Promise.resolve(
+        ok([
+          {
+            templateName: templateName,
+            language: inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage,
+            // replaceMap: { manifestId: getUuid() },
+          },
+        ])
+      );
+    }
+
+    // Hanlde the MetaOS Project
     const res = await OfficeAddinGenerator.doScaffolding(context, inputs, destinationPath);
     if (res.isErr()) return err(res.error);
     return Promise.resolve(
@@ -152,6 +175,25 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
+    // Handle the Declarative Agent MetaOS project
+    if (TemplateNames.DeclarativeAgentMetaOSUpgradeProject === inputs[QuestionNames.TemplateName]) {
+      try {
+        await MetaOSHelper.copyExistMetaOSProject(
+          inputs[QuestionNames.OfficeAddinFolder],
+          destinationPath
+        );
+        await MetaOSHelper.extendToDA(destinationPath, inputs[QuestionNames.AppName]);
+        return ok({});
+      } catch (e) {
+        return err(e.message);
+      }
+    } else if (
+      TemplateNames.DeclarativeAgentMetaOSNewProject === inputs[QuestionNames.TemplateName]
+    ) {
+      return ok({});
+    }
+
+    // Hanlde the MetaOS Project import
     const fromFolder = inputs[QuestionNames.OfficeAddinFolder];
     if (fromFolder) {
       // reset all env files

@@ -943,6 +943,12 @@
         "category": "Microsoft 365 Agents"
       },
       {
+        "command": "fx-extension.metaOSExtendToDA",
+        "title": "%teamstoolkit.commandsTreeViewProvider.metaOSExtendToDA%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && !fx-extension.isDeclarativeCopilotApp && fx-extension.isMetaOSAddinProject",
+        "category": "Microsoft 365 Agents"
+      },
+      {
         "command": "fx-extension.regeneratePlugin",
         "title": "Regenerate Plugin",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isKiotaNPMIntegrationEnabled",

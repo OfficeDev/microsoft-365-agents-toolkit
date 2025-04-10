@@ -24,6 +24,7 @@ export let workspaceUri: vscode.Uri | undefined;
 export let isTeamsFxProject = false;
 export let isOfficeAddInProject = false;
 export let isOfficeManifestOnlyProject = false;
+export let isMetaOSAddinProject = false;
 export let isSPFxProject = false;
 export let isDeclarativeCopilotApp = false;
 export let isSensitivityLabelSet = false;
@@ -84,10 +85,23 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   }
   if (isTeamsFxProject && workspaceUri?.fsPath) {
     isSPFxProject = checkIsSPFx(workspaceUri?.fsPath);
+    isMetaOSAddinProject = checkIsMetaOSAddinProject(workspaceUri.fsPath);
     isDeclarativeCopilotApp = checkIsDeclarativeCopilotApp(workspaceUri.fsPath);
     isSensitivityLabelSet = checkIsSensitivityLabelSet(workspaceUri.fsPath);
   } else {
     isSPFxProject = fs.existsSync(path.join(workspaceUri?.fsPath ?? "./", "SPFx"));
+  }
+}
+
+export function checkIsMetaOSAddinProject(directory: string): boolean {
+  if (!directory) {
+    return false;
+  }
+
+  if (manifestUtils.readAppManifestSync(directory).isOk()) {
+    return true;
+  } else {
+    return false;
   }
 }
 

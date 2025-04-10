@@ -29,6 +29,7 @@ import {
   m365PreAuthHandler,
   shareRemoveHandler,
   regeneratePluginHandler,
+  metaOSExtendToDAHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -129,6 +130,26 @@ describe("Lifecycle handlers", () => {
       const res = await createNewProjectHandler({ teamsAppFromTdp: true }, {});
       assert.isTrue(res.isOk());
       assert.isTrue(openFolder.calledOnce);
+    });
+
+    it("metaOSExtendToDAHandler", async () => {
+      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
+      const openFolder = sandbox.stub(workspaceUtils, "openFolder").resolves();
+      sandbox.stub(shared, "runCommand").resolves(
+        ok({
+          projectPath: "abc",
+        })
+      );
+      const res = await metaOSExtendToDAHandler();
+      assert.isTrue(res.isOk());
+      assert.isTrue(openFolder.calledOnce);
+    });
+
+    it("metaOSExtendToDAHandler failed", async () => {
+      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
+      sandbox.stub(shared, "runCommand").resolves(err(new UserError("test", "name", "message")));
+      const res = await metaOSExtendToDAHandler();
+      assert.isTrue(res.isErr());
     });
 
     it("kiota integration: kiota installed release version", async () => {

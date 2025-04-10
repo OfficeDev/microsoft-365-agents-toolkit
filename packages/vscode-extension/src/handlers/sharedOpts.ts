@@ -10,7 +10,7 @@ import { RecommendedOperations } from "../debug/common/debugConstants";
 import { isLoginFailureError, showError, wrapError } from "../error/common";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";
-import { core } from "../globalVariables";
+import { core, workspaceUri } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
   TelemetryEvent,
@@ -142,6 +142,11 @@ export async function runCommand(
       }
       case Stage.addPlugin: {
         result = await core.addPlugin(inputs);
+        break;
+      }
+      case Stage.metaOSExtendToDA: {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        result = await core.metaOSExtendToDA(inputs, workspaceUri!.fsPath);
         break;
       }
       case Stage.RegeneratePlugin: {

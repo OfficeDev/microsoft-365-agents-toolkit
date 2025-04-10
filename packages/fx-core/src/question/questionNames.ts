@@ -139,4 +139,6 @@ export enum QuestionNames {
   SelectPluginManifest = "select-plugin-manifest",
   SelectOpenAPISpecFromPlugin = "select-openapi-spec-from-plugin",
   SelectPluginId = "select-plugin-id",
+
+  DAMetaOSCapability = "da-meta-os-capability",
 }

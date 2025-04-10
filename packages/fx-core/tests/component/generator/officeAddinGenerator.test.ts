@@ -6,6 +6,7 @@
  */
 
 import {
+  AppManifestUtils,
   Context,
   DevPreviewSchema,
   err,
@@ -22,6 +23,7 @@ import "mocha";
 import mockfs from "mock-fs";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { OfficeAddinManifest } from "office-addin-manifest";
+import { MetaOSHelper } from "../../../src/component/generator/officeAddin/metaOSHelper";
 import * as path from "path";
 import proxyquire from "proxyquire";
 import * as sinon from "sinon";
@@ -500,6 +502,16 @@ describe("OfficeAddinGeneratorNew", () => {
       }
     });
 
+    it(`should return specific template for MetaOS DA Support`, async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSNewProject,
+      };
+
+      const res = await generator.getTemplateInfos(context, inputs, "path");
+      chai.assert.isTrue(res.isOk());
+    });
+
     it(`should return office-addin-config template outlookAddin`, async () => {
       sandbox.stub(OfficeAddinGenerator, "doScaffolding").resolves(ok(undefined));
       const inputs: Inputs = {
@@ -585,6 +597,39 @@ describe("OfficeAddinGeneratorNew", () => {
       chai.assert.isTrue(res.isOk());
       chai.assert.isTrue(reset.calledTwice);
     });
+    it(`da: upgrade`, async () => {
+      sandbox.stub(MetaOSHelper, "copyExistMetaOSProject").resolves();
+      sandbox.stub(MetaOSHelper, "extendToDA").resolves();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
+        [QuestionNames.OfficeAddinFolder]: "testfolder",
+        [QuestionNames.AppName]: "testapp",
+      };
+      const res = await generator.post(context, inputs, "path");
+      chai.assert.isTrue(res.isOk());
+    });
+    it(`da: upgrade error`, async () => {
+      sandbox.stub(MetaOSHelper, "copyExistMetaOSProject").rejects(new Error("error"));
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
+        [QuestionNames.OfficeAddinFolder]: "testfolder",
+        [QuestionNames.AppName]: "testapp",
+      };
+      const res = await generator.post(context, inputs, "path");
+      chai.assert.isTrue(res.isErr());
+    });
+    it(`da: create new`, async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSNewProject,
+        [QuestionNames.OfficeAddinFolder]: "testfolder",
+        [QuestionNames.AppName]: "testapp",
+      };
+      const res = await generator.post(context, inputs, "path");
+      chai.assert.isTrue(res.isOk());
+    });
     it(`not import`, async () => {
       const reset = sandbox.stub(envUtil, "resetEnv").resolves();
       const inputs: Inputs = {
@@ -623,5 +668,177 @@ describe("doScaffolding()", () => {
     const context = createContext();
     const res = await OfficeAddinGenerator.doScaffolding(context, inputs, ".");
     chai.assert.isTrue(res.isOk());
+  });
+});
+
+describe("MetaOSHelper", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("copyFilterFn", () => {
+    chai.assert.isFalse(MetaOSHelper.copyFilterFn("m365agents.yml"));
+    chai.assert.isFalse(MetaOSHelper.copyFilterFn("env"));
+    chai.assert.isTrue(MetaOSHelper.copyFilterFn("test.ts"));
+  });
+
+  it("copyExistMetaOSProject", async () => {
+    const fseCopy = sandbox.stub(fse, "copy").resolves();
+    await MetaOSHelper.copyExistMetaOSProject("source", "target");
+    chai.assert.isTrue(fseCopy.calledOnce);
+  });
+
+  it("getNameWithSuffix", () => {
+    chai.assert.equal(MetaOSHelper.getNameWithSuffix("test", 1), "test1");
+    chai.assert.equal(MetaOSHelper.getNameWithSuffix("test", 0), "test");
+  });
+
+  it("ensureFunctionNameIsNotExist", () => {
+    const jsonObj1 = [{ name: "test" }, { name: "test1" }, { name: "test2" }];
+    const jsonObj2 = [undefined];
+    const result1 = MetaOSHelper.ensureFunctionNameIsNotExist(jsonObj1, "name", "test");
+    const result2 = MetaOSHelper.ensureFunctionNameIsNotExist(jsonObj2, "te", "test");
+    chai.assert.equal(result1, "test3");
+    chai.assert.equal(result2, "test");
+  });
+
+  it("ensureFileNameIsNotExist", () => {
+    sandbox.stub(fse, "existsSync").onFirstCall().returns(true).onSecondCall().returns(false);
+    const result = MetaOSHelper.ensureFileNameIsNotExist("path", "test", ".json");
+    chai.assert.equal(result, "test1.json");
+  });
+
+  it("extendToDA", async () => {
+    sandbox.stub(MetaOSHelper, "ensureFileNameIsNotExist").returns("test");
+    sandbox.stub(MetaOSHelper, "modifyManifest").resolves("test");
+    const generateDAFile = sandbox.stub(MetaOSHelper, "generateDAFile").resolves();
+    const generateActionFile = sandbox.stub(MetaOSHelper, "generateActionFile").resolves();
+    const addCodeToCommands = sandbox.stub(MetaOSHelper, "addCodeToCommands").resolves();
+
+    await MetaOSHelper.extendToDA("projectFolder", "appName");
+    chai.assert.isTrue(generateDAFile.calledOnce);
+    chai.assert.isTrue(generateActionFile.calledOnce);
+    chai.assert.isTrue(addCodeToCommands.calledOnce);
+  });
+
+  it("modifyManifest: condition 1", async () => {
+    sandbox.stub(MetaOSHelper, "ensureFunctionNameIsNotExist").returns("test");
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      extensions: [
+        {
+          runtimes: [
+            undefined,
+            {},
+            { code: {} },
+            { code: { script: "" } },
+            { code: { script: "commands.js" } },
+            { code: { script: "commands.js" }, actions: [] },
+          ],
+        },
+      ],
+    } as any);
+    sandbox.stub(AppManifestUtils, "writeTeamsManifest").resolves();
+
+    const result = await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    chai.assert.isNotNull(result);
+  });
+
+  it("modifyManifest: condition 2", async () => {
+    sandbox.stub(MetaOSHelper, "ensureFunctionNameIsNotExist").returns("test");
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      extensions: [
+        {
+          runtimes: [{ code: { script: "commands.js" }, actions: [] }],
+        },
+      ],
+    } as any);
+    sandbox.stub(AppManifestUtils, "writeTeamsManifest").resolves();
+
+    const result = await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    chai.assert.isNotNull(result);
+  });
+
+  it("modifyManifest: error 1", async () => {
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      extensions: [
+        {
+          runtimes: [{ code: { scirpt: "" } }],
+        },
+      ],
+    } as any);
+    try {
+      await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("modifyManifest: error 2", async () => {
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      extensions: [{}],
+    } as any);
+    try {
+      await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("modifyManifest: error 3", async () => {
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({} as any);
+    try {
+      await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("modifyManifest: error 4", async () => {
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({ extensions: undefined } as any);
+    try {
+      await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("modifyManifest: error 5", async () => {
+    sandbox
+      .stub(AppManifestUtils, "readTeamsManifest")
+      .resolves({ extensions: [undefined] } as any);
+    try {
+      await MetaOSHelper.modifyManifest("projectFolder", "DAFilename");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("generateDAFile", async () => {
+    const writeFileFn = sandbox.stub(AppManifestUtils, "writeDeclarativeAgentManifest").resolves();
+    await MetaOSHelper.generateDAFile("projectFolder", "filename", "test", "test");
+    chai.assert.isTrue(writeFileFn.calledOnce);
+  });
+
+  it("generateActionFile", async () => {
+    const writeFileFn = sandbox.stub(fse, "writeJSON").resolves();
+    await MetaOSHelper.generateActionFile("projectFolder", "filename", "test", "test");
+    chai.assert.isTrue(writeFileFn.calledOnce);
+  });
+
+  it("addCodeToCommands: error", async () => {
+    sandbox.stub(fse, "existsSync").resolves(false);
+    try {
+      await MetaOSHelper.addCodeToCommands("projectFolder", "commandName");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
+  });
+
+  it("addCodeToCommands", async () => {
+    sandbox.stub(fse, "existsSync").resolves(true);
+    const writeFileFn = sandbox.stub(fse, "appendFile").resolves();
+    await MetaOSHelper.addCodeToCommands("projectFolder", "commandName");
+    chai.assert.isTrue(writeFileFn.calledOnce);
   });
 });

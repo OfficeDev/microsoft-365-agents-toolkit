@@ -163,6 +163,22 @@ export async function addPluginHandler(...args: unknown[]) {
   }
 }
 
+export async function metaOSExtendToDAHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.MetaOSExtendToDAStart,
+    getTriggerFromProperty(args)
+  );
+
+  const result = await runCommand(Stage.metaOSExtendToDA);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+
+  const projectPathUri = vscode.Uri.file(result.value.projectPath);
+  await openFolder(projectPathUri, true, result.value.warnings);
+  return result;
+}
+
 export async function addKnowledgeHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddKnowledgeStart, getTriggerFromProperty(args));
   const result = await runCommand(Stage.addKnowledge);

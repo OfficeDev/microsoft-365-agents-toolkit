@@ -64,6 +64,7 @@ import {
   initializeGlobalVariables,
   isDeclarativeCopilotApp,
   isExistingUser,
+  isMetaOSAddinProject,
   isOfficeAddInProject,
   isOfficeManifestOnlyProject,
   isSPFxProject,
@@ -129,6 +130,7 @@ import {
   createNewProjectHandler,
   deployHandler,
   m365PreAuthHandler,
+  metaOSExtendToDAHandler,
   provisionHandler,
   publishHandler,
   regeneratePluginHandler,
@@ -314,6 +316,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isMetaOSAddinProject",
+    featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS) ? isMetaOSAddinProject : false
   );
 
   const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
@@ -686,6 +694,14 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
   registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
+
+  featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS) &&
+    registerInCommandController(
+      context,
+      "fx-extension.metaOSExtendToDA",
+      metaOSExtendToDAHandler,
+      "metaOSExtendToDA"
+    );
 
   registerInCommandController(
     context,

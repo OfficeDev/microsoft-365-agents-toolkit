@@ -204,6 +204,7 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
+import { TemplateNames } from "../component/generator/templates/templateNames";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2494,6 +2495,31 @@ export class FxCore {
     }
 
     return ok(undefined);
+  }
+
+  /**
+   * MetaOS Extend To DA
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.metaOSExtendToDA }),
+    ErrorHandlerMW,
+    QuestionMW("metaOSExtendToDA"),
+  ])
+  async metaOSExtendToDA(
+    inputs: Inputs,
+    workDir: string
+  ): Promise<Result<undefined | any, FxError>> {
+    const context = createContext();
+
+    inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
+    inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentMetaOSUpgradeProject;
+    inputs[QuestionNames.OfficeAddinFolder] = workDir;
+
+    const res = await coordinator.create(context, inputs);
+    if (res.isOk()) {
+      inputs.projectPath = res.value.projectPath;
+    }
+    return res;
   }
 
   /**

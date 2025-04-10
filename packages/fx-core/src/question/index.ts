@@ -16,6 +16,7 @@ import {
   grantPermissionQuestionNode,
   kiotaRegenerateQuestion,
   listCollaboratorQuestionNode,
+  metaOSExtendToDAQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
   removeSharedAccessNode,
@@ -87,6 +88,9 @@ export class QuestionNodes {
   }
   regeneratePlugin(): IQTreeNode {
     return regeneratePluginNode();
+  }
+  metaOSExtendToDA(): IQTreeNode {
+    return metaOSExtendToDAQuestionNode();
   }
   uninstall(): IQTreeNode {
     return uninstallQuestionNode();
