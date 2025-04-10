@@ -12,6 +12,8 @@ import {
   IProgressHandler,
   ok,
   Platform,
+  SystemError,
+  UserError,
 } from "@microsoft/teamsfx-api";
 
 import { MetadataV3, VersionInfo, VersionSource } from "../../../src/common/versionMetadata";
@@ -27,12 +29,14 @@ import { envUtil } from "../../../src/component/utils/envUtil";
 import { metadataUtil } from "../../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../../src/component/utils/pathUtils";
 import { FxCore } from "../../../src/core/FxCore";
-import { setTools } from "../../../src/common/globalVars";
+import { setTools, TOOLS } from "../../../src/common/globalVars";
 import * as v3MigrationUtils from "../../../src/core/middleware/utils/v3MigrationUtils";
 import { MockTools } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
 import { featureFlagManager } from "../../../src/common/featureFlags";
-import { QuestionNames } from "../../../src";
+import { PackageService, QuestionNames, teamsDevPortalClient } from "../../../src";
+import { CollaborationUtil } from "../../../src/core/collaborator";
+import * as shareUtils from "../../../src/component/driver/share/utils";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -350,5 +354,165 @@ describe("component coordinator test", () => {
     const context = createDriverContext(inputs);
     const res = await coordinator.share(context, inputs);
     assert.isTrue(res.isErr() && res.error.name === "LifeCycleUndefinedError");
+  });
+  it("share to user happy path", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId",
+      displayName: "mockDisplayName",
+      userPrincipalName: "mockUserPrincipalName",
+    } as any);
+    sandbox.stub(teamsDevPortalClient, "grantPermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "grantPermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser,
+      [QuestionNames.ShareToUsers]: "user1@example.com,user2@example.com",
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isOk());
+  });
+  it("share to user with invalid email", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(CollaborationUtil, "getUserInfo").resolves(undefined);
+    sandbox.stub(teamsDevPortalClient, "grantPermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "grantPermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser,
+      [QuestionNames.ShareToUsers]: "user1@example.com,user2@example.com",
+    };
+
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "InputValidationError");
+    }
+  });
+  it("share to user with token error", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId",
+      displayName: "mockDisplayName",
+      userPrincipalName: "mockUserPrincipalName",
+    } as any);
+    sandbox.stub(teamsDevPortalClient, "grantPermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "grantPermission").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(new SystemError("", "TokenError", "Failed to get token")));
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser,
+      [QuestionNames.ShareToUsers]: "user1@example.com",
+    };
+
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "TokenError");
+    }
+  });
+  it("share to user - parseShareAppActionYamlConfig error", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId",
+      displayName: "mockDisplayName",
+      userPrincipalName: "mockUserPrincipalName",
+    } as any);
+    sandbox.stub(teamsDevPortalClient, "grantPermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "grantPermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(err(new UserError("", "ParseError", "Failed to parse yaml")));
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser,
+      [QuestionNames.ShareToUsers]: "user1@example.com,user2@example.com",
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "ParseError");
+    }
+  });
+  it("share to user - failed to grant mos permissoin", async () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId",
+      displayName: "mockDisplayName",
+      userPrincipalName: "mockUserPrincipalName",
+    } as any);
+    sandbox.stub(teamsDevPortalClient, "grantPermission").resolves();
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    sandbox
+      .stub(PackageService.GetSharedInstance(), "grantPermission")
+      .resolves(err(new UserError("", "GrantPermissionError", "Failed to grant permission")));
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser,
+      [QuestionNames.ShareToUsers]: "user1@example.com,user2@example.com",
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.shareApplication(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "GrantPermissionError");
+    }
   });
 });
