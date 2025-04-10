@@ -497,6 +497,7 @@
   "core.addKnowledge.success.vsc": "Capability source added to the project successfully.",
   "core.addKnowledge.success": "Capability source added to the project successfully. View agent manifest in \"%s\".",
   "core.addKnowledge.success.viewAgentManifest": "View agent manifest",
+  "core.addUserQuestion.validation": "Invalid email address",
   "core.scaffold.warning.summary": "We have detected following issues:\n%s",
   "core.addPlugin.warning.manifestVariables": "Environment variables \"%s\" found in manifest of the added plugin. Ensure the values are set in .env file or system environment variables.",
   "core.addPlugin.warning.apiSpecVariables": "Environment variables \"%s\" found in API specification of the added plugin. Ensure the values are set in .env file or system environment variables.",
