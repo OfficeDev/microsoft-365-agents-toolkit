@@ -13,11 +13,13 @@ import { SharePointAppId } from "./constants";
 import fetch from "node-fetch";
 import { DeclarativeCopilotManifestSchema } from "./declarativeCopilotManifest";
 import { PluginManifestSchema } from "./pluginManifest";
+import { jsonToManifest, MicrosoftTeamsManifest } from "./teams";
 
 export * from "./manifest";
 export * as devPreview from "./devPreviewManifest";
 export * from "./pluginManifest";
 export * from "./declarativeCopilotManifest";
+export * from "./teams";
 
 export type TeamsAppManifestJSONSchema = JSONSchemaType<TeamsAppManifest>;
 export type DevPreviewManifestJSONSchema = JSONSchemaType<DevPreviewSchema>;
@@ -28,15 +30,31 @@ export type ManifestProperties = ManifestCommonProperties;
 
 export class ManifestUtil {
   /**
-   * Loads the manifest from the given path without validating its schema.
+   * Loads the manifest from the given path with basic type check.
    *
    * @param path - The path to the manifest file.
-   * @throws Will propagate any error thrown by the fs-extra#readJson.
+   * @throws Will propagate any error thrown by the fs-extra#readJson or type check failure.
    *
    * @returns The Manifest Object.
    */
-  static async loadFromPath<T extends Manifest = TeamsAppManifest>(path: string): Promise<T> {
-    return fs.readJson(path);
+  static async loadFromPath(path: string): Promise<MicrosoftTeamsManifest> {
+    const jsonString = await fs.readFile(path, "utf8");
+    const manifest = jsonToManifest(jsonString);
+    return manifest;
+  }
+
+  /**
+   * Loads the manifest from the given path with validation
+   *
+   * @param path - The path to the manifest file.
+   * @throws Will propagate any error thrown by the fs-extra#readJson or type check failure.
+   *
+   * @returns The Manifest Object and schema validation results
+   */
+  static async loadAndValidateFromPath(path: string): Promise<[MicrosoftTeamsManifest, string[]]> {
+    const manifest = await this.loadFromPath(path);
+    const validateRes = await this.validateManifest(manifest);
+    return [manifest, validateRes];
   }
 
   /**
@@ -62,7 +80,11 @@ export class ManifestUtil {
    * @returns An empty array if it passes validation, or an array of error string otherwise.
    */
   static validateManifestAgainstSchema<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T, schema: JSONSchemaType<T>): Promise<string[]> {
     let validate;
     if (schema.$schema?.includes("2020-12")) {
@@ -98,9 +120,13 @@ export class ManifestUtil {
   }
 
   static async fetchSchema<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<JSONSchemaType<T>> {
-    const schemaUrl = manifest.$schema as string;
+    const schemaUrl = ((manifest as any).$schema || (manifest as any).schema) as string;
     if (!schemaUrl) {
       throw new Error("Manifest does not have a $schema property or schema url is not provided.");
     }
@@ -128,7 +154,11 @@ export class ManifestUtil {
    * @returns An empty array if schema validation passes, or an array of error string otherwise.
    */
   static async validateManifest<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<string[]> {
     const schema = await this.fetchSchema(manifest);
     return ManifestUtil.validateManifestAgainstSchema(manifest, schema);
