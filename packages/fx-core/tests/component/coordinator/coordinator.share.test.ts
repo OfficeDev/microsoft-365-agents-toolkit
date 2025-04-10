@@ -356,7 +356,6 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isErr() && res.error.name === "LifeCycleUndefinedError");
   });
   it("share to user happy path", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
       .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
@@ -386,7 +385,6 @@ describe("component coordinator test", () => {
     assert.isTrue(res.isOk());
   });
   it("share to user with invalid email", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
       .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
@@ -416,7 +414,6 @@ describe("component coordinator test", () => {
     }
   });
   it("share to user with token error", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
       .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
@@ -448,7 +445,6 @@ describe("component coordinator test", () => {
     }
   });
   it("share to user - parseShareAppActionYamlConfig error", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox.stub(CollaborationUtil, "getUserInfo").resolves({
       aadId: "mockAadId",
       displayName: "mockDisplayName",
@@ -481,7 +477,6 @@ describe("component coordinator test", () => {
     }
   });
   it("share to user - failed to grant mos permissoin", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox
       .stub(shareUtils, "parseShareAppActionYamlConfig")
       .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
