@@ -5,16 +5,18 @@
 import {
   CloudAdapter,
   CardFactory,
-  ChannelInfo,
   ConversationReference,
+  TurnContext,
+  TurnContextStateCollection,
+  Activity,
+  ConnectorClient,
+} from "@microsoft/agents-hosting";
+import {
   TeamDetails,
   TeamsChannelAccount,
   TeamsInfo,
-  TurnContext,
-  TurnContextStateCollection,
-} from "botbuilder";
-import { ConnectorClient } from "botframework-connector";
-import { Conversations } from "botframework-connector/lib/connectorApi/connectorClient";
+  ChannelInfo,
+} from "@microsoft/agents-hosting-teams";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -95,7 +97,7 @@ describe("Notification Tests - Node", () => {
       });
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
           [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
@@ -108,7 +110,9 @@ describe("Notification Tests - Node", () => {
         },
       };
       botInstallation = new TeamsBotInstallation(stubAdapter, conversationRef as any, fakeBotAppId);
-      sandbox.stub(TurnContext, "getConversationReference").returns({ conversation: {} } as any);
+      sandbox
+        .stub(Activity.prototype, "getConversationReference")
+        .returns({ conversation: {} } as any);
     });
 
     afterEach(() => {
@@ -231,12 +235,12 @@ describe("Notification Tests - Node", () => {
       activityResponse = {};
       turnError = undefined;
       const fakeBotAppId = "fakeBotAppId";
-      const stubConversations = sandbox.createStubInstance(Conversations);
-      stubConversations.createConversation.resolves({
-        id: "1",
-      } as any);
+      // const stubConversations = sandbox.createStubInstance(Conversations);
+      // stubConversations.createConversation.resolves({
+      //   id: "1",
+      // } as any);
       const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
-      stubConnectorClient.conversations = stubConversations;
+      // stubConnectorClient.conversations = stubConversations;
       const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
       stubTurnState.get.returns(stubConnectorClient);
       const stubContext = sandbox.createStubInstance(TurnContext);
@@ -260,7 +264,7 @@ describe("Notification Tests - Node", () => {
       });
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
           [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
@@ -273,7 +277,9 @@ describe("Notification Tests - Node", () => {
         },
       };
       botInstallation = new TeamsBotInstallation(stubAdapter, conversationRef as any, fakeBotAppId);
-      sandbox.stub(TurnContext, "getConversationReference").returns({ conversation: {} } as any);
+      sandbox
+        .stub(Activity.prototype, "getConversationReference")
+        .returns({ conversation: {} } as any);
     });
 
     afterEach(() => {
@@ -400,7 +406,7 @@ describe("Notification Tests - Node", () => {
       turnError = undefined;
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
           [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
@@ -691,7 +697,7 @@ describe("Notification Bot Tests - Node", () => {
       return stubAdapter;
     });
     (
-      stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
+      stubAdapter.continueConversation as unknown as sinon.SinonStub<
         [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
         Promise<void>
       >

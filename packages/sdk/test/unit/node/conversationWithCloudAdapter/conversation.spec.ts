@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CloudAdapter, TurnContext, Request, Response } from "botbuilder";
+import { CloudAdapter, TurnContext, Request } from "@microsoft/agents-hosting";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import mockedEnv from "mocked-env";
@@ -56,7 +56,7 @@ describe("ConversationBot Tests - Node", () => {
   });
 
   it("Create with customized adapterConfig", () => {
-    const conversationBot = new ConversationBot({ adapterConfig: { foo: "bar" } });
+    const conversationBot = new ConversationBot({ adapterConfig: { issuers: [] } });
     assert.isDefined(conversationBot.adapter);
     assert.isDefined(conversationBot.adapter.onTurnError);
     assert.isUndefined(conversationBot.command);
@@ -85,7 +85,7 @@ describe("ConversationBot Tests - Node", () => {
       adapter.process as unknown as sinon.SinonStub<
         [
           req: Request<Record<string, unknown>, Record<string, string | string[] | undefined>>,
-          res: Response,
+          res: any,
           logic: (context: TurnContext) => Promise<any>
         ],
         Promise<void>

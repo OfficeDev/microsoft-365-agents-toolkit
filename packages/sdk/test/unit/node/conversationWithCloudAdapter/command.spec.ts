@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { assert, expect } from "chai";
-import { CloudAdapter, ConversationReference, TurnContext } from "botbuilder";
+import { CloudAdapter, ConversationReference, TurnContext } from "@microsoft/agents-hosting";
 import * as sinon from "sinon";
 import { CommandBot } from "../../../../src/conversationWithCloudAdapter/command";
 import { CommandResponseMiddleware } from "../../../../src/conversation/middlewares/commandMiddleware";
@@ -40,7 +40,7 @@ describe("CommandBot Tests - Node", () => {
       return stubAdapter;
     });
     (
-      stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
+      stubAdapter.continueConversation as unknown as sinon.SinonStub<
         [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
         Promise<void>
       >

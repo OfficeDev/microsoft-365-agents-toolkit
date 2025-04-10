@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference } from "botframework-schema";
+import { ConversationReference } from "@microsoft/agents-hosting";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import { NotificationTargetType } from "../../../../src/conversation/interface";

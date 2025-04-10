@@ -15,17 +15,19 @@ import * as sinon from "sinon";
 import * as chaiPromises from "chai-as-promised";
 import {
   TurnContext,
-  BotAdapter,
   Activity,
   ResourceResponse,
   ConversationReference,
-} from "botbuilder-core";
+  AttachmentData,
+  AttachmentInfo,
+} from "@microsoft/agents-hosting";
+import { BaseAdapter } from "@microsoft/agents-hosting/dist/src/baseAdapter";
 import mockedEnv from "mocked-env";
 import { OnBehalfOfCredentialAuthConfig } from "../../../../src/models/configuration";
 chaiUse(chaiPromises);
 let restore: () => void;
 
-class SimpleAdapter extends BotAdapter {
+class SimpleAdapter extends BaseAdapter {
   sendActivities(
     context: TurnContext,
     activities: Partial<Activity>[]
@@ -46,6 +48,26 @@ class SimpleAdapter extends BotAdapter {
     reference: Partial<ConversationReference>,
     logic: (revocableContext: TurnContext) => Promise<void>
   ): Promise<void> {
+    return Promise.resolve();
+  }
+  uploadAttachment(
+    conversationId: string,
+    attachmentData: AttachmentData
+  ): Promise<ResourceResponse> {
+    const responses: ResourceResponse = { id: "fake_id" };
+    return Promise.resolve(responses);
+  }
+
+  getAttachmentInfo(attachmentId: string): Promise<AttachmentInfo> {
+    const attachmentInfo: AttachmentInfo = {
+      name: "fake_name",
+      type: "fake_type",
+      views: [],
+    };
+    return Promise.resolve(attachmentInfo);
+  }
+
+  getAttachment(attachmentId: string, viewId: string): Promise<any> {
     return Promise.resolve();
   }
 }
@@ -88,6 +110,18 @@ describe("Message Extension Query With SSO Tests - Node", () => {
     authorityHost: "https://login.microsoftonline.com",
     tenantId: "fake_M365_tenant_id",
   };
+  const activity: Activity = {
+    action: "add",
+    type: "installationUpdate",
+    channelId: "1",
+    conversation: {
+      id: "1",
+      tenantId: "a",
+    },
+    recipient: {
+      id: "A",
+    },
+  } as any;
 
   beforeEach(() => {
     restore = mockedEnv({
@@ -147,7 +181,7 @@ describe("Message Extension Query With SSO Tests - Node", () => {
 
   it("handleMessageExtensionQueryWithSSO get 412 response in Message Extension query", async () => {
     const adapter = new SimpleAdapter();
-    const context: TurnContext = new TurnContext(adapter, activityContext);
+    const context: TurnContext = new TurnContext(adapter, activity);
     const spy = sinon.spy(adapter, "sendActivities");
     sandbox
       .stub(OnBehalfOfUserCredential.prototype, "getToken")
@@ -162,17 +196,13 @@ describe("Message Extension Query With SSO Tests - Node", () => {
     });
     spy.restore();
     sinon.assert.calledOnce(spy);
-    assert.equal(spy.getCall(0).args[1][0].value.status, 412);
+    assert.equal((spy.getCall(0).args[1][0].value as any).status, 412);
     assert.equal(spy.getCall(0).args[1][0].type, "invokeResponse");
   });
 
   it("handleMessageExtensionLinkQueryWithSSO get error response without compose/linkQuery type", async () => {
     const adapter = new SimpleAdapter();
-    const activityContext = {
-      name: "composeExtension/query",
-      value: { authentication: { token: ssoToken } },
-    };
-    const context: TurnContext = new TurnContext(adapter, activityContext);
+    const context: TurnContext = new TurnContext(adapter, activity);
     try {
       await handleMessageExtensionLinkQueryWithSSO(
         context,
@@ -199,7 +229,7 @@ describe("Message Extension Query With SSO Tests - Node", () => {
       name: "composeExtension/queryLink",
       value: { authentication: { token: ssoToken } },
     };
-    const context: TurnContext = new TurnContext(adapter, activityContext);
+    const context: TurnContext = new TurnContext(adapter, activity);
     const spy = sinon.spy(adapter, "sendActivities");
     sandbox
       .stub(OnBehalfOfUserCredential.prototype, "getToken")
@@ -221,9 +251,9 @@ describe("Message Extension Query With SSO Tests - Node", () => {
     spy.restore();
     sinon.assert.calledOnce(spy);
     const signInLink = `${loginUrl}?scope=fake_scope1&clientId=${authConfig.clientId}&tenantId=${authConfig.tenantId}`;
-    assert.equal(spy.getCall(0).args[1][0].value.status, "200");
-    assert.isNotNull(spy.getCall(0).args[1][0].value.body);
-    const resBody = spy.getCall(0).args[1][0].value.body;
+    assert.equal((spy.getCall(0).args[1][0].value as any).status, "200");
+    assert.isNotNull((spy.getCall(0).args[1][0].value as any).body);
+    const resBody = (spy.getCall(0).args[1][0].value as any).body;
     assert.equal(resBody.composeExtension.type, "auth");
     assert.equal(resBody.composeExtension.suggestedActions.actions[0].value, signInLink);
     assert.equal(resBody.composeExtension.suggestedActions.actions[0].type, "openUrl");
@@ -235,7 +265,7 @@ describe("Message Extension Query With SSO Tests - Node", () => {
       expiresOnTimestamp: now,
     };
     sandbox.stub(OnBehalfOfUserCredential.prototype, "getToken").resolves(tokenRes);
-    const context: TurnContext = new TurnContext(new SimpleAdapter(), activityContext);
+    const context: TurnContext = new TurnContext(new SimpleAdapter(), activity);
     const logic = (token: MessageExtensionTokenResponse) => {};
     const callbackSpy = sinon.spy(logic);
     const res = await handleMessageExtensionQueryWithSSO(
@@ -268,7 +298,7 @@ describe("Message Extension Query With SSO Tests - Node", () => {
         )
       );
     const adapter = new SimpleAdapter();
-    const context: TurnContext = new TurnContext(adapter, activityContext);
+    const context: TurnContext = new TurnContext(adapter, activity);
     try {
       await handleMessageExtensionQueryWithSSO(context, authConfig, loginUrl, "", async (token) => {
         token;

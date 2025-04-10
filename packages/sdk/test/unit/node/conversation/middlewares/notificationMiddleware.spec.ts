@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference, TurnContext } from "botbuilder";
+import { ConversationReference, Activity } from "@microsoft/agents-hosting";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -34,16 +34,16 @@ describe("Notification Middleware Tests - Node", () => {
       conversationReferenceStore,
     });
 
-    sandbox.stub(TurnContext, "getConversationReference").callsFake((activity) => {
+    sandbox.stub(Activity.prototype, "getConversationReference").callsFake(() => {
       const reference = {
-        channelId: activity.channelId,
+        channelId: Activity.prototype.channelId,
         conversation: {
-          id: activity.conversation?.id,
-          tenantId: activity.conversation?.tenantId,
+          id: Activity.prototype.conversation?.id,
+          tenantId: Activity.prototype.conversation?.tenantId,
         },
       } as ConversationReference;
-      if (activity.conversation?.conversationType !== undefined) {
-        reference.conversation.conversationType = activity.conversation?.conversationType;
+      if (Activity.prototype.conversation?.conversationType !== undefined) {
+        reference.conversation.conversationType = Activity.prototype.conversation?.conversationType;
       }
       return reference;
     });

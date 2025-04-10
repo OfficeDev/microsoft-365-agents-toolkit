@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Storage, StoreItems, TurnContext } from "botbuilder";
-import { Activity, InvokeResponse } from "botframework-schema";
+import { Storage, StoreItems, TurnContext, InvokeResponse } from "@microsoft/agents-hosting";
+import { Activity } from "@microsoft/agents-activity";
 import {
   AdaptiveCardResponse,
   CommandMessage,

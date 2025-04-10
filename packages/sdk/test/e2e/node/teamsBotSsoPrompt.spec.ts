@@ -10,13 +10,16 @@ import {
   ConversationState,
   InputHints,
   MemoryStorage,
-  StatePropertyAccessor,
+  AgentStatePropertyAccessor,
   StatusCodes,
-  TeamsChannelAccount,
   TestAdapter,
+} from "@microsoft/agents-hosting";
+import {
+  TeamsChannelAccount,
   tokenExchangeOperationName,
-} from "botbuilder-core";
-import { DialogSet, DialogState, DialogTurnStatus } from "botbuilder-dialogs";
+  TeamsInfo,
+} from "@microsoft/agents-hosting-teams";
+import { DialogSet, DialogState, DialogTurnStatus } from "@microsoft/agents-hosting-dialogs";
 import {
   TeamsBotSsoPrompt,
   TeamsBotSsoPromptTokenResponse,
@@ -28,7 +31,6 @@ import * as chaiPromises from "chai-as-promised";
 import { extractIntegrationEnvVariables, getSsoTokenFromTeams } from "../helper";
 import { parseJwt } from "../../../src/util/utils";
 import * as sinon from "sinon";
-import { TeamsInfo } from "botbuilder";
 
 chaiUse(chaiPromises);
 extractIntegrationEnvVariables();
@@ -216,7 +218,7 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
     const convoState: ConversationState = new ConversationState(new MemoryStorage());
 
     // Create a DialogState property, DialogSet and TeamsBotSsoPrompt
-    const dialogState: StatePropertyAccessor<DialogState> =
+    const dialogState: AgentStatePropertyAccessor<DialogState> =
       convoState.createProperty("dialogState");
     const dialogs: DialogSet = new DialogSet(dialogState);
 
