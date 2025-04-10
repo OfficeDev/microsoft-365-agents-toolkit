@@ -195,6 +195,8 @@ export abstract class CaseFactory {
       sampledebugContext.appName,
       sampledebugContext.projectPath,
       {
+        tool: "cli",
+        env: "dev",
         skipErrorMessage: "DeprecationWarning",
       }
     );
@@ -338,7 +340,8 @@ export abstract class CaseFactory {
       let devtunnelProcess: ChildProcessWithoutNullStreams;
       let debugProcess: ChildProcess;
       let dockerProcess: ChildProcessWithoutNullStreams;
-      let successFlag = true;
+      let successFlag_local = true;
+      let successFlag_dev = true;
       let envContent = "";
       let botFlag = false;
       let envFile = "";
@@ -359,10 +362,98 @@ export abstract class CaseFactory {
       after(async function () {
         this.timeout(Timeout.finishTestCase);
         setTimeout(() => {
-          if (successFlag) process.exit(0);
+          if (successFlag_local && successFlag_dev) process.exit(0);
           else process.exit(1);
         }, 30000);
       });
+
+      it(
+        `[auto] remote debug for Sample ${sampleName}`,
+        {
+          testPlanCaseId: options?.testPlanCaseId_dev,
+          author,
+        },
+        async function () {
+          this.timeout(Timeout.testAzureCase);
+          if (options?.skipRemote) {
+            console.log("there is no remote debug for this sample");
+            this.skip();
+          }
+          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
+          try {
+            // create project
+            await sampledebugContext.openResourceFolder();
+            // update manifest app name
+            await sampledebugContext.updateManifestAppName();
+            // use 1st middleware to process typical sample
+            await onAfterCreate(sampledebugContext, "dev", azSqlHelper);
+
+            if (options?.skipDebug) {
+              console.log("skip ui skipDebug...");
+              console.log("debug finish!");
+              return;
+            }
+
+            // ttk debug
+            await onProvision(sampledebugContext);
+            if (options?.container) {
+              await Executor.login();
+            }
+            if (!options?.skipDeploy) {
+              await sampledebugContext.deployProject(
+                sampledebugContext.projectPath,
+                Timeout.botDeploy
+              );
+            }
+
+            // if no skip init step
+            if (!options?.skipInit) {
+              const teamsAppId = await sampledebugContext.getTeamsAppId("dev");
+              expect(teamsAppId).to.not.be.empty;
+              // use 2nd middleware to process typical sample
+              await onBeforeBrowerStart(sampledebugContext, "dev", azSqlHelper);
+              // init
+              const page = await onInitPage(sampledebugContext, teamsAppId, {
+                includeFunction: options?.includeFunction ?? false,
+                npmName: options?.npmName ?? "",
+                dashboardFlag: options?.dashboardFlag ?? false,
+                type: options?.type ?? "",
+                teamsAppName: options?.teamsAppName ?? "",
+                env: "dev",
+              });
+
+              // if no skip vaildation
+              if (!options?.skipValidation) {
+                await onValidate(page, {
+                  context: sampledebugContext,
+                  displayName: Env.displayName,
+                  includeFunction: options?.includeFunction ?? false,
+                  npmName: options?.npmName ?? "",
+                  env: "dev",
+                });
+              } else {
+                console.log("skip ui skipValidation...");
+                console.log("debug finish!");
+              }
+              await stopDebugging();
+            } else {
+              console.log("skip ui skipInit...");
+              console.log("debug finish!");
+            }
+          } catch (error) {
+            successFlag_dev = false;
+            errorMessage = "[Error]: " + error;
+            await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
+            await VSBrowser.instance.driver.sleep(
+              Timeout.playwrightDefaultTimeout
+            );
+          }
+
+          await onAfter(sampledebugContext, "dev");
+          expect(successFlag_dev, errorMessage).to.true;
+          console.log("debug finish!");
+        }
+      );
 
       it(
         `[auto] local debug for Sample ${sampleName}`,
@@ -467,7 +558,7 @@ export abstract class CaseFactory {
                   ) {
                     console.log("[skip error] ", error);
                   } else {
-                    successFlag = false;
+                    successFlag_local = false;
                     expect.fail(errorMsg);
                   }
                 },
@@ -593,7 +684,7 @@ export abstract class CaseFactory {
               console.log("debug finish!");
             }
           } catch (error) {
-            successFlag = false;
+            successFlag_local = false;
             errorMessage = "[Error]: " + error;
             await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
             await VSBrowser.instance.driver.sleep(
@@ -601,97 +692,9 @@ export abstract class CaseFactory {
             );
           }
 
-          expect(successFlag, errorMessage).to.true;
-          console.log("debug finish!");
           await onAfter(sampledebugContext, "local");
-        }
-      );
-
-      it(
-        `[auto] remote debug for Sample ${sampleName}`,
-        {
-          testPlanCaseId: options?.testPlanCaseId_dev,
-          author,
-        },
-        async function () {
-          this.timeout(Timeout.testAzureCase);
-          if (options?.skipRemote) {
-            console.log("there is no remote debug for this sample");
-            this.skip();
-          }
-          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
-          try {
-            // create project
-            await sampledebugContext.openResourceFolder();
-            // update manifest app name
-            await sampledebugContext.updateManifestAppName();
-            // use 1st middleware to process typical sample
-            await onAfterCreate(sampledebugContext, "dev", azSqlHelper);
-
-            if (options?.skipDebug) {
-              console.log("skip ui skipDebug...");
-              console.log("debug finish!");
-              return;
-            }
-
-            // ttk debug
-            await onProvision(sampledebugContext);
-            if (options?.container) {
-              await Executor.login();
-            }
-            if (!options?.skipDeploy) {
-              await sampledebugContext.deployProject(
-                sampledebugContext.projectPath,
-                Timeout.botDeploy
-              );
-            }
-
-            // if no skip init step
-            if (!options?.skipInit) {
-              const teamsAppId = await sampledebugContext.getTeamsAppId("dev");
-              expect(teamsAppId).to.not.be.empty;
-              // use 2nd middleware to process typical sample
-              await onBeforeBrowerStart(sampledebugContext, "dev", azSqlHelper);
-              // init
-              const page = await onInitPage(sampledebugContext, teamsAppId, {
-                includeFunction: options?.includeFunction ?? false,
-                npmName: options?.npmName ?? "",
-                dashboardFlag: options?.dashboardFlag ?? false,
-                type: options?.type ?? "",
-                teamsAppName: options?.teamsAppName ?? "",
-                env: "dev",
-              });
-
-              // if no skip vaildation
-              if (!options?.skipValidation) {
-                await onValidate(page, {
-                  context: sampledebugContext,
-                  displayName: Env.displayName,
-                  includeFunction: options?.includeFunction ?? false,
-                  npmName: options?.npmName ?? "",
-                  env: "dev",
-                });
-              } else {
-                console.log("skip ui skipValidation...");
-                console.log("debug finish!");
-              }
-              await stopDebugging();
-            } else {
-              console.log("skip ui skipInit...");
-              console.log("debug finish!");
-            }
-          } catch (error) {
-            successFlag = false;
-            errorMessage = "[Error]: " + error;
-            await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
-            await VSBrowser.instance.driver.sleep(
-              Timeout.playwrightDefaultTimeout
-            );
-          }
-
-          expect(successFlag, errorMessage).to.true;
+          expect(successFlag_local, errorMessage).to.true;
           console.log("debug finish!");
-          await onAfter(sampledebugContext, "dev");
         }
       );
     });
