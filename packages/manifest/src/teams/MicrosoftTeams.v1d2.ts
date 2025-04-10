@@ -8,7 +8,7 @@
 // match the expected interface, even if the JSON is valid.
 
 export interface MicrosoftTeamsV1D2 {
-    schema?: string;
+    $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
      * starting with '#', for example `#4464ee`.
@@ -79,7 +79,7 @@ export interface Bot {
      * The Microsoft App ID specified for the bot in the Bot Framework portal
      * (https://dev.botframework.com/bots)
      */
-    botID: string;
+    botId: string;
     /**
      * The list of commands that the bot supplies, including their usage, description, and the
      * scope for which the commands are valid. A seperate command list should be used for each
@@ -132,7 +132,7 @@ export interface ComposeExtension {
      * The Microsoft App ID specified for the bot powering the compose extension in the Bot
      * Framework portal (https://dev.botframework.com/bots)
      */
-    botID: string;
+    botId: string;
     /**
      * A value indicating whether the configuration of a compose extension can be updated by the
      * user.
@@ -186,7 +186,7 @@ export interface ConfigurableTab {
     /**
      * The url to use when configuring the tab.
      */
-    configurationURL: string;
+    configurationUrl: string;
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
      * an experience scoped to an individual user alone. These options are non-exclusive.
@@ -204,7 +204,7 @@ export interface Connector {
      * A unique identifier for the connector which matches its ID in the Connectors Developer
      * Portal.
      */
-    connectorID: string;
+    connectorId: string;
     /**
      * Specifies whether the connector offers an experience in the context of a channel in a
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
@@ -233,15 +233,15 @@ export interface Developer {
     /**
      * The url to the page that provides privacy information for the app.
      */
-    privacyURL: string;
+    privacyUrl: string;
     /**
      * The url to the page that provides the terms of use for the app.
      */
-    termsOfUseURL: string;
+    termsOfUseUrl: string;
     /**
      * The url to the page that provides support information for the app.
      */
-    websiteURL: string;
+    websiteUrl: string;
 }
 
 export interface Icons {
@@ -276,11 +276,11 @@ export interface StaticTab {
     /**
      * The url which points to the entity UI to be displayed in the Teams canvas.
      */
-    contentURL: string;
+    contentUrl: string;
     /**
      * A unique identifier for the entity which the tab displays.
      */
-    entityID: string;
+    entityId: string;
     /**
      * The display name of the tab.
      */
@@ -294,7 +294,7 @@ export interface StaticTab {
     /**
      * The url to point at if a user opts to view in a browser.
      */
-    websiteURL?: string;
+    websiteUrl?: string;
 }
 
 // Converts JSON strings to/from your types
@@ -463,7 +463,7 @@ function r(name: string) {
 
 const typeMap: any = {
     "MicrosoftTeamsV1D2": o([
-        { json: "$schema", js: "schema", typ: u(undefined, "") },
+        { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
         { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
@@ -482,7 +482,7 @@ const typeMap: any = {
         { json: "version", js: "version", typ: "" },
     ], false),
     "Bot": o([
-        { json: "botId", js: "botID", typ: "" },
+        { json: "botId", js: "botId", typ: "" },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
@@ -497,7 +497,7 @@ const typeMap: any = {
         { json: "title", js: "title", typ: "" },
     ], false),
     "ComposeExtension": o([
-        { json: "botId", js: "botID", typ: "" },
+        { json: "botId", js: "botId", typ: "" },
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "commands", js: "commands", typ: a(r("ComposeExtensionCommand")) },
     ], false),
@@ -515,11 +515,11 @@ const typeMap: any = {
     ], false),
     "ConfigurableTab": o([
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
-        { json: "configurationUrl", js: "configurationURL", typ: "" },
+        { json: "configurationUrl", js: "configurationUrl", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
     ], false),
     "Connector": o([
-        { json: "connectorId", js: "connectorID", typ: "" },
+        { json: "connectorId", js: "connectorId", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
     ], false),
     "Description": o([
@@ -528,9 +528,9 @@ const typeMap: any = {
     ], false),
     "Developer": o([
         { json: "name", js: "name", typ: "" },
-        { json: "privacyUrl", js: "privacyURL", typ: "" },
-        { json: "termsOfUseUrl", js: "termsOfUseURL", typ: "" },
-        { json: "websiteUrl", js: "websiteURL", typ: "" },
+        { json: "privacyUrl", js: "privacyUrl", typ: "" },
+        { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
+        { json: "websiteUrl", js: "websiteUrl", typ: "" },
     ], false),
     "Icons": o([
         { json: "color", js: "color", typ: "" },
@@ -541,11 +541,11 @@ const typeMap: any = {
         { json: "short", js: "short", typ: "" },
     ], false),
     "StaticTab": o([
-        { json: "contentUrl", js: "contentURL", typ: "" },
-        { json: "entityId", js: "entityID", typ: "" },
+        { json: "contentUrl", js: "contentUrl", typ: "" },
+        { json: "entityId", js: "entityId", typ: "" },
         { json: "name", js: "name", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
-        { json: "websiteUrl", js: "websiteURL", typ: u(undefined, "") },
+        { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
     ], false),
     "CommandListScope": [
         "personal",

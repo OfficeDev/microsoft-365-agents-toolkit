@@ -4,7 +4,7 @@ import * as path from "path";
 import fs from "fs-extra";
 import chaiAsPromised from "chai-as-promised";
 import sinon from "sinon";
-import { ManifestUtil, TeamsAppManifest, TeamsAppManifestJSONSchema } from "../src";
+import { jsonToManifest, ManifestUtil, TeamsAppManifest, TeamsAppManifestJSONSchema } from "../src";
 chai.use(chaiAsPromised);
 
 describe("Manifest manipulation", async () => {
@@ -135,7 +135,69 @@ describe("Manifest manipulation", async () => {
   });
 });
 
-async function loadSchema(): Promise<TeamsAppManifestJSONSchema> {
+describe("ManifestUtil", () => {
+  it("should return the correct manifest version", () => {
+    const json = {
+      $schema:
+        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: 1.0,
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "huajiecea040906${{APP_NAME_SUFFIX}}",
+        full: "full name for huajiecea040906",
+      },
+      description: {
+        short: "Repair Service",
+        full: "A simple service to manage repairs",
+      },
+      accentColor: "#FFFFFF",
+      bots: [
+        {
+          botId: "${{BOT_ID}}",
+          scopes: ["personal", "team", "groupChat"],
+          supportsFiles: false,
+          isNotificationOnly: false,
+          commandLists: [
+            {
+              scopes: ["personal"],
+              commands: [
+                {
+                  title: "List all repairs without auth",
+                  description: "List all repairs without auth",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      composeExtensions: [],
+      configurableTabs: [],
+      staticTabs: [],
+      permissions: ["identity", "messageTeamMembers"],
+      validDomains: [],
+    };
+
+    try {
+      jsonToManifest(JSON.stringify(json));
+      chai.assert.fail("Expected error not thrown");
+    } catch (error: any) {
+      chai.assert.include(error.message, `Invalid value for key "version"`);
+    }
+  });
+});
+
+async function loadSchema(): Promise<any> {
   const schemaPath = path.join(__dirname, "MicrosoftTeams.schema.json");
   return fs.readJson(schemaPath);
 }

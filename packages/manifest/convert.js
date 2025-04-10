@@ -25,7 +25,7 @@ function generateTypeScriptFiles() {
       const schemaFile = "MicrosoftTeams.schema.json";
       const outputFileName = `MicrosoftTeams.${convertedVersion}.ts`;
       const outputPath = path.join(outputFolder, outputFileName);
-      const command = `cd ${schemaDir} && npx quicktype -s schema ${schemaFile} -o ${outputPath} --nice-property-names`;
+      const command = `cd ${schemaDir} && npx quicktype -s schema ${schemaFile} -o ${outputPath}`;
       exec(command, (error, stdout, stderr) => {
         if (error) {
           console.error(`Error generating TypeScript for ${version}:`, error);

@@ -8,7 +8,7 @@
 // match the expected interface, even if the JSON is valid.
 
 export interface MicrosoftTeamsVDevPreview {
-    schema?: string;
+    $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
      * starting with '#', for example `#4464ee`.
@@ -120,7 +120,7 @@ export interface MicrosoftTeamsVDevPreview {
     /**
      * The url to the page that provides additional app information for the admins
      */
-    publisherDocsURL?: string;
+    publisherDocsUrl?: string;
     scopeConstraints?: ScopeConstraints;
     /**
      * A value indicating whether or not show loading indicator when app/tab is loading
@@ -216,7 +216,7 @@ export interface BotInfo {
     /**
      * Bot ID.
      */
-    botID: string;
+    botId: string;
     /**
      * Fetch task from bot.
      */
@@ -286,11 +286,11 @@ export interface PageInfo {
     /**
      * Used to navigate to the page in MetaOS app.
      */
-    pageID: string;
+    pageId: string;
     /**
      * Used to navigate to the subpage in MetaOS app.
      */
-    subpageID?: string;
+    subpageId?: string;
     [property: string]: any;
 }
 
@@ -371,7 +371,7 @@ export interface ActivityType {
     /**
      * An array containing valid icon IDs per activity type.
      */
-    allowedIconIDS?: string[];
+    allowedIconIds?: string[];
     description:     string;
     templateText:    string;
     type:            string;
@@ -443,7 +443,7 @@ export interface TabConfiguration {
      * Required URL for background loading. This can be the same contentUrl from the staticTabs
      * section or an alternative endpoint used for background loading.
      */
-    contentURL: string;
+    contentUrl: string;
 }
 
 export interface Bot {
@@ -457,7 +457,7 @@ export interface Bot {
      * The Microsoft App ID specified for the bot in the Bot Framework portal
      * (https://dev.botframework.com/bots)
      */
-    botID: string;
+    botId: string;
     /**
      * The list of commands that the bot supplies, including their usage, description, and the
      * scope for which the commands are valid. A separate command list should be used for each
@@ -628,7 +628,7 @@ export interface ComposeExtension {
      * The Microsoft App ID specified for the bot powering the compose extension in the Bot
      * Framework portal (https://dev.botframework.com/bots)
      */
-    botID?: string;
+    botId?: string;
     /**
      * A value indicating whether the configuration of a compose extension can be updated by the
      * user.
@@ -686,7 +686,7 @@ export interface APISecretServiceAuthConfiguration {
     /**
      * Registration id returned when developer submits the api key through Developer Portal.
      */
-    apiSecretRegistrationID?: string;
+    apiSecretRegistrationId?: string;
 }
 
 /**
@@ -719,7 +719,7 @@ export interface OAuthConfiguration {
      * The oAuth configuration id obtained by the Developer when registering their configuration
      * in Developer Portal.
      */
-    oAuthConfigurationID?: string;
+    oAuthConfigurationId?: string;
 }
 
 export interface ComposeExtensionCommand {
@@ -916,7 +916,7 @@ export interface ConfigurableTab {
     /**
      * The url to use when configuring the tab.
      */
-    configurationURL: string;
+    configurationUrl: string;
     /**
      * The set of contextItem scopes that a tab belong to
      */
@@ -986,12 +986,12 @@ export interface Connector {
     /**
      * The url to use for configuring the connector using the inline configuration experience.
      */
-    configurationURL?: string;
+    configurationUrl?: string;
     /**
      * A unique identifier for the connector which matches its ID in the Connectors Developer
      * Portal.
      */
-    connectorID: string;
+    connectorId: string;
     /**
      * Specifies whether the connector offers an experience in the context of a channel in a
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
@@ -1080,7 +1080,7 @@ export interface DashboardCard {
     /**
      * Id of the group in the card picker. This must be guid.
      */
-    pickerGroupID: string;
+    pickerGroupId: string;
 }
 
 /**
@@ -1104,7 +1104,7 @@ export interface BotConfiguration {
     /**
      * The unique Microsoft app ID for the bot as registered with the Bot Framework.
      */
-    botID?: string;
+    botId?: string;
 }
 
 /**
@@ -1122,7 +1122,7 @@ export interface DashboardCardIcon {
     /**
      * The icon for the card, to be displayed in the toolbox and card bar, represented as URL.
      */
-    iconURL?: string;
+    iconUrl?: string;
     /**
      * Office UI Fabric/Fluent UI icon friendly name for the card. This value will be used if
      * ‘iconUrl’ is not specified.
@@ -1202,7 +1202,7 @@ export interface Developer {
      * app. This field is not required, and should only be used if you are already part of the
      * Microsoft Partner Network. More info at https://aka.ms/partner
      */
-    mpnID?: string;
+    mpnId?: string;
     /**
      * The display name for the developer.
      */
@@ -1210,15 +1210,15 @@ export interface Developer {
     /**
      * The url to the page that provides privacy information for the app.
      */
-    privacyURL: string;
+    privacyUrl: string;
     /**
      * The url to the page that provides the terms of use for the app.
      */
-    termsOfUseURL: string;
+    termsOfUseUrl: string;
     /**
      * The url to the page that provides support information for the app.
      */
-    websiteURL: string;
+    websiteUrl: string;
 }
 
 /**
@@ -1273,7 +1273,7 @@ export interface ElementRelationshipSet {
  * each element depends on the others in a bidirectional manner.
  */
 export interface ElementReference {
-    commandIDS?: string[];
+    commandIds?: string[];
     id:          string;
     name:        MutualDependencyName;
 }
@@ -1304,7 +1304,7 @@ export interface ElementExtension {
     /**
      * The url for your extension, used to validate Exchange user identity tokens.
      */
-    audienceClaimURL?: string;
+    audienceClaimUrl?: string;
     autoRunEvents?:    ExtensionAutoRunEventsArray[];
     contentRuntimes?:  ExtensionContentRuntimeArray[];
     /**
@@ -1362,18 +1362,18 @@ export interface CustomOfficeAddin {
     /**
      * Solution ID of the in-market add-in to hide. Maximum length is 64 characters.
      */
-    officeAddinID: string;
+    officeAddinId: string;
 }
 
 export interface StoreOfficeAddin {
     /**
      * Asset ID of the in-market add-in to hide. Maximum length is 64 characters.
      */
-    assetID: string;
+    assetId: string;
     /**
      * Solution ID of an in-market add-in to hide. Maximum length is 64 characters.
      */
-    officeAddinID: string;
+    officeAddinId: string;
 }
 
 export interface Prefer {
@@ -1385,7 +1385,7 @@ export interface COMAddin {
     /**
      * Program ID of the alternate com extension. Maximum length is 64 characters.
      */
-    progID: string;
+    progId: string;
 }
 
 /**
@@ -1447,7 +1447,7 @@ export interface ExtensionAppDeeplinksArray {
      * The ID of an action defined in runtimes. Manifest should be invalidated if no action with
      * an id matching actionId is present in runtimes.
      */
-    actionID: string;
+    actionId: string;
     contexts: ExtensionContext[];
     /**
      * the text that will be shown on the app as a clickable item.
@@ -1509,7 +1509,7 @@ export interface Event {
     /**
      * The ID of an action defined in runtimes. Maximum length is 64 characters.
      */
-    actionID: string;
+    actionId: string;
     /**
      * Configures how Outlook responds to the event.
      */
@@ -1621,11 +1621,11 @@ export interface ExtensionCommonCustomGroupControlsItem {
      * The ID of an execution-type action that handles this key combination. Maximum length is
      * 64 characters.
      */
-    actionID?: string;
+    actionId?: string;
     /**
      * Id of an existing office control. Maximum length is 64 characters.
      */
-    builtInControlID?: string;
+    builtInControlId?: string;
     /**
      * Whether the control is initially enabled.
      */
@@ -1651,7 +1651,7 @@ export interface ExtensionCommonCustomGroupControlsItem {
      * platform combinations that support the API (Office.ribbon.requestCreateControls) that
      * installs custom contextual tabs on the ribbon. Default is false.
      */
-    overriddenByRibbonAPI?: boolean;
+    overriddenByRibbonApi?: boolean;
     supertip:               ExtensionCommonSuperToolTip;
     /**
      * Defines the type of control whether button or menu.
@@ -1663,7 +1663,7 @@ export interface ExtensionCommonCustomControlMenuItem {
     /**
      * The ID of an action defined in runtimes. Maximum length is 64 characters.
      */
-    actionID: string;
+    actionId: string;
     /**
      * Whether the control is initially enabled.
      */
@@ -1677,7 +1677,7 @@ export interface ExtensionCommonCustomControlMenuItem {
      * Displayed text for the control. Maximum length is 64 characters.
      */
     label:                  string;
-    overriddenByRibbonAPI?: boolean;
+    overriddenByRibbonApi?: boolean;
     supertip:               ExtensionCommonSuperToolTip;
     /**
      * Supported values: menuItem.
@@ -1752,7 +1752,7 @@ export interface ExtensionGetStartedMessageArray {
     /**
      * A URL to a page that explains the add-in in detail.
      */
-    learnMoreURL:  string;
+    learnMoreUrl:  string;
     requirements?: GetStartedMessageRequirements;
     /**
      * The title used for the top of the callout.
@@ -1795,7 +1795,7 @@ export interface ExtensionShortcut {
     /**
      * The ID of an execution-type action that handles this key combination.
      */
-    actionID: string;
+    actionId: string;
     key:      Key;
     [property: string]: any;
 }
@@ -1836,7 +1836,7 @@ export interface ExtensionRibbonsArrayFixedControlItem {
      * The ID of an execution-type action that handles this key combination. Maximum length is
      * 64 characters.
      */
-    actionID: string;
+    actionId: string;
     /**
      * Whether the control is initially enabled.
      */
@@ -1929,7 +1929,7 @@ export interface ExtensionRibbonsArrayTabsItem {
     /**
      * Id of the existing office Tab. Maximum length is 64 characters.
      */
-    builtInTabID?: string;
+    builtInTabId?: string;
     /**
      * Defines mobile group item.
      */
@@ -1966,7 +1966,7 @@ export interface ExtensionRibbonsCustomMobileControlButtonItem {
     /**
      * The ID of an action defined in runtimes. Maximum length is 64 characters.
      */
-    actionID: string;
+    actionId: string;
     icons:    ExtensionCustomMobileIcon[];
     /**
      * Specify the Id of the button like msgReadFunctionButton.
@@ -2004,7 +2004,7 @@ export interface ExtensionRibbonsCustomTabGroupsItem {
     /**
      * Id of a built-in Group. Maximum length is 64 characters.
      */
-    builtInGroupID?: string;
+    builtInGroupId?: string;
     controls?:       ExtensionCommonCustomGroupControlsItem[];
     icons?:          ExtensionCommonIcon[];
     /**
@@ -2020,7 +2020,7 @@ export interface ExtensionRibbonsCustomTabGroupsItem {
      * support the API (Office.ribbon.requestCreateControls) that installs custom contextual
      * tabs on the ribbon. Default is false.
      */
-    overriddenByRibbonAPI?: boolean;
+    overriddenByRibbonApi?: boolean;
 }
 
 export interface Position {
@@ -2031,7 +2031,7 @@ export interface Position {
     /**
      * The id of the built-in tab. Maximum length is 64 characters.
      */
-    builtInTabID: string;
+    builtInTabId: string;
 }
 
 /**
@@ -2152,7 +2152,7 @@ export interface ExtensionFunction {
     /**
      * URL that provides information about the function. (It is displayed in a task pane.)
      */
-    helpURL?: string;
+    helpUrl?: string;
     /**
      * A unique ID for the function.
      */
@@ -2317,7 +2317,7 @@ export interface GraphConnector {
     /**
      * The url where Graph-connector notifications for the application should be sent.
      */
-    notificationURL: string;
+    notificationUrl: string;
 }
 
 export interface Icons {
@@ -2328,7 +2328,7 @@ export interface Icons {
     /**
      * A relative file path to a full color PNG icon with transparent background. Size 32x32.
      */
-    color32X32?: string;
+    color32x32?: string;
     /**
      * A relative file path to a transparent PNG outline icon. The border color needs to be
      * white. Size 32x32.
@@ -2405,7 +2405,7 @@ export interface MeetingExtensionDefinition {
     /**
      * A URL for configuring the video filters.
      */
-    videoFiltersConfigurationURL?: string;
+    videoFiltersConfigurationUrl?: string;
 }
 
 export interface Scene {
@@ -2500,11 +2500,11 @@ export interface StaticTab {
      * The Microsoft App ID specified for the bot in the Bot Framework portal
      * (https://dev.botframework.com/bots)
      */
-    contentBotID?: string;
+    contentBotId?: string;
     /**
      * The url which points to the entity UI to be displayed in the Teams canvas.
      */
-    contentURL?: string;
+    contentUrl?: string;
     /**
      * The set of contextItem scopes that a tab belong to
      */
@@ -2512,7 +2512,7 @@ export interface StaticTab {
     /**
      * A unique identifier for the entity which the tab displays.
      */
-    entityID: string;
+    entityId: string;
     /**
      * The display name of the tab.
      */
@@ -2530,7 +2530,7 @@ export interface StaticTab {
     /**
      * The url to direct a user's search queries.
      */
-    searchURL?: string;
+    searchUrl?: string;
     /**
      * The set of supportedPlatform scopes that a tab belong to
      */
@@ -2538,7 +2538,7 @@ export interface StaticTab {
     /**
      * The url to point at if a user opts to view in a browser.
      */
-    websiteURL?: string;
+    websiteUrl?: string;
 }
 
 export enum StaticTabContext {
@@ -2565,7 +2565,7 @@ export interface SubscriptionOffer {
     /**
      * A unique identifier for the Commercial Marketplace Software as a Service Offer.
      */
-    offerID: string;
+    offerId: string;
 }
 
 export enum SupportedChannelType {
@@ -2754,7 +2754,7 @@ function r(name: string) {
 
 const typeMap: any = {
     "MicrosoftTeamsVDevPreview": o([
-        { json: "$schema", js: "schema", typ: u(undefined, "") },
+        { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "actions", js: "actions", typ: u(undefined, a(r("ElementAction"))) },
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
@@ -2786,7 +2786,7 @@ const typeMap: any = {
         { json: "name", js: "name", typ: r("NameClass") },
         { json: "packageName", js: "packageName", typ: u(undefined, "") },
         { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
-        { json: "publisherDocsUrl", js: "publisherDocsURL", typ: u(undefined, "") },
+        { json: "publisherDocsUrl", js: "publisherDocsUrl", typ: u(undefined, "") },
         { json: "scopeConstraints", js: "scopeConstraints", typ: u(undefined, r("ScopeConstraints")) },
         { json: "showLoadingIndicator", js: "showLoadingIndicator", typ: u(undefined, true) },
         { json: "staticTabs", js: "staticTabs", typ: u(undefined, a(r("StaticTab"))) },
@@ -2814,7 +2814,7 @@ const typeMap: any = {
         { json: "url", js: "url", typ: u(undefined, "") },
     ], "any"),
     "BotInfo": o([
-        { json: "botId", js: "botID", typ: "" },
+        { json: "botId", js: "botId", typ: "" },
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
     ], "any"),
     "DialogInfo": o([
@@ -2832,8 +2832,8 @@ const typeMap: any = {
         { json: "title", js: "title", typ: "" },
     ], "any"),
     "PageInfo": o([
-        { json: "pageId", js: "pageID", typ: "" },
-        { json: "subpageId", js: "subpageID", typ: u(undefined, "") },
+        { json: "pageId", js: "pageId", typ: "" },
+        { json: "subpageId", js: "subpageId", typ: u(undefined, "") },
     ], "any"),
     "SupportedObjects": o([
         { json: "file", js: "file", typ: u(undefined, r("File")) },
@@ -2855,7 +2855,7 @@ const typeMap: any = {
         { json: "id", js: "id", typ: "" },
     ], false),
     "ActivityType": o([
-        { json: "allowedIconIds", js: "allowedIconIDS", typ: u(undefined, a("")) },
+        { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
         { json: "description", js: "description", typ: "" },
         { json: "templateText", js: "templateText", typ: "" },
         { json: "type", js: "type", typ: "" },
@@ -2874,11 +2874,11 @@ const typeMap: any = {
         { json: "tabConfiguration", js: "tabConfiguration", typ: u(undefined, r("TabConfiguration")) },
     ], false),
     "TabConfiguration": o([
-        { json: "contentUrl", js: "contentURL", typ: "" },
+        { json: "contentUrl", js: "contentUrl", typ: "" },
     ], false),
     "Bot": o([
         { json: "allowBotMessageDeleteByUser", js: "allowBotMessageDeleteByUser", typ: u(undefined, true) },
-        { json: "botId", js: "botID", typ: "" },
+        { json: "botId", js: "botId", typ: "" },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
         { json: "configuration", js: "configuration", typ: u(undefined, r("Configuration")) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
@@ -2925,7 +2925,7 @@ const typeMap: any = {
     "ComposeExtension": o([
         { json: "apiSpecificationFile", js: "apiSpecificationFile", typ: u(undefined, "") },
         { json: "authorization", js: "authorization", typ: u(undefined, r("ComposeExtensionAuthorization")) },
-        { json: "botId", js: "botID", typ: u(undefined, "") },
+        { json: "botId", js: "botId", typ: u(undefined, "") },
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, u(true, null)) },
         { json: "commands", js: "commands", typ: u(undefined, a(r("ComposeExtensionCommand"))) },
         { json: "composeExtensionType", js: "composeExtensionType", typ: u(undefined, r("ComposeExtensionType")) },
@@ -2940,13 +2940,13 @@ const typeMap: any = {
         { json: "oAuthConfiguration", js: "oAuthConfiguration", typ: u(undefined, r("OAuthConfiguration")) },
     ], false),
     "APISecretServiceAuthConfiguration": o([
-        { json: "apiSecretRegistrationId", js: "apiSecretRegistrationID", typ: u(undefined, "") },
+        { json: "apiSecretRegistrationId", js: "apiSecretRegistrationId", typ: u(undefined, "") },
     ], false),
     "MicrosoftEntraConfiguration": o([
         { json: "supportsSingleSignOn", js: "supportsSingleSignOn", typ: u(undefined, true) },
     ], false),
     "OAuthConfiguration": o([
-        { json: "oAuthConfigurationId", js: "oAuthConfigurationID", typ: u(undefined, "") },
+        { json: "oAuthConfigurationId", js: "oAuthConfigurationId", typ: u(undefined, "") },
     ], false),
     "ComposeExtensionCommand": o([
         { json: "apiResponseRenderingTemplateFile", js: "apiResponseRenderingTemplateFile", typ: u(undefined, "") },
@@ -2990,7 +2990,7 @@ const typeMap: any = {
     ], "any"),
     "ConfigurableTab": o([
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
-        { json: "configurationUrl", js: "configurationURL", typ: "" },
+        { json: "configurationUrl", js: "configurationUrl", typ: "" },
         { json: "context", js: "context", typ: u(undefined, a(r("ConfigurableTabContext"))) },
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "meetingSurfaces", js: "meetingSurfaces", typ: u(undefined, a(r("MeetingSurface"))) },
@@ -3000,8 +3000,8 @@ const typeMap: any = {
         { json: "supportedSharePointHosts", js: "supportedSharePointHosts", typ: u(undefined, a(r("SupportedSharePointHost"))) },
     ], false),
     "Connector": o([
-        { json: "configurationUrl", js: "configurationURL", typ: u(undefined, "") },
-        { json: "connectorId", js: "connectorID", typ: "" },
+        { json: "configurationUrl", js: "configurationUrl", typ: u(undefined, "") },
+        { json: "connectorId", js: "connectorId", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("ConnectorScope")) },
     ], false),
     "CopilotAgents": o([
@@ -3023,17 +3023,17 @@ const typeMap: any = {
         { json: "displayName", js: "displayName", typ: "" },
         { json: "icon", js: "icon", typ: u(undefined, r("DashboardCardIcon")) },
         { json: "id", js: "id", typ: "" },
-        { json: "pickerGroupId", js: "pickerGroupID", typ: "" },
+        { json: "pickerGroupId", js: "pickerGroupId", typ: "" },
     ], false),
     "DashboardCardContentSource": o([
         { json: "botConfiguration", js: "botConfiguration", typ: u(undefined, r("BotConfiguration")) },
         { json: "sourceType", js: "sourceType", typ: u(undefined, r("SourceTypeEnum")) },
     ], false),
     "BotConfiguration": o([
-        { json: "botId", js: "botID", typ: u(undefined, "") },
+        { json: "botId", js: "botId", typ: u(undefined, "") },
     ], false),
     "DashboardCardIcon": o([
-        { json: "iconUrl", js: "iconURL", typ: u(undefined, "") },
+        { json: "iconUrl", js: "iconUrl", typ: u(undefined, "") },
         { json: "officeUIFabricIconName", js: "officeUIFabricIconName", typ: u(undefined, "") },
     ], false),
     "DefaultGroupCapability": o([
@@ -3047,11 +3047,11 @@ const typeMap: any = {
     ], false),
     "Developer": o([
         { json: "contactInfo", js: "contactInfo", typ: u(undefined, r("ContactInfo")) },
-        { json: "mpnId", js: "mpnID", typ: u(undefined, "") },
+        { json: "mpnId", js: "mpnId", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
-        { json: "privacyUrl", js: "privacyURL", typ: "" },
-        { json: "termsOfUseUrl", js: "termsOfUseURL", typ: "" },
-        { json: "websiteUrl", js: "websiteURL", typ: "" },
+        { json: "privacyUrl", js: "privacyUrl", typ: "" },
+        { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
+        { json: "websiteUrl", js: "websiteUrl", typ: "" },
     ], false),
     "ContactInfo": o([
         { json: "defaultSupport", js: "defaultSupport", typ: r("DefaultSupport") },
@@ -3065,7 +3065,7 @@ const typeMap: any = {
         { json: "oneWayDependencies", js: "oneWayDependencies", typ: u(undefined, a(r("OneWayDependency"))) },
     ], false),
     "ElementReference": o([
-        { json: "commandIds", js: "commandIDS", typ: u(undefined, a("")) },
+        { json: "commandIds", js: "commandIds", typ: u(undefined, a("")) },
         { json: "id", js: "id", typ: "" },
         { json: "name", js: "name", typ: r("MutualDependencyName") },
     ], false),
@@ -3076,7 +3076,7 @@ const typeMap: any = {
     "ElementExtension": o([
         { json: "alternates", js: "alternates", typ: u(undefined, a(r("ExtensionAlternateVersionsArray"))) },
         { json: "appDeeplinks", js: "appDeeplinks", typ: u(undefined, a(r("ExtensionAppDeeplinksArray"))) },
-        { json: "audienceClaimUrl", js: "audienceClaimURL", typ: u(undefined, "") },
+        { json: "audienceClaimUrl", js: "audienceClaimUrl", typ: u(undefined, "") },
         { json: "autoRunEvents", js: "autoRunEvents", typ: u(undefined, a(r("ExtensionAutoRunEventsArray"))) },
         { json: "contentRuntimes", js: "contentRuntimes", typ: u(undefined, a(r("ExtensionContentRuntimeArray"))) },
         { json: "contextMenus", js: "contextMenus", typ: u(undefined, a(r("ExtensionContextMenuArray"))) },
@@ -3106,17 +3106,17 @@ const typeMap: any = {
         { json: "storeOfficeAddin", js: "storeOfficeAddin", typ: u(undefined, r("StoreOfficeAddin")) },
     ], "any"),
     "CustomOfficeAddin": o([
-        { json: "officeAddinId", js: "officeAddinID", typ: "" },
+        { json: "officeAddinId", js: "officeAddinId", typ: "" },
     ], false),
     "StoreOfficeAddin": o([
-        { json: "assetId", js: "assetID", typ: "" },
-        { json: "officeAddinId", js: "officeAddinID", typ: "" },
+        { json: "assetId", js: "assetId", typ: "" },
+        { json: "officeAddinId", js: "officeAddinId", typ: "" },
     ], false),
     "Prefer": o([
         { json: "comAddin", js: "comAddin", typ: u(undefined, r("COMAddin")) },
     ], "any"),
     "COMAddin": o([
-        { json: "progId", js: "progID", typ: "" },
+        { json: "progId", js: "progId", typ: "" },
     ], false),
     "RequirementsExtensionElement": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("Capability"))) },
@@ -3132,7 +3132,7 @@ const typeMap: any = {
         { json: "fileName", js: "fileName", typ: u(undefined, "") },
     ], "any"),
     "ExtensionAppDeeplinksArray": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "contexts", js: "contexts", typ: a(r("ExtensionContext")) },
         { json: "label", js: "label", typ: "" },
         { json: "requirements", js: "requirements", typ: u(undefined, r("AppDeeplinkRequirements")) },
@@ -3148,7 +3148,7 @@ const typeMap: any = {
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
     ], false),
     "Event": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "options", js: "options", typ: u(undefined, r("Options")) },
         { json: "type", js: "type", typ: "" },
     ], false),
@@ -3181,24 +3181,24 @@ const typeMap: any = {
         { json: "entryPoint", js: "entryPoint", typ: r("EntryPoint") },
     ], false),
     "ExtensionCommonCustomGroupControlsItem": o([
-        { json: "actionId", js: "actionID", typ: u(undefined, "") },
-        { json: "builtInControlId", js: "builtInControlID", typ: u(undefined, "") },
+        { json: "actionId", js: "actionId", typ: u(undefined, "") },
+        { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
         { json: "id", js: "id", typ: "" },
         { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
         { json: "label", js: "label", typ: "" },
-        { json: "overriddenByRibbonApi", js: "overriddenByRibbonAPI", typ: u(undefined, true) },
+        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
         { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
         { json: "type", js: "type", typ: r("PurpleType") },
     ], false),
     "ExtensionCommonCustomControlMenuItem": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
         { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
         { json: "id", js: "id", typ: "" },
         { json: "label", js: "label", typ: "" },
-        { json: "overriddenByRibbonApi", js: "overriddenByRibbonAPI", typ: u(undefined, true) },
+        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
         { json: "supertip", js: "supertip", typ: r("ExtensionCommonSuperToolTip") },
         { json: "type", js: "type", typ: r("ItemType") },
     ], false),
@@ -3213,7 +3213,7 @@ const typeMap: any = {
     ], false),
     "ExtensionGetStartedMessageArray": o([
         { json: "description", js: "description", typ: "" },
-        { json: "learnMoreUrl", js: "learnMoreURL", typ: "" },
+        { json: "learnMoreUrl", js: "learnMoreUrl", typ: "" },
         { json: "requirements", js: "requirements", typ: u(undefined, r("GetStartedMessageRequirements")) },
         { json: "title", js: "title", typ: "" },
     ], false),
@@ -3227,7 +3227,7 @@ const typeMap: any = {
         { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
     ], "any"),
     "ExtensionShortcut": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "key", js: "key", typ: r("Key") },
     ], "any"),
     "Key": o([
@@ -3244,7 +3244,7 @@ const typeMap: any = {
         { json: "tabs", js: "tabs", typ: a(r("ExtensionRibbonsArrayTabsItem")) },
     ], false),
     "ExtensionRibbonsArrayFixedControlItem": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "enabled", js: "enabled", typ: true },
         { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
         { json: "id", js: "id", typ: "" },
@@ -3268,7 +3268,7 @@ const typeMap: any = {
         { json: "title", js: "title", typ: "" },
     ], "any"),
     "ExtensionRibbonsArrayTabsItem": o([
-        { json: "builtInTabId", js: "builtInTabID", typ: u(undefined, "") },
+        { json: "builtInTabId", js: "builtInTabId", typ: u(undefined, "") },
         { json: "customMobileRibbonGroups", js: "customMobileRibbonGroups", typ: u(undefined, a(r("ExtensionRibbonsCustomMobileGroupItem"))) },
         { json: "groups", js: "groups", typ: u(undefined, a(r("ExtensionRibbonsCustomTabGroupsItem"))) },
         { json: "id", js: "id", typ: u(undefined, "") },
@@ -3281,7 +3281,7 @@ const typeMap: any = {
         { json: "label", js: "label", typ: "" },
     ], "any"),
     "ExtensionRibbonsCustomMobileControlButtonItem": o([
-        { json: "actionId", js: "actionID", typ: "" },
+        { json: "actionId", js: "actionId", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
         { json: "id", js: "id", typ: "" },
         { json: "label", js: "label", typ: "" },
@@ -3293,16 +3293,16 @@ const typeMap: any = {
         { json: "url", js: "url", typ: "" },
     ], false),
     "ExtensionRibbonsCustomTabGroupsItem": o([
-        { json: "builtInGroupId", js: "builtInGroupID", typ: u(undefined, "") },
+        { json: "builtInGroupId", js: "builtInGroupId", typ: u(undefined, "") },
         { json: "controls", js: "controls", typ: u(undefined, a(r("ExtensionCommonCustomGroupControlsItem"))) },
         { json: "icons", js: "icons", typ: u(undefined, a(r("ExtensionCommonIcon"))) },
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "label", js: "label", typ: u(undefined, "") },
-        { json: "overriddenByRibbonApi", js: "overriddenByRibbonAPI", typ: u(undefined, true) },
+        { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
     ], false),
     "Position": o([
         { json: "align", js: "align", typ: r("Align") },
-        { json: "builtInTabId", js: "builtInTabID", typ: "" },
+        { json: "builtInTabId", js: "builtInTabId", typ: "" },
     ], false),
     "ExtensionRuntimesArray": o([
         { json: "actions", js: "actions", typ: u(undefined, a(r("ExtensionRuntimesActionsItem"))) },
@@ -3330,7 +3330,7 @@ const typeMap: any = {
     "ExtensionFunction": o([
         { json: "cancelable", js: "cancelable", typ: u(undefined, true) },
         { json: "description", js: "description", typ: u(undefined, "") },
-        { json: "helpUrl", js: "helpURL", typ: u(undefined, "") },
+        { json: "helpUrl", js: "helpUrl", typ: u(undefined, "") },
         { json: "id", js: "id", typ: "" },
         { json: "name", js: "name", typ: "" },
         { json: "parameters", js: "parameters", typ: a(r("ExtensionFunctionParameter")) },
@@ -3357,11 +3357,11 @@ const typeMap: any = {
         { json: "name", js: "name", typ: "" },
     ], "any"),
     "GraphConnector": o([
-        { json: "notificationUrl", js: "notificationURL", typ: "" },
+        { json: "notificationUrl", js: "notificationUrl", typ: "" },
     ], false),
     "Icons": o([
         { json: "color", js: "color", typ: "" },
-        { json: "color32x32", js: "color32X32", typ: u(undefined, "") },
+        { json: "color32x32", js: "color32x32", typ: u(undefined, "") },
         { json: "outline", js: "outline", typ: "" },
     ], false),
     "IntuneInfo": o([
@@ -3382,7 +3382,7 @@ const typeMap: any = {
         { json: "supportsCustomShareToStage", js: "supportsCustomShareToStage", typ: u(undefined, true) },
         { json: "supportsStreaming", js: "supportsStreaming", typ: u(undefined, true) },
         { json: "videoFilters", js: "videoFilters", typ: u(undefined, a(r("VideoFilter"))) },
-        { json: "videoFiltersConfigurationUrl", js: "videoFiltersConfigurationURL", typ: u(undefined, "") },
+        { json: "videoFiltersConfigurationUrl", js: "videoFiltersConfigurationUrl", typ: u(undefined, "") },
     ], false),
     "Scene": o([
         { json: "file", js: "file", typ: "" },
@@ -3413,19 +3413,19 @@ const typeMap: any = {
         { json: "id", js: "id", typ: "" },
     ], false),
     "StaticTab": o([
-        { json: "contentBotId", js: "contentBotID", typ: u(undefined, "") },
-        { json: "contentUrl", js: "contentURL", typ: u(undefined, "") },
+        { json: "contentBotId", js: "contentBotId", typ: u(undefined, "") },
+        { json: "contentUrl", js: "contentUrl", typ: u(undefined, "") },
         { json: "context", js: "context", typ: u(undefined, a(r("StaticTabContext"))) },
-        { json: "entityId", js: "entityID", typ: "" },
+        { json: "entityId", js: "entityId", typ: "" },
         { json: "name", js: "name", typ: u(undefined, "") },
         { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
         { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
-        { json: "searchUrl", js: "searchURL", typ: u(undefined, "") },
+        { json: "searchUrl", js: "searchUrl", typ: u(undefined, "") },
         { json: "supportedPlatform", js: "supportedPlatform", typ: u(undefined, a(r("SupportedPlatform"))) },
-        { json: "websiteUrl", js: "websiteURL", typ: u(undefined, "") },
+        { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
     ], false),
     "SubscriptionOffer": o([
-        { json: "offerId", js: "offerID", typ: "" },
+        { json: "offerId", js: "offerId", typ: "" },
     ], false),
     "WebApplicationInfo": o([
         { json: "id", js: "id", typ: "" },
