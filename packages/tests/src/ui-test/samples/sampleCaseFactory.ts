@@ -195,8 +195,10 @@ export abstract class CaseFactory {
       sampledebugContext.appName,
       sampledebugContext.projectPath,
       {
+        createRg: true,
         tool: "cli",
         env: "dev",
+        processEnv: process.env,
         skipErrorMessage: "DeprecationWarning",
       }
     );
