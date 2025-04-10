@@ -35,11 +35,14 @@ import { validateFileExist } from "../../utils/commonUtils";
 
 describe("SPFx local debug", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
+  let successFlagForLocal = false;
+  let successFlagForRemote = false;
 
   after(async function () {
     this.timeout(Timeout.finishTestCase);
     setTimeout(() => {
-      process.exit(0);
+      if (successFlagForLocal && successFlagForRemote) process.exit(0);
+      else process.exit(1);
     }, 30000);
   });
 
@@ -73,6 +76,7 @@ describe("SPFx local debug", function () {
         { projectPath: projectPath, env: "local" }
       );
       await validateTeamsWorkbench(page, localDebugTestContext.appName);
+      successFlagForLocal = true;
       await localDebugTestContext.after(false);
       try {
         //Close the folder and cleanup local sample project
@@ -133,6 +137,7 @@ describe("SPFx local debug", function () {
 
       // Validate app name is in the page
       await validateSpfx(page, { displayName: appName });
+      successFlagForRemote = true;
       // Close the folder and cleanup local sample project
       await execCommandIfExist("Workspaces: Close Workspace", Timeout.webView);
       await cleanUpLocalProject(projectPath);
