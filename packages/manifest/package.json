@@ -49,7 +49,7 @@
     "lint": "eslint \"**/*.ts\"",
     "precommit": "lint-staged",
     "lint:staged": "lint-staged",
-    "generate-manifest": "npx quicktype -s schema devPreviewSchema.json -o src/devPreviewManifest.ts",
+    "generate-manifest": "npx json2ts -i devPreviewSchema.json -o src/devPreviewManifest.ts --ignoreMinAndMaxItems",
     "convert": "node convert.js"
   },
   "files": [
