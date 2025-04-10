@@ -10,14 +10,16 @@ import {
   ConversationState,
   InputHints,
   MemoryStorage,
-  StatePropertyAccessor,
+  AgentStatePropertyAccessor,
   StatusCodes,
+} from "@microsoft/agents-hosting";
+import {
   TeamsChannelAccount,
-  TestAdapter,
   tokenExchangeOperationName,
   verifyStateOperationName,
-} from "botbuilder-core";
-import { DialogSet, DialogState, DialogTurnStatus } from "botbuilder-dialogs";
+  TeamsInfo,
+} from "@microsoft/agents-hosting-teams";
+import { DialogSet, DialogState, DialogTurnStatus } from "@microsoft/agents-hosting-dialogs";
 import {
   TeamsBotSsoPrompt,
   TeamsBotSsoPromptTokenResponse,
@@ -32,7 +34,7 @@ import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
 import { AccessToken } from "@azure/identity";
 import { promisify } from "util";
-import { TeamsInfo } from "botbuilder";
+import { TestAdapter } from "../conversation/testUtils";
 
 chaiUse(chaiPromises);
 
@@ -144,9 +146,9 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
       .assertReply((activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -165,13 +167,13 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal verifivation invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
       })
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
-        assert.strictEqual(activity.value.body.id, id);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).body.id, id);
       })
       .assertReply(SsoLogInResult.Success)
       .assertReply((activity) => {
@@ -198,9 +200,9 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
       .assertReply(async (activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -287,9 +289,9 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
       .assertReply((activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -308,13 +310,13 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal verifivation invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
       })
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
-        assert.strictEqual(activity.value.body.id, id);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).body.id, id);
       })
       .assertReply(SsoLogInResult.Success)
       .assertReply((activity) => {
@@ -352,7 +354,7 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
     await adapter.send("Hello").assertReply((activity) => {
       // Assert bot send out OAuthCard
       assert.strictEqual(
-        activity.attachments?.[0].content.buttons[0].value,
+        (activity.attachments?.[0].content as any).buttons[0].value,
         `${initiateLoginEndpoint}?scope=${encodeURI(
           requiredScopes.join(" ")
         )}&clientId=${clientId}&tenantId=${tenantId}&loginHint=`
@@ -422,11 +424,17 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
     assert.strictEqual(activity.attachments?.[0].contentType, CardFactory.contentTypes.oauthCard);
     assert.strictEqual(activity.inputHint, InputHints.AcceptingInput);
 
-    assert.strictEqual(activity.attachments?.[0].content.buttons[0].type, ActionTypes.Signin);
-    assert.strictEqual(activity.attachments?.[0].content.buttons[0].title, "Teams SSO Sign In");
+    assert.strictEqual(
+      (activity.attachments?.[0].content as any).buttons[0].type,
+      ActionTypes.Signin
+    );
+    assert.strictEqual(
+      (activity.attachments?.[0].content as any).buttons[0].title,
+      "Teams SSO Sign In"
+    );
 
     assert.strictEqual(
-      activity.attachments?.[0].content.buttons[0].value,
+      (activity.attachments?.[0].content as any).buttons[0].value,
       `${initiateLoginEndpoint}?scope=${encodeURI(
         requiredScopes.join(" ")
       )}&clientId=${clientId}&tenantId=${tenantId}&loginHint=${userPrincipalName}`
@@ -461,7 +469,7 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
     const convoState: ConversationState = new ConversationState(new MemoryStorage());
 
     // Create a DialogState property, DialogSet and TeamsBotSsoPrompt
-    const dialogState: StatePropertyAccessor<DialogState> =
+    const dialogState: AgentStatePropertyAccessor<DialogState> =
       convoState.createProperty("dialogState");
     const dialogs: DialogSet = new DialogSet(dialogState);
     const settings: TeamsBotSsoPromptSettings = {

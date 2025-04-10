@@ -7,40 +7,39 @@
 /// <reference types="node" />
 
 import { AccessToken } from '@azure/identity';
-import { Activity } from 'botbuilder';
-import { Attachment } from 'botbuilder';
+import { Activity } from '@microsoft/agents-hosting';
+import { AgentStatePropertyAccessor } from '@microsoft/agents-hosting';
+import { Attachment } from '@microsoft/agents-hosting';
+import { AuthConfiguration } from '@microsoft/agents-hosting';
 import { AxiosInstance } from 'axios';
 import { AxiosRequestConfig } from 'axios';
-import { CardAction } from 'botbuilder';
-import { CardImage } from 'botbuilder';
-import { ChannelInfo } from 'botbuilder';
-import { CloudAdapter } from 'botbuilder';
-import { ComponentDialog } from 'botbuilder-dialogs';
-import { ConversationReference } from 'botbuilder';
-import { ConversationState } from 'botbuilder';
-import { Dialog } from 'botbuilder-dialogs';
-import { DialogContext } from 'botbuilder-dialogs';
-import { DialogTurnResult } from 'botbuilder-dialogs';
+import { CardAction } from '@microsoft/agents-hosting';
+import { CardImage } from '@microsoft/agents-hosting';
+import { ChannelInfo } from '@microsoft/agents-hosting-teams';
+import { CloudAdapter } from '@microsoft/agents-hosting';
+import { ComponentDialog } from '@microsoft/agents-hosting-dialogs';
+import { ConversationReference } from '@microsoft/agents-hosting';
+import { ConversationState } from '@microsoft/agents-hosting';
+import { Dialog } from '@microsoft/agents-hosting-dialogs';
+import { DialogContext } from '@microsoft/agents-hosting-dialogs';
+import { DialogTurnResult } from '@microsoft/agents-hosting-dialogs';
 import { GetTokenOptions } from '@azure/identity';
-import { HeroCard } from 'botbuilder';
-import { InvokeResponse } from 'botbuilder';
-import { MessagingExtensionResponse } from 'botbuilder';
-import { O365ConnectorCard } from 'botbuilder';
-import { ReceiptCard } from 'botbuilder';
-import { Request as Request_2 } from 'botbuilder';
-import { Response as Response_2 } from 'botbuilder';
+import { HeroCard } from '@microsoft/agents-hosting';
+import { InvokeResponse } from '@microsoft/agents-hosting';
+import { MessagingExtensionResponse } from '@microsoft/agents-hosting-teams';
+import { O365ConnectorCard } from '@microsoft/agents-hosting';
+import { ReceiptCard } from '@microsoft/agents-hosting';
+import { Request as Request_2 } from '@microsoft/agents-hosting';
 import { SecureContextOptions } from 'tls';
-import { SigninStateVerificationQuery } from 'botbuilder';
-import { StatePropertyAccessor } from 'botbuilder';
-import { StatusCodes } from 'botbuilder';
-import { Storage as Storage_2 } from 'botbuilder';
-import { TeamDetails } from 'botbuilder';
-import { TeamsChannelAccount } from 'botbuilder';
-import { ThumbnailCard } from 'botbuilder';
+import { SigninStateVerificationQuery } from '@microsoft/agents-hosting-teams';
+import { StatusCodes } from '@microsoft/agents-hosting';
+import { Storage as Storage_2 } from '@microsoft/agents-hosting';
+import { TeamDetails } from '@microsoft/agents-hosting-teams';
+import { TeamsChannelAccount } from '@microsoft/agents-hosting-teams';
+import { ThumbnailCard } from '@microsoft/agents-hosting';
 import { TokenCredential } from '@azure/identity';
-import { TokenResponse } from 'botframework-schema';
-import { TurnContext } from 'botbuilder';
-import { UserState } from 'botbuilder';
+import { TurnContext } from '@microsoft/agents-hosting';
+import { UserState } from '@microsoft/agents-hosting';
 
 // @public
 export enum AdaptiveCardResponse {
@@ -141,7 +140,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
     constructor(dedupStorage: Storage_2, ssoPromptSettings: TeamsBotSsoPromptSettings, authConfig: OnBehalfOfCredentialAuthConfig, initiateLoginEndpoint: string, dialogName?: string);
     addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void;
     protected onEndDialog(context: TurnContext): Promise<void>;
-    run(context: TurnContext, accessor: StatePropertyAccessor): Promise<void>;
+    run(context: TurnContext, accessor: AgentStatePropertyAccessor): Promise<void>;
 }
 
 // @public (undocumented)
@@ -204,15 +203,13 @@ class ConversationBot {
     readonly cardAction?: CardActionBot;
     readonly command?: CommandBot;
     readonly notification?: NotificationBot;
-    requestHandler(req: Request_2, res: Response_2, logic?: (context: TurnContext) => Promise<any>): Promise<void>;
+    requestHandler(req: Request_2, res: any, logic?: (context: TurnContext) => Promise<any>): Promise<void>;
 }
 
 // @public
 interface ConversationOptions {
     adapter?: CloudAdapter;
-    adapterConfig?: {
-        [key: string]: unknown;
-    };
+    adapterConfig?: AuthConfiguration;
     cardAction?: CardActionOptions & {
         enabled?: boolean;
     };
@@ -346,15 +343,26 @@ export class MessageBuilder {
     static attachHeroCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<HeroCard>): Partial<Activity>;
     static attachO365ConnectorCard(card: O365ConnectorCard): Partial<Activity>;
     static AttachReceiptCard(card: ReceiptCard): Partial<Activity>;
-    static attachSigninCard(title: string, url: string, text?: string): Partial<Activity>;
     // (undocumented)
     static attachThumbnailCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<ThumbnailCard>): Partial<Activity>;
 }
 
 // @public
-export interface MessageExtensionTokenResponse extends TokenResponse {
+export interface MessageExtensionTokenResponse {
+    // (undocumented)
+    channelId?: string;
+    // (undocumented)
+    connectionName: string;
+    // (undocumented)
+    expiration: string;
+    // (undocumented)
+    properties?: {
+        [propertyName: string]: any;
+    };
     ssoToken: string;
     ssoTokenExpiration: string;
+    // (undocumented)
+    token: string;
 }
 
 // @public
@@ -467,9 +475,21 @@ export interface TeamsBotSsoPromptSettings {
 }
 
 // @public
-export interface TeamsBotSsoPromptTokenResponse extends TokenResponse {
+export interface TeamsBotSsoPromptTokenResponse {
+    // (undocumented)
+    channelId?: string;
+    // (undocumented)
+    connectionName: string;
+    // (undocumented)
+    expiration: string;
+    // (undocumented)
+    properties?: {
+        [propertyName: string]: any;
+    };
     ssoToken: string;
     ssoTokenExpiration: string;
+    // (undocumented)
+    token: string;
 }
 
 // @public

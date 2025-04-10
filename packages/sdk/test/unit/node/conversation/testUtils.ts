@@ -1,8 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Storage, StoreItems, TurnContext, InvokeResponse } from "@microsoft/agents-hosting";
-import { Activity } from "@microsoft/agents-activity";
+import {
+  Storage,
+  StoreItems,
+  TurnContext,
+  InvokeResponse,
+  ResourceResponse,
+  AttachmentData,
+  AttachmentInfo,
+} from "@microsoft/agents-hosting";
+import { BaseAdapter } from "@microsoft/agents-hosting/dist/src/baseAdapter";
+import { Activity, ActivityTypes } from "@microsoft/agents-activity";
 import {
   AdaptiveCardResponse,
   CommandMessage,
@@ -187,5 +196,105 @@ export class MockActionInvokeContext {
     return new Promise((resolve) => {
       resolve();
     });
+  }
+}
+
+export class TestAdapter extends BaseAdapter {
+  private logic: (context: TurnContext) => Promise<void>;
+
+  constructor(logic: (context: TurnContext) => Promise<void>) {
+    super();
+    this.logic = logic;
+  }
+
+  public send(activity: string | Partial<Activity>): TestFlow {
+    const messageActivity =
+      typeof activity === "string" ? { type: ActivityTypes.Message, text: activity } : activity;
+    return new TestFlow(this, this.processActivity(messageActivity));
+  }
+
+  public async processActivity(activity: Partial<Activity>): Promise<void> {
+    const context = new TurnContext(this as any, activity as Activity);
+    await this.runMiddleware(context, this.logic);
+  }
+
+  public async deleteActivity(context: TurnContext, reference: Partial<Activity>): Promise<void> {
+    return Promise.resolve();
+  }
+
+  public async updateActivity(context: TurnContext, activity: Partial<Activity>): Promise<void> {
+    return Promise.resolve();
+  }
+
+  public async continueConversation(
+    reference: Partial<Activity>,
+    logic: (context: TurnContext) => Promise<void>
+  ): Promise<void> {
+    return Promise.resolve();
+  }
+
+  public async sendActivities(
+    context: TurnContext,
+    activities: Partial<Activity>[]
+  ): Promise<ResourceResponse[]> {
+    const responses: ResourceResponse[] = [];
+    for (let i = 0; i < activities.length; i++) {
+      responses.push({ id: i.toString() });
+    }
+    return responses;
+  }
+
+  public async uploadAttachment(
+    conversationId: string,
+    attachmentData: AttachmentData
+  ): Promise<ResourceResponse> {
+    return { id: "1" } as ResourceResponse;
+  }
+
+  public async getAttachmentInfo(attachmentId: string): Promise<AttachmentInfo> {
+    return {} as AttachmentInfo;
+  }
+
+  public async getAttachment(attachmentId: string, viewId: string): Promise<NodeJS.ReadableStream> {
+    return {} as NodeJS.ReadableStream;
+  }
+}
+
+export class TestFlow {
+  private readonly adapter: TestAdapter;
+  private readonly previous: Promise<void>;
+
+  constructor(adapter: TestAdapter, previous: Promise<void>) {
+    this.adapter = adapter;
+    this.previous = previous;
+  }
+
+  public send(message: string | Partial<Activity>): TestFlow {
+    return new TestFlow(
+      this.adapter,
+      this.previous.then(() =>
+        this.adapter.processActivity(
+          typeof message === "string" ? { type: ActivityTypes.Message, text: message } : message
+        )
+      )
+    );
+  }
+
+  public assertReply(
+    expected: string | Partial<Activity> | ((activity: Partial<Activity>) => void),
+    description?: string
+  ): TestFlow {
+    return new TestFlow(
+      this.adapter,
+      this.previous.then(async () => {
+        if (typeof expected === "function") {
+          expected({} as Activity);
+        }
+      })
+    );
+  }
+
+  public catch(callback: (err: Error) => void): TestFlow {
+    return new TestFlow(this.adapter, this.previous.catch(callback));
   }
 }

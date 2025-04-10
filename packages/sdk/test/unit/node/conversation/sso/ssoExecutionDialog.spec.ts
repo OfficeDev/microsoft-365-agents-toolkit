@@ -10,15 +10,16 @@ import {
   ConversationState,
   InputHints,
   MemoryStorage,
-  StatePropertyAccessor,
+  AgentStatePropertyAccessor,
   StatusCodes,
-  TeamsChannelAccount,
-  TestAdapter,
-  tokenExchangeOperationName,
   TurnContext,
+} from "@microsoft/agents-hosting";
+import { TeamsChannelAccount, TeamsInfo } from "@microsoft/agents-hosting-teams";
+import {
+  tokenExchangeOperationName,
   verifyStateOperationName,
-} from "botbuilder-core";
-import { DialogSet, DialogState } from "botbuilder-dialogs";
+} from "@microsoft/agents-hosting-teams";
+import { DialogSet, DialogState } from "@microsoft/agents-hosting-dialogs";
 import {
   OnBehalfOfUserCredential,
   ErrorWithCode,
@@ -35,8 +36,7 @@ import * as sinon from "sinon";
 import mockedEnv from "mocked-env";
 import { AccessToken } from "@azure/identity";
 import { promisify } from "util";
-import { TeamsInfo } from "botbuilder";
-import { TestSsoCommandHandler } from "../testUtils";
+import { TestSsoCommandHandler, TestAdapter } from "../testUtils";
 import { ErrorMessage } from "../../../../../src/core/errors";
 
 chaiUse(chaiPromises);
@@ -206,9 +206,9 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
       .assertReply(async (activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -252,9 +252,9 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
       .assertReply((activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -273,13 +273,13 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
       })
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
-        assert.strictEqual(activity.value.body.id, id);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).body.id, id);
       })
       .assertReply((activity) => {
         console.log(activity.text);
@@ -309,9 +309,9 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
       .assertReply((activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
 
@@ -330,13 +330,13 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
       })
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
-        assert.strictEqual(activity.value.body.id, id);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).body.id, id);
       })
       .assertReply((activity) => {
         console.log(activity.text);
@@ -369,11 +369,17 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
     assert.strictEqual(activity.attachments?.[0].contentType, CardFactory.contentTypes.oauthCard);
     assert.strictEqual(activity.inputHint, InputHints.AcceptingInput);
 
-    assert.strictEqual(activity.attachments?.[0].content.buttons[0].type, ActionTypes.Signin);
-    assert.strictEqual(activity.attachments?.[0].content.buttons[0].title, "Teams SSO Sign In");
+    assert.strictEqual(
+      (activity.attachments?.[0].content as any).buttons[0].type,
+      ActionTypes.Signin
+    );
+    assert.strictEqual(
+      (activity.attachments?.[0].content as any).buttons[0].title,
+      "Teams SSO Sign In"
+    );
 
     assert.strictEqual(
-      activity.attachments?.[0].content.buttons[0].value,
+      (activity.attachments?.[0].content as any).buttons[0].value,
       `${initiateLoginEndpoint}?scope=${encodeURI(
         requiredScopes.join(" ")
       )}&clientId=${clientId}&tenantId=${tenantId}&loginHint=${userPrincipalName}`
@@ -411,7 +417,7 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
     const convoState: ConversationState = new ConversationState(new MemoryStorage());
 
     // Create a DialogState property, DialogSet and TeamsBotSsoPrompt
-    const dialogState: StatePropertyAccessor<DialogState> =
+    const dialogState: AgentStatePropertyAccessor<DialogState> =
       convoState.createProperty("dialogState");
     const dialogs: DialogSet = new DialogSet(dialogState);
 
@@ -439,7 +445,7 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
         } else {
           const replyActivity = response as Partial<Activity>;
           if (replyActivity) {
-            await context.sendActivity(replyActivity);
+            await context.sendActivity(replyActivity as Activity);
           }
         }
       },
