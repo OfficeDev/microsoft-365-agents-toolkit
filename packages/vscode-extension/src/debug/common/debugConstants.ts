@@ -104,12 +104,15 @@ function stepPrefix(stepNumber: number) {
 }
 
 export const openTestToolMessage = () =>
-  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Test Tool'");
+  util.format(
+    localize("teamstoolkit.localDebug.useTestTool"),
+    "'Debug in Microsoft 365 Agents Playground'"
+  );
 
 export const openTestToolDisplayMessage = () =>
   util.format(
     localize("teamstoolkit.localDebug.useTestTool"),
-    "[Debug in Test Tool](command:fx-extension.debugInTestToolFromMessage)"
+    "[Debug in Microsoft 365 Agents Playground](command:fx-extension.debugInTestToolFromMessage)"
   );
 
 export const openSandboxMessage = () =>

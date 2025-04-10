@@ -1,21 +1,21 @@
 import * as chai from "chai";
+import cp from "child_process";
 import fs from "fs-extra";
+import mockfs from "mock-fs";
 import os from "os";
 import * as sinon from "sinon";
-import cp from "child_process";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
-  openFolderInExplorer,
-  isWindows,
-  isLinux,
-  isMacOS,
-  hasAdaptiveCardInWorkspace,
   acpInstalled,
   getLocalDebugMessageTemplate,
+  hasAdaptiveCardInWorkspace,
+  isLinux,
+  isMacOS,
+  isWindows,
+  openFolderInExplorer,
 } from "../../src/utils/commonUtils";
-import mockfs from "mock-fs";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 
 describe("CommonUtils", () => {
   afterEach(() => {
@@ -170,7 +170,7 @@ describe("CommonUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(true);
 
       const result = await getLocalDebugMessageTemplate(true);
-      chai.assert.isTrue(result.includes("Test Tool"));
+      chai.assert.isTrue(result.includes("Microsoft 365 Agents playground"));
     });
 
     it("Test Tool disabled in Windows platform", async () => {
@@ -178,7 +178,7 @@ describe("CommonUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(false);
 
       const result = await getLocalDebugMessageTemplate(true);
-      chai.assert.isFalse(result.includes("Test Tool"));
+      chai.assert.isFalse(result.includes("Microsoft 365 Agents playground"));
     });
 
     it("Test Tool enabled in non-Windows platform", async () => {
@@ -186,7 +186,7 @@ describe("CommonUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(true);
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isTrue(result.includes("Test Tool"));
+      chai.assert.isTrue(result.includes("Microsoft 365 Agents playground"));
     });
 
     it("Test Tool disabled in non-Windows platform", async () => {
@@ -194,7 +194,7 @@ describe("CommonUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(false);
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isFalse(result.includes("Test Tool"));
+      chai.assert.isFalse(result.includes("Microsoft 365 Agents playground"));
     });
 
     it("No workspace folder", async () => {
@@ -202,7 +202,7 @@ describe("CommonUtils", () => {
       sandbox.stub(fs, "pathExists").resolves(false);
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isFalse(result.includes("Test Tool"));
+      chai.assert.isFalse(result.includes("Microsoft 365 Agents playground"));
     });
   });
 });
