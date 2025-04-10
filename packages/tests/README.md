@@ -13,7 +13,7 @@ A UI Test Project based on [Vscode Extension Tester](https://github.com/redhat-d
 
 ### Setup
 
-- (**Required**) Run `npm install @microsoft/teamsapp-cli@alpha` to download latest CLI
+- (**Required**) Run `npm install @microsoft/m365agentstoolkit-cli@alpha` to download latest CLI
 - (**Options**) If test migration, run `npm install @microsoft/teamsfx-cli@1.2.6` to download old version CLI
 - (**Required**) Run `pnpm install`
 - (**Required**) Run `npm run build`

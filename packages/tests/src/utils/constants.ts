@@ -254,8 +254,10 @@ export class Timeout {
   // mocha
   public static readonly prepareTestCase: number = 10 * 60 * 1000;
   public static readonly finishTestCase: number = 10 * 60 * 1000;
-  public static readonly testCase: number = 30 * 60 * 1000;
+  public static readonly testCase: number = 60 * 60 * 1000;
+  public static readonly localAndRemoteTestCase: number = 60 * 60 * 1000;
   public static readonly finishAzureTestCase: number = 15 * 60 * 1000;
+  public static readonly testAzureCaseTotal: number = 90 * 60 * 1000;
   public static readonly testAzureCase: number = 45 * 60 * 1000;
   public static readonly migrationTestCase: number = 40 * 60 * 1000;
 

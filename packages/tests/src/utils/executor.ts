@@ -324,7 +324,7 @@ export class Executor {
 
   static async installCLI(workspace: string, version: string, global: boolean) {
     const packageName = version.startsWith("3.")
-      ? "@microsoft/teamsapp-cli"
+      ? "@microsoft/m365agentstoolkit-cli"
       : "@microsoft/teamsfx-cli";
     if (global) {
       const command = `npm install -g ${packageName}@${version}`;

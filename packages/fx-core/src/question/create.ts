@@ -91,6 +91,7 @@ import {
 import { OneDriveSharePointItemType } from "../component/generator/constant";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import { searchOpenAPISpec, SearchOpenAPISpecResult } from "../common/kiotaClient";
+import { validateOpenAPISpec } from "../common/daSpecParser";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -1432,8 +1433,7 @@ export function pluginApiSpecQuestion(): SingleFileQuestion {
           return error.displayMessage;
         }
 
-        const specParser = new SpecParser(filePath, getParserOptions(ProjectType.Copilot));
-        const validationRes = await specParser.validate();
+        const validationRes = await validateOpenAPISpec(filePath);
         const invalidSpecError = validationRes.errors.find(
           (o) => o.type === ErrorType.SpecNotValid
         );

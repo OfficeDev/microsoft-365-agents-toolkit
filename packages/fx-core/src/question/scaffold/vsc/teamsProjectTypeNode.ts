@@ -59,6 +59,10 @@ export function apiSpecWithSearchNode(): IQTreeNode {
     children: [
       {
         data: apiSpecTypeSelectQuestion(),
+        condition: (inputs: Inputs) => {
+          inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
+          return true;
+        },
         children: [
           {
             condition: { equals: "enter-url-or-open-local-file" },
@@ -81,7 +85,6 @@ export function apiSpecWithSearchNode(): IQTreeNode {
               },
               {
                 condition: (inputs: Inputs) => {
-                  inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
                   return !!inputs[QuestionNames.SelectOpenApiSpec];
                 },
                 data: apiOperationQuestion(),

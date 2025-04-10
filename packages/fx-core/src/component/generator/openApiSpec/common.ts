@@ -257,7 +257,8 @@ export async function generateFilesFromApiSpec(
       destinationApiSpecFilePath: openapiSpecPath,
       pluginManifestFilePath: pluginManifestPath,
       responseTemplateFolder,
-    }
+    },
+    templateState.url
   );
   let warnings: WarningResult[];
   if (generateResult.isErr()) {

@@ -10,7 +10,7 @@ import path from "path";
 import { it } from "@microsoft/extra-shot-mocha";
 import { environmentNameManager } from "@microsoft/teamsfx-core";
 import { describe } from "mocha";
-import M365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import { AadValidator, StaticSiteValidator } from "../../commonlib";
 import { CliHelper } from "../../commonlib/cliHelper";
 import { Capability } from "../../utils/constants";

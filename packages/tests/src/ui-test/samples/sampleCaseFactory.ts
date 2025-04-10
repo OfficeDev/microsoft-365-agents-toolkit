@@ -132,11 +132,11 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
 
 export abstract class CaseFactory {
   public sampleName: TemplateProject;
-  public testPlanCaseId: number;
   public author: string;
-  public env: "local" | "dev";
   public validate: LocalDebugTaskLabel[];
   public options?: {
+    testPlanCaseId_local?: number;
+    testPlanCaseId_dev?: number;
     teamsAppName?: string;
     dashboardFlag?: boolean;
     type?: string;
@@ -152,15 +152,17 @@ export abstract class CaseFactory {
     container?: boolean;
     dockerFolder?: string;
     skipDeploy?: boolean;
+    skipLocal?: boolean;
+    skipRemote?: boolean;
   };
 
   public constructor(
     sampleName: TemplateProject,
-    testPlanCaseId: number,
     author: string,
-    env: "local" | "dev",
     validate: LocalDebugTaskLabel[] = [],
     options: {
+      testPlanCaseId_local?: number;
+      testPlanCaseId_dev?: number;
       teamsAppName?: string;
       dashboardFlag?: boolean;
       type?: string;
@@ -176,14 +178,26 @@ export abstract class CaseFactory {
       container?: boolean;
       dockerFolder?: string;
       skipDeploy?: boolean;
+      skipLocal?: boolean;
+      skipRemote?: boolean;
     } = {}
   ) {
     this.sampleName = sampleName;
-    this.testPlanCaseId = testPlanCaseId;
     this.author = author;
-    this.env = env;
     this.validate = validate;
     this.options = options;
+  }
+
+  public async onProvision(
+    sampledebugContext: SampledebugContext
+  ): Promise<void> {
+    return await sampledebugContext.provisionProject(
+      sampledebugContext.appName,
+      sampledebugContext.projectPath,
+      {
+        skipErrorMessage: "DeprecationWarning",
+      }
+    );
   }
 
   public onBefore(
@@ -304,9 +318,7 @@ export abstract class CaseFactory {
   public test(): void {
     const {
       sampleName,
-      testPlanCaseId,
       author,
-      env,
       validate,
       options,
       onBefore,
@@ -317,9 +329,10 @@ export abstract class CaseFactory {
       onValidate,
       onReopenPage,
       onCliValidate,
+      onProvision,
     } = this;
     describe("Sample Tests", function () {
-      this.timeout(Timeout.testAzureCase);
+      this.timeout(Timeout.testAzureCaseTotal);
       let sampledebugContext: SampledebugContext;
       let azSqlHelper: AzSqlHelper | undefined;
       let devtunnelProcess: ChildProcessWithoutNullStreams;
@@ -341,13 +354,10 @@ export abstract class CaseFactory {
           options?.repoPath ?? "./resource"
         );
         await sampledebugContext.before();
-        // use before middleware to process typical sample
-        azSqlHelper = await onBefore(sampledebugContext, env, azSqlHelper);
       });
 
       after(async function () {
         this.timeout(Timeout.finishTestCase);
-        await onAfter(sampledebugContext, env);
         setTimeout(() => {
           if (successFlag) process.exit(0);
           else process.exit(1);
@@ -355,21 +365,29 @@ export abstract class CaseFactory {
       });
 
       it(
-        `[auto] ${
-          env === "local" ? env : "remote"
-        } debug for Sample ${sampleName}`,
+        `[auto] local debug for Sample ${sampleName}`,
         {
-          testPlanCaseId,
+          testPlanCaseId: options?.testPlanCaseId_local,
           author,
         },
         async function () {
+          this.timeout(Timeout.testAzureCase);
+          if (options?.skipLocal) {
+            console.log("there is no local debug for this sample");
+            this.skip();
+          }
+          azSqlHelper = await onBefore(
+            sampledebugContext,
+            "local",
+            azSqlHelper
+          );
           try {
             // create project
             await sampledebugContext.openResourceFolder();
             // update manifest app name
             await sampledebugContext.updateManifestAppName();
             // use 1st middleware to process typical sample
-            await onAfterCreate(sampledebugContext, env, azSqlHelper);
+            await onAfterCreate(sampledebugContext, "local", azSqlHelper);
 
             try {
               envFile = path.resolve(
@@ -383,53 +401,6 @@ export abstract class CaseFactory {
             } catch (error) {
               console.log("read file error", error);
             }
-            const debugEnvMap: Record<"local" | "dev", () => Promise<void>> = {
-              local: async () => {
-                // local debug with ttk
-                console.log("======= debug with ttk ========");
-                await debugInitMap[sampleName]();
-                for (const label of validate) {
-                  try {
-                    await debugMap[label]();
-                  } catch (error) {
-                    const errorMsg = error.toString();
-                    if (
-                      // skip can't find element
-                      errorMsg.includes(
-                        LocalDebugError.ElementNotInteractableError
-                      ) ||
-                      // skip timeout
-                      errorMsg.includes(LocalDebugError.TimeoutError)
-                    ) {
-                      console.log("[skip error] ", error);
-                    } else {
-                      expect.fail(errorMsg);
-                    }
-                  }
-                }
-              },
-              dev: async () => {
-                await sampledebugContext.provisionProject(
-                  sampledebugContext.appName,
-                  sampledebugContext.projectPath,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined,
-                  undefined,
-                  "DeprecationWarning"
-                );
-                if (options?.container) {
-                  await Executor.login();
-                }
-                if (!options?.skipDeploy) {
-                  await sampledebugContext.deployProject(
-                    sampledebugContext.projectPath,
-                    Timeout.botDeploy
-                  );
-                }
-              },
-            };
 
             if (options?.skipDebug) {
               console.log("skip ui skipDebug...");
@@ -472,7 +443,9 @@ export abstract class CaseFactory {
                   options.dockerFolder || ""
                 );
               }
-              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              const teamsAppId = await sampledebugContext.getTeamsAppId(
+                "local"
+              );
               expect(teamsAppId).to.not.be.empty;
 
               debugProcess = Executor.debugProject(
@@ -513,7 +486,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
 
                 // if no skip vaildation
@@ -523,7 +496,7 @@ export abstract class CaseFactory {
                     displayName: Env.displayName,
                     includeFunction: options?.includeFunction ?? false,
                     npmName: options?.npmName ?? "",
-                    env: env,
+                    env: "local",
                   });
                 } else {
                   console.log("skip ui skipValidation...");
@@ -544,14 +517,41 @@ export abstract class CaseFactory {
             }
 
             // ttk debug
-            await debugEnvMap[env]();
+            // local debug with ttk
+            console.log("======= debug with ttk ========");
+            await debugInitMap[sampleName]();
+            for (const label of validate) {
+              try {
+                await debugMap[label]();
+              } catch (error) {
+                const errorMsg = error.toString();
+                if (
+                  // skip can't find element
+                  errorMsg.includes(
+                    LocalDebugError.ElementNotInteractableError
+                  ) ||
+                  // skip timeout
+                  errorMsg.includes(LocalDebugError.TimeoutError)
+                ) {
+                  console.log("[skip error] ", error);
+                } else {
+                  expect.fail(errorMsg);
+                }
+              }
+            }
 
             // if no skip init step
             if (!options?.skipInit) {
-              const teamsAppId = await sampledebugContext.getTeamsAppId(env);
+              const teamsAppId = await sampledebugContext.getTeamsAppId(
+                "local"
+              );
               expect(teamsAppId).to.not.be.empty;
               // use 2nd middleware to process typical sample
-              await onBeforeBrowerStart(sampledebugContext, env, azSqlHelper);
+              await onBeforeBrowerStart(
+                sampledebugContext,
+                "local",
+                azSqlHelper
+              );
               // init
               let page: Page;
               if (options?.debug === "cli") {
@@ -561,7 +561,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
               } else {
                 page = await onInitPage(sampledebugContext, teamsAppId, {
@@ -570,7 +570,7 @@ export abstract class CaseFactory {
                   dashboardFlag: options?.dashboardFlag ?? false,
                   type: options?.type ?? "",
                   teamsAppName: options?.teamsAppName ?? "",
-                  env: env,
+                  env: "local",
                 });
               }
 
@@ -581,7 +581,7 @@ export abstract class CaseFactory {
                   displayName: Env.displayName,
                   includeFunction: options?.includeFunction ?? false,
                   npmName: options?.npmName ?? "",
-                  env: env,
+                  env: "local",
                 });
               } else {
                 console.log("skip ui skipValidation...");
@@ -603,6 +603,95 @@ export abstract class CaseFactory {
 
           expect(successFlag, errorMessage).to.true;
           console.log("debug finish!");
+          await onAfter(sampledebugContext, "local");
+        }
+      );
+
+      it(
+        `[auto] remote debug for Sample ${sampleName}`,
+        {
+          testPlanCaseId: options?.testPlanCaseId_dev,
+          author,
+        },
+        async function () {
+          this.timeout(Timeout.testAzureCase);
+          if (options?.skipRemote) {
+            console.log("there is no remote debug for this sample");
+            this.skip();
+          }
+          azSqlHelper = await onBefore(sampledebugContext, "dev", azSqlHelper);
+          try {
+            // create project
+            await sampledebugContext.openResourceFolder();
+            // update manifest app name
+            await sampledebugContext.updateManifestAppName();
+            // use 1st middleware to process typical sample
+            await onAfterCreate(sampledebugContext, "dev", azSqlHelper);
+
+            if (options?.skipDebug) {
+              console.log("skip ui skipDebug...");
+              console.log("debug finish!");
+              return;
+            }
+
+            // ttk debug
+            await onProvision(sampledebugContext);
+            if (options?.container) {
+              await Executor.login();
+            }
+            if (!options?.skipDeploy) {
+              await sampledebugContext.deployProject(
+                sampledebugContext.projectPath,
+                Timeout.botDeploy
+              );
+            }
+
+            // if no skip init step
+            if (!options?.skipInit) {
+              const teamsAppId = await sampledebugContext.getTeamsAppId("dev");
+              expect(teamsAppId).to.not.be.empty;
+              // use 2nd middleware to process typical sample
+              await onBeforeBrowerStart(sampledebugContext, "dev", azSqlHelper);
+              // init
+              const page = await onInitPage(sampledebugContext, teamsAppId, {
+                includeFunction: options?.includeFunction ?? false,
+                npmName: options?.npmName ?? "",
+                dashboardFlag: options?.dashboardFlag ?? false,
+                type: options?.type ?? "",
+                teamsAppName: options?.teamsAppName ?? "",
+                env: "dev",
+              });
+
+              // if no skip vaildation
+              if (!options?.skipValidation) {
+                await onValidate(page, {
+                  context: sampledebugContext,
+                  displayName: Env.displayName,
+                  includeFunction: options?.includeFunction ?? false,
+                  npmName: options?.npmName ?? "",
+                  env: "dev",
+                });
+              } else {
+                console.log("skip ui skipValidation...");
+                console.log("debug finish!");
+              }
+              await stopDebugging();
+            } else {
+              console.log("skip ui skipInit...");
+              console.log("debug finish!");
+            }
+          } catch (error) {
+            successFlag = false;
+            errorMessage = "[Error]: " + error;
+            await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
+            await VSBrowser.instance.driver.sleep(
+              Timeout.playwrightDefaultTimeout
+            );
+          }
+
+          expect(successFlag, errorMessage).to.true;
+          console.log("debug finish!");
+          await onAfter(sampledebugContext, "dev");
         }
       );
     });

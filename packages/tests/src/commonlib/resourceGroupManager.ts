@@ -6,7 +6,7 @@
 import { UsernamePasswordCredential } from "@azure/identity";
 import { ResourceManagementClient } from "@azure/arm-resources";
 
-import * as azureConfig from "@microsoft/teamsapp-cli/src/commonlib/common/userPasswordConfig";
+import * as azureConfig from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";
 
 const tenantId = azureConfig.AZURE_TENANT_ID || "";
 const clientId = azureConfig.client_id;

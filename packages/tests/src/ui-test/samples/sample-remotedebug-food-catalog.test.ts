@@ -8,44 +8,67 @@
 import path from "path";
 import os from "os";
 import fs from "fs";
-import { TemplateProject } from "../../utils/constants";
+import { LocalDebugTaskLabel, TemplateProject } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 import { SampledebugContext } from "./sampledebugContext";
-import { Executor } from "../../utils/executor";
-
 class FoodCatalogTestCase extends CaseFactory {
   override async onAfterCreate(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev"
   ): Promise<void> {
-    console.log("pre provision project");
-    await Executor.execute(
-      `node ./scripts/env.js`,
-      sampledebugContext.projectPath
-    );
-    console.log("env file created");
-    const { success } = await Executor.execute(
-      `npm install`,
+    // create folder for the test "/env/.env.dev"
+    await sampledebugContext.createEnvFolder(
       sampledebugContext.projectPath,
-      process.env,
-      undefined,
-      "npm warn"
+      "env"
     );
-    if (!success) {
-      throw new Error("Failed to install packages");
+    // create .env file
+    const filePath = path.resolve(
+      sampledebugContext.projectPath,
+      "env",
+      `.env.${env}`
+    );
+    const envContent = `NOTIFICATION_ENDPOINT=https://test.com\nNOTIFICATION_DOMAIN=test.com\nAPP_NAME=${sampledebugContext.appName}`;
+    fs.writeFileSync(filePath, envContent, { encoding: "utf-8" });
+    console.log("env file created");
+    console.log(fs.readFileSync(filePath, { encoding: "utf-8" }));
+    // add chmod +x to the script
+    if (os.platform() === "linux" || os.platform() === "darwin") {
+      const scriptPath = path.resolve(
+        sampledebugContext.projectPath,
+        "scripts",
+        "devtunnel.sh"
+      );
+      fs.chmodSync(scriptPath, "755");
     }
+  }
+
+  override async onProvision(
+    sampledebugContext: SampledebugContext
+  ): Promise<void> {
+    return await sampledebugContext.provisionProject(
+      sampledebugContext.appName,
+      sampledebugContext.projectPath,
+      {
+        skipErrorMessage: "@azure/data-tables",
+      }
+    );
   }
 }
 
 new FoodCatalogTestCase(
   TemplateProject.FoodCatalog,
-  27851823,
   "v-ivanchen@microsoft.com",
-  "dev",
-  [],
+  [
+    LocalDebugTaskLabel.Azurite,
+    LocalDebugTaskLabel.EnsureDevTunnnel,
+    LocalDebugTaskLabel.RunWatch,
+    LocalDebugTaskLabel.FuncStart,
+  ],
   {
     skipInit: true,
     repoPath: "./resource/samples",
     testRootFolder: path.resolve(os.homedir(), "resource"),
+    skipLocal: true,
+    testPlanCaseId_dev: 27851823,
   }
 ).test();

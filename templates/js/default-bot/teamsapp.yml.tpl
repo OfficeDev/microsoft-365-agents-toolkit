@@ -16,7 +16,7 @@ provision:
     # the specified environment variable(s).
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
-
+      
   - uses: arm/deploy  # Deploy given ARM templates parallelly.
     with:
       # AZURE_SUBSCRIPTION_ID is a built-in environment variable,
@@ -38,7 +38,7 @@ provision:
           parameters: ./infra/azure.parameters.json
           # Required when deploying ARM template
           deploymentName: Create-resources-for-bot
-      # Teams Toolkit will download this bicep CLI version from github for you,
+      # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
 

@@ -13,8 +13,9 @@ import { CreateDevChannelArgs } from "./interfaces/CreateDevChannelArgs";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { GraphClient } from "../../../client/graphClient";
 import { HttpClientError } from "../../../error/common";
-import { loadStateFromEnv } from "../util/utils";
+import { loadStateFromEnv, mapStateToEnv } from "../util/utils";
 import { TelemetryProperty } from "../../../common/telemetry";
+import { CreateDevChannelOutput } from "./interfaces/CreateDevChannelOutput";
 
 const actionName = "devChannel/create";
 
@@ -43,46 +44,54 @@ export class CreateDevChannelDriver implements StepDriver {
     outputEnvVarNames: Map<string, string>
   ): Promise<Result<Map<string, string>, FxError>> {
     // Skip creation if the team and channel already exist
-    const state = loadStateFromEnv(outputEnvVarNames);
-    if (state.teamId && state.channelId) {
-      const message = getLocalizedString(
-        "driver.devChannel.summary.exists",
-        outputEnvVarNames.get("teamId"),
-        outputEnvVarNames.get("channelId")
-      );
-      context.logProvider.info(message);
-      context.addSummary(message);
-      context.addTelemetryProperties({ [TelemetryProperty.SkipCreation]: "true" });
-      return ok(new Map());
-    }
+    const state: CreateDevChannelOutput = loadStateFromEnv(outputEnvVarNames);
+    const graphClient = new GraphClient(context.m365TokenProvider);
 
     try {
-      const graphClient = new GraphClient(context.m365TokenProvider);
+      if (state.teamId && state.channelId) {
+        const message = getLocalizedString(
+          "driver.devChannel.summary.exists",
+          outputEnvVarNames.get("teamId"),
+          outputEnvVarNames.get("channelId")
+        );
+        context.logProvider.info(message);
+        context.addSummary(message);
+        context.addTelemetryProperties({ [TelemetryProperty.SkipCreation]: "true" });
+
+        // Update the channel web URL, incase user manually modify teamId or channelId
+        state.channelWebUrl = await graphClient.GetChannelDeeplinkAsync(
+          state.teamId,
+          state.channelId
+        );
+        const outputs = mapStateToEnv(state, outputEnvVarNames);
+        return ok(outputs);
+      }
+
       const res = await graphClient.CreateTeamAndChannelAsync(
         args.teamName,
         args.teamDescription,
         args.channelName
       );
-      const channelId = res.channelId;
-      const teamId = res.teamId;
+      state.channelId = res.channelId;
+      state.teamId = res.teamId;
       context.logProvider.info(
         getLocalizedString(
           "driver.devChannel.success",
           args.teamName,
           args.channelName,
-          channelId,
-          teamId
+          state.channelId,
+          state.teamId
         )
       );
       context.addSummary(
         getLocalizedString("driver.devChannel.summary", args.teamName, args.channelName)
       );
-      return ok(
-        new Map([
-          [outputEnvVarNames.get("channelId") as string, channelId],
-          [outputEnvVarNames.get("teamId") as string, teamId],
-        ])
+      state.channelWebUrl = await graphClient.GetChannelDeeplinkAsync(
+        state.teamId,
+        state.channelId
       );
+      const outputs = mapStateToEnv(state, outputEnvVarNames);
+      return ok(outputs);
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         const message = JSON.stringify(error.response!.data);

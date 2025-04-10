@@ -325,6 +325,11 @@ describe("m365ProjectTypeNode", () => {
     const condition2 = node.children?.[0]?.children?.[1]?.children?.[1]?.condition as ConditionFunc;
     const res2 = condition2?.(inputs);
     assert.isTrue(res2);
+
+    const condition3 = node.children?.[0]?.condition as ConditionFunc;
+    const res3 = condition3?.(inputs);
+    assert.isTrue(res3);
+    assert.isTrue(inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id);
   });
 });
 

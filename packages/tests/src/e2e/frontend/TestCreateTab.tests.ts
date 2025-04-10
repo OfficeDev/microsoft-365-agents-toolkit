@@ -12,7 +12,7 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import { describe } from "mocha";
 import path from "path";
-import M365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import {
   AadValidator,
   FrontendValidator,

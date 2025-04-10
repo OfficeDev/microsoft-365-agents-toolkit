@@ -2015,7 +2015,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Write environment variables to environment file",
-          "required": ["channelId", "teamId"],
+          "required": ["channelId", "teamId", "channelWebUrl"],
           "properties": {
             "channelId": {
               "description": "The ID of the created channel.",
@@ -2024,6 +2024,10 @@
             "teamId": {
               "description": "The ID of the team in which the channel is created.",
               "$ref": "#/definitions/envVarName"
+            },
+            "channelWebUrl": {
+              "type": "string",
+              "description": "A hyperlink that will go to the channel in Microsoft Teams."
             }
           }
         }
