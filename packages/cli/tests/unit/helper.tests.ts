@@ -184,7 +184,7 @@ describe("CLI helper", () => {
       );
       assert.equal(
         res,
-        `--capability -c        [Required]  Specifies the app feature. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to\n                                    see all available options.`
+        `--capability -c        [Required]  Specifies the app feature. Allowed value: ["bot", "notification", "command-bot", etc.]. Use 'help --list-capabilities' to\n                                   see all available options.`
       );
     });
 
