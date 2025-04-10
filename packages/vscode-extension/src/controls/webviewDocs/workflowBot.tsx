@@ -270,15 +270,15 @@ module.exports = {
             <td>
               <code className="code">bot</code>
             </td>
-            <td>The source code for the workflow bot Teams application</td>
+            <td>The source code for the workflow bot application</td>
           </tr>
           <tr>
             <td>
               <code className="code">templates</code>
             </td>
             <td>
-              Templates for the Teams application manifest and for provisioning Azure resources
-              (optional) used by Microsoft 365 Agents Toolkit
+              Templates for the application manifest and for provisioning Azure resources (optional)
+              used by Microsoft 365 Agents Toolkit
             </td>
           </tr>
         </tbody>

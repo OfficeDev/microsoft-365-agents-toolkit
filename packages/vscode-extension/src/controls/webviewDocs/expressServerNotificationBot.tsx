@@ -191,15 +191,13 @@ export default function ExpressServerNotificationBot() {
               <td>
                 <code className="code">bot</code>
               </td>
-              <td>The source code for the notification Teams application</td>
+              <td>The source code for the notification application</td>
             </tr>
             <tr>
               <td>
                 <code className="code">templates</code>
               </td>
-              <td>
-                Templates for the Teams application manifest and for provisioning Azure resources
-              </td>
+              <td>Templates for the application manifest and for provisioning Azure resources</td>
             </tr>
           </tbody>
         </table>
