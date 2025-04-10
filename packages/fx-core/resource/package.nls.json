@@ -654,7 +654,7 @@
   "core.uninstallQuestion.projectPath": "Project path",
   "core.syncManifest.projectPath": "Project path",
   "core.syncManifest.env": "Target Microsoft 365 Agents Toolkit Environment",
-  "core.syncManifest.teamsAppId": "app ID (optional)",
+  "core.syncManifest.teamsAppId": "App ID (optional)",
   "core.syncManifest.addWarning": "New properties added to the manifest template. Manually update the local manifest. Diff Path: %s. New Value %s.",
   "core.syncManifest.deleteWarning": "Something was deleted from the manifest template. Manually update the local manifest. Diff Path: %s. Old Value: %s.",
   "core.syncManifest.editKeyConflict": "Conflict in placeholder variable in the new manifest. Manually update the local manifest. Variable name: %s, value 1: %s, value 2: %s.",
