@@ -1460,7 +1460,7 @@ describe("Package Service", () => {
     const result = await packageService.grantPermission("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
-      userPrincipalName: "newuser@test.com"
+      userPrincipalName: "newuser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
@@ -1493,7 +1493,7 @@ describe("Package Service", () => {
     const result = await packageService.grantPermission("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
-      userPrincipalName: "newuser@test.com"
+      userPrincipalName: "newuser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isErr());
@@ -1525,7 +1525,7 @@ describe("Package Service", () => {
     const result = await packageService.grantPermission("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
-      userPrincipalName: "existinguser@test.com"
+      userPrincipalName: "existinguser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
@@ -1548,7 +1548,7 @@ describe("Package Service", () => {
     const result = await packageService.grantPermission("test-token", "test-title-id", {
       aadId: "new-user",
       displayName: "New User",
-      userPrincipalName: "newuser@test.com"
+      userPrincipalName: "newuser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isErr());
@@ -1581,12 +1581,12 @@ describe("Package Service", () => {
     axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = {
       status: 200,
     };
-    
+
     const packageService = new PackageService("https://test-endpoint", logger);
     const result = await packageService.removePermission("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
-      userPrincipalName: "existinguser@test.com"
+      userPrincipalName: "existinguser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
@@ -1613,7 +1613,7 @@ describe("Package Service", () => {
     const result = await packageService.removePermission("test-token", "test-title-id", {
       aadId: "non-existing-user",
       displayName: "Non-existing User",
-      userPrincipalName: "nonexistinguser@test.com"
+      userPrincipalName: "nonexistinguser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
@@ -1636,7 +1636,7 @@ describe("Package Service", () => {
     const result = await packageService.removePermission("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
-      userPrincipalName: "existinguser@test.com"
+      userPrincipalName: "existinguser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isErr());
@@ -1661,7 +1661,7 @@ describe("Package Service", () => {
     const result = await packageService.removePermission("test-token", "test-title-id", {
       aadId: "existing-user",
       displayName: "Existing User",
-      userPrincipalName: "existinguser@test.com"
+      userPrincipalName: "existinguser@test.com",
     } as AppUser);
 
     chai.assert.isTrue(result.isOk());
