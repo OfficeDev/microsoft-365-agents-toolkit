@@ -422,7 +422,7 @@ Follow this [document](https://aka.ms/teamsfx-aad-manifest#How-to-view-the-AAD-a
 
 First check whether your auth-start page is available by directly go to "{your-bot-endpoint}/auth-start.html" in your browser. You can find your-bot-endpoint in `.fx/states/state.{env}.json`.
 
-- If the auth-start page can be opened in your browser, please try sign out current account in Microsoft 365 App page and sign in again and run the command again.
+- If the auth-start page can be opened in your browser, please try sign out current account in the app page and sign in again and run the command again.
 - If encounter with ngrok page below when local debug, please follow the steps to solve this issue.
 
   1. Stop debugging in Visual Studio Code.
