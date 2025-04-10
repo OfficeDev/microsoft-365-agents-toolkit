@@ -125,7 +125,7 @@ export class TypeSpecCompileDriver implements StepDriver {
                 `${openApiSpecsFolderPath}/${spec}`,
                 `${outputFolderPath}`,
                 `${pluginManifestName}`,
-                ctx.projectPath
+                `${outputFolderPath}`
               );
             }
           }
@@ -249,9 +249,9 @@ export class TypeSpecCompileDriver implements StepDriver {
   private removeGeneratedFiles(outputFolderPath: string): void {
     const files = fs.readdirSync(outputFolderPath);
     for (const file of files) {
-      if (file === defaultOpenApiOutputDir) {
-        const openApiSpecsFolderPath = path.join(outputFolderPath, defaultOpenApiOutputDir);
-        fs.rmSync(openApiSpecsFolderPath, { recursive: true, force: true });
+      if (file === defaultOpenApiOutputDir || file === ".kiota") {
+        const folderPath = path.join(outputFolderPath, file);
+        fs.rmSync(folderPath, { recursive: true, force: true });
       }
 
       if (

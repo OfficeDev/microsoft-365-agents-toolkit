@@ -39,6 +39,7 @@ import { getDefaultString } from "../../../common/localizeUtils";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -79,7 +80,9 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
 
     const replaceMap = {
       ...Generator.getDefaultVariables(
-        appName,
+        inputs[QuestionNames.TemplateName] === TemplateNames.DeclarativeAgentWithTypeSpec
+          ? convertToAlphanumericOnly(appName)
+          : appName,
         safeProjectNameFromVS,
         inputs.targetFramework,
         inputs.placeProjectFileInSolutionDir === "true"
