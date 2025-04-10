@@ -156,13 +156,13 @@
                 "--no-first-run"
             ]
         {{/CEAEnabled}}
-        }
 {{#SandBoxedTeam}}
+        },
         {
             "name": "Launch App to channel (Edge)",
             "type": "msedge",
             "request": "launch",
-            "url": "https://teams.microsoft.com/l/channel/${{sandbox:CHANNEL_ID}}?webjoin=true",
+            "url": "${{sandbox:CHANNEL_WEB_URL}}&webjoin=true",
             "cascadeTerminateToConfigurations": [
                 "Attach to Local Service"
             ],
@@ -172,8 +172,8 @@
             },
             "internalConsoleOptions": "neverOpen",
             "perScriptSourcemaps": "yes"
-        },
 {{/SandBoxedTeam}}
+        }
     ],
     "compounds": [
         {

@@ -10,22 +10,21 @@ import * as path from "path";
 import { SampledebugContext } from "./sampledebugContext";
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { validateTabApim } from "../../utils/playwrightOperation";
+import { validateOneProducitvity } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { Env } from "../../utils/env";
 
-class SsotabApimTestCase extends CaseFactory {
+class OneProductivityHubTestCase extends CaseFactory {
   override async onValidate(
     page: Page,
-    options?: { includeFunction: boolean }
+    option?: { displayName: string }
   ): Promise<void> {
-    return await validateTabApim(page, {
+    return await validateOneProducitvity(page, {
       displayName: Env.displayName,
     });
   }
   override async onAfterCreate(
-    sampledebugContext: SampledebugContext,
-    env: "local" | "dev"
+    sampledebugContext: SampledebugContext
   ): Promise<void> {
     // update swa sku to standard
     const bicepPath = path.join(
@@ -39,12 +38,12 @@ class SsotabApimTestCase extends CaseFactory {
   }
 }
 
-new SsotabApimTestCase(
-  TemplateProject.TabSSOApimProxy,
+new OneProductivityHubTestCase(
+  TemplateProject.OneProductivityHub,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartFrontend],
   {
-    skipLocal: true,
-    testPlanCaseId_dev: 25191534,
+    testPlanCaseId_local: 15090375,
+    testPlanCaseId_dev: 24121468,
   }
 ).test();
