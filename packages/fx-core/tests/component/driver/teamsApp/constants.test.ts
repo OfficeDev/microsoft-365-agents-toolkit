@@ -89,6 +89,6 @@ describe("constants", async () => {
 
   it("ErrorMessages", async () => {
     const result = ErrorMessages.TeamsAppNotFound("mockedAppId");
-    expect(result).to.includes("Cannot find Microsoft 365 App with id");
+    expect(result).to.includes("Cannot find app with id");
   });
 });
