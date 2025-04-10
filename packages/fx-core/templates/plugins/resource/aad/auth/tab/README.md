@@ -11,7 +11,7 @@ After you successfully added SSO into your project, Microsoft 365 Agents Toolkit
 | Action | File | Description |
 | - | - | - |
 | Create| `aad.template.json` under `templates/appPackage` | The Microsoft Entra application manifest that is used to register the application with Microsoft Entra. |
-| Modify | `manifest.template.json` under `templates/appPackage` | An `webApplicationInfo` object will be added into your Microsoft 365 App manifest template. This field is required by Teams when enabling SSO. |
+| Modify | `manifest.template.json` under `templates/appPackage` | An `webApplicationInfo` object will be added into your app manifest template. This field is required by Teams when enabling SSO. |
 | Create | `auth/tab` | Reference code, redirect pages and a `README.md` file. These files are provided for reference. See below for more information. |
 
 # Update your code to add SSO

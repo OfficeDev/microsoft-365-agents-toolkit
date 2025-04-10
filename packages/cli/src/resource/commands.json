@@ -163,7 +163,7 @@
     "description": "Run the share stage in m365agents.yml."
   },
   "uninstall": {
-    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
+    "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Developer portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",
     "options": {
       "mode": "Choose a way to clean up resources.",
       "title-id": "Title ID of the App.",
@@ -174,7 +174,7 @@
     }
   },
   "update": {
-    "description": "Update the Microsoft 365 App manifest to Teams Developer Portal."
+    "description": "Update the app manifest to Developer portal."
   },
   "upgrade": {
     "description": "Upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit.",

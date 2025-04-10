@@ -27,7 +27,7 @@ After adding SSO into your project, Microsoft 365 Agents Toolkit will create and
 | Action | File                                                                                                             | Description                                                                                                                            |
 | ------ | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Modify | `azureWebAppBotConfig.bicep` under `templates/azure/teamsFx` and `azure.parameters.dev.json` under `.fx/configs` | Insert environment variables used for bot web app to enable SSO feature                                                                |
-| Modify | `manifest.template.json` under `templates/appPackage`                                                            | An `webApplicationInfo` object will be added into your Microsoft 365 App manifest template. This field is required by Teams when enabling SSO. |
+| Modify | `manifest.template.json` under `templates/appPackage`                                                            | An `webApplicationInfo` object will be added into your app manifest template. This field is required by Teams when enabling SSO. |
 | Modify | `projectSettings.json` under `.fx/configs`                                                                       | Add bot sso capability, which will be used internally by Microsoft 365 Agents Toolkit.                                                                |
 | Create | `aad.template.json` under `templates/appPackage`                                                                 | The Microsoft Entra application manifest that is used to register the application with Microsoft Entra.                                |
 | Create | `auth/bot`                                                                                                       | Reference code, redirect pages and a `README.md` file. These files are provided for reference. See below for more information.         |
@@ -138,7 +138,7 @@ To make this work in your application:
     });
     ```
 
-1.  Register your command in the Microsoft 365 App manifest. Open `templates/appPackage/manifest.template.json`, and add following lines under `commands` in `commandLists` of your bot:
+1.  Register your command in the app manifest. Open `templates/appPackage/manifest.template.json`, and add following lines under `commands` in `commandLists` of your bot:
 
     ```json
     {
@@ -325,7 +325,7 @@ After successfully add SSO in your project, you can also add a new sso command.
 
    ```
 
-1. Register your command in the Microsoft 365 App manifest. Open 'templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
+1. Register your command in the app manifest. Open 'templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
 
    ```json
    {

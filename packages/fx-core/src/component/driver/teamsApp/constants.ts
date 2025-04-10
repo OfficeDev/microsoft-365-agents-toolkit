@@ -349,7 +349,7 @@ export class APP_STUDIO_API_NAMES {
 }
 
 /**
- * Config keys that are useful for generating remote Microsoft 365 App manifest
+ * Config keys that are useful for generating remote app manifest
  */
 export const MANIFEST_TEMPLATE_CONSOLIDATE = "manifest.template.json";
 export const COLOR_TEMPLATE = "plugins/resource/appstudio/defaultIcon.png";

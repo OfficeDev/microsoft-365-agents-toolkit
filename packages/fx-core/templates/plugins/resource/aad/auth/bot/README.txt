@@ -9,7 +9,7 @@ Files generated/updated in your project
 1. New file - `aad.template.json` is created in folder `templates/appPackage`
    - The Azure Active Directory application manifest that is used to register the application with Microsoft Entra.
 2.  Update file - 'templates/appPackage/manifest.template.json'
-   - An `webApplicationInfo` object will be added into your Microsoft 365 App manifest template. This field is required by Teams when enabling SSO. |
+   - An `webApplicationInfo` object will be added into your app manifest template. This field is required by Teams when enabling SSO. |
 3. New file - `Auth/bot`
     - Sample code, redirect pages and a `README.txt` file. These files are provided for reference. See below for more information. |
 4. Update file - 'appsettings.json' and 'appsettings.Development.json'
@@ -116,7 +116,7 @@ Note: This part is for `command and response bot`.
         });
         '''
 
-5. Register your command in the Microsoft 365 App manifest. Open 'Templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
+5. Register your command in the app manifest. Open 'Templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
     '''
     {
       "title": "show",
@@ -156,7 +156,7 @@ After successfully add SSO in your project, you can also add a new command.
   ((SsoDialog)_dialog).addCommand("getUserImageInfo", "photo", SsoOperations.GetUserImageInfo);
   '''
 
-3. Register your command in the Microsoft 365 App manifest. Open 'Templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
+3. Register your command in the app manifest. Open 'Templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
     '''
     {
       "title": "photo",

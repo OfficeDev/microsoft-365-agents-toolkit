@@ -17,7 +17,7 @@ export const ValidateTeamsAppOptions: CLICommandOption[] = [
     type: "string",
     shortName: "t",
     description:
-      "Specify the path for Microsoft 365 App manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     default: "./appPackage/manifest.json",
   },
   {
@@ -26,7 +26,7 @@ export const ValidateTeamsAppOptions: CLICommandOption[] = [
     type: "string",
     shortName: "p",
     description:
-      "Specifies the zipped Microsoft 365 App package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
+      "Specifies the zipped app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
   },
 ];
 export const ValidateTeamsAppArguments: CLICommandArgument[] = [];

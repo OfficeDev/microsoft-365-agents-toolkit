@@ -13,6 +13,6 @@ import { Inputs } from "@microsoft/teamsfx-api";
 export interface ValidateTeamsAppInputs extends Inputs {
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;
-  /** @description Select Microsoft 365 App Package File */
+  /** @description Select app package File */
   "app-package-file-path"?: string;
 }
