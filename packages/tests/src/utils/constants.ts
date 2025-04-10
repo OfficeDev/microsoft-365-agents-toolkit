@@ -510,8 +510,7 @@ export class CreateProjectQuestion {
 export class ValidationContent {
   static readonly Tab = "Hello, World";
   static readonly Bot = "Your Hello World Bot is Running";
-  static readonly BotWelcomeInstruction =
-    "Hi there! I'm a Teams bot that will echo what you said to me";
+  static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Graph Connector Bot is Running";
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =
