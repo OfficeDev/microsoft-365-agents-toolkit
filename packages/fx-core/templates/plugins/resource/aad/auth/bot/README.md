@@ -2,7 +2,7 @@
 
 > Note: This document includes single sign-on instructions applicable for both bot and message extension. Make sure to add the corresponding Teams capability first and then follow the documentation.
 
-Microsoft Teams lets your app obtain the signed-in Teams user token to access Microsoft Graph and other APIs. Microsoft 365 Agents Toolkit simplifies this by wrapping Microsoft Entra ID flows in easy-to-use APIs, making it simple to add SSO features to your Microsoft 365 App.
+Microsoft Teams lets your app obtain the signed-in Teams user token to access Microsoft Graph and other APIs. Microsoft 365 Agents Toolkit simplifies this by wrapping Microsoft Entra ID flows in easy-to-use APIs, making it simple to add SSO features to your Microsoft Teams App.
 
 For a bot application, user can invoke the Microsoft Entra consent flow to obtain sso token to call Graph and other APIs.
 

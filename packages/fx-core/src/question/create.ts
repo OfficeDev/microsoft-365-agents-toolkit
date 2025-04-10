@@ -208,7 +208,7 @@ export function capabilityQuestion(): SingleSelectQuestion {
           return getLocalizedString("core.createCapabilityQuestion.titleNew");
       }
     },
-    cliDescription: "Specifies the Microsoft 365 App capability.",
+    cliDescription: "Specifies the Microsoft 365 App feature.",
     cliName: CliQuestionName.Capability,
     cliShortName: "c",
     cliChoiceListCommand: "teamsapp list templates",
