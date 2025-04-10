@@ -40,12 +40,14 @@ describe("Local Debug Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
   let devtunnelProcess: ChildProcessWithoutNullStreams | null;
   let debugProcess: ChildProcess | null;
-  let successFlag = true;
+  let successFlagForLocal = false;
+  let successFlagForRemote = false;
 
   after(async function () {
     this.timeout(Timeout.finishTestCase);
     setTimeout(() => {
-      process.exit(0);
+      if (successFlagForLocal && successFlagForRemote) process.exit(0);
+      else process.exit(1);
     }, 30000);
   });
 
@@ -100,10 +102,11 @@ describe("Local Debug Tests", function () {
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateEchoBot(page);
+          successFlagForLocal = true;
         }
       } catch (error) {
-        successFlag = false;
         errorMessage = "[Error]: " + error;
+        console.log(errorMessage);
         await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
         await VSBrowser.instance.driver.sleep(Timeout.playwrightDefaultTimeout);
       }
@@ -111,7 +114,6 @@ describe("Local Debug Tests", function () {
       await Executor.closeProcess(debugProcess);
       await Executor.closeProcess(devtunnelProcess);
       await initDebugPort();
-      expect(successFlag, errorMessage).to.true;
       console.log("debug finish!");
       await localDebugTestContext.after(false, true);
       try {
@@ -130,6 +132,7 @@ describe("Local Debug Tests", function () {
           Timeout.webView
         );
       }
+      expect(successFlagForLocal, errorMessage).to.true;
     }
   );
 
@@ -150,30 +153,37 @@ describe("Local Debug Tests", function () {
       const driver = VSBrowser.instance.driver;
       await createNewProject("bot", appName);
       await provisionProject(appName, projectPath);
-      await deployProject(projectPath, Timeout.botDeploy);
-      const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
-        projectPath
-      );
-      const page = await initPage(
-        remoteDebugTestContext.context!,
-        teamsAppId,
-        Env.username,
-        Env.password,
-        { projectPath: projectPath, env: "dev" }
-      );
-      await driver.sleep(Timeout.longTimeWait);
-      await validateEchoBot(page);
-
-      //Close the folder and cleanup local sample project
-      await execCommandIfExist("Workspaces: Close Workspace", Timeout.webView);
-      console.log(`[Successfully] start to clean up for ${projectPath}`);
-      await remoteDebugTestContext.cleanUp(
-        appName,
-        projectPath,
-        false,
-        true,
-        false
-      );
+      try {
+        await deployProject(projectPath, Timeout.botDeploy);
+        const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
+          projectPath
+        );
+        const page = await initPage(
+          remoteDebugTestContext.context!,
+          teamsAppId,
+          Env.username,
+          Env.password,
+          { projectPath: projectPath, env: "dev" }
+        );
+        await driver.sleep(Timeout.longTimeWait);
+        await validateEchoBot(page);
+        successFlagForRemote = true;
+      } catch (error) {
+        //Close the folder and cleanup local sample project
+        await execCommandIfExist(
+          "Workspaces: Close Workspace",
+          Timeout.webView
+        );
+        console.log(`[Successfully] start to clean up for ${projectPath}`);
+        await remoteDebugTestContext.cleanUp(
+          appName,
+          projectPath,
+          false,
+          true,
+          false
+        );
+        throw new Error("[Error]: " + error);
+      }
     }
   );
 });
