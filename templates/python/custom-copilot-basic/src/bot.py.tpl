@@ -56,7 +56,9 @@ planner = ActionPlanner(
         prompts=prompts,
         default_prompt="chat",
         enable_feedback_loop=True,
+        {{#CEAEnabled}}
         start_streaming_message='Loading stream results...'
+        {{/CEAEnabled}}
     )
 )
 
