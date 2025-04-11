@@ -51,7 +51,13 @@ model = OpenAIModel(
 prompts = PromptManager(PromptManagerOptions(prompts_folder=f"{os.getcwd()}/prompts"))
 
 planner = ActionPlanner(
-    ActionPlannerOptions(model=model, prompts=prompts, default_prompt="chat", enable_feedback_loop=True)
+    ActionPlannerOptions(
+        model=model,
+        prompts=prompts,
+        default_prompt="chat",
+        enable_feedback_loop=True,
+        start_streaming_message='Loading stream results...'
+    )
 )
 
 # Define storage and application
