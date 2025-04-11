@@ -10,7 +10,7 @@ provision:
     with:
       teamName: "App Development" # The name of the team in which to create the channel.
       channelName: "{{appName}} App testing" # The default name for the channel.
-      description: "Team created via Teams Toolkit for development" # Optional team description.
+      description: "Team created via Microsoft 365 Agents Toolkit for development" # Optional team description.
     writeToEnvironmentFile:
       channelId: CHANNEL_ID # The ID of the created channel.
       teamId: TEAM_ID # The ID of the team in which the channel was created.

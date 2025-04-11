@@ -17,11 +17,11 @@ This template showcases an app that unfurls a link into an adaptive card when UR
 {{^enableMETestToolByDefault}}
 > - A Microsoft 365 account. If you do not have Microsoft 365 account, apply one from [Microsoft 365 developer program](https://developer.microsoft.com/microsoft-365/dev-program)
 {{/enableMETestToolByDefault}}
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableMETestToolByDefault}}
 2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser.
 3. The browser will pop up to open Teams App Test Tool.

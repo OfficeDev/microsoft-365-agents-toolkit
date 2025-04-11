@@ -14,7 +14,7 @@ This app template also demonstrates usage of techniques like:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 > - A Microsoft 365 tenant in which you have permission to upload Teams apps. You can get a free Microsoft 365 developer tenant by joining the [Microsoft 365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program).
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli).
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli).
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/).
 {{/useOpenAI}}
@@ -23,11 +23,11 @@ This app template also demonstrates usage of techniques like:
 {{/useAzureOpenAI}}
 
 > [!TIP]
-> You can adjust this template to use data from a Microsoft Graph connector. Follow the steps in the [CodeTour](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.codetour) included in the project to apply the necessary changes. To use data from a Microsoft Graph connector, you need a Graph connector deployed to your tenant. For testing, we recommend using the [Ingest custom API data using TypeScript, Node.js and Teams Toolkit for Visual Studio Code](https://adoption.microsoft.com/sample-solution-gallery/sample/pnp-graph-connector-nodejs-typescript-food-catalog) sample.
+> You can adjust this template to use data from a Microsoft Graph connector. Follow the steps in the [CodeTour](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.codetour) included in the project to apply the necessary changes. To use data from a Microsoft Graph connector, you need a Graph connector deployed to your tenant. For testing, we recommend using the [Ingest custom API data using TypeScript, Node.js and Microsoft 365 Agents Toolkit for Visual Studio Code](https://adoption.microsoft.com/sample-solution-gallery/sample/pnp-graph-connector-nodejs-typescript-food-catalog) sample.
 
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#useOpenAI}}
 1. In file *env/.env.local.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY=<your-key>`.
 {{/useOpenAI}}
@@ -65,11 +65,11 @@ The following files can be customized and demonstrate an example implementation 
 |`src/data/*.txt`| Raw text data sources.|
 |`src/public/*.html`| Auth start page and an auth end page to be used by the user sign in flow.|
 
-The following are Teams Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Teams Toolkit works.
+The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Teams Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
 
 ## Extend the template
@@ -79,6 +79,6 @@ The following are Teams Toolkit specific project files. You can [visit a complet
 
 ## Additional information and references
 
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

@@ -4,7 +4,7 @@
     "msteams": {
         "teamsAppId": null
     },
-    "description": "Microsoft Teams Toolkit AI Assistant Bot Sample",
+    "description": "Microsoft 365 Agents Toolkit AI Assistant Bot Sample",
     "engines": {
         "node": "18 || 20 || 22"
     },

@@ -12,7 +12,7 @@ This template showcases a bot app that responds to user questions like an AI ass
 >
 > - [Python](https://www.python.org/), version 3.8 to 3.11.
 > - [Python extension](https://code.visualstudio.com/docs/languages/python), version v2024.0.1 or higher.
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Teams Toolkit CLI](https://aka.ms/teams-toolkit-cli).
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teams-toolkit-cli).
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/)
 {{/useOpenAI}}
@@ -30,7 +30,7 @@ This template showcases a bot app that responds to user questions like an AI ass
 {{/useAzureOpenAI}}
 
 ### Conversation with bot
-1. Select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. Select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 1. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
@@ -38,7 +38,7 @@ This template showcases a bot app that responds to user questions like an AI ass
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 ![custom api template](https://github.com/OfficeDev/TeamsFx/assets/63089166/19f4c825-c296-4d29-a957-bedb88b6aa5b)
 
@@ -62,11 +62,11 @@ The following files can be customized and demonstrate an example implementation 
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
 
-The following are Teams Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Teams Toolkit works.
+The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Teams Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
 |`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.|
 
@@ -82,9 +82,9 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 
 ## Additional information and references
 
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
 
 ## Known issue
 - If you use `Debug in Test Tool` to local debug, you might get an error `InternalServiceError: connect ECONNREFUSED 127.0.0.1:3978` in Test Tool console log or error message `Error: Cannot connect to your app,

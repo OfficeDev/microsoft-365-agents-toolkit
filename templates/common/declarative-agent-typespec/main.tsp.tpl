@@ -8,7 +8,7 @@ using TypespecCopilotSkills.Agents;
 
 @agent(
   "{{appName}}",
-  "Declarative agent created with Teams Toolkit"
+  "Declarative agent created with Microsoft 365 Agents Toolkit"
 )
 
 @instructions("""
