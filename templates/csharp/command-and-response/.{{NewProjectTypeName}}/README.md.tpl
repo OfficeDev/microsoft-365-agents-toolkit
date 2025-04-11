@@ -5,7 +5,7 @@
 {{#enableTestToolByDefault}}
 1. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
-2. In Teams App Test Tool from the launched browser, type and send "helloWorld" to your app to trigger a response
+2. In Microsoft 365 Agents playground from the launched browser, type and send "helloWorld" to your app to trigger a response
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel
@@ -19,8 +19,8 @@
 {{/enableTestToolByDefault}}
 
 {{^enableTestToolByDefault}}
-## Debug in Test Tool
-Teams App Test Tool allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
+## Debug in Microsoft 365 Agents playground
+Microsoft 365 Agents playground allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
 {{/enableTestToolByDefault}}
 
 ## Run the app on other platforms

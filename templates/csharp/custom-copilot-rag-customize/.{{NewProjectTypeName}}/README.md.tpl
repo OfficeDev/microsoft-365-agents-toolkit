@@ -18,7 +18,7 @@ This app template also demonstrates usage of techniques like:
 > - [Azure OpenAI](https://aka.ms/oai/access) resource
 {{/useAzureOpenAI}}
 
-### Debug bot app in Teams App Test Tool
+### Debug bot app in Microsoft 365 Agents playground
 {{#useOpenAI}}
 1. Ensure your OpenAI API Key is filled in `appsettings.TestTool.json`.
     ```
@@ -37,12 +37,12 @@ This app template also demonstrates usage of techniques like:
     }
     ```
 {{/useAzureOpenAI}}
-1. Set `Startup Item` as `Teams App Test Tool (browser)`.
+1. Set `Startup Item` as `Microsoft 365 Agents playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
-1. In Teams App Test Tool from the launched browser, type and send anything to your bot to trigger a response.
+1. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response.
 
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents playground:
 
 ![RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/f56e7602-a5d3-436a-ae01-78546d61717d)
 

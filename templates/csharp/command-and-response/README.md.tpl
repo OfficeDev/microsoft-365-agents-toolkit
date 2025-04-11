@@ -3,7 +3,7 @@
 ## Quick Start
 
 1. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
-2. In Teams App Test Tool from the launched browser, type and send "helloWorld" to your app to trigger a response
+2. In Microsoft 365 Agents playground from the launched browser, type and send "helloWorld" to your app to trigger a response
 
 ## Debug in Teams
 

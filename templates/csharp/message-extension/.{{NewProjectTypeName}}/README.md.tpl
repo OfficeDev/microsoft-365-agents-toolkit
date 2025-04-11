@@ -3,7 +3,7 @@
 ## Quick Start
 
 {{#enableTestToolByDefault}}
-1. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents playground using a web browser.
 2. You can play with this app to create an adaptive card, search for an NuGet package or unfurl links from ".botframework.com" domain.
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
@@ -18,8 +18,8 @@
 {{/enableTestToolByDefault}}
 
 {{^enableTestToolByDefault}}
-## Debug in Test Tool
-Teams App Test Tool allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
+## Debug in Microsoft 365 Agents playground
+Microsoft 365 Agents playground allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
 {{/enableTestToolByDefault}}
 
 ## Run the app on other platforms

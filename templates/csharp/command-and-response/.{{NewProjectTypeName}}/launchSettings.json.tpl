@@ -1,8 +1,8 @@
 {
   "profiles": {
 {{#enableTestToolByDefault}}
-    // Launch project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Launch project within Microsoft 365 Agents playground
+    "Microsoft 365 Agents playground (browser)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,
@@ -21,8 +21,8 @@
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
 {{^enableTestToolByDefault}}
-    // Launch project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Launch project within Microsoft 365 Agents playground
+    "Microsoft 365 Agents playground (browser)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,

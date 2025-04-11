@@ -45,7 +45,7 @@ The app template is built using the Teams AI library, which provides the capabil
 1. The above command will display the properties of the newly created assistant, including the ID like "id: asst_xxx...". 
 1. Fill in your assistant id in `env/.env.local.user`, `env/.env.dev.user` and `appsettings.TestTool.json`.
 
-### Debug bot app in Teams App Test Tool
+### Debug bot app in Microsoft 365 Agents playground
 {{#useOpenAI}}
 1. Ensure your OpenAI API Key filled in `appsettings.TestTool.json`.
     ```
@@ -66,13 +66,13 @@ The app template is built using the Teams AI library, which provides the capabil
     }
     ```
 {{/useAzureOpenAI}}
-1. Set `Startup Item` as `Teams App Test Tool (browser)`.
+1. Set `Startup Item` as `Microsoft 365 Agents playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
-1. In Teams App Test Tool from the launched browser, type and send anything to your bot to trigger a response.
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+1. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response.
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents playground:
 
-![AI Agent in Teams App Test Tool](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
+![AI Agent in Microsoft 365 Agents playground](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
 
 ### Debug bot app in Teams Web Client
 

@@ -1,13 +1,13 @@
 [
   {{#enableTestToolByDefault}}
   {
-    "Name": "Teams App Test Tool (browser)",
+    "Name": "Microsoft 365 Agents playground (browser)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Teams App Test Tool (browser)"
+        "DebugTarget": "Microsoft 365 Agents playground (browser)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
@@ -19,7 +19,7 @@
         "Name": "{{ProjectName}}\\{{ProjectName}}.csproj",
 {{/PlaceProjectFileInSolutionDir}}
         "Action": "Start",
-        "DebugTarget": "Teams App Test Tool"
+        "DebugTarget": "Microsoft 365 Agents playground"
       }
     ]
   },
@@ -121,13 +121,13 @@
 {{^enableTestToolByDefault}}
   },
   {
-    "Name": "Teams App Test Tool (browser)",
+    "Name": "Microsoft 365 Agents playground (browser)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Teams App Test Tool (browser)"
+        "DebugTarget": "Microsoft 365 Agents playground (browser)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
@@ -139,7 +139,7 @@
         "Name": "{{ProjectName}}\\{{ProjectName}}.csproj",
 {{/PlaceProjectFileInSolutionDir}}
         "Action": "Start",
-        "DebugTarget": "Teams App Test Tool"
+        "DebugTarget": "Microsoft 365 Agents playground"
       }
     ]
   }
