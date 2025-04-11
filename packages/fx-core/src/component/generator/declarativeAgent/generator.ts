@@ -40,6 +40,7 @@ import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/const
 import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
+import { setGeneralSensitivityLabel } from "../utils";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -135,7 +136,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
 
     if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
       // best-effort
-      await this.setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+      await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
 
     if (
@@ -173,65 +174,6 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       }
     } else {
       return ok({});
-    }
-  }
-
-  async setGeneralSensitivityLabel(
-    context: Context,
-    declarativeAgentManifestPath: string
-  ): Promise<void> {
-    try {
-      const loginStatusRes = await context.tokenProvider?.m365TokenProvider?.getStatus({
-        scopes: [listSensitivityLabelScope],
-      });
-      if (!loginStatusRes || loginStatusRes.isErr()) {
-        context.logProvider?.info(
-          getDefaultString("error.listSensitivityLabel.tokenFailed", loginStatusRes?.error.message)
-        );
-        return;
-      }
-      if (loginStatusRes.value.status != signedIn) {
-        context.logProvider?.info(getDefaultString("core.listSensitivityLabel.notLogin"));
-        return;
-      }
-      if (loginStatusRes.value.token == undefined) {
-        context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
-        return;
-      }
-      const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
-      if (result.isErr()) {
-        throw result.error;
-      }
-      const generalLabelId = result.value;
-
-      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-        declarativeAgentManifestPath
-      );
-      if (declarativeAgentManifestRes.isErr()) {
-        context.logProvider?.info(
-          getDefaultString(
-            "error.readDeclarativeAgentManifest.failed",
-            declarativeAgentManifestRes.error
-          )
-        );
-        return;
-      }
-      const declarativeAgentManifest = declarativeAgentManifestRes.value;
-      declarativeAgentManifest.sensitivity_label = generalLabelId;
-      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
-        declarativeAgentManifest,
-        declarativeAgentManifestPath
-      );
-      if (writeRes.isErr()) {
-        context.logProvider?.info(
-          getDefaultString("error.writeDeclarativeAgentManifest.failed", writeRes.error)
-        );
-        return;
-      }
-    } catch (error) {
-      context.logProvider?.info(
-        getDefaultString("error.setGeneralSensitivityLabel.failed", error.message)
-      );
     }
   }
 }

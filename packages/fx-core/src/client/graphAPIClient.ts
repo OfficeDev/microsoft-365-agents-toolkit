@@ -73,24 +73,24 @@ export class GraphAPIClient {
       const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
 
       if (response && response.data && response.data.value) {
-        if (useCache) {
-          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
-          // only retrieve the necessary properties from the response.data.value
-          const labels = response.data.value.map(
-            (label: any) =>
-              ({
-                id: label?.id,
-                name: label?.name,
-                description: label?.description,
-                displayName: label?.displayName,
-              } as SensitivityLabel)
-          );
-          const cacheValue: ListSensitivityCacheValue = {
-            labels: labels,
-            unixTimestamp: Date.now(),
-          };
-          await globalStateUpdate(cacheKey, cacheValue);
-        }
+        // always update the cache when we get a response.
+        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+        // only retrieve the necessary properties from the response.data.value
+        const labels = response.data.value.map(
+          (label: any) =>
+            ({
+              id: label?.id,
+              name: label?.name,
+              description: label?.description,
+              displayName: label?.displayName,
+            } as SensitivityLabel)
+        );
+        const cacheValue: ListSensitivityCacheValue = {
+          labels: labels,
+          unixTimestamp: Date.now(),
+        };
+        await globalStateUpdate(cacheKey, cacheValue);
+
         return ok(response.data.value);
       } else {
         return err(

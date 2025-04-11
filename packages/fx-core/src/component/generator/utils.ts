@@ -22,6 +22,10 @@ import {
   sampleDefaultRetryLimits,
   templateFileExt,
 } from "./constant";
+import { Context as FxContext, signedIn } from "@microsoft/teamsfx-api";
+import { graphAPIClient, listSensitivityLabelScope } from "../../client/graphAPIClient";
+import { getDefaultString } from "../../common/localizeUtils";
+import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 export async function getTemplateUrl(
   name: string,
@@ -365,4 +369,63 @@ export function isApiLimitError(error: Error): boolean {
     [403, 429].includes(error.response.status) &&
     error.response?.headers?.["x-ratelimit-remaining"] === "0"
   );
+}
+
+export async function setGeneralSensitivityLabel(
+  context: FxContext,
+  declarativeAgentManifestPath: string
+): Promise<void> {
+  try {
+    const loginStatusRes = await context.tokenProvider?.m365TokenProvider?.getStatus({
+      scopes: [listSensitivityLabelScope],
+    });
+    if (!loginStatusRes || loginStatusRes.isErr()) {
+      context.logProvider?.info(
+        getDefaultString("error.listSensitivityLabel.tokenFailed", loginStatusRes?.error.message)
+      );
+      return;
+    }
+    if (loginStatusRes.value.status != signedIn) {
+      context.logProvider?.info(getDefaultString("core.listSensitivityLabel.notLogin"));
+      return;
+    }
+    if (loginStatusRes.value.token == undefined) {
+      context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
+      return;
+    }
+    const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
+    if (result.isErr()) {
+      throw result.error;
+    }
+    const generalLabelId = result.value;
+
+    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifestRes.isErr()) {
+      context.logProvider?.info(
+        getDefaultString(
+          "error.readDeclarativeAgentManifest.failed",
+          declarativeAgentManifestRes.error
+        )
+      );
+      return;
+    }
+    const declarativeAgentManifest = declarativeAgentManifestRes.value;
+    declarativeAgentManifest.sensitivity_label = generalLabelId;
+    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest,
+      declarativeAgentManifestPath
+    );
+    if (writeRes.isErr()) {
+      context.logProvider?.info(
+        getDefaultString("error.writeDeclarativeAgentManifest.failed", writeRes.error)
+      );
+      return;
+    }
+  } catch (error) {
+    context.logProvider?.info(
+      getDefaultString("error.setGeneralSensitivityLabel.failed", error.message)
+    );
+  }
 }
