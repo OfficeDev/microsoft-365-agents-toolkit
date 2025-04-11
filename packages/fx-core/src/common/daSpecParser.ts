@@ -13,16 +13,27 @@ import {
   ErrorType,
   Utils,
   InvalidAPIInfo,
+  AdaptiveCardUpdateStrategy,
+  GenerateResult,
+  ConstantString,
 } from "@microsoft/m365-spec-parser";
-import { Platform } from "@microsoft/teamsfx-api";
+import {
+  Platform,
+  PluginManifestSchema,
+  RuntimeObjectOpenapi,
+  TeamsAppManifest,
+} from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "./featureFlags";
-import { listAPITreeInfo } from "./kiotaClient";
+import { kiotageneratePlugin, listAPITreeInfo } from "./kiotaClient";
 import {
   KiotaOpenApiNode,
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from "@microsoft/kiota";
+import * as fs from "fs-extra";
+import tmp from "tmp";
 import { createHash } from "crypto";
+import path from "path";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -36,6 +47,128 @@ const daProjectConfig: ParseOptions = {
   allowMethods: ["get", "post", "put", "delete", "patch", "head", "connect", "options", "trace"],
   allowResponseSemantics: true,
 };
+
+export async function generatePlugin(
+  specPath: string,
+  teamsManifestPath: string,
+  outputAPISpecPath: string,
+  outputAIPluginPath: string,
+  operations: string[],
+  adaptiveCardUpdateStrategy: AdaptiveCardUpdateStrategy,
+  platform?: string
+): Promise<GenerateResult> {
+  const allowAPIKeyAuth = platform !== Platform.VS;
+  const allowBearerTokenAuth = platform !== Platform.VS;
+  const allowOauth2 = platform !== Platform.VS;
+
+  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
+    const tmpWorkingDir = tmp.dirSync({ unsafeCleanup: true });
+    const tmpOutputDir = path.join(tmpWorkingDir.name, "plugin");
+    const manifest: TeamsAppManifest = await fs.readJSON(teamsManifestPath);
+    const namespace = removeEnvsAndSpecialCharaters(manifest.name.short);
+    const includePatterns: string[] = [];
+    for (const operation of operations) {
+      const [method, path] = operation.split(" ");
+      includePatterns.push(`${path}#${method}`);
+    }
+
+    const kiotaGenerateResult = await kiotageneratePlugin(
+      specPath,
+      tmpOutputDir,
+      namespace,
+      tmpWorkingDir.name,
+      undefined,
+      undefined,
+      includePatterns,
+      []
+    );
+
+    const apiSpecPath = kiotaGenerateResult.openAPISpec;
+    const pluginPath = kiotaGenerateResult.aiPlugin;
+    await fs.copyFile(apiSpecPath, outputAPISpecPath);
+    await fs.copyFile(pluginPath, outputAIPluginPath);
+
+    const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
+    const normalizedPath = relativePath.replace(/\\/g, "/");
+    const pluginManifest = (await fs.readJSON(outputAIPluginPath)) as PluginManifestSchema;
+    pluginManifest.runtimes?.forEach((runtime) => {
+      if ((runtime as RuntimeObjectOpenapi).spec) {
+        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
+      }
+    });
+    await fs.writeJson(outputAIPluginPath, pluginManifest, { spaces: 4 });
+
+    await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
+    return {
+      allSuccess: true,
+      warnings: [],
+    };
+  }
+
+  const options: ParseOptions = {
+    ...daProjectConfig,
+    allowAPIKeyAuth,
+    allowBearerTokenAuth,
+    allowOauth2,
+  };
+
+  const parser = new SpecParser(specPath, options);
+
+  const result = await parser.generateForCopilot(
+    teamsManifestPath,
+    operations,
+    outputAPISpecPath,
+    outputAIPluginPath,
+    undefined,
+    undefined,
+    adaptiveCardUpdateStrategy
+  );
+  return result;
+}
+
+export async function parseAndUpdatePluginManifestForKiota(
+  pluginManifestPath: string,
+  updatePlaceholder: boolean
+): Promise<
+  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
+> {
+  const authData: {
+    authName: string;
+    authType: "apiKey" | "oauth2";
+    registrationId: string;
+    specPath: string;
+  }[] = [];
+  const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
+  pluginManifest.runtimes?.forEach((runtime) => {
+    if ((runtime as RuntimeObjectOpenapi).auth) {
+      const auth = (runtime as RuntimeObjectOpenapi).auth!;
+      if (
+        auth.reference_id &&
+        auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth.type !== "None"
+      ) {
+        const registrationId = auth.reference_id.replace(/[{}]/g, "");
+        const authName = registrationId.split("_")[0];
+        authData.push({
+          authName: authName,
+          authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
+          registrationId: registrationId.toUpperCase(),
+          specPath: runtime.spec.url as string,
+        });
+        if (updatePlaceholder) {
+          auth.reference_id = `\$\{\{${
+            authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix
+          }\}\}`;
+        }
+      }
+    }
+  });
+
+  if (updatePlaceholder && authData.length > 0) {
+    await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
+  }
+  return authData;
+}
 
 export async function listAPIInfo(specPath: string, platform?: string): Promise<ListAPIResult> {
   const allowAPIKeyAuth = platform !== Platform.VS;
@@ -162,6 +295,16 @@ export async function validateOpenAPISpec(
 
   const parser = new SpecParser(specPath, options);
   return await parser.validate();
+}
+
+function removeEnvsAndSpecialCharaters(str: string): string {
+  const placeHolderReg = /\${{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}}/g;
+  const matches = placeHolderReg.exec(str);
+  let newStr = str;
+  if (matches != null) {
+    newStr = newStr.replace(matches[0], "");
+  }
+  return newStr.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function extractOperations(

@@ -84,6 +84,7 @@ import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../src/common/daSpecParser";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -122,6 +123,7 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import proxyquire from "proxyquire";
 
 const tools = new MockTools();
 
@@ -6075,7 +6077,7 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6482,7 +6484,7 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6567,7 +6569,7 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",

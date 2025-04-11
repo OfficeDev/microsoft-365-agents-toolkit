@@ -12,6 +12,7 @@ import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsA
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { DeclarativeAgentWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/declarativeAgentGenerator";
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import {
   ActionStartOptions,
@@ -121,7 +122,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
         {
           authName: "mockedAuthName",
           authType: "apiKey",
@@ -154,7 +155,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {

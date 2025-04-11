@@ -27,13 +27,11 @@ import {
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { NoSpecError } from "./error/noSpecError";
 import { MultipleActionError } from "./error/multipleActionError";
-import {
-  injectAuthAction,
-  parseAndUpdatePluginManifestForKiota,
-} from "../../generator/openApiSpec/helper";
+import { injectAuthAction } from "../../generator/openApiSpec/helper";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ReProvisionError } from "./error/reProvisionError";
 import { kiotageneratePlugin } from "../../../common/kiotaClient";
+import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
 

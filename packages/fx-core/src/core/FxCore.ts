@@ -134,8 +134,6 @@ import {
   getParserOptions,
   injectAuthAction,
   listOperations,
-  listPluginExistingOperations,
-  parseAndUpdatePluginManifestForKiota,
 } from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
@@ -201,7 +199,7 @@ import {
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import { listAPIInfo } from "../common/daSpecParser";
+import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
