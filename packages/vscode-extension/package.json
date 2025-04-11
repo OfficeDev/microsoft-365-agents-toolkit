@@ -1008,7 +1008,7 @@
       {
         "command": "fx-extension.removeSharedAccess",
         "title": "%teamstoolkit.commands.removeSharedAccess%",
-        "category": "Teams",
+        "category": "Microsoft 365 Agents",
         "enablement": "fx-extension.isSharedEnabled"
       }
     ],
