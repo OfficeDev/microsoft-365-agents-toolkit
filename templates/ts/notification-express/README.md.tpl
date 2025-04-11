@@ -24,8 +24,8 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. Send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
@@ -39,9 +39,9 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
    - When your project is deployed to Azure App Service, replace `<endpoint>` with the url from Azure App Service
 
 {{#enableTestToolByDefault}}
-The bot will send an Adaptive Card to Teams App Test Tool:
+The bot will send an Adaptive Card to Microsoft 365 Agents Playground:
 
-![Notification Message in Test Tool](https://github.com/OfficeDev/TeamsFx/assets/9698542/52aa4826-e8b3-4341-b9e1-bcba50470861)
+![Notification Message in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/9698542/52aa4826-e8b3-4341-b9e1-bcba50470861)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 The bot will send an Adaptive Card to Teams:
@@ -55,7 +55,7 @@ The bot will send an Adaptive Card to Teams:
 | - | - |
 | `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
 | `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft Teams |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
 | `.vscode/` | VSCode files for local debug |
 | `src/` | The source code for the notification Teams application |
 | `appPackage/` | Templates for the Teams application manifest |

@@ -66,12 +66,12 @@ Before running or debugging your bot, please follow these steps to setup your ow
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-1. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 1. You will receive a welcome message from the bot, or send any message to get a response.
 
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![ai assistant bot in Teams App Test Tool](https://github.com/OfficeDev/TeamsFx/assets/15644078/90868166-115b-4394-a0d2-272bd985d0aa)
+![ai assistant bot in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/15644078/90868166-115b-4394-a0d2-272bd985d0aa)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
@@ -109,7 +109,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | - | - |
 |`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.|
+|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the AI Assistant Bot template with more AI capabilities
 

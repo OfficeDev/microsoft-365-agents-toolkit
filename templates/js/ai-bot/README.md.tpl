@@ -29,10 +29,10 @@ The app template is built using the Teams AI library, which provides the capabil
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
 1. In file *env/.env.testtool.user*, fill in your OpenAI key `SECRET_OPENAI_API_KEY=<your-key>`.
-1. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 1. You will receive a welcome message from the bot, or send any message to get a response.
 
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![ai chat bot](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
 {{/enableTestToolByDefault}}
@@ -106,7 +106,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | - | - |
 |`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.|
+|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the AI Chat Bot template with more AI capabilities
 

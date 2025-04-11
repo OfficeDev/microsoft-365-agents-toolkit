@@ -24,7 +24,7 @@ This app template has a search command, an action command and a link unfurling.
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableMETestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 3. To trigger the Message Extension to invoke commands:
    1. To trigger search commands, click the `+` in compose message area and select `Search command`.
    2. To trigger action commands, click the `+` in compose message area or `...` above a message and select `Action command`.
@@ -70,7 +70,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `teamsapp.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 | `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging.                                                     |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.                            |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.                            |
 
 ## Extend the template
 

@@ -20,10 +20,10 @@ This app template is a search-based [message extension](https://docs.microsoft.c
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableMETestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 3. To trigger the Message Extension, you can click the `+` in compose message area and select `Search Command`
 
-**Congratulations**! You are running an application that can now search npm registries in Teams App Test Tool.
+**Congratulations**! You are running an application that can now search npm registries in Microsoft 365 Agents Playground.
 
 ![Search app demo](https://github.com/OfficeDev/TeamsFx/assets/9698542/5275e5bc-492f-4365-b602-5803938a9780)
 {{/enableMETestToolByDefault}}
@@ -63,7 +63,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `teamsapp.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 | `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging.                                                     |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.                            |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.                            |
 
 ## Extend the template
 

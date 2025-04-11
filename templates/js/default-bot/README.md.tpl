@@ -24,11 +24,11 @@ An agent interaction can be a quick question and answer, or it can be a complex 
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. You will receive a welcome message from the bot, and you can send anything to the bot to get an echoed response.
 
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![basic bot](./img/echo-bot.png)
 
@@ -66,7 +66,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | - | - |
 |`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
 |`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.|
+|`teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the Basic Bot template
 

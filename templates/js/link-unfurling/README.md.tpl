@@ -23,8 +23,8 @@ This template showcases an app that unfurls a link into an adaptive card when UR
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableMETestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser.
-3. The browser will pop up to open Teams App Test Tool.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. Click the "+" button in the input box, select "Link Unfurling" and paste a link ending with `.botframework.com`. You should see an adaptive card unfurled. Click `Send to Conversation` to send it to the current chat or channel.
 {{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
@@ -40,7 +40,7 @@ This template showcases an app that unfurls a link into an adaptive card when UR
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `teamsapp.yml`       | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
 | `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging                                      |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.            |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.            |
 | `.vscode/`           | VSCode files for local debug                                                                                              |
 | `src/`               | The source code for the link unfurling application                                                                        |
 | `appPackage/`        | Templates for the Teams application manifest                                                                              |

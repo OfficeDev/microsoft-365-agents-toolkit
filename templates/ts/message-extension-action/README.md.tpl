@@ -20,10 +20,10 @@ This app template implements action command that allows you to present your user
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableMETestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 3. To trigger the action command, you can click the `+` under compose message area and select `Action Command`.
 
-**Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Teams App Test Tool.
+**Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Microsoft 365 Agents Playground.
 
 ![action-ME](https://github.com/OfficeDev/TeamsFx/assets/9698542/c0afbd89-7fbb-4e73-98a2-f018be4ca88c)
 {{/enableMETestToolByDefault}}
@@ -61,7 +61,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `teamsapp.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 | `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging.                                                     |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.                            |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.                            |
 
 ## Extend the template
 

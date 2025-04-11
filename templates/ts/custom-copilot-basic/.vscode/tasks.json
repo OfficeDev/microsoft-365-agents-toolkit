@@ -16,19 +16,19 @@
             "dependsOrder": "sequence"
         },
         {
-            "label": "Start Teams App (Test Tool)",
+            "label": "Start Microsoft 365 Agents Playground",
             "dependsOn": [
-                "Validate prerequisites (Test Tool)",
-                "Deploy (Test Tool)",
-                "Start application (Test Tool)",
-                "Start Test Tool",
+                "Validate prerequisites (Microsoft 365 Agents Playground)",
+                "Deploy (Microsoft 365 Agents Playground)",
+                "Start application (Microsoft 365 Agents Playground)",
+                "Start Microsoft 365 Agents Playground",
             ],
             "dependsOrder": "sequence"
         },
         {
             // Check all required prerequisites.
             // See https://aka.ms/teamsfx-tasks/check-prerequisites to know the details and how to customize the args.
-            "label": "Validate prerequisites (Test Tool)",
+            "label": "Validate prerequisites (Microsoft 365 Agents Playground)",
             "type": "teamsfx",
             "command": "debug-check-prerequisites",
             "args": {
@@ -39,14 +39,14 @@
                 "portOccupancy": [
                     3978, // app service port
                     9239, // app inspector port for Node.js debugger
-                    56150, // test tool port
+                    56150, // Microsoft 365 Agents Playground port
                 ]
             }
         },
         {
             // Build project.
             // See https://aka.ms/teamsfx-tasks/deploy to know the details and how to customize the args.
-            "label": "Deploy (Test Tool)",
+            "label": "Deploy (Microsoft 365 Agents Playground)",
             "type": "teamsfx",
             "command": "deploy",
             "args": {
@@ -54,7 +54,7 @@
             }
         },
         {
-            "label": "Start application (Test Tool)",
+            "label": "Start application (Microsoft 365 Agents Playground)",
             "type": "shell",
             "command": "npm run dev:teamsfx:testtool",
             "isBackground": true,
@@ -78,7 +78,7 @@
             }
         },
         {
-            "label": "Start Test Tool",
+            "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
             "command": "npm run dev:teamsfx:launch-testtool",
             "isBackground": true,

@@ -23,8 +23,8 @@ The app template is built using the Teams AI SDK, which provides a simple set of
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. Type or select `helloWorld` in the chat to send it to your bot - this is the default command provided by the template.
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
@@ -37,7 +37,7 @@ The app template is built using the Teams AI SDK, which provides a simple set of
 The bot will respond to the `helloWorld` command with an Adaptive Card:
 
 {{#enableTestToolByDefault}}
-![Command and Response in Test Tool](https://github.com/OfficeDev/TeamsFx/assets/9698542/2636fd91-ec7f-4740-a5ea-b272575b0b7c)
+![Command and Response in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/9698542/2636fd91-ec7f-4740-a5ea-b272575b0b7c)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 ![Command and Response in Teams](https://user-images.githubusercontent.com/11220663/165891754-16916b68-c1b5-499d-b6a8-bdfb195f1fd0.png)
@@ -49,7 +49,7 @@ The bot will respond to the `helloWorld` command with an Adaptive Card:
 | - | - |
 | `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
 | `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool |
+| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
 | `env/`| Name / value pairs are stored in environment files and used by `teamsapp.yml` to customize the provisioning and deployment rules |
 | `.vscode/` | VSCode files for debugging |
 | `appPackage/` | Templates for the Teams application manifest |

@@ -214,11 +214,11 @@
             "stopAll": true
         },
         {
-            "name": "Debug in Test Tool",
+            "name": "Debug in Microsoft 365 Agents Playground",
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App (Test Tool)",
+            "preLaunchTask": "Start Microsoft 365 Agents Playground",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "1-local",
