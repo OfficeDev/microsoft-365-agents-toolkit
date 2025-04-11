@@ -13,6 +13,7 @@ import {
   SingleFileQuestion,
   AppPackageFolderName,
   TeamsAppManifest,
+  OptionItem,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -33,11 +34,17 @@ import {
   selectTargetEnvQuestion,
   setSensitivityLabelNode,
   selectDeclarativeAgentManifestQuestion,
+  shareNode,
+  removeSharedAccessNode,
+  selectUsersToRemoveSharedAccess,
 } from "../../src/question/other";
 import { graphAPIClient } from "../../src/client/graphAPIClient";
 import { setTools, TOOLS } from "../../src/common/globalVars";
 import path from "path";
-import { manifestUtils, TeamsAppAdmin } from "../../src";
+import { manifestUtils, teamsDevPortalClient } from "../../src";
+import { CollaborationUtil } from "../../src/core/collaborator";
+import * as shareUtils from "../../src/component/driver/share/utils";
+import { MockTools } from "../core/utils";
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -537,7 +544,7 @@ describe("setSensitivityLabelNode", () => {
     assert.isTrue(node.children?.length === 2);
   });
 
-  it("validate sensitivity label question", async () => {
+  it("list sensitivity label happy path", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -556,7 +563,23 @@ describe("setSensitivityLabelNode", () => {
     assert.equal((options?.[0] as any).label, "Label1");
   });
 
-  it("should handle graphAPI exception", async () => {
+  it("list sensitivity label - empty label", async () => {
+    const node = setSensitivityLabelNode();
+    const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+    };
+    const mockLabels = [{}, {}];
+    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    // mock token provider
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
+    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    assert.equal(options?.length, 2);
+    assert.equal((options?.[0] as any).id, "");
+    assert.equal((options?.[0] as any).label, "");
+  });
+
+  it("throw graphAPI exception", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -565,11 +588,16 @@ describe("setSensitivityLabelNode", () => {
     sandbox.stub(graphAPIClient, "listSensitivityLabels").throws(new Error("Graph API error"));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Graph API error"));
   });
 
-  it("should handle token error in sensitivity label question", async () => {
+  it("throw token error", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -577,17 +605,23 @@ describe("setSensitivityLabelNode", () => {
     };
     sandbox
       .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(err(new SystemError("TestError", "Test error message", "TestSource")));
+      .resolves(err(new SystemError("TestSource", "TestError", "Test error message")));
     const mockLabels = [
       { id: "1", displayName: "Label1" },
       { id: "2", displayName: "Label2" },
     ];
     sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Test error message"));
   });
 
-  it("should handle error in sensitivity label question", async () => {
+  it("throw list sensitivity label error", async () => {
     const node = setSensitivityLabelNode();
     const sensitivityLabelQuestion = node.children?.[1].data as SingleSelectQuestion;
     const inputs: Inputs = {
@@ -602,8 +636,13 @@ describe("setSensitivityLabelNode", () => {
         })
       )
     );
-    const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
-    assert.equal(options?.length, 0);
+    let exception = undefined;
+    try {
+      await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
+    } catch (e) {
+      exception = e;
+    }
+    assert.isTrue((exception as any).message.includes("Test error message"));
   });
 
   it("should return the correct default path for selectDeclarativeAgentManifestQuestion - CLI_HELP", async () => {
@@ -708,5 +747,207 @@ describe("setSensitivityLabelNode", () => {
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
     const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
+  });
+});
+
+describe("shareNode and removeSharedAccessNode", () => {
+  const sandbox = sinon.createSandbox();
+  setTools(new MockTools());
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("shareNode should return IQTreeNode with correct children", () => {
+    const result = shareNode();
+
+    // Verify the main node structure
+    assert.isObject(result);
+    assert.property(result, "data");
+    assert.property(result, "children");
+    assert.isArray(result.children);
+    assert.lengthOf(result.children!, 1);
+
+    // Verify share option question node
+    const shareOptionNode = result.children![0];
+    assert.property(shareOptionNode.data, "name");
+    assert.equal(shareOptionNode.data.name, "option");
+    assert.property(shareOptionNode.data, "type");
+    assert.equal(shareOptionNode.data.type, "singleSelect");
+
+    // Verify children of share option question
+    assert.property(shareOptionNode, "children");
+    assert.isArray(shareOptionNode.children);
+    assert.lengthOf(shareOptionNode.children!, 1);
+  });
+
+  it("shareOption question should have correct options", () => {
+    const result = shareNode();
+    const shareOptionQuestion = result.children![0].data as SingleSelectQuestion;
+
+    assert.isArray(shareOptionQuestion.staticOptions);
+    assert.lengthOf(shareOptionQuestion.staticOptions, 2);
+
+    const [shareApp, shareToUser] = shareOptionQuestion.staticOptions as OptionItem[];
+    assert.equal(shareApp.id, "share-app");
+    assert.equal(shareToUser.id, "share-with-users");
+  });
+
+  it("shareToUser question should be shown when shareOption is shareToUser", () => {
+    const result = shareNode();
+    const shareToUserNode = result.children![0].children![0] as any;
+
+    // Test condition function
+    const inputs = { [QuestionNames.ShareOption]: QuestionNames.ShareOptionShareToUser };
+    assert.isTrue(shareToUserNode.condition(inputs));
+
+    // Test when not shareToUser
+    const inputs2 = { shareOption: "share-app" };
+    assert.isFalse(shareToUserNode.condition(inputs2));
+  });
+
+  it("shareToUser validation should work correctly", () => {
+    const result = shareNode();
+    const shareToUserQuestion = result.children![0].children![0].data as any;
+
+    // Test validation function
+    const validation = shareToUserQuestion.validation!.validFunc;
+
+    // Empty input should return error message
+    assert.isString(validation(""));
+    assert.isString(validation("   "));
+
+    // Valid input should return undefined
+    assert.isUndefined(validation("user@example.com"));
+  });
+
+  it("removeSharedAccessNode should return IQTreeNode with correct structure", () => {
+    const result = removeSharedAccessNode();
+
+    assert.isObject(result);
+    assert.property(result, "data");
+    assert.property(result, "children");
+    assert.isArray(result.children);
+    assert.lengthOf(result.children!, 1);
+
+    // Check selectUsersToRemoveSharedAccess question
+    const selectUsersQuestion = result.children![0].data as any;
+    assert.equal(selectUsersQuestion.name, "users");
+    assert.equal(selectUsersQuestion.type, "multiSelect");
+    assert.property(selectUsersQuestion, "dynamicOptions");
+    assert.isTrue(selectUsersQuestion.skipValidation);
+  });
+
+  it("selectUsersToRemoveSharedAccess should throw error when project path is undefined", async () => {
+    const result = selectUsersToRemoveSharedAccess();
+
+    try {
+      await result.dynamicOptions!({} as any);
+      assert.fail("Should have thrown error");
+    } catch (error: any) {
+      assert.equal(error.message, "Project path is not defined");
+    }
+  });
+
+  it("selectUsersToRemoveSharedAccess should return correct options", async () => {
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(ok("mock-token"));
+
+    // Mock CollaborationUtil.getCurrentUserInfo
+    sandbox
+      .stub(CollaborationUtil, "getCurrentUserInfo")
+      .resolves(ok({ aadId: "current-user-id" } as any));
+
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mock-teams-app-id"] as any));
+
+    // Mock teamsDevPortalClient.getApp
+    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
+      userList: [
+        {
+          aadId: "current-user-id",
+          displayName: "Current User",
+          userPrincipalName: "current@example.com",
+        },
+        {
+          aadId: "other-user-id",
+          displayName: "Other User",
+          userPrincipalName: "other@example.com",
+        },
+      ],
+    } as any);
+
+    const result = selectUsersToRemoveSharedAccess();
+    const options = await result.dynamicOptions!({ projectPath: "mockPath" } as any);
+
+    assert.isArray(options);
+    assert.lengthOf(options, 1); // Should only include the other user, not current user
+    assert.equal((options[0] as any).id, "other@example.com");
+    assert.equal((options[0] as any).label, "Other User");
+  });
+
+  it("selectUsersToRemoveSharedAccess should handle empty user list", async () => {
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(ok("mock-token"));
+
+    // Mock parseShareAppActionYamlConfig
+    sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(ok(["mock-teams-app-id"]));
+
+    // Mock teamsDevPortalClient.getApp with empty user list
+    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
+      userList: [],
+    });
+
+    const result = selectUsersToRemoveSharedAccess();
+
+    try {
+      await result.dynamicOptions!({ projectPath: "mockPath" } as any);
+      assert.fail("Should have thrown error");
+    } catch (error: any) {
+      assert.equal(error.message, "No owner found in the app");
+    }
+  });
+
+  it("selectUsersToRemoveSharedAccess - token error", async () => {
+    // Mock TOOLS and required responses
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(new SystemError("TestSource", "TestError", "Test error message")));
+
+    // Mock CollaborationUtil.getCurrentUserInfo
+    sandbox
+      .stub(CollaborationUtil, "getCurrentUserInfo")
+      .resolves(ok({ aadId: "current-user-id" } as any));
+
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mock-teams-app-id"] as any));
+
+    // Mock teamsDevPortalClient.getApp
+    sandbox.stub(teamsDevPortalClient, "getApp").resolves({
+      userList: [
+        {
+          aadId: "current-user-id",
+          displayName: "Current User",
+          userPrincipalName: "current@example.com",
+        },
+        {
+          aadId: "other-user-id",
+          displayName: "Other User",
+          userPrincipalName: "other@example.com",
+        },
+      ],
+    } as any);
+
+    const result = selectUsersToRemoveSharedAccess();
+    let exception = undefined;
+    try {
+      const options = await result.dynamicOptions!({ projectPath: "mockPath" } as any);
+    } catch (error: any) {
+      exception = error;
+    }
+    assert.isTrue((exception as any).message.includes("Test error message"));
   });
 });

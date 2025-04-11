@@ -21,6 +21,7 @@ export {
   AdaptiveCardUpdateStrategy,
   ListAPIInfo,
   AuthInfo,
+  GenerateResult,
 } from "./interfaces";
 
 export { ConstantString } from "./constants";

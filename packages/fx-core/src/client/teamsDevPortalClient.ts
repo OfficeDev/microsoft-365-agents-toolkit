@@ -547,6 +547,41 @@ export class TeamsDevPortalClient {
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
+  async removePermission(token: string, teamsAppId: string, userToRemove: AppUser): Promise<void> {
+    const app = await this.getApp(token, teamsAppId);
+    if (!this.checkUser(app, userToRemove)) {
+      return;
+    }
+    app.userList = app.userList?.filter((user: AppUser) => user["aadId"] !== userToRemove.aadId);
+    let requester: AxiosInstance;
+    try {
+      TOOLS.logProvider.debug(
+        getLocalizedString(
+          "core.common.SendingApiRequest",
+          `${this.getEndpoint()}/api/appdefinitions/{teamsAppId}/owner`,
+          JSON.stringify(app)
+        )
+      );
+      requester = this.createRequesterWithToken(token);
+      const response = await RetryHandler.Retry(() =>
+        requester.post(`/api/appdefinitions/${teamsAppId}/owner`, app)
+      );
+      TOOLS.logProvider.debug(
+        getLocalizedString("core.common.ReceiveApiResponse", JSON.stringify(response?.data))
+      );
+      if (
+        !response ||
+        !response.data ||
+        this.checkUser(response.data as AppDefinition, userToRemove)
+      ) {
+        throw new Error("Response is empty or user is not removed.");
+      }
+    } catch (err) {
+      throw this.wrapException(err, APP_STUDIO_API_NAMES.UPDATE_OWNER);
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
   async grantPermission(token: string, teamsAppId: string, newUser: AppUser): Promise<void> {
     const app = await this.getApp(token, teamsAppId);
     if (this.checkUser(app, newUser)) {

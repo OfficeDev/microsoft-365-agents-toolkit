@@ -21,6 +21,7 @@ export enum TemplateNames {
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
+  CustomCopilotWeatherAgent = "custom-copilot-weather-agent", // only supported in VS, using agent SDK
 
   // graph connector
   GraphConnector = "graph-connector", // vsc only

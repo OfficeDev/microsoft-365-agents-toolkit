@@ -21,6 +21,7 @@ import {
 import { TypeSpecCompileDriver } from "../../../../src/component/driver/typeSpec/compile";
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import * as kiotaClient from "../../../../src/common/kiotaClient";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -133,7 +134,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -204,7 +205,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -275,7 +276,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",

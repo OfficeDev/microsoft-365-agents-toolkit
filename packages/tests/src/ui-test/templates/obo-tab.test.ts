@@ -40,12 +40,14 @@ import { it } from "../../utils/it";
 
 describe("Local Debug M365 Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
-  let localDebugTestContext: LocalDebugTestContext;
+  let successFlagForLocal = false;
+  let successFlagForRemote = false;
 
   after(async function () {
     this.timeout(Timeout.finishTestCase);
     setTimeout(() => {
-      process.exit(0);
+      if (successFlagForLocal && successFlagForRemote) process.exit(0);
+      else process.exit(1);
     }, 30000);
   });
 
@@ -56,7 +58,7 @@ describe("Local Debug M365 Tests", function () {
       author: "kuojianlu@microsoft.com",
     },
     async () => {
-      localDebugTestContext = new LocalDebugTestContext("m365lp");
+      const localDebugTestContext = new LocalDebugTestContext("m365lp");
       await localDebugTestContext.before();
       const projectPath = path.resolve(
         localDebugTestContext.testRootFolder,
@@ -103,6 +105,7 @@ describe("Local Debug M365 Tests", function () {
       const m365AppId = await localDebugTestContext.getM365AppId();
       const url = `https://outlook.office.com/host/${m365AppId}/index?login_hint=${Env.username}`;
       await validateReactOutlookTab(page, url, Env.displayName, true);
+      successFlagForLocal = true;
       await localDebugTestContext.after();
       try {
         //Close the folder and cleanup local sample project
@@ -139,34 +142,42 @@ describe("Local Debug M365 Tests", function () {
       await remoteDebugTestContext.before();
       //create tab project
       const driver = VSBrowser.instance.driver;
-      await createNewProject("m365lp", appName);
-      await setSkuNameToStandard(projectPath);
-      await driver.sleep(Timeout.shortTimeWait);
-      await provisionProject(appName, projectPath);
-      await deployProject(projectPath);
-      const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
-        projectPath
-      );
-      const page = await initPage(
-        remoteDebugTestContext.context!,
-        teamsAppId,
-        Env.username,
-        Env.password,
-        { projectPath: projectPath, env: "dev" }
-      );
-      await validateReactTab(page, Env.displayName, true);
-      await remoteDebugTestContext.after();
+      try {
+        await createNewProject("m365lp", appName);
+        await setSkuNameToStandard(projectPath);
+        await driver.sleep(Timeout.shortTimeWait);
+        await provisionProject(appName, projectPath);
+        await deployProject(projectPath);
+        const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
+          projectPath
+        );
+        const page = await initPage(
+          remoteDebugTestContext.context!,
+          teamsAppId,
+          Env.username,
+          Env.password,
+          { projectPath: projectPath, env: "dev" }
+        );
+        await validateReactTab(page, Env.displayName, true);
+        successFlagForRemote = true;
+      } catch (error) {
+        await remoteDebugTestContext.after();
 
-      //Close the folder and cleanup local sample project
-      await execCommandIfExist("Workspaces: Close Workspace", Timeout.webView);
-      console.log(`[Successfully] start to clean up for ${projectPath}`);
-      await remoteDebugTestContext.cleanUp(
-        appName,
-        projectPath,
-        true,
-        false,
-        false
-      );
+        //Close the folder and cleanup local sample project
+        await execCommandIfExist(
+          "Workspaces: Close Workspace",
+          Timeout.webView
+        );
+        console.log(`[Successfully] start to clean up for ${projectPath}`);
+        await remoteDebugTestContext.cleanUp(
+          appName,
+          projectPath,
+          true,
+          false,
+          false
+        );
+        throw new Error("Error: " + error);
+      }
     }
   );
 });

@@ -1832,7 +1832,8 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotBasic().id ||
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotRag().id ||
-            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id ||
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotWeather().id
           );
         },
         data: llmServiceQuestion(),

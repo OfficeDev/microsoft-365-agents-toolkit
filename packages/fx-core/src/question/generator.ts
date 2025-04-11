@@ -473,6 +473,12 @@ async function batchGenerate() {
 
   await generateCliOptions(questionNodes.setSensitivityLabel(), "SetSensitivityLabel");
   await generateInputs(questionNodes.setSensitivityLabel(), "SetSensitivityLabel");
+
+  await generateCliOptions(questionNodes.share(), "Share");
+  await generateInputs(questionNodes.share(), "Share");
+
+  await generateCliOptions(questionNodes.removeSharedAccess(), "removeSharedAccess");
+  await generateInputs(questionNodes.removeSharedAccess(), "removeSharedAccess");
 }
 
 void batchGenerate();
