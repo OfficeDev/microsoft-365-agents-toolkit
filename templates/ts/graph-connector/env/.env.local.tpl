@@ -3,7 +3,7 @@
 # Built-in environment variables
 TEAMSFX_ENV=local
 APP_NAME_SUFFIX=local
-CONNECTOR_ID=
+CONNECTOR_ID={{{gcName}}}
 CONNECTOR_NAME={{{gcName}}}
 CONNECTOR_DESCRIPTION=Connection that indexes all GitHub issues from a specific owner and repo.
 CONNECTOR_REPOS=org/repo-a,org/repo-b

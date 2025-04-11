@@ -1561,9 +1561,13 @@ export function GCNameQuestion(): TextInputQuestion {
         }
 
         process.env[QuestionNames.GCName] = input;
-        inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
         inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
-        inputs[QuestionNames.AppName] = input;
+
+        // Set template name and app name for Graph Connector Template
+        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
+          inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
+          inputs[QuestionNames.AppName] = input;
+        }
         return;
       },
     },
