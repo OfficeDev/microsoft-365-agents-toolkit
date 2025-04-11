@@ -27,13 +27,11 @@ import {
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { NoSpecError } from "./error/noSpecError";
 import { MultipleActionError } from "./error/multipleActionError";
-import {
-  injectAuthAction,
-  parseAndUpdatePluginManifestForKiota,
-} from "../../generator/openApiSpec/helper";
+import { injectAuthAction } from "../../generator/openApiSpec/helper";
 import { MetadataV3 } from "../../../common/versionMetadata";
 import { ReProvisionError } from "./error/reProvisionError";
 import { kiotageneratePlugin } from "../../../common/kiotaClient";
+import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
 
@@ -125,7 +123,7 @@ export class TypeSpecCompileDriver implements StepDriver {
                 `${openApiSpecsFolderPath}/${spec}`,
                 `${outputFolderPath}`,
                 `${pluginManifestName}`,
-                ctx.projectPath
+                `${outputFolderPath}`
               );
             }
           }
@@ -249,9 +247,9 @@ export class TypeSpecCompileDriver implements StepDriver {
   private removeGeneratedFiles(outputFolderPath: string): void {
     const files = fs.readdirSync(outputFolderPath);
     for (const file of files) {
-      if (file === defaultOpenApiOutputDir) {
-        const openApiSpecsFolderPath = path.join(outputFolderPath, defaultOpenApiOutputDir);
-        fs.rmSync(openApiSpecsFolderPath, { recursive: true, force: true });
+      if (file === defaultOpenApiOutputDir || file === ".kiota") {
+        const folderPath = path.join(outputFolderPath, file);
+        fs.rmSync(folderPath, { recursive: true, force: true });
       }
 
       if (

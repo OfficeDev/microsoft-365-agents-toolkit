@@ -254,9 +254,10 @@ export class Timeout {
   // mocha
   public static readonly prepareTestCase: number = 10 * 60 * 1000;
   public static readonly finishTestCase: number = 10 * 60 * 1000;
-  public static readonly testCase: number = 30 * 60 * 1000;
+  public static readonly testCase: number = 60 * 60 * 1000;
   public static readonly localAndRemoteTestCase: number = 60 * 60 * 1000;
   public static readonly finishAzureTestCase: number = 15 * 60 * 1000;
+  public static readonly testAzureCaseTotal: number = 90 * 60 * 1000;
   public static readonly testAzureCase: number = 45 * 60 * 1000;
   public static readonly migrationTestCase: number = 40 * 60 * 1000;
 
@@ -458,6 +459,7 @@ export class LocalDebugTaskInfo {
   static readonly StartBotAppInfo = "App Started";
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
+  static readonly AppListening = "app listening";
 }
 
 export class DebugItemSelect {
@@ -509,8 +511,7 @@ export class CreateProjectQuestion {
 export class ValidationContent {
   static readonly Tab = "Hello, World";
   static readonly Bot = "Your Hello World Bot is Running";
-  static readonly BotWelcomeInstruction =
-    "Hi there! I'm a Teams bot that will echo what you said to me";
+  static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Graph Connector Bot is Running";
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =

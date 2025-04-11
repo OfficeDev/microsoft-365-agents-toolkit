@@ -12,13 +12,7 @@
             }
         },
         "cases": [
-            "sample-localdebug-query-org",
-            "sample-localdebug-stock-update",
-            "sample-localdebug-incoming-webhook",
-            "sample-remotedebug-todo-list-with-m365",
-            "sample-localdebug-npm-search",
-            "sample-localdebug-proactive-message",
-            "sample-remotedebug-dice-roller",
+            "sample-incoming-webhook",
             "localdebug-chatdata-m365-js-azureopenai",
             "localdebug-chatdata-m365-js-openai",
             "localdebug-chatdata-m365-ts-azureopenai",
@@ -27,12 +21,9 @@
             "remotedebug-chatdata-m365-js-openai",
             "remotedebug-chatdata-m365-ts-azureopenai",
             "remotedebug-chatdata-m365-ts-openai",
-            "sample-localdebug-outlook-signature",
-            "sample-remotedebug-outlook-signature",
-            "sample-localdebug-reddit-link",
-            "sample-remotedebug-reddit-link",
-            "sample-localdebug-chef-bot",
-            "sample-remotedebug-chef-bot"
+            "sample-outlook-signature",
+            "sample-reddit-link",
+            "sample-chef-bot"
         ]
     },
     {
@@ -42,9 +33,9 @@
             }
         },
         "cases": [
-            "sample-localdebug-todo-list-with-spfx",
-            "sample-localdebug-spfx-productivity-dashboard",
-            "sample-localdebug-react-retail-dashboard"
+            "sample-todo-list-with-spfx",
+            "sample-spfx-productivity-dashboard",
+            "sample-react-retail-dashboard"
         ]
     },
     {
@@ -57,9 +48,6 @@
             }
         },
         "cases": [
-            "sample-remotedebug-todo-list-with-spfx",
-            "sample-remotedebug-spfx-productivity-dashboard",
-            "sample-remotedebug-react-retail-dashboard"
         ]
     },
     {
@@ -72,10 +60,7 @@
             }
         },
         "cases": [
-            "sample-localdebug-hello-world-tab-with-backend",
-            "sample-localdebug-dice-roller",
-            "sample-localdebug-contact-exporter",
-            "sample-localdebug-hello-world-meeting",
+            "sample-dice-roller",
             "sample-localdebug-food-catalog",
             "sample-remotedebug-food-catalog"
         ]
@@ -87,23 +72,20 @@
             }
         },
         "cases": [
-            "sample-remotedebug-adaptive-card",
-            "sample-remotedebug-dashboard",
-            "sample-remotedebug-graph-connector",
-            "sample-remotedebug-contact-exporter",
-            "sample-remotedebug-hello-world-tab-with-backend",
-            "sample-remotedebug-npm-search",
-            "sample-remotedebug-hello-world-meeting",
-            "sample-remotedebug-one-productivity-hub",
-            "sample-remotedebug-stock-update",
-            "sample-remotedebug-query-org",
-            "sample-remotedebug-proactive-message",
-            "sample-remotedebug-assistant-dashboard",
-            "sample-remotedebug-hello-world-tab-outlook",
-            "sample-remotedebug-bot-sso",
+            "sample-dashboard",
+            "sample-contact-exporter",
+            "sample-hello-world-tab-with-backend",
+            "sample-npm-search",
+            "sample-hello-world-meeting",
+            "sample-one-productivity-hub",
+            "sample-stock-update",
+            "sample-query-org",
+            "sample-proactive-message",
+            "sample-assistant-dashboard",
+            "sample-hello-world-tab-outlook",
+            "sample-bot-sso",
             "sample-remotedebug-sso-tab-via-apim-proxy",
-            "sample-localdebug-graph-connector-bot",
-            "sample-localdebug-bot-sso"
+            "sample-graph-connector-bot"
         ]
     },
     {
@@ -113,22 +95,14 @@
             }
         },
         "cases": [
-            "sample-localdebug-adaptive-card",
-            "sample-localdebug-graph-connector",
-            "sample-localdebug-dashboard",
-            "sample-localdebug-hello-world-tab-outlook",
-            "sample-localdebug-one-productivity-hub",
-            "sample-localdebug-assistant-dashboard",
-            "sample-localdebug-todo-list-sql",
-            "sample-remotedebug-todo-list-sql",
-            "sample-remotedebug-large-scale-notification",
-            "sample-localdebug-bot-sso-docker",
-            "sample-remotedebug-bot-sso-docker",
-            "sample-localdebug-hello-world-tab-docker",
-            "sample-remotedebug-hello-world-tab-docker",
-            "sample-localdebug-todo-list-with-m365",
-            "sample-localdebug-intelligent-data-chart",
-            "sample-remotedebug-intelligent-data-chart"
+            "sample-adaptive-card",
+            "sample-graph-connector",
+            "sample-todo-list-sql",
+            "sample-large-scale-notification",
+            "sample-bot-sso-docker",
+            "sample-hello-world-tab-docker",
+            "sample-todo-list-with-m365",
+            "sample-intelligent-data-chart"
         ]
     },
     {
