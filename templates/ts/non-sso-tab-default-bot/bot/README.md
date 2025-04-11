@@ -33,7 +33,7 @@ This is a simple hello world application with both Bot and Message extension cap
 
 ## Edit the manifest
 
-You can find the Teams app manifest in `../appPackage` folder. The folder contains one manifest file:
+You can find the app manifest in `../appPackage` folder. The folder contains one manifest file:
 
 - `manifest.json`: Manifest file for Teams app running locally or running remotely (After deployed to Azure).
 
@@ -70,7 +70,7 @@ To check that your manifest file is valid:
 
 ## Package
 
-- From Visual Studio Code: open the Microsoft 365 Agents Toolkit and click `Zip Teams App Package` or open the command palette and select `Teams: Zip Teams App Package`.
+- From Visual Studio Code: open the Microsoft 365 Agents Toolkit and click `Zip app package` or open the command palette and select `Teams: Zip app package`.
 - Alternatively, from the command line run `teamsapp package` in the project directory.
 
 ## Publish to Teams

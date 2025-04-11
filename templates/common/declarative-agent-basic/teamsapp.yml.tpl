@@ -17,7 +17,7 @@ provision:
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
 
-  # Build Teams app package with latest env value
+  # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
       # Path to manifest template
@@ -31,8 +31,8 @@ provision:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
-  # Apply the Teams app manifest to an existing Teams app in
-  # Teams Developer Portal.
+  # Apply the app manifest to an existing Teams app in
+  # Developer Portal.
   # Will use the app id in manifest file to determine which Teams app to update.
   - uses: teamsApp/update
     with:
@@ -52,7 +52,7 @@ provision:
 {{#ShareEnabled}}
 # Triggered when `teamsapp share` is executed
 share:
-  # Build Teams app package with latest env value
+  # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
       # Path to manifest template
@@ -66,8 +66,8 @@ share:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
-  # Apply the Teams app manifest to an existing Teams app in
-  # Teams Developer Portal.
+  # Apply the app manifest to an existing Teams app in
+  # Developer Portal.
   # Will use the app id in manifest file to determine which Teams app to update.
   - uses: teamsApp/update
     with:
@@ -88,7 +88,7 @@ share:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-  # Build Teams app package with latest env value
+  # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
       # Path to manifest template
@@ -102,8 +102,8 @@ publish:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
-  # Apply the Teams app manifest to an existing Teams app in
-  # Teams Developer Portal.
+  # Apply the app manifest to an existing Teams app in
+  # Developer Portal.
   # Will use the app id in manifest file to determine which Teams app to update.
   - uses: teamsApp/update
     with:
