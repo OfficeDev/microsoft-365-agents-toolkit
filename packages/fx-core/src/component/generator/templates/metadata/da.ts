@@ -89,4 +89,10 @@ export const declarativeAgentTemplates: Template[] = [
     language: "common",
     description: "",
   },
+  {
+    id: "declarative-agent-with-graph-connector-ts",
+    name: TemplateNames.DeclarativeAgentWithGraphConnector,
+    language: "typescript",
+    description: "",
+  },
 ];

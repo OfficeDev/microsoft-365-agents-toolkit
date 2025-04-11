@@ -12,6 +12,7 @@ export enum TemplateNames {
   DeclarativeAgentWithActionFromExistingApiSpec = "api-plugin-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
 
   // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
@@ -22,6 +23,9 @@ export enum TemplateNames {
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
   CustomCopilotWeatherAgent = "custom-copilot-weather-agent", // only supported in VS, using agent SDK
+
+  // graph connector
+  GraphConnector = "graph-connector", // vsc only
 
   // graph connector
   GraphConnector = "graph-connector", // vsc only

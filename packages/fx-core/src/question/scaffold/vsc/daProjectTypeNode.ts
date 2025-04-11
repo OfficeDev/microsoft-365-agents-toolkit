@@ -5,7 +5,7 @@ import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../constants";
-import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
+import { GCNameQuestion, pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -38,7 +38,7 @@ export function daProjectTypeNode(
           title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
           cliDescription: "Whether to add API plugin for your declarative Copilot.",
           type: "singleSelect",
-          staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
+          staticOptions: DACapabilityOptions.all(),
           placeholder: getLocalizedString(
             "core.createProjectQuestion.declarativeCopilot.placeholder"
           ),
@@ -111,6 +111,10 @@ export function daProjectTypeNode(
                 ],
               },
             ],
+          },
+          {
+            condition: { equals: DACapabilityOptions.withGC().id },
+            data: GCNameQuestion(),
           },
         ],
       },
