@@ -73,7 +73,7 @@
                 "Launch App (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-local",
@@ -91,7 +91,7 @@
                 "Launch App (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-local",

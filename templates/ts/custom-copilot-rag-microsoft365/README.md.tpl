@@ -13,7 +13,7 @@ This app template also demonstrates usage of techniques like:
 > To run the template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-> - A Microsoft 365 tenant in which you have permission to upload Teams apps. You can get a free Microsoft 365 developer tenant by joining the [Microsoft 365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program).
+> - A Microsoft 365 tenant in which you have permission to upload apps. You can get a free Microsoft 365 developer tenant by joining the [Microsoft 365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program).
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli).
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/).
@@ -46,7 +46,7 @@ This app template also demonstrates usage of techniques like:
 | Folder       | Contents                                            |
 | - | - |
 | `.vscode`    | VSCode files for debugging                          |
-| `appPackage` | Templates for the Teams application manifest        |
+| `appPackage` | Templates for the application manifest        |
 | `env`        | Environment files                                   |
 | `infra`      | Templates for provisioning Azure resources          |
 | `src`        | The source code for the application                 |
@@ -69,8 +69,8 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
-|`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
+|`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`teamsapp.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
 
 ## Extend the template
 

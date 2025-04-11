@@ -1,6 +1,6 @@
-# Server-side code in Teams applications
+# Server-side code in applications
 
-Azure Functions are a great way to add server-side behaviors to any Teams application.
+Azure Functions are a great way to add server-side behaviors to any application.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ Azure Functions are a great way to add server-side behaviors to any Teams applic
 
 ## Develop
 
-The Microsoft 365 Agents Toolkit IDE Extension and Microsoft 365 Agents Toolkit CLI provide template code for you to get started with Azure Functions for your Teams application. Microsoft Teams Framework simplifies the task of establishing the user's identity within the Azure Functions.
+The Microsoft 365 Agents Toolkit IDE Extension and Microsoft 365 Agents Toolkit CLI provide template code for you to get started with Azure Functions for your application. Microsoft Teams Framework simplifies the task of establishing the user's identity within the Azure Functions.
 
 The template handles calls from your Teams "custom tab" (client-side of your app), initializes the TeamsFx SDK to access the current user context, and demonstrates how to obtain a pre-authenticated Microsoft Graph Client. Microsoft Graph is the "data plane" of Microsoft 365 - you can use it to access content within Microsoft 365 in your company. With it you can read and write documents, SharePoint collections, Teams channels, and many other entities within Microsoft 365. Read more about [Microsoft Graph](https://docs.microsoft.com/en-us/graph/overview).
 
@@ -62,7 +62,7 @@ Then following requests sent to the Azure Functions app will be handled by new n
 
 You can find the app manifest in `./appPackage` folder. The folder contains one manifest file:
 
-- `manifest.json`: Manifest file for Teams app running locally or running remotely (After deployed to Azure).
+- `manifest.json`: Manifest file for app running locally or running remotely (After deployed to Azure).
 
 This file contains template arguments with `${{...}}` statements which will be replaced at build time. You may add any extra properties or permissions you require to this file. See the [schema reference](https://docs.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema) for more information.
 

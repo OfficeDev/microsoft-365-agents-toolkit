@@ -19,7 +19,7 @@ This app template allows Teams to interact directly with third-party data, apps,
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Create Teams app by clicking `Provision` in "Lifecycle" section.
+3. Create app by clicking `Provision` in "Lifecycle" section.
 4. Select `Preview in Teams (Edge)` or `Preview in Teams (Chrome)` from the launch configuration dropdown.
 5. To trigger the Message Extension, you can click the `+` under compose message area to find your message extension.
    > Note: Please make sure to switch to New Teams when Teams web client has launched
@@ -30,13 +30,13 @@ This app template allows Teams to interact directly with third-party data, apps,
 
 {{#OAuth}}
 > [!NOTE]
-> If your identity server needs Proof of Key Code Exchange (PKCE) for token exchange, uncomment the `isPKCEEnabled` property in the` oauth/register` section of the `teamsapp.yml` file shown as below:
+> If your identity server needs Proof of Key Code Exchange (PKCE) for token exchange, uncomment the `isPKCEEnabled` property in the` oauth/register` section of the `m365agents.yml` file shown as below:
 ```yaml
   - uses: oauth/register
     with:
       name: {{ApiSpecAuthName}}
       flow: authorizationCode
-      # Teams app ID
+      # app ID
       appId: ${{TEAMS_APP_ID}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
@@ -53,14 +53,14 @@ This app template allows Teams to interact directly with third-party data, apps,
 | Folder       | Contents                                     |
 | ------------ | -------------------------------------------- |
 | `.vscode`    | VSCode files for debugging                   |
-| `appPackage` | Templates for the Teams application manifest, the API specification and response templates for API responses |
+| `appPackage` | Templates for the application manifest, the API specification and response templates for API responses |
 | `env`        | Environment files                            |
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File                 | Contents                                                                                                                                  |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `teamsapp.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
+| `m365agents.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 
 ## Addition information and references
 

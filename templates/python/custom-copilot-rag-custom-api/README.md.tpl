@@ -47,7 +47,7 @@ This template showcases a bot app that responds to user questions like an AI ass
 | Folder       | Contents                                            |
 | - | - |
 | `.vscode`    | VSCode files for debugging                          |
-| `appPackage` | Templates for the Teams application manifest        |
+| `appPackage` | Templates for the application manifest        |
 | `env`        | Environment files                                   |
 | `infra`      | Templates for provisioning Azure resources          |
 | `src`        | The source code for the application                 |
@@ -66,9 +66,9 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
-|`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
+|`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`teamsapp.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
+|`teamsapp.testtool.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the template
 

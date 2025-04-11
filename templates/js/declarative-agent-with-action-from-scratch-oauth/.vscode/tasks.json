@@ -5,7 +5,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Start Teams App Locally",
+            "label": "Start App Locally",
             "dependsOn": [
                 "Validate prerequisites",
                 "Start local tunnel",

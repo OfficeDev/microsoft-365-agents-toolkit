@@ -35,7 +35,7 @@ This is a simple hello world application with both Bot and Message extension cap
 
 You can find the app manifest in `../appPackage` folder. The folder contains one manifest file:
 
-- `manifest.json`: Manifest file for Teams app running locally or running remotely (After deployed to Azure).
+- `manifest.json`: Manifest file for app running locally or running remotely (After deployed to Azure).
 
 This file contains template arguments with `${{...}}` statements which will be replaced at build time. You may add any extra properties or permissions you require to this file. See the [schema reference](https://docs.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema) for more information.
 

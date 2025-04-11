@@ -4,7 +4,7 @@
 env/
 __pycache__/
 README.md
-teamsapp.yml
+m365agents.yml
 teamsapp.local.yml
 teamsapp.testtool.yml
 /devTools/

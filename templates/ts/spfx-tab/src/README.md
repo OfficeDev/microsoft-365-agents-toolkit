@@ -41,7 +41,7 @@ The SharePoint Framework (SPFx) is a page and web part model that provides full 
    Or you can use Microsoft 365 Agents Toolkit CLI with running this cmd under your project path:
    `teamsapp provision`
 
-   It will provision an app in Teams App Studio. You may need to login with your Microsoft 365 tenant admin account.
+   It will provision an app in App Studio. You may need to login with your Microsoft 365 tenant admin account.
 
 2. Build and Deploy your SharePoint Package.
 
@@ -59,7 +59,7 @@ The SharePoint Framework (SPFx) is a page and web part model that provides full 
 
    You will find your app in [Microsoft Teams admin center](https://admin.teams.microsoft.com/policies/manage-apps). Enter your app name in the search box. Click the item and select `Publish` in the Publishing status.
 
-4. You may need to wait for a few minutes after publishing your teams app. And then login to Teams, and you will find your app in the `Apps - Built for {your-tenant-name}` category.
+4. You may need to wait for a few minutes after publishing your app. And then login to Teams, and you will find your app in the `Apps - Built for {your-tenant-name}` category.
 
 5. Click "Add" to use the app as a personal tab. Click "Add to a team" to use the app as a group tab.
 
@@ -67,7 +67,7 @@ The SharePoint Framework (SPFx) is a page and web part model that provides full 
 
 Start debugging the project by hitting the `F5` key in Visual Studio Code. Alternatively use the `Run and Debug Activity Panel` in Visual Studio Code and click the `Start Debugging` green arrow button.
 
-- `Teams workbench` is the default debug configuration. Using this configuration, you can install the SPFx app within Teams context as a Teams app.
+- `Teams workbench` is the default debug configuration. Using this configuration, you can install the SPFx app within Teams context as an app.
 - `SharePoint workbench`. You need to navigate to [launch.json](../.vscode/launch.json), replace `enter-your-SharePoint-site` with your SharePoint site, eg. `https://{your-tenant-name}.sharepoint.com/sites/{your-team-name}/_layouts/workbench.aspx`. You can also use root site if you haven't created one, eg. `https://{your-tenant-name}.sharepoint.com/_layouts/workbench.aspx`.
 
 ## References

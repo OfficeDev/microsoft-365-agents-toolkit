@@ -13,7 +13,7 @@ node_modules/.bin
 node_modules/azure-functions-core-tools
 README.md
 tsconfig.json
-teamsapp.yml
+m365agents.yml
 teamsapp.*.yml
 /env/
 /appPackage/

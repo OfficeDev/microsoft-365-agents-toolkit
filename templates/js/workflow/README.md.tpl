@@ -61,12 +61,12 @@ When you click the `DoStuff` button, the above adaptive card will be updated to 
 | - | - |
 | Folder / File | Contents |
 | - | - |
-| `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
-| `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
-| `env/`| Name / value pairs are stored in environment files and used by `teamsapp.yml` to customize the provisioning and deployment rules |
+| `m365agents.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
+| `teamsapp.local.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging |
+| `teamsapp.testtool.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
+| `env/`| Name / value pairs are stored in environment files and used by `m365agents.yml` to customize the provisioning and deployment rules |
 | `.vscode/` | VSCode files for debugging |
-| `appPackage/` | Templates for the Teams application manifest |
+| `appPackage/` | Templates for the application manifest |
 | `infra/` | Templates for provisioning Azure resources |
 | `src/` | The source code for the application |
 

@@ -27,7 +27,7 @@
       "name": "Launch Remote (Desktop)",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+      "preLaunchTask": "Start App in Desktop Client (Remote)",
       "presentation": {
         "group": "1-Teams",
         "order": 6
@@ -147,7 +147,7 @@
       "name": "Debug in Teams (Edge)",
       "configurations": ["Launch App (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 1
@@ -158,7 +158,7 @@
       "name": "Debug in Teams (Chrome)",
       "configurations": ["Launch App (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 2
@@ -168,7 +168,7 @@
     {
       "name": "Debug in Teams (Desktop)",
       "configurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App in Desktop Client",
+      "preLaunchTask": "Start App in Desktop Client",
       "presentation": {
         "group": "1-Teams",
         "order": 3
@@ -196,7 +196,7 @@
       "name": "Debug in Copilot (Edge)",
       "configurations": ["Local debug in Copilot (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "3-M365",
         "order": 1
@@ -207,7 +207,7 @@
       "name": "Debug in Copilot (Chrome)",
       "configurations": ["Local debug in Copilot (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start App Locally",
       "presentation": {
         "group": "3-M365",
         "order": 2

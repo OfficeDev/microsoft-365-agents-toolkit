@@ -17,7 +17,7 @@ With the declarative agent, you can build a custom version of Copilot that can b
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Create Teams app by clicking `Provision` in "Lifecycle" section.
+3. Create app by clicking `Provision` in "Lifecycle" section.
 4. Select `Preview in Copilot (Edge)` or `Preview in Copilot (Chrome)` from the launch configuration dropdown.
 5. Once the Copilot app is loaded in the browser, click on the "…" menu and select "Copilot chats". You will see your declarative agent on the right rail. Clicking on it will change the experience to showcase the logo and name of your declarative agent.
 6. Ask a question to your declarative agent and it should respond based on the instructions provided.
@@ -27,7 +27,7 @@ With the declarative agent, you can build a custom version of Copilot that can b
 | Folder       | Contents                                                                                 |
 | ------------ | ---------------------------------------------------------------------------------------- |
 | `.vscode`    | VSCode files for debugging                                                               |
-| `appPackage` | Templates for the Teams application manifest, the GPT manifest and the API specification |
+| `appPackage` | Templates for the application manifest, the GPT manifest and the API specification |
 | `env`        | Environment files                                                                        |
 
 The following files can be customized and demonstrate an example implementation to get you started.
@@ -35,13 +35,13 @@ The following files can be customized and demonstrate an example implementation 
 | File                               | Contents                                                                     |
 | ---------------------------------- | ---------------------------------------------------------------------------- |
 | `appPackage/declarativeAgent.json` | Define the behaviour and configurations of the declarative agent.            |
-| `appPackage/manifest.json`         | Teams application manifest that defines metadata for your declarative agent. |
+| `appPackage/manifest.json`         | application manifest that defines metadata for your declarative agent. |
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File           | Contents                                                                                                                                  |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `teamsapp.yml` | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
+| `m365agents.yml` | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 
 ## Extend the template
 

@@ -1,7 +1,7 @@
 # Overview of the Chat With Your Data (Using Custom API) template
 
 This template showcases how to build an AI-powered intelligent chatbot that can understand natural language to invoke the API defined in the OpenAPI description document, so you can enable your users to chat with the data provided through API service.
-The app template is built using the Teams AI library, which provides the capabilities to build AI-based Teams applications.
+The app template is built using the Teams AI library, which provides the capabilities to build AI-based applications.
 
 ## Get started with the template
 
@@ -60,7 +60,7 @@ The app template is built using the Teams AI library, which provides the capabil
 | Folder       | Contents                                            |
 | - | - |
 | `.vscode`    | VSCode files for debugging                          |
-| `appPackage` | Templates for the Teams application manifest        |
+| `appPackage` | Templates for the application manifest        |
 | `appPackage/apiSpecificationFile` | Generated API spec file        |
 | `env`        | Environment files                                   |
 | `infra`      | Templates for provisioning Azure resources          |
@@ -83,9 +83,9 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
-|`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
+|`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`teamsapp.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
+|`teamsapp.testtool.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the template
 

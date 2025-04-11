@@ -79,7 +79,7 @@
             "name": "Launch Remote in Teams (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -167,7 +167,7 @@
                 "Launch App (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -185,7 +185,7 @@
                 "Launch App (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -202,7 +202,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -238,7 +238,7 @@
                 "Launch in Copilot (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "3-M365",
                 "order": 1
@@ -251,7 +251,7 @@
                 "Launch in Copilot (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "3-M365",
                 "order": 2

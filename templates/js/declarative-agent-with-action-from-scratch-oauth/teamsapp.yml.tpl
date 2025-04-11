@@ -40,10 +40,10 @@ provision:
       authority: AAD_APP_OAUTH_AUTHORITY
       authorityHost: AAD_APP_OAUTH_AUTHORITY_HOST
 
-  # Creates a Teams app
+  # Creates an app
   - uses: teamsApp/create
     with:
-      # Teams app name
+      # app name
       name: {{appName}}${{APP_NAME_SUFFIX}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
@@ -130,15 +130,15 @@ provision:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
 
-  # Apply the app manifest to an existing Teams app in
+  # Apply the app manifest to an existing app in
   # Developer Portal.
-  # Will use the app id in manifest file to determine which Teams app to update.
+  # Will use the app id in manifest file to determine which app to update.
   - uses: teamsApp/update
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
-  # Extend your Teams app to Outlook and the Microsoft 365 app
+  # Extend your app to Outlook and the Microsoft 365 app
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -188,9 +188,9 @@ share:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
-  # Apply the app manifest to an existing Teams app in
+  # Apply the app manifest to an existing app in
   # Developer Portal.
-  # Will use the app id in manifest file to determine which Teams app to update.
+  # Will use the app id in manifest file to determine which app to update.
   - uses: teamsApp/update
     with:
       # Relative path to this file. This is the path for built zip file.
@@ -224,9 +224,9 @@ publish:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 {{/EmbeddedKnowledgeEnabled}}
-  # Apply the app manifest to an existing Teams app in
+  # Apply the app manifest to an existing app in
   # Developer Portal.
-  # Will use the app id in manifest file to determine which Teams app to update.
+  # Will use the app id in manifest file to determine which app to update.
   - uses: teamsApp/update
     with:
       # Relative path to this file. This is the path for built zip file.

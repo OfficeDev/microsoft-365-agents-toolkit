@@ -16,7 +16,7 @@ local.settings.json
 /node_modules/azurite
 README.md
 tsconfig.json
-teamsapp.yml
+m365agents.yml
 teamsapp.*.yml
 /env/
 /appPackage/

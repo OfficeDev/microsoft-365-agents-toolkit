@@ -28,7 +28,7 @@ This app template allows Teams to interact directly with third-party data, apps,
 | Folder       | Contents                                                                                                    |
 | ------------ | ----------------------------------------------------------------------------------------------------------- |
 | `.vscode`    | VSCode files for debugging                                                                                  |
-| `appPackage` | Templates for the Teams application manifest, the API specification and response template for API responses |
+| `appPackage` | Templates for the application manifest, the API specification and response template for API responses |
 | `env`        | Environment files                                                                                           |
 | `infra`      | Templates for provisioning Azure resources                                                                  |
 | `src`        | The source code for the repair API                                                                          |
@@ -52,8 +52,8 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 | File                 | Contents                                                                                                                                                                                                                                                |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `teamsapp.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions.                                                                                                               |
-| `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging.                                                                                                                                                                   |
+| `m365agents.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions.                                                                                                               |
+| `teamsapp.local.yml` | This overrides `m365agents.yml` with actions that enable local execution and debugging.                                                                                                                                                                   |
 | `aad.manifest.json`  | This file defines the configuration of Microsoft Entra app. This template will only provision [single tenant](https://learn.microsoft.com/azure/active-directory/develop/single-and-multi-tenant-apps#who-can-sign-in-to-your-app) Microsoft Entra app. |
 
 ## How Microsoft Entra works

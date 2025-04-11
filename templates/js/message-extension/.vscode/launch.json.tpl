@@ -142,7 +142,7 @@
                 "Launch App in Teams (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 1
@@ -155,7 +155,7 @@
                 "Launch App in Teams (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 2
@@ -168,7 +168,7 @@
                 "Launch App in Outlook (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 1
@@ -181,7 +181,7 @@
                 "Launch App in Outlook (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 2

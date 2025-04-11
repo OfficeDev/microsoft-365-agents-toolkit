@@ -54,12 +54,12 @@ The bot will send an Adaptive Card to Teams:
 
 | Folder / File | Contents |
 | - | - |
-| `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
-| `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
+| `m365agents.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
+| `teamsapp.local.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging |
+| `teamsapp.testtool.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
 | `.vscode/` | VSCode files for local debug |
-| `src/` | The source code for the notification Teams application |
-| `appPackage/` | Templates for the Teams application manifest |
+| `src/` | The source code for the notification application |
+| `appPackage/` | Templates for the application manifest |
 | `infra/` | Templates for provisioning Azure resources |
 
 The following files can be customized and demonstrate an example implementation to get you started.

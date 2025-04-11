@@ -10,7 +10,7 @@ test
 node_modules/.bin
 node_modules/azure-functions-core-tools
 README.md
-teamsapp.yml
+m365agents.yml
 teamsapp.*.yml
 /env/
 /appPackage/

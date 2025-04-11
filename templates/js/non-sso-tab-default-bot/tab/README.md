@@ -21,7 +21,7 @@ Microsoft Teams supports the ability to run web-based UI inside "custom tabs" th
 
 You can find the app manifest in `../appPackage` folder. The folder contains one manifest file:
 
-- `manifest.json`: Manifest file for Teams app running locally or running remotely (After deployed to Azure).
+- `manifest.json`: Manifest file for app running locally or running remotely (After deployed to Azure).
 
 This file contains template arguments with `${{...}}` statements which will be replaced at build time. You may add any extra properties or permissions you require to this file. See the [schema reference](https://docs.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema) for more information.
 
@@ -68,6 +68,6 @@ Once deployed, you may want to distribute your application to your organization'
 
 ## Add Single Sign On feature
 
-Microsoft Teams provides a mechanism by which an application can obtain the signed-in Teams user token to access Microsoft Graph (and other APIs). Microsoft 365 Agents Toolkit facilitates this interaction by abstracting some of the Microsoft Entra flows and integrations behind some simple, high-level APIs. This enables you to add single sign-on (SSO) features easily to your Teams application.
+Microsoft Teams provides a mechanism by which an application can obtain the signed-in Teams user token to access Microsoft Graph (and other APIs). Microsoft 365 Agents Toolkit facilitates this interaction by abstracting some of the Microsoft Entra flows and integrations behind some simple, high-level APIs. This enables you to add single sign-on (SSO) features easily to your application.
 
 Please follow this [document](https://aka.ms/teamsfx-add-sso-new) to add single sign on for your project.
