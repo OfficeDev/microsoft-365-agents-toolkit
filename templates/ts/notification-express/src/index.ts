@@ -1,8 +1,8 @@
 import * as ACData from "adaptivecards-templating";
 import express from "express";
 import notificationTemplate from "./adaptiveCards/notification-default.json";
+import { agentApp } from "./agent";
 import { notificationApp } from "./internal/initialize";
-import { TeamsBot } from "./teamsBot";
 
 // Create express application.
 const expressApp = express();
@@ -135,9 +135,8 @@ expressApp.post("/api/notification", async (req, res) => {
 // The Teams Toolkit bot registration configures the bot with `/api/messages` as the
 // Bot Framework endpoint. If you customize this route, update the Bot registration
 // in `/templates/provision/bot.bicep`.
-const teamsBot = new TeamsBot();
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {
-    await teamsBot.run(context);
+    await agentApp.run(context);
   });
 });
