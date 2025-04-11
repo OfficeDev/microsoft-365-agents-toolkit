@@ -70,7 +70,7 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
         await fs.ensureDir(embeddedKnowledgeFolderPath);
       }
 
-      if (!featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+      if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
         const teamsManifestPath = path.join(
           destinationPath,
           AppPackageFolderName,
