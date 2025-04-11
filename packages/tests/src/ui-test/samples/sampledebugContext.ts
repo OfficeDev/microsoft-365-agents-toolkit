@@ -508,6 +508,7 @@ export class SampledebugContext extends TestContext {
     }
   ): Promise<void> {
     if (options.createRg) {
+      console.log("create resource group");
       await createResourceGroup(appName, options.env, "westus");
     }
     const resourceGroupName = `${appName}-${options.env}-rg`;
