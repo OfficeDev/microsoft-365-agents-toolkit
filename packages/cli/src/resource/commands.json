@@ -160,10 +160,10 @@
     "description": "Run the publish stage in m365agents.yml."
   },
   "share": {
-    "description": "Run the share stage in m365agents.yml or share the app to other users."
+    "description": "Run the 'share stage' in m365agents.yml or share the app with other users."
   },
   "share.remove": {
-    "description": "Remove access to the app from specified users."
+    "description": "Remove app access for specified users."
   },
   "uninstall": {
     "description": "Clean up resources associated with Manifest ID, Title ID, or an environment in Microsoft 365 Agents Toolkit generated project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and uploaded custom apps in Microsoft 365 apps.",

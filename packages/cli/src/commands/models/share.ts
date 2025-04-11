@@ -31,7 +31,7 @@ export const shareCommand: CLICommand = {
       description: "Share the app under current project folder",
     },
     {
-      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-to-users --users 'a@example.com,b@example.com' -i false`,
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-with-users --users 'a@example.com,b@example.com' -i false`,
       description: "Share owner access to users",
     },
   ],

@@ -789,7 +789,7 @@ describe("shareNode and removeSharedAccessNode", () => {
 
     const [shareApp, shareToUser] = shareOptionQuestion.staticOptions as OptionItem[];
     assert.equal(shareApp.id, "share-app");
-    assert.equal(shareToUser.id, "share-to-users");
+    assert.equal(shareToUser.id, "share-with-users");
   });
 
   it("shareToUser question should be shown when shareOption is shareToUser", () => {

@@ -12,7 +12,7 @@ import { Inputs } from "@microsoft/teamsfx-api";
 
 export interface ShareInputs extends Inputs {
   /** @description option */
-  option?: "share-app" | "share-to-users";
+  option?: "share-app" | "share-with-users";
   /** @description Enter user emails (separated by commas) */
   users?: string;
 }

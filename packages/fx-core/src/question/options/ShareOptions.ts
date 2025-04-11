@@ -16,7 +16,7 @@ export const ShareOptions: CLICommandOption[] = [
     type: "string",
     description: "option",
     required: true,
-    choices: ["share-app", "share-to-users"],
+    choices: ["share-app", "share-with-users"],
   },
   {
     name: "users",

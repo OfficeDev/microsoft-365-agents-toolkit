@@ -135,7 +135,7 @@ export enum QuestionNames {
 
   ShareOption = "option",
   ShareOptionShareApp = "share-app",
-  ShareOptionShareToUser = "share-to-users",
+  ShareOptionShareToUser = "share-with-users",
   ShareToUsers = "users",
   RemoveUsers = "users",
 }
