@@ -699,7 +699,7 @@
     "teamsAppCreate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create a app in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
+      "description": "Create an app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "name": {
@@ -715,7 +715,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
           "const": "teamsApp/create"
         },
         "with": {
@@ -906,7 +906,7 @@
     "teamsAppUpdate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Update app in Developer portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+      "description": "Update app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -922,7 +922,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Apply the app manifest to an existing app in Developer portal. Will use the app id in manifest.json file to determine which app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+          "description": "Apply the app manifest to an existing app in Developer Portal. Will use the app id in manifest.json file to determine which app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
           "const": "teamsApp/update"
         },
         "with": {
@@ -1294,7 +1294,7 @@
             },
             "testTool": {
               "type": "object",
-              "description": "Install Microsoft 365 Agents playground. This will output environment variables specified by `testToolPath` to current environment's .env file.",
+              "description": "Install Microsoft 365 Agents Playground. This will output environment variables specified by `testToolPath` to current environment's .env file.",
               "additionalProperties": false,
               "required": ["version", "symlinkDir"],
               "properties": {
@@ -1307,11 +1307,11 @@
                       "type": "integer"
                     }
                   ],
-                  "description": "The version number of Microsoft 365 Agents playground npm package that follow the Semantic Versioning scheme."
+                  "description": "The version number of Microsoft 365 Agents Playground npm package that follow the Semantic Versioning scheme."
                 },
                 "symlinkDir": {
                   "type": "string",
-                  "description": "The path of the symlink target for the folder containing Microsoft 365 Agents playground binaries."
+                  "description": "The path of the symlink target for the folder containing Microsoft 365 Agents Playground binaries."
                 }
               }
             },
@@ -1658,7 +1658,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of app."
+              "description": "The app ID."
             },
             "primaryClientSecret": {
               "type": "string",

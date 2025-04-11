@@ -152,7 +152,7 @@ export class TeamsDevPortalClient {
 
       if (response && response.data) {
         const app = <AppDefinition>response.data;
-        TOOLS.logProvider.debug(`Received data from Developer portal: ${JSON.stringify(app)}`);
+        TOOLS.logProvider.debug(`Received data from Developer Portal: ${JSON.stringify(app)}`);
         return app;
       } else {
         throw this.wrapException(
