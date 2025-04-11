@@ -23,13 +23,13 @@
     ]
   },
   {
-    "Name": "Copilot (browser) (skip update Teams App)",
+    "Name": "Copilot (browser) (skip update app)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Copilot (browser) (skip update Teams App)"
+        "DebugTarget": "Copilot (browser) (skip update app)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}

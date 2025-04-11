@@ -15,7 +15,7 @@
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
     // Launch project within Teams without prepare Teams App dependencies
-    "Microsoft Teams (browser) (skip update Teams App)": {
+    "Microsoft Teams (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}"
@@ -24,7 +24,7 @@
       "commandName": "Project",
       "launchUrl": "https://outlook.office.com/mail?login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
-    "Outlook (browser) (skip update Teams App)": {
+    "Outlook (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
       "launchUrl": "https://outlook.office.com/mail?login_hint=${{TEAMSFX_M365_USER_NAME}}",

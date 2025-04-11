@@ -48,13 +48,13 @@
     ]
   },
   {
-    "Name": "Microsoft Teams (browser) (skip update Teams App)",
+    "Name": "Microsoft Teams (browser) (skip update app)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Microsoft Teams (browser) (skip update Teams App)"
+        "DebugTarget": "Microsoft Teams (browser) (skip update app)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
@@ -94,13 +94,13 @@
     ]
   },
   {
-    "Name": "Outlook (browser) (skip update Teams App)",
+    "Name": "Outlook (browser) (skip update app)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Outlook (browser) (skip update Teams App)"
+        "DebugTarget": "Outlook (browser) (skip update app)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
