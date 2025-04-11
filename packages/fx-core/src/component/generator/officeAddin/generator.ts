@@ -7,12 +7,12 @@
 
 import {
   Context,
-  devPreview,
   err,
   FxError,
   GeneratorResult,
   Inputs,
   ManifestUtil,
+  MicrosoftTeamsVDevPreview,
   ok,
   Result,
 } from "@microsoft/teamsfx-api";
@@ -88,9 +88,9 @@ export class OfficeAddinGenerator {
 type OfficeHost = "Outlook" | "Word" | "Excel" | "PowerPoint"; // | "OneNote" | "Project"
 export async function getHost(addinManifestPath: string): Promise<OfficeHost> {
   // Read add-in manifest file
-  const addinManifest: devPreview.DevPreviewSchema = await ManifestUtil.loadFromPath(
+  const addinManifest = (await ManifestUtil.loadFromPath(
     addinManifestPath
-  );
+  )) as MicrosoftTeamsVDevPreview;
   let host: OfficeHost = "Outlook";
   switch (addinManifest.extensions?.[0].requirements?.scopes?.[0]) {
     case "document":

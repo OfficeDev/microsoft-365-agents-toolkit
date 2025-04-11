@@ -1,24 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TeamsAppManifest, IComposeExtension } from "./manifest";
-import fs from "fs-extra";
-import Ajv from "ajv-draft-04";
 import { JSONSchemaType } from "ajv";
+import Ajv from "ajv-draft-04";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
-import { MicrosoftTeamsVDevPreview as DevPreviewSchema } from "./teams/MicrosoftTeams.vDevPreview";
+import fs from "fs-extra";
+import fetch from "node-fetch";
 import { ManifestCommonProperties } from "./ManifestCommonProperties";
 import { SharePointAppId } from "./constants";
-import fetch from "node-fetch";
 import { DeclarativeCopilotManifestSchema } from "./declarativeCopilotManifest";
+import { IComposeExtension, TeamsAppManifest } from "./manifest";
 import { PluginManifestSchema } from "./pluginManifest";
-import { jsonToManifest, MicrosoftTeamsManifest } from "./teams";
+import { DevPreviewSchema, jsonToManifest, MicrosoftTeamsManifest } from "./teams";
 
-export * from "./manifest";
-export * as devPreview from "./teams/MicrosoftTeams.vDevPreview";
-export * from "./pluginManifest";
 export * from "./declarativeCopilotManifest";
+export * from "./manifest";
+export * from "./pluginManifest";
 export * from "./teams";
 
 export type TeamsAppManifestJSONSchema = JSONSchemaType<TeamsAppManifest>;
@@ -168,7 +166,7 @@ export class ManifestUtil {
    * Parse the manifest and get properties
    * @param manifest
    */
-  static parseCommonProperties<T extends Manifest = TeamsAppManifest>(
+  static parseCommonProperties<T extends Manifest | MicrosoftTeamsManifest = TeamsAppManifest>(
     manifest: T
   ): ManifestCommonProperties {
     const capabilities: string[] = [];
@@ -206,9 +204,9 @@ export class ManifestUtil {
 
     // If it's SPFx app
     if (
-      manifest.webApplicationInfo &&
-      manifest.webApplicationInfo.id &&
-      manifest.webApplicationInfo.id == SharePointAppId
+      (manifest as any).webApplicationInfo &&
+      (manifest as any).webApplicationInfo.id &&
+      (manifest as any).webApplicationInfo.id == SharePointAppId
     ) {
       properties.isSPFx = true;
     }
@@ -259,7 +257,9 @@ export class ManifestUtil {
    * @param manifest
    * @returns Telemetry properties
    */
-  static parseCommonTelemetryProperties(manifest: TeamsAppManifest): { [p: string]: string } {
+  static parseCommonTelemetryProperties(manifest: TeamsAppManifest | MicrosoftTeamsManifest): {
+    [p: string]: string;
+  } {
     const properties = ManifestUtil.parseCommonProperties(manifest);
 
     const telemetryProperties: { [p: string]: string } = {};
@@ -275,7 +275,9 @@ export class ManifestUtil {
     return telemetryProperties;
   }
 
-  static async useCopilotExtensionsInSchema(manifest: TeamsAppManifest): Promise<boolean> {
+  static async useCopilotExtensionsInSchema(
+    manifest: TeamsAppManifest | MicrosoftTeamsManifest
+  ): Promise<boolean> {
     const schema = await this.fetchSchema(manifest);
     return !!schema.properties.copilotExtensions;
   }

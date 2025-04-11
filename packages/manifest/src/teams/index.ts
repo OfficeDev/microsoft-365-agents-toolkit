@@ -45,6 +45,7 @@ export { MicrosoftTeamsV1D17 } from "./MicrosoftTeams.v1d17";
 export { MicrosoftTeamsV1D19 } from "./MicrosoftTeams.v1d19";
 export { MicrosoftTeamsV1D20 } from "./MicrosoftTeams.v1d20";
 export { MicrosoftTeamsVDevPreview } from "./MicrosoftTeams.vDevPreview";
+export { MicrosoftTeamsVDevPreview as DevPreviewSchema } from "./MicrosoftTeams.vDevPreview";
 export type MicrosoftTeamsManifest =
   | MicrosoftTeamsV1D0
   | MicrosoftTeamsV1D1
