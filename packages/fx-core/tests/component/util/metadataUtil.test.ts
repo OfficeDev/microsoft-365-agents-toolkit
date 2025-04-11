@@ -199,7 +199,7 @@ describe("metadata util", () => {
 
   it("parseManifest with empty manifest", () => {
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    metadataUtil.parseManifest({} as TeamsAppManifest);
+    metadataUtil.parseManifest({} as any);
 
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
@@ -237,7 +237,7 @@ describe("metadata util", () => {
     const hashSpy = sandbox.spy(Hash.prototype);
 
     manifest.extensions = [{}];
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -265,7 +265,7 @@ describe("metadata util", () => {
 
     // If extensions is empty, it should report false in telemetry event
     manifest.extensions = [];
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -293,7 +293,7 @@ describe("metadata util", () => {
 
     // If extensions is undefined, it should report false in telemetry event
     manifest.extensions = undefined;
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -336,7 +336,7 @@ describe("metadata util", () => {
     // @ts-ignore
     const hashSpy = sandbox.spy(Hash.prototype);
 
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.notCalled);
