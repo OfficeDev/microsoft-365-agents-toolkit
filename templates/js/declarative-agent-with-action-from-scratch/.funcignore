@@ -11,7 +11,7 @@ node_modules/.bin
 node_modules/azure-functions-core-tools
 README.md
 m365agents.yml
-teamsapp.*.yml
+m365agents.*.yml
 /env/
 /appPackage/
 /infra/

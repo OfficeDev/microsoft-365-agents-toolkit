@@ -70,7 +70,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | File                                 | Contents                                           |
 | - | - |
 |`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
-|`teamsapp.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
+|`m365agents.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
 
 ## Extend the template
 

@@ -17,7 +17,7 @@ local.settings.json
 README.md
 tsconfig.json
 m365agents.yml
-teamsapp.*.yml
+m365agents.*.yml
 /env/
 /appPackage/
 /infra/
