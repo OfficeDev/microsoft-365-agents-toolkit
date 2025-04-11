@@ -549,6 +549,8 @@
   "core.GCNameQuestion.placeholder": "Create a name for Graph Connector",
   "core.GCList.insufficientPermission": "To list graph connectors, you need org's Microsoft 365 tenant admin permissions.",
   "core.confirmManifestQuestion.placeholder": "Confirm you've selected the correct manifest file",
+  "core.createProjectQuestion.addGC.label": "Add a Graph Connector",
+  "core.createProjectQuestion.addGC.detail": "Create a declarative agent with a Graph Connector",
   "core.aadAppQuestion.label": "Microsoft Entra app",
   "core.aadAppQuestion.description": "Your Microsoft Entra app for Single Sign On",
   "core.convertAadToNewSchema.continue": "Continue",

@@ -27,9 +27,6 @@ export enum TemplateNames {
   // graph connector
   GraphConnector = "graph-connector", // vsc only
 
-  // graph connector
-  GraphConnector = "graph-connector", // vsc only
-
   // tab
   Tab = "non-sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
