@@ -5,7 +5,7 @@
       "commandName": "Project",
       "launchUrl": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TEAMS_APP_TENANT_ID}}&login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
-    // Launch project within Teams without prepare Teams App dependencies
+    // Launch project within Teams without prepare app dependencies
     "Microsoft Teams (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
@@ -16,7 +16,7 @@
       "commandName": "Project",
       "launchUrl": "https://www.office.com/m365apps/${{M365_APP_ID}}?auth=2&login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
-    // Debug project within Microsoft without prepare Teams App dependencies
+    // Debug project within Microsoft without prepare app dependencies
     "Microsoft 365 app (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
@@ -27,7 +27,7 @@
       "commandName": "Project",
       "launchUrl": "https://outlook.office.com/host/${{M365_APP_ID}}?login_hint=${{TEAMSFX_M365_USER_NAME}}",
     },
-    // Debug project within Outlook without prepare Teams App dependencies
+    // Debug project within Outlook without prepare app dependencies
     "Outlook (browser) (skip update app)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
