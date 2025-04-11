@@ -784,7 +784,10 @@ describe("daSpecParser", () => {
       assert.isTrue(fsReadJSONStub.calledThrice);
       assert.isTrue(kiotaGeneratePluginStub.calledOnce);
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[0], specPath);
-      assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[1], "c:\\tmp\\working-dir\\plugin");
+      assert.deepEqual(
+        kiotaGeneratePluginStub.firstCall.args[1].replace(/\\/g, "/"),
+        "c:/tmp/working-dir/plugin"
+      );
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[2], "testapp");
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], ["/users#GET", "/messages#POST"]);
 
