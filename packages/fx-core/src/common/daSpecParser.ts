@@ -149,16 +149,15 @@ export async function parseAndUpdatePluginManifestForKiota(
       ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         const authName = registrationId.split("_")[0];
+        const newReferenceId = authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
         authData.push({
           authName: authName,
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
-          registrationId: registrationId.toUpperCase(),
+          registrationId: newReferenceId,
           specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
-          auth.reference_id = `\$\{\{${
-            authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix
-          }\}\}`;
+          auth.reference_id = `\$\{\{${newReferenceId}\}\}`;
         }
       }
     }
