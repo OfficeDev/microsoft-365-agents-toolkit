@@ -565,7 +565,6 @@ export async function generateFromApiSpec(
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
     });
-
     if (generateResult.warnings && generateResult.warnings.length > 0) {
       generateResult.warnings.find((o) => {
         if (o.type === WarningType.OperationOnlyContainsOptionalParam) {

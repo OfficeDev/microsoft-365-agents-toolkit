@@ -246,9 +246,7 @@ export class FxCore {
     // should never happen as we do same check on Developer Portal.
     if (inputs.teamsAppFromTdp) {
       if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
-        return err(
-          new InputValidationError("manifest.json", "Teams app contains unsupported features")
-        );
+        return err(new InputValidationError("manifest.json", "App contains unsupported features"));
       } else {
         context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
           [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(

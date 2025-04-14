@@ -20,12 +20,12 @@
         "SignInSuccess": "Microsoft 365 Account (%s) is signed in and custom app upload permission is enabled."
       },
       "node" : {
-        "NotFound": "Cannot find Node.js, which is used for developing Microsoft 365 apps with JavaScript or TypeScript using Microsoft 365 Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
+        "NotFound": "Cannot find Node.js, which is used for developing apps with JavaScript or TypeScript using Microsoft 365 Toolkit for Visual Studio Code. Visit https://nodejs.org to install the LTS version.",
         "NotSupported": "Node.js (%s) is not the officially supported version (%s). Your project may continue to work but we recommend to install the supported version.",
         "Success": "Node.js version (%s) is installed."
       },
       "dotnet" : {
-        "NotFound": "Cannot find .NET Core SDK, which is used for developing Microsoft 365 app in C# using Microsoft 365 Toolkit for Visual Studio. Visit https://dotnet.microsoft.com/en-us/download to install the LTS version.",
+        "NotFound": "Cannot find .NET Core SDK, which is used for developing app in C# using Microsoft 365 Toolkit for Visual Studio. Visit https://dotnet.microsoft.com/en-us/download to install the LTS version.",
         "NotSupported": ".NET Core SDK (%s) is not the officially supported version (%s).",
         "Success": ".NET Core SDK version (%s) is installed."
       },
