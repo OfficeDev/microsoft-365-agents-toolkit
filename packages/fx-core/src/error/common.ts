@@ -36,19 +36,24 @@ export class MissingEnvironmentVariablesError extends UserError {
     const envFilePath = globalVars.envFilePath || "";
     const secretEnvFilePath = globalVars.envFilePath ? `${globalVars.envFilePath}.user` : "";
     const key = "error.common.MissingEnvironmentVariablesError";
+    const deduplicatedVaribleNames = variableNames
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name, index, self) => self.indexOf(name) === index)
+      .join(", ");
     const errorOptions: UserErrorOptions = {
       source: camelCase(source),
       name: "MissingEnvironmentVariablesError",
       message: getDefaultString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
       ),
       displayMessage: getLocalizedString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
