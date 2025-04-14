@@ -178,7 +178,6 @@ import {
   ScratchOptions,
   TeamsAppValidationOptions,
 } from "../question/constants";
-import { createProjectCliHelpNode } from "../question/create";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
@@ -1321,9 +1320,6 @@ export class FxCore {
    * Warning: this API only works for CLI_HELP, it has no business with interactive run for CLI!
    */
   getQuestions(stage: Stage, inputs: Inputs): Result<IQTreeNode | undefined, FxError> {
-    if (stage === Stage.create) {
-      return ok(createProjectCliHelpNode());
-    }
     return ok(undefined);
   }
 

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
-import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
+import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
   addKnowledgeQuestionNode,
@@ -45,9 +45,6 @@ export class QuestionNodes {
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
-  }
-  createProjectCliHelp(): IQTreeNode {
-    return createProjectCliHelpNode();
   }
   addWebpart(): IQTreeNode {
     return addWebPartQuestionNode();

@@ -36,6 +36,9 @@ class PathUtils {
         ? MetadataV3.sandboxConfigFile
         : MetadataV3.configFile
     );
+    if (fs.pathExistsSync(ymlPathV3)) {
+      return ymlPathV3;
+    }
     if (silent) return undefined;
     if (environmentNameManager.isRemoteEnvironment(envName)) {
       throw new MissingRequiredFileError("core", "", ymlPathV3);

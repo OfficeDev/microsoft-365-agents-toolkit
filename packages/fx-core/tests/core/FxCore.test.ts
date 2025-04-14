@@ -228,7 +228,6 @@ describe("Core basic APIs", () => {
       stage: Stage.addWebpart,
       projectPath: appPath,
     };
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("teamsapp.yml");
     sandbox.stub(fs, "pathExists").callsFake(async (directory: string) => {
       if (directory.includes(path.join("webparts", "helloworld"))) {
         return false;
@@ -237,7 +236,7 @@ describe("Core basic APIs", () => {
     });
     sandbox.stub(fs, "readJson").resolves({});
     const runSpy = sandbox.stub(AddWebPartDriver.prototype, "run");
-    const res = await core.addWebpart(inputs);
+    await core.addWebpart(inputs);
     sandbox.assert.calledOnce(runSpy);
     runSpy.restore();
   });
@@ -2574,149 +2573,12 @@ describe("isEnvFile", async () => {
     }
   });
 });
-describe("getQuestions", async () => {
-  const sandbox = sinon.createSandbox();
-  let mockedEnvRestore: RestoreFn = () => {};
-  afterEach(() => {
-    sandbox.restore();
-    mockedEnvRestore();
-  });
-  it("happy path", async () => {
-    mockedEnvRestore = mockedEnv({
-      TEAMSFX_CLI_DOTNET: "false",
-    });
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-  });
-  it("happy path with runtime", async () => {
-    mockedEnvRestore = mockedEnv({
-      TEAMSFX_CLI_DOTNET: "true",
-    });
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "runtime",
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-  });
-
-  it("happy path: API Copilot plugin enabled", async () => {
-    const restore = mockedEnv({});
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-    restore();
-  });
-
-  function collectNodeNames(node: IQTreeNode, names: string[]) {
-    if (node.data.type !== "group") {
-      names.push(node.data.name);
-    }
-    if (node.children) {
-      for (const child of node.children) {
-        collectNodeNames(child, names);
-      }
-    }
-  }
-});
 describe("copilotPlugin", async () => {
   let mockedEnvRestore: RestoreFn = () => {};
 
+  beforeEach(() => {
+    sinon.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+  });
   afterEach(() => {
     sinon.restore();
     mockedEnvRestore();
