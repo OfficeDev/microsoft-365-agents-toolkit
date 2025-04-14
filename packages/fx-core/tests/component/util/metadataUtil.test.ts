@@ -102,7 +102,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsapplocalyml",
+        [TelemetryProperty.YmlName]: "m365agentslocalyml",
         [TelemetryProperty.SampleAppName]: "testRepo:testSample",
       })
     );
@@ -122,7 +122,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "testRepo:testSample",
       })
     );
@@ -147,7 +147,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "Hello_world_this_is_a_sample",
       })
     );
@@ -172,7 +172,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "",
       })
     );
@@ -192,7 +192,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "",
       })
     );

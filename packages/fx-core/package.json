@@ -11,7 +11,6 @@
     "test:core": "nyc mocha \"tests/core/**/*.test.ts\"",
     "test:fxcore": "nyc mocha \"tests/core/FxCore.test.ts\"",
     "test:common": "nyc mocha \"tests/common/**/*.test.ts\"",
-    "test:solution": "nyc mocha \"tests/plugins/solution/*.test.ts\"",
     "test:bot": "nyc mocha \"tests/plugins/resource/bot/**/*.test.ts\"",
     "test:cicd": "nyc mocha \"tests/component/feature/cicd/**/*.test.ts\"",
     "test:dotnet": "nyc mocha \"tests/plugins/resource/dotnet/**/*.test.ts\"",

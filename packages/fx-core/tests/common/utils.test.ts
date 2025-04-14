@@ -1,16 +1,20 @@
-import "mocha";
 import chai from "chai";
-import { convertToAlphanumericOnly } from "../../src/common/stringUtils";
+import fs from "fs-extra";
+import "mocha";
+import sinon from "sinon";
 import { jsonUtils } from "../../src/common/jsonUtils";
+import { convertToAlphanumericOnly } from "../../src/common/stringUtils";
+import {
+  isYamlFileName,
+  isYamlFileNameV3,
+  isYamlFileNameV4,
+} from "../../src/common/versionMetadata";
 import {
   FileNotFoundError,
   JSONSyntaxError,
   ReadFileError,
   WriteFileError,
 } from "../../src/error/common";
-import sinon from "sinon";
-import fs from "fs-extra";
-import { isYamlFileName } from "../../src/common/versionMetadata";
 
 describe("convert to valid AppName in ProjectSetting", () => {
   it("convert app name", () => {
@@ -76,33 +80,29 @@ describe("Errors", () => {
   });
 });
 
-describe("versionMedadata", () => {
-  const sandbox = sinon.createSandbox();
-  afterEach(() => {
-    sandbox.restore();
-  });
+describe("versionMetadata", () => {
   it("isYamlFileName - true", () => {
     const res = isYamlFileName("m365agents.local.yml");
     chai.assert.isTrue(res);
   });
   it("isYamlFileName - false", () => {
     const res = isYamlFileName("abc.local.yml");
-    chai.assert.isTrue(res);
-  });
-  it("isYamlFileNameV3 - true", () => {
-    const res = isYamlFileName("teamsapp.local.yml");
     chai.assert.isFalse(res);
   });
+  it("isYamlFileNameV3 - true", () => {
+    const res = isYamlFileNameV3("teamsapp.local.yml");
+    chai.assert.isTrue(res);
+  });
   it("isYamlFileNameV3 - false", () => {
-    const res = isYamlFileName("m365agents.local.yml");
+    const res = isYamlFileNameV3("m365agents.local.yml");
     chai.assert.isFalse(res);
   });
   it("isYamlFileNameV4 - true", () => {
-    const res = isYamlFileName("m365agents.local.yml");
-    chai.assert.isFalse(res);
+    const res = isYamlFileNameV4("m365agents.local.yml");
+    chai.assert.isTrue(res);
   });
   it("isYamlFileNameV4 - false", () => {
-    const res = isYamlFileName("teamsapp.yml");
+    const res = isYamlFileNameV4("teamsapp.yml");
     chai.assert.isFalse(res);
   });
 });
