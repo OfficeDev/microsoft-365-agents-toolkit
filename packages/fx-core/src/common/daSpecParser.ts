@@ -16,6 +16,8 @@ import {
   AdaptiveCardUpdateStrategy,
   GenerateResult,
   ConstantString,
+  WarningType,
+  WarningResult,
 } from "@microsoft/m365-spec-parser";
 import {
   Platform,
@@ -62,6 +64,7 @@ export async function generatePlugin(
   const allowOauth2 = platform !== Platform.VS;
 
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
+    const warnings: WarningResult[] = [];
     const tmpWorkingDir = tmp.dirSync({ unsafeCleanup: true });
     const tmpOutputDir = path.join(tmpWorkingDir.name, "plugin");
     const manifest: TeamsAppManifest = await fs.readJSON(teamsManifestPath);
@@ -70,6 +73,62 @@ export async function generatePlugin(
     for (const operation of operations) {
       const [method, path] = operation.split(" ");
       includePatterns.push(`${path}#${method}`);
+    }
+
+    const treeInfo = await listAPITreeInfo(specPath, includePatterns);
+
+    if (treeInfo && treeInfo.rootNode) {
+      const operationInfos: ListAPIInfo[] = extractOperations(
+        treeInfo.rootNode,
+        treeInfo.servers ?? [],
+        treeInfo.security ?? [],
+        treeInfo.securitySchemes ?? {}
+      );
+
+      for (let i = 0; i < operationInfos.length; i++) {
+        const operationId = operationInfos[i].operationId;
+
+        if (!operationId) {
+          warnings.push({
+            type: WarningType.OperationIdMissing,
+            content: Utils.format(ConstantString.MissingOperationId, operationInfos[i].api),
+            data: operationInfos[i].api,
+          });
+        } else {
+          const containsSpecialCharacters = /[^a-zA-Z0-9_]/.test(operationId);
+          const safeOperationId = operationId.replace(/[^a-zA-Z0-9]/g, "_");
+          if (containsSpecialCharacters) {
+            warnings.push({
+              type: WarningType.OperationIdContainsSpecialCharacters,
+              content: Utils.format(
+                ConstantString.OperationIdContainsSpecialCharacters,
+                operationId,
+                safeOperationId
+              ),
+              data: operationId,
+            });
+          }
+        }
+
+        const authScheme = operationInfos[i].auth?.authScheme;
+        if (authScheme) {
+          if (
+            !(
+              (allowAPIKeyAuth && Utils.isAPIKeyAuth(authScheme)) ||
+              (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
+              (allowBearerTokenAuth && Utils.isBearerTokenAuth(authScheme))
+            )
+          ) {
+            warnings.push({
+              type: WarningType.UnsupportedAuthType,
+              content: Utils.format(ConstantString.AuthTypeIsNotSupported, operationId),
+              data: operationId,
+            });
+          }
+        }
+
+        // TODO: add logs when kiota update the spec version, wait for kiota api
+      }
     }
 
     const kiotaGenerateResult = await kiotageneratePlugin(
@@ -85,8 +144,22 @@ export async function generatePlugin(
 
     const apiSpecPath = kiotaGenerateResult.openAPISpec;
     const pluginPath = kiotaGenerateResult.aiPlugin;
+
+    const extname = path.extname(outputAPISpecPath);
+
+    const outputSpecWithoutExt = path.join(
+      path.dirname(outputAPISpecPath),
+      path.basename(outputAPISpecPath, extname)
+    );
+
+    const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + path.extname(specPath);
+
+    // kiota will always generate yaml spec file
+    outputAPISpecPath = outputSpecWithoutExt + ".yaml";
+
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
     await fs.copyFile(pluginPath, outputAIPluginPath);
+    await fs.copyFile(specPath, outputOriginalSpecPath);
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
@@ -101,7 +174,7 @@ export async function generatePlugin(
     await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
     return {
       allSuccess: true,
-      warnings: [],
+      warnings: warnings,
     };
   }
 

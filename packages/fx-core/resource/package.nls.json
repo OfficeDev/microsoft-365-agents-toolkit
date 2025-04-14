@@ -309,8 +309,6 @@
   "core.copilotPlugin.scaffold.summary.warning.api.optionalParametersOnly.mitigation": " Mitigation: If \"%s\" is not what you need, edit the parameter of command \"%s\" in \"%s\". The parameter name should match what's defined in \"%s\".",
   "core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription": "Description for function \"%s\" is missing.",
   "core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription.mitigation": " Mitigation: Update description for \"%s\" in \"%s\"",
-  "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding": "Description for function \"%s\" shortened to %s characters to meet the length requirement.",
-  "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation": " Mitigation: Update description for \"%s\" in \"%s\" so that Copilot can trigger the function.",
   "core.copilotPlugin.scaffold.summary.warning.generate.ac.failed": "Failed to create the adaptive card for API '%s': %s. Mitigation: Not required but you can manually add it to the adaptiveCards folder.",
   "core.createCapabilityQuestion.titleNew": "Capabilities",
   "core.createCapabilityQuestion.placeholder": "Select a capability",

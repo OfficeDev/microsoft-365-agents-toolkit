@@ -13,6 +13,7 @@ import {
   AdaptiveCardUpdateStrategy,
   ErrorType,
   ValidationStatus,
+  WarningType,
 } from "@microsoft/m365-spec-parser";
 
 describe("daSpecParser", () => {
@@ -763,6 +764,13 @@ describe("daSpecParser", () => {
       pathRelativeStub.returns("../openapi.yaml");
     });
 
+    const pathMatcher = (expectedPath: string) =>
+      sinon.match((actualPath) => {
+        const normalizedActual = actualPath.replace(/\\/g, "/");
+        const normalizedExpected = expectedPath.replace(/\\/g, "/");
+        return normalizedActual === normalizedExpected;
+      });
+
     it("should successfully generate plugin when feature flag is enabled", async () => {
       const specPath = "path/to/spec.yaml";
       const teamsManifestPath = "path/to/manifest.json";
@@ -791,18 +799,25 @@ describe("daSpecParser", () => {
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[2], "testapp");
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], ["/users#GET", "/messages#POST"]);
 
-      // Verify that fsCopyFile was called with the correct arguments
-      assert.equal(fsCopyFileStub.callCount, 2);
+      assert.equal(fsCopyFileStub.callCount, 3);
+
       assert.isTrue(
         fsCopyFileStub.firstCall.calledWith(
-          "c:\\tmp\\working-dir\\plugin\\openapi.yaml",
-          outputAPISpecPath
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
         )
       );
       assert.isTrue(
         fsCopyFileStub.secondCall.calledWith(
-          "c:\\tmp\\working-dir\\plugin\\ai-plugin.json",
-          outputAIPluginPath
+          pathMatcher("c:/tmp/working-dir/plugin/ai-plugin.json"),
+          pathMatcher("path/to/output/ai-plugin.json")
+        )
+      );
+
+      assert.isTrue(
+        fsCopyFileStub.thirdCall.calledWith(
+          pathMatcher("path/to/spec.yaml"),
+          pathMatcher("path/to/output/openapi.original.yaml")
         )
       );
 
@@ -810,6 +825,87 @@ describe("daSpecParser", () => {
         allSuccess: true,
         warnings: [],
       });
+    });
+
+    it("should validate operations and generate appropriate warnings", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/missing-id",
+              segment: "GET",
+              summary: "Operation with missing ID",
+              servers: ["https://valid.example.com"],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/special-chars",
+              segment: "POST",
+              operationId: "create-resource",
+              summary: "Operation with special characters in ID",
+              servers: ["https://valid.example.com"],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/unsupported-auth",
+              segment: "GET",
+              operationId: "getWithCustomAuth",
+              summary: "Operation with unsupported auth",
+              servers: ["https://valid.example.com"],
+              security: [{ custom_auth: [] }],
+              children: [],
+            },
+          ],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          custom_auth: { type: "http", scheme: "basic" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const specPath = "path/to/spec.json";
+      const outputAPISpecPath = "path/to/output/openapi.spec";
+
+      const result = await daSpecParser.generatePlugin(
+        specPath,
+        "path/to/manifest.json",
+        outputAPISpecPath,
+        "path/to/output/ai-plugin.json",
+        ["GET /api/missing-id", "POST /api/special-chars", "GET /api/unsupported-auth"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      assert.isTrue(result.allSuccess);
+      assert.equal(result.warnings.length, 3);
+      assert.isTrue(result.warnings.some((w) => w.type === WarningType.OperationIdMissing));
+      assert.isTrue(
+        result.warnings.some((w) => w.type === WarningType.OperationIdContainsSpecialCharacters)
+      );
+      assert.isTrue(result.warnings.some((w) => w.type === WarningType.UnsupportedAuthType));
+
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
+        )
+      );
+
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("path/to/spec.json"),
+          pathMatcher("path/to/output/openapi.original.json")
+        )
+      );
     });
 
     it("should handle manifest with environment variables and special characters", async () => {
@@ -868,7 +964,7 @@ describe("daSpecParser", () => {
 
       assert.isTrue(
         fsWriteJsonStub.calledWith(
-          "path/to/output/ai-plugin.json",
+          pathMatcher("path/to/output/ai-plugin.json"),
           sinon.match((value) => {
             return value.runtimes[0].spec.url === "../../openapi.yaml";
           }),
@@ -903,7 +999,7 @@ describe("daSpecParser", () => {
       // Check that writeJson was called with the correct normalized path
       assert.isTrue(
         fsWriteJsonStub.calledWith(
-          "path/to/output/ai-plugin.json",
+          pathMatcher("path/to/output/ai-plugin.json"),
           sinon.match((value) => {
             return (
               value &&
