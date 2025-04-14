@@ -560,7 +560,7 @@ export async function generateFromApiSpec(
       [telemetryProperties.generateType]: projectType.toString(),
       [specParserGenerateResultAllSuccessTelemetryProperty]: generateResult.allSuccess.toString(),
       [specParserGenerateResultWarningsTelemetryProperty]: generateResult.warnings
-        .map((w) => `${w.type.toString() as string}: ${w.content as string}`)
+        .map((w) => `${w.type.toString()}: ${w.content}`)
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
     });
