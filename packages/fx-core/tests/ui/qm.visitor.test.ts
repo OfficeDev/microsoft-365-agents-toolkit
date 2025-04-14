@@ -746,6 +746,67 @@ describe("Question Model - Visitor Test", () => {
 
       assert.sameOrderedMembers(expectedSequence, actualSequence);
     });
+
+    it("success: go backward and change the traverse order", async () => {
+      const actualSequence: string[] = [];
+      const inputs = createInputs();
+      let firstVisit5 = true;
+      let firstCheck4 = true;
+      let visit3Num = 1;
+      sandbox.stub(mockUI, "inputText").callsFake(async (config: InputTextConfig) => {
+        actualSequence.push(config.name);
+        if (config.name === "5" && firstVisit5) {
+          firstVisit5 = false;
+          return ok({ type: "back" });
+        } else if (config.name === "3") {
+          if (visit3Num++ === 2) {
+            return ok({ type: "back" });
+          }
+        }
+        return ok({ type: "success", result: `mocked value of ${config.name}` });
+      });
+
+      const expectedSequence: string[] = ["1", "2", "3", "5", "3", "2", "3", "4", "5"];
+
+      const question1 = createTextQuestion("1");
+      const question2 = createTextQuestion("2");
+      const question3 = createTextQuestion("3");
+      const question4 = createTextQuestion("4");
+      const question5 = createTextQuestion("5");
+
+      const node1: IQTreeNode = {
+        data: question1,
+        children: [
+          {
+            data: question2,
+            children: [
+              { data: question3 },
+              {
+                condition: () => {
+                  if (firstCheck4) {
+                    firstCheck4 = false;
+                    return false;
+                  } else {
+                    return true;
+                  }
+                },
+                data: question4,
+              },
+            ],
+          },
+          {
+            data: question5,
+          },
+        ],
+      };
+
+      const res = await traverse(node1, inputs, mockUI);
+      assert.isTrue(res.isOk());
+      for (let i = 1; i <= 5; ++i) {
+        assert.isTrue(inputs[`${i}`] === `mocked value of ${i}`);
+      }
+      assert.sameOrderedMembers(expectedSequence, actualSequence);
+    });
   });
 
   describe("questionVisitor", () => {

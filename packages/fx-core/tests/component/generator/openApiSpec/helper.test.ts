@@ -40,6 +40,7 @@ import { ActionInjector } from "../../../../src/component/configManager/actionIn
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { PluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import * as openApiSpecHelper from "../../../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
 import {
   formatValidationErrors,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -2030,7 +2031,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
     });
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2038,13 +2039,13 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
       {
         authName: "test2",
         authType: "oauth2",
-        registrationId: "TEST2_REIGSTRATION_ID",
+        registrationId: "TEST2_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
@@ -2081,7 +2082,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       false
     );
@@ -2089,7 +2090,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
@@ -2116,7 +2117,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2138,7 +2139,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2191,7 +2192,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
     });
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );

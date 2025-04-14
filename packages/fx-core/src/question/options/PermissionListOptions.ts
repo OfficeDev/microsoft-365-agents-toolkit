@@ -17,7 +17,7 @@ export const PermissionListOptions: CLICommandOption[] = [
     type: "string",
     shortName: "t",
     description:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     default: "./appPackage/manifest.json",
   },
   {

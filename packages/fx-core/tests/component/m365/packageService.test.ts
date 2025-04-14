@@ -13,6 +13,7 @@ import { AppScope, PackageService } from "../../../src/component/m365/packageSer
 import { setTools } from "../../../src/common/globalVars";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
+import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 
 chai.use(chaiAsPromised);
 
@@ -22,6 +23,7 @@ describe("Package Service", () => {
   let axiosDeleteResponses: Record<string, unknown> = {};
   let axiosGetResponses: Record<string, unknown> = {};
   let axiosPostResponses: Record<string, unknown> = {};
+  let axiosPutResponses: Record<string, unknown> = {};
   const testAxiosInstance = {
     defaults: {
       headers: {
@@ -55,6 +57,14 @@ describe("Package Service", () => {
       const response = axiosPostResponses[url] as any;
       return response.message !== undefined ? Promise.reject(response) : Promise.resolve(response);
     },
+    put: function <T = any, R = AxiosResponse<T>>(
+      url: string,
+      data?: any,
+      config?: AxiosRequestConfig
+    ): Promise<R> {
+      const response = axiosPutResponses[url] as any;
+      return response.message !== undefined ? Promise.reject(response) : Promise.resolve(response);
+    },
   } as any as AxiosInstance;
 
   afterEach(() => {
@@ -65,6 +75,7 @@ describe("Package Service", () => {
     axiosDeleteResponses = {};
     axiosGetResponses = {};
     axiosPostResponses = {};
+    axiosPutResponses = {};
     sandbox.stub(fs, "readFile").callsFake((file) => {
       return Promise.resolve(Buffer.from("test"));
     });
@@ -1373,5 +1384,286 @@ describe("Package Service", () => {
       actualError = error;
     }
     chai.assert.isDefined(actualError);
+  });
+
+  it("previewApp happy path", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "test-entity-id",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.previewApp("test-token", "test-title-id");
+
+    chai.assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      chai.assert.deepEqual(result.value.owners[0].entityId, "test-entity-id");
+      chai.assert.deepEqual(result.value.owners[0].entityType, "User");
+    }
+  });
+
+  it("previewApp error response", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const error = new Error("test-error") as any;
+    error.response = {
+      data: { error: { code: "test", message: "test message" } },
+      headers: { traceresponse: "test-trace" },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = error;
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.previewApp("test-token", "test-title-id");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.include(result.error.message, "test-error");
+      chai.assert.include(result.error.message, "test-trace");
+    }
+  });
+
+  it("grantPermission to new user", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "existing-user",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+    axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = {
+      status: 200,
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.grantPermission("test-token", "test-title-id", {
+      aadId: "new-user",
+      displayName: "New User",
+      userPrincipalName: "newuser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isOk());
+  });
+
+  it("grantPermission error response", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "existing-user",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+    const error = new Error("test-put-error") as any;
+    error.response = {
+      data: { error: { code: "test", message: "test message" } },
+      headers: { traceresponse: "test-trace" },
+    };
+    axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = error;
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.grantPermission("test-token", "test-title-id", {
+      aadId: "new-user",
+      displayName: "New User",
+      userPrincipalName: "newuser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.include(result.error.message, "test-put-error");
+      chai.assert.include(result.error.message, "test-trace");
+    }
+  });
+
+  it("grantPermission to existing user", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "existing-user",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+    // Don't need to mock put response since it won't be called for existing user
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.grantPermission("test-token", "test-title-id", {
+      aadId: "existing-user",
+      displayName: "Existing User",
+      userPrincipalName: "existinguser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isOk());
+  });
+
+  it("grantPermission error in previewApp", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const error = new Error("preview-error") as any;
+    error.response = {
+      data: { error: { code: "test", message: "test message" } },
+      headers: { traceresponse: "test-trace" },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = error;
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.grantPermission("test-token", "test-title-id", {
+      aadId: "new-user",
+      displayName: "New User",
+      userPrincipalName: "newuser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.include(result.error.message, "preview-error");
+    }
+  });
+
+  it("removePermission of existing user", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "existing-user",
+            entityType: "User",
+          },
+          {
+            entityId: "other-user",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+
+    axiosPutResponses["/builder/v1/users/titles/test-title-id/owners?idType=TitleId"] = {
+      status: 200,
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.removePermission("test-token", "test-title-id", {
+      aadId: "existing-user",
+      displayName: "Existing User",
+      userPrincipalName: "existinguser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isOk());
+  });
+
+  it("removePermission of non-existing user", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [
+          {
+            entityId: "other-user",
+            entityType: "User",
+          },
+        ],
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.removePermission("test-token", "test-title-id", {
+      aadId: "non-existing-user",
+      displayName: "Non-existing User",
+      userPrincipalName: "nonexistinguser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isOk());
+  });
+
+  it("removePermission error in previewApp", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    const error = new Error("preview-error") as any;
+    error.response = {
+      data: { error: { code: "test", message: "test message" } },
+      headers: { traceresponse: "test-trace" },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = error;
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.removePermission("test-token", "test-title-id", {
+      aadId: "existing-user",
+      displayName: "Existing User",
+      userPrincipalName: "existinguser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.include(result.error.message, "preview-error");
+    }
+  });
+
+  it("removePermission with empty owners list", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: {
+        titlesServiceUrl: "https://test-url",
+      },
+    };
+    axiosGetResponses["/marketplace/v1/users/titles/test-title-id/preview?idType=TitleId"] = {
+      data: {
+        owners: [],
+      },
+    };
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const result = await packageService.removePermission("test-token", "test-title-id", {
+      aadId: "existing-user",
+      displayName: "Existing User",
+      userPrincipalName: "existinguser@test.com",
+    } as AppUser);
+
+    chai.assert.isTrue(result.isOk());
   });
 });

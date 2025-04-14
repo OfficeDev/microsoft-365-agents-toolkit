@@ -208,7 +208,7 @@ export function capabilityQuestion(): SingleSelectQuestion {
           return getLocalizedString("core.createCapabilityQuestion.titleNew");
       }
     },
-    cliDescription: "Specifies the Microsoft Teams App capability.",
+    cliDescription: "Specifies the app feature.",
     cliName: CliQuestionName.Capability,
     cliShortName: "c",
     cliChoiceListCommand: "teamsapp list templates",
@@ -664,7 +664,7 @@ function sampleSelectQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     name: QuestionNames.Samples,
     cliName: "sample-name",
-    cliDescription: "Specifies the Microsoft Teams App sample name.",
+    cliDescription: "Specifies the app sample name.",
     cliChoiceListCommand: "teamsapp list samples",
     skipValidation: true,
     cliType: "argument",
@@ -1832,7 +1832,8 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotBasic().id ||
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotRag().id ||
-            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id ||
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotWeather().id
           );
         },
         data: llmServiceQuestion(),

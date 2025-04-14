@@ -23,6 +23,8 @@ import {
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
   setSensitivityLabelNode,
+  shareNode,
+  removeSharedAccessNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -103,6 +105,12 @@ export class QuestionNodes {
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();
+  }
+  share(): IQTreeNode {
+    return shareNode();
+  }
+  removeSharedAccess(): IQTreeNode {
+    return removeSharedAccessNode();
   }
 }
 

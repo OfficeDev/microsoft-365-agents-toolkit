@@ -49,6 +49,10 @@ class FoodCatalogTestCase extends CaseFactory {
       sampledebugContext.appName,
       sampledebugContext.projectPath,
       {
+        createRg: true,
+        processEnv: process.env,
+        tool: "cli",
+        env: "dev",
         skipErrorMessage: "@azure/data-tables",
       }
     );

@@ -12,6 +12,7 @@ import {
   Inputs,
   MultiFileQuestion,
   MultiSelectQuestion,
+  OptionItem,
   Platform,
   PluginManifestSchema,
   SingleFileQuestion,
@@ -61,6 +62,8 @@ import {
 import { UninstallInputs } from "./inputs";
 import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -318,7 +321,7 @@ export function selectTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "teams-manifest-file",
     cliShortName: "t",
     cliDescription:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     title: getLocalizedString("core.selectTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -343,7 +346,7 @@ export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "local-teams-manifest-file",
     cliShortName: "l",
     cliDescription:
-      "Specifies the Microsoft Teams app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
+      "Specifies the app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
     title: getLocalizedString("core.selectLocalTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -446,7 +449,7 @@ function selectTeamsAppPackageQuestion(): SingleFileQuestion {
     name: QuestionNames.TeamsAppPackageFilePath,
     title: getLocalizedString("core.selectTeamsAppPackageQuestion.title"),
     cliDescription:
-      "Specifies the zipped Microsoft Teams app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
+      "Specifies the zipped app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
     cliName: "app-package-file",
     cliShortName: "p",
     type: "singleFile",
@@ -1552,7 +1555,7 @@ export function syncManifestQuestionNode(): IQTreeNode {
           type: "text",
           name: QuestionNames.TeamsAppId,
           title: getLocalizedString("core.syncManifest.teamsAppId"),
-          cliDescription: "Teams App ID (optional)",
+          cliDescription: "App ID (optional)",
         },
       },
     ],
@@ -1629,29 +1632,147 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
     // Different tenant may have different sensitivity labels, so the options are always dynamic
     staticOptions: [],
     dynamicOptions: async (inputs: Inputs) => {
-      try {
-        const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-          scopes: [listSensitivityLabelScope],
-        });
-        if (tokenRes.isErr()) {
-          return [];
-        }
-        const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
-        if (res.isErr()) {
-          return [];
-        }
-        const options = [];
-        for (const label of res.value) {
-          options.push({
-            id: label.id ?? "",
-            label: label.displayName ?? "",
-            description: label.description ?? "",
-          });
-        }
-        return options;
-      } catch (e) {
-        return [];
+      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: [listSensitivityLabelScope],
+      });
+      if (tokenRes.isErr()) {
+        throw tokenRes.error;
       }
+      const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+      if (res.isErr()) {
+        throw res.error;
+      }
+      const options = [];
+      for (const label of res.value) {
+        options.push({
+          id: label.id ?? "",
+          label: label.displayName ?? "",
+          description: label.description ?? "",
+        });
+      }
+      return options;
+    },
+    skipValidation: true,
+  };
+}
+
+export function shareNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: shareOptionQuestion(),
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.ShareOption] === QuestionNames.ShareOptionShareToUser;
+            },
+            data: ShareToUserQuestion(),
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function shareOptionQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ShareOption,
+    title: getLocalizedString("core.shareOptionQuestion.title"),
+    type: "singleSelect",
+    placeholder: getLocalizedString("core.shareOptionQuestion.placeholder"),
+    staticOptions: [
+      {
+        id: QuestionNames.ShareOptionShareApp,
+        label: getLocalizedString("core.shareOptionQuestion.share"),
+      },
+      {
+        id: QuestionNames.ShareOptionShareToUser,
+        label: getLocalizedString("core.shareOptionQuestion.shareToUser"),
+      },
+    ],
+  };
+}
+
+function ShareToUserQuestion(): TextInputQuestion {
+  return {
+    name: QuestionNames.ShareToUsers,
+    title: getLocalizedString("core.shareToUser.title"),
+    type: "text",
+    cliDescription: getLocalizedString("core.shareToUser.title"),
+    validation: {
+      validFunc: (input) => {
+        if (!input || input.trim() === "") {
+          return getLocalizedString("core.addUserQuestion.validation");
+        }
+      },
+    },
+  };
+}
+
+export function removeSharedAccessNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: selectUsersToRemoveSharedAccess(),
+      },
+    ],
+  };
+}
+
+export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.RemoveUsers,
+    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    type: "multiSelect",
+    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        throw new Error("Project path is not defined");
+      }
+      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (tokenRes.isErr()) {
+        throw tokenRes.error;
+      }
+      const token = tokenRes.value;
+      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      if (configRes.isErr()) {
+        throw configRes.error;
+      }
+      const teamsAppId = configRes.value[0];
+      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
+      if (!app.userList || app.userList.length === 0) {
+        throw new Error("No owner found in the app");
+      }
+
+      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
+        TOOLS.tokenProvider.m365TokenProvider
+      );
+      if (currentUserInfoRes.isErr()) {
+        throw currentUserInfoRes.error;
+      }
+      const operatorId = currentUserInfoRes.value.aadId;
+
+      const options: OptionItem[] = [];
+      for (const user of app.userList) {
+        if (user.aadId === operatorId) {
+          continue;
+        }
+        options.push({
+          id: user.userPrincipalName,
+          label: user.displayName,
+          description: user.userPrincipalName,
+        });
+      }
+      return options;
     },
     skipValidation: true,
   };

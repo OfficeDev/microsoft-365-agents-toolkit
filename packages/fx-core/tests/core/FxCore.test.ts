@@ -84,6 +84,7 @@ import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../src/common/daSpecParser";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -122,6 +123,8 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import * as shareUtils from "../../src/component/driver/share/utils";
+import proxyquire from "proxyquire";
 
 const tools = new MockTools();
 
@@ -928,6 +931,308 @@ describe("Core basic APIs", () => {
     };
     const res = await core.uninstall(inputs);
     assert.isTrue(res.isErr());
+  });
+  it("remove shared access happy path", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: "user1@example.com,user2@example.com",
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isOk());
+  });
+  it("remove shared access - invalid email", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+
+    const inputs2: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: [],
+    };
+    const result2 = await core.removeSharedAccess(inputs2);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+  });
+  it("remove shared access - parse error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - token error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage")));
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - getCurrentUserInfo", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox
+      .stub(collaborator.CollaborationUtil, "getCurrentUserInfo")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - get use info error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves(undefined);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("Invalid user"));
+    }
+  });
+  it("remove shared access - remove current user", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId1",
+        displayName: "mockDisplayName1",
+        userPrincipalName: "mockUserPrincipalName1",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(
+        result.error.message.includes(
+          getLocalizedString("core.share.removeAccess.operator", "user1@example.com")
+        )
+      );
+    }
+  });
+  it("remove shared access - mos grant permission error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox
+      .stub(PackageService.GetSharedInstance(), "removePermission")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
   });
   it("uninstall with invalid mode", async () => {
     const core = new FxCore(tools);
@@ -6075,7 +6380,7 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6482,7 +6787,7 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6567,7 +6872,7 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",

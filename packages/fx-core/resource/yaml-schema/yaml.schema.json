@@ -699,7 +699,7 @@
     "teamsAppCreate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create a Teams app in Teams Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
+      "description": "Create an app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "name": {
@@ -715,7 +715,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will create a new Teams app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Teams Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
           "const": "teamsApp/create"
         },
         "with": {
@@ -726,7 +726,7 @@
           "properties": {
             "name": {
               "type": "string",
-              "description": "Name of the Teams app"
+              "description": "Name of the app"
             }
           }
         },
@@ -746,7 +746,7 @@
     "teamsAppValidateManifest": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Validate Teams app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+      "description": "Validate app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -762,7 +762,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will validate Teams app manifest with manifest schema. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "description": "This action will validate app manifest with manifest schema. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
           "const": "teamsApp/validateManifest"
         },
         "with": {
@@ -773,7 +773,7 @@
           "properties": {
             "manifestPath": {
               "type": "string",
-              "description": "Path to Teams app manifest file."
+              "description": "Path to app manifest file."
             }
           }
         }
@@ -782,7 +782,7 @@
     "teamsAppValidateAppPackage": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Validate Teams app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+      "description": "Validate app manifest. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -798,7 +798,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will validate Teams app package file using validation rules. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "description": "This action will validate app package file using validation rules. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
           "const": "teamsApp/validateAppPackage"
         },
         "with": {
@@ -809,7 +809,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "Path to zipped Teams app package file."
+              "description": "Path to zipped app package file."
             }
           }
         }
@@ -834,7 +834,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will trigger async validations for the Teams app package file. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
+          "description": "This action will trigger async validations for the app package file. Refer to https://aka.ms/teamsfx-actions/teamsapp-validate for more details.",
           "const": "teamsApp/validateWithTestCases"
         },
         "with": {
@@ -845,7 +845,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "Path to zipped Teams app package file."
+              "description": "Path to zipped app package file."
             },
             "showMessage": {
               "type": "boolean",
@@ -878,7 +878,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will render Teams app manifest template with environment variables, and zip manifest file with two icons. Refer to https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage for more details.",
+          "description": "This action will render app manifest template with environment variables, and zip manifest file with two icons. Refer to https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage for more details.",
           "const": "teamsApp/zipAppPackage"
         },
         "with": {
@@ -889,7 +889,7 @@
           "properties": {
             "manifestPath": {
               "type": "string",
-              "description": "Path to Teams app manifest file"
+              "description": "Path to app manifest file"
             },
             "outputZipPath": {
               "type": "string",
@@ -906,7 +906,7 @@
     "teamsAppUpdate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Update Teams app in Teams Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+      "description": "Update app in Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -922,7 +922,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Apply the Teams app manifest to an existing Teams app in Teams Developer Portal. Will use the app id in manifest.json file to determine which Teams app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
+          "description": "Apply the app manifest to an existing app in Developer Portal. Will use the app id in manifest.json file to determine which app to update. Refer to https://aka.ms/teamsfx-actions/teamsapp-update for more details.",
           "const": "teamsApp/update"
         },
         "with": {
@@ -933,7 +933,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "Path to Teams app package"
+              "description": "Path to app package"
             }
           }
         }
@@ -942,7 +942,7 @@
     "teamsAppPublishAppPackage": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Publish Teams app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
+      "description": "Publish app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "name": {
@@ -958,7 +958,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Publish Teams app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
+          "description": "Publish app package to Teams Admin center. Refer to https://aka.ms/teamsfx-actions/teamsapp-publish for more details.",
           "const": "teamsApp/publishAppPackage"
         },
         "with": {
@@ -969,7 +969,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "Path to Teams app package to be published."
+              "description": "Path to app package to be published."
             }
           }
         },
@@ -1294,7 +1294,7 @@
             },
             "testTool": {
               "type": "object",
-              "description": "Install Teams App Test Tool. This will output environment variables specified by `testToolPath` to current environment's .env file.",
+              "description": "Install Microsoft 365 Agents Playground. This will output environment variables specified by `testToolPath` to current environment's .env file.",
               "additionalProperties": false,
               "required": ["version", "symlinkDir"],
               "properties": {
@@ -1307,11 +1307,11 @@
                       "type": "integer"
                     }
                   ],
-                  "description": "The version number of Teams App Test Tool npm package that follow the Semantic Versioning scheme."
+                  "description": "The version number of Microsoft 365 Agents Playground npm package that follow the Semantic Versioning scheme."
                 },
                 "symlinkDir": {
                   "type": "string",
-                  "description": "The path of the symlink target for the folder containing Teams App Test Tool binaries."
+                  "description": "The path of the symlink target for the folder containing Microsoft 365 Agents Playground binaries."
                 }
               }
             },
@@ -1357,7 +1357,7 @@
     "teamsAppExtendToM365": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Extend Teams app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+      "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -1373,7 +1373,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Extend Teams app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
+          "description": "Extend app across Microsoft 365. Refer to https://aka.ms/teamsfx-actions/teamsapp-extendToM365 for more details.",
           "const": "teamsApp/extendToM365"
         },
         "with": {
@@ -1384,7 +1384,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "path to Teams app package"
+              "description": "path to app package"
             }
           }
         },
@@ -1436,7 +1436,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "path to Teams app package"
+              "description": "path to app package"
             }
           }
         },
@@ -1505,7 +1505,7 @@
     "teamsAppCopyAppPackageToSPFx": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Copy the generated Teams app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
+      "description": "Copy the generated app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
       "required": ["uses", "with"],
       "properties": {
         "name": {
@@ -1521,7 +1521,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "Copy the generated Teams app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
+          "description": "Copy the generated app package to SPFx solution. Refer to https://aka.ms/teamsfx-actions/teams-app-copy-app-package-to-spfx for more details.",
           "const": "teamsApp/copyAppPackageToSPFx"
         },
         "with": {
@@ -1536,7 +1536,7 @@
             },
             "appPackagePath": {
               "type": "string",
-              "description": "The path to the zipped Teams app package"
+              "description": "The path to the zipped app package"
             }
           }
         }
@@ -1658,7 +1658,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of Teams app."
+              "description": "The app ID."
             },
             "primaryClientSecret": {
               "type": "string",
@@ -1762,7 +1762,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The app ID of Teams app."
+              "description": "The app ID of app."
             },
             "apiSpecPath": {
               "type": "string",
@@ -2036,12 +2036,12 @@
     "devChannelInstallApp": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Install Teams app to a sandboxed team and channel.",
+      "description": "Install app to a sandboxed team and channel.",
       "required": ["uses", "with"],
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Install Teams app to a sandboxed team and channel.",
+          "description": "Install app to a sandboxed team and channel.",
           "const": "devChannel/installApp"
         },
         "with": {
@@ -2052,7 +2052,7 @@
           "properties": {
             "appPackagePath": {
               "type": "string",
-              "description": "Path to zipped Teams app package file."
+              "description": "Path to zipped app package file."
             },
             "teamId": {
               "type": "string",

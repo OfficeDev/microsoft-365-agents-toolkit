@@ -70,6 +70,7 @@ import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { shareCommand } from "../../src/commands/models/share";
 import { setCommand } from "../../src/commands/models/set";
 import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
+import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -564,6 +565,20 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await shareCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+  describe("shareRemoveCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "removeSharedAccess").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareRemoveCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareRemoveCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });
