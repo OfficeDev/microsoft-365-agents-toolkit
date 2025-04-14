@@ -228,7 +228,7 @@ describe("Core basic APIs", () => {
       stage: Stage.addWebpart,
       projectPath: appPath,
     };
-
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("teamsapp.yml");
     sandbox.stub(fs, "pathExists").callsFake(async (directory: string) => {
       if (directory.includes(path.join("webparts", "helloworld"))) {
         return false;
@@ -237,7 +237,7 @@ describe("Core basic APIs", () => {
     });
     sandbox.stub(fs, "readJson").resolves({});
     const runSpy = sandbox.stub(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
+    const res = await core.addWebpart(inputs);
     sandbox.assert.calledOnce(runSpy);
     runSpy.restore();
   });

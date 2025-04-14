@@ -10,7 +10,7 @@ import { environmentNameManager } from "../../core/environmentName";
 import { MissingRequiredFileError } from "../../error/common";
 
 class PathUtils {
-  getYmlFilePath(projectPath: string, env?: string): string {
+  getYmlFilePath(projectPath: string, env?: string, silent = false): string | undefined {
     if (process.env.TEAMSFX_CONFIG_FILE_PATH) return process.env.TEAMSFX_CONFIG_FILE_PATH;
     const envName = env || process.env.TEAMSFX_ENV || "dev";
     const ymlPathV4 = path.join(
@@ -36,9 +36,7 @@ class PathUtils {
         ? MetadataV3.sandboxConfigFile
         : MetadataV3.configFile
     );
-    if (fs.pathExistsSync(ymlPathV3)) {
-      return ymlPathV3;
-    }
+    if (silent) return undefined;
     if (environmentNameManager.isRemoteEnvironment(envName)) {
       throw new MissingRequiredFileError("core", "", ymlPathV3);
     } else {
@@ -47,7 +45,7 @@ class PathUtils {
   }
   async getEnvFolderPath(projectPath: string): Promise<Result<string | undefined, FxError>> {
     const ymlFilePath = this.getYmlFilePath(projectPath, "dev");
-    const ymlContent = await fs.readFile(ymlFilePath, "utf-8");
+    const ymlContent = await fs.readFile(ymlFilePath!, "utf-8");
     const yamlObj = yaml.parse(ymlContent);
     const folderPath = yamlObj.environmentFolderPath?.toString() || "./env";
     const envFolderPath = path.isAbsolute(folderPath)

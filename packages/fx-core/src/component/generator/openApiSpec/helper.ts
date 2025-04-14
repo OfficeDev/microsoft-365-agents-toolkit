@@ -680,8 +680,8 @@ export async function injectAuthAction(
   enablePKCE?: boolean,
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
-  const ymlPath = pathUtils.getYmlFilePath(projectPath);
-  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local");
+  const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local") as string;
 
   const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 

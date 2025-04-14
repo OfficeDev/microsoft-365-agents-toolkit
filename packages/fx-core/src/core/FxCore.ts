@@ -296,7 +296,7 @@ export class FxCore {
     const genRes = await generator.run(context, inputs, projectPath);
     if (genRes.isErr()) return err(genRes.error);
     //3. ensure unique projectId in teamsapp.yaml (optional)
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     const result: CreateProjectResult = { projectPath: projectPath };
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await coordinator.ensureTrackingId(projectPath, inputs.projectId);
@@ -437,7 +437,7 @@ export class FxCore {
     if (!inputs.env) {
       return err(new MissingRequiredInputError("env", "FxCore"));
     }
-    const teamsappYamlPath = pathUtils.getYmlFilePath(inputs.projectPath!, inputs.env);
+    const teamsappYamlPath = pathUtils.getYmlFilePath(inputs.projectPath!, inputs.env) as string;
     const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath, inputs.env);
     if (yamlProjectModel.isErr()) {
       return err(yamlProjectModel.error);
@@ -1399,7 +1399,7 @@ export class FxCore {
    */
   @hooks([ErrorContextMW({ component: "FxCore", stage: "getTeamsAppName", reset: true })])
   async getTeamsAppName(projectPath: string): Promise<Result<string, FxError>> {
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     const maybeProjectModel = await metadataUtil.parse(ymlPath, "dev");
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
@@ -1438,7 +1438,7 @@ export class FxCore {
       FxError
     >
   > {
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, env);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, env) as string;
     const maybeProjectModel = await metadataUtil.parse(ymlPath, env);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);

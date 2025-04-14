@@ -50,7 +50,7 @@ export function shouldIgnored(ctx: CoreHookContext): boolean {
 }
 
 export function getProjectSettingsPath(projectPath: string): string {
-  return pathUtils.getYmlFilePath(projectPath, "dev");
+  return pathUtils.getYmlFilePath(projectPath, "dev", true) || "";
 }
 
 export function getProjectSettingPathV2(projectPath: string): string {

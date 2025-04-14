@@ -204,7 +204,7 @@ class Coordinator {
     }
 
     // generate unique projectId in teamsapp.yaml (optional)
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await this.ensureTrackingId(projectPath, inputs.projectId);
       if (ensureRes.isErr()) return err(ensureRes.error);
@@ -762,7 +762,7 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
     const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
@@ -823,7 +823,7 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
     const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
