@@ -24,6 +24,7 @@ import { MockTools } from "../../core/utils";
 import { createHash, Hash } from "crypto";
 import { ExecutionResult as DriverResult } from "../../../src/component/driver/interface/stepDriver";
 import { metadataGraphPermissionUtil } from "../../../src/component/utils/metadataGraphPermssion";
+import { pathUtils } from "../../../src/component/utils/pathUtils";
 
 function mockedResolveDriverInstances(log: LogProvider): Result<DriverInstance[], FxError> {
   return ok([
@@ -75,6 +76,7 @@ describe("metadata util", () => {
     tools = new MockTools();
     setTools(tools);
     sandbox.stub(metadataGraphPermissionUtil, "parseAadManifest").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
   });
 
   afterEach(() => {
