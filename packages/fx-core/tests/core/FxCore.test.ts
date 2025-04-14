@@ -512,7 +512,6 @@ describe("Core basic APIs", () => {
 
   it("phantomMigrationV3 return error for invalid V2 project", async () => {
     sandbox.stub(projectMigratorV3, "checkActiveResourcePlugins").resolves(false);
-
     const core = new FxCore(tools);
     const appName = await mockV2Project();
     const inputs: Inputs = {
