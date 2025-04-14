@@ -16,3 +16,5 @@ export * from "./SyncManifestOptions";
 export * from "./AddAuthActionOptions";
 export * from "./AddKnowledgeOptions";
 export * from "./SetSensitivityLabelOptions";
+export * from "./ShareOptions";
+export * from "./removeSharedAccessOptions";

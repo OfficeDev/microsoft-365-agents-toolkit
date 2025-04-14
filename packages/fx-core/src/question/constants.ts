@@ -132,6 +132,12 @@ export enum QuestionNames {
   TypeSpecProjectType = "type-spec-project-type",
   DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
   SensitivityLabel = "sensitivity-label",
+
+  ShareOption = "option",
+  ShareOptionShareApp = "share-app",
+  ShareOptionShareToUser = "share-with-users",
+  ShareToUsers = "users",
+  RemoveUsers = "users",
 }
 
 export enum ProjectTypeGroup {
