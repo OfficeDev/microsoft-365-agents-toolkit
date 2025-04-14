@@ -88,7 +88,11 @@ describe("Manifest manipulation", async () => {
       const result = await ManifestUtil.validateManifestAgainstSchema(validManifest, schema);
       chai.expect(result).to.be.empty;
     });
-
+    it("loadAndValidateFromPath passes", async () => {
+      const filePath = path.join(__dirname, "manifest.json");
+      const [manifest, validateResults] = await ManifestUtil.loadAndValidateFromPath(filePath);
+      chai.expect(validateResults).to.be.empty;
+    });
     it("should return error string array", async () => {
       // schema has version 1.11
       const schema = await loadSchema();
