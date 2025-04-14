@@ -175,6 +175,7 @@ export async function getBotSiteEndpoint(
 export function validateFileExist(projectPath: string, relativePath: string) {
   const filePath = path.resolve(projectPath, relativePath);
   chai.expect(fs.existsSync(filePath), `${filePath} must exist.`).to.eq(true);
+  console.log(`File ${filePath} exists.`);
 }
 
 export async function updateAadTemplate(
