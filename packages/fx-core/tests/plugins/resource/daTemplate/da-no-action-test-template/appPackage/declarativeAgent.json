@@ -1,0 +1,6 @@
+{
+    "version": "v1.4",
+    "name": "da-no-action-test-template",
+    "description": "Declarative agent created with Teams Toolkit",
+    "instructions": "$[file('instruction.txt')]"
+}

@@ -403,60 +403,35 @@ export const questionVisitor: QuestionTreeVisitor = async function (
   );
 };
 
-/**
- * serialize the tree node into array in DFS order
- */
-export function collect(
-  node: IQTreeNode,
-  list: IQTreeNode[],
-  parentMap: Map<IQTreeNode, IQTreeNode>
-): void {
-  list.push(node);
-  if (node.children) {
-    for (const child of node.children) {
-      if (child) {
-        parentMap.set(child, node);
-        collect(child, list, parentMap);
-      }
-    }
-  }
-}
-
 export async function traverse(
   root: IQTreeNode,
   inputs: Inputs,
   ui: UserInteraction,
   telemetryReporter?: TelemetryReporter,
   visitor: QuestionTreeVisitor = questionVisitor
-): Promise<Result<Void, FxError>> {
+): Promise<Result<undefined, FxError>> {
   // The reason to clone is that we don't want to change the original inputs if user cancel the process
   const clonedInputs = cloneDeep(inputs);
-
-  // 1. collect all nodes into array
   const parentMap = new Map<IQTreeNode, IQTreeNode>();
-  const nodeList: IQTreeNode[] = [];
-  collect(root, nodeList, parentMap);
+  const stack: IQTreeNode[] = [];
+  const traversedNodeList: IQTreeNode[] = []; // traverse history node list
+  const traversedNodeSet = new Set<IQTreeNode>(); // a set to record whether a node has been traversed to avoid duplicate visit
+  stack.push(root);
+  let step = 1; // step number means the number of nodes that is really visited by UI, except cases for: group node, skip node and node with condition failure
+  while (stack.length > 0) {
+    // get the last node but not pop it right now
+    const node = stack[stack.length - 1];
 
-  const visitedNodeSet = new Set<IQTreeNode>();
-
-  const visitedInputNodeArray: IQTreeNode[] = [];
-
-  let i = 0;
-  for (; i < nodeList.length; ++i) {
-    const node = nodeList[i];
-
-    // if parent node is not visited, current node should not be visited
-    const parent = parentMap.get(node);
-    if (parent) {
-      if (!visitedNodeSet.has(parent)) {
-        continue;
-      }
+    if (traversedNodeSet.has(node)) {
+      stack.pop();
+      continue;
     }
 
-    // 1. check condition
+    let conditionPass = true;
+    // check condition
     if (node.condition) {
       let parentValue: any = undefined;
-      // const parent = parentMap.get(node);
+      const parent = parentMap.get(node);
       if (parent) {
         parentValue = findValue(parent, parentMap);
       }
@@ -466,67 +441,80 @@ export async function traverse(
         clonedInputs
       );
       if (validRes !== undefined) {
-        continue;
+        conditionPass = false;
       }
     }
 
-    // 2. visit node if not group
-    if (node.data.type !== "group") {
-      const question = node.data;
-      let res;
-      try {
-        res = await visitor(
-          question,
-          ui,
-          clonedInputs,
-          visitedInputNodeArray.length + 1,
-          undefined
-        );
-        sendTelemetryEvent(telemetryReporter, res, question, clonedInputs);
-      } catch (e) {
-        return err(assembleError(e));
-      }
-      if (res.isErr()) {
-        // Cancel or Error
-        return err(res.error);
-      }
-      const inputResult = res.value;
-      if (inputResult.type === "back") {
-        const prevNode = visitedInputNodeArray.pop();
-        if (!prevNode) {
-          return err(new UserCancelError());
+    node.conditionResult = conditionPass;
+
+    if (conditionPass) {
+      if (node.data.type !== "group") {
+        const question = node.data;
+        let res;
+        try {
+          res = await visitor(question, ui, clonedInputs, step, undefined);
+          sendTelemetryEvent(telemetryReporter, res, question, clonedInputs);
+        } catch (e) {
+          return err(assembleError(e));
         }
-        for (--i; i >= 0; --i) {
-          const tmpNode = nodeList[i];
-          visitedNodeSet.delete(tmpNode);
-          // clear prevNode data
-          if (tmpNode.data.type !== "group") {
-            delete tmpNode.data.value;
-            delete tmpNode.data.valueType;
-            delete clonedInputs[tmpNode.data.name];
+        if (res.isErr()) {
+          // Cancel or Error
+          return err(res.error);
+        }
+        const inputResult = res.value;
+        if (inputResult.type === "back") {
+          // go backward
+          let prevNode = traversedNodeList.pop();
+          while (prevNode) {
+            traversedNodeSet.delete(prevNode);
+            if (prevNode.conditionResult && prevNode.data.type !== "group") {
+              delete prevNode.data.value;
+              delete prevNode.data.valueType;
+              delete clonedInputs[prevNode.data.name];
+              if (prevNode.data.valueType !== "skip") {
+                break;
+              }
+            }
+            stack.push(prevNode);
+            prevNode = traversedNodeList.pop();
           }
-          if (tmpNode === prevNode) {
-            break;
+          if (!prevNode) {
+            return err(new UserCancelError());
+          }
+          step--;
+          stack.push(prevNode);
+          continue;
+        } else {
+          // go forward: success or skip
+          question.value = inputResult.result;
+          question.valueType = inputResult.type;
+          clonedInputs[question.name] = question.value;
+          if (question.valueType === "success") {
+            step++;
           }
         }
-        --i;
-        continue;
-      } else {
-        //success or skip: set value
-        question.value = inputResult.result;
-        question.valueType = inputResult.type;
-        clonedInputs[question.name] = question.value;
-        visitedNodeSet.add(node);
-        if (question.valueType === "success") {
-          visitedInputNodeArray.push(node);
+      }
+    }
+
+    stack.pop();
+    traversedNodeList.push(node);
+    traversedNodeSet.add(node);
+
+    if (conditionPass) {
+      //push children into stack from end to start
+      if (node.children && node.children.length > 0) {
+        for (let i = node.children.length - 1; i >= 0; --i) {
+          const child = node.children[i];
+          if (child) {
+            parentMap.set(child, node);
+            stack.push(child);
+          }
         }
       }
-    } else {
-      visitedNodeSet.add(node);
     }
   }
   assign(inputs, clonedInputs);
-  return ok(Void);
+  return ok(undefined);
 }
 
 export function findValue(curr: IQTreeNode, parentMap: Map<IQTreeNode, IQTreeNode>): any {

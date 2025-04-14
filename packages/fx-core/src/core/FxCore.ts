@@ -38,6 +38,7 @@ import {
   Stage,
   SystemError,
   TeamsAppInputs,
+  TeamsAppManifest,
   Tools,
   UserError,
   err,
@@ -97,6 +98,7 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
@@ -134,8 +136,6 @@ import {
   getParserOptions,
   injectAuthAction,
   listOperations,
-  listPluginExistingOperations,
-  parseAndUpdatePluginManifestForKiota,
 } from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
@@ -182,7 +182,12 @@ import { createProjectCliHelpNode } from "../question/create";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
-import { checkPermission, grantPermission, listCollaborator } from "./collaborator";
+import {
+  checkPermission,
+  CollaborationUtil,
+  grantPermission,
+  listCollaborator,
+} from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
@@ -201,7 +206,7 @@ import {
   ItemMetadata,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import { listAPIInfo } from "../common/daSpecParser";
+import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -834,6 +839,88 @@ export class FxCore {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
+    QuestionMW("removeSharedAccess"),
+    ProjectMigratorMWV3,
+    EnvLoaderMW(false),
+    ConcurrentLockerMW,
+    ContextInjectorMW,
+  ])
+  async removeSharedAccess(
+    inputs: Inputs,
+    ctx?: CoreHookContext
+  ): Promise<Result<undefined, FxError>> {
+    const emails = inputs[QuestionNames.RemoveUsers] as string[];
+    if (!emails || emails.length === 0) {
+      return err(new MissingRequiredInputError("emails", "FxCore"));
+    }
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const teamsAppId = parseRes.value[0];
+    const sharedTitleId = parseRes.value[1];
+
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const appStudioTokenRes = await tokenProvider.getAccessToken({
+      scopes: AppStudioScopes,
+    });
+    if (appStudioTokenRes.isErr()) {
+      return err(appStudioTokenRes.error);
+    }
+    const appStudioToken = appStudioTokenRes.value;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+
+    // should never remove permission of the operator
+    const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(tokenProvider);
+    if (currentUserInfoRes.isErr()) {
+      return err(currentUserInfoRes.error);
+    }
+    const currentUserInfo = currentUserInfoRes.value;
+    for (const email of emails) {
+      const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+      if (!userInfo) {
+        return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
+      }
+      if (userInfo.aadId === currentUserInfo.aadId) {
+        return err(
+          new InputValidationError(
+            "removeSharedAccess",
+            getLocalizedString("core.share.removeAccess.operator", email)
+          )
+        );
+      }
+
+      // 1. remove TDP permission
+      await teamsDevPortalClient.removePermission(appStudioToken, teamsAppId, userInfo);
+
+      // 2. remove mos permission
+      const res = await PackageService.GetSharedInstance().removePermission(
+        mosToken,
+        sharedTitleId,
+        userInfo
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+    }
+    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    TOOLS.ui?.showMessage("info", msg, false);
+    return ok(undefined);
+  }
+
+  /**
+   * lifecycle command: share
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
+    ErrorHandlerMW,
+    QuestionMW("share"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
@@ -844,19 +931,70 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
-      return err(new SystemError("FxCore", "", "share is not enabled"));
-    }
-    inputs.stage = Stage.share;
-    const context = createDriverContext(inputs);
-    const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-    if (res.isOk()) {
-      ctx!.envVars = res.value;
+    const options = inputs[QuestionNames.ShareOption];
+    if (options === QuestionNames.ShareOptionShareApp) {
+      inputs.stage = Stage.share;
+      const context = createDriverContext(inputs);
+      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
+      if (res.isOk()) {
+        ctx!.envVars = res.value;
+        return ok(undefined);
+      } else {
+        // for partial success scenario, output is set in inputs object
+        ctx!.envVars = inputs.envVars;
+        return err(res.error);
+      }
+    } else if (options === QuestionNames.ShareOptionShareToUser) {
+      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
+      if (!emails || emails.length === 0) {
+        return err(new MissingRequiredInputError("emails", "FxCore"));
+      }
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      const teamsAppId = parseRes.value[0];
+      const sharedTitleId = parseRes.value[1];
+
+      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+      const appStudioTokenRes = await tokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (appStudioTokenRes.isErr()) {
+        return err(appStudioTokenRes.error);
+      }
+      const appStudioToken = appStudioTokenRes.value;
+      const mosTokenRes = await tokenProvider.getAccessToken({
+        scopes: [MosServiceScope],
+      });
+      if (mosTokenRes.isErr()) {
+        return err(mosTokenRes.error);
+      }
+      const mosToken = mosTokenRes.value;
+      for (const email of emails) {
+        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+        if (!userInfo) {
+          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
+        }
+
+        // 1. grant TDP permission
+        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+
+        // 2. grant mos permission
+        const res = await PackageService.GetSharedInstance().grantPermission(
+          mosToken,
+          sharedTitleId,
+          userInfo
+        );
+        if (res.isErr()) {
+          return err(res.error);
+        }
+      }
+      const msg = getLocalizedString("core.common.shareToUser.success", emails);
+      TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else {
-      // for partial success scenario, output is set in inputs object
-      ctx!.envVars = inputs.envVars;
-      return err(res.error);
+      return err(new InputValidationError("shareOption", "Invalid share option"));
     }
   }
   /**

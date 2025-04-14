@@ -123,6 +123,7 @@
   "teamstoolkit.commands.validateManifest.title": "Validate Application",
   "teamstoolkit.commands.viewSamples.title": "View Samples",
   "teamstoolkit.commands.zipPackage.title": "Zip App Package",
+  "teamstoolkit.commands.removeSharedAccess": "remove access for shared app",
   "teamstoolkit.commmands.addWebpart.title": "Add SPFx web part",
   "teamstoolkit.commmands.addWebpart.description": "Add SPFx web part",
   "teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title": "Resolve selected text with @m365agents",

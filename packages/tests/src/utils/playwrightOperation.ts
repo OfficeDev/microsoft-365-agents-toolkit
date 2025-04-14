@@ -1493,8 +1493,8 @@ export async function validateEchoBot(
       const sendButton = await frame?.waitForSelector('button[name="send"]');
       await sendButton?.click();
       const expectedContent = options?.botCommand
-        ? `Echo: ${options?.botCommand}`
-        : `Echo: helloWorld`;
+        ? `you said: ${options?.botCommand}`
+        : `you said: helloWorld`;
       await frame?.waitForSelector(`p:has-text("${expectedContent}")`);
       console.log(`verify bot successfully with content ${expectedContent}!!!`);
     }, 2);

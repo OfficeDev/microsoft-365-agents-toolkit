@@ -70,7 +70,7 @@ configuration:
           action: Opened
       - or:
         - bodyContains:
-            pattern: 'Unable to make API call to Developer Portal (.*), (.*), API name (.*), X-Correlation-ID (.*). This may be due to a temporary service error. Try again after a few minutes.'
+            pattern: 'Unable to make API call to Developer Portal: (.*), (.*), API name: (.*), X-Correlation-ID: (.*). This may be due to a temporary service error. Try again after a few minutes.'
             isRegex: True
         - bodyContains:
             pattern: Failed to (.*) teams app in app studio, due to \d{3}, .*

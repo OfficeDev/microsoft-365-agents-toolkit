@@ -3169,6 +3169,51 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Поиск документа с описанием OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input text to search OpenAPI description document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите текст для поиска документа с описанием OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Введите расположение документа с описанием OpenAPI или откройте файл...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Поиск документа с описанием OpenAPI...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Выбрать документ с описанием OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create API Plugin]]></Val>
@@ -4734,6 +4779,24 @@
           <Val><![CDATA[Comprehensive tests to ensure readiness]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Комплексные тесты для проверки готовности]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.confirm" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit will modify the file "%s" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Набор средств Teams изменит файл "%s" с учетом предоставленной метки конфиденциальности. Чтобы избежать потери непредвиденных изменений, перед продолжением создайте резервную копию файлов или используйте Git для отслеживания изменений.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Задать]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7449,6 +7512,15 @@
           <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams Toolkit завершил проверку вашего пакета приложения на соответствие правилам проверки. % с. Проверьте [Панель вывода]5D;(command:fx-extension.showOutputChannel) для получения подробной информации.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Файл %s обновлен. Запустите подготовку снова.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

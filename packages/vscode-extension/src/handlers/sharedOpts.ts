@@ -99,6 +99,10 @@ export async function runCommand(
         result = await core.shareApplication(inputs);
         break;
       }
+      case Stage.shareRemove: {
+        result = await core.removeSharedAccess(inputs);
+        break;
+      }
       case Stage.debug: {
         inputs.ignoreEnvInfo = false;
         inputs.checkerInfo = {
