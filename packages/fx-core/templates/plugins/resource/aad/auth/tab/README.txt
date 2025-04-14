@@ -25,7 +25,7 @@ You need to update your application code to take advantage of the SSO authentica
 Debug your application
 -------------------------
 
-1. Right-click your project and select Microsoft 365 Agents Toolkit > Prepare app dependencies
+1. Right-click your project and select Microsoft 365 Agents Toolkit > Select Microsoft 365 Account
 2. If prompted, sign in with an M365 account for the Teams organization you want 
 to install the app to
 3. Press F5, or select the Debug > Start Debugging menu in Visual Studio
