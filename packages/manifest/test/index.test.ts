@@ -211,6 +211,16 @@ describe("ManifestUtil", () => {
       chai.assert.include(error.message, "Unsupported manifest version: 1.100");
     }
   });
+  it("fetchSchema missing schema", async () => {
+    try {
+      ManifestUtil.fetchSchema({} as any);
+    } catch (e: any) {
+      chai.assert.include(
+        e.message,
+        "Manifest does not have a $schema property or schema url is not provided."
+      );
+    }
+  });
 });
 
 async function loadSchema(): Promise<any> {
