@@ -30,7 +30,7 @@ Open Teams Toolkit to create a new app and start coding!
 
 follow the [Get Started](https://aka.ms/teamsfx-build-first-app) instructions in our documentation to start with a new project.
 
-In the Teams Toolkit for Visual Studio Code, you can easily discover all applicable commands in the sidebar and Command Palette with the keyword "Teams". It also supports [Command Line Interface (CLI)](https://www.npmjs.com/package/@microsoft/m365agentstoolkit) to increase efficiency.
+In the Teams Toolkit for Visual Studio Code, you can easily discover all applicable commands in the sidebar and Command Palette with the keyword "Teams". It also supports [Command Line Interface (CLI)](https://www.npmjs.com/package/@microsoft/teamsapp-cli) to increase efficiency.
 
 ## Prerequisites
 
