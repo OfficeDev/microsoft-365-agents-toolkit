@@ -89,10 +89,10 @@ export const YamlFileNamesV3: string[] = [
 ];
 
 export const YamlFileNamesV4: string[] = [
-  MetadataV3.configFile,
-  MetadataV3.localConfigFile,
-  MetadataV3.testToolConfigFile,
-  MetadataV3.sandboxConfigFile,
+  MetadataV4.configFile,
+  MetadataV4.localConfigFile,
+  MetadataV4.testToolConfigFile,
+  MetadataV4.sandboxConfigFile,
 ];
 
 export function isYamlFileName(fileName: string): boolean {
