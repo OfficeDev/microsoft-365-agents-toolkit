@@ -68,52 +68,36 @@ export type MicrosoftTeamsManifest =
   | MicrosoftTeamsV1D19
   | MicrosoftTeamsV1D20
   | MicrosoftTeamsVDevPreview;
+const versionToConvert = {
+  "1.0": MicrosoftTeamsV1D0Convert.toMicrosoftTeamsV1D0,
+  "1.1": MicrosoftTeamsV1D1Convert.toMicrosoftTeamsV1D1,
+  "1.2": MicrosoftTeamsV1D2Convert.toMicrosoftTeamsV1D2,
+  "1.3": MicrosoftTeamsV1D3Convert.toMicrosoftTeamsV1D3,
+  "1.4": MicrosoftTeamsV1D4Convert.toMicrosoftTeamsV1D4,
+  "1.5": MicrosoftTeamsV1D5Convert.toMicrosoftTeamsV1D5,
+  "1.6": MicrosoftTeamsV1D6Convert.toMicrosoftTeamsV1D6,
+  "1.7": MicrosoftTeamsV1D7Convert.toMicrosoftTeamsV1D7,
+  "1.8": MicrosoftTeamsV1D8Convert.toMicrosoftTeamsV1D8,
+  "1.9": MicrosoftTeamsV1D9Convert.toMicrosoftTeamsV1D9,
+  "1.10": MicrosoftTeamsV1D10Convert.toMicrosoftTeamsV1D10,
+  "1.11": MicrosoftTeamsV1D11Convert.toMicrosoftTeamsV1D11,
+  "1.12": MicrosoftTeamsV1D12Convert.toMicrosoftTeamsV1D12,
+  "1.13": MicrosoftTeamsV1D13Convert.toMicrosoftTeamsV1D13,
+  "1.14": MicrosoftTeamsV1D14Convert.toMicrosoftTeamsV1D14,
+  "1.15": MicrosoftTeamsV1D15Convert.toMicrosoftTeamsV1D15,
+  "1.16": MicrosoftTeamsV1D16Convert.toMicrosoftTeamsV1D16,
+  "1.17": MicrosoftTeamsV1D17Convert.toMicrosoftTeamsV1D17,
+  "1.19": MicrosoftTeamsV1D19Convert.toMicrosoftTeamsV1D19,
+  "1.20": MicrosoftTeamsV1D20Convert.toMicrosoftTeamsV1D20,
+  devPreview: MicrosoftTeamsVDevPreviewConvert.toMicrosoftTeamsVDevPreview,
+};
 
 export function jsonToManifest(json: string): MicrosoftTeamsManifest {
   const parsed = JSON.parse(json);
   const manifestVersion = parsed.manifestVersion as string;
-  if (manifestVersion === "1.0") {
-    return MicrosoftTeamsV1D0Convert.toMicrosoftTeamsV1D0(json);
-  } else if (manifestVersion === "1.1") {
-    return MicrosoftTeamsV1D1Convert.toMicrosoftTeamsV1D1(json);
-  } else if (manifestVersion === "1.2") {
-    return MicrosoftTeamsV1D2Convert.toMicrosoftTeamsV1D2(json);
-  } else if (manifestVersion === "1.3") {
-    return MicrosoftTeamsV1D3Convert.toMicrosoftTeamsV1D3(json);
-  } else if (manifestVersion === "1.4") {
-    return MicrosoftTeamsV1D4Convert.toMicrosoftTeamsV1D4(json);
-  } else if (manifestVersion === "1.5") {
-    return MicrosoftTeamsV1D5Convert.toMicrosoftTeamsV1D5(json);
-  } else if (manifestVersion === "1.6") {
-    return MicrosoftTeamsV1D6Convert.toMicrosoftTeamsV1D6(json);
-  } else if (manifestVersion === "1.7") {
-    return MicrosoftTeamsV1D7Convert.toMicrosoftTeamsV1D7(json);
-  } else if (manifestVersion === "1.8") {
-    return MicrosoftTeamsV1D8Convert.toMicrosoftTeamsV1D8(json);
-  } else if (manifestVersion === "1.9") {
-    return MicrosoftTeamsV1D9Convert.toMicrosoftTeamsV1D9(json);
-  } else if (manifestVersion === "1.10") {
-    return MicrosoftTeamsV1D10Convert.toMicrosoftTeamsV1D10(json);
-  } else if (manifestVersion === "1.11") {
-    return MicrosoftTeamsV1D11Convert.toMicrosoftTeamsV1D11(json);
-  } else if (manifestVersion === "1.12") {
-    return MicrosoftTeamsV1D12Convert.toMicrosoftTeamsV1D12(json);
-  } else if (manifestVersion === "1.13") {
-    return MicrosoftTeamsV1D13Convert.toMicrosoftTeamsV1D13(json);
-  } else if (manifestVersion === "1.14") {
-    return MicrosoftTeamsV1D14Convert.toMicrosoftTeamsV1D14(json);
-  } else if (manifestVersion === "1.15") {
-    return MicrosoftTeamsV1D15Convert.toMicrosoftTeamsV1D15(json);
-  } else if (manifestVersion === "1.16") {
-    return MicrosoftTeamsV1D16Convert.toMicrosoftTeamsV1D16(json);
-  } else if (manifestVersion === "1.17") {
-    return MicrosoftTeamsV1D17Convert.toMicrosoftTeamsV1D17(json);
-  } else if (manifestVersion === "1.19") {
-    return MicrosoftTeamsV1D19Convert.toMicrosoftTeamsV1D19(json);
-  } else if (manifestVersion === "1.20") {
-    return MicrosoftTeamsV1D20Convert.toMicrosoftTeamsV1D20(json);
-  } else if (manifestVersion === "devPreview") {
-    return MicrosoftTeamsVDevPreviewConvert.toMicrosoftTeamsVDevPreview(json);
+  const converter = versionToConvert[manifestVersion as keyof typeof versionToConvert];
+  if (converter) {
+    return converter(json);
   }
   throw new Error(`Unsupported manifest version: ${manifestVersion}`);
 }

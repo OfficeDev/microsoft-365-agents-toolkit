@@ -5,6 +5,8 @@ import fs from "fs-extra";
 import chaiAsPromised from "chai-as-promised";
 import sinon from "sinon";
 import { jsonToManifest, ManifestUtil, TeamsAppManifest, TeamsAppManifestJSONSchema } from "../src";
+import { Convert as MicrosoftTeamsV1D19Convert } from "../src/teams/MicrosoftTeams.v1d19";
+
 chai.use(chaiAsPromised);
 
 describe("Manifest manipulation", async () => {
@@ -136,6 +138,10 @@ describe("Manifest manipulation", async () => {
 });
 
 describe("ManifestUtil", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
   it("should return the correct manifest version", () => {
     const json = {
       $schema:
@@ -187,12 +193,18 @@ describe("ManifestUtil", () => {
       permissions: ["identity", "messageTeamMembers"],
       validDomains: [],
     };
-
     try {
       jsonToManifest(JSON.stringify(json));
       chai.assert.fail("Expected error not thrown");
     } catch (error: any) {
       chai.assert.include(error.message, `Invalid value for key "version"`);
+    }
+  });
+  it("invalid manifestVersion", () => {
+    try {
+      jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
+    } catch (error: any) {
+      chai.assert.include(error.message, "Unsupported manifest version: 1.100");
     }
   });
 });
