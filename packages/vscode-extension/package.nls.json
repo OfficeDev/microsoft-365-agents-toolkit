@@ -316,7 +316,6 @@
   "teamstoolkit.handlers.askInstallOfficeAddinDependency": "Install dependencies for Office Add-in?",
   "teamstoolkit.handlers.installOfficeAddinDependencyCancelled": "Dependency installation is canceled, but you can install dependencies manually by clicking the 'Development - Check and Install Dependencies' button on the left side.",
   "teamstoolkit.localDebug.learnMore": "Get More Info",
-  "teamstoolkit.localDebug.m365TenantHintMessage": "After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend Teams apps across Microsoft 365.",
   "teamstoolkit.handlers.askInstallCopilot": "To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.",
   "teamstoolkit.handlers.askInstallCopilot.install": "Install GitHub Copilot",
   "teamstoolkit.handlers.askInstallTeamsAgent": "To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.",
