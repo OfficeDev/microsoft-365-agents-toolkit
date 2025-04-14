@@ -399,7 +399,7 @@ We have enhanced the user experience for developers to create their custom copil
 - **Format Reddit Link into Adaptive Card**: This sample application demonstrates how to format a Reddit link into an Adaptive Card in Microsoft Teams conversations.
 ![Link Unfurling Sample](https://github.com/OfficeDev/TeamsFx/assets/11220663/0d44f8c3-d02e-4912-bfa2-6ed3fdb29c1b)
 
-#### Teams Toolkit CLI ([`@microsoft/teamsapp-cli`](https://www.npmjs.com/package/@microsoft/teamsapp-cli)) `v3.0.0@beta`
+#### Teams Toolkit CLI ([`@microsoft/m365agentstoolkit`](https://www.npmjs.com/package/@microsoft/m365agentstoolkit)) `v3.0.0@beta`
 ![Teams Toolkit CLI](https://camo.githubusercontent.com/67608a468cbd406d6ff18585c8bc3b34d3d97d0a8ef525bdf516ca23fd5e32dd/68747470733a2f2f616b612e6d732f636c692d6865726f2d696d616765)
 Teams Toolkit CLI version 3 is now in public preview. Major changes include:
 
