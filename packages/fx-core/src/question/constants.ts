@@ -117,6 +117,7 @@ export enum QuestionNames {
   GCList = "graph-connector-list",
   GCInput = "graph-connector-input",
   GCName = "graph-connector-name",
+  GCConnectionId = "graph-connector-connection-id",
   AuthName = "auth-name",
   TemplateName = "template-name",
 

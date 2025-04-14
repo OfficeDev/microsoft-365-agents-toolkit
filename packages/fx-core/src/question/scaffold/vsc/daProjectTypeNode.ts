@@ -5,7 +5,12 @@ import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../constants";
-import { GCNameQuestion, pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
+import {
+  GCConnectionIdQuestion,
+  GCNameQuestion,
+  pluginApiSpecQuestion,
+  pluginManifestQuestion,
+} from "../../create";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -114,7 +119,17 @@ export function daProjectTypeNode(
           },
           {
             condition: { equals: DACapabilityOptions.withGC().id },
-            data: GCNameQuestion(),
+            data: {
+              type: "group",
+            },
+            children: [
+              {
+                data: GCNameQuestion(),
+              },
+              {
+                data: GCConnectionIdQuestion(),
+              },
+            ],
           },
         ],
       },
