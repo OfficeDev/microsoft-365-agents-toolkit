@@ -5,15 +5,14 @@ import fs from "fs-extra";
 import path from "path";
 import semver from "semver";
 import { parseDocument } from "yaml";
+import { isValidOfficeAddInProject } from "./projectSettingsHelper";
 import {
   isYamlFileName,
-  isYamlFileNameV3,
   isYamlFileNameV4,
   MetadataV2,
   MetadataV3,
   MetadataV4,
 } from "./versionMetadata";
-import { isValidOfficeAddInProject } from "./projectSettingsHelper";
 
 export const TeamsJsModule = "@microsoft/teams-js";
 

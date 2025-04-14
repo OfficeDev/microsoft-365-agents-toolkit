@@ -9,12 +9,11 @@ import {
   UserErrorOptions,
 } from "@microsoft/teamsfx-api";
 import { camelCase } from "lodash";
-import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { globalVars } from "../common/globalVars";
-import { ErrorCategory } from "./types";
-import path from "path";
-import { MetadataV3, YamlFileNames } from "../common/versionMetadata";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { YamlFileNames } from "../common/versionMetadata";
 import { TelemetryProperty } from "../component/configManager/constant";
+import { ErrorCategory } from "./types";
 
 export class FileNotFoundError extends UserError {
   constructor(source: string, filePath: string, helpLink?: string) {
