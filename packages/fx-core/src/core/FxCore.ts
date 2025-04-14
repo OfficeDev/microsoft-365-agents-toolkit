@@ -435,7 +435,7 @@ export class FxCore {
       return err(new MissingRequiredInputError("env", "FxCore"));
     }
     const teamsappYamlPath = pathUtils.getYmlFilePath(inputs.projectPath!, inputs.env) as string;
-    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath, inputs.env);
+    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath);
     if (yamlProjectModel.isErr()) {
       return err(yamlProjectModel.error);
     }
@@ -1394,7 +1394,7 @@ export class FxCore {
   @hooks([ErrorContextMW({ component: "FxCore", stage: "getTeamsAppName", reset: true })])
   async getTeamsAppName(projectPath: string): Promise<Result<string, FxError>> {
     const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-    const maybeProjectModel = await metadataUtil.parse(ymlPath, "dev");
+    const maybeProjectModel = await metadataUtil.parse(ymlPath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -1433,7 +1433,7 @@ export class FxCore {
     >
   > {
     const ymlPath = pathUtils.getYmlFilePath(projectPath, env) as string;
-    const maybeProjectModel = await metadataUtil.parse(ymlPath, env);
+    const maybeProjectModel = await metadataUtil.parse(ymlPath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }

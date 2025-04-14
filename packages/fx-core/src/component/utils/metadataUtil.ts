@@ -13,7 +13,7 @@ import { metadataDAPropertiesUtil } from "./metadataDAProperties";
 import * as path from "path";
 
 class MetadataUtil {
-  async parse(ymlPath: string, env: string | undefined): Promise<Result<ProjectModel, FxError>> {
+  async parse(ymlPath: string): Promise<Result<ProjectModel, FxError>> {
     const res = await yamlParser.parse(ymlPath, true);
     const fileName = path.basename(ymlPath);
     const props: { [key: string]: string } = {};

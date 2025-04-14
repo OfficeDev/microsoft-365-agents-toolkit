@@ -85,14 +85,14 @@ describe("metadata util", () => {
 
   it("should return YamlParsingError", async () => {
     sandbox.stub(yamlParser, "parse").resolves(err(mockedError));
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert(result.isErr() && result.error.name === "mockedError");
   });
 
   it("local config file", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok(mockProjectModel));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "local");
+    const result = await metadataUtil.parse("m365agents.local.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -112,7 +112,7 @@ describe("metadata util", () => {
   it("dev config file", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok(mockProjectModel));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -137,7 +137,7 @@ describe("metadata util", () => {
       })
     );
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -162,7 +162,7 @@ describe("metadata util", () => {
       })
     );
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -182,7 +182,7 @@ describe("metadata util", () => {
   it("no sample tag", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok({ ...mockProjectModel, additionalMetadata: {} }));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",

@@ -20,7 +20,7 @@ export async function parseShareAppActionYamlConfig(
   projectPath: string
 ): Promise<Result<string[], FxError>> {
   const templatePath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
-  const maybeProjectModel = await metadataUtil.parse(templatePath, "dev");
+  const maybeProjectModel = await metadataUtil.parse(templatePath);
   if (maybeProjectModel.isErr()) {
     return err(maybeProjectModel.error);
   }

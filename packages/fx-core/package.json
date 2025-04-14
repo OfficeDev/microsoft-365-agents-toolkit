@@ -74,6 +74,7 @@
     "test:graphClient": "nyc mocha \"tests/client/graphAPIClient.test.ts\"",
     "test:secretMasker": "nyc mocha \"tests/common/secretMasker.test.ts\"",
     "test:devTool": "nyc mocha \"tests/component/driver/devTool/*.test.ts\"",
+    "test:metadataUtil": "nyc mocha \"tests/component/util/metadataUtil.test.ts\"",
     "clean": "rm -rf build",
     "prebuild": "npm run gen:cli",
     "build": "tsc -p ./ --incremental",
