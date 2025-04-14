@@ -16,7 +16,7 @@ The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel
 > - [Azure OpenAI](https://aka.ms/oai/access) resource
 {{/useAzureOpenAI}}
 
-### Debug bot app in Teams App Test Tool
+### Debug bot app in Microsoft 365 Agents playground
 {{#useOpenAI}}
 1. Ensure your OpenAI API Key is filled in `appsettings.TestTool.json`.
     ```
@@ -36,10 +36,10 @@ The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel
     ```
   > The domain of your endpoint should be as `.cognitiveservices.azure.com`. You can find it from [Azure AI Foundry](https://ai.azure.com/resource/overview/). 
 {{/useAzureOpenAI}}
-1. Set `Startup Item` as `Teams App Test Tool (browser)`.
+1. Set `Startup Item` as `Microsoft 365 Agents playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
-1. In Teams App Test Tool from the launched browser, type and send anything to your bot to trigger a response.
+1. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response.
 
 ### Debug bot app in Teams Web Client
 {{#useOpenAI}}

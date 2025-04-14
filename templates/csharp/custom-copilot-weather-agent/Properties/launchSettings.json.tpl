@@ -2,8 +2,8 @@
   "profiles": {
 {{^isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Debug project within Microsoft 365 Agents playground
+    "Microsoft 365 Agents playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -31,8 +31,8 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Debug project within Microsoft 365 Agents playground
+    "Microsoft 365 Agents playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -61,7 +61,7 @@
 {{/isNewProjectTypeEnabled}}
 {{#isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    "Teams App Test Tool": {
+    "Microsoft 365 Agents playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
@@ -83,7 +83,7 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    "Teams App Test Tool": {
+    "Microsoft 365 Agents playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
