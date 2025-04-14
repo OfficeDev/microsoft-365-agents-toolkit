@@ -9,6 +9,7 @@ import {
   TurnContext,
   ConnectorClient,
   Activity,
+  ActivityTypes,
 } from "@microsoft/agents-hosting";
 import {
   ChannelInfo,
@@ -28,6 +29,7 @@ import { NotificationOptions } from "./interface";
 import { NotificationMiddleware } from "../conversation/middlewares/notificationMiddleware";
 import { DefaultConversationReferenceStore } from "../conversation/storage";
 import * as utils from "../conversation/utils";
+import { internalLogger } from "../util/logger";
 
 /**
  * Send a plain text message to a notification target.
@@ -158,6 +160,7 @@ export class Channel implements NotificationTarget {
           try {
             const res = await ctx.sendActivity({
               attachments: [CardFactory.adaptiveCard(card)],
+              type: ActivityTypes.Message,
             } as Activity);
             response.id = res?.id;
           } catch (error) {
@@ -168,7 +171,8 @@ export class Channel implements NotificationTarget {
             }
           }
         });
-      }
+      },
+      true
     );
     return response;
   }
@@ -278,6 +282,7 @@ export class Member implements NotificationTarget {
           try {
             const res = await ctx.sendActivity({
               attachments: [CardFactory.adaptiveCard(card)],
+              type: ActivityTypes.Message,
             } as Activity);
             response.id = res?.id;
           } catch (error) {
@@ -288,7 +293,8 @@ export class Member implements NotificationTarget {
             }
           }
         });
-      }
+      },
+      true
     );
     return response;
   }
@@ -424,9 +430,11 @@ export class TeamsBotInstallation implements NotificationTarget {
       this.conversationReference as ConversationReference,
       async (context) => {
         try {
-          const res = await context.sendActivity({
+          const adaptiveCard = {
             attachments: [CardFactory.adaptiveCard(card)],
-          } as Activity);
+            type: ActivityTypes.Message,
+          } as Activity;
+          const res = await context.sendActivity(adaptiveCard);
           response.id = res?.id;
         } catch (error) {
           if (onError) {
@@ -435,7 +443,8 @@ export class TeamsBotInstallation implements NotificationTarget {
             throw error;
           }
         }
-      }
+      },
+      true
     );
     return response;
   }
