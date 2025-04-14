@@ -26,7 +26,7 @@
 
 1. If you haven't added your own API Key, please follow the above steps to add your own API Key.
 2. In the debug dropdown menu, select `Dev Tunnels > Create a Tunnel` (set authentication type to Public) or select an existing public dev tunnel.
-3. Right-click the 'TeamsApp' project in Solution Explorer and select **Microsoft 365 Agents Toolkit > Select Microsoft 365 Account**
+3. Right-click the 'M365Agent' project in Solution Explorer and select **Microsoft 365 Agents Toolkit > Select Microsoft 365 Account**
 4. Sign in to Microsoft 365 Agents Toolkit with a **Microsoft 365 work or school account**
 5. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
