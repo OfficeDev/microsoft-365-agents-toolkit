@@ -3169,6 +3169,51 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Pesquisar Documento de Descrição do OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input text to search OpenAPI description document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Texto de entrada para pesquisar o documento de descrição do OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Inserir o Local do Documento de Descrição do OpenAPI ou Abrir o Arquivo...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Pesquisar Documento de Descrição do OpenAPI...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Selecionar Documento de Descrição do OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create API Plugin]]></Val>
@@ -4734,6 +4779,24 @@
           <Val><![CDATA[Comprehensive tests to ensure readiness]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Testes abrangentes para garantir a preparação]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.confirm" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit will modify the file "%s" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Toolkit do Teams modificará o arquivo "%s" com base na rótulo de confidencialidade que fornecido. Para evitar a perda de alterações inesperadas, faça backup dos arquivos ou use o git para controle de alterações antes de continuar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Definir]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7449,6 +7512,15 @@
           <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[O Kit de Ferramentas do Microsoft Teams concluiu a verificação do pacote do aplicativo em relação às regras de validação. %s. Verifique o Output panel]5D;(command:fx-extension.showOutputChannel) para obter detalhes.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O arquivo %s foi atualizado. Execute o provisionamento novamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

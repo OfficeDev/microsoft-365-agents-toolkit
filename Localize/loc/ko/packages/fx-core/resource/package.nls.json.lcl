@@ -3169,6 +3169,51 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서 검색]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.searchOpenAPISpecQueryQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Input text to search OpenAPI description document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서를 검색하기 위한 텍스트 입력]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromLocation.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter OpenAPI Description Document Location or Open File...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서 위치 입력 또는 파일 열기...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecFromSearch.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Search OpenAPI Description Document...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서 검색...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.selectOpenAPISpecQuestion.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select OpenAPI Description Document]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서 선택]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create API Plugin]]></Val>
@@ -4734,6 +4779,24 @@
           <Val><![CDATA[Comprehensive tests to ensure readiness]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[준비 상태를 보장하기 위한 포괄적인 테스트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.confirm" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams Toolkit will modify the file "%s" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 민감도 레이블에 따라 "%s" 파일을 수정합니다. 예기치 않은 변경 내용의 손실을 방지하려면 진행하기 전에 파일을 백업하거나 변경 내용 추적을 위해 git을 사용하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.setSensitivityLabel.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[설정]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7449,6 +7512,15 @@
           <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Teams 도구 키트에서 유효성 검사 규칙에 대해 앱 패키지 검사를 완료했습니다. %s. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일 %s이(가) 업데이트되었습니다. 프로비전을 다시 실행하세요.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

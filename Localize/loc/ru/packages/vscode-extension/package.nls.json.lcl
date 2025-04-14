@@ -60,46 +60,49 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
+          <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выполните обязательные действия (с ⚠️ ), чтобы настроить расширение GitHub Copilot для Набора инструментов Teams.]]></Val>
+            <Val><![CDATA[Выполните обязательные действия (с ⚠️), чтобы настроить расширение GitHub Copilot для набора средств агентов Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Расширение [GitHub Copilot для набора инструментов Teams]5D;(https://aka.ms/install-teamsapp) (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата.]A;[Установить расширение GitHub Copilot для набора инструментов Teams]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[Расширение [GitHub Copilot для набора средств агентов Microsoft 365]5D;(https://aka.ms/install-teamsapp) (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата.]A;[Установить расширение GitHub Copilot для набора средств агентов Microsoft 365]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent)]A;[Mark done]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
+          <Val><![CDATA[⚠️Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Установить GitHub Copilot для Набора инструментов Teams]]></Val>
+            <Val><![CDATA[⚠️Установите расширение GitHub Copilot для набора средств агентов Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install GitHub Copilot extension for Teams Toolkit]]></Val>
+            <Val><![CDATA[⚠️Install GitHub Copilot extension for Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.installConfirm.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Отметьте установку как завершенную после установки [расширения GitHub Copilot для набора инструментов Teams]5D;(https://aka.ms/install-teamsapp).]A;[Отметить установку как завершенную]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[Отметьте установку как завершенную после установки [расширения GitHub Copilot для набора средств агентов Microsoft 365]5D;(https://aka.ms/install-teamsapp).]A;[Отметить установку как завершенную]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -114,10 +117,13 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Расширение GitHub Copilot для набора средств Teams (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата. Подробнее о [расширении GitHub Copilot для набора средств Teams]5D;(https://aka.ms/install-teamsapp).]]></Val>
+            <Val><![CDATA[Расширение GitHub Copilot для набора средств агентов Microsoft 365 (@teamsapp) упрощает разработку приложений Teams и позволяет настраивать Microsoft 365 Copilot с использованием функций чата. Подробнее о [расширении GitHub Copilot для набора средств агентов Microsoft 365]5D;(https://aka.ms/install-teamsapp).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -156,22 +162,25 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
+          <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[начало работы с расширением GitHub Copilot teams Toolkit]]></Val>
+            <Val><![CDATA[Начало работы с расширением GitHub Copilot для набора средств агентов Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Getting Started of the GitHub Copilot Extension for Teams Toolkit]]></Val>
+            <Val><![CDATA[Getting Started with the GitHub Copilot Extension for Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Общайтесь в чате с GitHub Copilot для набора инструментов Teams (@teamsapp), чтобы создавать приложения Teams или настраивать и расширять Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Общайтесь в чате с расширением GitHub Copilot для набора средств агентов Microsoft 365 (@teamsapp) с целью создания приложений Teams или настройки и расширения Microsoft 365 Copilot.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -195,12 +204,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.azureAccountTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[AZURE ACCOUNT  ]A;The Teams Toolkit requires Azure subscription to deploy the Azure resources for your project.]]></Val>
+          <Val><![CDATA[AZURE ACCOUNT  ]A;The Microsoft 365 Agents Toolkit requires Azure subscription to deploy the Azure resources for your project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[УЧЕТНАЯ ЗАПИСЬ AZURE  ]A;Для набора средств Teams может потребоваться подписка Azure, чтобы развернуть ресурсы Azure для вашего проекта.]]></Val>
+            <Val><![CDATA[УЧЕТНАЯ ЗАПИСЬ AZURE  ]A;Для набора средств агентов Microsoft 365 требуется подписка Azure, чтобы развернуть ресурсы Azure для вашего проекта.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[AZURE ACCOUNT  ]A;The Teams Toolkit may require an Azure subscription to deploy the Azure resources for your project.]]></Val>
+            <Val><![CDATA[AZURE ACCOUNT  ]A;The Teams Toolkit requires Azure subscription to deploy the Azure resources for your project.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -285,12 +294,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.m365AccountTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 ACCOUNT  ]A;The Teams Toolkit requires a Microsoft 365 organizational account with Teams running and registered.]]></Val>
+          <Val><![CDATA[Microsoft 365 ACCOUNT  ]A;The Microsoft 365 Agents Toolkit requires a Microsoft 365 organizational account with Teams running and registered.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[УЧЕТНАЯ ЗАПИСЬ Microsoft 365  ]A;Для набора средств Teams требуется учетная запись организации Microsoft 365, при этом приложение Teams должно быть запущено и зарегистрировано.]]></Val>
+            <Val><![CDATA[УЧЕТНАЯ ЗАПИСЬ Microsoft 365  ]A;Для набора средств агентов Microsoft 365 требуется учетная запись организации Microsoft 365, при этом приложение Teams должно быть запущено и зарегистрировано.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Microsoft 365 ACCOUNT  ]A;The Teams Toolkit requires an Microsoft 365 organizational account where Teams is running and has been registered.]]></Val>
+            <Val><![CDATA[Microsoft 365 ACCOUNT  ]A;The Teams Toolkit requires a Microsoft 365 organizational account with Teams running and registered.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -495,24 +504,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.appStudioLogin.loginCancel" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Sign-in canceled. Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program (https://developer.microsoft.com/en-us/microsoft-365/dev-program).]]></Val>
+          <Val><![CDATA[Sign-in canceled. Microsoft 365 Agents Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program (https://developer.microsoft.com/en-us/microsoft-365/dev-program).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вход отменен. Набору инструментов Teams требуется учетная запись Microsoft 365 с настраиваемым разрешением на отправку приложения. Если вы подписчик Visual Studio, создайте песочницу разработчика с помощью Microsoft 365 developer Program (https://developer.microsoft.com/en-us/microsoft-365/dev-program).]]></Val>
+            <Val><![CDATA[Вход отменен. Для набора средств агентов Microsoft 365 требуется учетная запись Microsoft 365 с разрешением на отправку пользовательских приложений. Если вы подписчик Visual Studio, создайте песочницу разработчика с помощью программы для разработчиков Microsoft 365 (https://developer.microsoft.com/en-us/microsoft-365/dev-program).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Sign in canceled. The Teams Toolkit requires a Microsoft 365 (organizational account) with sideloading option.]A;If your account is not ready, create a free Microsoft 365 testing tenant to start your Teams App development.]]></Val>
+            <Val><![CDATA[Sign-in canceled. Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program (https://developer.microsoft.com/en-us/microsoft-365/dev-program).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.appStudioLogin.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набору инструментов Teams требуется учетная запись Microsoft 365 с настраиваемым разрешением на отправку приложения. Если вы подписчик Visual Studio, создайте песочницу разработчика с помощью Microsoft 365 developer Program.]]></Val>
+            <Val><![CDATA[Для набора средств агентов Microsoft 365 требуется учетная запись Microsoft 365 с разрешением на отправку пользовательских приложений. Если вы подписчик Visual Studio, создайте песочницу разработчика с помощью программы для разработчиков Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered. You can create a free testing account from Microsoft 365 Developer Program if needed.]]></Val>
+            <Val><![CDATA[Teams Toolkit needs a Microsoft 365 account with custom app upload permission. If you're a Visual Studio subscriber, create a developer sandbox with the Microsoft 365 Developer Program.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -531,12 +540,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.azureLogin.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Teams Toolkit will use Microsoft authentication to sign in Azure account and subscription to deploy the Azure resources for your project. You won't be charged until you confirm.]]></Val>
+          <Val><![CDATA[The Microsoft 365 Agents Toolkit will use Microsoft authentication to sign in Azure account and subscription to deploy the Azure resources for your project. You won't be charged until you confirm.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams будет использовать проверку подлинности Майкрософт для входа в учетную запись Azure и подписку для развертывания ресурсов Azure для вашего проекта. С вас не будет взиматься плата, пока вы не подтвердите это.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 будет использовать проверку подлинности Майкрософт для входа в учетную запись Azure и подписку с целью развертывания ресурсов Azure для вашего проекта. С вас не будет взиматься плата до вашего подтверждения.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit requires an Azure account and subscription to deploy the Azure resources for your project. You will not be charged without further confirmation.]]></Val>
+            <Val><![CDATA[The Teams Toolkit will use Microsoft authentication to sign in Azure account and subscription to deploy the Azure resources for your project. You won't be charged until you confirm.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -663,10 +672,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.capabilities.untrustedWorkspaces.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Teams Toolkit extension supports limited features in untrusted workspaces.]]></Val>
+          <Val><![CDATA[The Microsoft 365 Agents Toolkit extension supports limited features in untrusted workspaces.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Расширение Набора средств Teams поддерживает ограниченные возможности в недоверенных рабочих областях.]]></Val>
+            <Val><![CDATA[Расширение набора средств агентов Microsoft 365 поддерживает ограниченные возможности в недоверенных рабочих областях.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The Teams Toolkit extension supports limited features in untrusted workspaces.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -744,10 +756,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.default.noConceptualAnswer" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Teams Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Это секретный вопрос, @teams пока можно отвечать только на вопросы, касающиеся описаний или концепций. Вы можете попробовать эти команды или получить дополнительные сведения от [Teams Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A;• /create: используйте эту команду, чтобы найти подходящие шаблоны или примеры для создания приложения Teams согласно вашему описанию. Например, @teams /create создайте бот AI помощник, который может выполнять общие задачи.]A;]A;• /nextstep: используйте эту команду, чтобы перейти к следующему шагу на любом этапе разработки приложения Teams.]]></Val>
+            <Val><![CDATA[Это процедурный вопрос, @teams сейчас может отвечать только на вопросы, касающиеся описаний или концепций. Вы можете попробовать эти команды или получить дополнительную информацию из [документации по набору средств агентов Microsoft 365]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: используйте эту команду, чтобы найти подходящие шаблоны или примеры для создания вашего приложения Teams в соответствии с описанием. Например, @teams /create создай бот ИИ-помощника, который может выполнять распространенные задачи.]A;]A; • /nextstep: используйте эту команду, чтобы перейти к следующему шагу на любой стадии разработки приложения Teams.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Teams Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1242,10 +1257,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.codeLens.projectSettingsNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This file is maintained by Teams Toolkit, please do not modify it]]></Val>
+          <Val><![CDATA[This file is maintained by Microsoft 365 Agents Toolkit, please do not modify it]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Этот файл поддерживается набором средств Teams. Не изменяйте его]]></Val>
+            <Val><![CDATA[Этот файл поддерживается набором средств агентов Microsoft 365. Не изменяйте его]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This file is maintained by Teams Toolkit, please do not modify it]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1785,10 +1803,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.switchTenant.progressbar.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is now switching to the newly selected tenant.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is now switching to the newly selected tenant.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams переключается на новый выбранный клиент.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 переключается на новый выбранный клиент.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is now switching to the newly selected tenant.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2719,6 +2740,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.setSensitivityLabel" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Set Sensitivity Label]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Настройка метки конфиденциальности]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.shareDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
@@ -3012,12 +3042,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.devPortalIntegration.getTeamsAppError.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набору средств Teams не удалось получить ваше приложение Teams. Повторите попытку, используя Портал разработчика. Войдите, используя правильную учетную запись Microsoft 365.]]></Val>
+            <Val><![CDATA[Набору средств агентов Microsoft 365 не удалось получить ваше приложение Teams. Повторите попытку, используя Портал разработчика. Войдите, используя правильную учетную запись Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to get your Teams app. Please try again from Developer Portal and make sure to sign in with the correct Microsoft 365 account.]]></Val>
+            <Val><![CDATA[Teams Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3561,10 +3591,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handeler.addAuthConfig.notification" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams успешно обновил файлы конфигурации проекта (teamsapp.yaml и teamsapp.local.yaml), а также добавил действие для поддержки потока проверки подлинности. Вы можете перейти к удаленной подготовке.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 успешно обновил конфигурацию вашего проекта (файлы teamsapp.yaml и teamsapp.local.yaml) с добавленным действием для поддержки потока проверки подлинности. Вы можете перейти к удаленной подготовке.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3597,10 +3630,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.SetsensitivityLabel" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens "Get Sensitivity Label ID"]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit was unable to assign a sensitivity label for this project. To manually set a label, you can go to the declarative agent json file and click the code lens above the "sensitivity_label"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams не смог назначить метку конфиденциальности для этого проекта. Для этого перейдите к файлу JSON декларативного агента и нажмите группу связанных элементов кода "Получить идентификатор метки конфиденциальности"]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 не смог назначить метку конфиденциальности для этого проекта. Чтобы вручную настроить метку, перейдите к файлу JSON декларативного агента и щелкните группу связанных элементов кода над "sensitivity_label"]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit was unable to assign a sensitivity label for this project. To do that, go to the declarative agent json file and click the code lens "Get Sensitivity Label ID"]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3615,10 +3651,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallCopilot" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для Набора инструментов Teams при разработке приложений Teams или настройке Microsoft 365 Copilot, сначала GitHub Copilot.]]></Val>
+            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для набора средств агентов Microsoft 365 при разработке приложений Teams или настройке Microsoft 365 Copilot, сначала необходимо установить GitHub Copilot.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3642,10 +3681,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallTeamsAgent" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для Набора инструментов Teams при разработке приложений Teams или настройке Microsoft 365 Copilot, сначала установите его. Если вы уже установили его, подтвердите это ниже.]]></Val>
+            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для набора средств агентов Microsoft 365 при разработке приложений Teams или настройке Microsoft 365 Copilot, сначала установите его. Если вы уже установили его, подтвердите это ниже.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3873,21 +3915,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для Набора инструментов Teams при разработке приложений Teams или настройке Microsoft 365 Copilot, установите расширение GitHub Copilot для набора инструментов Teams из "%s".]]></Val>
+            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для набора средств агентов Microsoft 365 при разработке приложений Teams или настройке Microsoft 365 Copilot, установите расширение GitHub Copilot для набора средств агентов Microsoft 365 из "%s".]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installCopilotAndAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для Набора инструментов Teams при разработке приложений Teams или настройке Microsoft 365 Copilot, установите GitHub Copilot из "%s" и расширения GitHub Copilot для Набора инструментов Teams из "%s".]]></Val>
+            <Val><![CDATA[Чтобы использовать расширение GitHub Copilot для набора средств агентов Microsoft 365 при разработке приложений Teams или настройке Microsoft 365 Copilot, установите GitHub Copilot из "%s" и расширение GitHub Copilot для набора средств агентов Microsoft 365 из "%s".]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and Github Copilot Extension for Teams Toolkit from "%s".]]></Val>
+            <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4044,12 +4089,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.loginCacheFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to get login account token from cache. Sign in to your Azure account using Teams Toolkit tree view or command palette.]]></Val>
+          <Val><![CDATA[Unable to get login account token from cache. Sign in to your Azure account using Microsoft 365 Agents Toolkit tree view or command palette.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось получить маркер учетной записи входа из кэша. Войдите в учетную запись Azure, используя дерево набора средств Teams или палитру команд.]]></Val>
+            <Val><![CDATA[Не удалось получить маркер учетной записи входа из кэша. Войдите в учетную запись Azure, используя дерево набора средств агентов Microsoft 365 или палитру команд.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to get login account token from cache. You could try signing out and signing back in to your Azure Account using Teams Toolkit tree view or command palette]]></Val>
+            <Val><![CDATA[Unable to get login account token from cache. Sign in to your Azure account using Teams Toolkit tree view or command palette.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4152,12 +4197,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.promptSPFx.upgradeProject.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You are using old SPFx version in your project and the current Teams Toolkit supports SPFx v%s. To upgrade, follow 'CLI for Microsoft 365'.]]></Val>
+          <Val><![CDATA[You are using old SPFx version in your project and the current Microsoft 365 Agents Toolkit supports SPFx v%s. To upgrade, follow 'CLI for Microsoft 365'.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вы используете старую версию SPFx в проекте, а текущий набор инструментов Teams поддерживает spFx v%s. Чтобы выполнить обновление, выполните инструкцию "CLI для Microsoft 365".]]></Val>
+            <Val><![CDATA[Вы используете старую версию SPFx в своем проекте, а текущий набор средств агентов Microsoft 365 поддерживает SPFx v%s. Для обновления следуйте инструкциям в разделе "CLI для Microsoft 365".]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[You are using a legacy version of SPFx in your project while the current version of Teams Toolkit supports SPFx v%s. If you want to use SPFx v%s, follow 'CLI for Microsoft 365' to upgrade.]]></Val>
+            <Val><![CDATA[You are using old SPFx version in your project and the current Teams Toolkit supports SPFx v%s. To upgrade, follow 'CLI for Microsoft 365'.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4176,10 +4221,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.promptSPFx.upgradeToolkit.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You are using a newer version of SPFx in your project while the current version of Teams Toolkit supports SPFx v%s. Please note that some of the newer SPFx features might not be supported. If you are not using the latest version of Teams Toolkit, consider to upgrade.]]></Val>
+          <Val><![CDATA[You are using a newer version of SPFx in your project while the current version of Microsoft 365 Agents Toolkit supports SPFx v%s. Please note that some of the newer SPFx features might not be supported. If you are not using the latest version of Microsoft 365 Agents Toolkit, consider to upgrade.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вы используете более новую версию SPFx в своем проекте, а текущая версия Teams Toolkit поддерживает SPFx v%s. Обратите внимание, что некоторые из новых функций SPFx могут не поддерживаться. Если вы не используете последнюю версию Teams Toolkit, подумайте об обновлении.]]></Val>
+            <Val><![CDATA[Вы используете более новую версию SPFx в своем проекте, а текущая версия набора средств агентов Microsoft 365 поддерживает SPFx v%s. Обратите внимание, что некоторые из новых функций SPFx могут не поддерживаться. Если вы не используете последнюю версию набора средств агентов Microsoft 365, рассмотрите возможность обновления.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You are using a newer version of SPFx in your project while the current version of Teams Toolkit supports SPFx v%s. Please note that some of the newer SPFx features might not be supported. If you are not using the latest version of Teams Toolkit, consider to upgrade.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4359,10 +4407,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.deleteAadNotification" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will try to delete the Microsoft Entra application created for local debugging to resolve security issues.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will try to delete the Microsoft Entra application created for local debugging to resolve security issues.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams попробует удалить Microsoft Entra, созданное для локальной отладки, для устранения проблем безопасности.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 попытается удалить приложение Microsoft Entra, созданное для локальной отладки, чтобы устранить проблемы с безопасностью.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will try to delete the Microsoft Entra application created for local debugging to resolve security issues.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4416,10 +4467,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.launchTeamsDesktopClientMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account%s used in Teams Toolkit.]]></Val>
+          <Val><![CDATA[Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account%s used in Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Прежде чем продолжить, убедитесь, что имя входа на рабочем столе Teams совпадает с текущим Microsoft 365 учетной%s, используемой в Наборе инструментов Teams.]]></Val>
+            <Val><![CDATA[Прежде чем продолжить, убедитесь, что имя для входа в классическую версию Teams соответствует текущей учетной записи Microsoft 365%s, используемой в наборе средств агентов Microsoft 365.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account%s used in Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4590,12 +4644,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.output.tunnel.checkNumber" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is starting local tunneling service to forward public URL to local port. Open the terminal window for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is starting local tunneling service to forward public URL to local port. Open the terminal window for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор средств Teams запускает локальную службу туннелирования для переадресации общедоступного URL-адреса на локальный порт. Для получения дополнительных сведений откройте окно терминала.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 запускает локальную службу туннелирования для переадресации общедоступного URL-адреса на локальный порт. Для получения дополнительных сведений откройте окно терминала.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit is starting the local tunneling service to forward public URL to local port and inspect traffic. Open terminal window to see the details.]]></Val>
+            <Val><![CDATA[Teams Toolkit is starting local tunneling service to forward public URL to local port. Open the terminal window for details.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4965,12 +5019,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.tunnelEndpointNotFoundError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find the tunnel endpoint. Teams toolkit tried getting the first HTTPS URL from %s but was unsuccessful.]]></Val>
+          <Val><![CDATA[Unable to find the tunnel endpoint. Microsoft 365 Agents Toolkit tried getting the first HTTPS URL from %s but was unsuccessful.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось найти конечную точку туннеля. Набор средств Teams попытался получить первый URL-адрес HTTPS от %s, но это не удалось сделать.]]></Val>
+            <Val><![CDATA[Не удалось найти конечную точку туннеля. Набор средств агентов Microsoft 365 попытался получить первый URL-адрес HTTPS от %s, но это не удалось сделать.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to find the tunnel endpoint. Teams toolkit tried to get the first HTTPS URL from %s and failed.]]></Val>
+            <Val><![CDATA[Unable to find the tunnel endpoint. Teams toolkit tried getting the first HTTPS URL from %s but was unsuccessful.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5145,12 +5199,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.warningMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор средств Teams обновит выбранный файл манифеста Teams для работы в Outlook и в приложении Microsoft 365. Используйте git для отслеживания изменений файлов перед обновлением.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 обновит выбранный файл манифеста Teams для работы в Outlook и в приложении Microsoft 365. Используйте git для отслеживания изменений файлов перед обновлением.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will update in place the Teams manifest file you selected to work in Outlook and the Microsoft 365 app. We recommend to use git for better tracking file changes before upgrading.]]></Val>
+            <Val><![CDATA[Teams Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5277,12 +5331,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsTabApp.warningMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will update the selected Teams Tab app to use Teams client SKD v2. Use git to track file changes before upgrading.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will update the selected Teams Tab app to use Teams client SDK v2. Use git to track file changes before upgrading.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор средств Teams обновит выбранное приложение вкладки Teams, чтобы оно использовало SDK клиента Teams версии 2. Используйте git для отслеживания изменений файлов перед обновлением.]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 обновит выбранное приложение вкладки Teams, чтобы оно использовало SDK клиента Teams версии 2. Используйте git для отслеживания изменений файлов перед обновлением.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will update in place the Teams Tab app you selected to use Teams client SDK v2. We recommend to use git for better tracking file changes before upgrading.]]></Val>
+            <Val><![CDATA[Teams Toolkit will update the selected Teams Tab app to use Teams client SKD v2. Use git to track file changes before upgrading.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5490,12 +5544,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.survey.banner.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Share your thoughts on the Teams Toolkit! Your feedback helps us improve.]]></Val>
+          <Val><![CDATA[Share your thoughts on the Microsoft 365 Agents Toolkit! Your feedback helps us improve.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Поделитесь своим мнением о наборе инструментов Teams! Ваш отзыв поможет нам улучшить продукт.]]></Val>
+            <Val><![CDATA[Поделитесь своим мнением о наборе средств агентов Microsoft 365. Ваши отзывы помогут нам улучшить продукт.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Tell us what you think about Teams Toolkit.]]></Val>
+            <Val><![CDATA[Share your thoughts on the Teams Toolkit! Your feedback helps us improve.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5814,12 +5868,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.upgrade.banner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is updated to v%s — see the changelog!]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is updated to v%s — see the changelog!]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Teams обновлен до версии%s — см. журнал изменений!]]></Val>
+            <Val><![CDATA[Набор средств агентов Microsoft 365 обновлен до v%s — ознакомьтесь с журналом изменений!]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has been updated to v%s — check out changelog!]]></Val>
+            <Val><![CDATA[Teams Toolkit is updated to v%s — see the changelog!]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5835,45 +5889,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat-preview-tag.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добро пожаловать в набор инструментов Teams!]A;Начните с интерактивного учебника]A;[Создать бота уведомлений]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Создать декларативного агента]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новое приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Создавайте новые приложения без труда, используя GitHub Copilot. ]A;[Создать приложение с помощью GitHub Copilot (предварительная версия)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Добро пожаловать в набор средств агентов Microsoft 365!]A;Начните с интерактивного учебника]A;[Создать бот уведомлений]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новое приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Легко создавайте новые приложения, используя GitHub Copilot. ]A;[Создать приложение с помощью GitHub Copilot (предварительная версия)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добро пожаловать в набор инструментов Teams!]A;Начало работы с интерактивным учебником]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Или перейдите прямо в разработку приложений с помощью шаблонов приложений или примеров]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Создайте новое приложение с помощью GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Посетите нашу документацию, чтобы создать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширите [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Добро пожаловать в набор средств агентов Microsoft 365!]A;Начните с интерактивного учебника]A;[Создать бот уведомлений]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Создать декларативный агент]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Также можно перейти к разработке приложений с использованием шаблонов приложений и примеров]A;[Создать новое приложение]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Просмотреть примеры]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Легко создавайте новые приложения, используя GitHub Copilot.]A;[Создать приложение с помощью GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Ознакомьтесь с документацией, чтобы создавать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить возможности [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project.content" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Добро пожаловать в набор инструментов Teams!]A;Начало работы с интерактивным учебником]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Или перейдите прямо в разработку приложений с помощью шаблонов приложений или примеров]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Посетите нашу документацию, чтобы создать приложения для [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) или расширить [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or [extend Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-project-and-check-upgradeV3.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[Upgrade Project]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary. [More Info]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;If you don't want to upgrade now, please keep using Teams Toolkit version 4.x.x.]]></Val>
+          <Val><![CDATA[[Upgrade Project]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary. [More Info]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;If you don't want to upgrade now, please keep using Microsoft 365 Agents Toolkit version 4.x.x.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Обновить проект]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;Обновите проект набора средств Teams, чтобы обеспечить совместимость с последней версией. Будет создан резервный каталог и сводка обновления. [Дополнительные сведения]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;Если вы не хотите обновлять сейчас, продолжайте использовать набор средств Teams версии 4.x.x.]]></Val>
+            <Val><![CDATA[[Обновить проект]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;Обновите проект набора средств агентов Microsoft 365, чтобы обеспечить совместимость с последней версией. Будет создан резервный каталог и сводка обновления. [Дополнительные сведения]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;Если вы не хотите обновлять сейчас, продолжайте использовать набор средств агентов Microsoft 365 версии 4.x.x.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[You need to upgrade the project to use the latest features. The upgrade process will not change your custom code. It will create the backup files in case you want to roll back. [Learn more]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;[Upgrade Project]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;This upgrade is mandatory to continue using the current version of Teams Toolkit. If you don't want to upgrade now, please keep using Teams Toolkit version 4.x.x.]]></Val>
+            <Val><![CDATA[[Upgrade Project]5D;(command:fx-extension.checkProjectUpgrade?%5B%22SideBar%22%5D)]A;Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary. [More Info]5D;(command:fx-extension.openDocument?%5B%22SideBar%22%2C%22learnmore%22%5D)]A;If you don't want to upgrade now, please keep using Teams Toolkit version 4.x.x.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5934,10 +5979,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.customCopilot.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Teams toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+          <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Microsoft 365 Agents Toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создавайте интеллектуальные пользовательские интерфейсы на основе естественного языка в Teams, используя обширную базу пользователей для совместной работы. ]A;Набор средств Teams интегрируется с Azure OpenAI и библиотекой ИИ Teams, чтобы упростить разработку помощников и реализовать уникальные возможности на базе Teams. ]A;Ознакомьтесь с [библиотекой ИИ Teams]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) и [Службой Azure OpenAI]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+            <Val><![CDATA[Создавайте интеллектуальные пользовательские интерфейсы на основе естественного языка в Teams, используя обширную базу пользователей для совместной работы. ]A;Набор средств агентов Microsoft 365 интегрируется с Azure OpenAI и библиотекой ИИ Teams, чтобы упростить разработку помощников и реализовать уникальные возможности на базе Teams. ]A;Ознакомьтесь с [библиотекой ИИ Teams]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) и [Службой Azure OpenAI]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build your intelligent, natural language-driven experiences in Teams, leveraging its vast user base for collaboration. ]A;Teams toolkit integrates with Azure OpenAI and Teams AI Library to streamline copilot development and offer unique Teams-based capabilities. ]A;Explore [Teams AI Library]5D;(https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview) and [Azure OpenAI Service]5D;(https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5952,12 +6000,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
+          <Val><![CDATA[Build a declarative agent with Microsoft 365 Agents Toolkit to simplify workflows and automate tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создайте декларативный агент с помощью Набора инструментов Teams, чтобы упростить рабочие процессы и автоматизировать задачи.]]></Val>
+            <Val><![CDATA[Создайте декларативный агент с помощью набора средств агентов Microsoft 365, чтобы упростить рабочие процессы и автоматизировать задачи.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Jumpstart your agent development experience with Teams Toolkit]]></Val>
+            <Val><![CDATA[Build a declarative agent with Teams Toolkit to simplify workflows and automate tasks.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5985,10 +6033,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppsBuildApp.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          <Val><![CDATA[Follow these steps to build your declarative agent using Microsoft 365 Agents Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выполните эти действия, чтобы создать декларативный агент с помощью Набора инструментов Teams.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+            <Val><![CDATA[Выполните эти шаги, чтобы создать декларативный агент с помощью набора средств агентов Microsoft 365.]A;[Создать декларативный агент]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Follow these steps to build your declarative agent using Teams Toolkit.]A;[Build Declarative Agent]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6102,12 +6153,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
+          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создание настраиваемого бота уведомлений для Microsoft Teams с помощью набора инструментов Teams.]]></Val>
+            <Val><![CDATA[Создайте настраиваемый бот уведомлений для Microsoft Teams с помощью набора средств агентов Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit]]></Val>
+            <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6264,10 +6315,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitIntroduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
+          <Val><![CDATA[Build a notification bot using Microsoft 365 Agents Toolkit to send interactive messages in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создайте бот уведомлений с помощью Набора инструментов Teams для отправки интерактивных сообщений в Teams.]]></Val>
+            <Val><![CDATA[Создайте бот уведомлений с помощью набора средств агентов Microsoft 365 для отправки интерактивных сообщений в Teams.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build a notification bot using Teams Toolkit to send interactive messages in Teams.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6324,10 +6378,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitResources.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
+          <Val><![CDATA[Here are some recommendations to continue your journey with Microsoft 365 Agents Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вот несколько рекомендаций, чтобы продолжить работу с набором средств Teams.]A; • Ознакомьтесь с [руководствами]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) и получите практические инструкции]A; • Откройте [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D), чтобы понять, как разрабатывать это приложение]A; • Ознакомьтесь с [документацией]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Вот несколько рекомендаций, чтобы продолжить работу с набором средств агентов Microsoft 365.]A; • Ознакомьтесь с [руководствами]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) и получите практические инструкции]A; • Откройте [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D), чтобы понять, как разрабатывать это приложение]A; • Ознакомьтесь с [документацией]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Here are some recommendations to continue your journey with Teams Toolkit.]A; • Explore [How-to Guides]5D;(command:fx-extension.selectTutorials?%5B%22WalkThrough%22%5D) and get more practical guidances]A; • Open [Readme.md]5D;(command:fx-extension.openReadMe?%5B%22WalkThrough%22%5D) to understand how to develop this app]A; • Read our [Documentation]5D;(command:fx-extension.openDocument?%5B%22WalkThrough%22%5D)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6354,12 +6411,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.withChat.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
+          <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создание настраиваемого бота уведомлений для Microsoft Teams с помощью набора инструментов Teams.]]></Val>
+            <Val><![CDATA[Создайте настраиваемый бот уведомлений для Microsoft Teams с помощью набора средств агентов Microsoft 365.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Jumpstart your Teams app development experience with Teams Toolkit or use @teams in GitHub Copilot Extension]]></Val>
+            <Val><![CDATA[Build a custom notification bot for Microsoft Teams using Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
