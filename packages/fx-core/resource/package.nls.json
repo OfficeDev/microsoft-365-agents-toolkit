@@ -43,7 +43,7 @@
   "core.migrationV3.manifestInvalid": "templates/appPackage/manifest.template.json is invalid.",
   "core.migrationV3.abandonedProject": "This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project",
   "core.migrationV3.notAllowedMigration": "Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run \"teamsapp upgrade\" to upgrade your project first.",
-  "core.projectVersionChecker.cliUseNewVersion": "Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:\nnpm install -g @microsoft/m365agentstoolkit-cli@latest",
+  "core.projectVersionChecker.cliUseNewVersion": "The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:\nnpm install -g @microsoft/m365agentstoolkit-cli@latest",
   "core.projectVersionChecker.incompatibleProject": "The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.",
   "core.projectVersionChecker.vs.incompatibleProject": "The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.",
   "core.deployArmTemplates.ActionSuccess": "ARM templates are deployed successfully. Resource group name: %s. Deployment name: %s",
