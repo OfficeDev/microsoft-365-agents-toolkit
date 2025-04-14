@@ -70,17 +70,41 @@ export const MetadataV4 = {
   sandboxConfigFile: "m365agents.sandbox.yml",
 };
 
+export const YamlFileNames: string[] = [
+  MetadataV3.configFile,
+  MetadataV3.localConfigFile,
+  MetadataV3.testToolConfigFile,
+  MetadataV3.sandboxConfigFile,
+  MetadataV4.configFile,
+  MetadataV4.localConfigFile,
+  MetadataV4.testToolConfigFile,
+  MetadataV4.sandboxConfigFile,
+];
+
+export const YamlFileNamesV3: string[] = [
+  MetadataV3.configFile,
+  MetadataV3.localConfigFile,
+  MetadataV3.testToolConfigFile,
+  MetadataV3.sandboxConfigFile,
+];
+
+export const YamlFileNamesV4: string[] = [
+  MetadataV3.configFile,
+  MetadataV3.localConfigFile,
+  MetadataV3.testToolConfigFile,
+  MetadataV3.sandboxConfigFile,
+];
+
 export function isYamlFileName(fileName: string): boolean {
-  return (
-    fileName === MetadataV3.configFile ||
-    fileName === MetadataV3.localConfigFile ||
-    fileName === MetadataV3.testToolConfigFile ||
-    fileName === MetadataV3.sandboxConfigFile ||
-    fileName === MetadataV4.configFile ||
-    fileName === MetadataV4.localConfigFile ||
-    fileName === MetadataV4.testToolConfigFile ||
-    fileName === MetadataV4.sandboxConfigFile
-  );
+  return YamlFileNames.includes(fileName);
+}
+
+export function isYamlFileNameV3(fileName: string): boolean {
+  return YamlFileNamesV3.includes(fileName);
+}
+
+export function isYamlFileNameV4(fileName: string): boolean {
+  return YamlFileNamesV4.includes(fileName);
 }
 
 export enum VersionState {

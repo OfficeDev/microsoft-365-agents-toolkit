@@ -13,7 +13,7 @@ import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { globalVars } from "../common/globalVars";
 import { ErrorCategory } from "./types";
 import path from "path";
-import { MetadataV3 } from "../common/versionMetadata";
+import { MetadataV3, YamlFileNames } from "../common/versionMetadata";
 import { TelemetryProperty } from "../component/configManager/constant";
 
 export class FileNotFoundError extends UserError {
@@ -88,13 +88,12 @@ export class InvalidActionInputError extends UserError {
 
 export class InvalidProjectError extends UserError {
   constructor(projectPath: string) {
-    const ymlFilePath = path.join(projectPath, MetadataV3.configFile);
-    const localYmlPath = path.join(projectPath, MetadataV3.localConfigFile);
+    const yamlFileNames = YamlFileNames.join(", ");
     super({
       message: getDefaultString("error.common.InvalidProjectError"),
       displayMessage: getLocalizedString(
         "error.common.InvalidProjectError.display",
-        `'${ymlFilePath}' or '${localYmlPath}'`
+        `${yamlFileNames}`
       ),
       source: "coordinator",
       categories: [ErrorCategory.Internal],

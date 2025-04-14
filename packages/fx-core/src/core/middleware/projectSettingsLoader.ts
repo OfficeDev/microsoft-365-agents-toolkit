@@ -18,6 +18,7 @@ import { MetadataV2, MetadataV3 } from "../../common/versionMetadata";
 import { convertProjectSettingsV2ToV3 } from "../../component/migrate";
 import { globalVars } from "../../common/globalVars";
 import { CoreHookContext } from "../types";
+import { pathUtils } from "../../component/utils/pathUtils";
 
 // export this for V2 -> V3 migration purpose
 export async function loadProjectSettingsByProjectPathV2(
@@ -49,7 +50,7 @@ export function shouldIgnored(ctx: CoreHookContext): boolean {
 }
 
 export function getProjectSettingsPath(projectPath: string): string {
-  return path.resolve(projectPath, MetadataV3.configFile);
+  return pathUtils.getYmlFilePath(projectPath, "dev");
 }
 
 export function getProjectSettingPathV2(projectPath: string): string {

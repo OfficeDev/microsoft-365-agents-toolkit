@@ -3,7 +3,7 @@
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
-import { MetadataV3 } from "./versionMetadata";
+import { MetadataV3, YamlFileNames } from "./versionMetadata";
 import { pathUtils } from "../component/utils/pathUtils";
 import { parse } from "yaml";
 
@@ -120,10 +120,11 @@ export function isValidProjectV3(workspacePath: string): boolean {
   if (isValidOfficeAddInProject(workspacePath)) {
     return false;
   }
-  const ymlFilePath = path.join(workspacePath, MetadataV3.configFile);
-  const localYmlPath = path.join(workspacePath, MetadataV3.localConfigFile);
-  if (fs.pathExistsSync(ymlFilePath) || fs.pathExistsSync(localYmlPath)) {
-    return true;
+  for (const ymlFilaName of YamlFileNames) {
+    const ymlFilePath = path.join(workspacePath, ymlFilaName);
+    if (fs.pathExistsSync(ymlFilePath)) {
+      return true;
+    }
   }
   return false;
 }

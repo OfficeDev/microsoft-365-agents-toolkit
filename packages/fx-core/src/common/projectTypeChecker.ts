@@ -5,7 +5,14 @@ import fs from "fs-extra";
 import path from "path";
 import semver from "semver";
 import { parseDocument } from "yaml";
-import { isYamlFileName, MetadataV2, MetadataV3 } from "./versionMetadata";
+import {
+  isYamlFileName,
+  isYamlFileNameV3,
+  isYamlFileNameV4,
+  MetadataV2,
+  MetadataV3,
+  MetadataV4,
+} from "./versionMetadata";
 import { isValidOfficeAddInProject } from "./projectSettingsHelper";
 
 export const TeamsJsModule = "@microsoft/teams-js";
@@ -161,12 +168,13 @@ class ProjectTypeChecker {
     } else if (isYamlFileName(fileName)) {
       data.isTeamsFx = true;
       data.teamsfxConfigType = fileName;
-      if (fileName === MetadataV3.configFile) {
+      if (fileName === MetadataV3.configFile || fileName === MetadataV4.configFile) {
         const yamlFileContent: string = await fs.readFile(filePath, "utf8");
         const appYaml = parseDocument(yamlFileContent);
         data.teamsfxConfigVersion = appYaml.get("version") as string;
         data.teamsfxProjectId = appYaml.get("projectId") as string;
         if (
+          isYamlFileNameV4(fileName) ||
           !semver.valid(data.teamsfxConfigVersion) ||
           semver.lt(data.teamsfxConfigVersion, MetadataV3.unSupprotVersion)
         ) {

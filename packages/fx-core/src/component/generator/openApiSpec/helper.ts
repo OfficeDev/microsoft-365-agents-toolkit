@@ -76,6 +76,7 @@ import {
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
 import { generatePlugin, listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
+import { pathUtils } from "../../utils/pathUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -560,7 +561,7 @@ export async function generateFromApiSpec(
       [telemetryProperties.generateType]: projectType.toString(),
       [specParserGenerateResultAllSuccessTelemetryProperty]: generateResult.allSuccess.toString(),
       [specParserGenerateResultWarningsTelemetryProperty]: generateResult.warnings
-        .map((w) => w.type.toString() + ": " + w.content)
+        .map((w) => `${w.type.toString() as string}: ${w.content as string}`)
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
     });
@@ -679,10 +680,10 @@ export async function injectAuthAction(
   enablePKCE?: boolean,
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
-  const ymlPath = path.join(projectPath, MetadataV3.configFile);
-  const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
+  const ymlPath = pathUtils.getYmlFilePath(projectPath);
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local");
 
-  const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
+  const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
   if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
     const res = await ActionInjector.injectCreateAPIKeyAction(

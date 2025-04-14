@@ -3,7 +3,6 @@
 
 import { FxError, Result, TeamsAppManifest, devPreview } from "@microsoft/teamsfx-api";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
-import { MetadataV3 } from "../../common/versionMetadata";
 import { TOOLS } from "../../common/globalVars";
 import { LifecycleNames, ProjectModel } from "../configManager/interface";
 import { yamlParser } from "../configManager/parser";
@@ -11,16 +10,14 @@ import { createHash } from "crypto";
 import { metadataGraphPermissionUtil } from "./metadataGraphPermssion";
 import { metadataRscPermissionUtil } from "./metadataRscPermission";
 import { metadataDAPropertiesUtil } from "./metadataDAProperties";
+import * as path from "path";
 
 class MetadataUtil {
-  async parse(path: string, env: string | undefined): Promise<Result<ProjectModel, FxError>> {
-    const res = await yamlParser.parse(path, true);
+  async parse(ymlPath: string, env: string | undefined): Promise<Result<ProjectModel, FxError>> {
+    const res = await yamlParser.parse(ymlPath, true);
+    const fileName = path.basename(ymlPath);
     const props: { [key: string]: string } = {};
-    props[TelemetryProperty.YmlName] = (
-      env === "local" ? MetadataV3.localConfigFile : MetadataV3.configFile
-    )
-      .split(".")
-      .join("");
+    props[TelemetryProperty.YmlName] = fileName.split(".").join("");
     if (res.isOk()) {
       for (const name of LifecycleNames) {
         const str = res.value[name]?.driverDefs
@@ -34,9 +31,9 @@ class MetadataUtil {
       props[TelemetryProperty.SampleAppName] = MetadataUtil.parseSampleTag(
         res.value.additionalMetadata
       );
-      await metadataGraphPermissionUtil.parseAadManifest(path, res.value, props);
-      await metadataRscPermissionUtil.parseManifest(path, res.value, props);
-      await metadataDAPropertiesUtil.parseManifest(path, res.value, props);
+      await metadataGraphPermissionUtil.parseAadManifest(ymlPath, res.value, props);
+      await metadataRscPermissionUtil.parseManifest(ymlPath, res.value, props);
+      await metadataDAPropertiesUtil.parseManifest(ymlPath, res.value, props);
 
       TOOLS.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.MetaData, props);
     }

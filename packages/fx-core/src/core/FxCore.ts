@@ -20,8 +20,6 @@ import {
   CreateProjectResult,
   CryptoProvider,
   DefaultApiSpecFolderName,
-  Err,
-  File,
   Func,
   FxError,
   IGenerator,
@@ -36,9 +34,7 @@ import {
   SharePointIDs,
   Site,
   Stage,
-  SystemError,
   TeamsAppInputs,
-  TeamsAppManifest,
   Tools,
   UserError,
   err,
@@ -55,6 +51,7 @@ import { pathToFileURL } from "url";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
@@ -77,7 +74,7 @@ import {
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import { generateDriverContext } from "../common/utils";
-import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
+import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -98,11 +95,10 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
-import "../component/feature/sso";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
@@ -126,8 +122,13 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
+import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
+import {
+  ItemMetadata,
+  getODSPItemDetailById,
+} from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import {
   convertSpecParserErrorToFxError,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -168,7 +169,6 @@ import {
   ActionStartOptions,
   AddAuthActionAuthTypeOptions,
   AppNamePattern,
-  DeclarativeAgentApiSpecOptionId,
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
@@ -183,8 +183,8 @@ import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInput
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
-  checkPermission,
   CollaborationUtil,
+  checkPermission,
   grantPermission,
   listCollaborator,
 } from "./collaborator";
@@ -193,6 +193,7 @@ import { environmentNameManager } from "./environmentName";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
+import { withFileLock } from "./middleware/fileLocker";
 import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
 import {
   getProjectVersionFromPath,
@@ -201,12 +202,6 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import {
-  getODSPItemDetailById,
-  ItemMetadata,
-} from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
-import { withFileLock } from "./middleware/fileLocker";
-import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -301,7 +296,7 @@ export class FxCore {
     const genRes = await generator.run(context, inputs, projectPath);
     if (genRes.isErr()) return err(genRes.error);
     //3. ensure unique projectId in teamsapp.yaml (optional)
-    const ymlPath = path.join(projectPath, MetadataV3.configFile);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     const result: CreateProjectResult = { projectPath: projectPath };
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await coordinator.ensureTrackingId(projectPath, inputs.projectId);
@@ -2142,13 +2137,13 @@ export class FxCore {
           ? getLocalizedString(
               "core.addApi.confirm.localTeamsYaml",
               path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV3.localConfigFile,
-              MetadataV3.configFile
+              MetadataV4.localConfigFile,
+              MetadataV4.configFile
             )
           : getLocalizedString(
               "core.addApi.confirm.teamsYaml",
               path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV3.configFile
+              MetadataV4.configFile
             );
       }
     }

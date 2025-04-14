@@ -204,7 +204,7 @@ class Coordinator {
     }
 
     // generate unique projectId in teamsapp.yaml (optional)
-    const ymlPath = path.join(projectPath, MetadataV3.configFile);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await this.ensureTrackingId(projectPath, inputs.projectId);
       if (ensureRes.isErr()) return err(ensureRes.error);

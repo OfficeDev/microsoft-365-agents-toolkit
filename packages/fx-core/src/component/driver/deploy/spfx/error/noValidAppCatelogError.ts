@@ -3,7 +3,7 @@
 
 import { UserError } from "@microsoft/teamsfx-api";
 import { getDefaultString, getLocalizedString } from "../../../../../common/localizeUtils";
-import { MetadataV3 } from "../../../../../common/versionMetadata";
+import { MetadataV4 } from "../../../../../common/versionMetadata";
 import { Constants } from "../utility/constants";
 
 const errorCode = "NoValidAppCatelog";
@@ -14,8 +14,8 @@ export class NoValidAppCatelog extends UserError {
     super({
       source: Constants.DeployDriverName,
       name: errorCode,
-      message: getDefaultString(messageKey, MetadataV3.configFile),
-      displayMessage: getLocalizedString(messageKey, MetadataV3.configFile),
+      message: getDefaultString(messageKey, MetadataV4.configFile),
+      displayMessage: getLocalizedString(messageKey, MetadataV4.configFile),
     });
   }
 }
