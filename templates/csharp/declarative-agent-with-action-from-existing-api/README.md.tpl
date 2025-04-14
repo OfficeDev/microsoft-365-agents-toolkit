@@ -17,7 +17,7 @@ to install the app to.
 
 {{#ApiKey}}
 > [!NOTE]
-> Microsoft 365 Agents Toolkit will ask you for your API key during provision. The API key will be securely stored with [Teams Developer Portal](https://dev.teams.microsoft.com/home) and used by Teams client to access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.
+> Microsoft 365 Agents Toolkit will ask you for your API key during provision. The API key will be securely stored with [Developer Portal](https://dev.teams.microsoft.com/home) and used by Teams client to access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.
 {{/ApiKey}}
 
 {{#OAuth}}
@@ -37,7 +37,7 @@ to install the app to.
     writeToEnvironmentFile:
       configurationId: {{ApiSpecAuthRegistrationIdEnvName}}
 ```
-> Microsoft 365 Agents Toolkit will ask you for your Client ID and Client Secret for Oauth2 during provision. These information will be securely stored with [Teams Developer Portal](https://dev.teams.microsoft.com/home) and used by Teams client to access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.
+> Microsoft 365 Agents Toolkit will ask you for your Client ID and Client Secret for Oauth2 during provision. These information will be securely stored with [Developer Portal](https://dev.teams.microsoft.com/home) and used by Teams client to access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.
 {{/OAuth}}
 
 ## Learn more
