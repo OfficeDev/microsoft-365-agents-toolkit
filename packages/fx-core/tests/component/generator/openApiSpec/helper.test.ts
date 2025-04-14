@@ -2039,13 +2039,13 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
       {
         authName: "test2",
         authType: "oauth2",
-        registrationId: "TEST2_REIGSTRATION_ID",
+        registrationId: "TEST2_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
@@ -2090,7 +2090,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
