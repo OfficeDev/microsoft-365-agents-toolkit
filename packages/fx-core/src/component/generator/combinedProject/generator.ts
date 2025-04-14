@@ -2,21 +2,17 @@
 // Licensed under the MIT license.
 
 /**
- * @author yuqzho@microsoft.com
+ * @author zhaofengxu@microsoft.com
  */
 
 import {
   AppPackageFolderName,
   Context,
-  err,
   FxError,
   GeneratorResult,
   Inputs,
-  ManifestTemplateFileName,
   ok,
-  Platform,
   Result,
-  signedIn,
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import path from "path";
@@ -26,17 +22,12 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
-import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
-import { outputScaffoldingWarningMessage } from "../../utils/common";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
-import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
-import { getDefaultString } from "../../../common/localizeUtils";
 import fs from "fs-extra";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -46,9 +37,7 @@ const enum telemetryProperties {
 }
 
 /**
- * Generator for copilot extensions including declarative copilot with no plugin,
- * declarative copilot with API plugin from scratch, declarative copilot with existing plugin,
- * and API plugin from scratch.
+ * Generator for DA with Graph Connector.
  */
 export class CombinedProjectGenerator extends DefaultTemplateGenerator {
   componentName = "combined-project-generator";
