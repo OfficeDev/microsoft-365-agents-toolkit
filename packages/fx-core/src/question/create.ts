@@ -1744,7 +1744,9 @@ export function GCConnectionIdQuestion(): TextInputQuestion {
           "MSFT_All_Connectors",
         ];
         // Check if the input starts with any of the beginner strings and find the first match
-        const matchedBeginner = disallowedConnectorIds.find((item) => input.startsWith(item));
+        const matchedBeginner = disallowedConnectorIds.find((item) =>
+          input.toLowerCase().startsWith(item.toLocaleLowerCase())
+        );
         if (matchedBeginner) {
           return getLocalizedString(
             "core.GCConnectionIdQuestion.validation.specialBeginner",
