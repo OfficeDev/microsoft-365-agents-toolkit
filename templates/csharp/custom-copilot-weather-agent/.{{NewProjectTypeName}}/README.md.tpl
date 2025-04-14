@@ -2,7 +2,7 @@
 
 This template has a bot app that answers weather questions like an AI agent. Users can talk to the AI agent in Teams to get weather information.
 
-The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel, which provides the capabilities to build AI-based Teams applications.
+The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel, which provides the capabilities to build AI-based applications.
 
 ## Quick Start
 
@@ -75,8 +75,7 @@ The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel
 
 ## Learn more
 
-New to Teams app development or Teams Toolkit? Learn more about 
-Teams app manifests, deploying to the cloud, and more in the documentation 
+New to app development or Teams Toolkit? Learn more about app manifests, deploying to the cloud, and more in the documentation 
 at https://aka.ms/teams-toolkit-vs-docs.
 
 ## Report an issue

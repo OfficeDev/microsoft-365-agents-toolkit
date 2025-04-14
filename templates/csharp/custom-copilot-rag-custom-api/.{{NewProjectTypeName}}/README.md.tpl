@@ -1,7 +1,7 @@
 # Overview of the Chat With Your Data (Using Custom API) template
 
 This template showcases how to build an AI-powered intelligent chatbot that can understand natural language to invoke the API defined in the OpenAPI description document, so you can enable your users to chat with the data provided through API service.
-The app template is built using the Teams AI library, which provides the capabilities to build AI-based Teams applications.
+The app template is built using the Teams AI library, which provides the capabilities to build AI-based applications.
 ## Get started with the template
 
 > **Prerequisites**

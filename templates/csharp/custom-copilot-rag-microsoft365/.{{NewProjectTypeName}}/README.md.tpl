@@ -60,8 +60,7 @@ This app template also demonstrates usage of techniques like:
 
 ## Learn more
 
-New to Teams app development or Microsoft 365 Agents Toolkit? Learn more about 
-Teams app manifests, deploying to the cloud, and more in the documentation 
+New to app development or Microsoft 365 Agents Toolkit? Learn more about app manifests, deploying to the cloud, and more in the documentation 
 at https://aka.ms/teams-toolkit-vs-docs.
 
 ## Report an issue
