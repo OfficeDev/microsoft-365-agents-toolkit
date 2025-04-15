@@ -92,6 +92,7 @@ import { OneDriveSharePointItemType } from "../component/generator/constant";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import { searchOpenAPISpec, SearchOpenAPISpecResult } from "../common/kiotaClient";
 import { validateOpenAPISpec } from "../common/daSpecParser";
+import { ensureInputs } from "./utils";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -1588,14 +1589,11 @@ export function GCInputQuestion(): TextInputQuestion {
     title: getLocalizedString("core.GCInputQuestion.title"),
     cliDescription: "a connection ID for Graph Connector",
     forgetLastValue: true,
-    additionalValidationOnAccept: {
+    validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        if (!inputs) {
-          throw new Error("inputs is undefined"); // should never happen
+        if (!input || input.trim().length === 0) {
+          return "Please enter a connection ID for Graph Connector.";
         }
-
-        process.env[QuestionNames.GCInput] = input;
-        return;
       },
     },
   };
@@ -1656,11 +1654,8 @@ export function GCNameQuestion(): TextInputQuestion {
     forgetLastValue: true,
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        if (!inputs) {
-          throw new Error("inputs is undefined"); // should never happen
-        }
+        inputs = ensureInputs(inputs);
 
-        process.env[QuestionNames.GCName] = input;
         inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
 
         // Set template name and app name for Graph Connector Template
@@ -1673,12 +1668,10 @@ export function GCNameQuestion(): TextInputQuestion {
     },
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        if (!inputs) {
-          throw new Error("inputs is undefined"); // should never happen
-        }
         if (!input || input.trim().length === 0) {
           return "Please enter a graph connector name.";
         }
+        inputs = ensureInputs(inputs);
         if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
           // Graph Connector Template will use the name as app name, which has a minimum length of 2.
           if (input.trim().length < 2) {
@@ -1699,15 +1692,6 @@ export function GCConnectionIdQuestion(): TextInputQuestion {
     placeholder: getLocalizedString("core.GCConnectionIdQuestion.placeholder"),
     cliDescription: "a connection id for Graph Connector",
     forgetLastValue: true,
-    additionalValidationOnAccept: {
-      validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        if (!inputs) {
-          throw new Error("inputs is undefined"); // should never happen
-        }
-        process.env[QuestionNames.GCConnectionId] = input;
-        return;
-      },
-    },
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         // Developer-provided unique ID
