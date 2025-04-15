@@ -81,6 +81,7 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
         inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id.toString(),
     });
 
+    // current template name is declarative agent with graph connector, no other template.
     if (templateName === TemplateNames.DeclarativeAgentWithGraphConnector) {
       return Promise.resolve(
         ok([
@@ -111,7 +112,7 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
   }
 
   // override this method to do post-step after template download
-  protected post(
+  post(
     context: Context,
     inputs: Inputs,
     destinationPath: string,
