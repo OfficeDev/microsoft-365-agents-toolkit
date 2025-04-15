@@ -96,6 +96,33 @@ describe("daSpecParser", () => {
       });
     });
 
+    it("should not extract operations when not selected", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          selected: false,
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.allAPICount, 0);
+      assert.equal(result.validAPICount, 0);
+      assert.equal(result.APIs.length, 0);
+    });
+
     it("should handle Windows-style paths with backslashes", async () => {
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
