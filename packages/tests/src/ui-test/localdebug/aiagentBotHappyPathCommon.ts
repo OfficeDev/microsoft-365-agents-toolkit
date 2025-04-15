@@ -78,12 +78,12 @@ export function happyPathTest(options: {
         );
         validateFileExist(
           projectPath,
-          `src/app.${
+          `src/${
             options.lang === "javascript"
-              ? "js"
+              ? "index.js"
               : options.lang === "typescript"
-              ? "ts"
-              : "py"
+              ? "index.ts"
+              : "app.py"
           }`
         );
         // python prepare env
