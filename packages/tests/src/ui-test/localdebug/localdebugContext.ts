@@ -42,7 +42,7 @@ export type LocalDebugTestName =
 
 export class LocalDebugTestContext extends TestContext {
   public testName: LocalDebugTestName;
-  public lang: "JavaScript" | "TypeScript" | "Python";
+  public lang: "javascript" | "typescript" | "python";
   public framework: "react" | "minimal" | "none";
   public needMigrate: boolean | undefined;
   public existingSpfxFolder: string;
@@ -70,7 +70,13 @@ export class LocalDebugTestContext extends TestContext {
   ) {
     super(testName);
     this.testName = testName;
-    this.lang = option?.lang ? option.lang : "JavaScript";
+
+    this.lang = option?.lang
+      ? (option?.lang?.toLocaleLowerCase() as
+          | "javascript"
+          | "typescript"
+          | "python")
+      : "javascript";
     this.framework = option?.framework ? option.framework : "react";
     this.needMigrate = option?.needMigrate;
     this.existingSpfxFolder = option?.existingSpfxFolder
