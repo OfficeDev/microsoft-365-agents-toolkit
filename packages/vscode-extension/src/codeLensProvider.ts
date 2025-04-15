@@ -31,7 +31,6 @@ import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
-import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as util from "util";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
