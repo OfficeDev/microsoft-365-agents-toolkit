@@ -151,7 +151,7 @@ export function outputCancelMessage(version: string, platform: Platform): void {
 
 export async function getProjectVersionFromPath(projectPath: string): Promise<VersionInfo> {
   const v3path = getProjectSettingsPath(projectPath);
-  if (await fs.pathExists(v3path)) {
+  if (v3path && (await fs.pathExists(v3path))) {
     const readSettingsResult = await settingsUtil.readSettings(projectPath, false);
     if (readSettingsResult.isOk()) {
       return {

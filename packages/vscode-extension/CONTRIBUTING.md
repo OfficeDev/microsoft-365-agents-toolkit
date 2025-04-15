@@ -6,13 +6,13 @@ Welcome and thank you for your interest in contributing to **VSCode Extension**!
 
 ### Prerequisites
 
-Verify you have the right prerequisites for building Teams apps and install some recommended development tools. [Read more details](https://docs.microsoft.com/en-us/microsoftteams/platform/build-your-first-app/build-first-app-overview).
+Verify you have the right prerequisites for building apps and install some recommended development tools. [Read more details](https://docs.microsoft.com/en-us/microsoftteams/platform/build-your-first-app/build-first-app-overview).
 
 
 
 <table>
     <tr>
-        <td><h3>Node.js and PNPM</h3>As a fundamental runtime context for Teams app, Node.js v18 or higher, PNPM v8 or higher.</td>
+        <td><h3>Node.js and PNPM</h3>As a fundamental runtime context for app, Node.js v18 or higher, PNPM v8 or higher.</td>
     </tr>
     <tr>
         <td><h3>Microsoft 365</h3>The Teams Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
@@ -22,7 +22,7 @@ Verify you have the right prerequisites for building Teams apps and install some
     </tr>
 </table>
 
-> Don’t have a Microsoft 365 account to experience building Teams app? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/en-us/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
+> Don’t have a Microsoft 365 account to experience building app? Sign up for [Microsoft Developer Program](https://developer.microsoft.com/en-us/microsoft-365/dev-program), which allows you to have a testing tenant with preconfigured permissions.
 
 ### Built the project
 

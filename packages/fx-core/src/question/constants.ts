@@ -132,6 +132,12 @@ export enum QuestionNames {
   TypeSpecProjectType = "type-spec-project-type",
   DeclarativeAgentManifestPath = "declarative-agent-manifest-path",
   SensitivityLabel = "sensitivity-label",
+
+  ShareOption = "option",
+  ShareOptionShareApp = "share-app",
+  ShareOptionShareToUser = "share-with-users",
+  ShareToUsers = "users",
+  RemoveUsers = "users",
 }
 
 export enum ProjectTypeGroup {
@@ -536,7 +542,7 @@ export class CapabilityOptions {
     const capabilities = [
       CapabilityOptions.empty(),
       ...CapabilityOptions.agents(),
-      ...CapabilityOptions.customCopilots(),
+      ...CapabilityOptions.customCopilots(inputs),
       ...CapabilityOptions.bots(inputs),
       CapabilityOptions.nonSsoTab(),
       CapabilityOptions.tab(),
@@ -592,12 +598,20 @@ export class CapabilityOptions {
     return [CapabilityOptions.declarativeAgent()];
   }
 
-  static customCopilots(): OptionItem[] {
-    return [
-      CapabilityOptions.customCopilotBasic(),
-      CapabilityOptions.customCopilotRag(),
-      CapabilityOptions.customCopilotAssistant(),
-    ];
+  static customCopilots(inputs?: Inputs): OptionItem[] {
+    return inputs !== undefined && getRuntime(inputs) === RuntimeOptions.DotNet().id
+      ? [
+          CapabilityOptions.customCopilotBasic(),
+          CapabilityOptions.customCopilotRag(),
+          CapabilityOptions.customCopilotAssistant(),
+          // customCopilotWeather is currently only for dotnet
+          CapabilityOptions.customCopilotWeather(),
+        ]
+      : [
+          CapabilityOptions.customCopilotBasic(),
+          CapabilityOptions.customCopilotRag(),
+          CapabilityOptions.customCopilotAssistant(),
+        ];
   }
 
   static tdpIntegrationCapabilities(): OptionItem[] {
@@ -777,6 +791,19 @@ export class CapabilityOptions {
         "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
       ),
       description: description,
+    };
+  }
+
+  // Currently only for dotnet
+  static customCopilotWeather(): OptionItem {
+    return {
+      id: "custom-copilot-weather-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
+      ),
     };
   }
 }

@@ -118,6 +118,19 @@ export class CustomCopilotCapabilityOptions {
       description: description,
     };
   }
+
+  static weatherAgentBot(): OptionItem {
+    return {
+      id: "custom-copilot-weather-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
+      ),
+      data: TemplateNames.CustomCopilotWeatherAgent,
+    };
+  }
 }
 
 export class CustomCopilotRagOptions {

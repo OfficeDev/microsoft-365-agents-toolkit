@@ -40,6 +40,7 @@ import { ActionInjector } from "../../../../src/component/configManager/actionIn
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { PluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import * as openApiSpecHelper from "../../../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
 import {
   formatValidationErrors,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -51,6 +52,7 @@ import { DeclarativeAgentApiSpecOptionId, QuestionNames } from "../../../../src/
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
 import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import { pathUtils } from "../../../../src/component/utils/pathUtils";
 
 const tools = new MockTools();
 
@@ -179,6 +181,22 @@ describe("generateScaffoldingSummary", async () => {
     assert.isTrue(res.includes("user_issue"));
   });
 
+  it("warnings about operationid contains special characters", async () => {
+    const res = await generateScaffoldingSummary(
+      [
+        {
+          type: WarningType.ConvertSwaggerToOpenAPI,
+          content: "Convert swagger to openapi 3.0",
+        },
+      ],
+      teamsManifest,
+      "path",
+      undefined,
+      ""
+    );
+    assert.isTrue(res.includes("Swagger"));
+  });
+
   it("warnings about adaptive card template in manifest", async () => {
     const composeExtension: IComposeExtension = {
       composeExtensionType: "apiBased",
@@ -279,47 +297,6 @@ describe("generateScaffoldingSummary", async () => {
     );
 
     assert.isFalse(res.includes("testApiFile"));
-  });
-
-  it("warnings about plugin manifest description", async () => {
-    sandbox.stub(PluginManifestUtils.prototype, "readPluginManifestFile").resolves(
-      ok({
-        functions: [
-          { name: "getAll", description: "test" },
-          { name: "createNew", description: "" },
-        ],
-      } as any)
-    );
-    const res = await generateScaffoldingSummary(
-      [{ type: WarningType.FuncDescriptionTooLong, content: "", data: "getAll" }],
-      {
-        ...teamsManifest,
-        copilotExtensions: { plugins: [{ file: "test", id: "1" }] },
-      },
-      "path",
-      "pluginPath",
-      ""
-    );
-    assert.isTrue(res.includes("getAll"));
-    assert.isTrue(res.includes("createNew"));
-  });
-
-  it("warnings about plugin manifest description: get plugin file error", async () => {
-    sandbox
-      .stub(PluginManifestUtils.prototype, "readPluginManifestFile")
-      .resolves(err(new SystemError("test", "test", "test", "test")));
-    const res = await generateScaffoldingSummary(
-      [{ type: WarningType.FuncDescriptionTooLong, content: "", data: "getAll" }],
-      {
-        ...teamsManifest,
-        copilotExtensions: { plugins: [{ file: "test", id: "1" }] },
-      },
-      "path",
-      "pluginPath",
-      ""
-    );
-
-    assert.equal(res.length, 0);
   });
 });
 
@@ -591,7 +568,9 @@ describe("formatValidationErrors", () => {
 
 describe("injectAuthAction", async () => {
   const sandbox = sinon.createSandbox();
-
+  beforeEach(() => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+  });
   afterEach(async () => {
     sandbox.restore();
   });
@@ -2030,7 +2009,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
     });
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2038,13 +2017,13 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
       {
         authName: "test2",
         authType: "oauth2",
-        registrationId: "TEST2_REIGSTRATION_ID",
+        registrationId: "TEST2_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
@@ -2081,7 +2060,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       false
     );
@@ -2089,7 +2068,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       {
         authName: "test",
         authType: "apiKey",
-        registrationId: "TEST_REIGSTRATION_ID",
+        registrationId: "TEST_REGISTRATION_ID",
         specPath: "mock_spec_url",
       },
     ]);
@@ -2116,7 +2095,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2138,7 +2117,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
     } as PluginManifestSchema);
     const writeJsonStub = sandbox.stub(fs, "writeJSON").resolves();
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );
@@ -2191,7 +2170,7 @@ describe("parseAndUpdatePluginManifestForKiota", async () => {
       assert.equal(dataJson.runtimes[0].auth.reference_id, "${{TEST_REIGSTRATION_ID}}");
     });
 
-    const result = await openApiSpecHelper.parseAndUpdatePluginManifestForKiota(
+    const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(
       "pluginManifestPath",
       true
     );

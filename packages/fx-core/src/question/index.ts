@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
-import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
+import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
   addKnowledgeQuestionNode,
@@ -23,6 +23,8 @@ import {
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
   setSensitivityLabelNode,
+  shareNode,
+  removeSharedAccessNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -43,9 +45,6 @@ export class QuestionNodes {
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
-  }
-  createProjectCliHelp(): IQTreeNode {
-    return createProjectCliHelpNode();
   }
   addWebpart(): IQTreeNode {
     return addWebPartQuestionNode();
@@ -103,6 +102,12 @@ export class QuestionNodes {
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();
+  }
+  share(): IQTreeNode {
+    return shareNode();
+  }
+  removeSharedAccess(): IQTreeNode {
+    return removeSharedAccessNode();
   }
 }
 

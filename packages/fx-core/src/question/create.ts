@@ -208,7 +208,7 @@ export function capabilityQuestion(): SingleSelectQuestion {
           return getLocalizedString("core.createCapabilityQuestion.titleNew");
       }
     },
-    cliDescription: "Specifies the Microsoft Teams App capability.",
+    cliDescription: "Specifies the app feature.",
     cliName: CliQuestionName.Capability,
     cliShortName: "c",
     cliChoiceListCommand: "teamsapp list templates",
@@ -664,7 +664,7 @@ function sampleSelectQuestion(): SingleSelectQuestion {
     type: "singleSelect",
     name: QuestionNames.Samples,
     cliName: "sample-name",
-    cliDescription: "Specifies the Microsoft Teams App sample name.",
+    cliDescription: "Specifies the app sample name.",
     cliChoiceListCommand: "teamsapp list samples",
     skipValidation: true,
     cliType: "argument",
@@ -1832,7 +1832,8 @@ export function capabilitySubTree(): IQTreeNode {
           return (
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotBasic().id ||
             inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotRag().id ||
-            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotAssistant().id ||
+            inputs[QuestionNames.Capabilities] === CapabilityOptions.customCopilotWeather().id
           );
         },
         data: llmServiceQuestion(),
@@ -1960,46 +1961,4 @@ export function createSampleProjectQuestionNode(): IQTreeNode {
       },
     ],
   };
-}
-
-export function createProjectCliHelpNode(): IQTreeNode {
-  const node = cloneDeep(createProjectQuestionNode());
-  const deleteNames = [
-    QuestionNames.ProjectType,
-    QuestionNames.OfficeAddinImport,
-    QuestionNames.OfficeAddinHost,
-    QuestionNames.RepalceTabUrl,
-    QuestionNames.ReplaceBotIds,
-    QuestionNames.Samples,
-  ];
-  if (!featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
-    deleteNames.push(QuestionNames.Runtime);
-  }
-  trimQuestionTreeForCliHelp(node, deleteNames);
-  return node;
-}
-
-function trimQuestionTreeForCliHelp(node: IQTreeNode, deleteNames: string[]): void {
-  if (node.children) {
-    node.children = node.children.filter(
-      (child) => !child.data.name || !deleteNames.includes(child.data.name)
-    );
-    for (const child of node.children) {
-      trimQuestionTreeForCliHelp(child, deleteNames);
-    }
-  }
-}
-
-function pickSubTree(node: IQTreeNode, name: string): IQTreeNode | undefined {
-  if (node.data.name === name) {
-    return node;
-  }
-  let found;
-  if (node.children) {
-    for (const child of node.children) {
-      found = pickSubTree(child, name);
-      if (found) return found;
-    }
-  }
-  return undefined;
 }

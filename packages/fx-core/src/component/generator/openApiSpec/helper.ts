@@ -75,7 +75,8 @@ import {
 } from "../../configManager/constant";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
-import { listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
+import { generatePlugin, listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
+import { pathUtils } from "../../utils/pathUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -539,14 +540,14 @@ export async function generateFromApiSpec(
 
     const generateResult =
       projectType === ProjectType.Copilot
-        ? await specParser.generateForCopilot(
+        ? await generatePlugin(
+            specPath,
             teamsManifestPath,
-            operations,
             outputFilePath.destinationApiSpecFilePath,
             outputFilePath.pluginManifestFilePath!,
-            undefined,
-            undefined,
-            adaptiveCardUpdateStrategy
+            operations,
+            adaptiveCardUpdateStrategy,
+            inputs.platform
           )
         : await specParser.generate(
             teamsManifestPath,
@@ -560,11 +561,10 @@ export async function generateFromApiSpec(
       [telemetryProperties.generateType]: projectType.toString(),
       [specParserGenerateResultAllSuccessTelemetryProperty]: generateResult.allSuccess.toString(),
       [specParserGenerateResultWarningsTelemetryProperty]: generateResult.warnings
-        .map((w) => w.type.toString() + ": " + w.content)
+        .map((w) => `${w.type.toString()}: ${w.content}`)
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
     });
-
     if (generateResult.warnings && generateResult.warnings.length > 0) {
       generateResult.warnings.find((o) => {
         if (o.type === WarningType.OperationOnlyContainsOptionalParam) {
@@ -679,10 +679,10 @@ export async function injectAuthAction(
   enablePKCE?: boolean,
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
-  const ymlPath = path.join(projectPath, MetadataV3.configFile);
-  const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
+  const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local") as string;
 
-  const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
+  const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
   if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
     const res = await ActionInjector.injectCreateAPIKeyAction(
@@ -763,8 +763,7 @@ export async function generateScaffoldingSummary(
   if (pluginManifestPath) {
     const pluginManifestWarningResult = await validatePluginManifestLength(
       pluginManifestPath,
-      projectPath,
-      warnings
+      projectPath
     );
     pluginWarningMessage = pluginManifestWarningResult.map((warn) => {
       return `${SummaryConstant.NotExecuted} ${warn}`;
@@ -808,7 +807,7 @@ function formatApiSpecValidationWarningMessage(
     resultWarnings.push(
       getLocalizedString(
         "core.copilotPlugin.scaffold.summary.warning.operationId",
-        `${SummaryConstant.NotExecuted} ${operationIdWarning.content}`,
+        `${SummaryConstant.Info} ${operationIdWarning.content}`,
         isApiMe ? ManifestTemplateFileName : apiSpecFileName
       )
     );
@@ -818,7 +817,7 @@ function formatApiSpecValidationWarningMessage(
 
   if (swaggerWarning) {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.swaggerVersion",
           apiSpecFileName
@@ -832,7 +831,7 @@ function formatApiSpecValidationWarningMessage(
 
   specialCharactersWarnings.forEach((warning) => {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
           warning.data,
@@ -952,10 +951,8 @@ function validateTeamsManifestLength(
 
 async function validatePluginManifestLength(
   pluginManifestPath: string,
-  projectPath: string,
-  warnings: Warning[]
+  projectPath: string
 ): Promise<string[]> {
-  const functionDescriptionLimit = 100;
   const resultWarnings: string[] = [];
 
   const manifestRes = await pluginManifestUtils.readPluginManifestFile(
@@ -972,9 +969,6 @@ async function validatePluginManifestLength(
 
   // validate function description
   const functions = manifestRes.value.functions;
-  const functionDescriptionWarnings = warnings
-    .filter((w) => w.type === WarningType.FuncDescriptionTooLong)
-    .map((w) => w.data);
   if (functions) {
     functions.forEach((func) => {
       if (!func.description) {
@@ -985,19 +979,6 @@ async function validatePluginManifestLength(
           ) +
             getLocalizedString(
               "core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription.mitigation",
-              func.name,
-              pluginManifestPath
-            )
-        );
-      } else if (functionDescriptionWarnings.includes(func.name)) {
-        resultWarnings.push(
-          getLocalizedString(
-            "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding",
-            func.name,
-            functionDescriptionLimit
-          ) +
-            getLocalizedString(
-              "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation",
               func.name,
               pluginManifestPath
             )
@@ -1707,47 +1688,6 @@ export async function copyKiotaFolder(specPath: string, projectPath: string): Pr
   await fs.ensureDir(destinationKiotaFolder);
   await fs.copy(originKiotaFolder, destinationKiotaFolder, { recursive: true });
   return;
-}
-
-export async function parseAndUpdatePluginManifestForKiota(
-  pluginManifestPath: string,
-  updatePlaceholder: boolean
-): Promise<
-  { authName: string; authType: "apiKey" | "oauth2"; registrationId: string; specPath: string }[]
-> {
-  const authData: {
-    authName: string;
-    authType: "apiKey" | "oauth2";
-    registrationId: string;
-    specPath: string;
-  }[] = [];
-  const pluginManifest = (await fs.readJSON(pluginManifestPath)) as PluginManifestSchema;
-  pluginManifest.runtimes?.forEach((runtime) => {
-    if ((runtime as RuntimeObjectOpenapi).auth) {
-      const auth = (runtime as RuntimeObjectOpenapi).auth!;
-      if (
-        auth.reference_id &&
-        auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
-        auth.type !== "None"
-      ) {
-        const registrationId = auth.reference_id.replace(/[{}]/g, "");
-        authData.push({
-          authName: registrationId.split("_")[0],
-          authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
-          registrationId: registrationId.toUpperCase(),
-          specPath: runtime.spec.url as string,
-        });
-        if (updatePlaceholder) {
-          auth.reference_id = `\$\{\{${registrationId.toUpperCase()}\}\}`;
-        }
-      }
-    }
-  });
-
-  if (updatePlaceholder && authData.length > 0) {
-    await fs.writeJson(pluginManifestPath, pluginManifest, { spaces: 4 });
-  }
-  return authData;
 }
 
 export async function generateAdaptiveCardInPluginManifestForKiota(

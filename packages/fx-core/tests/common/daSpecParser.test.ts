@@ -9,7 +9,12 @@ import * as daSpecParser from "../../src/common/daSpecParser";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { Platform } from "@microsoft/teamsfx-api";
 import { KiotaOpenApiNode, KiotaTreeResult } from "@microsoft/kiota";
-import { ErrorType, ValidationStatus } from "@microsoft/m365-spec-parser";
+import {
+  AdaptiveCardUpdateStrategy,
+  ErrorType,
+  ValidationStatus,
+  WarningType,
+} from "@microsoft/m365-spec-parser";
 
 describe("daSpecParser", () => {
   let listAPITreeInfoStub: sinon.SinonStub;
@@ -407,39 +412,6 @@ describe("daSpecParser", () => {
     });
 
     it("should validate server information and authentication types correctly", async () => {
-      const checkServerUrlStub = sinon.stub();
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
-      checkServerUrlStub.returns([{ type: ErrorType.RelativeServerUrlNotSupported }]);
-
-      const utilsStubs = {
-        isAPIKeyAuth: sinon.stub(),
-        isOAuthWithAuthCodeFlow: sinon.stub(),
-        isBearerTokenAuth: sinon.stub(),
-      };
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isAPIKeyAuth",
-        utilsStubs.isAPIKeyAuth
-      );
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isOAuthWithAuthCodeFlow",
-        utilsStubs.isOAuthWithAuthCodeFlow
-      );
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isBearerTokenAuth",
-        utilsStubs.isBearerTokenAuth
-      );
-
-      utilsStubs.isAPIKeyAuth.returns(true);
-      utilsStubs.isOAuthWithAuthCodeFlow.returns(true);
-      utilsStubs.isBearerTokenAuth.returns(true);
-
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
           isOperation: false,
@@ -555,6 +527,101 @@ describe("daSpecParser", () => {
       assert.isTrue(apiKeyAuthOpVS!.reason.includes(ErrorType.AuthTypeIsNotSupported));
       assert.isTrue(oauthAuthOpVS!.reason.includes(ErrorType.AuthTypeIsNotSupported));
       assert.isTrue(bearerAuthOpVS!.reason.includes(ErrorType.AuthTypeIsNotSupported));
+    });
+
+    it("should handle undefined servers and securitySchemes in treeInfo", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          children: [],
+        } as KiotaOpenApiNode,
+        security: [],
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.allAPICount, 1);
+      assert.equal(result.APIs.length, 1);
+      assert.isUndefined(result.APIs[0].server);
+      assert.isUndefined(result.APIs[0].auth);
+    });
+
+    it("should handle undefined security in child node", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/resource",
+              segment: "GET",
+              operationId: "getResource",
+              children: [],
+            },
+          ],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [{ api_key: [] }],
+        securitySchemes: {
+          api_key: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.APIs.length, 1);
+      assert.isDefined(result.APIs[0].auth);
+      assert.equal(result.APIs[0].auth!.name, "api_key");
+    });
+
+    it("should specifically test multipleAuth type detection", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/multi-auth",
+          segment: "GET",
+          operationId: "getWithMultiAuth",
+          servers: ["https://valid.example.com"],
+          security: [{ auth1: [], auth2: [] }],
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          auth1: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+          auth2: { type: "oauth2", flows: {}, referenceId: "" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const checkServerUrlStub = sinon.stub().returns([]);
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "checkServerUrl",
+        checkServerUrlStub
+      );
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.APIs.length, 1);
+      assert.equal(result.APIs[0].auth!.authScheme.type, "multipleAuth");
+      assert.isFalse(result.APIs[0].isValid);
+      assert.isTrue(result.APIs[0].reason.includes(ErrorType.MultipleAuthNotSupported));
     });
   });
 
@@ -715,6 +782,520 @@ describe("daSpecParser", () => {
 
       const result = await daSpecParser.validateOpenAPISpec("path/to/spec", Platform.VS);
       assert.equal(result.status, ValidationStatus.Valid);
+    });
+  });
+
+  describe("generatePlugin with KiotaNPMIntegration enabled", () => {
+    let kiotaGeneratePluginStub: sinon.SinonStub;
+    let tmpDirSyncStub: sinon.SinonStub;
+    let fsReadJSONStub: sinon.SinonStub;
+    let fsCopyFileStub: sinon.SinonStub;
+    let fsWriteJsonStub: sinon.SinonStub;
+    let parseAndUpdatePluginManifestStub: sinon.SinonStub;
+    let pathRelativeStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      kiotaGeneratePluginStub = sinon.stub(kiotaClient, "kiotageneratePlugin");
+      tmpDirSyncStub = sinon.stub(require("tmp"), "dirSync");
+      fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
+      fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile");
+      fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson");
+      parseAndUpdatePluginManifestStub = sinon.stub(
+        daSpecParser,
+        "parseAndUpdatePluginManifestForKiota"
+      );
+      pathRelativeStub = sinon.stub(require("path"), "relative");
+
+      featureFlagStub.withArgs(FeatureFlags.KiotaNPMIntegration).returns(true);
+
+      // Setup common stubs
+      tmpDirSyncStub.returns({
+        name: "c:\\tmp\\working-dir",
+        removeCallback: sinon.stub(),
+        unsafeCleanup: true,
+      });
+      fsReadJSONStub.resolves({ name: { short: "test-app" } });
+      kiotaGeneratePluginStub.resolves({
+        openAPISpec: "c:\\tmp\\working-dir\\plugin\\openapi.yaml",
+        aiPlugin: "c:\\tmp\\working-dir\\plugin\\ai-plugin.json",
+        logs: [],
+      });
+      fsCopyFileStub.resolves();
+      fsWriteJsonStub.resolves();
+      parseAndUpdatePluginManifestStub.resolves([]);
+      pathRelativeStub.returns("../openapi.yaml");
+    });
+
+    const pathMatcher = (expectedPath: string) =>
+      sinon.match((actualPath) => {
+        const normalizedActual = actualPath.replace(/\\/g, "/");
+        const normalizedExpected = expectedPath.replace(/\\/g, "/");
+        return normalizedActual === normalizedExpected;
+      });
+
+    it("should successfully generate plugin when feature flag is enabled", async () => {
+      const specPath = "path/to/spec.yaml";
+      const teamsManifestPath = "path/to/manifest.json";
+      const outputAPISpecPath = "path/to/output/openapi.yaml";
+      const outputAIPluginPath = "path/to/output/ai-plugin.json";
+      const operations = ["GET /users", "POST /messages"];
+      const adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
+
+      const result = await daSpecParser.generatePlugin(
+        specPath,
+        teamsManifestPath,
+        outputAPISpecPath,
+        outputAIPluginPath,
+        operations,
+        adaptiveCardUpdateStrategy
+      );
+
+      assert.isTrue(tmpDirSyncStub.calledOnce);
+      assert.isTrue(fsReadJSONStub.calledThrice);
+      assert.isTrue(kiotaGeneratePluginStub.calledOnce);
+      assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[0], specPath);
+      assert.deepEqual(
+        kiotaGeneratePluginStub.firstCall.args[1].replace(/\\/g, "/"),
+        "c:/tmp/working-dir/plugin"
+      );
+      assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[2], "testapp");
+      assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], ["/users#GET", "/messages#POST"]);
+
+      assert.equal(fsCopyFileStub.callCount, 3);
+
+      assert.isTrue(
+        fsCopyFileStub.firstCall.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
+        )
+      );
+      assert.isTrue(
+        fsCopyFileStub.secondCall.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/ai-plugin.json"),
+          pathMatcher("path/to/output/ai-plugin.json")
+        )
+      );
+
+      assert.isTrue(
+        fsCopyFileStub.thirdCall.calledWith(
+          pathMatcher("path/to/spec.yaml"),
+          pathMatcher("path/to/output/openapi.original.yaml")
+        )
+      );
+
+      assert.deepEqual(result, {
+        allSuccess: true,
+        warnings: [],
+      });
+    });
+
+    it("should validate operations and generate appropriate warnings", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/missing-id",
+              segment: "GET",
+              summary: "Operation with missing ID",
+              servers: ["https://valid.example.com"],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/special-chars",
+              segment: "POST",
+              operationId: "create-resource",
+              summary: "Operation with special characters in ID",
+              servers: ["https://valid.example.com"],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/unsupported-auth",
+              segment: "GET",
+              operationId: "getWithCustomAuth",
+              summary: "Operation with unsupported auth",
+              servers: ["https://valid.example.com"],
+              security: [{ custom_auth: [] }],
+              children: [],
+            },
+          ],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          custom_auth: { type: "http", scheme: "basic" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const specPath = "path/to/spec.json";
+      const outputAPISpecPath = "path/to/output/openapi.spec";
+
+      const result = await daSpecParser.generatePlugin(
+        specPath,
+        "path/to/manifest.json",
+        outputAPISpecPath,
+        "path/to/output/ai-plugin.json",
+        ["GET /api/missing-id", "POST /api/special-chars", "GET /api/unsupported-auth"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      assert.isTrue(result.allSuccess);
+      assert.equal(result.warnings.length, 3);
+      assert.isTrue(result.warnings.some((w) => w.type === WarningType.OperationIdMissing));
+      assert.isTrue(
+        result.warnings.some((w) => w.type === WarningType.OperationIdContainsSpecialCharacters)
+      );
+      assert.isTrue(result.warnings.some((w) => w.type === WarningType.UnsupportedAuthType));
+
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
+        )
+      );
+
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("path/to/spec.json"),
+          pathMatcher("path/to/output/openapi.original.json")
+        )
+      );
+    });
+
+    it("should handle manifest with environment variables and special characters", async () => {
+      const complexManifest = {
+        name: {
+          short: "Complex$App-Name_${{ENV_VAR}}",
+        },
+      };
+      fsReadJSONStub.resolves(complexManifest);
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      // Check namespace was properly sanitized
+      assert.isTrue(kiotaGeneratePluginStub.calledOnce);
+      // Instead of expecting just 'complexappname', allow for removal of vars
+      const generatedNamespace = kiotaGeneratePluginStub.firstCall.args[2];
+      assert.isString(generatedNamespace);
+      assert.match(generatedNamespace, /^complexappname/);
+    });
+
+    it("should update plugin manifest with relative path", async () => {
+      pathRelativeStub.returns("..\\..\\openapi.yaml");
+      fsReadJSONStub.resolves({
+        name: { short: "test-app" },
+        runtimes: [
+          {
+            spec: { url: "old-path.yaml" },
+          },
+        ],
+      });
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      const expectedPluginManifest = {
+        name: { short: "test-app" },
+        runtimes: [
+          {
+            spec: { url: "../../openapi.yaml" },
+          },
+        ],
+      };
+
+      assert.isTrue(
+        fsWriteJsonStub.calledWith(
+          pathMatcher("path/to/output/ai-plugin.json"),
+          sinon.match((value) => {
+            return value.runtimes[0].spec.url === "../../openapi.yaml";
+          }),
+          { spaces: 4 }
+        )
+      );
+    });
+
+    it("should handle Windows paths and convert backslashes to forward slashes", async () => {
+      pathRelativeStub.returns("..\\nested\\folder\\openapi.yaml");
+
+      // Setup a mock plugin manifest with runtimes
+      const pluginManifest = {
+        name: { short: "test-app" },
+        runtimes: [
+          {
+            spec: { url: "old-path.yaml" },
+          },
+        ],
+      };
+      fsReadJSONStub.resolves(pluginManifest);
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      // Check that writeJson was called with the correct normalized path
+      assert.isTrue(
+        fsWriteJsonStub.calledWith(
+          pathMatcher("path/to/output/ai-plugin.json"),
+          sinon.match((value) => {
+            return (
+              value &&
+              value.runtimes &&
+              value.runtimes[0] &&
+              value.runtimes[0].spec &&
+              value.runtimes[0].spec.url === "../nested/folder/openapi.yaml"
+            );
+          }),
+          { spaces: 4 }
+        )
+      );
+    });
+
+    it("should create correct include patterns from operations", async () => {
+      const operations = [
+        "GET /users",
+        "POST /users",
+        "PUT /users/{id}",
+        "DELETE /users/{id}/comments",
+        "PATCH /settings",
+      ];
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        operations,
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      const expectedPatterns = [
+        "/users#GET",
+        "/users#POST",
+        "/users/{id}#PUT",
+        "/users/{id}/comments#DELETE",
+        "/settings#PATCH",
+      ];
+
+      assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], expectedPatterns);
+    });
+
+    it("should properly handle different auth types and platform restrictions", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/apikey",
+              segment: "GET",
+              operationId: "getWithAPIKey",
+              servers: ["https://valid.example.com"],
+              security: [{ api_key_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/oauth2",
+              segment: "GET",
+              operationId: "getWithOAuth2",
+              servers: ["https://valid.example.com"],
+              security: [{ oauth2_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/bearer",
+              segment: "GET",
+              operationId: "getWithBearer",
+              servers: ["https://valid.example.com"],
+              security: [{ bearer_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/unsupported",
+              segment: "GET",
+              operationId: "getWithUnsupported",
+              servers: ["https://valid.example.com"],
+              security: [{ custom_auth: [] }],
+              children: [],
+            },
+          ],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          api_key_auth: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+          oauth2_auth: {
+            type: "oauth2",
+            flows: {
+              authorizationCode: {
+                authorizationUrl: "https://example.com/auth",
+                tokenUrl: "https://example.com/token",
+                scopes: {},
+              },
+            },
+            referenceId: "",
+          },
+          bearer_auth: { type: "http", scheme: "bearer", referenceId: "" },
+          custom_auth: { type: "http", scheme: "basic", referenceId: "" },
+        },
+        logs: [],
+      };
+
+      const utilsStubs = {
+        isAPIKeyAuth: sinon.stub(),
+        isOAuthWithAuthCodeFlow: sinon.stub(),
+        isBearerTokenAuth: sinon.stub(),
+        format: sinon.stub(),
+        checkServerUrl: sinon.stub().returns([]),
+      };
+
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isAPIKeyAuth",
+        utilsStubs.isAPIKeyAuth
+      );
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isOAuthWithAuthCodeFlow",
+        utilsStubs.isOAuthWithAuthCodeFlow
+      );
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isBearerTokenAuth",
+        utilsStubs.isBearerTokenAuth
+      );
+      sinon.replace(require("@microsoft/m365-spec-parser").Utils, "format", utilsStubs.format);
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "checkServerUrl",
+        utilsStubs.checkServerUrl
+      );
+
+      utilsStubs.format.callsFake(
+        (template, ...args) => `Formatted: ${template} ${args.join(", ")}`
+      );
+
+      utilsStubs.isAPIKeyAuth.callsFake((authScheme) => {
+        return authScheme.type === "apiKey";
+      });
+
+      utilsStubs.isOAuthWithAuthCodeFlow.callsFake((authScheme) => {
+        return (
+          authScheme.type === "oauth2" && authScheme.flows && authScheme.flows.authorizationCode
+        );
+      });
+
+      utilsStubs.isBearerTokenAuth.callsFake((authScheme) => {
+        return authScheme.type === "http" && authScheme.scheme === "bearer";
+      });
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const resultVS = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        Platform.VS
+      );
+
+      assert.equal(resultVS.warnings.length, 4);
+      assert.isTrue(resultVS.warnings.every((w) => w.type === WarningType.UnsupportedAuthType));
+
+      const resultVSCode = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        Platform.VSCode
+      );
+
+      assert.equal(resultVSCode.warnings.length, 1);
+      const customAuthWarning = resultVSCode.warnings.find(
+        (w) => w.type === WarningType.UnsupportedAuthType && w.data === "getWithUnsupported"
+      );
+      assert.isDefined(customAuthWarning);
+
+      const resultSelective = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        "CustomPlatform"
+      );
+
+      const apiKeyWarning = resultSelective.warnings.find(
+        (w) => w.type === WarningType.UnsupportedAuthType && w.data === "getWithAPIKey"
+      );
+      assert.isUndefined(apiKeyWarning);
+
+      const listResult = await daSpecParser.listAPIInfo("path/to/spec", Platform.VS);
+
+      const authAPIs = listResult.APIs.filter((api) => api.auth);
+      assert.isTrue(authAPIs.every((api) => !api.isValid));
+      assert.isTrue(authAPIs.every((api) => api.reason.includes(ErrorType.AuthTypeIsNotSupported)));
+    });
+
+    it("should handle tree with completely missing optional fields", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          children: [],
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      assert.isTrue(result.allSuccess);
     });
   });
 });

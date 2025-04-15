@@ -129,6 +129,7 @@ import {
   scaffoldFromDeveloperPortalHandler,
   setSensitivityLabelHandler,
   shareHandler,
+  shareRemoveHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -294,6 +295,12 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isSensitivityLabelEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
+  );
+
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isSharedEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.ShareEnabled)
   );
 
   await vscode.commands.executeCommand(
@@ -975,6 +982,14 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(setSensitivityLabelCmd);
 
+  const removeSharedAccessCmd = vscode.commands.registerCommand(
+    "fx-extension.removeSharedAccess",
+    async (...args) => {
+      await Correlator.run(shareRemoveHandler, args);
+    }
+  );
+  context.subscriptions.push(removeSharedAccessCmd);
+
   const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
     "fx-extension.m365PreAuth",
     async (...args) => {
@@ -1129,7 +1144,7 @@ async function initializeContextKey(context: vscode.ExtensionContext, isTeamsFxP
   }
 
   const ymlFileWatcher = vscode.workspace.createFileSystemWatcher(
-    "**/teamsapp.yml",
+    "**/{teamsapp,m365agents}.yml",
     false,
     true,
     true
@@ -1320,7 +1335,7 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   const yamlFileSelector = {
     language: "yaml",
     scheme: "file",
-    pattern: `**/teamsapp.yml`,
+    pattern: `**/{teamsapp,m365agents}.yml`,
   };
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(yamlFileSelector, yamlCodelensProvider)

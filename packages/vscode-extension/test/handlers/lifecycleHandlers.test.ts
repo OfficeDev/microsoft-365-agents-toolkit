@@ -27,6 +27,7 @@ import {
   shareHandler,
   setSensitivityLabelHandler,
   m365PreAuthHandler,
+  shareRemoveHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -39,6 +40,7 @@ import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import { MockTools } from "../mocks/mockTools";
+import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove";
 
 describe("Lifecycle handlers", () => {
   const sandbox = sinon.createSandbox();
@@ -670,7 +672,13 @@ describe("Lifecycle handlers", () => {
       await setSensitivityLabelHandler(args);
     });
   });
-
+  describe("shareRemoveHandler", () => {
+    it("runCommand successfully", async () => {
+      const args = [{ teamsAppId: "appId" }];
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await shareRemoveHandler(args);
+    });
+  });
   describe("m365PreAuthHandler", () => {
     globalVariables.setTools(new MockTools());
     it("get access token successfully", async () => {

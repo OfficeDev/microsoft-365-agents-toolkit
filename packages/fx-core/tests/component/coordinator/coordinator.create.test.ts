@@ -36,6 +36,7 @@ import {
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
+import { pathUtils } from "../../../src/component/utils/pathUtils";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -58,6 +59,9 @@ describe("coordinator create", () => {
   });
 
   describe("createSampleProject", () => {
+    beforeEach(() => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    });
     it("create project from sample", async () => {
       sandbox.stub(Generator, "generateSample").resolves(ok(undefined));
       sandbox.stub(fs, "pathExists").resolves(false);
@@ -218,6 +222,7 @@ describe("coordinator create", () => {
     it("success", async () => {
       sandbox.stub(SPFxGeneratorNew.prototype, "run").resolves(ok({}));
       sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -236,6 +241,7 @@ describe("coordinator create", () => {
 
     it("create project for app with tab features from Developer Portal", async () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       sandbox.stub(TdpGenerator.prototype, "run").resolves(ok({}));
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
@@ -307,6 +313,7 @@ describe("coordinator create", () => {
     });
     it("create project for app with tab and bot features from Developer Portal", async () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       sandbox.stub(TdpGenerator.prototype, "run").resolves(ok({}));
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
@@ -355,6 +362,8 @@ describe("coordinator create", () => {
 
     it("create non-sso tab from .NET 8", async () => {
       sandbox.stub(SsrTabGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
@@ -367,13 +376,14 @@ describe("coordinator create", () => {
         [QuestionNames.TemplateName]: TemplateNames.TabSSR,
       };
       const res = await coordinator.create(v3ctx, inputs);
-
       assert.isTrue(res.isOk());
     });
 
     it("create sso tab from .NET 8", async () => {
       const v3ctx = createContext();
       sandbox.stub(SsrTabGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       v3ctx.userInteraction = new MockedUserInteraction();
       const inputs: Inputs = {
         platform: Platform.VS,
@@ -385,7 +395,6 @@ describe("coordinator create", () => {
         [QuestionNames.TemplateName]: TemplateNames.SsoTabSSR,
       };
       const res = await coordinator.create(v3ctx, inputs);
-
       assert.isTrue(res.isOk());
     });
 
@@ -407,9 +416,9 @@ describe("coordinator create", () => {
       };
       sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const res = await coordinator.create(v3ctx, inputs);
-
       assert.isTrue(res.isOk());
     });
 
@@ -433,9 +442,9 @@ describe("coordinator create", () => {
       };
       sandbox.stub(CustomEngineAgentWithExistingApiSpecGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const res = await coordinator.create(v3ctx, inputs);
-
       assert.isTrue(res.isOk());
     });
 
@@ -458,7 +467,8 @@ describe("coordinator create", () => {
       };
       sandbox.stub(DefaultTemplateGenerator.prototype, "run").resolves(ok({}));
       sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
-
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const res = await coordinator.create(v3ctx, inputs);
 
       assert.isTrue(res.isOk());
@@ -494,6 +504,8 @@ describe("coordinator create", () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
       sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
@@ -514,6 +526,8 @@ describe("coordinator create", () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
       sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
@@ -534,6 +548,8 @@ describe("coordinator create", () => {
       const v3ctx = createContext();
       v3ctx.userInteraction = new MockedUserInteraction();
       sandbox.stub(DeclarativeAgentGenerator.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
@@ -555,6 +571,7 @@ describe("coordinator create", () => {
       v3ctx.userInteraction = new MockedUserInteraction();
       sandbox.stub(fs, "pathExists").resolves(false);
       sandbox.stub(OfficeAddinGeneratorNew.prototype, "run").resolves(ok({}));
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
@@ -574,7 +591,8 @@ describe("coordinator create", () => {
       sandbox
         .stub(DefaultTemplateGenerator.prototype, "run")
         .resolves(ok({ warnings: [{ type: "", content: "", data: {} } as any] }));
-
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "pathExists").resolves(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",

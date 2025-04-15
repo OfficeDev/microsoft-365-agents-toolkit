@@ -24,6 +24,7 @@ import { MockTools } from "../../core/utils";
 import { createHash, Hash } from "crypto";
 import { ExecutionResult as DriverResult } from "../../../src/component/driver/interface/stepDriver";
 import { metadataGraphPermissionUtil } from "../../../src/component/utils/metadataGraphPermssion";
+import { pathUtils } from "../../../src/component/utils/pathUtils";
 
 function mockedResolveDriverInstances(log: LogProvider): Result<DriverInstance[], FxError> {
   return ok([
@@ -75,6 +76,7 @@ describe("metadata util", () => {
     tools = new MockTools();
     setTools(tools);
     sandbox.stub(metadataGraphPermissionUtil, "parseAadManifest").resolves();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
   });
 
   afterEach(() => {
@@ -83,14 +85,14 @@ describe("metadata util", () => {
 
   it("should return YamlParsingError", async () => {
     sandbox.stub(yamlParser, "parse").resolves(err(mockedError));
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert(result.isErr() && result.error.name === "mockedError");
   });
 
   it("local config file", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok(mockProjectModel));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "local");
+    const result = await metadataUtil.parse("m365agents.local.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -100,7 +102,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsapplocalyml",
+        [TelemetryProperty.YmlName]: "m365agentslocalyml",
         [TelemetryProperty.SampleAppName]: "testRepo:testSample",
       })
     );
@@ -110,7 +112,7 @@ describe("metadata util", () => {
   it("dev config file", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok(mockProjectModel));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -120,7 +122,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "testRepo:testSample",
       })
     );
@@ -135,7 +137,7 @@ describe("metadata util", () => {
       })
     );
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -145,7 +147,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "Hello_world_this_is_a_sample",
       })
     );
@@ -160,7 +162,7 @@ describe("metadata util", () => {
       })
     );
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -170,7 +172,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "",
       })
     );
@@ -180,7 +182,7 @@ describe("metadata util", () => {
   it("no sample tag", async () => {
     sandbox.stub(yamlParser, "parse").resolves(ok({ ...mockProjectModel, additionalMetadata: {} }));
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    const result = await metadataUtil.parse(".", "dev");
+    const result = await metadataUtil.parse("m365agents.yml");
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
         [TelemetryProperty.YmlSchemaVersion]: "1.0.0",
@@ -190,7 +192,7 @@ describe("metadata util", () => {
         "provision.actions": "",
         "publish.actions": "",
         "registerApp.actions": "armdeploy,teamsAppcreate",
-        [TelemetryProperty.YmlName]: "teamsappyml",
+        [TelemetryProperty.YmlName]: "m365agentsyml",
         [TelemetryProperty.SampleAppName]: "",
       })
     );
@@ -199,7 +201,7 @@ describe("metadata util", () => {
 
   it("parseManifest with empty manifest", () => {
     const spy = sandbox.spy(tools.telemetryReporter, "sendTelemetryEvent");
-    metadataUtil.parseManifest({} as TeamsAppManifest);
+    metadataUtil.parseManifest({} as any);
 
     assert.isTrue(
       spy.calledOnceWith(TelemetryEvent.MetaData, {
@@ -237,7 +239,7 @@ describe("metadata util", () => {
     const hashSpy = sandbox.spy(Hash.prototype);
 
     manifest.extensions = [{}];
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -265,7 +267,7 @@ describe("metadata util", () => {
 
     // If extensions is empty, it should report false in telemetry event
     manifest.extensions = [];
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -293,7 +295,7 @@ describe("metadata util", () => {
 
     // If extensions is undefined, it should report false in telemetry event
     manifest.extensions = undefined;
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.called);
@@ -336,7 +338,7 @@ describe("metadata util", () => {
     // @ts-ignore
     const hashSpy = sandbox.spy(Hash.prototype);
 
-    metadataUtil.parseManifest(manifest as unknown as TeamsAppManifest);
+    metadataUtil.parseManifest(manifest as any);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     assert.isTrue(hashSpy.update.notCalled);

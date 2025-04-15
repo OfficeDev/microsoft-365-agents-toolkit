@@ -62,7 +62,7 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
     let upgrade = false;
     if (sample.versionComparisonResult < 0) {
       sampleImage = legacySampleImage;
-      tooltipText = `This sample is upgraded to only work with newer version of Teams Toolkit, please install v${sample.minimumToolkitVersion} to run it.`;
+      tooltipText = `This sample is upgraded to only work with newer version of Microsoft 365 Agents Toolkit, please install v${sample.minimumToolkitVersion} to run it.`;
       upgrade = true;
     } else if (sample.versionComparisonResult > 0) {
       sampleImage = upgradingSampleImage;
