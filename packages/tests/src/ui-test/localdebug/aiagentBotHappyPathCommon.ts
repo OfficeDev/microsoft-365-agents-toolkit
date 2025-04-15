@@ -136,7 +136,10 @@ export function happyPathTest(options: {
               `const azureOpenAIDeploymentName="${azureOpenAiModelDeploymentName}";`
             );
 
-            if (isRealKey) {
+            if (
+              isRealKey &&
+              options.agent === "custom-copilot-agent-assistants-api"
+            ) {
               console.log("Start to create azure assistant id");
               const installCmd = `npm install`;
               const { success } = await Executor.execute(
