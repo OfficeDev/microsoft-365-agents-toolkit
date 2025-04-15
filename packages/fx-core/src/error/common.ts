@@ -58,8 +58,9 @@ export class MissingEnvironmentVariablesError extends UserError {
       categories: [ErrorCategory.Internal],
       telemetryProperties: {
         [TelemetryProperty.UnresolvedPlaceholders]: variableNames
-          .replace("SECRET", "S")
-          .replace("PASSWORD", "P"),
+          .replace(/SECRET/g, "S")
+          .replace(/PASSWORD/g, "P")
+          .replace(/API_KEY/g, "AK"),
       },
     };
     super(errorOptions);
