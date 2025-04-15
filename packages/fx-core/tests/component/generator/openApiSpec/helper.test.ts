@@ -52,6 +52,7 @@ import { DeclarativeAgentApiSpecOptionId, QuestionNames } from "../../../../src/
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
 import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import { pathUtils } from "../../../../src/component/utils/pathUtils";
 
 const tools = new MockTools();
 
@@ -592,7 +593,9 @@ describe("formatValidationErrors", () => {
 
 describe("injectAuthAction", async () => {
   const sandbox = sinon.createSandbox();
-
+  beforeEach(() => {
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+  });
   afterEach(async () => {
     sandbox.restore();
   });

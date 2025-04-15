@@ -76,6 +76,7 @@ import {
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
 import { generatePlugin, listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
+import { pathUtils } from "../../utils/pathUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -678,10 +679,10 @@ export async function injectAuthAction(
   enablePKCE?: boolean,
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
-  const ymlPath = path.join(projectPath, MetadataV3.configFile);
-  const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
+  const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local") as string;
 
-  const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
+  const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
   if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
     const res = await ActionInjector.injectCreateAPIKeyAction(

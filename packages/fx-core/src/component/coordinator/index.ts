@@ -30,7 +30,6 @@ import { ErrorContextMW, globalVars } from "../../common/globalVars";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { convertToAlphanumericOnly } from "../../common/stringUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
-import { MetadataV3 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
 import { ResourceGroupConflictError, SelectSubscriptionError } from "../../error/azure";
 import {
@@ -204,7 +203,7 @@ class Coordinator {
     }
 
     // generate unique projectId in teamsapp.yaml (optional)
-    const ymlPath = path.join(projectPath, MetadataV3.configFile);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await this.ensureTrackingId(projectPath, inputs.projectId);
       if (ensureRes.isErr()) return err(ensureRes.error);
@@ -294,7 +293,7 @@ class Coordinator {
     // 1. parse yml to cycles
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -342,7 +341,7 @@ class Coordinator {
   ): Promise<Result<undefined, FxError>> {
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -389,7 +388,7 @@ class Coordinator {
     // 1. parse yml
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -693,7 +692,7 @@ class Coordinator {
     const output: DotenvParseOutput = {};
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -762,8 +761,8 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -823,8 +822,8 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }

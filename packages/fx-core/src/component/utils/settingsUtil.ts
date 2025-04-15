@@ -20,7 +20,7 @@ class SettingsUtils {
     projectPath: string,
     ensureTrackingId = true
   ): Promise<Result<Settings, FxError>> {
-    const projectYamlPath: string = pathUtils.getYmlFilePath(projectPath, "dev");
+    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     if (!(await fs.pathExists(projectYamlPath))) {
       return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
     }
@@ -44,7 +44,7 @@ class SettingsUtils {
     return ok(projectSettings);
   }
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
-    const projectYamlPath: string = pathUtils.getYmlFilePath(projectPath, "dev");
+    const projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     if (!(await fs.pathExists(projectYamlPath))) {
       return err(new FileNotFoundError("SettingsUtils", projectYamlPath));
     }
