@@ -17,13 +17,12 @@ import {
   PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
-  TeamsAppManifest,
   TextInputQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import { AppStudioScopes, ConstantString } from "../common/constants";
+import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
@@ -60,10 +59,10 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { GraphClient } from "../client/graphClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -1633,12 +1632,13 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
     staticOptions: [],
     dynamicOptions: async (inputs: Inputs) => {
       const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: [listSensitivityLabelScope],
+        scopes: [ListSensitivityLabelScope],
       });
       if (tokenRes.isErr()) {
         throw tokenRes.error;
       }
-      const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+      const graphClient = new GraphClient(TOOLS.tokenProvider.m365TokenProvider);
+      const res = await graphClient.listSensitivityLabels(tokenRes.value);
       if (res.isErr()) {
         throw res.error;
       }

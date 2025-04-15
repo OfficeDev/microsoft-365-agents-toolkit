@@ -3,7 +3,8 @@
 
 import { expect } from "chai";
 import { createSandbox } from "sinon";
-import { RetryHandler, GraphAPIClient, SensitivityLabel } from "../../src/client/graphAPIClient";
+import { RetryHandler } from "../../src/client/graphClient";
+import { SensitivityLabel } from "../../src/client/interfaces/ListSensitivityCacheValue";
 import { GraphClient } from "../../src/client/graphClient";
 import { ok, err, SystemError } from "@microsoft/teamsfx-api";
 import axios from "axios";
@@ -60,6 +61,7 @@ describe("GraphAPIClient Test", () => {
   });
 
   describe("listSensitivityLabels", () => {
+    const tokenProvider = new MockedM365Provider();
     it("Happy path", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
@@ -86,7 +88,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token);
 
       expect(result.isOk()).to.be.true;
@@ -107,7 +109,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token);
 
       expect(result.isErr()).to.be.true;
@@ -124,7 +126,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token);
 
       expect(result.isErr()).to.be.true;
@@ -141,7 +143,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").rejects(error);
       sandbox.stub(RetryHandler, "Retry").rejects(error);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token);
 
       expect(result.isErr()).to.be.true;
@@ -152,7 +154,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should use cache when useCache is true and cache is valid", async () => {
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const labels = [
         {
           id: "label1",
@@ -207,7 +209,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
@@ -246,7 +248,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
@@ -286,7 +288,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token, false);
 
       expect(result.isOk()).to.be.true;
@@ -324,7 +326,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(
         token,
         true,
@@ -347,8 +349,9 @@ describe("GraphAPIClient Test", () => {
   });
 
   describe("getGeneralSentivityLabelId", () => {
+    const tokenProvider = new MockedM365Provider();
     it("Happy path", async () => {
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
 
       const labels: SensitivityLabel[] = [
         {
@@ -376,7 +379,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("No General label found", async () => {
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
 
       const labels: SensitivityLabel[] = [
         {
@@ -398,7 +401,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("General label has no ID", async () => {
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
 
       const labels: SensitivityLabel[] = [
         {
@@ -425,7 +428,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("listSensitivityLabels returns error", async () => {
-      const graphAPIClient = new GraphAPIClient();
+      const graphAPIClient = new GraphClient(tokenProvider);
 
       const fakeError = {
         name: "listSensitivityLabelsError",

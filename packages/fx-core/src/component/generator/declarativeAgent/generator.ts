@@ -34,12 +34,13 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
-import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
 import { getDefaultString } from "../../../common/localizeUtils";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
+import { GraphClient } from "../../../client/graphClient";
+import { ListSensitivityLabelScope } from "../../../common/constants";
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -182,7 +183,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
   ): Promise<void> {
     try {
       const loginStatusRes = await context.tokenProvider?.m365TokenProvider?.getStatus({
-        scopes: [listSensitivityLabelScope],
+        scopes: [ListSensitivityLabelScope],
       });
       if (!loginStatusRes || loginStatusRes.isErr()) {
         context.logProvider?.info(
@@ -198,7 +199,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
         return;
       }
-      const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
+      const graphClient = new GraphClient(context.tokenProvider! as any);
+      const result = await graphClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
       if (result.isErr()) {
         throw result.error;
       }

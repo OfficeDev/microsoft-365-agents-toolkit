@@ -32,7 +32,7 @@ import * as path from "path";
 import { describe, afterEach } from "mocha";
 import { setTools, tools } from "../../src/globalVariables";
 import { MockTools } from "../mocks/mockTools";
-import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
+import { GraphClient } from "@microsoft/teamsfx-core/build/client/GraphClient";
 
 describe("CodeLens Provider", () => {
   afterEach(() => {
@@ -1130,7 +1130,7 @@ publish:
         },
       };
       sandbox
-        .stub(graphAPIClient, "listSensitivityLabels")
+        .stub(GraphClient.prototype, "listSensitivityLabels")
         .callsFake(mockGraphClient.listSensitivityLabels as any);
 
       const document = {

@@ -17,7 +17,8 @@ import {
   featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
-  listSensitivityLabelScope,
+  ListSensitivityLabelScope,
+  GraphClient,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
@@ -701,7 +702,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
 
     // check if user has already logged in to the sensitivity label scope
     const loginStatusRes = await tools.tokenProvider?.m365TokenProvider?.getStatus({
-      scopes: [listSensitivityLabelScope],
+      scopes: [ListSensitivityLabelScope],
     });
     // not logged in
     if (
@@ -713,7 +714,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       const command = {
         title: localize("teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn"),
         command: "fx-extension.m365PreAuth",
-        arguments: [{ scopes: [listSensitivityLabelScope] }],
+        arguments: [{ scopes: [ListSensitivityLabelScope] }],
       };
       const codeLens = new vscode.CodeLens(range, command);
       return [codeLens];
@@ -726,7 +727,8 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
         typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
       const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
 
-      const result = await graphAPIClient.listSensitivityLabels(
+      const graphClient = new GraphClient(tools.tokenProvider?.m365TokenProvider);
+      const result = await graphClient.listSensitivityLabels(
         token,
         !!accountUniqueName && !!tenantId,
         accountUniqueName,
