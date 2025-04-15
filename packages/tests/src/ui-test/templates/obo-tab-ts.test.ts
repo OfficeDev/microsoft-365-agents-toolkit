@@ -59,7 +59,7 @@ describe("Local Debug M365 Tests", function () {
     },
     async () => {
       const localDebugTestContext = new LocalDebugTestContext("m365lp", {
-        lang: "typescript",
+        lang: "TypeScript",
       });
       await localDebugTestContext.before();
       const projectPath = path.resolve(

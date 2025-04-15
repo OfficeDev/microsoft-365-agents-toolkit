@@ -61,7 +61,7 @@ describe("Local Debug Tests", function () {
     async function () {
       let errorMessage = "";
       const localDebugTestContext = new LocalDebugTestContext("bot", {
-        lang: "typescript",
+        lang: "TypeScript",
       });
       await localDebugTestContext.before();
       try {
