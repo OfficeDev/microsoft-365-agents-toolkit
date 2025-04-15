@@ -3,6 +3,9 @@
 export type Instruction = string | string[];
 export type Example = string | string[];
 
+/**
+ * @deprecated
+ */
 export interface PluginManifestSchema {
   schema_version: string;
   name_for_human: string;

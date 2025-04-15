@@ -21,8 +21,8 @@ async function convert(srcFolder, srcFileName, destFilePath) {
 }
 
 async function generateTeamsManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src/json-schema/teams");
-  const outputFolder = path.join(__dirname, "src", "teams");
+  const schemaFolder = path.join(__dirname, "src", "json-schema", "teams");
+  const outputFolder = path.join(__dirname, "src", "generated-types", "teams");
   if (!(await fs.pathExists(outputFolder))) {
     await fs.ensureDir(outputFolder);
   }
@@ -38,8 +38,14 @@ async function generateTeamsManifestTypeFiles() {
 }
 
 async function generateDAManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src/json-schema/copilot/declarative-agent");
-  const outputFolder = path.join(__dirname, "src", "copilot/declarative-agent");
+  const schemaFolder = path.join(__dirname, "src", "json-schema", "copilot", "declarative-agent");
+  const outputFolder = path.join(
+    __dirname,
+    "src",
+    "generated-types",
+    "copilot",
+    "declarative-agent"
+  );
   if (!(await fs.pathExists(outputFolder))) {
     await fs.ensureDir(outputFolder);
   }
@@ -55,8 +61,8 @@ async function generateDAManifestTypeFiles() {
 }
 
 async function generatePluginManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src/json-schema/copilot/plugin");
-  const outputFolder = path.join(__dirname, "src", "copilot/plugin");
+  const schemaFolder = path.join(__dirname, "src", "json-schema", "copilot", "plugin");
+  const outputFolder = path.join(__dirname, "src", "generated-types", "copilot", "plugin");
   if (!(await fs.pathExists(outputFolder))) {
     await fs.ensureDir(outputFolder);
   }
@@ -71,6 +77,6 @@ async function generatePluginManifestTypeFiles() {
   }
 }
 
-// generateTeamsManifestTypeFiles();
-// generateDAManifestTypeFiles();
-// generatePluginManifestTypeFiles();
+generateTeamsManifestTypeFiles();
+generateDAManifestTypeFiles();
+generatePluginManifestTypeFiles();

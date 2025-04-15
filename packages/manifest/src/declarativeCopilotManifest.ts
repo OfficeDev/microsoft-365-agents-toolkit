@@ -44,6 +44,9 @@ export interface EmbeddedKnowledgeCapability {
   files: File[];
 }
 
+/**
+ * @deprecated
+ */
 export interface DeclarativeCopilotManifestSchema {
   id?: string;
   sensitivity_label?: string;
