@@ -18,6 +18,7 @@ import {
   ConstantString,
   WarningType,
   WarningResult,
+  AuthType,
 } from "@microsoft/m365-spec-parser";
 import {
   Platform,
@@ -29,6 +30,7 @@ import { featureFlagManager, FeatureFlags } from "./featureFlags";
 import { kiotageneratePlugin, listAPITreeInfo } from "./kiotaClient";
 import {
   KiotaOpenApiNode,
+  KiotaTreeResult,
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from "@microsoft/kiota";
@@ -77,58 +79,45 @@ export async function generatePlugin(
 
     const treeInfo = await listAPITreeInfo(specPath, includePatterns);
 
-    if (treeInfo && treeInfo.rootNode) {
-      const operationInfos: ListAPIInfo[] = extractOperations(
-        treeInfo.rootNode,
-        treeInfo.servers ?? [],
-        treeInfo.security ?? [],
-        treeInfo.securitySchemes ?? {}
-      );
+    const operationInfos: ListAPIInfo[] = extractOperations(treeInfo);
 
-      for (let i = 0; i < operationInfos.length; i++) {
-        const operationId = operationInfos[i].operationId;
+    for (let i = 0; i < operationInfos.length; i++) {
+      const operationId = operationInfos[i].operationId;
 
-        if (!operationId) {
+      if (!operationId) {
+        warnings.push({
+          type: WarningType.OperationIdMissing,
+          content: Utils.format(ConstantString.MissingOperationId, operationInfos[i].api),
+          data: operationInfos[i].api,
+        });
+      } else {
+        const containsSpecialCharacters = /[^a-zA-Z0-9_]/.test(operationId);
+        const safeOperationId = operationId.replace(/[^a-zA-Z0-9]/g, "_");
+        if (containsSpecialCharacters) {
           warnings.push({
-            type: WarningType.OperationIdMissing,
-            content: Utils.format(ConstantString.MissingOperationId, operationInfos[i].api),
-            data: operationInfos[i].api,
+            type: WarningType.OperationIdContainsSpecialCharacters,
+            content: Utils.format(
+              ConstantString.OperationIdContainsSpecialCharacters,
+              operationId,
+              safeOperationId
+            ),
+            data: operationId,
           });
-        } else {
-          const containsSpecialCharacters = /[^a-zA-Z0-9_]/.test(operationId);
-          const safeOperationId = operationId.replace(/[^a-zA-Z0-9]/g, "_");
-          if (containsSpecialCharacters) {
-            warnings.push({
-              type: WarningType.OperationIdContainsSpecialCharacters,
-              content: Utils.format(
-                ConstantString.OperationIdContainsSpecialCharacters,
-                operationId,
-                safeOperationId
-              ),
-              data: operationId,
-            });
-          }
         }
-
-        const authScheme = operationInfos[i].auth?.authScheme;
-        if (authScheme) {
-          if (
-            !(
-              (allowAPIKeyAuth && Utils.isAPIKeyAuth(authScheme)) ||
-              (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
-              (allowBearerTokenAuth && Utils.isBearerTokenAuth(authScheme))
-            )
-          ) {
-            warnings.push({
-              type: WarningType.UnsupportedAuthType,
-              content: Utils.format(ConstantString.AuthTypeIsNotSupported, operationId),
-              data: operationId,
-            });
-          }
-        }
-
-        // TODO: add logs when kiota update the spec version, wait for kiota api
       }
+
+      const authScheme = operationInfos[i].auth?.authScheme;
+      if (authScheme) {
+        if (!isAuthTypeSupported(authScheme, allowAPIKeyAuth, allowBearerTokenAuth, allowOauth2)) {
+          warnings.push({
+            type: WarningType.UnsupportedAuthType,
+            content: Utils.format(ConstantString.AuthTypeIsNotSupported, operationId),
+            data: operationId,
+          });
+        }
+      }
+
+      // TODO: add logs when kiota update the spec version, wait for kiota api
     }
 
     const kiotaGenerateResult = await kiotageneratePlugin(
@@ -250,39 +239,33 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
     const treeInfo = await listAPITreeInfo(specPath);
 
-    if (treeInfo && treeInfo.rootNode) {
-      const operations: ListAPIInfo[] = extractOperations(
-        treeInfo.rootNode,
-        treeInfo.servers ?? [],
-        treeInfo.security ?? [],
-        treeInfo.securitySchemes ?? {}
-      );
+    const operations: ListAPIInfo[] = extractOperations(treeInfo);
 
-      for (const operation of operations) {
-        if (!operation.server) {
-          operation.reason.push(ErrorType.NoServerInformation);
-        } else {
-          const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
-          operation.reason.push(...serverValidateResult.map((item) => item.type));
-        }
+    for (const operation of operations) {
+      if (!operation.server) {
+        operation.reason.push(ErrorType.NoServerInformation);
+      } else {
+        const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
+        operation.reason.push(...serverValidateResult.map((item) => item.type));
+      }
 
-        if (operation.auth) {
-          if (operation.auth?.authScheme.type === "multipleAuth") {
-            operation.reason.push(ErrorType.MultipleAuthNotSupported);
-          } else if (
-            !(
-              (allowAPIKeyAuth && Utils.isAPIKeyAuth(operation.auth.authScheme)) ||
-              (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)) ||
-              (allowBearerTokenAuth && Utils.isBearerTokenAuth(operation.auth.authScheme))
-            )
-          ) {
-            operation.reason.push(ErrorType.AuthTypeIsNotSupported);
-          }
+      if (operation.auth) {
+        if (operation.auth?.authScheme.type === "multipleAuth") {
+          operation.reason.push(ErrorType.MultipleAuthNotSupported);
+        } else if (
+          !isAuthTypeSupported(
+            operation.auth.authScheme,
+            allowAPIKeyAuth,
+            allowBearerTokenAuth,
+            allowOauth2
+          )
+        ) {
+          operation.reason.push(ErrorType.AuthTypeIsNotSupported);
         }
+      }
 
-        if (operation.reason.length > 0) {
-          operation.isValid = false;
-        }
+      if (operation.reason.length > 0) {
+        operation.isValid = false;
       }
 
       return {
@@ -379,7 +362,20 @@ function removeEnvsAndSpecialCharaters(str: string): string {
   return newStr.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-function extractOperations(
+function extractOperations(treeInfo: KiotaTreeResult | undefined): ListAPIInfo[] {
+  let operations: ListAPIInfo[] = [];
+  if (treeInfo && treeInfo.rootNode) {
+    operations = traverseTreeNodeForOperations(
+      treeInfo.rootNode,
+      treeInfo.servers ?? [],
+      treeInfo.security ?? [],
+      treeInfo.securitySchemes ?? {}
+    );
+  }
+  return operations;
+}
+
+function traverseTreeNodeForOperations(
   node: KiotaOpenApiNode,
   parentServer: string[],
   parentSecurity: SecurityRequirementObject[],
@@ -435,7 +431,7 @@ function extractOperations(
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      const childOps: ListAPIInfo[] = extractOperations(
+      const childOps: ListAPIInfo[] = traverseTreeNodeForOperations(
         child,
         server,
         security ?? [],
@@ -446,4 +442,17 @@ function extractOperations(
   }
 
   return operations;
+}
+
+function isAuthTypeSupported(
+  authScheme: AuthType,
+  allowAPIKeyAuth: boolean,
+  allowBearerTokenAuth: boolean,
+  allowOauth2: boolean
+): boolean {
+  return (
+    (allowAPIKeyAuth && Utils.isAPIKeyAuth(authScheme)) ||
+    (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
+    (allowBearerTokenAuth && Utils.isBearerTokenAuth(authScheme))
+  );
 }
