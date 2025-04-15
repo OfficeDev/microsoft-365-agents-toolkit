@@ -118,92 +118,97 @@ export function happyPathTest(options: {
             azureOpenAiModelDeploymentName
           );
 
-          // js/ts run run assistant:create command
-          if (options.lang === "javascript" || options.lang === "typescript") {
-            const creatorFile = path.resolve(
-              projectPath,
-              "src",
-              `creator.${options.lang === "javascript" ? "js" : "ts"}`
-            );
-            modifyFileContext(
-              creatorFile,
-              'const azureOpenAIEndpoint="";',
-              `const azureOpenAIEndpoint="${azureOpenAiEndpoint}";`
-            );
-            modifyFileContext(
-              creatorFile,
-              'const azureOpenAIDeploymentName="";',
-              `const azureOpenAIDeploymentName="${azureOpenAiModelDeploymentName}";`
-            );
-
+          if (options.agent === "custom-copilot-agent-assistants-api") {
+            // js/ts run run assistant:create command
             if (
-              isRealKey &&
-              options.agent === "custom-copilot-agent-assistants-api"
+              options.lang === "javascript" ||
+              options.lang === "typescript"
             ) {
-              console.log("Start to create azure assistant id");
-              const installCmd = `npm install`;
-              const { success } = await Executor.execute(
-                installCmd,
+              const creatorFile = path.resolve(
                 projectPath,
-                process.env,
-                undefined,
-                "npm warn"
+                "src",
+                `creator.${options.lang === "javascript" ? "js" : "ts"}`
               );
-              if (!success) {
-                throw new Error("Failed to install packages");
-              }
+              modifyFileContext(
+                creatorFile,
+                'const azureOpenAIEndpoint="";',
+                `const azureOpenAIEndpoint="${azureOpenAiEndpoint}";`
+              );
+              modifyFileContext(
+                creatorFile,
+                'const azureOpenAIDeploymentName="";',
+                `const azureOpenAIDeploymentName="${azureOpenAiModelDeploymentName}";`
+              );
 
-              let insertDataCmd = "";
-              if (os.type() === "Windows_NT") {
-                insertDataCmd = `npm run assistant:create -- ${azureOpenAiKey}`;
+              // eslint-disable-next-line prettier/prettier
+              if (
+                isRealKey
+              ) {
+                console.log("Start to create azure assistant id");
+                const installCmd = `npm install`;
+                const { success } = await Executor.execute(
+                  installCmd,
+                  projectPath,
+                  process.env,
+                  undefined,
+                  "npm warn"
+                );
+                if (!success) {
+                  throw new Error("Failed to install packages");
+                }
+
+                let insertDataCmd = "";
+                if (os.type() === "Windows_NT") {
+                  insertDataCmd = `npm run assistant:create -- ${azureOpenAiKey}`;
+                } else {
+                  insertDataCmd = `npm run assistant:create -- '${azureOpenAiKey}'`;
+                }
+                const { success: insertDataSuccess, stdout: log } =
+                  await Executor.execute(insertDataCmd, projectPath);
+                // get assistant id from log string
+                const assistantId = log.match(
+                  /Created a new assistant with an ID of: (.*)/
+                )?.[1];
+                if (!insertDataSuccess) {
+                  throw new Error("Failed to create assistant");
+                }
+                editDotEnvFile(
+                  envPath,
+                  "AZURE_OPENAI_ASSISTANT_ID",
+                  assistantId ?? ""
+                );
               } else {
-                insertDataCmd = `npm run assistant:create -- '${azureOpenAiKey}'`;
+                editDotEnvFile(envPath, "AZURE_OPENAI_ASSISTANT_ID", "fake");
               }
-              const { success: insertDataSuccess, stdout: log } =
-                await Executor.execute(insertDataCmd, projectPath);
-              // get assistant id from log string
-              const assistantId = log.match(
-                /Created a new assistant with an ID of: (.*)/
-              )?.[1];
-              if (!insertDataSuccess) {
-                throw new Error("Failed to create assistant");
-              }
-              editDotEnvFile(
-                envPath,
-                "AZURE_OPENAI_ASSISTANT_ID",
-                assistantId ?? ""
-              );
             } else {
-              editDotEnvFile(envPath, "AZURE_OPENAI_ASSISTANT_ID", "fake");
-            }
-          } else {
-            // python run creator.py command
-            if (isRealKey) {
-              console.log("Start to create azure assistant id");
+              // python run creator.py command
+              if (isRealKey) {
+                console.log("Start to create azure assistant id");
 
-              let insertDataCmd = "";
-              if (os.type() === "Windows_NT") {
-                insertDataCmd = `python src/utils/creator.py --api-key ${azureOpenAiKey}`;
+                let insertDataCmd = "";
+                if (os.type() === "Windows_NT") {
+                  insertDataCmd = `python src/utils/creator.py --api-key ${azureOpenAiKey}`;
+                } else {
+                  insertDataCmd = `python src/utils/creator.py --api-key '${azureOpenAiKey}'`;
+                }
+
+                const { success: insertDataSuccess, stdout: log } =
+                  await Executor.execute(insertDataCmd, projectPath);
+                // get assistant id from log string
+                const assistantId = log.match(
+                  /Created a new assistant with an ID of: (.*)/
+                )?.[1];
+                if (!insertDataSuccess) {
+                  throw new Error("Failed to create assistant");
+                }
+                editDotEnvFile(
+                  envPath,
+                  "AZURE_OPENAI_ASSISTANT_ID",
+                  assistantId ?? ""
+                );
               } else {
-                insertDataCmd = `python src/utils/creator.py --api-key '${azureOpenAiKey}'`;
+                editDotEnvFile(envPath, "AZURE_OPENAI_ASSISTANT_ID", "fake");
               }
-
-              const { success: insertDataSuccess, stdout: log } =
-                await Executor.execute(insertDataCmd, projectPath);
-              // get assistant id from log string
-              const assistantId = log.match(
-                /Created a new assistant with an ID of: (.*)/
-              )?.[1];
-              if (!insertDataSuccess) {
-                throw new Error("Failed to create assistant");
-              }
-              editDotEnvFile(
-                envPath,
-                "AZURE_OPENAI_ASSISTANT_ID",
-                assistantId ?? ""
-              );
-            } else {
-              editDotEnvFile(envPath, "AZURE_OPENAI_ASSISTANT_ID", "fake");
             }
           }
         } else {
