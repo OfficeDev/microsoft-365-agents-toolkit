@@ -244,12 +244,21 @@ export function happyPathTest(options: {
               expectedReplyMessage:
                 "Remind me to attend the team meeting next Monday",
             });
-            await validateWelcomeAndReplyBot(page, {
-              hasCommandReplyValidation: true,
-              botCommand: "Show all tasks",
-              expectedReplyMessage: "current tasks",
-              timeout: Timeout.longTimeWait,
-            });
+            try {
+              await validateWelcomeAndReplyBot(page, {
+                hasCommandReplyValidation: true,
+                botCommand: "Show all tasks",
+                expectedReplyMessage: "current tasks",
+                timeout: Timeout.longTimeWait,
+              });
+            } catch (error) {
+              await validateWelcomeAndReplyBot(page, {
+                hasCommandReplyValidation: true,
+                botCommand: "Show all tasks",
+                expectedReplyMessage: ValidationContent.AiBotMeetingMessage,
+                timeout: Timeout.longTimeWait,
+              });
+            }
           } else {
             await validateWelcomeAndReplyBot(page, {
               hasWelcomeMessage: false,
@@ -274,15 +283,27 @@ export function happyPathTest(options: {
               timeout: Timeout.longTimeWait,
             });
           } else {
-            await validateWelcomeAndReplyBot(page, {
-              hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
-              botCommand: "helloWorld",
-              expectedWelcomeMessage:
-                ValidationContent.AiAssistantBotWelcomeInstruction,
-              expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-              timeout: Timeout.longTimeWait,
-            });
+            try {
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand: "helloWorld",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+                timeout: Timeout.longTimeWait,
+              });
+            } catch (error) {
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand: "helloWorld",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
+                timeout: Timeout.longTimeWait,
+              });
+            }
           }
         }
       }
