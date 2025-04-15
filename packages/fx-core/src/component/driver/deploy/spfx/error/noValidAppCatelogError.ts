@@ -11,11 +11,12 @@ const messageKey = "driver.spfx.error.noValidAppCatelog";
 
 export class NoValidAppCatelog extends UserError {
   constructor() {
+    const ymlFile = `${MetadataV4.configFile}/${MetadataV4.configFile}`;
     super({
       source: Constants.DeployDriverName,
       name: errorCode,
-      message: getDefaultString(messageKey, MetadataV4.configFile),
-      displayMessage: getLocalizedString(messageKey, MetadataV4.configFile),
+      message: getDefaultString(messageKey, ymlFile),
+      displayMessage: getLocalizedString(messageKey, ymlFile),
     });
   }
 }
