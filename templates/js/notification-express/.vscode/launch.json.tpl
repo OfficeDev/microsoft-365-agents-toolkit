@@ -111,7 +111,7 @@
             ],
             "preLaunchTask": "Start Teams App in Desktop Client",
             "presentation": {
-                "group": "2-local",
+                "group": "1-local",
                 "order": 3
             },
             "stopAll": true
