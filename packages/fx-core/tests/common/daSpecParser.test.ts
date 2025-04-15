@@ -1009,5 +1009,172 @@ describe("daSpecParser", () => {
 
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], expectedPatterns);
     });
+
+    it("should properly handle different auth types and platform restrictions", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/apikey",
+              segment: "GET",
+              operationId: "getWithAPIKey",
+              servers: ["https://valid.example.com"],
+              security: [{ api_key_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/oauth2",
+              segment: "GET",
+              operationId: "getWithOAuth2",
+              servers: ["https://valid.example.com"],
+              security: [{ oauth2_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/bearer",
+              segment: "GET",
+              operationId: "getWithBearer",
+              servers: ["https://valid.example.com"],
+              security: [{ bearer_auth: [] }],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/unsupported",
+              segment: "GET",
+              operationId: "getWithUnsupported",
+              servers: ["https://valid.example.com"],
+              security: [{ custom_auth: [] }],
+              children: [],
+            },
+          ],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          api_key_auth: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+          oauth2_auth: {
+            type: "oauth2",
+            flows: {
+              authorizationCode: {
+                authorizationUrl: "https://example.com/auth",
+                tokenUrl: "https://example.com/token",
+                scopes: {},
+              },
+            },
+            referenceId: "",
+          },
+          bearer_auth: { type: "http", scheme: "bearer", referenceId: "" },
+          custom_auth: { type: "http", scheme: "basic", referenceId: "" },
+        },
+        logs: [],
+      };
+
+      const utilsStubs = {
+        isAPIKeyAuth: sinon.stub(),
+        isOAuthWithAuthCodeFlow: sinon.stub(),
+        isBearerTokenAuth: sinon.stub(),
+        format: sinon.stub(),
+        checkServerUrl: sinon.stub().returns([]),
+      };
+
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isAPIKeyAuth",
+        utilsStubs.isAPIKeyAuth
+      );
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isOAuthWithAuthCodeFlow",
+        utilsStubs.isOAuthWithAuthCodeFlow
+      );
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "isBearerTokenAuth",
+        utilsStubs.isBearerTokenAuth
+      );
+      sinon.replace(require("@microsoft/m365-spec-parser").Utils, "format", utilsStubs.format);
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "checkServerUrl",
+        utilsStubs.checkServerUrl
+      );
+
+      utilsStubs.format.callsFake(
+        (template, ...args) => `Formatted: ${template} ${args.join(", ")}`
+      );
+
+      utilsStubs.isAPIKeyAuth.callsFake((authScheme) => {
+        return authScheme.type === "apiKey";
+      });
+
+      utilsStubs.isOAuthWithAuthCodeFlow.callsFake((authScheme) => {
+        return (
+          authScheme.type === "oauth2" && authScheme.flows && authScheme.flows.authorizationCode
+        );
+      });
+
+      utilsStubs.isBearerTokenAuth.callsFake((authScheme) => {
+        return authScheme.type === "http" && authScheme.scheme === "bearer";
+      });
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const resultVS = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        Platform.VS
+      );
+
+      assert.equal(resultVS.warnings.length, 4);
+      assert.isTrue(resultVS.warnings.every((w) => w.type === WarningType.UnsupportedAuthType));
+
+      const resultVSCode = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        Platform.VSCode
+      );
+
+      assert.equal(resultVSCode.warnings.length, 1);
+      const customAuthWarning = resultVSCode.warnings.find(
+        (w) => w.type === WarningType.UnsupportedAuthType && w.data === "getWithUnsupported"
+      );
+      assert.isDefined(customAuthWarning);
+
+      const resultSelective = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/apikey", "GET /api/oauth2", "GET /api/bearer", "GET /api/unsupported"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        "CustomPlatform"
+      );
+
+      const apiKeyWarning = resultSelective.warnings.find(
+        (w) => w.type === WarningType.UnsupportedAuthType && w.data === "getWithAPIKey"
+      );
+      assert.isUndefined(apiKeyWarning);
+
+      const listResult = await daSpecParser.listAPIInfo("path/to/spec", Platform.VS);
+
+      const authAPIs = listResult.APIs.filter((api) => api.auth);
+      assert.isTrue(authAPIs.every((api) => !api.isValid));
+      assert.isTrue(authAPIs.every((api) => api.reason.includes(ErrorType.AuthTypeIsNotSupported)));
+    });
   });
 });

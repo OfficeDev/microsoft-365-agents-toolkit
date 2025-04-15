@@ -180,6 +180,22 @@ describe("generateScaffoldingSummary", async () => {
     assert.isTrue(res.includes("user_issue"));
   });
 
+  it("warnings about operationid contains special characters", async () => {
+    const res = await generateScaffoldingSummary(
+      [
+        {
+          type: WarningType.ConvertSwaggerToOpenAPI,
+          content: "Convert swagger to openapi 3.0",
+        },
+      ],
+      teamsManifest,
+      "path",
+      undefined,
+      ""
+    );
+    assert.isTrue(res.includes("Swagger"));
+  });
+
   it("warnings about adaptive card template in manifest", async () => {
     const composeExtension: IComposeExtension = {
       composeExtensionType: "apiBased",
