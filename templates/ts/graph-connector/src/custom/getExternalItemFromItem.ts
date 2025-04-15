@@ -2,6 +2,15 @@ import { Item } from "../models/Item";
 import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
 import { getAclFromITem } from "./getAclFromItem";
 
+// [Customization point]
+// If there is additional logic to transform the item, you can add it here
+// This function is used to transform the item into a format that can be ingested by the Graph API.
+// The item is transformed into an ExternalItem object that can be ingested by the Graph API.
+// The ExternalItem object is used to represent the item in the Graph API.
+/**
+ * @param item - The item to transform.
+ * @returns 
+ */
 export function getExternalItemFromItem(item: Item): ExternalConnectors.ExternalItem {
   return {
     id: item.id,
