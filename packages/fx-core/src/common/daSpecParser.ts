@@ -267,18 +267,11 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
       if (operation.reason.length > 0) {
         operation.isValid = false;
       }
-
-      return {
-        allAPICount: operations.length,
-        validAPICount: operations.filter((api) => api.isValid).length,
-        APIs: operations,
-      };
     }
-
     return {
-      allAPICount: 0,
-      validAPICount: 0,
-      APIs: [],
+      allAPICount: operations.length,
+      validAPICount: operations.filter((api) => api.isValid).length,
+      APIs: operations,
     };
   }
 

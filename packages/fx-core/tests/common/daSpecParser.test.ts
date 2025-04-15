@@ -412,39 +412,6 @@ describe("daSpecParser", () => {
     });
 
     it("should validate server information and authentication types correctly", async () => {
-      const checkServerUrlStub = sinon.stub();
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
-      checkServerUrlStub.returns([{ type: ErrorType.RelativeServerUrlNotSupported }]);
-
-      const utilsStubs = {
-        isAPIKeyAuth: sinon.stub(),
-        isOAuthWithAuthCodeFlow: sinon.stub(),
-        isBearerTokenAuth: sinon.stub(),
-      };
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isAPIKeyAuth",
-        utilsStubs.isAPIKeyAuth
-      );
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isOAuthWithAuthCodeFlow",
-        utilsStubs.isOAuthWithAuthCodeFlow
-      );
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "isBearerTokenAuth",
-        utilsStubs.isBearerTokenAuth
-      );
-
-      utilsStubs.isAPIKeyAuth.returns(true);
-      utilsStubs.isOAuthWithAuthCodeFlow.returns(true);
-      utilsStubs.isBearerTokenAuth.returns(true);
-
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
           isOperation: false,
