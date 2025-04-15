@@ -1,10 +1,16 @@
 import { Config } from "../models/Config";
 import { Item } from "../models/Item";
 
+/**
+ * Fetches paginated issues from the GitHub API.
+ * @param config - The configuration object.
+ * @param per_page - The number of items per page.
+ * @param repo - The repository name in the format 'owner/repo'.
+ * @param since - Optional date to filter issues updated after this date.
+ * @returns An array of issues.
+ */
 async function getPaginatedIssues(config: Config, per_page: number, repo: string, since?: Date) {
   const paginatedResponse = [];
-  // since = new Date("2020-10-01T00:00:00Z");
-  // console.log(since.toISOString());
   const response = await fetch(
     `https://api.github.com/repos/${repo}/issues?state=all&per_page=${per_page}${
       since ? `&since=${since.toISOString()}` : ""
@@ -46,6 +52,11 @@ async function getPaginatedIssues(config: Config, per_page: number, repo: string
 
   return paginatedResponse.flat();
 }
+
+// [Customization point]
+// If you need additional logic to get all items from the repository, you can add it here
+// This function is used to get all items from the repository.
+// The items are filtered to exclude pull requests and only include issues.
 /**
  * Gets all items from the repository.
  * @param config - The configuration object.

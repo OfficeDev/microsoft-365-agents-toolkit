@@ -21,12 +21,14 @@ The sample illustrates the following concepts:
 ## Contributors
 
 - [Sébastien Levert](https://github.com/sebastienlevert)
+- [Luis Javier Fernández](https://github.com/luisjfdez)
 
 ## Version History
 
 Version|Date|Comments
 -------|----|--------
 1.0|December 03, 2024|Initial release
+1.1|April 15, 2025|Additional comments and minor improvements
 
 ## Prerequisites
 
@@ -34,6 +36,15 @@ Version|Date|Comments
 - [Azure Functions Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
 - [Microsoft 365 Developer tenant](https://developer.microsoft.com/microsoft-365/dev-program) with [uploading custom apps enabled](https://learn.microsoft.com/microsoftteams/platform/m365-apps/prerequisites#prepare-a-developer-tenant-for-testing)
 - [Node@18](https://nodejs.org)
+
+## Further customization
+
+This sample is an opinionated starting point for your own connector. You can further customize it by making changes to the code and configuration files. As a general guide, you can update the content of the following folders:
+- `src/custom`: This folder contains custom code to gather and transform data to be ingested into Microsoft Graph. Although the example uses the GitHub issues API, you can replace it with any other API.
+- `src/references`: This folder includes the schema definition of the connector. Adjust it to match the data and metadata you want to ingest. 
+- `src/models`: This folder contains the model definition for an internal representation of the data and configuration, both models can be customized to fit your needs.
+
+In addition to those folders, other parts of the code might be customized depending on the scenario. You can search the code for comments starting with the `[Customization point]` string, which indicate candidate areas for customization.
 
 ## Minimal path to awesome - Debug against a real Microsoft 365 tenant
 

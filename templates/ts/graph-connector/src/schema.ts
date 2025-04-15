@@ -1,6 +1,5 @@
 import { delay } from "./utils";
 import { getClient } from "./graphClient";
-import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
 import { Config } from "./models/Config";
 
 const retryInterval = 15_000; // 15 seconds

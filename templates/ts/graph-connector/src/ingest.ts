@@ -2,21 +2,10 @@ import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
 import { getClient } from "./graphClient";
 import { Config } from "./models/Config";
 import { getAllItems } from "./services/itemsService";
-import { Item } from "./models/Item";
 import { getExternalItemFromItem } from "./custom/getExternalItemFromItem";
 
 const client = getClient();
 
-/**
- * Transforms the content into a format that can be ingested by the Graph API.
- * @param items - The items to transform.
- * @returns An array of objects that can be ingested by the Graph API.
- */
-function transformContent(items: Item[]): ExternalConnectors.ExternalItem[] {
-  return items.map((item) => {
-    return getExternalItemFromItem(item);
-  });
-}
 
 /**
  * Loads the content into the Graph API.
@@ -51,8 +40,17 @@ async function loadContent(config: Config, item: ExternalConnectors.ExternalItem
  * @param config - The configuration object.
  */
 export async function ingestContent(config: Config, since?: Date): Promise<void> {
-  const files = await getAllItems(config, since);
-  for (const doc of transformContent(files)) {
-    await loadContent(config, doc);
+  // Get all items from the API asynchronously using the generator function
+  // this is a custom implementation to get items from the API
+  for await (const item of getAllItems(config, since)) {
+    const transformedItem = getExternalItemFromItem(item);
+
+    // Graph connector API, load content item by item
+    // this is a custom implementation to load the content into the Graph API
+    // you can customize this function to fit your needs
+    // if you want to load the content in bulk, you can accumulate several items
+    // and use the batch API
+    // https://learn.microsoft.com/en-us/graph/json-batching?tabs=http
+    await loadContent(config, transformedItem);
   }
 }
