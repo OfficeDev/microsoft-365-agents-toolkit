@@ -1,8 +1,8 @@
 import * as ACData from "adaptivecards-templating";
 import express from "express";
 import notificationTemplate from "./adaptiveCards/notification-default.json";
-import { agentApp } from "./agent";
 import { notificationApp } from "./internal/initialize";
+import { teamsBot } from "./teamsBot";
 
 // Create express application.
 const expressApp = express();
@@ -137,6 +137,6 @@ expressApp.post("/api/notification", async (req, res) => {
 // in `/templates/provision/bot.bicep`.
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {
-    await agentApp.run(context);
+    await teamsBot.run(context);
   });
 });

@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { TeamsBot } from "../teamsBot";
+import { teamsBot } from "../teamsBot";
 import { notificationApp } from "./initialize";
 import { ResponseWrapper } from "./responseWrapper";
 
@@ -8,7 +8,6 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<any> {
   const res = new ResponseWrapper(context.res);
-  const teamsBot = new TeamsBot();
   await notificationApp.requestHandler(req, res, async (context) => {
     await teamsBot.run(context);
   });

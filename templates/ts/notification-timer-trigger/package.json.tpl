@@ -25,10 +25,10 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "adaptivecards-templating": "^2.3.1",
+        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/teamsfx": "4.0.0-alpha.0",
         "adaptive-expressions": "^4.23.1",
-        "@microsoft/teamsfx": "^3.0.0",
-        "botbuilder": "^4.23.1"
+        "adaptivecards-templating": "^2.3.1"
     },
     "devDependencies": {
         "@azure/functions": "^3.5.0",
