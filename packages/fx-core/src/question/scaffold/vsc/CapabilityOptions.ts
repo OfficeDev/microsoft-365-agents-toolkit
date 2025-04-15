@@ -518,7 +518,7 @@ export class ActionStartOptions {
 
   static apiSpecWithSearch(): OptionItem {
     return {
-      id: "api-spec-with-search",
+      id: "api-spec",
       label: getLocalizedString(
         "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),

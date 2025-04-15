@@ -38,6 +38,7 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
+import { isJsonSpecFile } from "./utils";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -141,7 +142,9 @@ export async function generatePlugin(
       path.basename(outputAPISpecPath, extname)
     );
 
-    const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + path.extname(specPath);
+    const isJson = await isJsonSpecFile(specPath);
+    const originalSpecExt = isJson ? ".json" : ".yaml";
+    const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + originalSpecExt;
 
     // kiota will always generate yaml spec file
     outputAPISpecPath = outputSpecWithoutExt + ".yaml";
@@ -248,22 +251,6 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
         const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
         operation.reason.push(...serverValidateResult.map((item) => item.type));
       }
-
-      if (operation.auth) {
-        if (operation.auth?.authScheme.type === "multipleAuth") {
-          operation.reason.push(ErrorType.MultipleAuthNotSupported);
-        } else if (
-          !isAuthTypeSupported(
-            operation.auth.authScheme,
-            allowAPIKeyAuth,
-            allowBearerTokenAuth,
-            allowOauth2
-          )
-        ) {
-          operation.reason.push(ErrorType.AuthTypeIsNotSupported);
-        }
-      }
-
       if (operation.reason.length > 0) {
         operation.isValid = false;
       }
@@ -419,7 +406,10 @@ function traverseTreeNodeForOperations(
       summary: node.summary ?? "",
       description: node.description ?? "",
     };
-    operations.push(apiInfo);
+
+    if (node.selected) {
+      operations.push(apiInfo);
+    }
   }
 
   if (node.children && node.children.length > 0) {
