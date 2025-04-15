@@ -1652,7 +1652,7 @@ export function GCNameQuestion(): TextInputQuestion {
     name: QuestionNames.GCName,
     title: getLocalizedString("core.GCNameQuestion.title"),
     placeholder: getLocalizedString("core.GCNameQuestion.placeholder"),
-    cliDescription: "a connection ID for Graph Connector",
+    cliDescription: "a name for Graph Connector",
     forgetLastValue: true,
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
@@ -1661,10 +1661,100 @@ export function GCNameQuestion(): TextInputQuestion {
         }
 
         process.env[QuestionNames.GCName] = input;
-        inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
         inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
-        inputs[QuestionNames.AppName] = input;
+
+        // Set template name and app name for Graph Connector Template
+        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
+          inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
+          inputs[QuestionNames.AppName] = input;
+        }
         return;
+      },
+    },
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        if (!input || input.trim().length === 0) {
+          return "Please enter a graph connector name.";
+        }
+        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
+          // Graph Connector Template will use the name as app name, which has a minimum length of 2.
+          if (input.trim().length < 2) {
+            return "Please enter a graph connector name with minimum two characters.";
+          }
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+export function GCConnectionIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.GCConnectionId,
+    title: getLocalizedString("core.GCConnectionIdQuestion.title"),
+    placeholder: getLocalizedString("core.GCConnectionIdQuestion.placeholder"),
+    cliDescription: "a connection id for Graph Connector",
+    forgetLastValue: true,
+    additionalValidationOnAccept: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        if (!inputs) {
+          throw new Error("inputs is undefined"); // should never happen
+        }
+        process.env[QuestionNames.GCConnectionId] = input;
+        return;
+      },
+    },
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        // Developer-provided unique ID
+        // Must be between 3 and 32 characters in length
+        // Must only contain alphanumeric characters
+        // Cannot begin with Microsoft or some disallowed id values
+        // https://learn.microsoft.com/en-us/graph/api/resources/externalconnectors-externalconnection?view=graph-rest-1.0#properties
+        if (!input || input.trim().length < 3) {
+          return getLocalizedString("core.GCConnectionIdQuestion.validation.minlength");
+        }
+        if (input.trim().length > 32) {
+          return getLocalizedString("core.GCConnectionIdQuestion.validation.maxlength");
+        }
+        if (!/^[a-zA-Z0-9]+$/.test(input)) {
+          return getLocalizedString("core.GCConnectionIdQuestion.validation.pattern");
+        }
+        const disallowedConnectorIds = [
+          "Microsoft",
+          "None",
+          "Directory",
+          "Exchange",
+          "ExchangeArchive",
+          "LinkedIn",
+          "Mailbox",
+          "OneDriveBusiness",
+          "SharePoint",
+          "Teams",
+          "Yammer",
+          "Connectors",
+          "TaskFabric",
+          "PowerBI",
+          "Assistant",
+          "TopicEngine",
+          "MSFT_All_Connectors",
+        ];
+        // Check if the input starts with any of the beginner strings and find the first match
+        const matchedBeginner = disallowedConnectorIds.find((item) =>
+          input.toLowerCase().startsWith(item.toLocaleLowerCase())
+        );
+        if (matchedBeginner) {
+          return getLocalizedString(
+            "core.GCConnectionIdQuestion.validation.specialBeginner",
+            matchedBeginner
+          );
+        }
+
+        return undefined;
       },
     },
   };
