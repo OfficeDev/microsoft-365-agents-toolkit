@@ -8,9 +8,10 @@
 import { happyPathTest } from "./aiagentBotHappyPathCommon";
 
 happyPathTest({
-  testPlanCaseId: 27042863,
+  testPlanCaseId_local: 27042863,
+  testPlanCaseId_dev: 27042867,
   author: "v-ivanchen@microsoft.com",
-  lang: "typescript",
+  lang: "TypeScript",
   llm: "llm-service-openai",
   agent: "custom-copilot-agent-new",
 });

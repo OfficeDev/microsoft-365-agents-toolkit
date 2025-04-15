@@ -34,7 +34,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("aichat", {
-      lang: "python",
+      lang: "Python",
       llmServiceType: "llm-service-openai",
     });
     await localDebugTestContext.before();

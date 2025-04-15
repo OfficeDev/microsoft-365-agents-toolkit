@@ -48,7 +48,7 @@ describe("Workflow Bot Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("workflow", {
-      lang: "typescript",
+      lang: "TypeScript",
     });
     await localDebugTestContext.before();
   });

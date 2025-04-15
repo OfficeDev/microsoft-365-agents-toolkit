@@ -38,7 +38,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      lang: "python",
+      lang: "Python",
       customCopilotRagType: "custom-copilot-rag-azureAISearch",
     });
     await localDebugTestContext.before();

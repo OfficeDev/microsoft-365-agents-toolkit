@@ -26,7 +26,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("cdcustomapi", {
-      lang: "typescript",
+      lang: "TypeScript",
       customCopilotRagType: "custom-copilot-rag-customApi",
       llmServiceType: "llm-service-openai",
     });

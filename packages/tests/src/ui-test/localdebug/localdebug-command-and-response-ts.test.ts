@@ -48,7 +48,7 @@ describe("Command And Response Bot Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("crbot", {
-      lang: "typescript",
+      lang: "TypeScript",
     });
     await localDebugTestContext.before();
   });

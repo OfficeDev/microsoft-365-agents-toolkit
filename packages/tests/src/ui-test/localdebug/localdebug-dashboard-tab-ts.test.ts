@@ -29,7 +29,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("dashboard", {
-      lang: "typescript",
+      lang: "TypeScript",
     });
     await localDebugTestContext.before();
   });

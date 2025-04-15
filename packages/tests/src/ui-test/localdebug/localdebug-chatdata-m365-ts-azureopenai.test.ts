@@ -26,7 +26,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      lang: "typescript",
+      lang: "TypeScript",
       customCopilotRagType: "custom-copilot-rag-microsoft365",
     });
     await localDebugTestContext.before();
