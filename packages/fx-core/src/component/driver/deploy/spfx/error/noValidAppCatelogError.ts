@@ -3,7 +3,7 @@
 
 import { UserError } from "@microsoft/teamsfx-api";
 import { getDefaultString, getLocalizedString } from "../../../../../common/localizeUtils";
-import { MetadataV4 } from "../../../../../common/versionMetadata";
+import { MetadataV3, MetadataV4 } from "../../../../../common/versionMetadata";
 import { Constants } from "../utility/constants";
 
 const errorCode = "NoValidAppCatelog";
@@ -11,7 +11,7 @@ const messageKey = "driver.spfx.error.noValidAppCatelog";
 
 export class NoValidAppCatelog extends UserError {
   constructor() {
-    const ymlFile = `${MetadataV4.configFile}/${MetadataV4.configFile}`;
+    const ymlFile = `${MetadataV4.configFile}/${MetadataV3.configFile}`;
     super({
       source: Constants.DeployDriverName,
       name: errorCode,
