@@ -24,7 +24,7 @@ import { LogLevel as LLevel } from "@microsoft/teamsfx-api";
 import { InvalidAzureSubscriptionError, isValidProjectV3 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import { AzureSpCrypto } from "./cacheAccess";
-import { subscriptionInfoFile } from "./common/constant";
+import { env, subscriptionInfoFile } from "./common/constant";
 import CLILogProvider from "./log";
 import { ConvertTokenToJson } from "./codeFlowLogin";
 
@@ -152,7 +152,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(showDialog?: boolean): Promise<Record<string, unknown> | undefined> {
     const identity = await this.getIdentityCredentialAsync();
-    const token = await identity?.getToken("https://management.core.windows.net/.default");
+    const token = await identity?.getToken(env.managementEndpointDefaultScope);
     if (token?.token) {
       return ConvertTokenToJson(token?.token);
     } else {

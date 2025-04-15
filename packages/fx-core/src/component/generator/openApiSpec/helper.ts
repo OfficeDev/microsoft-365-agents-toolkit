@@ -763,8 +763,7 @@ export async function generateScaffoldingSummary(
   if (pluginManifestPath) {
     const pluginManifestWarningResult = await validatePluginManifestLength(
       pluginManifestPath,
-      projectPath,
-      warnings
+      projectPath
     );
     pluginWarningMessage = pluginManifestWarningResult.map((warn) => {
       return `${SummaryConstant.NotExecuted} ${warn}`;
@@ -808,7 +807,7 @@ function formatApiSpecValidationWarningMessage(
     resultWarnings.push(
       getLocalizedString(
         "core.copilotPlugin.scaffold.summary.warning.operationId",
-        `${SummaryConstant.NotExecuted} ${operationIdWarning.content}`,
+        `${SummaryConstant.Info} ${operationIdWarning.content}`,
         isApiMe ? ManifestTemplateFileName : apiSpecFileName
       )
     );
@@ -818,7 +817,7 @@ function formatApiSpecValidationWarningMessage(
 
   if (swaggerWarning) {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.swaggerVersion",
           apiSpecFileName
@@ -832,7 +831,7 @@ function formatApiSpecValidationWarningMessage(
 
   specialCharactersWarnings.forEach((warning) => {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
           warning.data,
@@ -952,10 +951,8 @@ function validateTeamsManifestLength(
 
 async function validatePluginManifestLength(
   pluginManifestPath: string,
-  projectPath: string,
-  warnings: Warning[]
+  projectPath: string
 ): Promise<string[]> {
-  const functionDescriptionLimit = 100;
   const resultWarnings: string[] = [];
 
   const manifestRes = await pluginManifestUtils.readPluginManifestFile(
@@ -972,9 +969,6 @@ async function validatePluginManifestLength(
 
   // validate function description
   const functions = manifestRes.value.functions;
-  const functionDescriptionWarnings = warnings
-    .filter((w) => w.type === WarningType.FuncDescriptionTooLong)
-    .map((w) => w.data);
   if (functions) {
     functions.forEach((func) => {
       if (!func.description) {
@@ -985,19 +979,6 @@ async function validatePluginManifestLength(
           ) +
             getLocalizedString(
               "core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription.mitigation",
-              func.name,
-              pluginManifestPath
-            )
-        );
-      } else if (functionDescriptionWarnings.includes(func.name)) {
-        resultWarnings.push(
-          getLocalizedString(
-            "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding",
-            func.name,
-            functionDescriptionLimit
-          ) +
-            getLocalizedString(
-              "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation",
               func.name,
               pluginManifestPath
             )

@@ -4,6 +4,25 @@
 {
     "version": "2.0.0",
     "tasks": [
+      {{#DeclarativeCopilot}}
+      {
+        "label": "Prepare DA",
+        "dependsOn": [
+          "Deploy"
+        ],
+        "dependsOrder": "sequence"
+      },
+      {
+        // Build project.
+        // See https://aka.ms/teamsfx-tasks/deploy to know the details and how to customize the args.
+        "label": "Deploy",
+        "type": "teamsfx",
+        "command": "deploy",
+        "args": {
+          "env": "local"
+        }
+      },
+      {{/DeclarativeCopilot}}
       {
         "label": "TTK",
         "dependsOn": [

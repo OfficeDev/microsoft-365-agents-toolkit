@@ -1,41 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { UserError, SystemError, FxError, Result, err, ok } from "@microsoft/teamsfx-api";
+import { FxError, Result, SystemError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import {
-  isUserCancelError,
   ConcurrentError,
-  featureFlagManager,
   FeatureFlags as CoreFeatureFlags,
+  featureFlagManager,
   isSandboxedEnabled,
+  isUserCancelError,
 } from "@microsoft/teamsfx-core";
+import { sleep } from "@microsoft/vscode-ui";
+import * as util from "util";
 import { Uri, commands, window } from "vscode";
+import VsCodeLogInstance from "../commonlib/log";
+import M365TokenInstance from "../commonlib/m365Login";
+import { MaximumNotificationOutputTroubleshootCount } from "../constants";
 import {
   RecommendedOperations,
-  openTestToolMessage,
-  openTestToolDisplayMessage,
   openSandboxMessage,
+  openTestToolDisplayMessage,
+  openTestToolMessage,
 } from "../debug/common/debugConstants";
 import {
-  setOutputTroubleshootNotificationCount,
   outputTroubleshootNotificationCount,
+  setOutputTroubleshootNotificationCount,
   workspaceUri,
 } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { anonymizeFilePaths } from "../utils/fileSystemUtils";
-import { localize } from "../utils/localizeUtils";
-import { isTestToolEnabledProject } from "../utils/projectChecker";
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetryTriggerFrom,
 } from "../telemetry/extTelemetryEvents";
-import VsCodeLogInstance from "../commonlib/log";
-import { ExtensionSource, ExtensionErrors } from "./error";
-import { MaximumNotificationOutputTroubleshootCount } from "../constants";
-import { sleep } from "@microsoft/vscode-ui";
-import * as util from "util";
-import M365TokenInstance from "../commonlib/m365Login";
+import { anonymizeFilePaths } from "../utils/fileSystemUtils";
+import { localize } from "../utils/localizeUtils";
+import { isTestToolEnabledProject } from "../utils/projectChecker";
+import { ExtensionErrors, ExtensionSource } from "./error";
 
 export async function showError(e: UserError | SystemError) {
   let notificationMessage = e.displayMessage ?? e.message;
@@ -44,7 +44,10 @@ export async function showError(e: UserError | SystemError) {
     title: localize("teamstoolkit.handlers.debugInTestTool"),
     run: async () => {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MessageDebugInTestTool);
-      await commands.executeCommand("workbench.action.quickOpen", "debug Debug in Test Tool");
+      await commands.executeCommand(
+        "workbench.action.quickOpen",
+        "debug Debug in Microsoft 365 Agents Playground"
+      );
       return ok<unknown, FxError>(null);
     },
   };

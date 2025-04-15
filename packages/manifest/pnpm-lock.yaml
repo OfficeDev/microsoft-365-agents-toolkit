@@ -4189,7 +4189,7 @@ snapshots:
       find-up: 4.1.0
       foreground-child: 2.0.0
       get-package-type: 0.1.0
-      glob: 7.2.3
+      glob: 9.3.5
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-hook: 3.0.0
       istanbul-lib-instrument: 4.0.3

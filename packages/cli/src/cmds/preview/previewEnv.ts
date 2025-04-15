@@ -398,9 +398,6 @@ export default class PreviewEnv {
       LogLevel.Warning,
       util.format(constants.manifestChangesHintMessage(), `--env ${env}`)
     );
-    if (hub !== HubTypes.teams) {
-      cliLogger.necessaryLog(LogLevel.Warning, constants.m365TenantHintMessage);
-    }
 
     return ok(null);
   }

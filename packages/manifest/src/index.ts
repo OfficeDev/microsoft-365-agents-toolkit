@@ -20,9 +20,9 @@ import { IComposeExtension, TeamsAppManifest } from "./manifest";
 import { PluginManifestSchema } from "./pluginManifest";
 
 export * from "./declarativeCopilotManifest";
+export * from "./generated-types";
 export * from "./manifest";
 export * from "./pluginManifest";
-export * from "./generated-types";
 
 export type TeamsAppManifestJSONSchema = JSONSchemaType<TeamsAppManifest>;
 export type DevPreviewManifestJSONSchema = JSONSchemaType<DevPreviewSchema>;
@@ -38,6 +38,7 @@ export class ManifestUtil {
   /**
    * Loads the manifest from the given path with basic type check.
    *
+   * @deprecated use `AppManifestUtils.read()` instead
    * @param path - The path to the manifest file.
    * @throws Will propagate any error thrown by the fs-extra#readJson or type check failure.
    *
@@ -52,6 +53,7 @@ export class ManifestUtil {
   /**
    * Loads the manifest from the given path with validation
    *
+   * @deprecated use `AppManifestUtils.readAndValidate()` instead
    * @param path - The path to the manifest file.
    * @throws Will propagate any error thrown by the fs-extra#readJson or type check failure.
    *
@@ -66,6 +68,7 @@ export class ManifestUtil {
   /**
    * Writes the manifest object to the given path.
    *
+   * @deprecated use `AppManifestUtils.writeTeamsManifest()` instead
    * @param path - Where to write
    * @param manifest - Manifest object to be saved
    * @throws Will propagate any error thrown by the fs-extra#writeJson.
@@ -80,13 +83,17 @@ export class ManifestUtil {
 
   /**
    * Validate manifest against json schema.
-   * @deprecated use ManifestValidator.validateAgainstSchema(manifest, schema) instead
+   * @deprecated use `AppManifestUtils.validateAgainstSchema(manifest, schema)` instead
    * @param manifest - Manifest object to be validated
    * @param schema - teams-app-manifest schema
    * @returns An empty array if it passes validation, or an array of error string otherwise.
    */
   static validateManifestAgainstSchema<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T, schema: JSONSchemaType<T>): Promise<string[]> {
     let validate;
     if (schema.$schema?.includes("2020-12")) {
@@ -127,9 +134,13 @@ export class ManifestUtil {
    * @returns
    */
   static async fetchSchema<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<JSONSchemaType<T>> {
-    const schemaUrl = manifest.$schema as string;
+    const schemaUrl = ((manifest as any).$schema || (manifest as any).schema) as string;
     if (!schemaUrl) {
       throw new Error("Manifest does not have a $schema property or schema url is not provided.");
     }
@@ -150,7 +161,7 @@ export class ManifestUtil {
   /**
    * Validate manifest against {@link TeamsAppManifest#$schema}.
    *
-   * @deprecated use ManifestValidator.validateAgainstSchema(manifest: T) instead
+   * @deprecated use `AppManifestUtils.validateAgainstSchema(manifest: T)` instead
    * @param manifest - Manifest object to be validated
    * @throws Will throw if {@link TeamsAppManifest#$schema} is undefined, not valid
    *         or there is any network failure when getting the schema.
@@ -158,7 +169,11 @@ export class ManifestUtil {
    * @returns An empty array if schema validation passes, or an array of error string otherwise.
    */
   static async validateManifest<
-    T extends Manifest | DeclarativeCopilotManifestSchema | PluginManifestSchema = TeamsAppManifest
+    T extends
+      | Manifest
+      | DeclarativeCopilotManifestSchema
+      | PluginManifestSchema
+      | MicrosoftTeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<string[]> {
     const schema = await this.fetchSchema(manifest);
     return ManifestUtil.validateManifestAgainstSchema(manifest, schema);
@@ -277,7 +292,9 @@ export class ManifestUtil {
     return telemetryProperties;
   }
 
-  static async useCopilotExtensionsInSchema(manifest: TeamsAppManifest): Promise<boolean> {
+  static async useCopilotExtensionsInSchema(
+    manifest: TeamsAppManifest | MicrosoftTeamsManifest
+  ): Promise<boolean> {
     const schema = await this.fetchSchema(manifest);
     return !!schema.properties.copilotExtensions;
   }
