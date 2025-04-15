@@ -24,6 +24,7 @@ import {
   featureFlagManager,
   FxCore,
   InputValidationError,
+  pathUtils,
   UserCancelError,
 } from "../../src";
 import { coordinator } from "../../src/component/coordinator";
@@ -234,6 +235,7 @@ describe("FxCore.createProjectByCustomizedGenerator", () => {
     const myGenerator = new MyGenerator();
     sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
     sandbox.stub(fs, "pathExists").resolves(ok("mock-id"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     const inputs: CreateProjectInputs = {
       platform: Platform.VSCode,
       folder: ".",
