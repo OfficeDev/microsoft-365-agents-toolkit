@@ -32,7 +32,7 @@ import * as path from "path";
 import { describe, afterEach } from "mocha";
 import { setTools, tools } from "../../src/globalVariables";
 import { MockTools } from "../mocks/mockTools";
-import { GraphClient } from "@microsoft/teamsfx-core/build/client/GraphClient";
+import { GraphClient } from "@microsoft/teamsfx-core/build/client/graphClient";
 
 describe("CodeLens Provider", () => {
   afterEach(() => {
