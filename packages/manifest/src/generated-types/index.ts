@@ -4,6 +4,7 @@ import Ajv, { JSONSchemaType } from "ajv";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
+import path from "path";
 import {
   CopilotDeclarativeAgentV1D0,
   Convert as CopilotDeclarativeAgentV1D0Convert,
@@ -431,10 +432,21 @@ export class ApiPluginManifestConverters {
 }
 
 export class AppManifestUtils {
-  static async fetchSchema(manifest: AppManifest): Promise<JSONSchemaType<AppManifest>> {
-    const schemaUrl = manifest.$schema as string;
-    if (!schemaUrl) {
-      throw new Error("Manifest does not have a $schema property or schema url is not provided.");
+  /**
+   * Fecth the schema from the manifest object, load from local if the schema is in the package
+   * @param manifest 
+   * @returns manifest schema object
+   */
+  static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
+    if (schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/teams") 
+      || schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/declarative-agent") 
+      || schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/plugin")) {
+      const suffix = schemaUrl.substring("https://developer.microsoft.com/".length);
+      const schemaFile = path.join(__dirname, "..", suffix);
+      if (await fs.pathExists(schemaFile)) {
+        const json = await fs.readJson(schemaFile);
+        return json as JSONSchemaType<AppManifest>;
+      }
     }
     let result: JSONSchemaType<AppManifest>;
     try {
@@ -451,7 +463,11 @@ export class AppManifestUtils {
   }
   static async validateAgainstSchema(manifest: AppManifest, schema?: JSONSchemaType<AppManifest>): Promise<string[]> {
     if (!schema) {
-      schema = await this.fetchSchema(manifest);
+      const schemaUrl = manifest.$schema;
+      if (!schemaUrl) {
+        throw new Error("Manifest does not have a $schema property");
+      }
+      schema = await this.fetchSchema(schemaUrl);
     }
     let validate;
     if (schema.$schema?.includes("2020-12")) {
