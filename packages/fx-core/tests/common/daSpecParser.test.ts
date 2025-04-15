@@ -528,6 +528,101 @@ describe("daSpecParser", () => {
       assert.isTrue(oauthAuthOpVS!.reason.includes(ErrorType.AuthTypeIsNotSupported));
       assert.isTrue(bearerAuthOpVS!.reason.includes(ErrorType.AuthTypeIsNotSupported));
     });
+
+    it("should handle undefined servers and securitySchemes in treeInfo", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          children: [],
+        } as KiotaOpenApiNode,
+        security: [],
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.allAPICount, 1);
+      assert.equal(result.APIs.length, 1);
+      assert.isUndefined(result.APIs[0].server);
+      assert.isUndefined(result.APIs[0].auth);
+    });
+
+    it("should handle undefined security in child node", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/resource",
+              segment: "GET",
+              operationId: "getResource",
+              children: [],
+            },
+          ],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [{ api_key: [] }],
+        securitySchemes: {
+          api_key: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.APIs.length, 1);
+      assert.isDefined(result.APIs[0].auth);
+      assert.equal(result.APIs[0].auth!.name, "api_key");
+    });
+
+    it("should specifically test multipleAuth type detection", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/multi-auth",
+          segment: "GET",
+          operationId: "getWithMultiAuth",
+          servers: ["https://valid.example.com"],
+          security: [{ auth1: [], auth2: [] }],
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          auth1: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
+          auth2: { type: "oauth2", flows: {}, referenceId: "" },
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const checkServerUrlStub = sinon.stub().returns([]);
+      sinon.replace(
+        require("@microsoft/m365-spec-parser").Utils,
+        "checkServerUrl",
+        checkServerUrlStub
+      );
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.APIs.length, 1);
+      assert.equal(result.APIs[0].auth!.authScheme.type, "multipleAuth");
+      assert.isFalse(result.APIs[0].isValid);
+      assert.isTrue(result.APIs[0].reason.includes(ErrorType.MultipleAuthNotSupported));
+    });
   });
 
   describe("validateOpenAPISpec with KiotaNPMIntegration enabled", () => {
@@ -1175,6 +1270,32 @@ describe("daSpecParser", () => {
       const authAPIs = listResult.APIs.filter((api) => api.auth);
       assert.isTrue(authAPIs.every((api) => !api.isValid));
       assert.isTrue(authAPIs.every((api) => api.reason.includes(ErrorType.AuthTypeIsNotSupported)));
+    });
+
+    it("should handle tree with completely missing optional fields", async () => {
+      const mockTreeInfo = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          children: [],
+        },
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      assert.isTrue(result.allSuccess);
     });
   });
 });
