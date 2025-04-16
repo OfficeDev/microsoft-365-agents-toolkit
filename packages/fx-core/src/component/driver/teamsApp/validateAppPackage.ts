@@ -14,8 +14,8 @@ import {
   Platform,
   Result,
   TeamsAppManifest,
+  TeamsManifestConverter,
   err,
-  jsonToManifest,
   ok,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
@@ -84,7 +84,7 @@ export class ValidateAppPackageDriver implements StepDriver {
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (manifestFile) {
       const manifestContent = manifestFile.getData().toString();
-      const manifest = jsonToManifest(manifestContent);
+      const manifest = TeamsManifestConverter.jsonToManifest(manifestContent);
       metadataUtil.parseManifest(manifest);
 
       // Add common properties like isCopilotPlugin: boolean

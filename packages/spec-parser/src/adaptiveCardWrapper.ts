@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { ResponseSemanticsObject } from "@microsoft/teams-manifest";
+import { ResponseSemanticsObject } from "@microsoft/app-manifest";
 import { ConstantString } from "./constants";
 import {
   AdaptiveCard,
