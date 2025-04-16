@@ -1,6 +1,6 @@
 # Overview of the Chat With Your Data (Custom Data Source) template
 
-This app template showcases how to build one of the most powerful applications enabled by LLM - sophisticated question-answering (Q&A) chat bots that can answer questions about specific source information right in the Microsoft Teams.
+This app template showcases how to build one of the most powerful applications enabled by LLM - sophisticated question-answering (Q&A) agent that can answer questions about specific source information right in the Microsoft Teams.
 This app template also demonstrates usage of techniques like: 
 - [Retrieval Augmented Generation](https://python.langchain.com/docs/use_cases/question_answering/#what-is-rag), or RAG.
 - [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/teams-conversation-ai-overview)
@@ -20,7 +20,7 @@ This app template also demonstrates usage of techniques like:
 {{/useAzureOpenAI}}
 
 ## Create your Azure AI Search document index 
-**Before running or debugging your bot, please follow these steps to create your document index in Auzre AI Search.**
+**Before running or debugging your agent, please follow these steps to create your document index in Auzre AI Search.**
 
 > This app template provides script `Indexer.ps1` to help create document index. You can change the instructions and settings in the script to customize the document index.
 {{#useOpenAI}}
@@ -55,18 +55,18 @@ This app template also demonstrates usage of techniques like:
    ```
 1. Once you're done using the sample it's good practice to delete the index. You can do so with the `. ./Indexer.ps1 -run delete`.
 
-### Debug bot app in Microsoft 365 Agents Playground
+### Debug agent in Microsoft 365 Agents Playground
 1. Create your Azure AI Search document index as mentioned above.
 1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
-1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your bot to trigger a response.
+1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your agent to trigger a response.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/f56e7602-a5d3-436a-ae01-78546d61717d)
 
-### Debug bot app in Teams Web Client
+### Debug agent in Teams Web Client
 1. Create your Azure AI Search document index as mentioned above.
 {{#useOpenAI}}
 1. Ensure your OpenAI and Azure AI search settings filled in `env/.env.local.user`.
@@ -96,7 +96,7 @@ This app template also demonstrates usage of techniques like:
 6. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
 7. In the opened web browser, select Add button to install the app in Teams
-8. In the chat bar, type and send anything to your bot to trigger a response.
+8. In the chat bar, type and send anything to your agent to trigger a response.
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 

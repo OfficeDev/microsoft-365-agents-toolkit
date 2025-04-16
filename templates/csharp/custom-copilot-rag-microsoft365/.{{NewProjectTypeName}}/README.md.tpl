@@ -18,7 +18,7 @@ This app template also demonstrates usage of techniques like:
 > - [Azure OpenAI](https://aka.ms/oai/access) resource
 {{/useAzureOpenAI}}
 
-### Debug bot app in Teams Web Client
+### Debug agent in Teams Web Client
 {{#useOpenAI}}
 1. Ensure your OpenAI API Key is filled in `env/.env.local.user`.
     ```
@@ -41,7 +41,7 @@ This app template also demonstrates usage of techniques like:
 6. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
 7. In the opened web browser, select Add button to install the app in Teams
-8. In the chat bar, type and send anything to your bot to trigger a response.
+8. In the chat bar, type and send anything to your agent to trigger a response.
 
 ![M365 RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/c2fff68c-53ce-445a-a101-97f0c127b825)
 
