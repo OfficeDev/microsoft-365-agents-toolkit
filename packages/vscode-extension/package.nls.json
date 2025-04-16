@@ -532,7 +532,7 @@
   "teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.title": "Chat with GitHub Copilot",
   "teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.title": "Chat with GitHub Copilot (Preview)",
   "teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description": "Need more help? [Chat with GitHub Copilot](command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.",
-  "teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description": "Need more help? [Chat with GitHub Copilot](command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Microsoft app or Microsoft 365 Copilot agent development.",
+  "teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description": "Need more help? [Chat with GitHub Copilot](command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.",
   "teamstoolkit.walkthroughs.title": "Build a Notification Bot",
   "teamsagent.walkthrough.title": "Getting Started with the GitHub Copilot Extension for Microsoft 365 Agents Toolkit",
   "teamsagent.walkthrough.description": "Complete the mandatory steps (with ⚠️) to set up the GitHub Copilot extension for Microsoft 365 Agents Toolkit.",
