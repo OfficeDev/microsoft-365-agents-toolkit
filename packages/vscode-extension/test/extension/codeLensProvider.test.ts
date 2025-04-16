@@ -1,15 +1,10 @@
-import {
-  TeamsAppManifest,
-  ok,
-  err,
-  FxError,
-  Result,
-  SystemError,
-  SystemErrorOptions,
-} from "@microsoft/teamsfx-api";
-import { envUtil, FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
+import { err, ok, SystemError, SystemErrorOptions, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import { envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
+import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as chai from "chai";
 import fs from "fs-extra";
+import { afterEach, describe } from "mocha";
+import * as path from "path";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import {
@@ -17,20 +12,18 @@ import {
   ApiPluginCodeLensProvider,
   CopilotPluginCodeLensProvider,
   CryptoCodeLensProvider,
+  DeclarativeAgentSensitivityLabelCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
+  OneDriveSharePointCodeLensProvider,
   PermissionsJsonFileCodeLensProvider,
   PlaceholderCodeLens,
-  TeamsAppYamlCodeLensProvider,
-  OneDriveSharePointCodeLensProvider,
   SharePointIdCodeLens,
-  DeclarativeAgentSensitivityLabelCodeLensProvider,
+  TeamsAppYamlCodeLensProvider,
 } from "../../src/codeLensProvider";
 import * as globalVariables from "../../src/globalVariables";
-import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
-import * as path from "path";
-import { describe, afterEach } from "mocha";
 import { setTools, tools } from "../../src/globalVariables";
+import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import { MockTools } from "../mocks/mockTools";
 import { GraphClient } from "@microsoft/teamsfx-core/build/client/graphClient";
 
@@ -538,14 +531,14 @@ describe("CodeLens Provider", () => {
     });
   });
 
-  describe("teamsapp.yml CodeLensProvider", () => {
+  describe("m365agents.yml CodeLensProvider", () => {
     const sandbox = sinon.createSandbox();
 
     afterEach(() => {
       sandbox.restore();
     });
 
-    it("should work with correct teamsapp.yml", async () => {
+    it("should work with correct m365agents.yml", async () => {
       const text = `
 version: 1.1.0
 
@@ -556,7 +549,7 @@ deploy:
 publish:
   ccc: 3`;
       const document = {
-        fileName: "teamsapp.yml",
+        fileName: "m365agents.yml",
         getText: () => {
           return text;
         },

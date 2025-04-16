@@ -37,7 +37,6 @@ export const errorDetail = `
 **Error detail**
 `;
 
-export const m365AppsPrerequisitesHelpLink = "https://aka.ms/teamsfx-m365-apps-prerequisites";
 export const clearAADAfterLocalDebugHelpLink = "https://aka.ms/teamsfx-clear-aad-after-local-debug";
 
 export enum Host {
@@ -104,12 +103,15 @@ function stepPrefix(stepNumber: number) {
 }
 
 export const openTestToolMessage = () =>
-  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Test Tool'");
+  util.format(
+    localize("teamstoolkit.localDebug.useTestTool"),
+    "'Debug in Microsoft 365 Agents Playground'"
+  );
 
 export const openTestToolDisplayMessage = () =>
   util.format(
     localize("teamstoolkit.localDebug.useTestTool"),
-    "[Debug in Test Tool](command:fx-extension.debugInTestToolFromMessage)"
+    "[Debug in Microsoft 365 Agents Playground](command:fx-extension.debugInTestToolFromMessage)"
   );
 
 export const openSandboxMessage = () =>
@@ -121,7 +123,7 @@ export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   checkNumber: (n: number) =>
     `${stepPrefix(
       n
-    )} Teams Toolkit is checking if all required prerequisites are installed and will install them if not.`,
+    )} Microsoft 365 Agents Toolkit is checking if all required prerequisites are installed and will install them if not.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about get started prerequisites check.`,
@@ -140,7 +142,7 @@ export const v3PrerequisiteCheckTaskDisplayMessages: DisplayMessages = {
   taskName: TaskLabel.PrerequisiteCheckV3,
   title: "Running 'Validate prerequisites' Visual Studio Code task.",
   checkNumber: (n: number) =>
-    `${stepPrefix(n)} Teams Toolkit is checking the required prerequisites.`,
+    `${stepPrefix(n)} Microsoft 365 Agents Toolkit is checking the required prerequisites.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about 'Validate prerequisites' task.`,
@@ -253,7 +255,7 @@ export const ngrokTunnelDisplayMessages = Object.freeze(
 export const sideloadingDisplayMessages = Object.freeze({
   title: (hub: Hub) => `Launching ${hub as string} web client.`,
   sideloadingUrlMessage: (hub: Hub, url: string) =>
-    `${hub as string} web client is being launched for you to debug the Teams app: ${url}.`,
+    `${hub as string} web client is being launched for you to debug the app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });
@@ -261,7 +263,7 @@ export const sideloadingDisplayMessages = Object.freeze({
 export const launchingTeamsClientDisplayMessages = Object.freeze({
   title: "Launching Teams web client.",
   launchUrlMessage: (url: string) =>
-    `Teams web client is being launched for you to debug the Teams app: ${url}.`,
+    `Teams web client is being launched for you to debug the app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });

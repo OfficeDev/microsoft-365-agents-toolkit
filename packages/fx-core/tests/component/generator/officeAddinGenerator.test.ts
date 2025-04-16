@@ -7,7 +7,7 @@
 
 import {
   Context,
-  devPreview,
+  DevPreviewSchema,
   err,
   Inputs,
   ManifestUtil,
@@ -238,7 +238,7 @@ describe("HelperMethods", async () => {
     const sandbox = sinon.createSandbox();
     const manifestPath = "manifestPath";
     const manifestTemplatePath = "manifestTemplatePath";
-    let writePathResult: devPreview.DevPreviewSchema | undefined = undefined;
+    let writePathResult: DevPreviewSchema | undefined = undefined;
 
     beforeEach(() => {
       sandbox.stub(ManifestUtil, "loadFromPath").callsFake(async (path) => {
@@ -250,19 +250,19 @@ describe("HelperMethods", async () => {
                 resourceSpecific: [],
               },
             },
-          } as unknown as devPreview.DevPreviewSchema;
+          } as unknown as DevPreviewSchema;
         } else if (path === manifestTemplatePath) {
           return {
             extensions: undefined,
             authorization: undefined,
-          } as unknown as devPreview.DevPreviewSchema;
+          } as unknown as DevPreviewSchema;
         }
 
         throw new Error("Invalid path");
       });
 
       sandbox.stub(ManifestUtil, "writeToPath").callsFake(async (path, manifest) => {
-        writePathResult = manifest as devPreview.DevPreviewSchema;
+        writePathResult = manifest as DevPreviewSchema;
         return;
       });
 

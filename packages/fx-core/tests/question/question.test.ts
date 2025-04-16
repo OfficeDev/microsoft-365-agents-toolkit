@@ -34,6 +34,7 @@ import {
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import {
+  GCConnectionIdQuestion,
   GCInputQuestion,
   GCListQuestion,
   GCNameQuestion,
@@ -1481,12 +1482,13 @@ describe("addKnowledgeQuestionNode", async () => {
       projectPath: "./test",
     };
     const question = GCInputQuestion();
-    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
-    try {
-      const res = validation.validFunc("test");
-      assert.fail("Should throw error");
-    } catch (error) {}
-    validation.validFunc("test", inputs);
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test");
+    assert.isTrue(res1 === undefined);
+    const res2 = validation.validFunc("");
+    assert.isFalse(res2 === undefined);
+    const res3 = validation.validFunc("    ");
+    assert.isFalse(res3 === undefined);
   });
 
   it("GCList validate check", async () => {
@@ -1548,7 +1550,24 @@ describe("scaffold graph connector", async () => {
     mockedEnvRestore();
   });
 
-  it("GCName validate check", async () => {
+  it("GCName validation check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCNameQuestion();
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test", inputs);
+    assert.isTrue(res1 === undefined);
+    const res2 = validation.validFunc("", inputs);
+    assert.isFalse(res2 === undefined);
+    const res3 = validation.validFunc("    ", inputs);
+    assert.isFalse(res3 === undefined);
+    const res4 = validation.validFunc("a", inputs);
+    assert.isFalse(res4 === undefined);
+  });
+
+  it("GCName additionalValidationOnAccept check", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1560,5 +1579,31 @@ describe("scaffold graph connector", async () => {
       assert.fail("Should throw error");
     } catch (error) {}
     validation.validFunc("test", inputs);
+  });
+
+  it("GC connection id validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCConnectionIdQuestion();
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test");
+    assert.isTrue(res1 === undefined);
+
+    const res2 = validation.validFunc("");
+    assert.isFalse(res2 === undefined);
+
+    const res3 = validation.validFunc("ab");
+    assert.isFalse(res3 === undefined);
+
+    const res4 = validation.validFunc("---");
+    assert.isFalse(res4 === undefined);
+
+    const res5 = validation.validFunc("1234567890123456789012345678901234567890123456");
+    assert.isFalse(res5 === undefined);
+
+    const res6 = validation.validFunc("microsoft-graph-connector");
+    assert.isFalse(res6 === undefined);
   });
 });

@@ -4,23 +4,23 @@
 /**
  * @author xzf0587 <zhaofengxu@microsoft.com>
  */
-import { generateAppYml } from "../../../../src/core/middleware/projectMigratorV3";
-import { MigrationContext } from "../../../../src/core/middleware/utils/migrationContext";
-import { randomAppName } from "../../utils";
 import fs from "fs-extra";
 import "mocha";
 import * as os from "os";
 import * as path from "path";
+import { MetadataV4 } from "../../../../src/common/versionMetadata";
+import { generateAppYml } from "../../../../src/core/middleware/projectMigratorV3";
+import { MigrationContext } from "../../../../src/core/middleware/utils/migrationContext";
+import { randomAppName } from "../../utils";
 import {
-  copyTestProject,
   assertFileContent,
-  readOldProjectSettings,
-  Constants,
-  mockMigrationContext,
   assertFileContentByTemplateCompose,
+  Constants,
+  copyTestProject,
   getYmlTemplates,
+  mockMigrationContext,
+  readOldProjectSettings,
 } from "./utils";
-import { MetadataV3 } from "../../../../src/common/versionMetadata";
 
 describe("generateAppYml-js/ts", () => {
   const appName = randomAppName();
@@ -42,7 +42,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts SSO tab", async () => {
@@ -56,7 +56,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js non SSO tab", async () => {
@@ -64,7 +64,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts non SSO tab", async () => {
@@ -78,7 +78,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js tab with api", async () => {
@@ -86,7 +86,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts tab with api", async () => {
@@ -100,7 +100,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js function bot", async () => {
@@ -108,7 +108,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts function bot", async () => {
@@ -122,7 +122,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js webapp bot", async () => {
@@ -130,7 +130,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts webapp bot", async () => {
@@ -144,7 +144,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js webapp bot as resourceId eq botWebAppResourceId", async () => {
@@ -152,7 +152,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts webapp bot as resourceId eq botWebAppResourceId", async () => {
@@ -166,7 +166,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js function bot as resourceId eq botWebAppResourceId", async () => {
@@ -174,7 +174,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts function bot as resourceId eq botWebAppResourceId", async () => {
@@ -188,7 +188,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js webApp bot as resourceId eq webAppResourceId", async () => {
@@ -196,7 +196,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts webApp bot as resourceId eq webAppResourceId", async () => {
@@ -210,7 +210,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 
   it("should success for js function bot as resourceId eq webAppResourceId", async () => {
@@ -218,7 +218,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "js.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "js.app.yml");
   });
 
   it("should success for ts function bot as resourceId eq webAppResourceId", async () => {
@@ -232,7 +232,7 @@ describe("generateAppYml-js/ts", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "ts.app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "ts.app.yml");
   });
 });
 
@@ -249,7 +249,7 @@ describe("generateAppYml-m365", () => {
 
       await assertFileContentByTemplateCompose(
         projectPath,
-        MetadataV3.configFile,
+        MetadataV4.configFile,
         "app.yml",
         "expected"
       );
@@ -279,7 +279,7 @@ describe("generateAppYml-csharp", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContent(projectPath, MetadataV3.configFile, "app.yml");
+    await assertFileContent(projectPath, MetadataV4.configFile, "app.yml");
   });
 
   it("should success for non-sso tab project", async () => {
@@ -287,7 +287,7 @@ describe("generateAppYml-csharp", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContent(projectPath, MetadataV3.configFile, "app.yml");
+    await assertFileContent(projectPath, MetadataV4.configFile, "app.yml");
   });
 
   it("should success for web app bot project", async () => {
@@ -295,7 +295,7 @@ describe("generateAppYml-csharp", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContent(projectPath, MetadataV3.configFile, "app.yml");
+    await assertFileContent(projectPath, MetadataV4.configFile, "app.yml");
   });
 
   it("should success for function bot project", async () => {
@@ -303,7 +303,7 @@ describe("generateAppYml-csharp", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContent(projectPath, MetadataV3.configFile, "app.yml");
+    await assertFileContent(projectPath, MetadataV4.configFile, "app.yml");
   });
 });
 
@@ -344,6 +344,6 @@ describe("generateAppYml-spfx", () => {
 
     await generateAppYml(migrationContext);
 
-    await assertFileContentByTemplateCompose(projectPath, MetadataV3.configFile, "app.yml");
+    await assertFileContentByTemplateCompose(projectPath, MetadataV4.configFile, "app.yml");
   });
 });

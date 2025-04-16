@@ -9,12 +9,11 @@ import {
   UserErrorOptions,
 } from "@microsoft/teamsfx-api";
 import { camelCase } from "lodash";
-import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { globalVars } from "../common/globalVars";
-import { ErrorCategory } from "./types";
-import path from "path";
-import { MetadataV3 } from "../common/versionMetadata";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { YamlFileNames } from "../common/versionMetadata";
 import { TelemetryProperty } from "../component/configManager/constant";
+import { ErrorCategory } from "./types";
 
 export class FileNotFoundError extends UserError {
   constructor(source: string, filePath: string, helpLink?: string) {
@@ -37,19 +36,24 @@ export class MissingEnvironmentVariablesError extends UserError {
     const envFilePath = globalVars.envFilePath || "";
     const secretEnvFilePath = globalVars.envFilePath ? `${globalVars.envFilePath}.user` : "";
     const key = "error.common.MissingEnvironmentVariablesError";
+    const deduplicatedVaribleNames = variableNames
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name, index, self) => self.indexOf(name) === index)
+      .join(", ");
     const errorOptions: UserErrorOptions = {
       source: camelCase(source),
       name: "MissingEnvironmentVariablesError",
       message: getDefaultString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
       ),
       displayMessage: getLocalizedString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
@@ -88,13 +92,12 @@ export class InvalidActionInputError extends UserError {
 
 export class InvalidProjectError extends UserError {
   constructor(projectPath: string) {
-    const ymlFilePath = path.join(projectPath, MetadataV3.configFile);
-    const localYmlPath = path.join(projectPath, MetadataV3.localConfigFile);
+    const yamlFileNames = YamlFileNames.join(", ");
     super({
       message: getDefaultString("error.common.InvalidProjectError"),
       displayMessage: getLocalizedString(
         "error.common.InvalidProjectError.display",
-        `'${ymlFilePath}' or '${localYmlPath}'`
+        `${yamlFileNames}`
       ),
       source: "coordinator",
       categories: [ErrorCategory.Internal],
