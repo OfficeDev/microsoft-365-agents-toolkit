@@ -16,7 +16,7 @@
             "dependsOrder": "sequence"
         },
         {
-            "label": "Start Microsoft 365 Agents Playground",
+            "label": "Start App in Microsoft 365 Agents Playground",
             "dependsOn": [
                 "Validate prerequisites (Microsoft 365 Agents Playground)",
                 "Deploy (Microsoft 365 Agents Playground)",

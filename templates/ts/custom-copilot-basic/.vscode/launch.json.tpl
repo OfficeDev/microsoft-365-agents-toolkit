@@ -249,7 +249,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Microsoft 365 Agents Playground",
+            "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "1-local",

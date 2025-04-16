@@ -133,7 +133,7 @@ expressApp.post("/api/notification", async (req, res) => {
 // through this endpoint.
 //
 // The Microsoft 365 Agents Toolkit bot registration configures the bot with `/api/messages` as the
-// Bot Framework endpoint. If you customize this route, update the Bot registration
+// bot endpoint. If you customize this route, update the Bot registration
 // in `/templates/provision/bot.bicep`.
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {
