@@ -11,8 +11,7 @@ import { describe, it } from "mocha";
 import sinon from "sinon";
 import { YamlParser } from "../../../src/component/configManager/parser";
 import fs from "fs-extra";
-
-const assert = chai.assert;
+import { assert } from "chai";
 
 describe("v3 yaml parser", () => {
   describe("when parsing an invalid path", () => {
