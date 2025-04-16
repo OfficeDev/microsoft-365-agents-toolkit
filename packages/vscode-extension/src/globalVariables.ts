@@ -137,7 +137,7 @@ export function checkIsSensitivityLabelSet(directory: string): boolean {
   if (!declarativeAgentRes.isOk()) {
     return false;
   }
-  return !!declarativeAgentRes.value.sensitivity_label;
+  return !!declarativeAgentRes.value.sensitivity_label?.id;
 }
 
 export function setCommandIsRunning(isRunning: boolean) {
