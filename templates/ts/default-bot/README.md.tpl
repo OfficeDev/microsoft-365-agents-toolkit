@@ -1,12 +1,12 @@
 # Overview of the Basic Bot template
 
-Examples of Microsoft 365 Agents in everyday use include:
+Examples of Microsoft Teams bots in everyday use include:
 
-- Agents that notify about build failures.
-- Agents that provide information about the weather or bus schedules.
-- Agents that provide travel information.
+- Bots that notify about build failures.
+- Bots that provide information about the weather or bus schedules.
+- Bots that provide travel information.
 
-An agent interaction can be a quick question and answer, or it can be a complex conversation. Being a cloud application, an agent can provide valuable and secure access to cloud services and corporate resources.
+A bot interaction can be a quick question and answer, or it can be a complex conversation. Being a cloud application, a bot can provide valuable and secure access to cloud services and corporate resources.
 
 ## Get started with the Basic Bot template
 
