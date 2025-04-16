@@ -23,6 +23,7 @@ class MyFirstMeetingTestCase extends CaseFactory {
     options?: {
       teamsAppName: string;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initTeamsPage(
@@ -32,7 +33,7 @@ class MyFirstMeetingTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "local",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }
@@ -48,6 +49,7 @@ class MyFirstMeetingTestCase extends CaseFactory {
           npmName: string;
           dashboardFlag: boolean;
           type: string;
+          env: "local" | "dev";
         }
       | undefined
   ): Promise<Page> {
@@ -58,7 +60,7 @@ class MyFirstMeetingTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "local",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }

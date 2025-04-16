@@ -1,39 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import path from "path";
-import * as util from "util";
-import * as vscode from "vscode";
-import fs from "fs-extra";
 import {
-  Warning,
   AppPackageFolderName,
   ManifestTemplateFileName,
   ManifestUtil,
+  Warning,
 } from "@microsoft/teamsfx-api";
 import {
   assembleError,
-  JSONSyntaxError,
-  manifestUtils,
-  pluginManifestUtils,
+  featureFlagManager,
+  FeatureFlags,
   generateScaffoldingSummary,
   globalStateGet,
   globalStateUpdate,
+  JSONSyntaxError,
+  manifestUtils,
   outputScaffoldingWarningMessage,
-  featureFlagManager,
-  FeatureFlags,
+  pluginManifestUtils,
 } from "@microsoft/teamsfx-core";
-import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { TelemetryEvent, TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
+import fs from "fs-extra";
+import path from "path";
+import * as util from "util";
+import * as vscode from "vscode";
 import VsCodeLogInstance from "../commonlib/log";
-import { GlobalKey, CommandKey } from "../constants";
+import { CommandKey, GlobalKey } from "../constants";
 import { selectAndDebug } from "../debug/runIconHandler";
 import { isDeclarativeCopilotApp, isSensitivityLabelSet, workspaceUri } from "../globalVariables";
+import { openReadMeHandler } from "../handlers/readmeHandlers";
+import { VS_CODE_UI } from "../qm/vsc_ui";
+import { ExtTelemetry } from "../telemetry/extTelemetry";
+import { TelemetryEvent, TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import { getAppName } from "./appDefinitionUtils";
 import { getLocalDebugMessageTemplate } from "./commonUtils";
 import { localize } from "./localizeUtils";
-import { VS_CODE_UI } from "../qm/vsc_ui";
-import { openReadMeHandler } from "../handlers/readmeHandlers";
 
 export async function showLocalDebugMessage() {
   const shouldShowLocalDebugMessage = (await globalStateGet(
@@ -47,7 +47,9 @@ export async function showLocalDebugMessage() {
     await globalStateUpdate(GlobalKey.ShowLocalDebugMessage, false);
   }
 
-  const hasLocalEnv = await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"));
+  const hasLocalEnv =
+    (await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"))) ||
+    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.json")));
   const hasKeyGenJsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.js"));
   const hasKeyGenTsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.ts"));
 

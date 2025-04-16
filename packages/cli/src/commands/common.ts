@@ -28,7 +28,7 @@ export const ProjectFolderOptionWithoutValidation: CLICommandOption = {
 export const TeamsAppManifestFileOption: CLICommandOption = {
   name: "manifest-file",
   type: "string",
-  description: "Specifies the Microsoft 365 App manifest file path.",
+  description: "Specifies the app manifest file path.",
   default: "./appPackage/manifest.json",
 };
 export const EntraAppManifestFileOption: CLICommandOption = {
@@ -41,12 +41,12 @@ export const EntraAppManifestFileOption: CLICommandOption = {
 export const TeamsAppPackageOption: CLICommandOption = {
   name: "package-file",
   type: "string",
-  description: "Specifies the zipped Microsoft 365 App package file path.",
+  description: "Specifies the zipped app package file path.",
 };
 export const TeamsAppOuputPackageOption: CLICommandOption = {
   name: "output-package-file",
   type: "string",
-  description: "Specifies the output zipped Microsoft 365 App package file path.",
+  description: "Specifies the output zipped app package file path.",
   default: "./appPackage/build/appPackage.${env}.zip",
 };
 export const TeamsAppOutputFolderOption: CLICommandOption = {
@@ -70,7 +70,7 @@ export const EnvFileOption: CLICommandOption = {
   name: "env-file",
   type: "string",
   description:
-    "Specifies the .env file that defines the variables to replace in the Microsoft 365 App manifest template file.",
+    "Specifies the .env file that defines the variables to replace in the app manifest template file.",
 };
 export const IgnoreKeysOption: CLICommandOption = {
   name: "ignore-keys",

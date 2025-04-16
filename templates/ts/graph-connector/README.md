@@ -33,7 +33,7 @@ Version|Date|Comments
 - [Microsoft 365 Agents Toolkit for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension)
 - [Azure Functions Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
 - [Microsoft 365 Developer tenant](https://developer.microsoft.com/microsoft-365/dev-program) with [uploading custom apps enabled](https://learn.microsoft.com/microsoftteams/platform/m365-apps/prerequisites#prepare-a-developer-tenant-for-testing)
-- [Node@18](https://nodejs.org)
+- [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 
 ## Minimal path to awesome - Debug against a real Microsoft 365 tenant
 

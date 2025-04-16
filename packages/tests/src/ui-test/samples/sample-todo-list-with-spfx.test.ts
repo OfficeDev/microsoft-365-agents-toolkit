@@ -22,6 +22,7 @@ class TodoListSpfxTestCase extends CaseFactory {
     options?: {
       teamsAppName: string;
       type: string;
+      env: "local" | "dev";
     }
   ): Promise<Page> {
     return await initTeamsPage(
@@ -31,7 +32,7 @@ class TodoListSpfxTestCase extends CaseFactory {
       Env.password,
       {
         projectPath: sampledebugContext.projectPath,
-        env: "local",
+        env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
       }

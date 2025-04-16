@@ -86,12 +86,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true
@@ -104,12 +99,7 @@
             ],
             "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -121,25 +111,8 @@
             ],
             "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
-                "group": "2-local",
-                "order": 3
-            },
-            "stopAll": true
-        },
-        {
-            "name": "Debug in Microsoft 365 Agents Playground",
-            "configurations": [
-                "Attach to Local Service"
-            ],
-            "preLaunchTask": "Start Microsoft 365 Agents Playground",
-            "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-                "order": 1
+                "order": 3
             },
             "stopAll": true
         }

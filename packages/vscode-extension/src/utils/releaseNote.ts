@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as vscode from "vscode";
-import * as versionUtil from "./versionUtil";
-import { PrereleaseState, SyncedState, UserState } from "../constants";
 import * as util from "util";
+import * as vscode from "vscode";
+import { PrereleaseState, SyncedState, UserState } from "../constants";
+import * as folder from "../folder";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
-import * as folder from "../folder";
 import { localize } from "./localizeUtils";
+import * as versionUtil from "./versionUtil";
 
 export class ReleaseNote {
   private context: vscode.ExtensionContext;
@@ -66,6 +66,7 @@ export class ReleaseNote {
               await selection.run();
             }
           });
+        await this.showChangelog("CHANGELOG.md");
       }
     }
   }

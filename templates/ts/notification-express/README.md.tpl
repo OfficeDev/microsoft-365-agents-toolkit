@@ -12,50 +12,33 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 > To run the notification bot template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableTestToolByDefault}}
 > - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
-> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
 > **Note**
 >
 > Your app can be installed into a team, or a group chat, or as personal app. See [Installation and Uninstallation](https://aka.ms/teamsfx-notification-new#customize-installation).
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-3. The browser will pop up to open Microsoft 365 Agents Playground.
-4. Send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
+1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
 5. Send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
 
    - When your project is running locally, replace `<endpoint>` with `localhost:3978`
    - When your project is deployed to Azure App Service, replace `<endpoint>` with the url from Azure App Service
 
-{{#enableTestToolByDefault}}
-The bot will send an Adaptive Card to Microsoft 365 Agents Playground:
-
-![Notification Message in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/9698542/52aa4826-e8b3-4341-b9e1-bcba50470861)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
 The bot will send an Adaptive Card to Teams:
 
 ![Notification Message in Teams](https://user-images.githubusercontent.com/7642967/223006044-5003574e-2aee-4a41-9b71-c103d0439012.png)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 
 | Folder / File | Contents |
 | - | - |
-| `m365agents.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
-| `m365agents.local.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft Teams |
-| `m365agents.testtool.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
+| `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
+| `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Microsoft Teams |
 | `.vscode/` | VSCode files for local debug |
 | `src/` | The source code for the notification application |
 | `appPackage/` | Templates for the application manifest |
