@@ -37,7 +37,7 @@ import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationRespo
 import { globalStateGet, globalStateUpdate } from "../common/globalState";
 import { getDefaultString } from "../common/localizeUtils";
 
-const listSensitivityLabelAPIPath = "/beta/me/informationProtection/sensitivityLabels";
+const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
 const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
