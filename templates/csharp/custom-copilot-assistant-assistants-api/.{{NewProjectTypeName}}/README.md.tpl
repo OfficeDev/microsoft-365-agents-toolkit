@@ -7,7 +7,7 @@ The app template is built using the Teams AI library, which provides the capabil
 ## Quick Start
 
 **Prerequisites**
-> To run the AI Chat Bot template in your local dev machine, you will need:
+> To run the agent template in your local dev machine, you will need:
 >
 {{#useOpenAI}}
 > - an account with [OpenAI](https://platform.openai.com).
@@ -103,7 +103,7 @@ The app template is built using the Teams AI library, which provides the capabil
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-## Extend the AI Chat Bot template with more AI capabilities
+## Extend the agent template with more AI capabilities
 You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to extend the AI Agent template with more AI capabilities, like:
 - [Customize assistant creation](https://aka.ms/teamsfx-ai-agent#customize-assistant-creation)
 - [Add functions](https://aka.ms/teamsfx-ai-agent#add-functions-with-assistants-api)
