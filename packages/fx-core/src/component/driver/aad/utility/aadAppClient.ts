@@ -4,7 +4,7 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import { LogProvider, M365TokenProvider } from "@microsoft/teamsfx-api";
 import axios, { AxiosError, AxiosInstance, AxiosRequestHeaders } from "axios";
-import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
+import axiosRetry, { IAxiosRetryConfigExtended } from "axios-retry";
 import { GraphScopes } from "../../../../common/constants";
 import { getLocalizedString } from "../../../../common/localizeUtils";
 import { AadOwner } from "../../../../common/permissionInterface";
@@ -28,7 +28,7 @@ import { aadErrorCode } from "./constants";
 // Missing this part will cause build failure when adding 'axios-retry' in AxiosRequestConfig
 declare module "axios" {
   export interface AxiosRequestConfig {
-    "axios-retry"?: IAxiosRetryConfig;
+    "axios-retry"?: IAxiosRetryConfigExtended;
   }
 }
 
