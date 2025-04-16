@@ -55,7 +55,7 @@ export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTree
 export function apiSpecWithSearchNode(): IQTreeNode {
   return {
     data: { type: "group", name: QuestionNames.FromExistingApi },
-    condition: { equals: "api-spec-with-search" },
+    condition: { equals: "api-spec" },
     children: [
       {
         data: apiSpecTypeSelectQuestion(),

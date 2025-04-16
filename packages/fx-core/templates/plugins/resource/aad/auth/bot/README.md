@@ -2,7 +2,7 @@
 
 > Note: This document includes single sign-on instructions applicable for both bot and message extension. Make sure to add the corresponding Teams capability first and then follow the documentation.
 
-Microsoft Teams lets your app obtain the signed-in Teams user token to access Microsoft Graph and other APIs. Microsoft 365 Agents Toolkit simplifies this by wrapping Microsoft Entra ID flows in easy-to-use APIs, making it simple to add SSO features to your Teams app.
+Microsoft Teams lets your app obtain the signed-in Teams user token to access Microsoft Graph and other APIs. Microsoft 365 Agents Toolkit simplifies this by wrapping Microsoft Entra ID flows in easy-to-use APIs, making it simple to add SSO features to your Microsoft Teams App.
 
 For a bot application, user can invoke the Microsoft Entra consent flow to obtain sso token to call Graph and other APIs.
 
@@ -27,7 +27,7 @@ After adding SSO into your project, Microsoft 365 Agents Toolkit will create and
 | Action | File                                                                                                             | Description                                                                                                                            |
 | ------ | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Modify | `azureWebAppBotConfig.bicep` under `templates/azure/teamsFx` and `azure.parameters.dev.json` under `.fx/configs` | Insert environment variables used for bot web app to enable SSO feature                                                                |
-| Modify | `manifest.template.json` under `templates/appPackage`                                                            | An `webApplicationInfo` object will be added into your Teams app manifest template. This field is required by Teams when enabling SSO. |
+| Modify | `manifest.template.json` under `templates/appPackage`                                                            | An `webApplicationInfo` object will be added into your app manifest template. This field is required by Teams when enabling SSO. |
 | Modify | `projectSettings.json` under `.fx/configs`                                                                       | Add bot sso capability, which will be used internally by Microsoft 365 Agents Toolkit.                                                                |
 | Create | `aad.template.json` under `templates/appPackage`                                                                 | The Microsoft Entra application manifest that is used to register the application with Microsoft Entra.                                |
 | Create | `auth/bot`                                                                                                       | Reference code, redirect pages and a `README.md` file. These files are provided for reference. See below for more information.         |
@@ -138,7 +138,7 @@ To make this work in your application:
     });
     ```
 
-1.  Register your command in the Teams app manifest. Open `templates/appPackage/manifest.template.json`, and add following lines under `commands` in `commandLists` of your bot:
+1.  Register your command in the app manifest. Open `templates/appPackage/manifest.template.json`, and add following lines under `commands` in `commandLists` of your bot:
 
     ```json
     {
@@ -325,7 +325,7 @@ After successfully add SSO in your project, you can also add a new sso command.
 
    ```
 
-1. Register your command in the Teams app manifest. Open 'templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
+1. Register your command in the app manifest. Open 'templates/appPackage/manifest.template.json', and add following lines under `commands` in `commandLists` of your bot:
 
    ```json
    {
@@ -422,7 +422,7 @@ Follow this [document](https://aka.ms/teamsfx-aad-manifest#How-to-view-the-AAD-a
 
 First check whether your auth-start page is available by directly go to "{your-bot-endpoint}/auth-start.html" in your browser. You can find your-bot-endpoint in `.fx/states/state.{env}.json`.
 
-- If the auth-start page can be opened in your browser, please try sign out current account in Teams app page and sign in again and run the command again.
+- If the auth-start page can be opened in your browser, please try sign out current account in the app page and sign in again and run the command again.
 - If encounter with ngrok page below when local debug, please follow the steps to solve this issue.
 
   1. Stop debugging in Visual Studio Code.

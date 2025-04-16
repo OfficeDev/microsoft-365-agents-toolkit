@@ -25,6 +25,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   const azureOpenAIEmbeddingDeploymentName: string | undefined =
     inputs[QuestionNames.AzureOpenAIEmbeddingDeploymentName];
   const gcName: string | undefined = inputs[QuestionNames.GCName];
+  const gcConnectionId: string | undefined = inputs[QuestionNames.GCConnectionId];
 
   if (inputs.projectId !== undefined && (openAIKey || azureOpenAIKey)) {
     const cryptoProvider = new LocalCrypto(inputs.projectId);
@@ -68,6 +69,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     azureOpenAIEmbeddingDeploymentName: azureOpenAIEmbeddingDeploymentName ?? "",
     azureAISearchEndpoint: azureAISearchEndpoint ?? "",
     gcName: gcName ?? "",
+    gcConnectionId: gcConnectionId ?? "",
     openAIEmbeddingModel: openAIEmbeddingModel ?? "",
     isNewProjectTypeEnabled: featureFlagManager.getBooleanValue(FeatureFlags.NewProjectType)
       ? "true"

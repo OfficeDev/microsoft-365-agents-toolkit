@@ -38,7 +38,7 @@ import {
   removeSharedAccessNode,
   selectUsersToRemoveSharedAccess,
 } from "../../src/question/other";
-import { graphAPIClient } from "../../src/client/graphAPIClient";
+import { GraphClient } from "../../src/client/graphClient";
 import { setTools, TOOLS } from "../../src/common/globalVars";
 import path from "path";
 import { manifestUtils, teamsDevPortalClient } from "../../src";
@@ -554,7 +554,7 @@ describe("setSensitivityLabelNode", () => {
       { id: "1", displayName: "Label1" },
       { id: "2", displayName: "Label2" },
     ];
-    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    sandbox.stub(GraphClient.prototype, "listSensitivityLabels").resolves(ok(mockLabels));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
     const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
@@ -570,7 +570,7 @@ describe("setSensitivityLabelNode", () => {
       platform: Platform.VSCode,
     };
     const mockLabels = [{}, {}];
-    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    sandbox.stub(GraphClient.prototype, "listSensitivityLabels").resolves(ok(mockLabels));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
     const options = await sensitivityLabelQuestion?.dynamicOptions?.(inputs);
@@ -585,7 +585,9 @@ describe("setSensitivityLabelNode", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
     };
-    sandbox.stub(graphAPIClient, "listSensitivityLabels").throws(new Error("Graph API error"));
+    sandbox
+      .stub(GraphClient.prototype, "listSensitivityLabels")
+      .throws(new Error("Graph API error"));
     // mock token provider
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("mockToken"));
     let exception = undefined;
@@ -610,7 +612,7 @@ describe("setSensitivityLabelNode", () => {
       { id: "1", displayName: "Label1" },
       { id: "2", displayName: "Label2" },
     ];
-    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(mockLabels));
+    sandbox.stub(GraphClient.prototype, "listSensitivityLabels").resolves(ok(mockLabels));
 
     let exception = undefined;
     try {
@@ -627,7 +629,7 @@ describe("setSensitivityLabelNode", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
     };
-    sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(
+    sandbox.stub(GraphClient.prototype, "listSensitivityLabels").resolves(
       err(
         new SystemError({
           name: "TestError",

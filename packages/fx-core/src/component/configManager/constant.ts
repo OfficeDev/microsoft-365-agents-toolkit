@@ -10,6 +10,7 @@ export enum SummaryConstant {
   Failed = "(×) Error:",
   NotExecuted = "(!) Warning:",
   Warning = "(!) Warning:",
+  Info = "(i) Info:",
 }
 
 export const component = "ConfigManager";

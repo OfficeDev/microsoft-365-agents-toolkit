@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 
 import { Inputs } from "@microsoft/teamsfx-api";
-import { DriverContext } from "../interface/commonArgs";
-import { TOOLS } from "../../../common/globalVars";
-import { MetadataV3 } from "../../../common/versionMetadata";
+import fs from "fs-extra";
 import path from "path";
 import { parseDocument } from "yaml";
-import fs from "fs-extra";
+import { TOOLS } from "../../../common/globalVars";
+import { YamlFileNames } from "../../../common/versionMetadata";
+import { DriverContext } from "../interface/commonArgs";
 
 // Needs to validate the parameters outside of the function
 export function loadStateFromEnv(
@@ -50,12 +50,7 @@ export function createDriverContext(inputs: Inputs): DriverContext {
 }
 
 export async function updateVersionForTeamsAppYamlFile(projectPath: string): Promise<void> {
-  const allPossilbeYamlFileNames = [
-    MetadataV3.localConfigFile,
-    MetadataV3.configFile,
-    MetadataV3.testToolConfigFile,
-  ];
-  for (const yamlFileName of allPossilbeYamlFileNames) {
+  for (const yamlFileName of YamlFileNames) {
     const ymlPath = path.join(projectPath, yamlFileName);
     if (await fs.pathExists(ymlPath)) {
       const ymlContent = await fs.readFile(ymlPath, "utf-8");

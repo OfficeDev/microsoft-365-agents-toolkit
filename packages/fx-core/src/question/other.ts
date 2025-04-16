@@ -17,13 +17,12 @@ import {
   PluginManifestSchema,
   SingleFileQuestion,
   SingleSelectQuestion,
-  TeamsAppManifest,
   TextInputQuestion,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import { AppStudioScopes, ConstantString } from "../common/constants";
+import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
@@ -60,10 +59,10 @@ import {
   webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import { graphAPIClient, listSensitivityLabelScope } from "../client/graphAPIClient";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { GraphClient } from "../client/graphClient";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -321,7 +320,7 @@ export function selectTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "teams-manifest-file",
     cliShortName: "t",
     cliDescription:
-      "Specify the path for Teams app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
     title: getLocalizedString("core.selectTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -346,7 +345,7 @@ export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
     cliName: "local-teams-manifest-file",
     cliShortName: "l",
     cliDescription:
-      "Specifies the Microsoft Teams app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
+      "Specifies the app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",
     title: getLocalizedString("core.selectLocalTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -449,7 +448,7 @@ function selectTeamsAppPackageQuestion(): SingleFileQuestion {
     name: QuestionNames.TeamsAppPackageFilePath,
     title: getLocalizedString("core.selectTeamsAppPackageQuestion.title"),
     cliDescription:
-      "Specifies the zipped Microsoft Teams app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
+      "Specifies the zipped app package path, it's a relative path to project root folder, defaults to '${folder}/appPackage/build/appPackage.${env}.zip'",
     cliName: "app-package-file",
     cliShortName: "p",
     type: "singleFile",
@@ -1555,7 +1554,7 @@ export function syncManifestQuestionNode(): IQTreeNode {
           type: "text",
           name: QuestionNames.TeamsAppId,
           title: getLocalizedString("core.syncManifest.teamsAppId"),
-          cliDescription: "Teams App ID (optional)",
+          cliDescription: "App ID (optional)",
         },
       },
     ],
@@ -1633,12 +1632,13 @@ export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
     staticOptions: [],
     dynamicOptions: async (inputs: Inputs) => {
       const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
-        scopes: [listSensitivityLabelScope],
+        scopes: [ListSensitivityLabelScope],
       });
       if (tokenRes.isErr()) {
         throw tokenRes.error;
       }
-      const res = await graphAPIClient.listSensitivityLabels(tokenRes.value);
+      const graphClient = new GraphClient(TOOLS.tokenProvider.m365TokenProvider);
+      const res = await graphClient.listSensitivityLabels(tokenRes.value);
       if (res.isErr()) {
         throw res.error;
       }

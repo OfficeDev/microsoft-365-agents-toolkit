@@ -76,6 +76,7 @@ import {
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestUtils";
 import { generatePlugin, listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
+import { pathUtils } from "../../utils/pathUtils";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -560,11 +561,10 @@ export async function generateFromApiSpec(
       [telemetryProperties.generateType]: projectType.toString(),
       [specParserGenerateResultAllSuccessTelemetryProperty]: generateResult.allSuccess.toString(),
       [specParserGenerateResultWarningsTelemetryProperty]: generateResult.warnings
-        .map((w) => w.type.toString() + ": " + w.content)
+        .map((w) => `${w.type.toString()}: ${w.content}`)
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
     });
-
     if (generateResult.warnings && generateResult.warnings.length > 0) {
       generateResult.warnings.find((o) => {
         if (o.type === WarningType.OperationOnlyContainsOptionalParam) {
@@ -679,10 +679,10 @@ export async function injectAuthAction(
   enablePKCE?: boolean,
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
-  const ymlPath = path.join(projectPath, MetadataV3.configFile);
-  const localYamlPath = path.join(projectPath, MetadataV3.localConfigFile);
+  const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local", true) as string;
 
-  const relativeSpecPath = "./" + path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/");
+  const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
   if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
     const res = await ActionInjector.injectCreateAPIKeyAction(
@@ -693,7 +693,7 @@ export async function injectAuthAction(
       registrationId
     );
 
-    if (await fs.pathExists(localYamlPath)) {
+    if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
       await ActionInjector.injectCreateAPIKeyAction(
         localYamlPath,
         authName,
@@ -718,7 +718,7 @@ export async function injectAuthAction(
       registrationId
     );
 
-    if (await fs.pathExists(localYamlPath)) {
+    if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
       await ActionInjector.injectCreateOAuthAction(
         localYamlPath,
         authName,
@@ -763,8 +763,7 @@ export async function generateScaffoldingSummary(
   if (pluginManifestPath) {
     const pluginManifestWarningResult = await validatePluginManifestLength(
       pluginManifestPath,
-      projectPath,
-      warnings
+      projectPath
     );
     pluginWarningMessage = pluginManifestWarningResult.map((warn) => {
       return `${SummaryConstant.NotExecuted} ${warn}`;
@@ -808,7 +807,7 @@ function formatApiSpecValidationWarningMessage(
     resultWarnings.push(
       getLocalizedString(
         "core.copilotPlugin.scaffold.summary.warning.operationId",
-        `${SummaryConstant.NotExecuted} ${operationIdWarning.content}`,
+        `${SummaryConstant.Info} ${operationIdWarning.content}`,
         isApiMe ? ManifestTemplateFileName : apiSpecFileName
       )
     );
@@ -818,7 +817,7 @@ function formatApiSpecValidationWarningMessage(
 
   if (swaggerWarning) {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.swaggerVersion",
           apiSpecFileName
@@ -832,7 +831,7 @@ function formatApiSpecValidationWarningMessage(
 
   specialCharactersWarnings.forEach((warning) => {
     resultWarnings.push(
-      `${SummaryConstant.NotExecuted} ` +
+      `${SummaryConstant.Info} ` +
         getLocalizedString(
           "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters",
           warning.data,
@@ -952,10 +951,8 @@ function validateTeamsManifestLength(
 
 async function validatePluginManifestLength(
   pluginManifestPath: string,
-  projectPath: string,
-  warnings: Warning[]
+  projectPath: string
 ): Promise<string[]> {
-  const functionDescriptionLimit = 100;
   const resultWarnings: string[] = [];
 
   const manifestRes = await pluginManifestUtils.readPluginManifestFile(
@@ -972,9 +969,6 @@ async function validatePluginManifestLength(
 
   // validate function description
   const functions = manifestRes.value.functions;
-  const functionDescriptionWarnings = warnings
-    .filter((w) => w.type === WarningType.FuncDescriptionTooLong)
-    .map((w) => w.data);
   if (functions) {
     functions.forEach((func) => {
       if (!func.description) {
@@ -985,19 +979,6 @@ async function validatePluginManifestLength(
           ) +
             getLocalizedString(
               "core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription.mitigation",
-              func.name,
-              pluginManifestPath
-            )
-        );
-      } else if (functionDescriptionWarnings.includes(func.name)) {
-        resultWarnings.push(
-          getLocalizedString(
-            "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding",
-            func.name,
-            functionDescriptionLimit
-          ) +
-            getLocalizedString(
-              "core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation",
               func.name,
               pluginManifestPath
             )

@@ -34,13 +34,14 @@ import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { addExistingPlugin } from "./helper";
-import { graphAPIClient, listSensitivityLabelScope } from "../../../client/graphAPIClient";
 import { getDefaultString } from "../../../common/localizeUtils";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { convertToAlphanumericOnly } from "../../../common/stringUtils";
 import { setGeneralSensitivityLabel } from "../utils";
+import { GraphClient } from "../../../client/graphClient";
+import { ListSensitivityLabelScope } from "../../../common/constants";
 
 const enum telemetryProperties {
   templateName = "template-name",
