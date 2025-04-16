@@ -2,23 +2,26 @@
 // Licensed under the MIT license.
 
 import {
-  ActionTypes,
-  Activity,
-  ActivityTypes,
   CardFactory,
-  Channels,
   ConversationState,
-  InputHints,
   MemoryStorage,
   AgentStatePropertyAccessor,
   StatusCodes,
   TurnContext,
 } from "@microsoft/agents-hosting";
-import { TeamsChannelAccount, TeamsInfo } from "@microsoft/agents-hosting-teams";
 import {
+  TeamsChannelAccount,
+  TeamsInfo,
   tokenExchangeOperationName,
   verifyStateOperationName,
 } from "@microsoft/agents-hosting-teams";
+import {
+  ActionTypes,
+  Activity,
+  ActivityTypes,
+  Channels,
+  InputHints,
+} from "@microsoft/agents-activity";
 import { DialogSet, DialogState } from "@microsoft/agents-hosting-dialogs";
 import {
   OnBehalfOfUserCredential,

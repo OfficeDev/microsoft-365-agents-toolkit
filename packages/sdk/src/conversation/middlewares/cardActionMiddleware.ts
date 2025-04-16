@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { ActivityTypes } from "@microsoft/agents-activity";
+import { ActivityTypes, Activity } from "@microsoft/agents-activity";
 import {
   CardFactory,
   TurnContext,
   InvokeResponse,
   MessageFactory,
-  Activity,
+  Middleware,
 } from "@microsoft/agents-hosting";
-import { Middleware } from "@microsoft/agents-hosting/dist/src/middlewareSet";
 import {
   AdaptiveCardResponse,
   InvokeResponseErrorCode,

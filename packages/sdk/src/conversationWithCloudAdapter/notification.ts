@@ -1,22 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  CloudAdapter,
-  CardFactory,
-  ConversationParameters,
-  ConversationReference,
-  TurnContext,
-  ConnectorClient,
-  Activity,
-  ActivityTypes,
-} from "@microsoft/agents-hosting";
+import { CloudAdapter, CardFactory, TurnContext, ConnectorClient } from "@microsoft/agents-hosting";
 import {
   ChannelInfo,
   TeamsInfo,
   TeamDetails,
   TeamsChannelAccount,
 } from "@microsoft/agents-hosting-teams";
+import {
+  Activity,
+  ActivityTypes,
+  ConversationParameters,
+  ConversationReference,
+} from "@microsoft/agents-activity";
 import * as path from "path";
 import {
   NotificationTarget,
@@ -29,7 +26,6 @@ import { NotificationOptions } from "./interface";
 import { NotificationMiddleware } from "../conversation/middlewares/notificationMiddleware";
 import { DefaultConversationReferenceStore } from "../conversation/storage";
 import * as utils from "../conversation/utils";
-import { internalLogger } from "../util/logger";
 
 /**
  * Send a plain text message to a notification target.
@@ -313,7 +309,7 @@ export class Member implements NotificationTarget {
     const conversationParams: ConversationParameters = {
       members: [this.account],
       isGroup: false,
-      bot: context.activity.recipient!,
+      agent: context.activity.recipient!,
       tenantId: context.activity.conversation!.tenantId,
       activity: context.activity,
       channelData: context.activity.channelData,

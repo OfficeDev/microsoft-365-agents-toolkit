@@ -7,18 +7,18 @@
 /// <reference types="node" />
 
 import { AccessToken } from '@azure/identity';
-import { Activity } from '@microsoft/agents-hosting';
+import { Activity } from '@microsoft/agents-activity';
 import { AgentStatePropertyAccessor } from '@microsoft/agents-hosting';
-import { Attachment } from '@microsoft/agents-hosting';
+import { Attachment } from '@microsoft/agents-activity';
 import { AuthConfiguration } from '@microsoft/agents-hosting';
 import { AxiosInstance } from 'axios';
 import { AxiosRequestConfig } from 'axios';
-import { CardAction } from '@microsoft/agents-hosting';
+import { CardAction } from '@microsoft/agents-activity';
 import { CardImage } from '@microsoft/agents-hosting';
 import { ChannelInfo } from '@microsoft/agents-hosting-teams';
 import { CloudAdapter } from '@microsoft/agents-hosting';
 import { ComponentDialog } from '@microsoft/agents-hosting-dialogs';
-import { ConversationReference } from '@microsoft/agents-hosting';
+import { ConversationReference } from '@microsoft/agents-activity';
 import { ConversationState } from '@microsoft/agents-hosting';
 import { Dialog } from '@microsoft/agents-hosting-dialogs';
 import { DialogContext } from '@microsoft/agents-hosting-dialogs';

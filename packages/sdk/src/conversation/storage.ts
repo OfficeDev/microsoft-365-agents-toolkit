@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference } from "@microsoft/agents-hosting";
+import { ConversationReference } from "@microsoft/agents-activity";
 import * as fs from "fs";
 import * as path from "path";
 import {

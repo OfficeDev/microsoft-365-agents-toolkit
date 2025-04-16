@@ -2,8 +2,7 @@
 // Licensed under the MIT license.
 
 import { Activity, ActivityTypes } from "@microsoft/agents-activity";
-import { TurnContext } from "@microsoft/agents-hosting";
-import { Middleware } from "@microsoft/agents-hosting/dist/src/middlewareSet";
+import { TurnContext, Middleware } from "@microsoft/agents-hosting";
 import { TeamsBotSsoPromptTokenResponse } from "../../bot/teamsBotSsoPromptTokenResponse";
 import { ErrorCode, ErrorMessage, ErrorWithCode } from "../../core/errors";
 import { internalLogger } from "../../util/logger";

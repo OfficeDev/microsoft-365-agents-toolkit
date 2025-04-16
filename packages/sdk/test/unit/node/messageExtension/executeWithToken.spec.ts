@@ -15,13 +15,12 @@ import * as sinon from "sinon";
 import * as chaiPromises from "chai-as-promised";
 import {
   TurnContext,
-  Activity,
   ResourceResponse,
-  ConversationReference,
   AttachmentData,
   AttachmentInfo,
+  BaseAdapter,
 } from "@microsoft/agents-hosting";
-import { BaseAdapter } from "@microsoft/agents-hosting/dist/src/baseAdapter";
+import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import mockedEnv from "mocked-env";
 import { OnBehalfOfCredentialAuthConfig } from "../../../../src/models/configuration";
 chaiUse(chaiPromises);

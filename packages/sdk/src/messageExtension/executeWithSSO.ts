@@ -2,8 +2,9 @@
 // Licensed under the MIT license.
 
 import { AccessToken } from "@azure/identity";
-import { TurnContext, ActivityTypes, Activity } from "@microsoft/agents-hosting";
+import { TurnContext } from "@microsoft/agents-hosting";
 import { MessagingExtensionResponse } from "@microsoft/agents-hosting-teams";
+import { ActivityTypes, Activity } from "@microsoft/agents-activity";
 import { parseJwt, getScopesArray, formatString } from "../util/utils";
 import { MessageExtensionTokenResponse } from "./teamsMsgExtTokenResponse";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";

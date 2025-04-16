@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 import { assert, expect } from "chai";
-import { CloudAdapter, ConversationReference, TurnContext } from "@microsoft/agents-hosting";
+import { CloudAdapter, TurnContext } from "@microsoft/agents-hosting";
+import { ConversationReference } from "@microsoft/agents-activity";
 import * as sinon from "sinon";
 import { CommandBot } from "../../../../src/conversationWithCloudAdapter/command";
 import { CommandResponseMiddleware } from "../../../../src/conversation/middlewares/commandMiddleware";

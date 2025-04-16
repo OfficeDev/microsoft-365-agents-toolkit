@@ -5,10 +5,8 @@
 import {
   CloudAdapter,
   CardFactory,
-  ConversationReference,
   TurnContext,
   TurnContextStateCollection,
-  Activity,
   ConnectorClient,
 } from "@microsoft/agents-hosting";
 import {
@@ -17,6 +15,7 @@ import {
   TeamsInfo,
   ChannelInfo,
 } from "@microsoft/agents-hosting-teams";
+import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";

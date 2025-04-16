@@ -9,8 +9,8 @@ import {
   ResourceResponse,
   AttachmentData,
   AttachmentInfo,
+  BaseAdapter,
 } from "@microsoft/agents-hosting";
-import { BaseAdapter } from "@microsoft/agents-hosting/dist/src/baseAdapter";
 import { Activity, ActivityTypes } from "@microsoft/agents-activity";
 import {
   AdaptiveCardResponse,

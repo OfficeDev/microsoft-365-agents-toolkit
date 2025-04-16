@@ -3,14 +3,10 @@
 
 import { AccessToken } from "@azure/identity";
 import {
-  Activity,
-  ActivityTypes,
   CardFactory,
-  Channels,
   MessageFactory,
   TurnContext,
   OAuthCard,
-  ActionTypes,
   StatusCodes,
   TokenExchangeInvokeRequest,
   TokenExchangeResource,
@@ -30,6 +26,7 @@ import {
   PromptOptions,
   PromptRecognizerResult,
 } from "@microsoft/agents-hosting-dialogs";
+import { Activity, ActivityTypes, Channels, ActionTypes } from "@microsoft/agents-activity";
 import { TeamsBotSsoPromptTokenResponse } from "./teamsBotSsoPromptTokenResponse";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
@@ -338,7 +335,7 @@ export class TeamsBotSsoPrompt extends Dialog {
     const tokenPostResource: TokenPostResource = {};
 
     return {
-      singingLink: signInLink,
+      signingLink: signInLink,
       tokenExchangeResource: tokenExchangeResource,
       tokenPostResource: tokenPostResource,
     };

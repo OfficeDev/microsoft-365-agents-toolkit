@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference, TurnContext } from "@microsoft/agents-hosting";
+import { TurnContext } from "@microsoft/agents-hosting";
+import { ConversationReference } from "@microsoft/agents-activity";
 import { NotificationTargetType } from "./interface";
 
 /**
