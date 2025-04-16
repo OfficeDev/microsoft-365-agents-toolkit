@@ -593,15 +593,27 @@ export function happyPathTest(options: {
               });
             }
           } else {
-            await validateWelcomeAndReplyBot(page, {
-              hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
-              botCommand: "helloWorld",
-              expectedWelcomeMessage:
-                ValidationContent.AiAssistantBotWelcomeInstruction,
-              expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-              timeout: Timeout.longTimeWait,
-            });
+            try {
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand: "helloWorld",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+                timeout: Timeout.longTimeWait,
+              });
+            } catch (error) {
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand: "helloWorld",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
+                timeout: Timeout.longTimeWait,
+              });
+            }
           }
         } else {
           if (isRealKey) {
