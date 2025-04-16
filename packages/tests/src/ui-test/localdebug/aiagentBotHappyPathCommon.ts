@@ -424,6 +424,10 @@ export function happyPathTest(options: {
             "AZURE_OPENAI_MODEL_DEPLOYMENT_NAME",
             azureOpenAiModelDeploymentName
           );
+        } else {
+          // openai entrance
+          editDotEnvFile(envPath, "SECRET_OPENAI_API_KEY", "fake");
+          editDotEnvFile(envPath, "OPENAI_ASSISTANT_ID", "fake");
         }
 
         {
