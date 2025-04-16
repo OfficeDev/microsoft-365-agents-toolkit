@@ -14,8 +14,10 @@ import {
   AdaptiveCardUpdateStrategy,
   ErrorType,
   ValidationStatus,
+  WarningResult,
   WarningType,
 } from "@microsoft/m365-spec-parser";
+import proxyquire from "proxyquire";
 
 describe("daSpecParser", () => {
   let listAPITreeInfoStub: sinon.SinonStub;
@@ -872,7 +874,14 @@ describe("daSpecParser", () => {
       const operations = ["GET /users", "POST /messages"];
       const adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
 
-      const result = await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      const result = await generatePlugin(
         specPath,
         teamsManifestPath,
         outputAPISpecPath,
@@ -906,10 +915,9 @@ describe("daSpecParser", () => {
           pathMatcher("path/to/output/ai-plugin.json")
         )
       );
-
       assert.isTrue(
         fsCopyFileStub.thirdCall.calledWith(
-          pathMatcher("path/to/spec.yaml"),
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
           pathMatcher("path/to/output/openapi.original.yaml")
         )
       );
@@ -972,9 +980,16 @@ describe("daSpecParser", () => {
       const specPath = "path/to/spec.json";
       const outputAPISpecPath = "path/to/output/openapi.spec";
 
-      isJsonSpecFileStub.withArgs(specPath).resolves(true);
+      isJsonSpecFileStub.resolves(true);
 
-      const result = await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      const result = await generatePlugin(
         specPath,
         "path/to/manifest.json",
         outputAPISpecPath,
@@ -985,11 +1000,17 @@ describe("daSpecParser", () => {
 
       assert.isTrue(result.allSuccess);
       assert.equal(result.warnings.length, 3);
-      assert.isTrue(result.warnings.some((w) => w.type === WarningType.OperationIdMissing));
       assert.isTrue(
-        result.warnings.some((w) => w.type === WarningType.OperationIdContainsSpecialCharacters)
+        result.warnings.some((w: WarningResult) => w.type === WarningType.OperationIdMissing)
       );
-      assert.isTrue(result.warnings.some((w) => w.type === WarningType.UnsupportedAuthType));
+      assert.isTrue(
+        result.warnings.some(
+          (w: WarningResult) => w.type === WarningType.OperationIdContainsSpecialCharacters
+        )
+      );
+      assert.isTrue(
+        result.warnings.some((w: WarningResult) => w.type === WarningType.UnsupportedAuthType)
+      );
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
@@ -1000,7 +1021,7 @@ describe("daSpecParser", () => {
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
-          pathMatcher("path/to/spec.json"),
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
           pathMatcher("path/to/output/openapi.original.json")
         )
       );
@@ -1014,7 +1035,14 @@ describe("daSpecParser", () => {
       };
       fsReadJSONStub.resolves(complexManifest);
 
-      await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1042,7 +1070,14 @@ describe("daSpecParser", () => {
         ],
       });
 
-      await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1050,15 +1085,6 @@ describe("daSpecParser", () => {
         ["GET /api"],
         AdaptiveCardUpdateStrategy.KeepExisting
       );
-
-      const expectedPluginManifest = {
-        name: { short: "test-app" },
-        runtimes: [
-          {
-            spec: { url: "../../openapi.yaml" },
-          },
-        ],
-      };
 
       assert.isTrue(
         fsWriteJsonStub.calledWith(
@@ -1084,8 +1110,13 @@ describe("daSpecParser", () => {
         ],
       };
       fsReadJSONStub.resolves(pluginManifest);
-
-      await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+      await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1121,7 +1152,14 @@ describe("daSpecParser", () => {
         "PATCH /settings",
       ];
 
-      await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1156,7 +1194,14 @@ describe("daSpecParser", () => {
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
-      const result = await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      const result = await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1169,9 +1214,16 @@ describe("daSpecParser", () => {
     });
 
     it("should handle both JSON and YAML original spec files", async () => {
-      isJsonSpecFileStub.withArgs("path/to/spec.json").resolves(true);
+      isJsonSpecFileStub.resolves(true);
 
-      await daSpecParser.generatePlugin(
+      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
+        "fs-extra": {
+          readdir: sinon.stub().resolves(["openapi.json"] as any),
+          "@noCallThru": false,
+        },
+      });
+
+      await generatePlugin(
         "path/to/spec.json",
         "path/to/manifest.json",
         "path/to/output/openapi.spec",
@@ -1182,16 +1234,16 @@ describe("daSpecParser", () => {
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
-          pathMatcher("path/to/spec.json"),
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
           pathMatcher("path/to/output/openapi.original.json")
         )
       );
 
       sinon.resetHistory();
 
-      isJsonSpecFileStub.withArgs("path/to/spec.yaml").resolves(false);
+      isJsonSpecFileStub.resolves(false);
 
-      await daSpecParser.generatePlugin(
+      await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.spec",
@@ -1202,7 +1254,7 @@ describe("daSpecParser", () => {
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
-          pathMatcher("path/to/spec.yaml"),
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
           pathMatcher("path/to/output/openapi.original.yaml")
         )
       );

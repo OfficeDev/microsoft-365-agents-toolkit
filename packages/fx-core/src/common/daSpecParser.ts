@@ -132,6 +132,11 @@ export async function generatePlugin(
       []
     );
 
+    const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
+    const files = await fs.readdir(originalSpecFolder);
+    const originalSpecFilename = files[0];
+    const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
+
     const apiSpecPath = kiotaGenerateResult.openAPISpec;
     const pluginPath = kiotaGenerateResult.aiPlugin;
 
@@ -142,7 +147,7 @@ export async function generatePlugin(
       path.basename(outputAPISpecPath, extname)
     );
 
-    const isJson = await isJsonSpecFile(specPath);
+    const isJson = await isJsonSpecFile(originalSpecFile);
     const originalSpecExt = isJson ? ".json" : ".yaml";
     const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + originalSpecExt;
 
@@ -151,7 +156,7 @@ export async function generatePlugin(
 
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
     await fs.copyFile(pluginPath, outputAIPluginPath);
-    await fs.copyFile(specPath, outputOriginalSpecPath);
+    await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");

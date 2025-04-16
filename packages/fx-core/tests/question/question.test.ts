@@ -50,6 +50,7 @@ import {
   GCSelectOptions,
 } from "../../src/question/constants";
 import {
+  addPluginQuestionNode,
   apiSpecApiKeyQuestion,
   createNewEnvQuestionNode,
   envQuestionCondition,
@@ -64,6 +65,7 @@ import {
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
 import { callFuncs } from "./create.test";
+import { featureFlagManager, FeatureFlags } from "../../src";
 
 const ui = new MockUserInteraction();
 
@@ -1250,6 +1252,40 @@ describe("addPluginQuestionNode", async () => {
   afterEach(() => {
     sandbox.restore();
     mockedEnvRestore();
+  });
+
+  it("should include inputOrSearchAPISpecNode when KiotaNPMIntegration is enabled", async () => {
+    const sandbox = sinon.createSandbox();
+    try {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.KiotaNPMIntegration) {
+          return true;
+        }
+        return false;
+      });
+
+      const questionNode = addPluginQuestionNode();
+
+      assert.isObject(questionNode);
+      assert.property(questionNode, "data");
+      assert.property(questionNode, "children");
+
+      const children = questionNode.children;
+      assert.isArray(children);
+
+      assert.equal(children![0].data.name, QuestionNames.PluginManifestFilePath);
+      assert.equal(children![1].data.name, QuestionNames.PluginOpenApiSpecFilePath);
+
+      const thirdChild = children![2];
+      assert.isObject(thirdChild);
+
+      assert.equal(
+        children![children!.length - 1].data.name,
+        QuestionNames.TeamsAppManifestFilePath
+      );
+    } finally {
+      sandbox.restore();
+    }
   });
 
   it("success: can add a plugin from api spec", async () => {
