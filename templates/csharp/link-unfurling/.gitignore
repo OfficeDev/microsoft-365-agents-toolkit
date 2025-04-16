@@ -25,6 +25,6 @@ bld/
 # Notification local store
 .notification.localstore.json
 
-# Microsoft 365 Agents playground
+# Microsoft 365 Agents Playground
 .notification.testtoolstore.json
 devTools

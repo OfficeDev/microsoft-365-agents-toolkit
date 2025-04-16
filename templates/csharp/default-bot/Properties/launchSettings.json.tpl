@@ -2,8 +2,8 @@
   "profiles": {
 {{^isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    // Debug project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground (browser)": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -31,8 +31,8 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    // Debug project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground (browser)": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -61,8 +61,8 @@
 {{/isNewProjectTypeEnabled}}
 {{#isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    // Debug project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
@@ -85,8 +85,8 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    // Debug project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",

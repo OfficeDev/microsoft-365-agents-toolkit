@@ -1,13 +1,13 @@
 [
 {{#enableTestToolByDefault}}
   {
-    "Name": "Microsoft 365 Agents playground (browser)",
+    "Name": "Microsoft 365 Agents Playground (browser)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Microsoft 365 Agents playground (browser)"
+        "DebugTarget": "Microsoft 365 Agents Playground (browser)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
@@ -19,7 +19,7 @@
         "Name": "{{ProjectName}}\\{{ProjectName}}.csproj",
 {{/PlaceProjectFileInSolutionDir}}
         "Action": "Start",
-        "DebugTarget": "Microsoft 365 Agents playground"
+        "DebugTarget": "Microsoft 365 Agents Playground"
       }
     ]
   },
@@ -121,13 +121,13 @@
 {{^enableTestToolByDefault}}
   },
   {
-    "Name": "Microsoft 365 Agents playground (browser)",
+    "Name": "Microsoft 365 Agents Playground (browser)",
     "Projects": [
       {
         "Path": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Name": "{{NewProjectTypeName}}\\{{NewProjectTypeName}}.{{NewProjectTypeExt}}",
         "Action": "StartWithoutDebugging",
-        "DebugTarget": "Microsoft 365 Agents playground (browser)"
+        "DebugTarget": "Microsoft 365 Agents Playground (browser)"
       },
       {
 {{#PlaceProjectFileInSolutionDir}}
@@ -139,7 +139,7 @@
         "Name": "{{ProjectName}}\\{{ProjectName}}.csproj",
 {{/PlaceProjectFileInSolutionDir}}
         "Action": "Start",
-        "DebugTarget": "Microsoft 365 Agents playground"
+        "DebugTarget": "Microsoft 365 Agents Playground"
       }
     ]
   }

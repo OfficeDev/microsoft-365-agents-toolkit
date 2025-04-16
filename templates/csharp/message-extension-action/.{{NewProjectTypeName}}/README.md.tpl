@@ -3,7 +3,7 @@
 ## Quick Start
 
 {{#enableTestToolByDefault}}
-1. Press F5 to start debugging which launches your app in Microsoft 365 Agents playground using a web browser.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 2. You can trigger "create card" command from compose message area, the command box, or directly from a message.
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
@@ -18,8 +18,8 @@
 {{/enableTestToolByDefault}}
 
 {{^enableTestToolByDefault}}
-## Debug in Microsoft 365 Agents playground
-Microsoft 365 Agents playground allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
+## Debug in Microsoft 365 Agents Playground
+Microsoft 365 Agents Playground allows developers test and debug bots locally without needing Microsoft 365 accounts, development tunnels, or Teams app and bot registration. See https://aka.ms/teams-toolkit-vs-test-tool for more details.
 {{/enableTestToolByDefault}}
 
 ## Get more info

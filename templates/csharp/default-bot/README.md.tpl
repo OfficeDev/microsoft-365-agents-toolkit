@@ -3,7 +3,7 @@
 ## Quick Start
 
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-2. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response
+2. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your bot to trigger a response
 
 ## Debug in Teams
 

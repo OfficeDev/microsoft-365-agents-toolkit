@@ -55,14 +55,14 @@ This app template also demonstrates usage of techniques like:
    ```
 1. Once you're done using the sample it's good practice to delete the index. You can do so with the `. ./Indexer.ps1 -run delete`.
 
-### Debug bot app in Microsoft 365 Agents playground
+### Debug bot app in Microsoft 365 Agents Playground
 1. Create your Azure AI Search document index as mentioned above.
-1. Set `Startup Item` as `Microsoft 365 Agents playground (browser)`.
+1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
-1. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response.
+1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your bot to trigger a response.
 
-**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents playground:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/f56e7602-a5d3-436a-ae01-78546d61717d)
 

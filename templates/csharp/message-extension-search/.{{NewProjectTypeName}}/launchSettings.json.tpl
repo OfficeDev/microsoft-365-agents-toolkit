@@ -1,8 +1,8 @@
 {
   "profiles": {
 {{#enableTestToolByDefault}}
-    // Launch project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground (browser)": {
+    // Launch project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,
@@ -32,8 +32,8 @@
     }
   },
 {{^enableTestToolByDefault}}
-    // Launch project within Microsoft 365 Agents playground
-    "Microsoft 365 Agents playground (browser)": {
+    // Launch project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "environmentVariables": { "UPDATE_TEAMS_APP": "false", "DEFAULT_CHANNEL_ID": "emulator" },
       "launchTestTool": true,

@@ -2,7 +2,7 @@
 
 ## Quick Start
 
-1. Press F5 to start debugging which launches your app in Microsoft 365 Agents playground using a web browser.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser.
 2. You can search nuget package from compose message area, or from the command box.
 
 ## Debug in Teams

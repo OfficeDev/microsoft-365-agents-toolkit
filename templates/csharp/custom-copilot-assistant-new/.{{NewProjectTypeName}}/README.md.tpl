@@ -16,7 +16,7 @@ The app template is built using the Teams AI library, which provides the capabil
 > - [Azure OpenAI](https://aka.ms/oai/access) resource
 {{/useAzureOpenAI}}
 
-### Debug bot app in Microsoft 365 Agents playground
+### Debug bot app in Microsoft 365 Agents Playground
 {{#useOpenAI}}
 1. Ensure your OpenAI API Key filled in `appsettings.TestTool.json`
     ```
@@ -35,12 +35,12 @@ The app template is built using the Teams AI library, which provides the capabil
     }
     ```
 {{/useAzureOpenAI}}
-1. Set `Startup Item` as `Microsoft 365 Agents playground (browser)`.
+1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio
-1. In Microsoft 365 Agents playground from the launched browser, type and send anything to your bot to trigger a response
+1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your bot to trigger a response
 
-**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents playground:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
 ![AI Agent](https://github.com/OfficeDev/TeamsFx/assets/37978464/053218b7-cb17-4db4-9b8a-50ca04c1cb55)
 
