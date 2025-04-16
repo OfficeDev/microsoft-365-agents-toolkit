@@ -23,9 +23,10 @@ import {
   templateFileExt,
 } from "./constant";
 import { Context as FxContext, signedIn } from "@microsoft/teamsfx-api";
-import { graphAPIClient, listSensitivityLabelScope } from "../../client/graphAPIClient";
 import { getDefaultString } from "../../common/localizeUtils";
 import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
+import { ListSensitivityLabelScope } from "../../common/constants";
+import { GraphClient } from "../../client/graphClient";
 
 export async function getTemplateUrl(
   name: string,
@@ -377,7 +378,7 @@ export async function setGeneralSensitivityLabel(
 ): Promise<void> {
   try {
     const loginStatusRes = await context.tokenProvider?.m365TokenProvider?.getStatus({
-      scopes: [listSensitivityLabelScope],
+      scopes: [ListSensitivityLabelScope],
     });
     if (!loginStatusRes || loginStatusRes.isErr()) {
       context.logProvider?.info(
@@ -393,11 +394,12 @@ export async function setGeneralSensitivityLabel(
       context.logProvider?.info(getDefaultString("error.listSensitivityLabel.tokenUndefined"));
       return;
     }
-    const result = await graphAPIClient.getGeneralSentivityLabelId(loginStatusRes.value.token);
+    const graphClient = new GraphClient(context.tokenProvider! as any);
+    const result = await graphClient.getGeneralSentivityLabel(loginStatusRes.value.token);
     if (result.isErr()) {
       throw result.error;
     }
-    const generalLabelId = result.value;
+    const generalLabel = result.value;
 
     const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
       declarativeAgentManifestPath
@@ -412,7 +414,9 @@ export async function setGeneralSensitivityLabel(
       return;
     }
     const declarativeAgentManifest = declarativeAgentManifestRes.value;
-    declarativeAgentManifest.sensitivity_label = generalLabelId;
+    declarativeAgentManifest.sensitivity_label = {
+      id: generalLabel.id,
+    };
     const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
       declarativeAgentManifest,
       declarativeAgentManifestPath

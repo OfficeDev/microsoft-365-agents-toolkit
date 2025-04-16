@@ -156,7 +156,7 @@ export class GraphClient {
     }
   }
 
-  async getGeneralSentivityLabelId(token: string): Promise<Result<string, FxError>> {
+  async getGeneralSentivityLabel(token: string): Promise<Result<SensitivityLabel, FxError>> {
     const result = await this.listSensitivityLabels(token);
     if (result.isErr()) {
       return err(result.error);
@@ -164,7 +164,7 @@ export class GraphClient {
     const labels = result.value;
     const generalLabel = labels.find((label) => label.displayName === GeneralLabelDisplayName);
     if (generalLabel && generalLabel.id) {
-      return ok(generalLabel.id);
+      return ok(generalLabel);
     } else {
       return err(
         new SystemError({
