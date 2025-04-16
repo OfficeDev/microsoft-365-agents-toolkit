@@ -680,7 +680,7 @@ export async function injectAuthAction(
   registrationId?: string
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
-  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local") as string;
+  const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local", true) as string;
 
   const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
@@ -693,7 +693,7 @@ export async function injectAuthAction(
       registrationId
     );
 
-    if (await fs.pathExists(localYamlPath)) {
+    if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
       await ActionInjector.injectCreateAPIKeyAction(
         localYamlPath,
         authName,
@@ -718,7 +718,7 @@ export async function injectAuthAction(
       registrationId
     );
 
-    if (await fs.pathExists(localYamlPath)) {
+    if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
       await ActionInjector.injectCreateOAuthAction(
         localYamlPath,
         authName,

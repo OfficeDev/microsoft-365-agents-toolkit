@@ -576,7 +576,13 @@ describe("injectAuthAction", async () => {
   });
 
   it("api key auth", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox
+      .stub(fs, "pathExists")
+      .onFirstCall()
+      .resolves(true)
+      .onSecondCall()
+      .resolves(false)
+      .resolves(true);
     sandbox.stub(Utils, "isBearerTokenAuth").returns(true);
     const injectStub = sandbox.stub(ActionInjector, "injectCreateAPIKeyAction").resolves(undefined);
     const res = await injectAuthAction(
