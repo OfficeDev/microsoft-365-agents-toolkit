@@ -141,7 +141,8 @@ function isTeamsfxTask(task: vscode.Task): boolean {
       const execution = <vscode.ShellExecution>task.execution;
       commandLine =
         execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `${typeof execution.command === "string" ? execution.command : execution.command?.value} ${(
           execution.args || []
         ).join(" ")}`;
     }
@@ -168,7 +169,8 @@ function isLaunchTestToolTask(task: vscode.Task): boolean {
       const execution = <vscode.ShellExecution>task.execution;
       const commandLine =
         execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `${typeof execution.command === "string" ? execution.command : execution.command?.value} ${(
           execution.args || []
         ).join(" ")}`;
       if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:launch-testtool/i.test(commandLine)) {
