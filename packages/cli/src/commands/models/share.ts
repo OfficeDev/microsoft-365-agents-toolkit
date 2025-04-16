@@ -32,7 +32,7 @@ export const shareCommand: CLICommand = {
     },
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} share --option share-with-users --users 'a@example.com,b@example.com' -i false`,
-      description: "Share owner access to users",
+      description: "Share owner access with users",
     },
   ],
   commands: [shareRemoveCommand],
