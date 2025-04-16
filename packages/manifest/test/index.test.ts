@@ -234,8 +234,3 @@ async function loadSchema(): Promise<any> {
   const schemaPath = path.join(__dirname, "MicrosoftTeams.schema.json");
   return fs.readJson(schemaPath);
 }
-
-const manifest: TeamsManifest = {
-  manifestVersion: "1.20",
-  elementRelationshipSet,
-};
