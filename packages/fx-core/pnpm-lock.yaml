@@ -997,7 +997,7 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: false
 
-  /@microsoft/app-manifest@0.1.8:
+  /@microsoft/teams-manifest@0.1.8:
     resolution: {integrity: sha512-uoXed7wyMIUGXVRQflqWLhD2hpCz+cYhQ06e2s5PW8HIw1AlDBPM3s4+Y+ArJInzMZs0SZ58B66sq0Iy46/WKQ==}
     dependencies:
       '@types/fs-extra': 11.0.4
@@ -5036,7 +5036,6 @@ packages:
     resolution: {integrity: sha512-hqym0IOh2AP0y/T27hRKAQVC1mID900/jQ+ie6SW2UQ+tUtmc8CRhTOm33q9SY5SIVzDwXsNjNKzOdcjPUV6VQ==}
     hasBin: true
     dependencies:
-      '@microsoft/app-manifest': 0.1.8
       '@microsoft/teams-manifest': 0.1.9
       adm-zip: 0.5.12
       chalk: 2.4.2
