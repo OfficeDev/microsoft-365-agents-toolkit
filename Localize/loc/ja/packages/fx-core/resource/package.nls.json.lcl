@@ -576,10 +576,13 @@
       </Item>
       <Item ItemId=";core.QuestionAppName.validation.lengthWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Microsoft 365 Agents Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit によってローカル デバッグ用に追加された "local" サフィックスが原因で、アプリ名が 30 文字を超える可能性があります。"manifest.json" ファイルでアプリ名を更新してください。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によってローカル デバッグ用に追加された "local" サフィックスが原因で、アプリ名が 30 文字を超える場合があります。"manifest.json" ファイル内のアプリ名を更新してください。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -774,12 +777,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams ツールキットを使用して、新しい Teams アプリを作成します。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit を使用して、新しい Teams アプリを作成します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams application.]]></Val>
+            <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -948,28 +951,37 @@
       </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、指定した新しい OpenAPI ドキュメントに基づいて、"%s" フォルダー内のファイルを変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更の追跡を行ってください。]]></Val>
+            <Val><![CDATA[指定した新しい OpenAPI ドキュメントに基づいて、Microsoft 365 Agents Toolkit によって "%s" フォルダー内のファイルが変更されます。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.localTeamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、指定した新しい OpenAPI ドキュメントに基づいて、"%s" フォルダー、"%s"、"%s" 内のファイルを変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更の追跡を行ってください。]]></Val>
+            <Val><![CDATA[指定した新しい OpenAPI ドキュメントに基づいて、Microsoft 365 Agents Toolkit によって "%s" フォルダー、"%s"、"%s" 内のファイルが変更されます。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.teamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、指定した新しい OpenAPI ドキュメントに基づいて、"%s" フォルダー内のファイルと "%s" を変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更の追跡を行ってください。]]></Val>
+            <Val><![CDATA[指定した新しい OpenAPI ドキュメントに基づいて、Microsoft 365 Agents Toolkit によって "%s" フォルダーおよび "%s" 内のファイルが変更されます。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -984,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、選択した API に Microsoft Entra 認証を正常に追加しました。以下の手順に従ってください: 1..env ファイルでプレースホルダー %s を含むアプリケーション ID URI を検索し、Microsoft Entra アプリに更新します。2.Microsoft Entra アプリのリダイレクト URI に https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect を追加します。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によって、選択した API に Microsoft Entra 認証が正常に追加されました。以下の手順に従ってください: 1. .env ファイルでプレースホルダー %s を含むアプリケーション ID URI を検索し、Microsoft Entra アプリに更新します。2. Microsoft Entra アプリのリダイレクト URI に https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect を追加します。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1176,12 +1191,12 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、指定した機能ソースに基づいて、"%s" フォルダー内のファイルを変更します。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
+            <Val><![CDATA[指定した機能ソースに基づいて、"%s" フォルダー内のファイルが Microsoft 365 Agents Toolkit によって変更されます。予期しない変更が失われないようにするには、続行する前にファイルをバックアップするか、Git を使用して変更を追跡します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1368,6 +1383,15 @@
           <Val><![CDATA[Project path is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[プロジェクト パスが空です]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid email address]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[メール アドレスが無効です]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2074,6 +2098,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ユーザーの共有アプリ アクセスが削除されました: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリがユーザーと正常に共有されました: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.confirmManifestQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Confirm you've selected the correct manifest file]]></Val>
@@ -2373,12 +2415,12 @@
       </Item>
       <Item ItemId=";core.copilotPlugin.validate.apiSpec.summary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit で OpenAPI の説明ドキュメントが確認されました:]A;]A;要約:]A;%s。]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によって、OpenAPI の説明ドキュメントが確認されました。]A;]A;要約:]A;%s。]A;%s]A;%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked your API spec:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2433,10 +2475,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は API キーを Teams 開発者ポータルにアップロードします。API キーは、実行時に API に安全にアクセスするために Teams クライアントによって使用されます。Teams Toolkit は API キーを保存しません。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によって API キーが Teams 開発者ポータルにアップロードされます。API キーは、実行時に Teams クライアントが API に安全にアクセスするために使用されます。Microsoft 365 Agents Toolkit では API キーは保存されません。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2460,10 +2505,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、OAuth 登録のクライアント ID/シークレットを Teams 開発者ポータルにアップロードします。これは、実行時に API に安全にアクセスするために Teams クライアントによって使用されます。Teams Toolkit では、クライアント ID またはシークレットが保存されません。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit により、OAuth 登録のクライアント ID またはシークレットが Teams 開発者ポータルにアップロードされます。これは、実行時に Teams クライアントが API に安全にアクセスするために使用されます。Microsoft 365 Agents Toolkit では、クライアント ID またはシークレットは保存されません。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3070,6 +3118,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 Agents SDK と Semantic Kernel を使用してビルドされた天気予報エージェント]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[天気エージェント]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customEngineAgent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
@@ -3564,12 +3630,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilotとチャットし、Teams アプリを開発するための詳細な手順を取得します]]></Val>
+            <Val><![CDATA[GitHub Copilot とチャットして、Microsoft 365 アプリまたは Microsoft 365 Copilot エージェントを開発するための段階的な手順を取得します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4080,10 +4146,13 @@
       </Item>
       <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams ツールキット: アプリのランタイムを選択する]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit: アプリのランタイムを選択します]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4179,46 +4248,49 @@
       </Item>
       <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
+          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams ツールキット プロジェクトをアップグレードして、最新バージョンとの互換性を維持します。バックアップ ディレクトリは、アップグレードの概要と共に作成されます。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit プロジェクトをアップグレードして、最新バージョンとの互換性を維持します。バックアップ ディレクトリは、アップグレードの概要と共に作成されます。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please upgrade your project to stay compatible with the latest version, your current project contains configurations from an older Teams Toolkit.]A;The auto-upgrade process will generate backups in case an error occurs.]]></Val>
+            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
+          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューションをアップグレードして、最新バージョンの Teams ツールキットとの互換性を維持してください。アップグレード レポートを含むバックアップ ディレクトリが生成されます。]]></Val>
+            <Val><![CDATA[ソリューションをアップグレードして、最新の Microsoft 365 Agents Toolkit バージョンとの互換性を維持します。アップグレード レポートを含むバックアップ ディレクトリが生成されます。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit preview feature - Teams App Configuration Improvements is turned on. This project is required to be upgraded to work with the preview features. Select "Learn more" to read about the required changes or select "Upgrade" to perform the changes automatically. If you don't want to upgrade, you can turn off the preview feature.]]></Val>
+            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json が存在しません。Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3 用 Teams ツールキットで作成されたプロジェクトをアップグレードしようとしている可能性があります。Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 用 Teams ツールキットをインストールし、最初にアップグレードを実行してください。]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json が存在しません。Microsoft 365 Agents Toolkit for Visual Studio Code v3.x/Microsoft 365 Agents Toolkit CLI v0.x/Microsoft 365 Agents Toolkit for Visual Studio v17.3 で作成されたプロジェクトをアップグレードしようとしている可能性があります。まず、Microsoft 365 Agents Toolkit for Visual Studio Code v4.x/Microsoft 365 Agents Toolkit CLI v1.x/Microsoft 365 Agents Toolkit for Visual Studio v17.4 をインストールし、アップグレードを実行してください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[このプロジェクトはプレビュー専用であり、Teams ツールキットではサポートされません。新しいプロジェクトを作成して、Teams ツールキットをお試しください]]></Val>
+            <Val><![CDATA[このプロジェクトはプレビュー専用であり、Microsoft 365 Agents Toolkit ではサポートされません。新しいプロジェクトを作成して、Microsoft 365 Agents Toolkit をお試しください]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4242,24 +4314,24 @@
       </Item>
       <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json が存在しません。Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3 用 Teams ツールキットで作成されたプロジェクトをアップグレードしようとしている可能性があります。Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 用 Teams ツールキットをインストールし、最初にアップグレードを実行してください。]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json が存在しません。Microsoft 365 Agents Toolkit for Visual Studio Code v3.x/Microsoft 365 Agents Toolkit CLI v0.x/Microsoft 365 Agents Toolkit for Visual Studio v17.3 で作成されたプロジェクトをアップグレードしようとしている可能性があります。まず、Microsoft 365 Agents Toolkit for Visual Studio Code v4.x/Microsoft 365 Agents Toolkit CLI v1.x/Microsoft 365 Agents Toolkit for Visual Studio v17.4 をインストールし、アップグレードを実行してください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams ツールキットのプレリリース バージョンでは、新しいプロジェクト構成がサポートされています。また、以前のバージョンとは互換がありません。新しいプロジェクトを作成して試すか、"teamsapp upgrade" を実行して最初にプロジェクトをアップグレードしてください。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit のプレリリース バージョンでは、新しいプロジェクト構成がサポートされています。また、以前のバージョンとは互換がありません。新しいプロジェクトを作成して試すか、"teamsapp upgrade" を実行して最初にプロジェクトをアップグレードします。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsfx upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4500,31 +4572,37 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit CLI のバージョンが古く、現在のプロジェクトがサポートされていません。次のコマンドを使用して、最新バージョンにアップグレードしてください。]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit CLI のバージョンが古く、現在のプロジェクトがサポートされていません。次のコマンドを使用して、最新バージョンにアップグレードしてください。]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your TeamFx CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsfx-cli@latest]]></Val>
+            <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[現在のプロジェクトは、インストールされているバージョンの Teams Toolkit と互換性がありません。]]></Val>
+            <Val><![CDATA[現在のプロジェクトは、インストールされている Microsoft 365 Agents Toolkit のバージョンと互換性がありません。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューション内のプロジェクトは、Teams ツールキット プレビュー機能を使用して作成されます - Teams App Configuration の機能強化。続行するにはプレビュー機能を有効にしてください。]]></Val>
+            <Val><![CDATA[ソリューション内のプロジェクトは、Microsoft 365 Agents Toolkit プレビュー機能を使用して作成されます - Teams App Configuration の機能強化。続行するにはプレビュー機能を有効にしてください。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4723,6 +4801,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.selectUsersToRemoveShareAccess.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select users to remove access]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アクセス権を削除するユーザーを選択する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate app package using Teams Store rules]]></Val>
@@ -4797,6 +4884,51 @@
           <Val><![CDATA[Set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[設定]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.share.removeAccess.operator" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot remove permission of the operator. Email: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[オペレーターのアクセス許可を削除できません。メールアドレス: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[オプションの選択]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリを共有する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share with user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ユーザーと共有する]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ユーザーのメールアドレスをコンマで区切って入力する]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4950,10 +5082,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.env" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          <Val><![CDATA[Target Microsoft 365 Agents Toolkit Environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ターゲット Teams Toolkit 環境]]></Val>
+            <Val><![CDATA[ターゲット Microsoft 365 Agents Toolkit 環境]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5175,19 +5310,25 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          <Val><![CDATA[Environment in Microsoft 365 Agents Toolkit Created Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit の環境がプロジェクトを作成しました]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によって作成されたプロジェクトの環境]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit によって作成されたプロジェクト内の特定の環境に関連付けられているリソースをクリーンアップします。リソースには、Teams 開発者ポータルでのアプリの登録、Bot Framework ポータルでのボット登録、Microsoft 365 アプリにアップロードされたカスタム アプリが含まれます。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit によって作成されたプロジェクト内の特定の環境に関連付けられているリソースをクリーンアップします。リソースには、Teams 開発者ポータルでのアプリ登録、Bot Framework ポータルでのボット登録、Microsoft 365 アプリにアップロードされたカスタム アプリが含まれます。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5220,10 +5361,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[マニフェスト ID に関連付けられているリソースをクリーンアップします。これには、Teams 開発者ポータル でのアプリの登録、Bot Framework ポータルでのボット登録、Microsoft 365にアップロードされたカスタム アプリが含まれます。マニフェスト ID は、Teams Toolkit によって作成されたプロジェクトの環境ファイル (既定の環境キー: Teams_App_ID) で確認できます。]]></Val>
+            <Val><![CDATA[マニフェスト ID に関連付けられているリソースをクリーンアップします。これには、Teams 開発者ポータルでのアプリ登録、Bot Framework ポータルでのボット登録、Microsoft 365 にアップロードされたカスタム アプリが含まれます。マニフェスト ID は、Microsoft 365 Agents Toolkit によって作成されたプロジェクトの環境ファイル (既定の環境キー: Teams_App_ID) にあります。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5265,10 +5409,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.titleIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Microsoft 365 Agents Toolkit created project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[タイトル ID に関連付けられているアップロード済みのカスタム アプリをアンインストールします。タイトル ID は、Teams Toolkit によって作成されたプロジェクトの環境ファイルにあります。]]></Val>
+            <Val><![CDATA[タイトル ID に関連付けられているアップロード済みのカスタム アプリをアンインストールします。タイトル ID は、Microsoft 365 Agents Toolkit によって作成されたプロジェクトの環境ファイルにあります。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5622,12 +5769,12 @@
       </Item>
       <Item ItemId=";depChecker.portableFuncNodeNotMatched" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ご使用の Node.js (@NodeVersion) には、Teams ツールキットの Azure Functions Core Tools (@FuncVersion) との互換性がありません。]]></Val>
+            <Val><![CDATA[ご使用の Node.js (@NodeVersion) には、Microsoft 365 Agents Toolkit の Azure Functions Core Tools (@FuncVersion) との互換性がありません。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Node.js (@NodeVersion) is incompatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5778,10 +5925,13 @@
       </Item>
       <Item ItemId=";driver.aadApp.log.deleteAadAfterDebugging" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          <Val><![CDATA[ (Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[(Teams ツールキットは、デバッグ後にMicrosoft Entraアプリケーションを削除します)]]></Val>
+            <Val><![CDATA[ (デバッグ後に Microsoft Entra アプリケーションは、Microsoft 365 Agents Toolkit によって削除されます)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6469,11 +6619,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[サンドボックス チャネルに Teams アプリをインストールします。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.progress.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Installing app...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリをインストールしています...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.devChannel.install.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App installed into team %s with channel %s successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[チャネル %s を使用してアプリがチーム %s に正常にインストールされました。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.summary.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App '%s' already installed in team '%s'. It will now be updated to the latest version.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリ '%s' はチーム '%s' に既にインストールされています。最新バージョンに更新されます。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7110,12 +7287,12 @@
       </Item>
       <Item ItemId=";driver.spfx.error.noValidAppCatelog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
+          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Teams Toolkit で作成する場合、または自分で作成する場合は、%s のプロパティ 'createAppCatalogIfNotExist' を true に更新できます。]]></Val>
+            <Val><![CDATA[テナントに有効なアプリ カタログがありません。Microsoft 365 Agents Toolkit で作成する場合、または自分で作成する場合は、%s 内の 'createAppCatalogIfNotExist' プロパティを true に設定します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in app.yml to true if you want us to create it for you or you can create it by yourself.]]></Val>
+            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7365,12 +7542,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、すべての検証規則に対するチェックを行いました:]A;]A;概要:]A;%s。]A;%s%s]A;%s]A;]A;検証の完全なログは、%s にあります]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit により、すべての検証規則に対するチェックが行われました:]A;]A;要約:]A;%s。]A;%s%s]A;%s]A;]A;検証の完全なログは、%s にあります]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7440,12 +7617,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、対応するスキーマでマニフェストを確認しました:]A;]A;概要：]A;%s。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit により、対応するスキーマを持つマニフェストが確認されました:]A;]A;要約:]A;%s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked manifest with its schema:]A;]A;Summary:]A;%s.]A;%s]A;]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7497,22 +7674,25 @@
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams ツールキットで、検証規則に対するアプリ パッケージのチェックが完了しました。%s。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit による、検証規則に対するアプリ パッケージのチェックが完了しました。%s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s failed, %s passed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit で、検証規則に対するアプリ パッケージの確認が完了しました。%s。詳細は [出力パネル]5D;(command:fx-extension.showOutputChannel) で確認してください。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit による、検証規則に対するアプリ パッケージのチェックが完了しました。%s。詳細は [出力パネル]5D;(command:fx-extension.showOutputChannel) で確認してください。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7620,24 +7800,24 @@
       </Item>
       <Item ItemId=";error.UpgradeV3CanceledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
+          <Val><![CDATA[Don't want to upgrade? Continue using old version of Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[アップグレードしない場合Teams Toolkit の古いバージョンを引き続き使用する]]></Val>
+            <Val><![CDATA[アップグレードを希望しませんか? Microsoft 365 Agents Toolkit の以前のバージョンを引き続き使用します]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[If you are not ready to upgrade, please continue to use the old version of Teams Toolkit]]></Val>
+            <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.VideoFilterAppNotRemoteSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は、リモートでのビデオ フィルター アプリをサポートしていません。プロジェクト ルート フォルダー内の README.md ファイルを確認してください。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit では、リモートでのビデオ フィルター アプリはサポートされていません。プロジェクト ルート フォルダー内の README.md ファイルを確認してください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Video filter app in remote is not supported by Teams Toolkit. Check the README.md file in project root folder.]]></Val>
+            <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8232,10 +8412,13 @@
       </Item>
       <Item ItemId=";error.arm.DownloadBicepCliError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file m365agents.yml and Microsoft 365 Agents Toolkit will use bicep CLI in PATH]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s' から Bicep cli をダウンロードできません。エラー メッセージは次のとおりです: %s。エラーを修正して、もう一度お試しください。または、構成ファイル teamapp.yml の bicepCliVersion 構成を削除すると、Teams Toolkit は PATH で bicep CLI を使用します]]></Val>
+            <Val><![CDATA['%s' から Bicep cli をダウンロードできません。エラー メッセージは次のとおりです: %s。エラーを修正して、もう一度お試しください。または、構成ファイル m365agents.yml の bicepCliVersion 構成を削除すると、Microsoft 365 Agents Toolkit では PATH 内の bicep CLI が使用されます]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8469,22 +8652,25 @@
       </Item>
       <Item ItemId=";error.common.InvalidProjectError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[このコマンドは、Teams Toolkit によって作成されたプロジェクトに対してのみ機能します。'teamsapp.yml' または 'teamsapp.local.yml' が見つかりません]]></Val>
+            <Val><![CDATA[このコマンドは、Microsoft 365 Agents Toolkit によって作成されたプロジェクトに対してのみ機能します。'm365agents.yml' または 'm365agents.local.yml' が見つかりません]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This command only works for project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.common.InvalidProjectError.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[このコマンドは、Teams Toolkit によって作成されたプロジェクトに対してのみ機能します。Yaml ファイルが見つかりません: %s]]></Val>
+            <Val><![CDATA[このコマンドは、Microsoft 365 Agents Toolkit によって作成されたプロジェクトに対してのみ機能します。YAML ファイルが見つかりませんでした: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8502,12 +8688,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ファイルの環境変数 '%s' がありません: %s。.env ファイルの '%s' または '%s' を編集するか、システム環境変数を調整してください。新しい Teams Toolkit プロジェクトの場合は、プロビジョニングまたはデバッグを実行して、これらの変数を正しく設定したことを確認してください。]]></Val>
+            <Val><![CDATA[ファイルの環境変数 '%s' がありません: %s。.env ファイルの '%s' または '%s' を編集するか、システム環境変数を調整してください。新しい Microsoft 365 Agents Toolkit プロジェクトの場合は、プロビジョニングまたはデバッグを実行してこれらの変数を正しく設定していることを確認してください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The program cannot proceed as the following environment variables are missing: '%s', which are required for file: %s. Make sure the required variables are set either by editing the .env file '%s' with the correct names and values , or by setting the system environment variables with the correct names and values. If you are developing with a new project created with Teams Toolkit, running provision or debug will register correct values for these environment variables.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9037,6 +9223,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.kiota.KiotaGeneratePluginError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kiota を使用してプラグイン マニフェスト ファイルを生成できません。エラー: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
@@ -9160,6 +9355,78 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.share.appPackageConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the appPackagePath config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml に appPackagePath 構成が見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.appPackageNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the zip package in path: %s. You need to zip the package first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[パスに zip パッケージが見つかりません: %s。最初にパッケージを zip 圧縮する必要があります。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest file in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリ パッケージにマニフェスト ファイルが見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest ID in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[アプリ パッケージにマニフェスト ID が見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.shareActionConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "%s" action config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml に "%s" アクション構成が見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "titleId" or "appId" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml に "titleId" または "appId" 構成が見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[.env ファイル内の共有タイトル ID または共有アプリ ID を取得できません。共有タイトル ID: %s、共有アプリ ID: %s。最初にアプリを共有する必要があります。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml に "共有" 構成が見つかりません]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
@@ -9264,12 +9531,12 @@
       </Item>
       <Item ItemId=";error.yaml.InvalidYamlSchemaErrorWithReason" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
+          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[YAML ファイルを解析できません: %s。理由: %s YAML ファイルを確認するか、最新の Teams ツールキットにアップグレードしてください。]]></Val>
+            <Val><![CDATA[YAML ファイルを解析できません: %s。理由: %s YAML ファイルを確認するか、最新の Microsoft 365 Agents Toolkit にアップグレードしてください。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file.]]></Val>
+            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9372,10 +9639,13 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. The file content will replace all the properties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[関数 %s の %s 内のstatic_templateに、ファイルと他のプロパティの両方があります。すべてのプロパティはファイルコンテンツによって上書きされます。]]></Val>
+            <Val><![CDATA[関数 %s の %s 内の static_template に、ファイルと他のプロパティの両方があります。ファイルの内容によってすべてのプロパティが置き換えられます。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9519,12 +9789,12 @@
       </Item>
       <Item ItemId=";plugins.appstudio.unprocessedFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit did not process %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は %s を処理しませんでした。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit では %s を処理できませんでした。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[%s was not processed by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9981,19 +10251,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューション内の SPFx %s バージョンがコンピューターにインストールされていません。Web パーツの追加を続行するために、Teams Toolkit ディレクトリにインストールしますか?]]></Val>
+            <Val><![CDATA[ソリューション内の SPFx %s バージョンがお使いのコンピューターにインストールされていません。Microsoft 365 Agents Toolkit ディレクトリにインストールして、Web パーツの追加を続行しますか?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は SPFx バージョン %s を使用しており、ソリューションには SPFx バージョン %s があります。Teams Toolkit ディレクトリでバージョン %s にアップグレードし、Web パーツを追加しますか?]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit は SPFx バージョン %s を使用しており、ソリューションには SPFx バージョン %s があります。Microsoft 365 Agents Toolkit ディレクトリのバージョン %s にアップグレードして、Web パーツを追加しますか?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10026,10 +10302,13 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューションに %s SPFx バージョンがこのコンピューターにインストールされていません。Teams Toolkit では、既定でディレクトリにインストールされている SPFx が使用されます (%s)。バージョンの不一致により、予期しないエラーが発生する可能性があります。続行しますか?]]></Val>
+            <Val><![CDATA[ソリューション内の SPFx バージョン %s は、このマシンにインストールされていません。Microsoft 365 Agents Toolkit では、既定で、そのディレクトリ (%s) にインストールされている SPFx が使用されます。バージョンの不一致により、予期しないエラーが発生する可能性があります。続行しますか?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10044,19 +10323,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューションの SPFx バージョンが %s です。Teams Toolkit ディレクトリに %s をインストールしました。これは、Teams Toolkit (%s) の既定として使用されます。バージョンの不一致により、予期しないエラーが発生する可能性があります。%s で考えられる解決策を検索します。]]></Val>
+            <Val><![CDATA[ソリューションの SPFx バージョンは %s です。Microsoft 365 Agents Toolkit ディレクトリに %s がインストールされました。これは、Microsoft 365 Agents Toolkit (%s) の既定として使用されます。バージョンの不一致により、予期しないエラーが発生する可能性があります。%s で考えられる解決策を見つけます。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ソリューションの SPFx バージョンが %s です。%s グローバルにインストールされ、Teams Toolkit ディレクトリに %s されました。これは、Teams Toolkit によって既定 (%s) として使用されます。バージョンの不一致により、予期しないエラーが発生する可能性があります。%s で考えられる解決策を検索します。]]></Val>
+            <Val><![CDATA[ソリューションの SPFx バージョンは %s です。%s をグローバルにインストールし、Microsoft 365 Agents Toolkit ディレクトリに %s をインストールしました。これは、Microsoft 365 Agents Toolkit によって既定値 (%s) として使用されます。バージョンの不一致により、予期しないエラーが発生する可能性があります。%s で考えられる解決策を見つけます。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10155,12 +10440,12 @@
       </Item>
       <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[既存の SPFx ソリューションを Teams Toolkit にインポートできません: %s]]></Val>
+            <Val><![CDATA[既存の SPFx ソリューションを Microsoft 365 Agents Toolkit にインポートできません: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10278,24 +10563,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit は SPFx ソリューションをインポートできません。重要な詳細の完全なログを %s で検索します。]]></Val>
+            <Val><![CDATA[SPFx ソリューションは Microsoft 365 Agents Toolkit では インポートできません。重要な詳細の完全なログを %s で検索します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to import your SPFx solution. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit で SPFx ソリューションが正常にインポートされました。インポートの詳細の完全なログを %s で検索します。]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit により SPFx ソリューションが正常にインポートされました。インポートの詳細の完全なログを %s で検索します。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has imported your SPFx solution successfully. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10353,24 +10638,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit ディレクトリに最新の SPFx をローカルにインストールする ]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit ディレクトリに最新の SPFx をローカルにインストールする]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit ディレクトリに最新の SPFx (%s) をローカルにインストールする ]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit ディレクトリに最新の SPFx (%s) をローカルにインストールする]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework (%s) locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

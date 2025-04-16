@@ -576,10 +576,13 @@
       </Item>
       <Item ItemId=";core.QuestionAppName.validation.lengthWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Microsoft 365 Agents Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[应用名称可能超过 30 个字符，因为 Teams 工具包为本地调试添加了“本地”后缀。请在“manifest.json”文件中更新你的应用名称。]]></Val>
+            <Val><![CDATA[应用名称不能超过 30 个字符，因为 Microsoft 365 智能体工具包为进行本地调试添加了一个 “local” 后缀。请在 “manifest.json” 文件中更新应用名称。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -774,12 +777,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 Teams 工具包创建新的 Teams 应用。]]></Val>
+            <Val><![CDATA[使用 Microsoft 365 智能体工具包创建新的 Teams 应用。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams application.]]></Val>
+            <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -948,28 +951,37 @@
       </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包将根据你提供的新 OpenAPI 文档修改 "%s" 文件夹中的文件。为了避免丢失意外更改，请在继续操作之前备份文件或使用 GIT 进行更改跟踪。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包将根据你提供的新 OpenAPI 文档修改 “%s” 文件夹中的文件。为避免丢失意外更改，请先备份文件或使用 git 跟踪更改，然后再继续操作。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.localTeamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包将根据你提供的新 OpenAPI 文档修改 "%s" 文件夹、"%s" 和 "%s" 中的文件。为了避免丢失意外更改，请在继续操作之前备份文件或使用 GIT 进行更改跟踪。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包将根据你提供的新 OpenAPI 文档修改 “%s” 文件夹、“%s” 和 “%s” 中的文件。为避免丢失意外更改，请先备份文件或使用 git 跟踪更改，然后再继续操作。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.teamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包将根据你提供的新 OpenAPI 文档修改 "%s" 文件夹和 "%s" 中的文件。为了避免丢失意外更改，请在继续操作之前备份文件或使用 GIT 进行更改跟踪。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包将根据你提供的新 OpenAPI 文档修改 “%s” 文件夹和 “%s” 中的文件。为避免丢失意外更改，请先备份文件或使用 git 跟踪更改，然后再继续操作。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -984,10 +996,13 @@
       </Item>
       <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已成功将 Microsoft Entra 身份验证添加到所选 API。请: 1.在 .env 文件中查找带占位符 %s 的应用程序 ID URI，并将其更新为 Microsoft Entra 应用。2.添加 https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect 以重定向 Mc 态 Entra 应用的 URI。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已成功将 Microsoft Entra 身份验证添加到所选 API。请执行以下操作: 1.在 .env 文件中查找带占位符 %s 的应用程序 ID URI，并将其更新为 Microsoft Entra 应用。2.添加 https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect 以重定向 Microsoft Entra 应用的 URI。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1176,12 +1191,12 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包将根据你提供的功能源修改 “%s” 文件夹中的文件。要避免丢失意外更改，请先备份文件或使用 git 跟踪更改，然后再继续操作。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包将根据你提供的功能源修改 “%s” 文件夹中的文件。为避免丢失意外更改，请先备份文件或使用 git 跟踪更改，然后再继续操作。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1368,6 +1383,15 @@
           <Val><![CDATA[Project path is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[项目路径为空]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid email address]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[电子邮件地址无效]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2074,6 +2098,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已移除用户的共享应用访问权限: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已成功与用户共享应用: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.confirmManifestQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Confirm you've selected the correct manifest file]]></Val>
@@ -2373,12 +2415,12 @@
       </Item>
       <Item ItemId=";core.copilotPlugin.validate.apiSpec.summary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已检查 OpenAPI 说明文档:]A;]A;摘要:]A;%s。]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已检查 OpenAPI 说明文档:]A;]A;摘要:]A;%s。]A;%s]A;%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked your API spec:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2433,10 +2475,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包会将 API 密钥上传到 Teams 开发人员门户。Teams 客户端将使用 API 密钥在运行时安全地访问 API。Teams 工具包不会存储你的 API 密钥。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包会将 API 密钥上传到 Teams 开发人员门户。Teams 客户端将使用 API 密钥在运行时安全地访问 API。Microsoft 365 智能体工具包不会存储 API 密钥。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2460,10 +2505,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包将 OAuth 注册的客户端 ID/密码上传到 Teams 开发人员门户。Teams 客户端使用它在运行时安全地访问你的 API。Teams 工具包不存储你的客户端 ID/机密。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包可将 OAuth 注册的客户端 ID/机密上传到 Teams 开发人员门户。Teams 客户端使用它在运行时安全访问 API。Microsoft 365 智能体工具包不存储客户端 ID/机密。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3070,6 +3118,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[一个天气预报智能体，它是使用 Microsoft 365 智能体 SDK 和语义内核生成的]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[天气代理]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customEngineAgent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
@@ -3564,12 +3630,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[与GitHub Copilot聊天并获取开发 Teams 应用的分步说明]]></Val>
+            <Val><![CDATA[与 GitHub Copilot 聊天，并获取开发 Microsoft 365 应用或 Microsoft 365 Copilot 智能体的分步说明。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4080,10 +4146,13 @@
       </Item>
       <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包: 为应用选择运行时]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包: 选择应用的运行时]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4179,46 +4248,49 @@
       </Item>
       <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
+          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升级 Teams 工具包项目以与最新版本保持兼容。备份目录将与升级摘要一起创建。]]></Val>
+            <Val><![CDATA[升级 Microsoft 365 智能体工具包项目以与最新版本保持兼容。备份目录将与升级摘要一起创建。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please upgrade your project to stay compatible with the latest version, your current project contains configurations from an older Teams Toolkit.]A;The auto-upgrade process will generate backups in case an error occurs.]]></Val>
+            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
+          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升级解决方案以与最新的 Teams 工具包版本保持兼容。升级后将生成一个备份目录，其中包含一份升级报告。]]></Val>
+            <Val><![CDATA[升级解决方案以兼容 Microsoft 365 智能体工具包最新版本。升级后将生成一个备份目录，其中包含一份升级报告。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit preview feature - Teams App Configuration Improvements is turned on. This project is required to be upgraded to work with the preview features. Select "Learn more" to read about the required changes or select "Upgrade" to perform the changes automatically. If you don't want to upgrade, you can turn off the preview feature.]]></Val>
+            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json 不存在。你可能正在尝试升级由 Teams Toolkit for Visual Studio Code v3.x/Teams Toolkit CLI v0.x/Teams Toolkit for Visual Studio v17.3 创建的项目。请安装 Teams Toolkit for Visual Studio Code v4.x/Teams Toolkit CLI v1.x/Teams Toolkit for Visual Studio v17.4，并首先运行升级。]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json 不存在。你可能正在尝试升级由适用于 Visual Studio Code v3.x 的 Microsoft 365 智能体工具包、Microsoft 365 智能体工具包 CLI v0.x 或适用于 Visual Studio v17.3 的 Microsoft 365 智能体工具包创建的项目。请安装适用于 Visual Sudio Code v4.x 的 Microsoft 365 智能体工具包、Microsoft 365 智能体工具包 CLI v1.x 或适用于 Visual Studio v17.4 的 Microsoft 365 智能体工具包，并首先运行升级。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此项目仅用于预览，并将不受 Teams 工具包支持。请通过创建新项目来试用 Teams 工具包]]></Val>
+            <Val><![CDATA[此项目仅用于预览，并且不受 Microsoft 365 智能体工具包支持。请通过创建新项目来尝试 Microsoft 365 智能体工具包]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4242,24 +4314,24 @@
       </Item>
       <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json 不存在。你可能正在尝试升级由 Teams Toolkit for Visual Studio Code v3.x/Teams Toolkit CLI v0.x/Teams Toolkit for Visual Studio v17.3 创建的项目。请安装 Teams Toolkit for Visual Studio Code v4.x/Teams Toolkit CLI v1.x/Teams Toolkit for Visual Studio v17.4，并首先运行升级。]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json 不存在。你可能正在尝试升级由适用于 Visual Studio Code v3.x 的 Microsoft 365 智能体工具包、Microsoft 365 智能体工具包 CLI v0.x 或适用于 Visual Studio v17.3 的 Microsoft 365 智能体工具包创建的项目。请安装适用于 Visual Sudio Code v4.x 的 Microsoft 365 智能体工具包、Microsoft 365 智能体工具包 CLI v1.x 或适用于 Visual Studio v17.4 的 Microsoft 365 智能体工具包，并首先运行升级。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包的预发布版本支持新的项目配置，与以前的版本不兼容。请通过创建新项目进行尝试，或先运行“teamsapp 升级”以升级项目。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包的预发布版本支持新的项目配置，并且与以前的版本不兼容。请通过创建新项目进行尝试，或先运行“teamsapp 升级”以升级项目。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsfx upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4500,31 +4572,37 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包 CLI 版本较旧，不支持当前项目，请使用以下命令升级到最新版本:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[你的 Microsoft 365 智能体工具包 CLI 版本较旧，不支持当前项目，请使用以下命令升级到最新版本:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your TeamFx CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsfx-cli@latest]]></Val>
+            <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[当前项目与已安装的 Teams 工具包版本不兼容。]]></Val>
+            <Val><![CDATA[当前项目与已安装的 Microsoft 365 智能体工具包版本不兼容。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[解决方案中的项目是使用 Teams 工具包预览功能 - Teams 应用配置改进创建的。可以启用预览功能以继续。]]></Val>
+            <Val><![CDATA[解决方案中的项目是使用 Microsoft 365 智能体工具包预览功能 - Teams 应用配置改进创建的。可以启用预览功能以继续操作。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4723,6 +4801,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.selectUsersToRemoveShareAccess.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select users to remove access]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[选择要移除访问权限的用户]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Validate app package using Teams Store rules]]></Val>
@@ -4797,6 +4884,51 @@
           <Val><![CDATA[Set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[设置]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.share.removeAccess.operator" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot remove permission of the operator. Email: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[无法移除操作员的权限。电子邮件: %s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[选择选项]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[共享应用]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share with user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[与用户共享]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[输入用户电子邮件(以逗号分隔)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4950,10 +5082,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.env" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          <Val><![CDATA[Target Microsoft 365 Agents Toolkit Environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[目标 Teams 工具包环境]]></Val>
+            <Val><![CDATA[目标 Microsoft 365 智能体工具包环境]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5175,19 +5310,25 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          <Val><![CDATA[Environment in Microsoft 365 Agents Toolkit Created Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包创建项目中的环境]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包创建项目中的环境]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[清除 Teams 工具包创建项目中与特定环境关联的资源。资源包括 Teams 开发人员门户中的应用注册、Bot Framework门户中的机器人注册以及Microsoft 365应用中上传的自定义应用。]]></Val>
+            <Val><![CDATA[清理与 Microsoft 365 智能体工具包创建项目中的特定环境关联的资源。资源包括 Teams 开发人员门户中的应用注册、Bot Framework 门户中的机器人注册以及 Microsoft 365 应用中上传的自定义应用。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5220,10 +5361,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[清理与清单 ID 关联的资源。这包括 Teams 开发人员门户中的应用注册、Bot Framework门户中的机器人注册以及上传到 Microsoft 365 的自定义应用。可在环境文件中找到默认环境密钥 (清单 ID： 在 Teams 工具包创建的项目中Teams_App_ID)。]]></Val>
+            <Val><![CDATA[清理与清单 ID 关联的资源。这包括 Teams 开发人员门户中的应用注册、Bot Framework 门户中的机器人注册以及上传到 Microsoft 365 的自定义应用。可以在 Microsoft 365 智能体工具包创建的项目中查找环境文件(默认环境密钥: Teams_App_ID)中的清单 ID。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5265,10 +5409,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.titleIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Microsoft 365 Agents Toolkit created project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[卸载与标题 ID 关联的已上传自定义应用。可以在 Teams 工具包创建项目的环境文件中找到标题 ID。]]></Val>
+            <Val><![CDATA[卸载与标题 ID 关联的已上传自定义应用。可以在 Microsoft 365 智能体工具包创建项目的环境文件中查找标题 ID。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5622,12 +5769,12 @@
       </Item>
       <Item ItemId=";depChecker.portableFuncNodeNotMatched" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[你的 Node.js (@NodeVersion)与 Teams 工具包 Azure Functions Core Tools (@FuncVersion)不兼容。]]></Val>
+            <Val><![CDATA[你的 Node.js (@NodeVersion)与 Microsoft 365 智能体工具包 Azure Functions Core Tools (@FuncVersion)不兼容。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Node.js (@NodeVersion) is incompatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5778,10 +5925,13 @@
       </Item>
       <Item ItemId=";driver.aadApp.log.deleteAadAfterDebugging" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          <Val><![CDATA[ (Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[(Teams 工具包将在调试) 后删除Microsoft Entra应用程序]]></Val>
+            <Val><![CDATA[ (Microsoft 365 智能体工具包将在调试后删除 Microsoft Entra 应用程序)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6469,11 +6619,38 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[将 Teams 应用安装到沙盒通道。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.progress.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Installing app...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[正在安装应用...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.devChannel.install.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App installed into team %s with channel %s successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[已成功将应用安装到具有频道 %s 的团队 %s 中。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.summary.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App '%s' already installed in team '%s'. It will now be updated to the latest version.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已在团队 “%s” 中安装应用 “%s”。现在，它将更新到最新版本。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7110,12 +7287,12 @@
       </Item>
       <Item ItemId=";driver.spfx.error.noValidAppCatelog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
+          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[租户中不存在有效的应用目录。如果希望 Teams 工具包为你创建属性，则可以将 %s 中的属性 “createAppCatalogIfNotExist” 更新为 true，或者可以自行创建。]]></Val>
+            <Val><![CDATA[租户中不存在有效的应用目录。如果希望 Microsoft 365 智能体工具包为你创建应用目录，则可以将 %s 中的属性 “createAppCatalogIfNotExist” 更新为 true，或者可以自行创建。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in app.yml to true if you want us to create it for you or you can create it by yourself.]]></Val>
+            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7365,12 +7542,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已根据所有验证规则进行检查:]A;]A;摘要:]A;%s。]A;%s%s]A;%s]A;]A;可在 %s 中找到完整的验证日志]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已针对所有验证规则进行检查:]A;]A;摘要:]A;%s。]A;%s%s]A;%s]A;]A;可在 %s 中查找完整的验证日志]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7440,12 +7617,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已使用相应的架构检查清单()：]A;]A;总结：]A;%s。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已检查具有相应架构的清单:]A;]A;摘要:]A;%s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked manifest with its schema:]A;]A;Summary:]A;%s.]A;%s]A;]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7497,22 +7674,25 @@
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已根据验证规则完成应用包检查。%s。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已根据验证规则完成应用包检查。%s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s failed, %s passed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已根据验证规则完成应用包检查。%s。有关详细信息，请检查 [输出面板]5D;(command:fx-extension.showOutputChannel)。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已根据验证规则完成应用包检查。%s。有关详细信息，请检查 [输出面板]5D;(command:fx-extension.showOutputChannel)。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7620,24 +7800,24 @@
       </Item>
       <Item ItemId=";error.UpgradeV3CanceledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
+          <Val><![CDATA[Don't want to upgrade? Continue using old version of Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[不想升级？继续使用旧版 Teams 工具包]]></Val>
+            <Val><![CDATA[不想升级?继续使用旧版本的 Microsoft 365 智能体工具包]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[If you are not ready to upgrade, please continue to use the old version of Teams Toolkit]]></Val>
+            <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.VideoFilterAppNotRemoteSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包不支持远程视频筛选器应用。检查项目根文件夹中的 README.md 文件。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包不支持远程环境中的视频筛选器应用。检查项目根文件夹中的 README.md 文件。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Video filter app in remote is not supported by Teams Toolkit. Check the README.md file in project root folder.]]></Val>
+            <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8232,10 +8412,13 @@
       </Item>
       <Item ItemId=";error.arm.DownloadBicepCliError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file m365agents.yml and Microsoft 365 Agents Toolkit will use bicep CLI in PATH]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法从 "%s" 下载 Bicep cli。错误消息为: %s。修复错误，然后重试。或删除 config 文件 teamsapp.yml 中的 bicepCliVersion 配置，Teams 工具包将在 PATH 中使用 bicep CLI]]></Val>
+            <Val><![CDATA[无法从 "%s" 下载 Bicep cli。错误消息为: %s。请修复错误，然后重试。或移除配置文件 m365agents.yml 中的 bicepCliVersion 配置，然后 Microsoft 365 智能体工具包将使用 PATH 中的 bicep CLI]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8469,22 +8652,25 @@
       </Item>
       <Item ItemId=";error.common.InvalidProjectError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此命令仅适用于 Teams 工具包创建的项目。找不到“teamsapp.yml”或“teamsapp.local.yml”]]></Val>
+            <Val><![CDATA[此命令仅适用于由 Microsoft 365 智能体工具包创建的项目。找不到 “m365agents.yml” 或 “m365agents.local.yml”]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This command only works for project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.common.InvalidProjectError.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此命令仅适用于 Teams 工具包创建的项目。找不到 Yaml 文件： %s]]></Val>
+            <Val><![CDATA[此命令仅适用于由 Microsoft 365 智能体工具包创建的项目。找不到 Yaml 文件: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8502,12 +8688,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[缺少文件 '%s' 的环境变量： %s。请编辑 .env 文件 '%s' 或 '%s'，或调整系统环境变量。对于新的 Teams 工具包项目，请确保已运行预配或调试以正确设置这些变量。]]></Val>
+            <Val><![CDATA[文件 %s 缺少环境变量 “%s”。请编辑 .env 文件 “%s” 或 “%s”，或调整系统环境变量。对于新的 Microsoft 365 智能体工具包项目，请确保已运行预配或进行调试以正确设置这些变量。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The program cannot proceed as the following environment variables are missing: '%s', which are required for file: %s. Make sure the required variables are set either by editing the .env file '%s' with the correct names and values , or by setting the system environment variables with the correct names and values. If you are developing with a new project created with Teams Toolkit, running provision or debug will register correct values for these environment variables.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9037,6 +9223,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.kiota.KiotaGeneratePluginError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[无法使用 Kiota 生成插件清单文件。错误: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
@@ -9160,6 +9355,78 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.share.appPackageConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the appPackagePath config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 m365agents.yml 中找不到 appPackagePath 配置]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.appPackageNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the zip package in path: %s. You need to zip the package first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在路径 %s 中找不到 zip 包。需要先压缩包。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest file in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在应用包中找不到清单文件]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest ID in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在应用包中找不到清单 ID]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.shareActionConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "%s" action config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 m365agents.yml 中找不到 “%s” 操作配置]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "titleId" or "appId" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 m365agents.yml 中找不到 “titleId” 或 “appId” 配置]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[无法获取 .env 文件中的共享标题 ID 或共享应用 ID。共享标题 ID: %s，共享应用 ID: %s。首先需要共享应用。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在 m365agents.yml 中找不到“共享”配置]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
@@ -9264,12 +9531,12 @@
       </Item>
       <Item ItemId=";error.yaml.InvalidYamlSchemaErrorWithReason" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
+          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法分析 yaml 文件: %s。原因: %s 请查看 yaml 文件或升级到最新的 Teams 工具包。]]></Val>
+            <Val><![CDATA[无法分析 yaml 文件: %s。原因: %s，请查看 yaml 文件或升级到最新的 Microsoft 365 智能体工具包。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file.]]></Val>
+            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9372,10 +9639,13 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. The file content will replace all the properties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[函数 %s 的 %s 中的static_template同时具有文件和其他属性。所有属性都将被文件内容覆盖。]]></Val>
+            <Val><![CDATA[函数 %s 的 %s 中的s tatic_template 同时具有文件和其他属性。文件内容将替换所有属性。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9519,12 +9789,12 @@
       </Item>
       <Item ItemId=";plugins.appstudio.unprocessedFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit did not process %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包未处理 %s。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包未处理 %s。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[%s was not processed by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9981,19 +10251,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[你的解决方案中的 SPFx %s 版本未安装在计算机上。是否要在 Teams 工具包目录中安装它以继续添加 Web 部件？]]></Val>
+            <Val><![CDATA[计算机上未安装解决方案中的 SPFx %s 版本。是否要在 Microsoft 365 智能体工具包目录中安装它，以继续添加 Web 部件?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包正在使用 SPFx 版本 %s 并且你的解决方案 %s SPFx 版本。是否要将其升级到 Teams 工具包目录中的版本 %s 并添加 Web 部件？]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包使用的是 SPFx 版本 %s，而解决方案包含 SPFx 版本 %s。是否要将其升级到 Microsoft 365 智能体工具包目录中的版本 %s 并添加 Web 部件?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10026,10 +10302,13 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[解决方案中 %s 的 SPFx 版本未安装在此计算机上。默认情况下，Teams 工具包使用其目录中安装的 SPFx (%s)。版本不匹配可能导致意外错误。是否仍要继续？]]></Val>
+            <Val><![CDATA[此计算机上未安装解决方案中的 SPFx 版本 %s。Microsoft 365 智能体工具包默认使用在其目录中安装的 SPFx (%s)。版本不匹配可能会导致意外错误。是否仍要继续?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10044,19 +10323,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[解决方案中的 SPFx 版本 %s。你已在 Teams 工具包目录中安装 %s，该目录在 Teams 工具包 (%s) 中用作默认值。版本不匹配可能导致意外错误。在 %s 中查找可能的解决方案。]]></Val>
+            <Val><![CDATA[解决方案中的 SPFx 版本为 %s。你已在 Microsoft 365 智能体工具包目录中安装了 %s，在在 Microsoft 365 智能体工具包(%s)中用作默认值。版本不匹配可能会导致意外错误。在 %s 中查找可能的解决方案。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[解决方案中的 SPFx 版本 %s。你已在 Teams 工具包目录中全局安装 %s 并 %s，Teams 工具包将此目录用作默认 (%s)。版本不匹配可能导致意外错误。在 %s 中查找可能的解决方案。]]></Val>
+            <Val><![CDATA[解决方案中的 SPFx 版本为 %s。你已全局安装 %s，并在 Microsoft 365 智能体工具包目录中安装了 %s，它由 Microsoft 365 智能体工具包用作默认值(%s)。版本不匹配可能会导致意外错误。在 %s 中查找可能的解决方案。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10155,12 +10440,12 @@
       </Item>
       <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法将现有 SPFx 解决方案导入 Teams 工具包: %s]]></Val>
+            <Val><![CDATA[无法将现有 SPFx 解决方案导入到 Microsoft 365 智能体工具包: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10278,24 +10563,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包无法导入 SPFx 解决方案。在 %s 中找到重要详细信息的完整日志。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包无法导入 SPFx 解决方案。在 %s 中查找重要详细信息的完整日志。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to import your SPFx solution. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 工具包已成功导入 SPFx 解决方案。在 %s 中找到导入详细信息的完整日志。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包已成功导入 SPFx 解决方案。在 %s 中查找导入详细信息的完整日志。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has imported your SPFx solution successfully. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10353,24 +10638,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 Teams 工具包目录中本地安装最新的 SPFx]]></Val>
+            <Val><![CDATA[在 Microsoft 365 智能体工具包目录中本地安装最新的 SPFx]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 Teams 工具包目录中本地安装最新的 SPFx (%s)]]></Val>
+            <Val><![CDATA[在 Microsoft 365 智能体工具包目录中本地安装最新的 SPFx (%s)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework (%s) locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
