@@ -60,9 +60,7 @@
             }
         },
         "cases": [
-            "sample-dice-roller",
-            "sample-localdebug-food-catalog",
-            "sample-remotedebug-food-catalog"
+            "sample-dice-roller"
         ]
     },
     {
@@ -85,7 +83,9 @@
             "sample-hello-world-tab-outlook",
             "sample-bot-sso",
             "sample-remotedebug-sso-tab-via-apim-proxy",
-            "sample-graph-connector-bot"
+            "sample-graph-connector-bot",
+            "sample-localdebug-food-catalog",
+            "sample-remotedebug-food-catalog"
         ]
     },
     {
