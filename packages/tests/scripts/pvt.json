@@ -168,7 +168,8 @@
       "testtooldebug-msgsa",
       "localization-succeed",
       "samelevel-localization",
-      "different-level-localization"
+      "different-level-localization",
+      "localization-unresolved"
     ],
     "node-20": [
       "obo-tab-ts"
