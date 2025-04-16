@@ -8,6 +8,6 @@ export * from "./context";
 export * from "./error";
 export * from "./types";
 export * from "neverthrow";
-export * from "@microsoft/teams-manifest";
+export * from "@microsoft/app-manifest";
 export * from "./cli";
 export * from "./generator";

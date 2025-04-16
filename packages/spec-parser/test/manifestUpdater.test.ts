@@ -18,7 +18,7 @@ import {
 } from "../src/interfaces";
 import { ConstantString } from "../src/constants";
 import { Utils } from "../src/utils";
-import { PluginManifestSchema, ManifestUtil } from "@microsoft/teams-manifest";
+import { PluginManifestSchema, ManifestUtil } from "@microsoft/app-manifest";
 describe("updateManifestWithAiPlugin", () => {
   beforeEach(() => {
     sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(false);

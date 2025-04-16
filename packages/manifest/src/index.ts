@@ -14,7 +14,7 @@ import {
   AppManifestUtils,
   DevPreviewSchema,
   TeamsManifest,
-  TeamsManifestConverters,
+  TeamsManifestConverter,
 } from "./generated-types";
 import { IComposeExtension, TeamsAppManifest } from "./manifest";
 import { PluginManifestSchema } from "./pluginManifest";
@@ -46,7 +46,7 @@ export class ManifestUtil {
    */
   static async loadFromPath(path: string): Promise<TeamsManifest> {
     const jsonString = await fs.readFile(path, "utf8");
-    const manifest = TeamsManifestConverters.jsonToManifest(jsonString);
+    const manifest = TeamsManifestConverter.jsonToManifest(jsonString);
     return manifest;
   }
 

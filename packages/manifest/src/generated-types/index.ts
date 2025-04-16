@@ -206,6 +206,8 @@ export type TeamsManifest =
   | TeamsManifestV1D20
   | TeamsManifestVDevPreview;
 
+export type TeamsManifestLatest = TeamsManifestV1D20;
+
 export {
   DeclarativeAgentManifestV1D0,
   Convert as DeclarativeAgentManifestV1D0Convert
@@ -345,7 +347,7 @@ const ApiPluginConverterMap: Converters = {
   ],
 };
 
-export class TeamsManifestConverters {
+export class TeamsManifestConverter {
   static jsonToManifest(json: string): TeamsManifest {
     const parsed = JSON.parse(json);
     const manifestVersion = parsed.manifestVersion as string;
@@ -375,7 +377,7 @@ export class TeamsManifestConverters {
   }
 }
 
-export class DeclarativeAgentManifestConverters {
+export class DeclarativeAgentManifestConverter {
   static jsonToManifest(json: string): DeclarativeAgentManifest {
     const parsed = JSON.parse(json);
     const version = parsed.version as string;
@@ -403,7 +405,7 @@ export class DeclarativeAgentManifestConverters {
   }
 }
 
-export class ApiPluginManifestConverters {
+export class ApiPluginManifestConverter {
   static jsonToManifest(json: string): APIPluginManifest {
     const parsed = JSON.parse(json);
     const schema_version = parsed.schema_version as string;
@@ -502,29 +504,85 @@ export class AppManifestUtils {
   }
 
   /**
-   * Read manifest from file with basic type check
+   * Read Teams manifest from file with basic type check
    *
-   * @param filePath - The manifest file path.
+   * @param filePath - Teams manifest file path.
    * @throws Will propagate any error thrown by the fs-extra#readFile or type assert failure.
    *
    * @returns The manifest Object
    */
-  static async read(filePath: string): Promise<AppManifest> {
+  static async readTeamsManifest(filePath: string): Promise<TeamsManifest> {
     const jsonString = await fs.readFile(filePath, "utf8");
-    const manifest = TeamsManifestConverters.jsonToManifest(jsonString);
+    const manifest = TeamsManifestConverter.jsonToManifest(jsonString);
     return manifest;
   }
 
   /**
-   * Read manifest from file with schema validation
+   * Read declarative agent manifest from file with schema validation
    *
-   * @param filePath - The manifest file path.
+   * @param filePath - Teams manifest file path.
    * @throws Will propagate any error thrown by the fs-extra#readFile or type check failure.
    *
    * @returns The manifest Object and schema validation results
    */
-  static async readAndValidate(filePath: string): Promise<[AppManifest, string[]]> {
-    const manifest = await this.read(filePath);
+  static async readAndValidateTeamsManifest(filePath: string): Promise<[TeamsManifest, string[]]> {
+    const manifest = await this.readTeamsManifest(filePath);
+    const validateRes = await this.validateAgainstSchema(manifest);
+    return [manifest, validateRes];
+  }
+
+  /**
+   * Read declarative agent manifest from file with basic type check
+   *
+   * @param filePath - Declarative agent manifest file path.
+   * @throws Will propagate any error thrown by the fs-extra#readFile or type assert failure.
+   *
+   * @returns The manifest Object
+   */
+  static async readDeclarativeAgentManifest(filePath: string): Promise<DeclarativeAgentManifest> {
+    const jsonString = await fs.readFile(filePath, "utf8");
+    const manifest = DeclarativeAgentManifestConverter.jsonToManifest(jsonString);
+    return manifest;
+  }
+
+  /**
+   * Read declarative agent manifest from file with schema validation
+   *
+   * @param filePath - Declarative agent manifest file path.
+   * @throws Will propagate any error thrown by the fs-extra#readFile or type check failure.
+   *
+   * @returns The manifest Object and schema validation results
+   */
+  static async readAndValidateDeclarativeAgentManifest(filePath: string): Promise<[DeclarativeAgentManifest, string[]]> {
+    const manifest = await this.readDeclarativeAgentManifest(filePath);
+    const validateRes = await this.validateAgainstSchema(manifest);
+    return [manifest, validateRes];
+  }
+
+  /**
+   * Read API plugin manifest from file with basic type check
+   *
+   * @param filePath - API plugin manifest file path.
+   * @throws Will propagate any error thrown by the fs-extra#readFile or type assert failure.
+   *
+   * @returns The manifest Object
+   */
+  static async readApiPluginManifest(filePath: string): Promise<APIPluginManifest> {
+    const jsonString = await fs.readFile(filePath, "utf8");
+    const manifest = ApiPluginManifestConverter.jsonToManifest(jsonString);
+    return manifest;
+  }
+  
+  /**
+   * Read API plugin manifest from file with schema validation
+   *
+   * @param filePath - API plugin manifest file path.
+   * @throws Will propagate any error thrown by the fs-extra#readFile or type check failure.
+   *
+   * @returns The manifest Object and schema validation results
+   */
+  static async readAndValidateApiPluginManifest(filePath: string): Promise<[APIPluginManifest, string[]]> {
+    const manifest = await this.readApiPluginManifest(filePath);
     const validateRes = await this.validateAgainstSchema(manifest);
     return [manifest, validateRes];
   }
@@ -541,7 +599,7 @@ export class AppManifestUtils {
     filePath: string,
     manifest: TeamsManifest
   ): Promise<void> {
-    const jsonString = TeamsManifestConverters.manifestToJson(manifest);
+    const jsonString = TeamsManifestConverter.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");
   }
 
@@ -557,7 +615,7 @@ export class AppManifestUtils {
     filePath: string,
     manifest: DeclarativeAgentManifest
   ): Promise<void> {
-    const jsonString = DeclarativeAgentManifestConverters.manifestToJson(manifest);
+    const jsonString = DeclarativeAgentManifestConverter.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");
   }
 
@@ -569,11 +627,11 @@ export class AppManifestUtils {
    * @throws Will propagate any error thrown by the fs-extra#writeFile.
    *
    */
-  static async writeAPIPluginManifest(
+  static async writeApiPluginManifest(
     filePath: string,
     manifest: APIPluginManifest
   ): Promise<void> {
-    const jsonString = ApiPluginManifestConverters.manifestToJson(manifest);
+    const jsonString = ApiPluginManifestConverter.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");
   }
 }

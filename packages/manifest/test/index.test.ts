@@ -4,7 +4,15 @@ import fs from "fs-extra";
 import "mocha";
 import * as path from "path";
 import sinon from "sinon";
-import { AppManifestUtils, ManifestUtil, TeamsAppManifest, TeamsManifestConverters } from "../src";
+import {
+  AppManifestUtils,
+  ManifestUtil,
+  TeamsAppManifest,
+  TeamsManifest,
+  TeamsManifestConverter,
+  TeamsManifestLatest,
+  TeamsManifestV1D10,
+} from "../src";
 
 chai.use(chaiAsPromised);
 
@@ -197,7 +205,7 @@ describe("ManifestUtil", () => {
       validDomains: [],
     };
     try {
-      TeamsManifestConverters.jsonToManifest(JSON.stringify(json));
+      TeamsManifestConverter.jsonToManifest(JSON.stringify(json));
       chai.assert.fail("Expected error not thrown");
     } catch (error: any) {
       chai.assert.include(error.message, `Invalid value for key "version"`);
@@ -205,7 +213,7 @@ describe("ManifestUtil", () => {
   });
   it("invalid manifestVersion", () => {
     try {
-      TeamsManifestConverters.jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
+      TeamsManifestConverter.jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
     } catch (error: any) {
       chai.assert.include(error.message, "Unsupported manifest version: 1.100");
     }
@@ -226,3 +234,8 @@ async function loadSchema(): Promise<any> {
   const schemaPath = path.join(__dirname, "MicrosoftTeams.schema.json");
   return fs.readJson(schemaPath);
 }
+
+const manifest: TeamsManifest = {
+  manifestVersion: "1.20",
+  elementRelationshipSet,
+};

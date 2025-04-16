@@ -12,9 +12,10 @@ import {
   GeneratorResult,
   Inputs,
   ManifestUtil,
-  MicrosoftTeamsVDevPreview,
+  TeamsManifestVDevPreview,
   ok,
   Result,
+  AppManifestUtils,
 } from "@microsoft/teamsfx-api";
 import { convertProject } from "office-addin-project";
 import { getLocalizedString } from "../../../common/localizeUtils";
@@ -88,9 +89,9 @@ export class OfficeAddinGenerator {
 type OfficeHost = "Outlook" | "Word" | "Excel" | "PowerPoint"; // | "OneNote" | "Project"
 export async function getHost(addinManifestPath: string): Promise<OfficeHost> {
   // Read add-in manifest file
-  const addinManifest = (await ManifestUtil.loadFromPath(
+  const addinManifest = (await AppManifestUtils.readTeamsManifest(
     addinManifestPath
-  )) as MicrosoftTeamsVDevPreview;
+  )) as TeamsManifestVDevPreview;
   let host: OfficeHost = "Outlook";
   switch (addinManifest.extensions?.[0].requirements?.scopes?.[0]) {
     case "document":

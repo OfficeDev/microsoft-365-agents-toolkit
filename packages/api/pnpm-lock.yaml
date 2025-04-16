@@ -8,7 +8,7 @@ dependencies:
   '@azure/core-auth':
     specifier: ^1.4.0
     version: 1.4.0
-  '@microsoft/teams-manifest':
+  '@microsoft/app-manifest':
     specifier: workspace:*
     version: link:../manifest
   chai:

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, MicrosoftTeamsManifest, Result } from "@microsoft/teamsfx-api";
+import { FxError, TeamsManifest, Result } from "@microsoft/teamsfx-api";
 import { createHash } from "crypto";
 import * as path from "path";
 import { TOOLS } from "../../common/globalVars";
@@ -55,7 +55,7 @@ class MetadataUtil {
     }
   }
 
-  parseManifest(manifest: MicrosoftTeamsManifest): void {
+  parseManifest(manifest: TeamsManifest): void {
     const props: { [key: string]: string } = {};
     const prefix = "manifest.";
     props[prefix + "id"] = manifest.id ?? "";
