@@ -9,12 +9,12 @@ import { it } from "@microsoft/extra-shot-mocha";
 import { expect } from "chai";
 import { execAsync } from "../commonUtils";
 
-describe("teamsapp command help", function () {
+describe("atk command help", function () {
   it(
-    `teamsapp auth list -h`,
+    `atk auth list -h`,
     { testPlanCaseId: 15685961, author: "zhiyou@microsoft.com" },
     async function () {
-      const result = await execAsync(`teamsapp auth list -h`, {
+      const result = await execAsync(`atk auth list -h`, {
         env: process.env,
         timeout: 0,
       });

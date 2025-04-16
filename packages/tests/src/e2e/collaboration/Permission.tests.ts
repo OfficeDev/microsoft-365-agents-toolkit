@@ -38,7 +38,7 @@ describe("Collaboration", function () {
 
       // new a project
       await execAsync(
-        `teamsapp new --interactive false --capability sso-launch-page --app-name ${appName}`,
+        `atk new --interactive false --capability sso-launch-page --app-name ${appName}`,
         {
           cwd: testFolder,
           env: process.env,
@@ -54,7 +54,7 @@ describe("Collaboration", function () {
       const result = await createResourceGroup(resourceGroupName, "westus");
 
       // provision
-      await execAsyncWithRetry(`teamsapp provision`, {
+      await execAsyncWithRetry(`atk provision`, {
         cwd: projectPath,
         env: {
           ...process.env,
@@ -66,7 +66,7 @@ describe("Collaboration", function () {
 
       // Check Permission
       const checkPermissionResult = await execAsyncWithRetry(
-        `teamsapp permission status --env dev --interactive false --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json`,
+        `atk permission status --env dev --interactive false --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json`,
         {
           cwd: projectPath,
           env: process.env,
@@ -82,7 +82,7 @@ describe("Collaboration", function () {
 
       // Grant Permission
       const grantCollaboratorResult = await execAsyncWithRetry(
-        `teamsapp permission grant --email ${collaborator} --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
+        `atk permission grant --email ${collaborator} --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,
@@ -99,7 +99,7 @@ describe("Collaboration", function () {
       console.log("[Successfully] grant permission");
 
       const listCollaboratorResult = await execAsync(
-        `teamsapp permission status --all --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
+        `atk permission status --all --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,

@@ -25,7 +25,7 @@ describe("Start a new project", function () {
     "Create SPFx project with minimal framework",
     { testPlanCaseId: 15687313, author: "huihuiwu@microsoft.com" },
     async function () {
-      const command = `teamsapp new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type minimal --spfx-webpart-name helloworld --programming-language typescript`;
+      const command = `atk new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type minimal --spfx-webpart-name helloworld --programming-language typescript`;
       const result = await execAsync(command, {
         cwd: testFolder,
         env: process.env,

@@ -38,7 +38,7 @@ describe("Multi Env Happy Path for SPFx", function () {
     "Can create/provision/deploy/validate/package/publish an SPFx project",
     { testPlanCaseId: 24137702, author: "tianyuan@microsoft.com" },
     async function () {
-      const command = `teamsapp new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type ${type} --spfx-webpart-name helloworld --programming-language typescript`;
+      const command = `atk new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type ${type} --spfx-webpart-name helloworld --programming-language typescript`;
       let result = await execAsync(command, {
         cwd: testFolder,
         env: processEnv,
@@ -75,7 +75,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       expect(result.stderr).to.eq("");
 
       // add env
-      result = await execAsync(`teamsapp env add ${env} --env dev`, {
+      result = await execAsync(`atk env add ${env} --env dev`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -85,7 +85,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       );
 
       // list env
-      result = await execAsync(`teamsapp env list`, {
+      result = await execAsync(`atk env list`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -102,7 +102,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       removeTeamsAppExtendToM365(path.join(projectPath, "teamsapp.yml"));
 
       // provision
-      result = await execAsyncWithRetry(`teamsapp provision --env ${env}`, {
+      result = await execAsyncWithRetry(`atk provision --env ${env}`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -120,7 +120,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       }
 
       // deploy
-      result = await execAsyncWithRetry(`teamsapp deploy --env ${env}`, {
+      result = await execAsyncWithRetry(`atk deploy --env ${env}`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -144,7 +144,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       }
 
       // validate manifest
-      result = await execAsyncWithRetry(`teamsapp validate --env ${env}`, {
+      result = await execAsyncWithRetry(`atk validate --env ${env}`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -159,7 +159,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       }
 
       // package
-      await execAsyncWithRetry(`teamsapp package --env ${env}`, {
+      await execAsyncWithRetry(`atk package --env ${env}`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,
@@ -172,7 +172,7 @@ describe("Multi Env Happy Path for SPFx", function () {
       }
 
       // publish
-      result = await execAsyncWithRetry(`teamsapp publish --env ${env}`, {
+      result = await execAsyncWithRetry(`atk publish --env ${env}`, {
         cwd: projectPath,
         env: processEnv,
         timeout: 0,

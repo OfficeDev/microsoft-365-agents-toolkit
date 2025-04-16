@@ -25,7 +25,7 @@ describe("Start a new project", function () {
     "Create SPFx project without framework",
     { testPlanCaseId: 15687319, author: "huihuiwu@microsoft.com" },
     async function () {
-      const command = `teamsapp new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type none --spfx-webpart-name helloworld --programming-language typescript`;
+      const command = `atk new --interactive false --app-name ${appName} --capability tab-spfx --spfx-framework-type none --spfx-webpart-name helloworld --programming-language typescript`;
       const result = await execAsync(command, {
         cwd: testFolder,
         env: process.env,
