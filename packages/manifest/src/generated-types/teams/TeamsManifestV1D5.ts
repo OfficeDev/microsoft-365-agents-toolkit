@@ -1,13 +1,13 @@
 // To parse this data:
 //
-//   import { Convert, MicrosoftTeamsV1D3 } from "./file";
+//   import { Convert, TeamsManifestV1D5 } from "./file";
 //
-//   const microsoftTeamsV1D3 = Convert.toMicrosoftTeamsV1D3(json);
+//   const teamsManifestV1D5 = Convert.toTeamsManifestV1D5(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface MicrosoftTeamsV1D3 {
+export interface TeamsManifestV1D5 {
     $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
@@ -36,20 +36,25 @@ export interface MicrosoftTeamsV1D3 {
     connectors?: Connector[];
     description: Description;
     developer:   Developer;
-    icons:       Icons;
+    /**
+     * Specify the native features on a user's device that your app may request access to.
+     */
+    devicePermissions?: DevicePermission[];
+    icons:              Icons;
     /**
      * A unique identifier for this app. This id must be a GUID.
      */
-    id: string;
+    id:                string;
+    localizationInfo?: LocalizationInfo;
     /**
      * The version of the schema this manifest is using.
      */
-    manifestVersion: string;
+    manifestVersion: "1.5";
     name:            Name;
     /**
      * A unique identifier for this app in reverse domain notation. E.g: com.example.myapp
      */
-    packageName: string;
+    packageName?: string;
     /**
      * Specifies the permissions the app requests from users.
      */
@@ -72,6 +77,11 @@ export interface MicrosoftTeamsV1D3 {
      * version string must follow the semver standard (http://semver.org).
      */
     version: string;
+    /**
+     * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
+     * app.
+     */
+    webApplicationInfo?: WebApplicationInfo;
 }
 
 export interface Bot {
@@ -82,7 +92,7 @@ export interface Bot {
     botId: string;
     /**
      * The list of commands that the bot supplies, including their usage, description, and the
-     * scope for which the commands are valid. A seperate command list should be used for each
+     * scope for which the commands are valid. A separate command list should be used for each
      * scope.
      */
     commandLists?: CommandList[];
@@ -101,7 +111,7 @@ export interface Bot {
      * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
      * options are non-exclusive.
      */
-    scopes: BotScope[];
+    scopes: CommandListScope[];
     /**
      * A value indicating whether the bot supports uploading/downloading of files.
      */
@@ -127,17 +137,7 @@ export interface CommandListCommand {
     title: string;
 }
 
-export enum CommandListScope {
-    Personal = "personal",
-    Team = "team",
-}
-
-export enum BotScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Personal = "personal",
-    Team = "team",
-}
+export type CommandListScope = "team" | "personal" | "groupChat" | "groupchat";
 
 export interface ComposeExtension {
     /**
@@ -151,13 +151,25 @@ export interface ComposeExtension {
      */
     canUpdateConfiguration?: boolean;
     commands:                ComposeExtensionCommand[];
+    /**
+     * A list of handlers that allow apps to be invoked when certain conditions are met
+     */
+    messageHandlers?: MessageHandler[];
 }
 
 export interface ComposeExtensionCommand {
     /**
+     * Context where the command would apply
+     */
+    context?: Context[];
+    /**
      * Description of the command.
      */
     description?: string;
+    /**
+     * A boolean value that indicates if it should fetch task module dynamically
+     */
+    fetchTask?: boolean;
     /**
      * Id of the command.
      */
@@ -167,18 +179,33 @@ export interface ComposeExtensionCommand {
      * parameter.
      */
     initialRun?: boolean;
-    parameters:  Parameter[];
+    parameters?: Parameter[];
+    taskInfo?:   TaskInfo;
     /**
      * Title of the command.
      */
     title: string;
+    /**
+     * Type of the command
+     */
+    type?: CommandType;
 }
 
+export type Context = "compose" | "commandBox" | "message";
+
 export interface Parameter {
+    /**
+     * The choice options for the parameter
+     */
+    choices?: Choice[];
     /**
      * Description of the parameter.
      */
     description?: string;
+    /**
+     * Type of the parameter
+     */
+    inputType?: InputType;
     /**
      * Name of the parameter.
      */
@@ -187,6 +214,73 @@ export interface Parameter {
      * Title of the parameter.
      */
     title: string;
+    /**
+     * Initial value for the parameter
+     */
+    value?: string;
+}
+
+export interface Choice {
+    /**
+     * Title of the choice
+     */
+    title: string;
+    /**
+     * Value of the choice
+     */
+    value: string;
+}
+
+/**
+ * Type of the parameter
+ */
+export type InputType = "text" | "textarea" | "number" | "date" | "time" | "toggle" | "choiceset";
+
+export interface TaskInfo {
+    /**
+     * Dialog height - either a number in pixels or default layout such as 'large', 'medium', or
+     * 'small'
+     */
+    height?: string;
+    /**
+     * Initial dialog title
+     */
+    title?: string;
+    /**
+     * Initial webview URL
+     */
+    url?: string;
+    /**
+     * Dialog width - either a number in pixels or default layout such as 'large', 'medium', or
+     * 'small'
+     */
+    width?: string;
+}
+
+/**
+ * Type of the command
+ */
+export type CommandType = "query" | "action";
+
+export interface MessageHandler {
+    /**
+     * Type of the message handler
+     */
+    type:  "link";
+    value: Value;
+}
+
+/**
+ * Type of the message handler
+ */
+
+export interface Value {
+    /**
+     * A list of domains that the link message handler can register for, and when they are
+     * matched the app will be invoked
+     */
+    domains?: string[];
+    [property: string]: any;
 }
 
 export interface ConfigurableTab {
@@ -206,13 +300,19 @@ export interface ConfigurableTab {
      * and groupchats scopes.
      */
     scopes: ConfigurableTabScope[];
+    /**
+     * A relative file path to a tab preview image for use in SharePoint. Size 1024x768.
+     */
+    sharePointPreviewImage?: string;
+    /**
+     * Defines how your tab will be made available in SharePoint.
+     */
+    supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export enum ConfigurableTabScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Team = "team",
-}
+export type ConfigurableTabScope = "team" | "groupChat" | "groupchat";
+
+export type SupportedSharePointHost = "sharePointFullPage" | "sharePointWebPart";
 
 export interface Connector {
     /**
@@ -229,11 +329,7 @@ export interface Connector {
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
      * is supported.
      */
-    scopes: ConnectorScope[];
-}
-
-export enum ConnectorScope {
-    Team = "team",
+    scopes: "team"[];
 }
 
 export interface Description {
@@ -249,6 +345,12 @@ export interface Description {
 }
 
 export interface Developer {
+    /**
+     * The Microsoft Partner Network ID that identifies the partner organization building the
+     * app. This field is not required, and should only be used if you are already part of the
+     * Microsoft Partner Network. More info at https://aka.ms/partner
+     */
+    mpnId?: string;
     /**
      * The display name for the developer.
      */
@@ -267,16 +369,37 @@ export interface Developer {
     websiteUrl: string;
 }
 
+export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
+
 export interface Icons {
     /**
-     * A relative file path to a full color PNG icon. Size 96x96.
+     * A relative file path to a full color PNG icon. Size 192x192.
      */
     color: string;
     /**
      * A relative file path to a transparent PNG outline icon. The border color needs to be
-     * white. Size 20x20.
+     * white. Size 32x32.
      */
     outline: string;
+}
+
+export interface LocalizationInfo {
+    additionalLanguages?: AdditionalLanguage[];
+    /**
+     * The language tag of the strings in this top level manifest file.
+     */
+    defaultLanguageTag: string;
+}
+
+export interface AdditionalLanguage {
+    /**
+     * A relative file path to a the .json file containing the translated strings.
+     */
+    file: string;
+    /**
+     * The language tag of the strings in the provided file.
+     */
+    languageTag: string;
 }
 
 export interface Name {
@@ -290,10 +413,7 @@ export interface Name {
     short: string;
 }
 
-export enum Permission {
-    Identity = "identity",
-    MessageTeamMembers = "messageTeamMembers",
-}
+export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
     /**
@@ -313,22 +433,39 @@ export interface StaticTab {
      * an experience scoped to an individual user alone. These options are non-exclusive.
      * Currently static tabs are only supported in the 'personal' scope.
      */
-    scopes: CommandListScope[];
+    scopes: StaticTabScope[];
     /**
      * The url to point at if a user opts to view in a browser.
      */
     websiteUrl?: string;
 }
 
+export type StaticTabScope = "team" | "personal";
+
+/**
+ * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
+ * app.
+ */
+export interface WebApplicationInfo {
+    /**
+     * AAD application id of the app. This id must be a GUID.
+     */
+    id: string;
+    /**
+     * Resource url of app for acquiring auth token for SSO.
+     */
+    resource: string;
+}
+
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toMicrosoftTeamsV1D3(json: string): MicrosoftTeamsV1D3 {
-        return cast(JSON.parse(json), r("MicrosoftTeamsV1D3"));
+    public static toTeamsManifestV1D5(json: string): TeamsManifestV1D5 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D5"));
     }
 
-    public static microsoftTeamsV1D3ToJson(value: MicrosoftTeamsV1D3): string {
-        return JSON.stringify(uncast(value, r("MicrosoftTeamsV1D3")), null, 2);
+    public static teamsManifestV1D5ToJson(value: TeamsManifestV1D5): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D5")), null, 2);
     }
 }
 
@@ -485,7 +622,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "MicrosoftTeamsV1D3": o([
+    "TeamsManifestV1D5": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
@@ -494,22 +631,25 @@ const typeMap: any = {
         { json: "connectors", js: "connectors", typ: u(undefined, a(r("Connector"))) },
         { json: "description", js: "description", typ: r("Description") },
         { json: "developer", js: "developer", typ: r("Developer") },
+        { json: "devicePermissions", js: "devicePermissions", typ: u(undefined, a(r("DevicePermission"))) },
         { json: "icons", js: "icons", typ: r("Icons") },
         { json: "id", js: "id", typ: "" },
-        { json: "manifestVersion", js: "manifestVersion", typ: "" },
+        { json: "localizationInfo", js: "localizationInfo", typ: u(undefined, r("LocalizationInfo")) },
+        { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
         { json: "name", js: "name", typ: r("Name") },
-        { json: "packageName", js: "packageName", typ: "" },
+        { json: "packageName", js: "packageName", typ: u(undefined, "") },
         { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
         { json: "staticTabs", js: "staticTabs", typ: u(undefined, a(r("StaticTab"))) },
         { json: "validDomains", js: "validDomains", typ: u(undefined, a("")) },
         { json: "version", js: "version", typ: "" },
+        { json: "webApplicationInfo", js: "webApplicationInfo", typ: u(undefined, r("WebApplicationInfo")) },
     ], false),
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
-        { json: "scopes", js: "scopes", typ: a(r("BotScope")) },
+        { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
         { json: "supportsFiles", js: "supportsFiles", typ: u(undefined, true) },
     ], false),
     "CommandList": o([
@@ -524,23 +664,50 @@ const typeMap: any = {
         { json: "botId", js: "botId", typ: "" },
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "commands", js: "commands", typ: a(r("ComposeExtensionCommand")) },
+        { json: "messageHandlers", js: "messageHandlers", typ: u(undefined, a(r("MessageHandler"))) },
     ], false),
     "ComposeExtensionCommand": o([
+        { json: "context", js: "context", typ: u(undefined, a(r("Context"))) },
         { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
         { json: "id", js: "id", typ: "" },
         { json: "initialRun", js: "initialRun", typ: u(undefined, true) },
-        { json: "parameters", js: "parameters", typ: a(r("Parameter")) },
+        { json: "parameters", js: "parameters", typ: u(undefined, a(r("Parameter"))) },
+        { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
         { json: "title", js: "title", typ: "" },
+        { json: "type", js: "type", typ: u(undefined, r("CommandType")) },
     ], false),
     "Parameter": o([
+        { json: "choices", js: "choices", typ: u(undefined, a(r("Choice"))) },
         { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "inputType", js: "inputType", typ: u(undefined, r("InputType")) },
         { json: "name", js: "name", typ: "" },
         { json: "title", js: "title", typ: "" },
+        { json: "value", js: "value", typ: u(undefined, "") },
     ], false),
+    "Choice": o([
+        { json: "title", js: "title", typ: "" },
+        { json: "value", js: "value", typ: "" },
+    ], false),
+    "TaskInfo": o([
+        { json: "height", js: "height", typ: u(undefined, "") },
+        { json: "title", js: "title", typ: u(undefined, "") },
+        { json: "url", js: "url", typ: u(undefined, "") },
+        { json: "width", js: "width", typ: u(undefined, "") },
+    ], false),
+    "MessageHandler": o([
+        { json: "type", js: "type", typ: r("MessageHandlerType") },
+        { json: "value", js: "value", typ: r("Value") },
+    ], false),
+    "Value": o([
+        { json: "domains", js: "domains", typ: u(undefined, a("")) },
+    ], "any"),
     "ConfigurableTab": o([
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
+        { json: "sharePointPreviewImage", js: "sharePointPreviewImage", typ: u(undefined, "") },
+        { json: "supportedSharePointHosts", js: "supportedSharePointHosts", typ: u(undefined, a(r("SupportedSharePointHost"))) },
     ], false),
     "Connector": o([
         { json: "configurationUrl", js: "configurationUrl", typ: u(undefined, "") },
@@ -552,6 +719,7 @@ const typeMap: any = {
         { json: "short", js: "short", typ: "" },
     ], false),
     "Developer": o([
+        { json: "mpnId", js: "mpnId", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
         { json: "privacyUrl", js: "privacyUrl", typ: "" },
         { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
@@ -561,6 +729,14 @@ const typeMap: any = {
         { json: "color", js: "color", typ: "" },
         { json: "outline", js: "outline", typ: "" },
     ], false),
+    "LocalizationInfo": o([
+        { json: "additionalLanguages", js: "additionalLanguages", typ: u(undefined, a(r("AdditionalLanguage"))) },
+        { json: "defaultLanguageTag", js: "defaultLanguageTag", typ: "" },
+    ], false),
+    "AdditionalLanguage": o([
+        { json: "file", js: "file", typ: "" },
+        { json: "languageTag", js: "languageTag", typ: "" },
+    ], false),
     "Name": o([
         { json: "full", js: "full", typ: u(undefined, "") },
         { json: "short", js: "short", typ: "" },
@@ -569,29 +745,68 @@ const typeMap: any = {
         { json: "contentUrl", js: "contentUrl", typ: "" },
         { json: "entityId", js: "entityId", typ: "" },
         { json: "name", js: "name", typ: "" },
-        { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
+        { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
         { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
     ], false),
+    "WebApplicationInfo": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "resource", js: "resource", typ: "" },
+    ], false),
     "CommandListScope": [
-        "personal",
-        "team",
-    ],
-    "BotScope": [
         "groupChat",
         "groupchat",
         "personal",
         "team",
+    ],
+    "Context": [
+        "commandBox",
+        "compose",
+        "message",
+    ],
+    "InputType": [
+        "choiceset",
+        "date",
+        "number",
+        "text",
+        "textarea",
+        "time",
+        "toggle",
+    ],
+    "CommandType": [
+        "action",
+        "query",
+    ],
+    "MessageHandlerType": [
+        "link",
     ],
     "ConfigurableTabScope": [
         "groupChat",
         "groupchat",
         "team",
     ],
+    "SupportedSharePointHost": [
+        "sharePointFullPage",
+        "sharePointWebPart",
+    ],
     "ConnectorScope": [
         "team",
+    ],
+    "DevicePermission": [
+        "geolocation",
+        "midi",
+        "media",
+        "notifications",
+        "openExternal",
+    ],
+    "ManifestVersion": [
+        "1.5",
     ],
     "Permission": [
         "identity",
         "messageTeamMembers",
+    ],
+    "StaticTabScope": [
+        "personal",
+        "team",
     ],
 };

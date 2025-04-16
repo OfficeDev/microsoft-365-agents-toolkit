@@ -3,7 +3,7 @@ const path = require("path");
 const { exec } = require("child_process");
 
 async function convert(srcFolder, srcFileName, destFilePath) {
-  const command = `npx quicktype -s schema ${srcFileName} -o ${destFilePath}`;
+  const command = `npx quicktype -s schema ${srcFileName} -o ${destFilePath} --prefer-const-values --prefer-unions`;
   console.log(`Running command: ${command} in ${srcFolder}`);
   return new Promise((resolve) => {
     exec(command, { cwd: srcFolder }, (error, stdout, stderr) => {
@@ -28,10 +28,10 @@ async function generateTeamsManifestTypeFiles() {
   }
   const versions = await fs.readdir(schemaFolder);
   for (const version of versions) {
-    const convertedVersion = version.replace(".", "d");
+    const convertedVersion = version.replace(".", "D").replace("v", "V");
     const schemaDir = path.join(schemaFolder, version);
     const schemaFile = "MicrosoftTeams.schema.json";
-    const outputFileName = `MicrosoftTeams.${convertedVersion}.ts`;
+    const outputFileName = `TeamsManifest${convertedVersion}.ts`;
     const outputPath = path.join(outputFolder, outputFileName);
     await convert(schemaDir, schemaFile, outputPath);
   }
@@ -51,10 +51,10 @@ async function generateDAManifestTypeFiles() {
   }
   const versions = await fs.readdir(schemaFolder);
   for (const version of versions) {
-    const convertedVersion = version.replace(".", "d");
+    const convertedVersion = version.replace(".", "D").replace("v", "V");
     const schemaDir = path.join(schemaFolder, version);
     const schemaFile = "schema.json";
-    const outputFileName = `CopilotDeclarativeAgent.${convertedVersion}.ts`;
+    const outputFileName = `DeclarativeAgentManifest${convertedVersion}.ts`;
     const outputPath = path.join(outputFolder, outputFileName);
     await convert(schemaDir, schemaFile, outputPath);
   }
@@ -68,10 +68,10 @@ async function generatePluginManifestTypeFiles() {
   }
   const versions = await fs.readdir(schemaFolder);
   for (const version of versions) {
-    const convertedVersion = version.replace(".", "d");
+    const convertedVersion = version.replace(".", "D").replace("v", "V");
     const schemaDir = path.join(schemaFolder, version);
     const schemaFile = "schema.json";
-    const outputFileName = `CopilotPlugin.${convertedVersion}.ts`;
+    const outputFileName = `ApiPluginManifest${convertedVersion}.ts`;
     const outputPath = path.join(outputFolder, outputFileName);
     await convert(schemaDir, schemaFile, outputPath);
   }

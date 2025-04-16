@@ -1,20 +1,19 @@
 // To parse this data:
 //
-//   import { Convert, MicrosoftTeamsV1D11 } from "./file";
+//   import { Convert, TeamsManifestV1D6 } from "./file";
 //
-//   const microsoftTeamsV1D11 = Convert.toMicrosoftTeamsV1D11(json);
+//   const teamsManifestV1D6 = Convert.toTeamsManifestV1D6(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface MicrosoftTeamsV1D11 {
+export interface TeamsManifestV1D6 {
     $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
      * starting with '#', for example `#4464ee`.
      */
     accentColor: string;
-    activities?: Activities;
     /**
      * The set of bots for this app. Currently only one bot per app is supported.
      */
@@ -24,10 +23,6 @@ export interface MicrosoftTeamsV1D11 {
      * is supported.
      */
     composeExtensions?: ComposeExtension[];
-    /**
-     * A list of tenant configured properties for an app
-     */
-    configurableProperties?: ConfigurableProperty[];
     /**
      * These are tabs users can optionally add to their channels and 1:1 or group chats and
      * require extra configuration before they are added. Configurable tabs are not supported in
@@ -39,50 +34,23 @@ export interface MicrosoftTeamsV1D11 {
      * supported.
      */
     connectors?: Connector[];
-    /**
-     * A value indicating whether an app is blocked by default until admin allows it
-     */
-    defaultBlockUntilAdminAction?: boolean;
-    /**
-     * When a group install scope is selected, this will define the default capability when the
-     * user installs the app
-     */
-    defaultGroupCapability?: DefaultGroupCapability;
-    /**
-     * The install scope defined for this app by default. This will be the option displayed on
-     * the button when a user tries to add the app
-     */
-    defaultInstallScope?: DefaultInstallScope;
-    description:          Description;
-    developer:            Developer;
+    description: Description;
+    developer:   Developer;
     /**
      * Specify the native features on a user's device that your app may request access to.
      */
     devicePermissions?: DevicePermission[];
-    /**
-     * Specify the app's Graph connector configuration. If this is present then
-     * webApplicationInfo.id must also be specified.
-     */
-    graphConnector?: GraphConnector;
-    icons:           Icons;
+    icons:              Icons;
     /**
      * A unique identifier for this app. This id must be a GUID.
      */
-    id: string;
-    /**
-     * A value indicating whether a personal app is rendered without a tab header-bar
-     */
-    isFullScreen?:     boolean;
+    id:                string;
     localizationInfo?: LocalizationInfo;
     /**
      * The version of the schema this manifest is using.
      */
-    manifestVersion: ManifestVersion;
-    /**
-     * Specify meeting extension definition.
-     */
-    meetingExtensionDefinition?: MeetingExtensionDefinition;
-    name:                        Name;
+    manifestVersion: "1.6";
+    name:            Name;
     /**
      * A unique identifier for this app in reverse domain notation. E.g: com.example.myapp
      */
@@ -91,10 +59,6 @@ export interface MicrosoftTeamsV1D11 {
      * Specifies the permissions the app requests from users.
      */
     permissions?: Permission[];
-    /**
-     * The url to the page that provides additional app information for the admins
-     */
-    publisherDocsUrl?: string;
     /**
      * A value indicating whether or not show loading indicator when app/tab is loading
      */
@@ -105,10 +69,6 @@ export interface MicrosoftTeamsV1D11 {
      * experience. Static tabs do not currently support the 'teams' scope.
      */
     staticTabs?: StaticTab[];
-    /**
-     * Subscription offer associated with this app.
-     */
-    subscriptionOffer?: SubscriptionOffer;
     /**
      * A list of valid domains from which the tabs expect to load any content. Domain listings
      * can include wildcards, for example `*.example.com`. If your tab configuration or content
@@ -126,19 +86,6 @@ export interface MicrosoftTeamsV1D11 {
      * app.
      */
     webApplicationInfo?: WebApplicationInfo;
-}
-
-export interface Activities {
-    /**
-     * Specify the types of activites that your app can post to a users activity feed
-     */
-    activityTypes?: ActivityType[];
-}
-
-export interface ActivityType {
-    description:  string;
-    templateText: string;
-    type:         string;
 }
 
 export interface Bot {
@@ -170,17 +117,9 @@ export interface Bot {
      */
     scopes: CommandListScope[];
     /**
-     * A value indicating whether the bot supports audio calling.
-     */
-    supportsCalling?: boolean;
-    /**
      * A value indicating whether the bot supports uploading/downloading of files.
      */
     supportsFiles?: boolean;
-    /**
-     * A value indicating whether the bot supports video calling.
-     */
-    supportsVideo?: boolean;
 }
 
 export interface CommandList {
@@ -202,12 +141,7 @@ export interface CommandListCommand {
     title: string;
 }
 
-export enum CommandListScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Personal = "personal",
-    Team = "team",
-}
+export type CommandListScope = "team" | "personal" | "groupChat" | "groupchat";
 
 export interface ComposeExtension {
     /**
@@ -231,7 +165,7 @@ export interface ComposeExtensionCommand {
     /**
      * Context where the command would apply
      */
-    context?: CommandContext[];
+    context?: Context[];
     /**
      * Description of the command.
      */
@@ -261,11 +195,7 @@ export interface ComposeExtensionCommand {
     type?: CommandType;
 }
 
-export enum CommandContext {
-    CommandBox = "commandBox",
-    Compose = "compose",
-    Message = "message",
-}
+export type Context = "compose" | "commandBox" | "message";
 
 export interface Parameter {
     /**
@@ -308,15 +238,7 @@ export interface Choice {
 /**
  * Type of the parameter
  */
-export enum InputType {
-    Choiceset = "choiceset",
-    Date = "date",
-    Number = "number",
-    Text = "text",
-    Textarea = "textarea",
-    Time = "time",
-    Toggle = "toggle",
-}
+export type InputType = "text" | "textarea" | "number" | "date" | "time" | "toggle" | "choiceset";
 
 export interface TaskInfo {
     /**
@@ -342,25 +264,19 @@ export interface TaskInfo {
 /**
  * Type of the command
  */
-export enum CommandType {
-    Action = "action",
-    Query = "query",
-}
+export type CommandType = "query" | "action";
 
 export interface MessageHandler {
     /**
      * Type of the message handler
      */
-    type:  MessageHandlerType;
+    type:  "link";
     value: Value;
 }
 
 /**
  * Type of the message handler
  */
-export enum MessageHandlerType {
-    Link = "link",
-}
 
 export interface Value {
     /**
@@ -369,18 +285,6 @@ export interface Value {
      */
     domains?: string[];
     [property: string]: any;
-}
-
-export enum ConfigurableProperty {
-    AccentColor = "accentColor",
-    DeveloperURL = "developerUrl",
-    LargeImageURL = "largeImageUrl",
-    LongDescription = "longDescription",
-    Name = "name",
-    PrivacyURL = "privacyUrl",
-    ShortDescription = "shortDescription",
-    SmallImageURL = "smallImageUrl",
-    TermsOfUseURL = "termsOfUseUrl",
 }
 
 export interface ConfigurableTab {
@@ -393,14 +297,6 @@ export interface ConfigurableTab {
      * The url to use when configuring the tab.
      */
     configurationUrl: string;
-    /**
-     * The set of contextItem scopes that a tab belong to
-     */
-    context?: ConfigurableTabContext[];
-    /**
-     * The set of meetingSurfaceItem scopes that a tab belong to
-     */
-    meetingSurfaces?: MeetingSurface[];
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, in
      * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
@@ -418,32 +314,9 @@ export interface ConfigurableTab {
     supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export enum ConfigurableTabContext {
-    CallingSidePanel = "callingSidePanel",
-    ChannelTab = "channelTab",
-    MeetingChatTab = "meetingChatTab",
-    MeetingDetailsTab = "meetingDetailsTab",
-    MeetingSidePanel = "meetingSidePanel",
-    MeetingStage = "meetingStage",
-    PersonalTab = "personalTab",
-    PrivateChatTab = "privateChatTab",
-}
+export type ConfigurableTabScope = "team" | "groupChat" | "groupchat";
 
-export enum MeetingSurface {
-    SidePanel = "sidePanel",
-    Stage = "stage",
-}
-
-export enum ConfigurableTabScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Team = "team",
-}
-
-export enum SupportedSharePointHost {
-    SharePointFullPage = "sharePointFullPage",
-    SharePointWebPart = "sharePointWebPart",
-}
+export type SupportedSharePointHost = "sharePointFullPage" | "sharePointWebPart";
 
 export interface Connector {
     /**
@@ -460,61 +333,7 @@ export interface Connector {
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
      * is supported.
      */
-    scopes: ConnectorScope[];
-}
-
-export enum ConnectorScope {
-    Team = "team",
-}
-
-/**
- * When a group install scope is selected, this will define the default capability when the
- * user installs the app
- */
-export interface DefaultGroupCapability {
-    /**
-     * When the install scope selected is GroupChat, this field specifies the default capability
-     * available
-     */
-    groupchat?: Groupchat;
-    /**
-     * When the install scope selected is Meetings, this field specifies the default capability
-     * available
-     */
-    meetings?: Groupchat;
-    /**
-     * When the install scope selected is Team, this field specifies the default capability
-     * available
-     */
-    team?: Groupchat;
-}
-
-/**
- * When the install scope selected is GroupChat, this field specifies the default capability
- * available
- *
- * When the install scope selected is Meetings, this field specifies the default capability
- * available
- *
- * When the install scope selected is Team, this field specifies the default capability
- * available
- */
-export enum Groupchat {
-    Bot = "bot",
-    Connector = "connector",
-    Tab = "tab",
-}
-
-/**
- * The install scope defined for this app by default. This will be the option displayed on
- * the button when a user tries to add the app
- */
-export enum DefaultInstallScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Meetings = "meetings",
-    Personal = "personal",
-    Team = "team",
+    scopes: "team"[];
 }
 
 export interface Description {
@@ -554,24 +373,7 @@ export interface Developer {
     websiteUrl: string;
 }
 
-export enum DevicePermission {
-    Geolocation = "geolocation",
-    MIDI = "midi",
-    Media = "media",
-    Notifications = "notifications",
-    OpenExternal = "openExternal",
-}
-
-/**
- * Specify the app's Graph connector configuration. If this is present then
- * webApplicationInfo.id must also be specified.
- */
-export interface GraphConnector {
-    /**
-     * The url where Graph-connector notifications for the application should be sent.
-     */
-    notificationUrl: string;
-}
+export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
 
 export interface Icons {
     /**
@@ -604,47 +406,6 @@ export interface AdditionalLanguage {
     languageTag: string;
 }
 
-export enum ManifestVersion {
-    The111 = "1.11",
-}
-
-/**
- * Specify meeting extension definition.
- */
-export interface MeetingExtensionDefinition {
-    /**
-     * Meeting supported scenes.
-     */
-    scenes?: Scene[];
-}
-
-export interface Scene {
-    /**
-     * A relative file path to a scene metadata json file.
-     */
-    file: string;
-    /**
-     * A unique identifier for this scene. This id must be a GUID.
-     */
-    id: string;
-    /**
-     * Maximum audiences supported in scene.
-     */
-    maxAudience: number;
-    /**
-     * Scene name.
-     */
-    name: string;
-    /**
-     * A relative file path to a scene PNG preview icon.
-     */
-    preview: string;
-    /**
-     * Number of seats reserved for organizers or presenters.
-     */
-    seatsReservedForOrganizersOrPresenters: number;
-}
-
 export interface Name {
     /**
      * The full name of the app, used if the full app name exceeds 30 characters.
@@ -656,25 +417,13 @@ export interface Name {
     short: string;
 }
 
-export enum Permission {
-    Identity = "identity",
-    MessageTeamMembers = "messageTeamMembers",
-}
+export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
     /**
-     * The Microsoft App ID specified for the bot in the Bot Framework portal
-     * (https://dev.botframework.com/bots)
-     */
-    contentBotId?: string;
-    /**
      * The url which points to the entity UI to be displayed in the Teams canvas.
      */
-    contentUrl?: string;
-    /**
-     * The set of contextItem scopes that a tab belong to
-     */
-    context?: StaticTabContext[];
+    contentUrl: string;
     /**
      * A unique identifier for the entity which the tab displays.
      */
@@ -682,7 +431,7 @@ export interface StaticTab {
     /**
      * The display name of the tab.
      */
-    name?: string;
+    name: string;
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
      * an experience scoped to an individual user alone. These options are non-exclusive.
@@ -690,34 +439,12 @@ export interface StaticTab {
      */
     scopes: StaticTabScope[];
     /**
-     * The url to direct a user's search queries.
-     */
-    searchUrl?: string;
-    /**
      * The url to point at if a user opts to view in a browser.
      */
     websiteUrl?: string;
 }
 
-export enum StaticTabContext {
-    ChannelTab = "channelTab",
-    PersonalTab = "personalTab",
-}
-
-export enum StaticTabScope {
-    Personal = "personal",
-    Team = "team",
-}
-
-/**
- * Subscription offer associated with this app.
- */
-export interface SubscriptionOffer {
-    /**
-     * A unique identifier for the Commercial Marketplace Software as a Service Offer.
-     */
-    offerId: string;
-}
+export type StaticTabScope = "team" | "personal";
 
 /**
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
@@ -738,12 +465,12 @@ export interface WebApplicationInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toMicrosoftTeamsV1D11(json: string): MicrosoftTeamsV1D11 {
-        return cast(JSON.parse(json), r("MicrosoftTeamsV1D11"));
+    public static toTeamsManifestV1D6(json: string): TeamsManifestV1D6 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D6"));
     }
 
-    public static microsoftTeamsV1D11ToJson(value: MicrosoftTeamsV1D11): string {
-        return JSON.stringify(uncast(value, r("MicrosoftTeamsV1D11")), null, 2);
+    public static teamsManifestV1D6ToJson(value: TeamsManifestV1D6): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D6")), null, 2);
     }
 }
 
@@ -900,46 +627,28 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "MicrosoftTeamsV1D11": o([
+    "TeamsManifestV1D6": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
-        { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
         { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
         { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
-        { json: "configurableProperties", js: "configurableProperties", typ: u(undefined, a(r("ConfigurableProperty"))) },
         { json: "configurableTabs", js: "configurableTabs", typ: u(undefined, a(r("ConfigurableTab"))) },
         { json: "connectors", js: "connectors", typ: u(undefined, a(r("Connector"))) },
-        { json: "defaultBlockUntilAdminAction", js: "defaultBlockUntilAdminAction", typ: u(undefined, true) },
-        { json: "defaultGroupCapability", js: "defaultGroupCapability", typ: u(undefined, r("DefaultGroupCapability")) },
-        { json: "defaultInstallScope", js: "defaultInstallScope", typ: u(undefined, r("DefaultInstallScope")) },
         { json: "description", js: "description", typ: r("Description") },
         { json: "developer", js: "developer", typ: r("Developer") },
         { json: "devicePermissions", js: "devicePermissions", typ: u(undefined, a(r("DevicePermission"))) },
-        { json: "graphConnector", js: "graphConnector", typ: u(undefined, r("GraphConnector")) },
         { json: "icons", js: "icons", typ: r("Icons") },
         { json: "id", js: "id", typ: "" },
-        { json: "isFullScreen", js: "isFullScreen", typ: u(undefined, true) },
         { json: "localizationInfo", js: "localizationInfo", typ: u(undefined, r("LocalizationInfo")) },
         { json: "manifestVersion", js: "manifestVersion", typ: r("ManifestVersion") },
-        { json: "meetingExtensionDefinition", js: "meetingExtensionDefinition", typ: u(undefined, r("MeetingExtensionDefinition")) },
         { json: "name", js: "name", typ: r("Name") },
         { json: "packageName", js: "packageName", typ: u(undefined, "") },
         { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
-        { json: "publisherDocsUrl", js: "publisherDocsUrl", typ: u(undefined, "") },
         { json: "showLoadingIndicator", js: "showLoadingIndicator", typ: u(undefined, true) },
         { json: "staticTabs", js: "staticTabs", typ: u(undefined, a(r("StaticTab"))) },
-        { json: "subscriptionOffer", js: "subscriptionOffer", typ: u(undefined, r("SubscriptionOffer")) },
         { json: "validDomains", js: "validDomains", typ: u(undefined, a("")) },
         { json: "version", js: "version", typ: "" },
         { json: "webApplicationInfo", js: "webApplicationInfo", typ: u(undefined, r("WebApplicationInfo")) },
-    ], false),
-    "Activities": o([
-        { json: "activityTypes", js: "activityTypes", typ: u(undefined, a(r("ActivityType"))) },
-    ], false),
-    "ActivityType": o([
-        { json: "description", js: "description", typ: "" },
-        { json: "templateText", js: "templateText", typ: "" },
-        { json: "type", js: "type", typ: "" },
     ], false),
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
@@ -947,9 +656,7 @@ const typeMap: any = {
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
-        { json: "supportsCalling", js: "supportsCalling", typ: u(undefined, true) },
         { json: "supportsFiles", js: "supportsFiles", typ: u(undefined, true) },
-        { json: "supportsVideo", js: "supportsVideo", typ: u(undefined, true) },
     ], false),
     "CommandList": o([
         { json: "commands", js: "commands", typ: a(r("CommandListCommand")) },
@@ -966,7 +673,7 @@ const typeMap: any = {
         { json: "messageHandlers", js: "messageHandlers", typ: u(undefined, a(r("MessageHandler"))) },
     ], false),
     "ComposeExtensionCommand": o([
-        { json: "context", js: "context", typ: u(undefined, a(r("CommandContext"))) },
+        { json: "context", js: "context", typ: u(undefined, a(r("Context"))) },
         { json: "description", js: "description", typ: u(undefined, "") },
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
         { json: "id", js: "id", typ: "" },
@@ -1004,8 +711,6 @@ const typeMap: any = {
     "ConfigurableTab": o([
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
-        { json: "context", js: "context", typ: u(undefined, a(r("ConfigurableTabContext"))) },
-        { json: "meetingSurfaces", js: "meetingSurfaces", typ: u(undefined, a(r("MeetingSurface"))) },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
         { json: "sharePointPreviewImage", js: "sharePointPreviewImage", typ: u(undefined, "") },
         { json: "supportedSharePointHosts", js: "supportedSharePointHosts", typ: u(undefined, a(r("SupportedSharePointHost"))) },
@@ -1014,11 +719,6 @@ const typeMap: any = {
         { json: "configurationUrl", js: "configurationUrl", typ: u(undefined, "") },
         { json: "connectorId", js: "connectorId", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("ConnectorScope")) },
-    ], false),
-    "DefaultGroupCapability": o([
-        { json: "groupchat", js: "groupchat", typ: u(undefined, r("Groupchat")) },
-        { json: "meetings", js: "meetings", typ: u(undefined, r("Groupchat")) },
-        { json: "team", js: "team", typ: u(undefined, r("Groupchat")) },
     ], false),
     "Description": o([
         { json: "full", js: "full", typ: "" },
@@ -1030,9 +730,6 @@ const typeMap: any = {
         { json: "privacyUrl", js: "privacyUrl", typ: "" },
         { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
         { json: "websiteUrl", js: "websiteUrl", typ: "" },
-    ], false),
-    "GraphConnector": o([
-        { json: "notificationUrl", js: "notificationUrl", typ: "" },
     ], false),
     "Icons": o([
         { json: "color", js: "color", typ: "" },
@@ -1046,33 +743,16 @@ const typeMap: any = {
         { json: "file", js: "file", typ: "" },
         { json: "languageTag", js: "languageTag", typ: "" },
     ], false),
-    "MeetingExtensionDefinition": o([
-        { json: "scenes", js: "scenes", typ: u(undefined, a(r("Scene"))) },
-    ], false),
-    "Scene": o([
-        { json: "file", js: "file", typ: "" },
-        { json: "id", js: "id", typ: "" },
-        { json: "maxAudience", js: "maxAudience", typ: 0 },
-        { json: "name", js: "name", typ: "" },
-        { json: "preview", js: "preview", typ: "" },
-        { json: "seatsReservedForOrganizersOrPresenters", js: "seatsReservedForOrganizersOrPresenters", typ: 0 },
-    ], false),
     "Name": o([
         { json: "full", js: "full", typ: u(undefined, "") },
         { json: "short", js: "short", typ: "" },
     ], false),
     "StaticTab": o([
-        { json: "contentBotId", js: "contentBotId", typ: u(undefined, "") },
-        { json: "contentUrl", js: "contentUrl", typ: u(undefined, "") },
-        { json: "context", js: "context", typ: u(undefined, a(r("StaticTabContext"))) },
+        { json: "contentUrl", js: "contentUrl", typ: "" },
         { json: "entityId", js: "entityId", typ: "" },
-        { json: "name", js: "name", typ: u(undefined, "") },
+        { json: "name", js: "name", typ: "" },
         { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
-        { json: "searchUrl", js: "searchUrl", typ: u(undefined, "") },
         { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
-    ], false),
-    "SubscriptionOffer": o([
-        { json: "offerId", js: "offerId", typ: "" },
     ], false),
     "WebApplicationInfo": o([
         { json: "applicationPermissions", js: "applicationPermissions", typ: u(undefined, a("")) },
@@ -1085,7 +765,7 @@ const typeMap: any = {
         "personal",
         "team",
     ],
-    "CommandContext": [
+    "Context": [
         "commandBox",
         "compose",
         "message",
@@ -1106,31 +786,6 @@ const typeMap: any = {
     "MessageHandlerType": [
         "link",
     ],
-    "ConfigurableProperty": [
-        "accentColor",
-        "developerUrl",
-        "largeImageUrl",
-        "longDescription",
-        "name",
-        "privacyUrl",
-        "shortDescription",
-        "smallImageUrl",
-        "termsOfUseUrl",
-    ],
-    "ConfigurableTabContext": [
-        "callingSidePanel",
-        "channelTab",
-        "meetingChatTab",
-        "meetingDetailsTab",
-        "meetingSidePanel",
-        "meetingStage",
-        "personalTab",
-        "privateChatTab",
-    ],
-    "MeetingSurface": [
-        "sidePanel",
-        "stage",
-    ],
     "ConfigurableTabScope": [
         "groupChat",
         "groupchat",
@@ -1143,18 +798,6 @@ const typeMap: any = {
     "ConnectorScope": [
         "team",
     ],
-    "Groupchat": [
-        "bot",
-        "connector",
-        "tab",
-    ],
-    "DefaultInstallScope": [
-        "groupChat",
-        "groupchat",
-        "meetings",
-        "personal",
-        "team",
-    ],
     "DevicePermission": [
         "geolocation",
         "midi",
@@ -1163,15 +806,11 @@ const typeMap: any = {
         "openExternal",
     ],
     "ManifestVersion": [
-        "1.11",
+        "1.6",
     ],
     "Permission": [
         "identity",
         "messageTeamMembers",
-    ],
-    "StaticTabContext": [
-        "channelTab",
-        "personalTab",
     ],
     "StaticTabScope": [
         "personal",

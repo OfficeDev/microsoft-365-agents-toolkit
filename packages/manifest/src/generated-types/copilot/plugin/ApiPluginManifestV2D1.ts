@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, CopilotPluginV2D1 } from "./file";
+//   import { Convert, APIPluginManifestV2D1 } from "./file";
 //
-//   const copilotPluginV2D1 = Convert.toCopilotPluginV2D1(json);
+//   const aPIPluginManifestV2D1 = Convert.toAPIPluginManifestV2D1(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,7 +11,7 @@
  * The root of the plugin manifest document is a JSON object that contains members that
  * describe the plugin.
  */
-export interface CopilotPluginV2D1 {
+export interface APIPluginManifestV2D1 {
     /**
      * Describes capabilities of the plugin.
      */
@@ -72,7 +72,7 @@ export interface CopilotPluginV2D1 {
     /**
      * The schema version. Previous versions are `v1` and `v2`.
      */
-    schema_version: SchemaVersion;
+    schema_version: "v2.1";
     [property: string]: any;
 }
 
@@ -192,10 +192,7 @@ export interface ConfirmationObject {
 /**
  * Specifies the type of confirmation.
  */
-export enum ConfirmationType {
-    AdaptiveCard = "AdaptiveCard",
-    None = "None",
-}
+export type ConfirmationType = "None" | "AdaptiveCard";
 
 /**
  * Describes how the orchestrator can interpret the response payload and provide a visual
@@ -292,12 +289,8 @@ export interface FunctionParametersObject {
     /**
      * The JSON Schema type.
      */
-    type?: ParametersType;
+    type?: "object";
     [property: string]: any;
-}
-
-export enum ParametersType {
-    Object = "object",
 }
 
 /**
@@ -316,21 +309,14 @@ export interface ReturnObject {
     /**
      * Specifies the type of the value returned by the API.
      */
-    type?: ReturnsType;
-    $ref?: Ref;
+    type?: "string";
+    $ref?: "https://copilot.microsoft.com/schemas/rich-response-v1.0.json";
     [property: string]: any;
-}
-
-export enum Ref {
-    HTTPSCopilotMicrosoftCOMSchemasRichResponseV10JSON = "https://copilot.microsoft.com/schemas/rich-response-v1.0.json",
 }
 
 /**
  * Specifies the type of the value returned by the API.
  */
-export enum ReturnsType {
-    String = "string",
-}
 
 /**
  * Defines state objects for orchestrator states.
@@ -400,7 +386,7 @@ export interface OpenAPIRuntimeObject {
     /**
      * Identifies this runtime as an OpenAPI runtime.
      */
-    type: RuntimeType;
+    type: "OpenApi";
     [property: string]: any;
 }
 
@@ -431,11 +417,7 @@ export interface RuntimeAuthenticationObject {
 /**
  * Specifies the type of authentication required to invoke a function.
  */
-export enum TypeEnum {
-    APIKeyPluginVault = "ApiKeyPluginVault",
-    None = "None",
-    OAuthPluginVault = "OAuthPluginVault",
-}
+export type TypeEnum = "None" | "OAuthPluginVault" | "ApiKeyPluginVault";
 
 /**
  * Contains the OpenAPI information required to invoke the runtime.
@@ -461,30 +443,17 @@ export interface OpenAPISpecificationObject {
 /**
  * The progress style that is used to display the progress of the function.
  */
-export enum ProgressStyle {
-    None = "None",
-    ShowUsage = "ShowUsage",
-    ShowUsageWithInput = "ShowUsageWithInput",
-    ShowUsageWithInputAndOutput = "ShowUsageWithInputAndOutput",
-}
-
-export enum RuntimeType {
-    OpenAPI = "OpenApi",
-}
-
-export enum SchemaVersion {
-    V21 = "v2.1",
-}
+export type ProgressStyle = "None" | "ShowUsage" | "ShowUsageWithInput" | "ShowUsageWithInputAndOutput";
 
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toCopilotPluginV2D1(json: string): CopilotPluginV2D1 {
-        return cast(JSON.parse(json), r("CopilotPluginV2D1"));
+    public static toAPIPluginManifestV2D1(json: string): APIPluginManifestV2D1 {
+        return cast(JSON.parse(json), r("APIPluginManifestV2D1"));
     }
 
-    public static copilotPluginV2D1ToJson(value: CopilotPluginV2D1): string {
-        return JSON.stringify(uncast(value, r("CopilotPluginV2D1")), null, 2);
+    public static aPIPluginManifestV2D1ToJson(value: APIPluginManifestV2D1): string {
+        return JSON.stringify(uncast(value, r("APIPluginManifestV2D1")), null, 2);
     }
 }
 
@@ -641,7 +610,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "CopilotPluginV2D1": o([
+    "APIPluginManifestV2D1": o([
         { json: "capabilities", js: "capabilities", typ: u(undefined, r("PluginCapabilitiesObject")) },
         { json: "contact_email", js: "contact_email", typ: u(undefined, "any") },
         { json: "description_for_human", js: "description_for_human", typ: "" },

@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, CopilotDeclarativeAgentV1D2 } from "./file";
+//   import { Convert, DeclarativeAgentManifestV1D2 } from "./file";
 //
-//   const copilotDeclarativeAgentV1D2 = Convert.toCopilotDeclarativeAgentV1D2(json);
+//   const declarativeAgentManifestV1D2 = Convert.toDeclarativeAgentManifestV1D2(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,7 +11,7 @@
  * The root of the declarative agent manifest document is a JSON object that contains
  * members that describe the declarative agent.
  */
-export interface CopilotDeclarativeAgentV1D2 {
+export interface DeclarativeAgentManifestV1D2 {
     /**
      * Optional. A list of objects that identify API plugins that provide actions accessible to
      * the declarative agent.
@@ -49,7 +49,7 @@ export interface CopilotDeclarativeAgentV1D2 {
     /**
      * Required. Not localizable. The version of the schema this manifest is using.
      */
-    version: Version;
+    version: "v1.2";
     [property: string]: any;
 }
 
@@ -165,13 +165,7 @@ export interface ItemsByURLElement {
     url?: string;
 }
 
-export enum Name {
-    CodeInterpreter = "CodeInterpreter",
-    GraphConnectors = "GraphConnectors",
-    GraphicArt = "GraphicArt",
-    OneDriveAndSharePoint = "OneDriveAndSharePoint",
-    WebSearch = "WebSearch",
-}
+export type Name = "WebSearch" | "CodeInterpreter" | "OneDriveAndSharePoint" | "GraphConnectors" | "GraphicArt";
 
 /**
  * An object that identifies a site used to constrain the content accessible to the
@@ -203,19 +197,15 @@ export interface ConversationStarterElement {
     [property: string]: any;
 }
 
-export enum Version {
-    V12 = "v1.2",
-}
-
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toCopilotDeclarativeAgentV1D2(json: string): CopilotDeclarativeAgentV1D2 {
-        return cast(JSON.parse(json), r("CopilotDeclarativeAgentV1D2"));
+    public static toDeclarativeAgentManifestV1D2(json: string): DeclarativeAgentManifestV1D2 {
+        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D2"));
     }
 
-    public static copilotDeclarativeAgentV1D2ToJson(value: CopilotDeclarativeAgentV1D2): string {
-        return JSON.stringify(uncast(value, r("CopilotDeclarativeAgentV1D2")), null, 2);
+    public static declarativeAgentManifestV1D2ToJson(value: DeclarativeAgentManifestV1D2): string {
+        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D2")), null, 2);
     }
 }
 
@@ -372,7 +362,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "CopilotDeclarativeAgentV1D2": o([
+    "DeclarativeAgentManifestV1D2": o([
         { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
         { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterElement"))) },

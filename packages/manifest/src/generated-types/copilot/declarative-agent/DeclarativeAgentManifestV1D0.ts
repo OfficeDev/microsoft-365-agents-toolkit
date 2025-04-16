@@ -1,8 +1,8 @@
 // To parse this data:
 //
-//   import { Convert, CopilotDeclarativeAgentV1D3 } from "./file";
+//   import { Convert, DeclarativeAgentManifestV1D0 } from "./file";
 //
-//   const copilotDeclarativeAgentV1D3 = Convert.toCopilotDeclarativeAgentV1D3(json);
+//   const declarativeAgentManifestV1D0 = Convert.toDeclarativeAgentManifestV1D0(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
@@ -11,7 +11,7 @@
  * The root of the declarative agent manifest document is a JSON object that contains
  * members that describe the declarative agent.
  */
-export interface CopilotDeclarativeAgentV1D3 {
+export interface DeclarativeAgentManifestV1D0 {
     /**
      * Optional. A list of objects that identify API plugins that provide actions accessible to
      * the declarative agent.
@@ -19,6 +19,7 @@ export interface CopilotDeclarativeAgentV1D3 {
     actions?: ActionElement[];
     /**
      * Optional. Contains an array of objects that define capabilities of the declarative agent.
+     * There MUST NOT be more than three objects in the array.
      */
     capabilities?: CapabilityElement[];
     /**
@@ -49,7 +50,7 @@ export interface CopilotDeclarativeAgentV1D3 {
     /**
      * Required. Not localizable. The version of the schema this manifest is using.
      */
-    version: Version;
+    version: "v1.0";
     [property: string]: any;
 }
 
@@ -79,50 +80,18 @@ export interface ActionElement {
  *
  * Indicates that the declarative agent can search selected Microsoft Graph connectors for
  * grounding information.
- *
- * Indicates that the declarative agent can generate and execute code.
- *
- * Indicates that the declarative agent can images and art based on the text input from the
- * user.
- *
- * Indicates that the declarative agent can search through Teams channels, teams, meetings,
- * 1:1 chats and group chats.
- *
- * A JSON object whose presence indicates that the DA will be able to search within Email
- * Messages in the mailboxes user has access to.
- *
- * Indicates that the DA will be able to search people data in the organization.
  */
 export interface CapabilityElement {
     /**
-     * Required. The name of the capability. Allowed values are WebSearch, CodeInterpreter,
-     * OneDriveAndSharePoint, GraphConnectors, TeamsMessages, Dataverse, Email, People and
-     * GraphicArt.
+     * Required. Must be WebSearch, OneDriveAndSharePoint or GraphConnectors
      *
      * Required. Must be set to WebSearch.
      *
      * Required. Must be set to OneDriveAndSharePoint.
      *
      * Required. Must be set to GraphConnectors.
-     *
-     * Required. Must be set to CodeInterpreter.
-     *
-     * Required. Must be set to GraphicArt.
-     *
-     * Required. Must be set to TeamsMessages.
-     *
-     * Required: Must be set to Dataverse
-     *
-     * Required: Must be set to Email
-     *
-     * Required. Must be set to People.
      */
     name: Name;
-    /**
-     * Optional. An array of sites used to constrain the content accessible to the DA to just
-     * the content identified via the items of array.
-     */
-    sites?: SiteElement[];
     /**
      * Optional. An array of objects that identify SharePoint or OneDrive sources using IDs.
      */
@@ -136,28 +105,6 @@ export interface CapabilityElement {
      * the declarative agent
      */
     connections?: ConnectionElement[];
-    /**
-     * This member can be used to constrain the content accessible to the DA to just the content
-     * identified via the members of each Teams url
-     */
-    urls?: URLElement[];
-    /**
-     * An array of Objects that represent the knowledge sources for the Dataverse in the
-     * Declarative Agent
-     */
-    knowledge_sources?: KnowledgeSourceElement[];
-    /**
-     * A JSON array of Folder Object. This member can be used to constrain the content
-     * accessible to the DA to just the emails present in the folders identified by members of
-     * each Folder Object.
-     */
-    folders?: FolderElement[];
-    /**
-     * A JSON string that contains SMTP address of the shared mailbox. The presence of this
-     * field indicates that the DA constrain its search for relevant emails only to that
-     * mailbox. Emails from user's primary mailbox is not searched when this field is present.
-     */
-    shared_mailbox?: string;
     [property: string]: any;
 }
 
@@ -172,15 +119,6 @@ export interface ConnectionElement {
     [property: string]: any;
 }
 
-export interface FolderElement {
-    /**
-     * A JSON string that identifies an email folder. This can either be id of the folder or one
-     * of the well known names.
-     */
-    folder_id: string;
-    [property: string]: any;
-}
-
 /**
  * Contains one or more object identifiers that identify a SharePoint or OneDrive resource.
  */
@@ -189,20 +127,6 @@ export interface ItemsBySharepointIDElement {
      * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive list.
      */
     list_id?: string;
-    /**
-     * A JSON String that uniquely identifies a part of a SharePoint item. e.g a OneNote page.
-     */
-    part_id?: string;
-    /**
-     * A String that qualifies the kind of part that the "part_id" refers to. Currently this
-     * value can only be equal to the string literal: "OneNotePart".
-     */
-    part_type?: PartType;
-    /**
-     * Boolean value indicating whether to enable searching associated sites. This value is only
-     * applicable when the site_id value references a SharePoint HubSite.
-     */
-    search_associated_sites?: boolean;
     /**
      * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive site.
      */
@@ -218,14 +142,6 @@ export interface ItemsBySharepointIDElement {
 }
 
 /**
- * A String that qualifies the kind of part that the "part_id" refers to. Currently this
- * value can only be equal to the string literal: "OneNotePart".
- */
-export enum PartType {
-    OneNotePart = "OneNotePart",
-}
-
-/**
  * Represents the URL of a SharePoint or OneDrive resource.
  */
 export interface ItemsByURLElement {
@@ -235,67 +151,10 @@ export interface ItemsByURLElement {
     url?: string;
 }
 
-export interface KnowledgeSourceElement {
-    /**
-     * A unique identifier for the host in Dataverse.
-     */
-    host_name?: string;
-    /**
-     * A unique identifier that defines the configuration for how the copilot agent interacts
-     * with Dataverse knowledge.
-     */
-    skill?: string;
-    /**
-     * An array of table_name objects which contain table names in DataVerse to scope the
-     * knowledge of the Declarative Agent
-     */
-    tables?: TableElement[];
-    [property: string]: any;
-}
-
-export interface TableElement {
-    /**
-     * A string to represent the table name.
-     */
-    table_name?: string;
-    [property: string]: any;
-}
-
-export enum Name {
-    CodeInterpreter = "CodeInterpreter",
-    Dataverse = "Dataverse",
-    Email = "Email",
-    GraphConnectors = "GraphConnectors",
-    GraphicArt = "GraphicArt",
-    OneDriveAndSharePoint = "OneDriveAndSharePoint",
-    People = "People",
-    TeamsMessages = "TeamsMessages",
-    WebSearch = "WebSearch",
-}
-
 /**
- * An object that identifies a site used to constrain the content accessible to the
- * declarative agent.
+ * Required. Must be WebSearch, OneDriveAndSharePoint or GraphConnectors
  */
-export interface SiteElement {
-    /**
-     * An absolute URL to a site.
-     */
-    url: string;
-    [property: string]: any;
-}
-
-/**
- * Identifies a Teams channel, team or meeting chat
- */
-export interface URLElement {
-    /**
-     * A string that contains a well formed, Teams url to a Teams channel, team or meeting chat
-     * (join url)
-     */
-    url: string;
-    [property: string]: any;
-}
+export type Name = "WebSearch" | "OneDriveAndSharePoint" | "GraphConnectors";
 
 /**
  * Contains hints that are displayed to the user to demonstrate how they can get started
@@ -315,19 +174,15 @@ export interface ConversationStarterElement {
     [property: string]: any;
 }
 
-export enum Version {
-    V13 = "v1.3",
-}
-
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toCopilotDeclarativeAgentV1D3(json: string): CopilotDeclarativeAgentV1D3 {
-        return cast(JSON.parse(json), r("CopilotDeclarativeAgentV1D3"));
+    public static toDeclarativeAgentManifestV1D0(json: string): DeclarativeAgentManifestV1D0 {
+        return cast(JSON.parse(json), r("DeclarativeAgentManifestV1D0"));
     }
 
-    public static copilotDeclarativeAgentV1D3ToJson(value: CopilotDeclarativeAgentV1D3): string {
-        return JSON.stringify(uncast(value, r("CopilotDeclarativeAgentV1D3")), null, 2);
+    public static declarativeAgentManifestV1D0ToJson(value: DeclarativeAgentManifestV1D0): string {
+        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D0")), null, 2);
     }
 }
 
@@ -484,7 +339,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "CopilotDeclarativeAgentV1D3": o([
+    "DeclarativeAgentManifestV1D0": o([
         { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
         { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterElement"))) },
@@ -500,26 +355,15 @@ const typeMap: any = {
     ], "any"),
     "CapabilityElement": o([
         { json: "name", js: "name", typ: r("Name") },
-        { json: "sites", js: "sites", typ: u(undefined, a(r("SiteElement"))) },
         { json: "items_by_sharepoint_ids", js: "items_by_sharepoint_ids", typ: u(undefined, a(r("ItemsBySharepointIDElement"))) },
         { json: "items_by_url", js: "items_by_url", typ: u(undefined, a(r("ItemsByURLElement"))) },
         { json: "connections", js: "connections", typ: u(undefined, a(r("ConnectionElement"))) },
-        { json: "urls", js: "urls", typ: u(undefined, a(r("URLElement"))) },
-        { json: "knowledge_sources", js: "knowledge_sources", typ: u(undefined, a(r("KnowledgeSourceElement"))) },
-        { json: "folders", js: "folders", typ: u(undefined, a(r("FolderElement"))) },
-        { json: "shared_mailbox", js: "shared_mailbox", typ: u(undefined, "") },
     ], "any"),
     "ConnectionElement": o([
         { json: "connection_id", js: "connection_id", typ: "" },
     ], "any"),
-    "FolderElement": o([
-        { json: "folder_id", js: "folder_id", typ: "" },
-    ], "any"),
     "ItemsBySharepointIDElement": o([
         { json: "list_id", js: "list_id", typ: u(undefined, "") },
-        { json: "part_id", js: "part_id", typ: u(undefined, "") },
-        { json: "part_type", js: "part_type", typ: u(undefined, r("PartType")) },
-        { json: "search_associated_sites", js: "search_associated_sites", typ: u(undefined, true) },
         { json: "site_id", js: "site_id", typ: u(undefined, "") },
         { json: "unique_id", js: "unique_id", typ: u(undefined, "") },
         { json: "web_id", js: "web_id", typ: u(undefined, "") },
@@ -527,39 +371,16 @@ const typeMap: any = {
     "ItemsByURLElement": o([
         { json: "url", js: "url", typ: u(undefined, "") },
     ], false),
-    "KnowledgeSourceElement": o([
-        { json: "host_name", js: "host_name", typ: u(undefined, "") },
-        { json: "skill", js: "skill", typ: u(undefined, "") },
-        { json: "tables", js: "tables", typ: u(undefined, a(r("TableElement"))) },
-    ], "any"),
-    "TableElement": o([
-        { json: "table_name", js: "table_name", typ: u(undefined, "") },
-    ], "any"),
-    "SiteElement": o([
-        { json: "url", js: "url", typ: "" },
-    ], "any"),
-    "URLElement": o([
-        { json: "url", js: "url", typ: "" },
-    ], "any"),
     "ConversationStarterElement": o([
         { json: "text", js: "text", typ: "" },
         { json: "title", js: "title", typ: u(undefined, "") },
     ], "any"),
-    "PartType": [
-        "OneNotePart",
-    ],
     "Name": [
-        "CodeInterpreter",
-        "Dataverse",
-        "Email",
         "GraphConnectors",
-        "GraphicArt",
         "OneDriveAndSharePoint",
-        "People",
-        "TeamsMessages",
         "WebSearch",
     ],
     "Version": [
-        "v1.3",
+        "v1.0",
     ],
 };

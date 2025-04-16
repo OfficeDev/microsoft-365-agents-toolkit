@@ -1,13 +1,13 @@
 // To parse this data:
 //
-//   import { Convert, MicrosoftTeamsV1D13 } from "./file";
+//   import { Convert, TeamsManifestV1D12 } from "./file";
 //
-//   const microsoftTeamsV1D13 = Convert.toMicrosoftTeamsV1D13(json);
+//   const teamsManifestV1D12 = Convert.toTeamsManifestV1D12(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface MicrosoftTeamsV1D13 {
+export interface TeamsManifestV1D12 {
     $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
@@ -79,11 +79,9 @@ export interface MicrosoftTeamsV1D13 {
     isFullScreen?:     boolean;
     localizationInfo?: LocalizationInfo;
     /**
-     * The version of the schema this manifest is using. This schema version supports extending
-     * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
-     * https://aka.ms/extendteamsapps.
+     * The version of the schema this manifest is using.
      */
-    manifestVersion: ManifestVersion;
+    manifestVersion: "1.12";
     /**
      * Specify meeting extension definition.
      */
@@ -181,10 +179,7 @@ export interface ResourceSpecific {
 /**
  * The type of the resource-specific permission.
  */
-export enum ResourceSpecificType {
-    Application = "Application",
-    Delegated = "Delegated",
-}
+export type ResourceSpecificType = "Application" | "Delegated";
 
 export interface Bot {
     /**
@@ -247,12 +242,7 @@ export interface CommandListCommand {
     title: string;
 }
 
-export enum CommandListScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Personal = "personal",
-    Team = "team",
-}
+export type CommandListScope = "team" | "personal" | "groupChat" | "groupchat";
 
 export interface ComposeExtension {
     /**
@@ -306,11 +296,7 @@ export interface ComposeExtensionCommand {
     type?: CommandType;
 }
 
-export enum CommandContext {
-    CommandBox = "commandBox",
-    Compose = "compose",
-    Message = "message",
-}
+export type CommandContext = "compose" | "commandBox" | "message";
 
 export interface Parameter {
     /**
@@ -353,15 +339,7 @@ export interface Choice {
 /**
  * Type of the parameter
  */
-export enum InputType {
-    Choiceset = "choiceset",
-    Date = "date",
-    Number = "number",
-    Text = "text",
-    Textarea = "textarea",
-    Time = "time",
-    Toggle = "toggle",
-}
+export type InputType = "text" | "textarea" | "number" | "date" | "time" | "toggle" | "choiceset";
 
 export interface TaskInfo {
     /**
@@ -387,25 +365,19 @@ export interface TaskInfo {
 /**
  * Type of the command
  */
-export enum CommandType {
-    Action = "action",
-    Query = "query",
-}
+export type CommandType = "query" | "action";
 
 export interface MessageHandler {
     /**
      * Type of the message handler
      */
-    type:  MessageHandlerType;
+    type:  "link";
     value: Value;
 }
 
 /**
  * Type of the message handler
  */
-export enum MessageHandlerType {
-    Link = "link",
-}
 
 export interface Value {
     /**
@@ -416,17 +388,7 @@ export interface Value {
     [property: string]: any;
 }
 
-export enum ConfigurableProperty {
-    AccentColor = "accentColor",
-    DeveloperURL = "developerUrl",
-    LargeImageURL = "largeImageUrl",
-    LongDescription = "longDescription",
-    Name = "name",
-    PrivacyURL = "privacyUrl",
-    ShortDescription = "shortDescription",
-    SmallImageURL = "smallImageUrl",
-    TermsOfUseURL = "termsOfUseUrl",
-}
+export type ConfigurableProperty = "name" | "shortDescription" | "longDescription" | "smallImageUrl" | "largeImageUrl" | "accentColor" | "developerUrl" | "privacyUrl" | "termsOfUseUrl";
 
 export interface ConfigurableTab {
     /**
@@ -463,32 +425,13 @@ export interface ConfigurableTab {
     supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export enum ConfigurableTabContext {
-    CallingSidePanel = "callingSidePanel",
-    ChannelTab = "channelTab",
-    MeetingChatTab = "meetingChatTab",
-    MeetingDetailsTab = "meetingDetailsTab",
-    MeetingSidePanel = "meetingSidePanel",
-    MeetingStage = "meetingStage",
-    PersonalTab = "personalTab",
-    PrivateChatTab = "privateChatTab",
-}
+export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage" | "callingSidePanel";
 
-export enum MeetingSurface {
-    SidePanel = "sidePanel",
-    Stage = "stage",
-}
+export type MeetingSurface = "sidePanel" | "stage";
 
-export enum ConfigurableTabScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Team = "team",
-}
+export type ConfigurableTabScope = "team" | "groupChat" | "groupchat";
 
-export enum SupportedSharePointHost {
-    SharePointFullPage = "sharePointFullPage",
-    SharePointWebPart = "sharePointWebPart",
-}
+export type SupportedSharePointHost = "sharePointFullPage" | "sharePointWebPart";
 
 export interface Connector {
     /**
@@ -505,11 +448,7 @@ export interface Connector {
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
      * is supported.
      */
-    scopes: ConnectorScope[];
-}
-
-export enum ConnectorScope {
-    Team = "team",
+    scopes: "team"[];
 }
 
 /**
@@ -544,23 +483,13 @@ export interface DefaultGroupCapability {
  * When the install scope selected is Team, this field specifies the default capability
  * available
  */
-export enum Groupchat {
-    Bot = "bot",
-    Connector = "connector",
-    Tab = "tab",
-}
+export type Groupchat = "tab" | "bot" | "connector";
 
 /**
  * The install scope defined for this app by default. This will be the option displayed on
  * the button when a user tries to add the app
  */
-export enum DefaultInstallScope {
-    GroupChat = "groupChat",
-    Groupchat = "groupchat",
-    Meetings = "meetings",
-    Personal = "personal",
-    Team = "team",
-}
+export type DefaultInstallScope = "personal" | "team" | "groupchat" | "groupChat" | "meetings";
 
 export interface Description {
     /**
@@ -599,13 +528,7 @@ export interface Developer {
     websiteUrl: string;
 }
 
-export enum DevicePermission {
-    Geolocation = "geolocation",
-    MIDI = "midi",
-    Media = "media",
-    Notifications = "notifications",
-    OpenExternal = "openExternal",
-}
+export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
 
 /**
  * Specify the app's Graph connector configuration. If this is present then
@@ -647,10 +570,6 @@ export interface AdditionalLanguage {
      * The language tag of the strings in the provided file.
      */
     languageTag: string;
-}
-
-export enum ManifestVersion {
-    The113 = "1.13",
 }
 
 /**
@@ -701,10 +620,7 @@ export interface Name {
     short: string;
 }
 
-export enum Permission {
-    Identity = "identity",
-    MessageTeamMembers = "messageTeamMembers",
-}
+export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
     /**
@@ -713,7 +629,7 @@ export interface StaticTab {
      */
     contentBotId?: string;
     /**
-     * The url which points to the entity UI to be displayed in the canvas.
+     * The url which points to the entity UI to be displayed in the Teams canvas.
      */
     contentUrl?: string;
     /**
@@ -744,15 +660,9 @@ export interface StaticTab {
     websiteUrl?: string;
 }
 
-export enum StaticTabContext {
-    ChannelTab = "channelTab",
-    PersonalTab = "personalTab",
-}
+export type StaticTabContext = "personalTab" | "channelTab";
 
-export enum StaticTabScope {
-    Personal = "personal",
-    Team = "team",
-}
+export type StaticTabScope = "team" | "personal";
 
 /**
  * Subscription offer associated with this app.
@@ -782,12 +692,12 @@ export interface WebApplicationInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toMicrosoftTeamsV1D13(json: string): MicrosoftTeamsV1D13 {
-        return cast(JSON.parse(json), r("MicrosoftTeamsV1D13"));
+    public static toTeamsManifestV1D12(json: string): TeamsManifestV1D12 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D12"));
     }
 
-    public static microsoftTeamsV1D13ToJson(value: MicrosoftTeamsV1D13): string {
-        return JSON.stringify(uncast(value, r("MicrosoftTeamsV1D13")), null, 2);
+    public static teamsManifestV1D12ToJson(value: TeamsManifestV1D12): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D12")), null, 2);
     }
 }
 
@@ -944,7 +854,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "MicrosoftTeamsV1D13": o([
+    "TeamsManifestV1D12": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
@@ -1221,7 +1131,7 @@ const typeMap: any = {
         "openExternal",
     ],
     "ManifestVersion": [
-        "1.13",
+        "1.12",
     ],
     "Permission": [
         "identity",

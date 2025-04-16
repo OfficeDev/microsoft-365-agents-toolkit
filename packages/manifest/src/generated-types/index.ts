@@ -6,345 +6,347 @@ import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
 import path from "path";
 import {
-  CopilotDeclarativeAgentV1D0,
-  Convert as CopilotDeclarativeAgentV1D0Convert,
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d0";
+  DeclarativeAgentManifestV1D0,
+  Convert as DeclarativeAgentManifestV1D0Convert,
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
 import {
-  CopilotDeclarativeAgentV1D2,
-  Convert as CopilotDeclarativeAgentV1D2Convert,
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d2";
+  DeclarativeAgentManifestV1D2,
+  Convert as DeclarativeAgentManifestV1D2Convert,
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 import {
-  CopilotDeclarativeAgentV1D3,
-  Convert as CopilotDeclarativeAgentV1D3Convert,
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d3";
+  DeclarativeAgentManifestV1D3,
+  Convert as DeclarativeAgentManifestV1D3Convert,
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
 import {
-  CopilotPluginV2D1,
-  Convert as CopilotPluginV2D1Convert,
-} from "./copilot/plugin/CopilotPlugin.v2d1";
+  APIPluginManifestV2D1,
+  Convert as ApiPluginManifestV2D1Convert,
+} from "./copilot/plugin/ApiPluginManifestV2D1";
 import {
-  CopilotPluginV2D2,
-  Convert as CopilotPluginV2D2Convert,
-} from "./copilot/plugin/CopilotPlugin.v2d2";
+  APIPluginManifestV2D2,
+  Convert as ApiPluginManifestV2D2Convert,
+} from "./copilot/plugin/ApiPluginManifestV2D2";
+import { TeamsManifestV1D0 } from "./teams/TeamsManifestV1D0";
 import {
-  MicrosoftTeamsV1D1, Convert as MicrosoftTeamsV1D1Convert,
-} from "./teams/MicrosoftTeams.v1d1";
+  TeamsManifestV1D1, Convert as TeamsManifestV1D1Convert,
+} from "./teams/TeamsManifestV1D1";
 import {
-  MicrosoftTeamsV1D10,
-  Convert as MicrosoftTeamsV1D10Convert,
-} from "./teams/MicrosoftTeams.v1d10";
+  TeamsManifestV1D10,
+  Convert as TeamsManifestV1D10Convert,
+} from "./teams/TeamsManifestV1D10";
 import {
-  MicrosoftTeamsV1D11,
-  Convert as MicrosoftTeamsV1D11Convert,
-} from "./teams/MicrosoftTeams.v1d11";
+  TeamsManifestV1D11,
+  Convert as TeamsManifestV1D11Convert,
+} from "./teams/TeamsManifestV1D11";
 import {
-  MicrosoftTeamsV1D12,
-  Convert as MicrosoftTeamsV1D12Convert,
-} from "./teams/MicrosoftTeams.v1d12";
+  TeamsManifestV1D12,
+  Convert as TeamsManifestV1D12Convert,
+} from "./teams/TeamsManifestV1D12";
 import {
-  MicrosoftTeamsV1D13,
-  Convert as MicrosoftTeamsV1D13Convert,
-} from "./teams/MicrosoftTeams.v1d13";
+  TeamsManifestV1D13,
+  Convert as TeamsManifestV1D13Convert,
+} from "./teams/TeamsManifestV1D13";
 import {
-  MicrosoftTeamsV1D14,
-  Convert as MicrosoftTeamsV1D14Convert,
-} from "./teams/MicrosoftTeams.v1d14";
+  TeamsManifestV1D14,
+  Convert as TeamsManifestV1D14Convert,
+} from "./teams/TeamsManifestV1D14";
 import {
-  MicrosoftTeamsV1D15,
-  Convert as MicrosoftTeamsV1D15Convert,
-} from "./teams/MicrosoftTeams.v1d15";
+  TeamsManifestV1D15,
+  Convert as TeamsManifestV1D15Convert,
+} from "./teams/TeamsManifestV1D15";
 import {
-  MicrosoftTeamsV1D16,
-  Convert as MicrosoftTeamsV1D16Convert,
-} from "./teams/MicrosoftTeams.v1d16";
+  TeamsManifestV1D16,
+  Convert as TeamsManifestV1D16Convert,
+} from "./teams/TeamsManifestV1D16";
 import {
-  MicrosoftTeamsV1D17,
-  Convert as MicrosoftTeamsV1D17Convert,
-} from "./teams/MicrosoftTeams.v1d17";
+  TeamsManifestV1D17,
+  Convert as TeamsManifestV1D17Convert,
+} from "./teams/TeamsManifestV1D17";
 import {
-  MicrosoftTeamsV1D19,
-  Convert as MicrosoftTeamsV1D19Convert,
-} from "./teams/MicrosoftTeams.v1d19";
+  TeamsManifestV1D19,
+  Convert as TeamsManifestV1D19Convert,
+} from "./teams/TeamsManifestV1D19";
 import {
-  MicrosoftTeamsV1D2,
-  Convert as MicrosoftTeamsV1D2Convert,
-} from "./teams/MicrosoftTeams.v1d2";
+  TeamsManifestV1D2,
+  Convert as TeamsManifestV1D2Convert,
+} from "./teams/TeamsManifestV1D2";
 import {
-  MicrosoftTeamsV1D20,
-  Convert as MicrosoftTeamsV1D20Convert,
-} from "./teams/MicrosoftTeams.v1d20";
+  TeamsManifestV1D20,
+  Convert as TeamsManifestV1D20Convert,
+} from "./teams/TeamsManifestV1D20";
 import {
-  MicrosoftTeamsV1D3,
-  Convert as MicrosoftTeamsV1D3Convert,
-} from "./teams/MicrosoftTeams.v1d3";
+  TeamsManifestV1D3,
+  Convert as TeamsManifestV1D3Convert,
+} from "./teams/TeamsManifestV1D3";
 import {
-  MicrosoftTeamsV1D4,
-  Convert as MicrosoftTeamsV1D4Convert,
-} from "./teams/MicrosoftTeams.v1d4";
+  TeamsManifestV1D4,
+  Convert as TeamsManifestV1D4Convert,
+} from "./teams/TeamsManifestV1D4";
 import {
-  MicrosoftTeamsV1D5,
-  Convert as MicrosoftTeamsV1D5Convert,
-} from "./teams/MicrosoftTeams.v1d5";
+  TeamsManifestV1D5,
+  Convert as TeamsManifestV1D5Convert,
+} from "./teams/TeamsManifestV1D5";
 import {
-  MicrosoftTeamsV1D6,
-  Convert as MicrosoftTeamsV1D6Convert,
-} from "./teams/MicrosoftTeams.v1d6";
+  TeamsManifestV1D6,
+  Convert as TeamsManifestV1D6Convert,
+} from "./teams/TeamsManifestV1D6";
 import {
-  MicrosoftTeamsV1D7,
-  Convert as MicrosoftTeamsV1D7Convert,
-} from "./teams/MicrosoftTeams.v1d7";
+  TeamsManifestV1D7,
+  Convert as TeamsManifestV1D7Convert,
+} from "./teams/TeamsManifestV1D7";
 import {
-  MicrosoftTeamsV1D8,
-  Convert as MicrosoftTeamsV1D8Convert,
-} from "./teams/MicrosoftTeams.v1d8";
+  TeamsManifestV1D8,
+  Convert as TeamsManifestV1D8Convert,
+} from "./teams/TeamsManifestV1D8";
 import {
-  MicrosoftTeamsV1D9,
-  Convert as MicrosoftTeamsV1D9Convert,
-} from "./teams/MicrosoftTeams.v1d9";
+  TeamsManifestV1D9,
+  Convert as TeamsManifestV1D9Convert,
+} from "./teams/TeamsManifestV1D9";
 import {
-  MicrosoftTeamsVDevPreview,
-  Convert as MicrosoftTeamsVDevPreviewConvert,
-} from "./teams/MicrosoftTeams.vDevPreview";
+  TeamsManifestVDevPreview,
+  Convert as TeamsManifestVDevPreviewConvert,
+} from "./teams/TeamsManifestVDevPreview";
 
 export {
-  MicrosoftTeamsV1D1,
-  Convert as MicrosoftTeamsV1D1Convert
-} from "./teams/MicrosoftTeams.v1d1";
+  TeamsManifestV1D1,
+  Convert as TeamsManifestV1D1Convert
+} from "./teams/TeamsManifestV1D1";
 export {
-  MicrosoftTeamsV1D10,
-  Convert as MicrosoftTeamsV1D10Convert
-} from "./teams/MicrosoftTeams.v1d10";
+  TeamsManifestV1D10,
+  Convert as TeamsManifestV1D10Convert
+} from "./teams/TeamsManifestV1D10";
 export {
-  MicrosoftTeamsV1D11,
-  Convert as MicrosoftTeamsV1D11Convert
-} from "./teams/MicrosoftTeams.v1d11";
+  TeamsManifestV1D11,
+  Convert as TeamsManifestV1D11Convert
+} from "./teams/TeamsManifestV1D11";
 export {
-  MicrosoftTeamsV1D12,
-  Convert as MicrosoftTeamsV1D12Convert
-} from "./teams/MicrosoftTeams.v1d12";
+  TeamsManifestV1D12,
+  Convert as TeamsManifestV1D12Convert
+} from "./teams/TeamsManifestV1D12";
 export {
-  MicrosoftTeamsV1D13,
-  Convert as MicrosoftTeamsV1D13Convert
-} from "./teams/MicrosoftTeams.v1d13";
+  TeamsManifestV1D13,
+  Convert as TeamsManifestV1D13Convert
+} from "./teams/TeamsManifestV1D13";
 export {
-  MicrosoftTeamsV1D14,
-  Convert as MicrosoftTeamsV1D14Convert
-} from "./teams/MicrosoftTeams.v1d14";
+  TeamsManifestV1D14,
+  Convert as TeamsManifestV1D14Convert
+} from "./teams/TeamsManifestV1D14";
 export {
-  MicrosoftTeamsV1D15,
-  Convert as MicrosoftTeamsV1D15Convert
-} from "./teams/MicrosoftTeams.v1d15";
+  TeamsManifestV1D15,
+  Convert as TeamsManifestV1D15Convert
+} from "./teams/TeamsManifestV1D15";
 export {
-  MicrosoftTeamsV1D16,
-  Convert as MicrosoftTeamsV1D16Convert
-} from "./teams/MicrosoftTeams.v1d16";
+  TeamsManifestV1D16,
+  Convert as TeamsManifestV1D16Convert
+} from "./teams/TeamsManifestV1D16";
 export {
-  MicrosoftTeamsV1D17,
-  Convert as MicrosoftTeamsV1D17Convert
-} from "./teams/MicrosoftTeams.v1d17";
+  TeamsManifestV1D17,
+  Convert as TeamsManifestV1D17Convert
+} from "./teams/TeamsManifestV1D17";
 export {
-  MicrosoftTeamsV1D19,
-  Convert as MicrosoftTeamsV1D19Convert
-} from "./teams/MicrosoftTeams.v1d19";
+  TeamsManifestV1D19,
+  Convert as TeamsManifestV1D19Convert
+} from "./teams/TeamsManifestV1D19";
 export {
-  MicrosoftTeamsV1D2,
-  Convert as MicrosoftTeamsV1D2Convert
-} from "./teams/MicrosoftTeams.v1d2";
+  TeamsManifestV1D2,
+  Convert as TeamsManifestV1D2Convert
+} from "./teams/TeamsManifestV1D2";
 export {
-  MicrosoftTeamsV1D20,
-  Convert as MicrosoftTeamsV1D20Convert
-} from "./teams/MicrosoftTeams.v1d20";
+  TeamsManifestV1D20,
+  Convert as TeamsManifestV1D20Convert
+} from "./teams/TeamsManifestV1D20";
 export {
-  MicrosoftTeamsV1D3,
-  Convert as MicrosoftTeamsV1D3Convert
-} from "./teams/MicrosoftTeams.v1d3";
+  TeamsManifestV1D3,
+  Convert as TeamsManifestV1D3Convert
+} from "./teams/TeamsManifestV1D3";
 export {
-  MicrosoftTeamsV1D4,
-  Convert as MicrosoftTeamsV1D4Convert
-} from "./teams/MicrosoftTeams.v1d4";
+  TeamsManifestV1D4,
+  Convert as TeamsManifestV1D4Convert
+} from "./teams/TeamsManifestV1D4";
 export {
-  MicrosoftTeamsV1D5,
-  Convert as MicrosoftTeamsV1D5Convert
-} from "./teams/MicrosoftTeams.v1d5";
+  TeamsManifestV1D5,
+  Convert as TeamsManifestV1D5Convert
+} from "./teams/TeamsManifestV1D5";
 export {
-  MicrosoftTeamsV1D6,
-  Convert as MicrosoftTeamsV1D6Convert
-} from "./teams/MicrosoftTeams.v1d6";
+  TeamsManifestV1D6,
+  Convert as TeamsManifestV1D6Convert
+} from "./teams/TeamsManifestV1D6";
 export {
-  MicrosoftTeamsV1D7,
-  Convert as MicrosoftTeamsV1D7Convert
-} from "./teams/MicrosoftTeams.v1d7";
+  TeamsManifestV1D7,
+  Convert as TeamsManifestV1D7Convert
+} from "./teams/TeamsManifestV1D7";
 export {
-  MicrosoftTeamsV1D8,
-  Convert as MicrosoftTeamsV1D8Convert
-} from "./teams/MicrosoftTeams.v1d8";
+  TeamsManifestV1D8,
+  Convert as TeamsManifestV1D8Convert
+} from "./teams/TeamsManifestV1D8";
 export {
-  MicrosoftTeamsV1D9,
-  Convert as MicrosoftTeamsV1D9Convert
-} from "./teams/MicrosoftTeams.v1d9";
-export { MicrosoftTeamsVDevPreview as DevPreviewSchema, MicrosoftTeamsVDevPreview, Convert as MicrosoftTeamsVDevPreviewConvert } from "./teams/MicrosoftTeams.vDevPreview";
-export type MicrosoftTeamsManifest =
-  | MicrosoftTeamsV1D1
-  | MicrosoftTeamsV1D2
-  | MicrosoftTeamsV1D3
-  | MicrosoftTeamsV1D4
-  | MicrosoftTeamsV1D5
-  | MicrosoftTeamsV1D6
-  | MicrosoftTeamsV1D7
-  | MicrosoftTeamsV1D8
-  | MicrosoftTeamsV1D9
-  | MicrosoftTeamsV1D10
-  | MicrosoftTeamsV1D11
-  | MicrosoftTeamsV1D12
-  | MicrosoftTeamsV1D13
-  | MicrosoftTeamsV1D14
-  | MicrosoftTeamsV1D15
-  | MicrosoftTeamsV1D16
-  | MicrosoftTeamsV1D17
-  | MicrosoftTeamsV1D19
-  | MicrosoftTeamsV1D20
-  | MicrosoftTeamsVDevPreview;
+  TeamsManifestV1D9,
+  Convert as TeamsManifestV1D9Convert
+} from "./teams/TeamsManifestV1D9";
+export { TeamsManifestVDevPreview as DevPreviewSchema, TeamsManifestVDevPreview, Convert as TeamsManifestVDevPreviewConvert } from "./teams/TeamsManifestVDevPreview";
+export type TeamsManifest =
+  | TeamsManifestV1D0 & { manifestVersion: "1.0"; $schema?: string }
+  | TeamsManifestV1D1 & { manifestVersion: "1.1" }
+  | TeamsManifestV1D2 & { manifestVersion: "1.2" }
+  | TeamsManifestV1D3 & { manifestVersion: "1.3" }
+  | TeamsManifestV1D4 & { manifestVersion: "1.4" }
+  | TeamsManifestV1D5
+  | TeamsManifestV1D6
+  | TeamsManifestV1D7
+  | TeamsManifestV1D8
+  | TeamsManifestV1D9
+  | TeamsManifestV1D10
+  | TeamsManifestV1D11
+  | TeamsManifestV1D12
+  | TeamsManifestV1D13
+  | TeamsManifestV1D14
+  | TeamsManifestV1D15
+  | TeamsManifestV1D16
+  | TeamsManifestV1D17
+  | TeamsManifestV1D19
+  | TeamsManifestV1D20
+  | TeamsManifestVDevPreview;
 
 export {
-  CopilotDeclarativeAgentV1D0,
-  Convert as CopilotDeclarativeAgentV1D0Convert
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d0";
+  DeclarativeAgentManifestV1D0,
+  Convert as DeclarativeAgentManifestV1D0Convert
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
 export {
-  CopilotDeclarativeAgentV1D2,
-  Convert as CopilotDeclarativeAgentV1D2Convert
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d2";
+  DeclarativeAgentManifestV1D2,
+  Convert as DeclarativeAgentManifestV1D2Convert
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 export {
-  CopilotDeclarativeAgentV1D3,
-  Convert as CopilotDeclarativeAgentV1D3Convert
-} from "./copilot/declarative-agent/CopilotDeclarativeAgent.v1d3";
+  DeclarativeAgentManifestV1D3,
+  Convert as DeclarativeAgentManifestV1D3Convert
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
 export type DeclarativeAgentManifest =
-  | CopilotDeclarativeAgentV1D0
-  | CopilotDeclarativeAgentV1D2
-  | CopilotDeclarativeAgentV1D3;
+  | DeclarativeAgentManifestV1D0
+  | DeclarativeAgentManifestV1D2
+  | DeclarativeAgentManifestV1D3;
 
 export {
-  CopilotPluginV2D1,
-  Convert as CopilotPluginV2D1Convert
-} from "./copilot/plugin/CopilotPlugin.v2d1";
+  APIPluginManifestV2D1,
+  Convert as ApiPluginV2D1Convert
+} from "./copilot/plugin/ApiPluginManifestV2D1";
 export {
-  CopilotPluginV2D2,
-  Convert as CopilotPluginV2D2Convert
-} from "./copilot/plugin/CopilotPlugin.v2d2";
-export type ApiPluginManifest = CopilotPluginV2D1 | CopilotPluginV2D2;
+  APIPluginManifestV2D2,
+  Convert as ApiPluginManifestV2D2Convert
+} from "./copilot/plugin/ApiPluginManifestV2D2";
+export type APIPluginManifest = APIPluginManifestV2D1 | APIPluginManifestV2D2;
 
-export type AppManifest = MicrosoftTeamsManifest | DeclarativeAgentManifest | ApiPluginManifest;
+export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 
 type Converters = {
   [key: string]: [(json: string) => any, (manifest: any) => string];
 };
 const TeamsManifestConverterMap: Converters = {
   "1.1": [
-    MicrosoftTeamsV1D1Convert.toMicrosoftTeamsV1D1,
-    MicrosoftTeamsV1D1Convert.microsoftTeamsV1D1ToJson,
+    TeamsManifestV1D1Convert.toTeamsManifestV1D1,
+    TeamsManifestV1D1Convert.teamsManifestV1D1ToJson,
   ],
   "1.2": [
-    MicrosoftTeamsV1D2Convert.toMicrosoftTeamsV1D2,
-    MicrosoftTeamsV1D2Convert.microsoftTeamsV1D2ToJson,
+    TeamsManifestV1D2Convert.toTeamsManifestV1D2,
+    TeamsManifestV1D2Convert.teamsManifestV1D2ToJson,
   ],
   "1.3": [
-    MicrosoftTeamsV1D3Convert.toMicrosoftTeamsV1D3,
-    MicrosoftTeamsV1D3Convert.microsoftTeamsV1D3ToJson,
+    TeamsManifestV1D3Convert.toTeamsManifestV1D3,
+    TeamsManifestV1D3Convert.teamsManifestV1D3ToJson,
   ],
   "1.4": [
-    MicrosoftTeamsV1D4Convert.toMicrosoftTeamsV1D4,
-    MicrosoftTeamsV1D4Convert.microsoftTeamsV1D4ToJson,
+    TeamsManifestV1D4Convert.toTeamsManifestV1D4,
+    TeamsManifestV1D4Convert.teamsManifestV1D4ToJson,
   ],
   "1.5": [
-    MicrosoftTeamsV1D5Convert.toMicrosoftTeamsV1D5,
-    MicrosoftTeamsV1D5Convert.microsoftTeamsV1D5ToJson,
+    TeamsManifestV1D5Convert.toTeamsManifestV1D5,
+    TeamsManifestV1D5Convert.teamsManifestV1D5ToJson,
   ],
   "1.6": [
-    MicrosoftTeamsV1D6Convert.toMicrosoftTeamsV1D6,
-    MicrosoftTeamsV1D6Convert.microsoftTeamsV1D6ToJson,
+    TeamsManifestV1D6Convert.toTeamsManifestV1D6,
+    TeamsManifestV1D6Convert.teamsManifestV1D6ToJson,
   ],
   "1.7": [
-    MicrosoftTeamsV1D7Convert.toMicrosoftTeamsV1D7,
-    MicrosoftTeamsV1D7Convert.microsoftTeamsV1D7ToJson,
+    TeamsManifestV1D7Convert.toTeamsManifestV1D7,
+    TeamsManifestV1D7Convert.teamsManifestV1D7ToJson,
   ],
   "1.8": [
-    MicrosoftTeamsV1D8Convert.toMicrosoftTeamsV1D8,
-    MicrosoftTeamsV1D8Convert.microsoftTeamsV1D8ToJson,
+    TeamsManifestV1D8Convert.toTeamsManifestV1D8,
+    TeamsManifestV1D8Convert.teamsManifestV1D8ToJson,
   ],
   "1.9": [
-    MicrosoftTeamsV1D9Convert.toMicrosoftTeamsV1D9,
-    MicrosoftTeamsV1D9Convert.microsoftTeamsV1D9ToJson,
+    TeamsManifestV1D9Convert.toTeamsManifestV1D9,
+    TeamsManifestV1D9Convert.teamsManifestV1D9ToJson,
   ],
   "1.10": [
-    MicrosoftTeamsV1D10Convert.toMicrosoftTeamsV1D10,
-    MicrosoftTeamsV1D10Convert.microsoftTeamsV1D10ToJson,
+    TeamsManifestV1D10Convert.toTeamsManifestV1D10,
+    TeamsManifestV1D10Convert.teamsManifestV1D10ToJson,
   ],
   "1.11": [
-    MicrosoftTeamsV1D11Convert.toMicrosoftTeamsV1D11,
-    MicrosoftTeamsV1D11Convert.microsoftTeamsV1D11ToJson,
+    TeamsManifestV1D11Convert.toTeamsManifestV1D11,
+    TeamsManifestV1D11Convert.teamsManifestV1D11ToJson,
   ],
   "1.12": [
-    MicrosoftTeamsV1D12Convert.toMicrosoftTeamsV1D12,
-    MicrosoftTeamsV1D12Convert.microsoftTeamsV1D12ToJson,
+    TeamsManifestV1D12Convert.toTeamsManifestV1D12,
+    TeamsManifestV1D12Convert.teamsManifestV1D12ToJson,
   ],
   "1.13": [
-    MicrosoftTeamsV1D13Convert.toMicrosoftTeamsV1D13,
-    MicrosoftTeamsV1D13Convert.microsoftTeamsV1D13ToJson,
+    TeamsManifestV1D13Convert.toTeamsManifestV1D13,
+    TeamsManifestV1D13Convert.teamsManifestV1D13ToJson,
   ],
   "1.14": [
-    MicrosoftTeamsV1D14Convert.toMicrosoftTeamsV1D14,
-    MicrosoftTeamsV1D14Convert.microsoftTeamsV1D14ToJson,
+    TeamsManifestV1D14Convert.toTeamsManifestV1D14,
+    TeamsManifestV1D14Convert.teamsManifestV1D14ToJson,
   ],
   "1.15": [
-    MicrosoftTeamsV1D15Convert.toMicrosoftTeamsV1D15,
-    MicrosoftTeamsV1D15Convert.microsoftTeamsV1D15ToJson,
+    TeamsManifestV1D15Convert.toTeamsManifestV1D15,
+    TeamsManifestV1D15Convert.teamsManifestV1D15ToJson,
   ],
   "1.16": [
-    MicrosoftTeamsV1D16Convert.toMicrosoftTeamsV1D16,
-    MicrosoftTeamsV1D16Convert.microsoftTeamsV1D16ToJson,
+    TeamsManifestV1D16Convert.toTeamsManifestV1D16,
+    TeamsManifestV1D16Convert.teamsManifestV1D16ToJson,
   ],
   "1.17": [
-    MicrosoftTeamsV1D17Convert.toMicrosoftTeamsV1D17,
-    MicrosoftTeamsV1D17Convert.microsoftTeamsV1D17ToJson,
+    TeamsManifestV1D17Convert.toTeamsManifestV1D17,
+    TeamsManifestV1D17Convert.teamsManifestV1D17ToJson,
   ],
   "1.19": [
-    MicrosoftTeamsV1D19Convert.toMicrosoftTeamsV1D19,
-    MicrosoftTeamsV1D19Convert.microsoftTeamsV1D19ToJson,
+    TeamsManifestV1D19Convert.toTeamsManifestV1D19,
+    TeamsManifestV1D19Convert.teamsManifestV1D19ToJson,
   ],
   "1.20": [
-    MicrosoftTeamsV1D20Convert.toMicrosoftTeamsV1D20,
-    MicrosoftTeamsV1D20Convert.microsoftTeamsV1D20ToJson,
+    TeamsManifestV1D20Convert.toTeamsManifestV1D20,
+    TeamsManifestV1D20Convert.teamsManifestV1D20ToJson,
   ],
   devPreview: [
-    MicrosoftTeamsVDevPreviewConvert.toMicrosoftTeamsVDevPreview,
-    MicrosoftTeamsVDevPreviewConvert.microsoftTeamsVDevPreviewToJson,
+    TeamsManifestVDevPreviewConvert.toTeamsManifestVDevPreview,
+    TeamsManifestVDevPreviewConvert.teamsManifestVDevPreviewToJson,
   ],
 };
 const daConverterMap: Converters = {
   "1.0": [
-    CopilotDeclarativeAgentV1D0Convert.toCopilotDeclarativeAgentV1D0,
-    CopilotDeclarativeAgentV1D0Convert.copilotDeclarativeAgentV1D0ToJson,
+    DeclarativeAgentManifestV1D0Convert.toDeclarativeAgentManifestV1D0,
+    DeclarativeAgentManifestV1D0Convert.declarativeAgentManifestV1D0ToJson,
   ],
   "1.2": [
-    CopilotDeclarativeAgentV1D2Convert.toCopilotDeclarativeAgentV1D2,
-    CopilotDeclarativeAgentV1D2Convert.copilotDeclarativeAgentV1D2ToJson,
+    DeclarativeAgentManifestV1D2Convert.toDeclarativeAgentManifestV1D2,
+    DeclarativeAgentManifestV1D2Convert.declarativeAgentManifestV1D2ToJson,
   ],
   "1.3": [
-    CopilotDeclarativeAgentV1D3Convert.toCopilotDeclarativeAgentV1D3,
-    CopilotDeclarativeAgentV1D3Convert.copilotDeclarativeAgentV1D3ToJson,
+    DeclarativeAgentManifestV1D3Convert.toDeclarativeAgentManifestV1D3,
+    DeclarativeAgentManifestV1D3Convert.declarativeAgentManifestV1D3ToJson,
   ],
 };
 const ApiPluginConverterMap: Converters = {
   "2.1": [
-    CopilotPluginV2D1Convert.toCopilotPluginV2D1,
-    CopilotPluginV2D1Convert.copilotPluginV2D1ToJson,
+    ApiPluginManifestV2D1Convert.toAPIPluginManifestV2D1,
+    ApiPluginManifestV2D1Convert.aPIPluginManifestV2D1ToJson,
   ],
   "2.2": [
-    CopilotPluginV2D2Convert.toCopilotPluginV2D2,
-    CopilotPluginV2D2Convert.copilotPluginV2D2ToJson,
+    ApiPluginManifestV2D2Convert.toAPIPluginManifestV2D2,
+    ApiPluginManifestV2D2Convert.aPIPluginManifestV2D2ToJson,
   ],
 };
 
 export class TeamsManifestConverters {
-  static jsonToManifest(json: string): MicrosoftTeamsManifest {
+  static jsonToManifest(json: string): TeamsManifest {
     const parsed = JSON.parse(json);
     const manifestVersion = parsed.manifestVersion as string;
     const converters =
@@ -356,9 +358,9 @@ export class TeamsManifestConverters {
         ).join(", ")}`
       );
     }
-    return converters[0](json) as MicrosoftTeamsManifest;
+    return converters[0](json) as TeamsManifest;
   }
-  static manifestToJson(manifest: MicrosoftTeamsManifest): string {
+  static manifestToJson(manifest: TeamsManifest): string {
     const manifestVersion = manifest.manifestVersion as string;
     const converters =
       TeamsManifestConverterMap[manifestVersion as keyof typeof TeamsManifestConverterMap];
@@ -402,7 +404,7 @@ export class DeclarativeAgentManifestConverters {
 }
 
 export class ApiPluginManifestConverters {
-  static jsonToManifest(json: string): ApiPluginManifest {
+  static jsonToManifest(json: string): APIPluginManifest {
     const parsed = JSON.parse(json);
     const schema_version = parsed.schema_version as string;
     const converters =
@@ -416,7 +418,7 @@ export class ApiPluginManifestConverters {
     }
     return converters[0](json);
   }
-  static manifestToJson(manifest: ApiPluginManifest): string {
+  static manifestToJson(manifest: APIPluginManifest): string {
     const schema_version = manifest.schema_version as string;
     const converters =
       ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
@@ -537,7 +539,7 @@ export class AppManifestUtils {
    */
   static async writeTeamsManifest(
     filePath: string,
-    manifest: MicrosoftTeamsManifest
+    manifest: TeamsManifest
   ): Promise<void> {
     const jsonString = TeamsManifestConverters.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");
@@ -569,7 +571,7 @@ export class AppManifestUtils {
    */
   static async writeAPIPluginManifest(
     filePath: string,
-    manifest: ApiPluginManifest
+    manifest: APIPluginManifest
   ): Promise<void> {
     const jsonString = ApiPluginManifestConverters.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");

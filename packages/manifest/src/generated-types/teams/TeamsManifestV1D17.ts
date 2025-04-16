@@ -1,13 +1,13 @@
 // To parse this data:
 //
-//   import { Convert, MicrosoftTeamsV1D17 } from "./file";
+//   import { Convert, TeamsManifestV1D17 } from "./file";
 //
-//   const microsoftTeamsV1D17 = Convert.toMicrosoftTeamsV1D17(json);
+//   const teamsManifestV1D17 = Convert.toTeamsManifestV1D17(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface MicrosoftTeamsV1D17 {
+export interface TeamsManifestV1D17 {
     $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
@@ -18,7 +18,7 @@ export interface MicrosoftTeamsV1D17 {
     /**
      * Specify and consolidates authorization related information for the App.
      */
-    authorization?: MicrosoftTeamsV1D17Authorization;
+    authorization?: TeamsManifestV1D17Authorization;
     /**
      * The set of bots for this app. Currently only one bot per app is supported.
      */
@@ -89,7 +89,7 @@ export interface MicrosoftTeamsV1D17 {
      * Teams apps to other parts of the Microsoft 365 ecosystem. More info at
      * https://aka.ms/extendteamsapps.
      */
-    manifestVersion: ManifestVersion;
+    manifestVersion: "1.17";
     /**
      * Specify meeting extension definition.
      */
@@ -157,7 +157,7 @@ export interface ActivityType {
 /**
  * Specify and consolidates authorization related information for the App.
  */
-export interface MicrosoftTeamsV1D17Authorization {
+export interface TeamsManifestV1D17Authorization {
     /**
      * List of permissions that the app needs to function.
      */
@@ -188,10 +188,7 @@ export interface ResourceSpecific {
 /**
  * The type of the resource-specific permission: delegated vs application.
  */
-export enum ResourceSpecificType {
-    Application = "Application",
-    Delegated = "Delegated",
-}
+export type ResourceSpecificType = "Application" | "Delegated";
 
 export interface Bot {
     /**
@@ -255,11 +252,7 @@ export interface CommandListCommand {
     title: string;
 }
 
-export enum CommandListScope {
-    GroupChat = "groupChat",
-    Personal = "personal",
-    Team = "team",
-}
+export type CommandListScope = "team" | "personal" | "groupChat";
 
 export interface Configuration {
     groupChat?: GroupChat;
@@ -356,11 +349,7 @@ export interface APISecretServiceAuthConfiguration {
 /**
  * Enum of possible authentication types.
  */
-export enum AuthType {
-    APISecretServiceAuth = "apiSecretServiceAuth",
-    MicrosoftEntra = "microsoftEntra",
-    None = "none",
-}
+export type AuthType = "none" | "apiSecretServiceAuth" | "microsoftEntra";
 
 /**
  * Object capturing details needed to do single aad auth flow. It will be only present when
@@ -416,11 +405,7 @@ export interface ComposeExtensionCommand {
     type?: CommandType;
 }
 
-export enum CommandContext {
-    CommandBox = "commandBox",
-    Compose = "compose",
-    Message = "message",
-}
+export type CommandContext = "compose" | "commandBox" | "message";
 
 export interface Parameter {
     /**
@@ -471,15 +456,7 @@ export interface Choice {
 /**
  * Type of the parameter
  */
-export enum InputType {
-    Choiceset = "choiceset",
-    Date = "date",
-    Number = "number",
-    Text = "text",
-    Textarea = "textarea",
-    Time = "time",
-    Toggle = "toggle",
-}
+export type InputType = "text" | "textarea" | "number" | "date" | "time" | "toggle" | "choiceset";
 
 export interface SamplePrompt {
     /**
@@ -491,33 +468,24 @@ export interface SamplePrompt {
 /**
  * Type of the command
  */
-export enum CommandType {
-    Action = "action",
-    Query = "query",
-}
+export type CommandType = "query" | "action";
 
 /**
  * Type of the compose extension.
  */
-export enum ComposeExtensionType {
-    APIBased = "apiBased",
-    BotBased = "botBased",
-}
+export type ComposeExtensionType = "botBased" | "apiBased";
 
 export interface MessageHandler {
     /**
      * Type of the message handler
      */
-    type:  MessageHandlerType;
+    type:  "link";
     value: Value;
 }
 
 /**
  * Type of the message handler
  */
-export enum MessageHandlerType {
-    Link = "link",
-}
 
 export interface Value {
     /**
@@ -533,17 +501,7 @@ export interface Value {
     [property: string]: any;
 }
 
-export enum ConfigurableProperty {
-    AccentColor = "accentColor",
-    DeveloperURL = "developerUrl",
-    LargeImageURL = "largeImageUrl",
-    LongDescription = "longDescription",
-    Name = "name",
-    PrivacyURL = "privacyUrl",
-    ShortDescription = "shortDescription",
-    SmallImageURL = "smallImageUrl",
-    TermsOfUseURL = "termsOfUseUrl",
-}
+export type ConfigurableProperty = "name" | "shortDescription" | "longDescription" | "smallImageUrl" | "largeImageUrl" | "accentColor" | "developerUrl" | "privacyUrl" | "termsOfUseUrl";
 
 export interface ConfigurableTab {
     /**
@@ -580,30 +538,13 @@ export interface ConfigurableTab {
     supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export enum ConfigurableTabContext {
-    ChannelTab = "channelTab",
-    MeetingChatTab = "meetingChatTab",
-    MeetingDetailsTab = "meetingDetailsTab",
-    MeetingSidePanel = "meetingSidePanel",
-    MeetingStage = "meetingStage",
-    PersonalTab = "personalTab",
-    PrivateChatTab = "privateChatTab",
-}
+export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage";
 
-export enum MeetingSurface {
-    SidePanel = "sidePanel",
-    Stage = "stage",
-}
+export type MeetingSurface = "sidePanel" | "stage";
 
-export enum ConfigurableTabScope {
-    GroupChat = "groupChat",
-    Team = "team",
-}
+export type ConfigurableTabScope = "team" | "groupChat";
 
-export enum SupportedSharePointHost {
-    SharePointFullPage = "sharePointFullPage",
-    SharePointWebPart = "sharePointWebPart",
-}
+export type SupportedSharePointHost = "sharePointFullPage" | "sharePointWebPart";
 
 export interface Connector {
     /**
@@ -620,11 +561,7 @@ export interface Connector {
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
      * is supported.
      */
-    scopes: ConnectorScope[];
-}
-
-export enum ConnectorScope {
-    Team = "team",
+    scopes: "team"[];
 }
 
 /**
@@ -667,7 +604,7 @@ export interface DashboardCardContentSource {
     /**
      * The content of the dashboard card is sourced from a bot.
      */
-    sourceType?: SourceType;
+    sourceType?: "bot";
 }
 
 /**
@@ -683,17 +620,11 @@ export interface BotConfiguration {
 /**
  * The content of the dashboard card is sourced from a bot.
  */
-export enum SourceType {
-    Bot = "bot",
-}
 
 /**
  * Rendering Size for dashboard card.
  */
-export enum DefaultSize {
-    Large = "large",
-    Medium = "medium",
-}
+export type DefaultSize = "medium" | "large";
 
 /**
  * Represents a configuration for the source of the card’s content
@@ -742,22 +673,13 @@ export interface DefaultGroupCapability {
  * When the install scope selected is Team, this field specifies the default capability
  * available
  */
-export enum Groupchat {
-    Bot = "bot",
-    Connector = "connector",
-    Tab = "tab",
-}
+export type Groupchat = "tab" | "bot" | "connector";
 
 /**
  * The install scope defined for this app by default. This will be the option displayed on
  * the button when a user tries to add the app
  */
-export enum DefaultInstallScope {
-    GroupChat = "groupChat",
-    Meetings = "meetings",
-    Personal = "personal",
-    Team = "team",
-}
+export type DefaultInstallScope = "personal" | "team" | "groupChat" | "meetings";
 
 export interface Description {
     /**
@@ -796,13 +718,7 @@ export interface Developer {
     websiteUrl: string;
 }
 
-export enum DevicePermission {
-    Geolocation = "geolocation",
-    MIDI = "midi",
-    Media = "media",
-    Notifications = "notifications",
-    OpenExternal = "openExternal",
-}
+export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
 
 /**
  * The set of extensions for this app. Currently only one extensions per app is supported.
@@ -905,17 +821,9 @@ export interface Capability {
     name: string;
 }
 
-export enum FormFactor {
-    Desktop = "desktop",
-    Mobile = "mobile",
-}
+export type FormFactor = "desktop" | "mobile";
 
-export enum RequirementsScope {
-    Document = "document",
-    Mail = "mail",
-    Presentation = "presentation",
-    Workbook = "workbook",
-}
+export type RequirementsScope = "mail" | "workbook" | "document" | "presentation";
 
 export interface ExtensionAutoRunEventsArray {
     /**
@@ -945,11 +853,7 @@ export interface Options {
     sendMode: SendMode;
 }
 
-export enum SendMode {
-    Block = "block",
-    PromptUser = "promptUser",
-    SoftBlock = "softBlock",
-}
+export type SendMode = "promptUser" | "softBlock" | "block";
 
 export interface ExtensionRibbonsArray {
     contexts?:     ExtensionContext[];
@@ -962,15 +866,7 @@ export interface ExtensionRibbonsArray {
  * to the user. Each item in the array is a member of a string array. Possible values are:
  * mailRead, mailCompose, meetingDetailsOrganizer, meetingDetailsAttendee.
  */
-export enum ExtensionContext {
-    Default = "default",
-    LogEventMeetingDetailsAttendee = "logEventMeetingDetailsAttendee",
-    MailCompose = "mailCompose",
-    MailRead = "mailRead",
-    MeetingDetailsAttendee = "meetingDetailsAttendee",
-    MeetingDetailsOrganizer = "meetingDetailsOrganizer",
-    OnlineMeetingDetailsOrganizer = "onlineMeetingDetailsOrganizer",
-}
+export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrganizer" | "meetingDetailsAttendee" | "onlineMeetingDetailsOrganizer" | "logEventMeetingDetailsAttendee" | "default";
 
 export interface ExtensionRibbonsArrayTabsItem {
     /**
@@ -1023,7 +919,7 @@ export interface ExtensionRibbonsCustomMobileControlButtonItem {
      * Short label of the control. Maximum length is 32 characters.
      */
     label: string;
-    type:  PurpleType;
+    type:  "mobileButton";
     [property: string]: any;
 }
 
@@ -1041,10 +937,6 @@ export interface ExtensionCustomMobileIcon {
      * Url to the icon.
      */
     url: string;
-}
-
-export enum PurpleType {
-    MobileButton = "mobileButton",
 }
 
 export interface ExtensionRibbonsCustomTabGroupsItem {
@@ -1127,7 +1019,7 @@ export interface ExtensionCommonCustomControlMenuItem {
     /**
      * Supported values: menuItem.
      */
-    type: ItemType;
+    type: "menuItem";
 }
 
 export interface ExtensionCommonSuperToolTip {
@@ -1144,17 +1036,11 @@ export interface ExtensionCommonSuperToolTip {
 /**
  * Supported values: menuItem.
  */
-export enum ItemType {
-    MenuItem = "menuItem",
-}
 
 /**
  * Defines the type of control whether button or menu.
  */
-export enum FluffyType {
-    Button = "button",
-    Menu = "menu",
-}
+export type FluffyType = "button" | "menu";
 
 export interface Position {
     /**
@@ -1170,10 +1056,7 @@ export interface Position {
 /**
  * Define alignment of this custom tab relative to the specified built-in tab.
  */
-export enum Align {
-    After = "after",
-    Before = "before",
-}
+export type Align = "after" | "before";
 
 /**
  * A runtime environment for a page or script
@@ -1194,7 +1077,7 @@ export interface ExtensionRuntimesArray {
     /**
      * Supports running functions and launching pages.
      */
-    type?: RuntimeType;
+    type?: "general";
 }
 
 /**
@@ -1240,10 +1123,7 @@ export interface ExtensionRuntimesActionsItem {
  * executeFunction: Run a script function without waiting for it to finish. openPate: Open a
  * page in a view.
  */
-export enum ActionType {
-    ExecuteFunction = "executeFunction",
-    OpenPage = "openPage",
-}
+export type ActionType = "executeFunction" | "openPage";
 
 export interface ExtensionRuntimeCode {
     /**
@@ -1260,17 +1140,11 @@ export interface ExtensionRuntimeCode {
  * Runtimes with a short lifetime do not preserve state across executions. Runtimes with a
  * long lifetime do.
  */
-export enum Lifetime {
-    Long = "long",
-    Short = "short",
-}
+export type Lifetime = "short" | "long";
 
 /**
  * Supports running functions and launching pages.
  */
-export enum RuntimeType {
-    General = "general",
-}
 
 /**
  * Specify the app's Graph connector configuration. If this is present then
@@ -1312,10 +1186,6 @@ export interface AdditionalLanguage {
      * The language tag of the strings in the provided file.
      */
     languageTag: string;
-}
-
-export enum ManifestVersion {
-    The117 = "1.17",
 }
 
 /**
@@ -1375,10 +1245,7 @@ export interface Name {
     short: string;
 }
 
-export enum Permission {
-    Identity = "identity",
-    MessageTeamMembers = "messageTeamMembers",
-}
+export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
     /**
@@ -1418,16 +1285,7 @@ export interface StaticTab {
     websiteUrl?: string;
 }
 
-export enum StaticTabContext {
-    ChannelTab = "channelTab",
-    MeetingChatTab = "meetingChatTab",
-    MeetingDetailsTab = "meetingDetailsTab",
-    MeetingSidePanel = "meetingSidePanel",
-    MeetingStage = "meetingStage",
-    PersonalTab = "personalTab",
-    PrivateChatTab = "privateChatTab",
-    TeamLevelApp = "teamLevelApp",
-}
+export type StaticTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage" | "teamLevelApp";
 
 /**
  * Subscription offer associated with this app.
@@ -1439,10 +1297,7 @@ export interface SubscriptionOffer {
     offerId: string;
 }
 
-export enum SupportedChannelType {
-    PrivateChannels = "privateChannels",
-    SharedChannels = "sharedChannels",
-}
+export type SupportedChannelType = "sharedChannels" | "privateChannels";
 
 /**
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
@@ -1462,12 +1317,12 @@ export interface WebApplicationInfo {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toMicrosoftTeamsV1D17(json: string): MicrosoftTeamsV1D17 {
-        return cast(JSON.parse(json), r("MicrosoftTeamsV1D17"));
+    public static toTeamsManifestV1D17(json: string): TeamsManifestV1D17 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D17"));
     }
 
-    public static microsoftTeamsV1D17ToJson(value: MicrosoftTeamsV1D17): string {
-        return JSON.stringify(uncast(value, r("MicrosoftTeamsV1D17")), null, 2);
+    public static teamsManifestV1D17ToJson(value: TeamsManifestV1D17): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D17")), null, 2);
     }
 }
 
@@ -1624,11 +1479,11 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "MicrosoftTeamsV1D17": o([
+    "TeamsManifestV1D17": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "activities", js: "activities", typ: u(undefined, r("Activities")) },
-        { json: "authorization", js: "authorization", typ: u(undefined, r("MicrosoftTeamsV1D17Authorization")) },
+        { json: "authorization", js: "authorization", typ: u(undefined, r("TeamsManifestV1D17Authorization")) },
         { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
         { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
         { json: "configurableProperties", js: "configurableProperties", typ: u(undefined, a(r("ConfigurableProperty"))) },
@@ -1668,7 +1523,7 @@ const typeMap: any = {
         { json: "templateText", js: "templateText", typ: "" },
         { json: "type", js: "type", typ: "" },
     ], false),
-    "MicrosoftTeamsV1D17Authorization": o([
+    "TeamsManifestV1D17Authorization": o([
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([

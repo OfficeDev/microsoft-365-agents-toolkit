@@ -13,7 +13,7 @@ import { DeclarativeCopilotManifestSchema } from "./declarativeCopilotManifest";
 import {
   AppManifestUtils,
   DevPreviewSchema,
-  MicrosoftTeamsManifest,
+  TeamsManifest,
   TeamsManifestConverters,
 } from "./generated-types";
 import { IComposeExtension, TeamsAppManifest } from "./manifest";
@@ -44,7 +44,7 @@ export class ManifestUtil {
    *
    * @returns The Manifest Object.
    */
-  static async loadFromPath(path: string): Promise<MicrosoftTeamsManifest> {
+  static async loadFromPath(path: string): Promise<TeamsManifest> {
     const jsonString = await fs.readFile(path, "utf8");
     const manifest = TeamsManifestConverters.jsonToManifest(jsonString);
     return manifest;
@@ -59,7 +59,7 @@ export class ManifestUtil {
    *
    * @returns The Manifest Object and schema validation results
    */
-  static async loadAndValidateFromPath(path: string): Promise<[MicrosoftTeamsManifest, string[]]> {
+  static async loadAndValidateFromPath(path: string): Promise<[TeamsManifest, string[]]> {
     const manifest = await this.loadFromPath(path);
     const validateRes = await AppManifestUtils.validateAgainstSchema(manifest);
     return [manifest, validateRes];
@@ -93,7 +93,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | MicrosoftTeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest
   >(manifest: T, schema: JSONSchemaType<T>): Promise<string[]> {
     let validate;
     if (schema.$schema?.includes("2020-12")) {
@@ -138,7 +138,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | MicrosoftTeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<JSONSchemaType<T>> {
     const schemaUrl = ((manifest as any).$schema || (manifest as any).schema) as string;
     if (!schemaUrl) {
@@ -173,7 +173,7 @@ export class ManifestUtil {
       | Manifest
       | DeclarativeCopilotManifestSchema
       | PluginManifestSchema
-      | MicrosoftTeamsManifest = TeamsAppManifest
+      | TeamsManifest = TeamsAppManifest
   >(manifest: T): Promise<string[]> {
     const schema = await this.fetchSchema(manifest);
     return ManifestUtil.validateManifestAgainstSchema(manifest, schema);
@@ -183,7 +183,7 @@ export class ManifestUtil {
    * Parse the manifest and get properties
    * @param manifest
    */
-  static parseCommonProperties<T extends Manifest | MicrosoftTeamsManifest = TeamsAppManifest>(
+  static parseCommonProperties<T extends Manifest | TeamsManifest = TeamsAppManifest>(
     manifest: T
   ): ManifestCommonProperties {
     const capabilities: string[] = [];
@@ -274,7 +274,7 @@ export class ManifestUtil {
    * @param manifest
    * @returns Telemetry properties
    */
-  static parseCommonTelemetryProperties(manifest: TeamsAppManifest | MicrosoftTeamsManifest): {
+  static parseCommonTelemetryProperties(manifest: TeamsAppManifest | TeamsManifest): {
     [p: string]: string;
   } {
     const properties = ManifestUtil.parseCommonProperties(manifest);
@@ -293,7 +293,7 @@ export class ManifestUtil {
   }
 
   static async useCopilotExtensionsInSchema(
-    manifest: TeamsAppManifest | MicrosoftTeamsManifest
+    manifest: TeamsAppManifest | TeamsManifest
   ): Promise<boolean> {
     const schema = await this.fetchSchema(manifest);
     return !!schema.properties.copilotExtensions;

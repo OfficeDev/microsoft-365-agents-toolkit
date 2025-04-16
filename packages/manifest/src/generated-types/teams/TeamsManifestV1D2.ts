@@ -1,13 +1,13 @@
 // To parse this data:
 //
-//   import { Convert, MicrosoftTeamsV1D2 } from "./file";
+//   import { Convert, TeamsManifestV1D2 } from "./file";
 //
-//   const microsoftTeamsV1D2 = Convert.toMicrosoftTeamsV1D2(json);
+//   const teamsManifestV1D2 = Convert.toTeamsManifestV1D2(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface MicrosoftTeamsV1D2 {
+export interface TeamsManifestV1D2 {
     $schema?: string;
     /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
@@ -122,10 +122,7 @@ export interface CommandListCommand {
     title: string;
 }
 
-export enum CommandListScope {
-    Personal = "personal",
-    Team = "team",
-}
+export type CommandListScope = "team" | "personal";
 
 export interface ComposeExtension {
     /**
@@ -192,11 +189,7 @@ export interface ConfigurableTab {
      * an experience scoped to an individual user alone. These options are non-exclusive.
      * Currently, configurable tabs are only supported in the teams scope.
      */
-    scopes: ConfigurableTabScope[];
-}
-
-export enum ConfigurableTabScope {
-    Team = "team",
+    scopes: "team"[];
 }
 
 export interface Connector {
@@ -210,7 +203,7 @@ export interface Connector {
      * team, or an experience scoped to an individual user alone. Currently, only the team scope
      * is supported.
      */
-    scopes: ConfigurableTabScope[];
+    scopes: "team"[];
 }
 
 export interface Description {
@@ -267,10 +260,7 @@ export interface Name {
     short: string;
 }
 
-export enum Permission {
-    Identity = "identity",
-    MessageTeamMembers = "messageTeamMembers",
-}
+export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
     /**
@@ -300,12 +290,12 @@ export interface StaticTab {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-    public static toMicrosoftTeamsV1D2(json: string): MicrosoftTeamsV1D2 {
-        return cast(JSON.parse(json), r("MicrosoftTeamsV1D2"));
+    public static toTeamsManifestV1D2(json: string): TeamsManifestV1D2 {
+        return cast(JSON.parse(json), r("TeamsManifestV1D2"));
     }
 
-    public static microsoftTeamsV1D2ToJson(value: MicrosoftTeamsV1D2): string {
-        return JSON.stringify(uncast(value, r("MicrosoftTeamsV1D2")), null, 2);
+    public static teamsManifestV1D2ToJson(value: TeamsManifestV1D2): string {
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D2")), null, 2);
     }
 }
 
@@ -462,7 +452,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-    "MicrosoftTeamsV1D2": o([
+    "TeamsManifestV1D2": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
         { json: "accentColor", js: "accentColor", typ: "" },
         { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
