@@ -215,7 +215,7 @@ describe("ManifestUtil", () => {
     try {
       TeamsManifestConverter.jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
     } catch (error: any) {
-      chai.assert.include(error.message, "Unsupported manifest version: 1.100");
+      chai.assert.include(error.message, "Teams manifest version 1.100 is not supported");
     }
   });
   it("fetchSchema missing schema", async () => {

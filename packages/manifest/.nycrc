@@ -6,7 +6,7 @@
   ],
   "extension": [".js",".ts"],
   "exclude": [
-    "src/teams/MicrosoftTeams.*.ts"
+    "src/generated-types/**/*.ts"
   ],
   "reporter": [
     "text",

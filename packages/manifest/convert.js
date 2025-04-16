@@ -21,7 +21,7 @@ async function convert(srcFolder, srcFileName, destFilePath) {
 }
 
 async function generateTeamsManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src", "json-schema", "teams");
+  const schemaFolder = path.join(__dirname, "src", "json-schemas", "teams");
   const outputFolder = path.join(__dirname, "src", "generated-types", "teams");
   if (!(await fs.pathExists(outputFolder))) {
     await fs.ensureDir(outputFolder);
@@ -38,7 +38,7 @@ async function generateTeamsManifestTypeFiles() {
 }
 
 async function generateDAManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src", "json-schema", "copilot", "declarative-agent");
+  const schemaFolder = path.join(__dirname, "src", "json-schemas", "copilot", "declarative-agent");
   const outputFolder = path.join(
     __dirname,
     "src",
@@ -61,7 +61,7 @@ async function generateDAManifestTypeFiles() {
 }
 
 async function generatePluginManifestTypeFiles() {
-  const schemaFolder = path.join(__dirname, "src", "json-schema", "copilot", "plugin");
+  const schemaFolder = path.join(__dirname, "src", "json-schemas", "copilot", "plugin");
   const outputFolder = path.join(__dirname, "src", "generated-types", "copilot", "plugin");
   if (!(await fs.pathExists(outputFolder))) {
     await fs.ensureDir(outputFolder);

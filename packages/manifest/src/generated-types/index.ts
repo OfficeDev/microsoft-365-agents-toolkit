@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import Ajv, { JSONSchemaType } from "ajv";
+import { JSONSchemaType } from "ajv";
+import Ajv04 from "ajv-draft-04";
 import addFormats from "ajv-formats";
 import Ajv2020 from "ajv/dist/2020";
+import fetch from "node-fetch";
 import fs from "fs-extra";
 import path from "path";
 import {
@@ -486,7 +488,7 @@ export class AppManifestUtils {
       addFormats(ajv, ["uri", "email", "regex"]);
       validate = ajv.compile(schema);
     } else {
-      const ajv = new Ajv({
+      const ajv = new Ajv04({
         allErrors: true,
         strictTypes: false,
       });
