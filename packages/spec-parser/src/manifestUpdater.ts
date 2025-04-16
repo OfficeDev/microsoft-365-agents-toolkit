@@ -143,24 +143,7 @@ export class ManifestUpdater {
               const description = operationItem.description ?? "";
               const summary = operationItem.summary;
 
-              let funcDescription = operationItem.description || operationItem.summary || "";
-              if (funcDescription.length > ConstantString.FunctionDescriptionMaxLens) {
-                warnings.push({
-                  type: WarningType.FuncDescriptionTooLong,
-                  content: Utils.format(
-                    ConstantString.FuncDescriptionTooLong,
-                    safeFunctionName,
-                    funcDescription.length.toString(),
-                    ConstantString.FunctionDescriptionMaxLens.toString()
-                  ),
-                  data: safeFunctionName,
-                });
-                funcDescription = funcDescription.slice(
-                  0,
-                  ConstantString.FunctionDescriptionMaxLens
-                );
-              }
-
+              const funcDescription = operationItem.description || operationItem.summary || "";
               const funcObj: FunctionObject = {
                 name: safeFunctionName,
                 description: funcDescription,

@@ -588,7 +588,7 @@ describe("PreviewEnv Steps", () => {
       []
     );
     expect(openRes.isOk()).to.be.true;
-    expect(logs.length).equals(2);
+    expect(logs.length).equals(1);
   });
 
   it("launchDesktopClient - without accountInfo", async () => {

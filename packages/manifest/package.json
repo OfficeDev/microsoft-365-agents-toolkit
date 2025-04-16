@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teams-manifest",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
@@ -29,11 +29,11 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-no-secrets": "^0.8.9",
     "eslint-plugin-prettier": "^4.0.0",
-    "json-schema-to-typescript": "^10.1.5",
     "lint-staged": "^10.5.4",
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
+    "quicktype": "^23.0.171",
     "rimraf": "^3.0.0",
     "sinon": "^9.2.2",
     "ts-node": "^10.1.0",
@@ -42,14 +42,13 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "prebuild": "npm run generate-manifest",
     "build": "tsc -p ./ --incremental",
     "test": "npm run test:unit",
-    "test:unit": "npx nyc --reporter=lcov mocha --no-timeouts --require ts-node/register test/**/*.test.ts ",
+    "test:unit": "npx nyc mocha --no-timeouts --require ts-node/register test/**/*.test.ts ",
     "lint": "eslint \"**/*.ts\"",
     "precommit": "lint-staged",
     "lint:staged": "lint-staged",
-    "generate-manifest": "npx json2ts -i devPreviewSchema.json -o src/devPreviewManifest.ts --ignoreMinAndMaxItems"
+    "convert": "node convert.js"
   },
   "files": [
     "build/**/*"

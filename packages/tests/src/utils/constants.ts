@@ -339,7 +339,7 @@ export class CommandPaletteCommands {
   public static readonly ManifestValidateCommand: string =
     "Microsoft 365 Agents: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
-    "Microsoft 365 Agents: Zip Teams App Package";
+    "Microsoft 365 Agents: Zip App Package";
   public static readonly ProvisionCommand: string =
     "Microsoft 365 Agents: Provision";
   public static readonly DeployCommand: string = "Microsoft 365 Agents: Deploy";

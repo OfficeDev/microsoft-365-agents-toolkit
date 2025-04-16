@@ -16,6 +16,9 @@ import {
   AdaptiveCardUpdateStrategy,
   GenerateResult,
   ConstantString,
+  WarningType,
+  WarningResult,
+  AuthType,
 } from "@microsoft/m365-spec-parser";
 import {
   Platform,
@@ -27,6 +30,7 @@ import { featureFlagManager, FeatureFlags } from "./featureFlags";
 import { kiotageneratePlugin, listAPITreeInfo } from "./kiotaClient";
 import {
   KiotaOpenApiNode,
+  KiotaTreeResult,
   SecurityRequirementObject,
   SecuritySchemeObject,
 } from "@microsoft/kiota";
@@ -34,6 +38,7 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
+import { isJsonSpecFile } from "./utils";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -62,6 +67,7 @@ export async function generatePlugin(
   const allowOauth2 = platform !== Platform.VS;
 
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
+    const warnings: WarningResult[] = [];
     const tmpWorkingDir = tmp.dirSync({ unsafeCleanup: true });
     const tmpOutputDir = path.join(tmpWorkingDir.name, "plugin");
     const manifest: TeamsAppManifest = await fs.readJSON(teamsManifestPath);
@@ -70,6 +76,49 @@ export async function generatePlugin(
     for (const operation of operations) {
       const [method, path] = operation.split(" ");
       includePatterns.push(`${path}#${method}`);
+    }
+
+    const treeInfo = await listAPITreeInfo(specPath, includePatterns);
+
+    const operationInfos: ListAPIInfo[] = extractOperations(treeInfo);
+
+    for (let i = 0; i < operationInfos.length; i++) {
+      const operationId = operationInfos[i].operationId;
+
+      if (!operationId) {
+        warnings.push({
+          type: WarningType.OperationIdMissing,
+          content: Utils.format(ConstantString.MissingOperationId, operationInfos[i].api),
+          data: operationInfos[i].api,
+        });
+      } else {
+        const containsSpecialCharacters = /[^a-zA-Z0-9_]/.test(operationId);
+        const safeOperationId = operationId.replace(/[^a-zA-Z0-9]/g, "_");
+        if (containsSpecialCharacters) {
+          warnings.push({
+            type: WarningType.OperationIdContainsSpecialCharacters,
+            content: Utils.format(
+              ConstantString.OperationIdContainsSpecialCharacters,
+              operationId,
+              safeOperationId
+            ),
+            data: operationId,
+          });
+        }
+      }
+
+      const authScheme = operationInfos[i].auth?.authScheme;
+      if (authScheme) {
+        if (!isAuthTypeSupported(authScheme, allowAPIKeyAuth, allowBearerTokenAuth, allowOauth2)) {
+          warnings.push({
+            type: WarningType.UnsupportedAuthType,
+            content: Utils.format(ConstantString.AuthTypeIsNotSupported, operationId),
+            data: operationId,
+          });
+        }
+      }
+
+      // TODO: add logs when kiota update the spec version, wait for kiota api
     }
 
     const kiotaGenerateResult = await kiotageneratePlugin(
@@ -85,8 +134,24 @@ export async function generatePlugin(
 
     const apiSpecPath = kiotaGenerateResult.openAPISpec;
     const pluginPath = kiotaGenerateResult.aiPlugin;
+
+    const extname = path.extname(outputAPISpecPath);
+
+    const outputSpecWithoutExt = path.join(
+      path.dirname(outputAPISpecPath),
+      path.basename(outputAPISpecPath, extname)
+    );
+
+    const isJson = await isJsonSpecFile(specPath);
+    const originalSpecExt = isJson ? ".json" : ".yaml";
+    const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + originalSpecExt;
+
+    // kiota will always generate yaml spec file
+    outputAPISpecPath = outputSpecWithoutExt + ".yaml";
+
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
     await fs.copyFile(pluginPath, outputAIPluginPath);
+    await fs.copyFile(specPath, outputOriginalSpecPath);
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
@@ -101,7 +166,7 @@ export async function generatePlugin(
     await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
     return {
       allSuccess: true,
-      warnings: [],
+      warnings: warnings,
     };
   }
 
@@ -149,16 +214,15 @@ export async function parseAndUpdatePluginManifestForKiota(
       ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
         const authName = registrationId.split("_")[0];
+        const newReferenceId = authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
         authData.push({
           authName: authName,
           authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
-          registrationId: registrationId.toUpperCase(),
+          registrationId: newReferenceId,
           specPath: runtime.spec.url as string,
         });
         if (updatePlaceholder) {
-          auth.reference_id = `\$\{\{${
-            authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix
-          }\}\}`;
+          auth.reference_id = `\$\{\{${newReferenceId}\}\}`;
         }
       }
     }
@@ -178,52 +242,23 @@ export async function listAPIInfo(specPath: string, platform?: string): Promise<
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
     const treeInfo = await listAPITreeInfo(specPath);
 
-    if (treeInfo && treeInfo.rootNode) {
-      const operations: ListAPIInfo[] = extractOperations(
-        treeInfo.rootNode,
-        treeInfo.servers ?? [],
-        treeInfo.security ?? [],
-        treeInfo.securitySchemes ?? {}
-      );
+    const operations: ListAPIInfo[] = extractOperations(treeInfo);
 
-      for (const operation of operations) {
-        if (!operation.server) {
-          operation.reason.push(ErrorType.NoServerInformation);
-        } else {
-          const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
-          operation.reason.push(...serverValidateResult.map((item) => item.type));
-        }
-
-        if (operation.auth) {
-          if (operation.auth?.authScheme.type === "multipleAuth") {
-            operation.reason.push(ErrorType.MultipleAuthNotSupported);
-          } else if (
-            !(
-              (allowAPIKeyAuth && Utils.isAPIKeyAuth(operation.auth.authScheme)) ||
-              (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme)) ||
-              (allowBearerTokenAuth && Utils.isBearerTokenAuth(operation.auth.authScheme))
-            )
-          ) {
-            operation.reason.push(ErrorType.AuthTypeIsNotSupported);
-          }
-        }
-
-        if (operation.reason.length > 0) {
-          operation.isValid = false;
-        }
+    for (const operation of operations) {
+      if (!operation.server) {
+        operation.reason.push(ErrorType.NoServerInformation);
+      } else {
+        const serverValidateResult = Utils.checkServerUrl([{ url: operation.server }], true);
+        operation.reason.push(...serverValidateResult.map((item) => item.type));
       }
-
-      return {
-        allAPICount: operations.length,
-        validAPICount: operations.filter((api) => api.isValid).length,
-        APIs: operations,
-      };
+      if (operation.reason.length > 0) {
+        operation.isValid = false;
+      }
     }
-
     return {
-      allAPICount: 0,
-      validAPICount: 0,
-      APIs: [],
+      allAPICount: operations.length,
+      validAPICount: operations.filter((api) => api.isValid).length,
+      APIs: operations,
     };
   }
 
@@ -307,7 +342,20 @@ function removeEnvsAndSpecialCharaters(str: string): string {
   return newStr.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-function extractOperations(
+function extractOperations(treeInfo: KiotaTreeResult | undefined): ListAPIInfo[] {
+  let operations: ListAPIInfo[] = [];
+  if (treeInfo && treeInfo.rootNode) {
+    operations = traverseTreeNodeForOperations(
+      treeInfo.rootNode,
+      treeInfo.servers ?? [],
+      treeInfo.security ?? [],
+      treeInfo.securitySchemes ?? {}
+    );
+  }
+  return operations;
+}
+
+function traverseTreeNodeForOperations(
   node: KiotaOpenApiNode,
   parentServer: string[],
   parentSecurity: SecurityRequirementObject[],
@@ -358,12 +406,15 @@ function extractOperations(
       summary: node.summary ?? "",
       description: node.description ?? "",
     };
-    operations.push(apiInfo);
+
+    if (node.selected) {
+      operations.push(apiInfo);
+    }
   }
 
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      const childOps: ListAPIInfo[] = extractOperations(
+      const childOps: ListAPIInfo[] = traverseTreeNodeForOperations(
         child,
         server,
         security ?? [],
@@ -374,4 +425,17 @@ function extractOperations(
   }
 
   return operations;
+}
+
+function isAuthTypeSupported(
+  authScheme: AuthType,
+  allowAPIKeyAuth: boolean,
+  allowBearerTokenAuth: boolean,
+  allowOauth2: boolean
+): boolean {
+  return (
+    (allowAPIKeyAuth && Utils.isAPIKeyAuth(authScheme)) ||
+    (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
+    (allowBearerTokenAuth && Utils.isBearerTokenAuth(authScheme))
+  );
 }

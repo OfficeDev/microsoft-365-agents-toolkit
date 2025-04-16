@@ -12,9 +12,7 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 > To run the notification bot template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableTestToolByDefault}}
 > - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
 > - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
 > **Note**
@@ -23,31 +21,17 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 > For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
-4. Send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
 5. Send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
 
    - When your project is running locally, replace `<endpoint>` with `localhost:3978`
    - When your project is deployed to Azure App Service, replace `<endpoint>` with the url from Azure App Service
 
-{{#enableTestToolByDefault}}
-The bot will send an Adaptive Card to Teams App Test Tool:
-
-![Notification Message in Test Tool](https://github.com/OfficeDev/TeamsFx/assets/9698542/43ee64f4-5554-4e0b-854f-f7e20672cb25)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
 The bot will send an Adaptive Card to Teams:
 
 ![Notification Message in Teams](https://user-images.githubusercontent.com/7642967/223006044-5003574e-2aee-4a41-9b71-c103d0439012.png)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 
@@ -55,7 +39,6 @@ The bot will send an Adaptive Card to Teams:
 | - | - |
 | `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
 | `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool |
 | `env/`| Name / value pairs are stored in environment files and used by `teamsapp.yml` to customize the provisioning and deployment rules |
 | `.vscode/` | VSCode files for debugging |
 | `src/` | The source code for the notification Teams application |

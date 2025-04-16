@@ -1,26 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, Result, TeamsAppManifest, devPreview } from "@microsoft/teamsfx-api";
-import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
-import { MetadataV3 } from "../../common/versionMetadata";
+import { FxError, MicrosoftTeamsManifest, Result } from "@microsoft/teamsfx-api";
+import { createHash } from "crypto";
+import * as path from "path";
 import { TOOLS } from "../../common/globalVars";
+import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
 import { LifecycleNames, ProjectModel } from "../configManager/interface";
 import { yamlParser } from "../configManager/parser";
-import { createHash } from "crypto";
+import { metadataDAPropertiesUtil } from "./metadataDAProperties";
 import { metadataGraphPermissionUtil } from "./metadataGraphPermssion";
 import { metadataRscPermissionUtil } from "./metadataRscPermission";
-import { metadataDAPropertiesUtil } from "./metadataDAProperties";
 
 class MetadataUtil {
-  async parse(path: string, env: string | undefined): Promise<Result<ProjectModel, FxError>> {
-    const res = await yamlParser.parse(path, true);
+  async parse(ymlPath: string): Promise<Result<ProjectModel, FxError>> {
+    const res = await yamlParser.parse(ymlPath, true);
+    const fileName = path.basename(ymlPath);
     const props: { [key: string]: string } = {};
-    props[TelemetryProperty.YmlName] = (
-      env === "local" ? MetadataV3.localConfigFile : MetadataV3.configFile
-    )
-      .split(".")
-      .join("");
+    props[TelemetryProperty.YmlName] = fileName.split(".").join("");
     if (res.isOk()) {
       for (const name of LifecycleNames) {
         const str = res.value[name]?.driverDefs
@@ -34,9 +31,9 @@ class MetadataUtil {
       props[TelemetryProperty.SampleAppName] = MetadataUtil.parseSampleTag(
         res.value.additionalMetadata
       );
-      await metadataGraphPermissionUtil.parseAadManifest(path, res.value, props);
-      await metadataRscPermissionUtil.parseManifest(path, res.value, props);
-      await metadataDAPropertiesUtil.parseManifest(path, res.value, props);
+      await metadataGraphPermissionUtil.parseAadManifest(ymlPath, res.value, props);
+      await metadataRscPermissionUtil.parseManifest(ymlPath, res.value, props);
+      await metadataDAPropertiesUtil.parseManifest(ymlPath, res.value, props);
 
       TOOLS.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.MetaData, props);
     }
@@ -58,7 +55,7 @@ class MetadataUtil {
     }
   }
 
-  parseManifest(manifest: TeamsAppManifest | devPreview.DevPreviewSchema): void {
+  parseManifest(manifest: MicrosoftTeamsManifest): void {
     const props: { [key: string]: string } = {};
     const prefix = "manifest.";
     props[prefix + "id"] = manifest.id ?? "";
@@ -81,7 +78,7 @@ class MetadataUtil {
             : "undefined"
         )
         .toString() ?? "";
-    props[prefix + "webApplicationInfo.id"] = manifest.webApplicationInfo?.id ?? "";
+    props[prefix + "webApplicationInfo.id"] = (manifest as any).webApplicationInfo?.id ?? "";
     props[prefix + "extensions"] =
       "extensions" in manifest && manifest["extensions"]?.length != 0 ? "true" : "false";
 

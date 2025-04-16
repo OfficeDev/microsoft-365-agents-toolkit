@@ -488,6 +488,21 @@ export class DACapabilityOptions {
       detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
     };
   }
+  static withGC(): OptionItem {
+    return {
+      id: "gc",
+      label: getLocalizedString("core.createProjectQuestion.addGC.label"),
+      detail: getLocalizedString("core.createProjectQuestion.addGC.detail"),
+      data: TemplateNames.DeclarativeAgentWithGraphConnector,
+    };
+  }
+  static all(): OptionItem[] {
+    const items: OptionItem[] = [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()];
+    if (featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)) {
+      items.push(DACapabilityOptions.withGC());
+    }
+    return items;
+  }
 }
 
 export class ActionStartOptions {
@@ -518,7 +533,7 @@ export class ActionStartOptions {
 
   static apiSpecWithSearch(): OptionItem {
     return {
-      id: "api-spec-with-search",
+      id: "api-spec",
       label: getLocalizedString(
         "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),

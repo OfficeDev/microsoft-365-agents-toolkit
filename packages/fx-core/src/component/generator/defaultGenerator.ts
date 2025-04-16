@@ -27,6 +27,7 @@ import { TemplateInfo } from "./templates/templateInfo";
 import { getTemplateReplaceMap } from "./templates/templateReplaceMap";
 import { convertToLangKey, renderTemplateFileData, renderTemplateFileName } from "./utils";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
+import * as path from "path";
 
 export class DefaultTemplateGenerator implements IGenerator {
   // override this property to send telemetry event with different component name
@@ -62,7 +63,10 @@ export class DefaultTemplateGenerator implements IGenerator {
     const templateInfos = preResult.value;
     for (const templateInfo of templateInfos) {
       templateInfo.replaceMap = { ...getTemplateReplaceMap(inputs), ...templateInfo.replaceMap };
-      await this.scaffolding(context, templateInfo, destinationPath, actionContext);
+      const templatePath = templateInfo.subFolder
+        ? path.join(destinationPath, templateInfo.subFolder)
+        : destinationPath;
+      await this.scaffolding(context, templateInfo, templatePath, actionContext);
     }
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);

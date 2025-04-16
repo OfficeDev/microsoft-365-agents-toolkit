@@ -1,0 +1,18 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "all": true,
+  "include": [
+    "src/"
+  ],
+  "extension": [".js",".ts"],
+  "exclude": [
+    "src/teams/MicrosoftTeams.*.ts"
+  ],
+  "reporter": [
+    "text",
+    "html",
+    "json-summary",
+    "cobertura",
+    "lcov"
+  ]
+}

@@ -21,6 +21,7 @@ export {
   AzureScopes,
   GraphReadUserScopes,
   GraphScopes,
+  ListSensitivityLabelScope,
   SPFxScopes,
   getAllowedAppMaps,
 } from "./common/constants";
@@ -114,4 +115,3 @@ export * from "./question/options";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export { getProjectTypeByCapability } from "./question/scaffold/vsc/createRootNode";
 export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
-export { listSensitivityLabelScope } from "./client/graphAPIClient";

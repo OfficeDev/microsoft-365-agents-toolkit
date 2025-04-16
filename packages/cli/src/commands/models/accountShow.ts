@@ -16,6 +16,8 @@ import M365TokenProvider from "../../commonlib/m365Login";
 import { commands, strings } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
+import { env } from "../../commonlib/common/constant";
+import { AzureSpCrypto } from "../../commonlib/cacheAccess";
 
 class AccountUtils {
   outputAccountInfoOffline(accountType: string, username: string): boolean {
@@ -95,7 +97,9 @@ class AccountUtils {
       if (cachedTenantId) {
         const identityCredential = await azureProvider.getIdentityCredentialAsync(false);
         const listTenantToken = identityCredential
-          ? await identityCredential.getToken(AzureScopes)
+          ? await identityCredential.getToken(
+              AzureSpCrypto.checkAzureSPFile() ? env.managementEndpointDefaultScope : AzureScopes
+            )
           : undefined;
         if (listTenantToken && listTenantToken.token) {
           const tenants = await listAllTenants(listTenantToken.token);

@@ -35,7 +35,7 @@ import {
   QuestionNames,
 } from "../../../src/question";
 import { MockLogProvider, MockTools } from "../../core/utils";
-import { graphAPIClient } from "../../../src/client/graphAPIClient";
+import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
 
 describe("copilotExtension", async () => {
@@ -342,7 +342,7 @@ describe("copilotExtension", async () => {
           })
         );
       const getLabelStub = sandbox
-        .stub(graphAPIClient, "getGeneralSentivityLabelId")
+        .stub(GraphClient.prototype, "getGeneralSentivityLabelId")
         .resolves(ok("label-id"));
       const DAManifest = {
         name: "test",
@@ -435,7 +435,7 @@ describe("copilotExtension", async () => {
         })
       );
       sandbox
-        .stub(graphAPIClient, "getGeneralSentivityLabelId")
+        .stub(GraphClient.prototype, "getGeneralSentivityLabelId")
         .resolves(err(new UserError("source", "name", "message")));
 
       await generator.setGeneralSensitivityLabel(context, manifestPath);
@@ -456,7 +456,7 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
+      sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabelId").resolves(ok("label-id"));
       sandbox
         .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
@@ -479,7 +479,7 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
+      sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabelId").resolves(ok("label-id"));
       sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
         ok({
           name: "test",

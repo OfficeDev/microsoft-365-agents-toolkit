@@ -1144,7 +1144,7 @@ async function initializeContextKey(context: vscode.ExtensionContext, isTeamsFxP
   }
 
   const ymlFileWatcher = vscode.workspace.createFileSystemWatcher(
-    "**/teamsapp.yml",
+    "**/{teamsapp,m365agents}.yml",
     false,
     true,
     true
@@ -1335,7 +1335,7 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   const yamlFileSelector = {
     language: "yaml",
     scheme: "file",
-    pattern: `**/teamsapp.yml`,
+    pattern: `**/{teamsapp,m365agents}.yml`,
   };
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(yamlFileSelector, yamlCodelensProvider)

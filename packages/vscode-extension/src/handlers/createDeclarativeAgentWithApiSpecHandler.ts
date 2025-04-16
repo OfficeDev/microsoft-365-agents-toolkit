@@ -45,6 +45,7 @@ export async function createDeclarativeAgentWithApiSpec(
   inputs.capabilities = CapabilityOptions.declarativeAgent().id;
   inputs[QuestionNames.WithPlugin] = "yes";
   inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
+  inputs[QuestionNames.OpenAPISpecType] = "enter-url-or-open-local-file";
 
   const result = await createNewProjectHandler("", inputs);
 
