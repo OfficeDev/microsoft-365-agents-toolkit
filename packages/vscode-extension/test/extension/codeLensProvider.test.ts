@@ -1,6 +1,5 @@
 import { err, ok, SystemError, SystemErrorOptions, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
-import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as chai from "chai";
 import fs from "fs-extra";
 import { afterEach, describe } from "mocha";
