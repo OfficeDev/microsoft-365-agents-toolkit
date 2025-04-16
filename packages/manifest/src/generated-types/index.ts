@@ -225,6 +225,8 @@ export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D2
   | DeclarativeAgentManifestV1D3;
 
+export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D3;
+
 export {
   APIPluginManifestV2D1,
   Convert as ApiPluginV2D1Convert
@@ -234,6 +236,7 @@ export {
   Convert as ApiPluginManifestV2D2Convert
 } from "./copilot/plugin/ApiPluginManifestV2D2";
 export type APIPluginManifest = APIPluginManifestV2D1 | APIPluginManifestV2D2;
+export type APIPluginManifestLatest = APIPluginManifestV2D2;
 
 export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 
@@ -588,7 +591,7 @@ export class AppManifestUtils {
   }
 
   /**
-   * Writes the Teams manifest object to the given file.
+   * Writes the Teams manifest object to the given file with basic type check.
    *
    * @param path - The manifest file path.
    * @param manifest - Manifest object to be saved
@@ -604,7 +607,7 @@ export class AppManifestUtils {
   }
 
   /**
-   * Writes the declarative agent manifest object to the given file.
+   * Writes the declarative agent manifest object to the given file with basic type check.
    *
    * @param path - The manifest file path.
    * @param manifest - Manifest object to be saved
@@ -620,7 +623,7 @@ export class AppManifestUtils {
   }
 
   /**
-   * Writes the declarative agent manifest object to the given file.
+   * Writes the declarative agent manifest object to the given file with basic type check.
    *
    * @param path - The manifest file path.
    * @param manifest - Manifest object to be saved
