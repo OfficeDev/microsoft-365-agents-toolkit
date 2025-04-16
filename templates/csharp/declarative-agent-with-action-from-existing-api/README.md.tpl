@@ -8,7 +8,7 @@
 >
 > - [Visual Studio 2022](https://aka.ms/vs) 17.11 or higher and [install Microsoft 365 Agents Toolkit](https://aka.ms/install-teams-toolkit-vs)
 
-1. Right-click your project and select `Microsoft 365 Agents Toolkit > Provision in the Cloud..`. You can find everything it will do in the `teamsapp.yml`.
+1. Right-click your project and select `Microsoft 365 Agents Toolkit > Provision in the Cloud..`. You can find everything it will do in the `m365agents.yml`.
 2. If prompted, sign in with a Microsoft 365 account for the Teams organization you want 
 to install the app to.
 3. Right-click your project and select `Microsoft 365 Agents Toolkit > Preview in > Copilot`.
@@ -22,7 +22,7 @@ to install the app to.
 
 {{#OAuth}}
 > [!NOTE]
-> If your identity server needs Proof of Key Code Exchange (PKCE) for token exchange, uncomment the `isPKCEEnabled` property in the` oauth/register` section of the `teamsapp.yml` file shown as below:
+> If your identity server needs Proof of Key Code Exchange (PKCE) for token exchange, uncomment the `isPKCEEnabled` property in the` oauth/register` section of the `m365agents.yml` file shown as below:
 ```yaml
   - uses: oauth/register
     with:
