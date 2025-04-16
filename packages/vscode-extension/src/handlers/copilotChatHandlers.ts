@@ -21,7 +21,7 @@ import { isVSCodeInsiderVersion } from "../utils/versionUtil";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 
 const githubCopilotChatExtensionId = "github.copilot-chat";
-const teamsAgentLink = "https://aka.ms/install-teamsapp";
+const teamsAgentLink = "https://aka.ms/install-m365agents";
 
 enum errorNames {
   NoActiveTextEditor = "NoActiveTextEditor",
