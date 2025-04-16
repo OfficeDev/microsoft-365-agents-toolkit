@@ -166,9 +166,7 @@
       "localdebug-chatdata-customapi-py-openai",
       "testtooldebug-command-and-response",
       "testtooldebug-msgsa",
-      "localization-succeed",
-      "samelevel-localization",
-      "different-level-localization"
+      "localization"
     ],
     "node-20": [
       "obo-tab-ts"
