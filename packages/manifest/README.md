@@ -108,8 +108,8 @@ const [daManifest2, failedValidations2] = await AppManifestUtils.readAndValidate
 
 
 const pluginManifestPath = "path/to/your/plugin_manifest.json"; 
-// read declarative agent manifest with type check
+// read API plugin manifest with type check
 const pluginManifest1 = await AppManifestUtils.readApiPluginManifest(pluginManifestPath);
-// read declarative agent manifest and validate against schema
+// read API plugin manifest and validate against schema
 const [pluginManifest2, failedValidations3] = await AppManifestUtils.readAndValidateApiPluginManifest(pluginManifestPath);
 ```
