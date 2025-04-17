@@ -166,7 +166,7 @@ export class GraphClient {
     } else {
       return err(
         new SystemError({
-          name: "getGeneralSentivityLabelIdError",
+          name: "getGeneralSentivityLabelError",
           message: getDefaultString(
             "error.graphAPI.apiFailed.message",
             "getGeneralSentivityLabelId",

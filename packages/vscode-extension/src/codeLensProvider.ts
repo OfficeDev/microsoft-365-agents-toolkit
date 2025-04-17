@@ -661,7 +661,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    if (!fs.existsSync(manifestFilePath)) {
+    if (!fs.pathExistsSync(manifestFilePath)) {
       return [];
     }
     const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");

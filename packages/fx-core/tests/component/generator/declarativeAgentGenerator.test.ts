@@ -14,6 +14,7 @@ import {
   UserError,
   signedIn,
   DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifest,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -350,12 +351,12 @@ describe("copilotExtension", async () => {
       const DAManifest = {
         name: "test",
         description: "test description",
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
       const readStub = sandbox
         .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
-        .resolves(ok(DAManifest));
+        .resolves(ok(DAManifest as any));
       const writeStub = sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(ok(undefined));
 
       await setGeneralSensitivityLabel(context, manifestPath);
@@ -367,11 +368,13 @@ describe("copilotExtension", async () => {
       assert.deepEqual(writeStub.firstCall.args[0], {
         name: "test",
         description: "test description",
-        sensitivity_label: "label-id",
-      });
+        sensitivity_label: {
+          id: "label-id",
+        },
+      } as any);
       assert.equal(writeStub.firstCall.args[1], manifestPath);
       assert.isFalse(infoStub.called);
-      assert.isTrue(DAManifest.sensitivity_label === "label-id");
+      assert.isTrue(DAManifest.sensitivity_label.id === "label-id");
     });
 
     it("token provider error", async () => {
@@ -494,7 +497,7 @@ describe("copilotExtension", async () => {
         } as any)
       );
       sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
       await setGeneralSensitivityLabel(context, manifestPath);

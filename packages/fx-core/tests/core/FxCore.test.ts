@@ -803,7 +803,9 @@ describe("Core basic APIs", () => {
         actions: [{}],
       } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -824,7 +826,9 @@ describe("Core basic APIs", () => {
         actions: [{}],
       } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -849,7 +853,9 @@ describe("Core basic APIs", () => {
     sandbox
       .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -872,7 +878,7 @@ describe("Core basic APIs", () => {
       } as any)
     );
     sandbox
-      .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     sandbox
       .stub(TOOLS.ui, "showMessage")
@@ -895,7 +901,9 @@ describe("Core basic APIs", () => {
         actions: [{}],
       } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
@@ -915,7 +923,9 @@ describe("Core basic APIs", () => {
         actions: [{}],
       } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
