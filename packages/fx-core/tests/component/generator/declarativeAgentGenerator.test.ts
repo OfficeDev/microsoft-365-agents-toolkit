@@ -352,7 +352,7 @@ describe("copilotExtension", async () => {
         description: "test description",
       } as DeclarativeCopilotManifestSchema;
       const readStub = sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
         .resolves(ok(DAManifest));
       const writeStub = sandbox
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
@@ -463,7 +463,7 @@ describe("copilotExtension", async () => {
         .stub(GraphClient.prototype, "getGeneralSentivityLabel")
         .resolves(ok({ id: "label-id" }));
       sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
       await setGeneralSensitivityLabel(context, manifestPath);
@@ -487,11 +487,11 @@ describe("copilotExtension", async () => {
       sandbox
         .stub(GraphClient.prototype, "getGeneralSentivityLabel")
         .resolves(ok({ id: "label-id" }));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
         ok({
           name: "test",
           description: "test description",
-        })
+        } as any)
       );
       sandbox
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")

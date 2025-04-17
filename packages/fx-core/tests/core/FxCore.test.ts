@@ -798,10 +798,10 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
     sandbox
@@ -819,10 +819,10 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
     sandbox
@@ -847,7 +847,7 @@ describe("Core basic APIs", () => {
       ignoreLockByUT: true,
     };
     sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
     sandbox
@@ -866,10 +866,10 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox
       .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
@@ -890,10 +890,10 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
@@ -910,10 +910,10 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
@@ -5155,8 +5155,8 @@ describe("addPlugin", async () => {
       return true;
     });
     sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+      .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
+      .resolves(ok({} as any));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
