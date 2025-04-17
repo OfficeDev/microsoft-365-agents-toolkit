@@ -209,6 +209,22 @@ export type TeamsManifest =
   | TeamsManifestVDevPreview;
 
 export type TeamsManifestLatest = TeamsManifestV1D20;
+export type TeamsManifestWithLocalizationInfo = TeamsManifestV1D5
+| TeamsManifestV1D6
+| TeamsManifestV1D7
+| TeamsManifestV1D8
+| TeamsManifestV1D9
+| TeamsManifestV1D10
+| TeamsManifestV1D11
+| TeamsManifestV1D12
+| TeamsManifestV1D13
+| TeamsManifestV1D14
+| TeamsManifestV1D15
+| TeamsManifestV1D16
+| TeamsManifestV1D17
+| TeamsManifestV1D19
+| TeamsManifestV1D20
+| TeamsManifestVDevPreview;
 
 export {
   DeclarativeAgentManifestV1D0,

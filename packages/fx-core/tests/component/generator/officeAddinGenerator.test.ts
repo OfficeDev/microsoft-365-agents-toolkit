@@ -6,11 +6,11 @@
  */
 
 import {
+  AppManifestUtils,
   Context,
   DevPreviewSchema,
   err,
   Inputs,
-  ManifestUtil,
   ok,
   Platform,
   SystemError,
@@ -129,7 +129,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
         return;
       });
 
-    sinon.stub<any, any>(ManifestUtil, "loadFromPath").resolves({
+    sinon.stub<any, any>(AppManifestUtils, "readTeamsManifest").resolves({
       extensions: [
         {
           requirements: {
@@ -199,7 +199,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       },
     });
 
-    sinon.stub<any, any>(ManifestUtil, "loadFromPath").resolves({
+    sinon.stub<any, any>(AppManifestUtils, "readTeamsManifest").resolves({
       extensions: [
         {
           requirements: {
@@ -241,7 +241,7 @@ describe("HelperMethods", async () => {
     let writePathResult: DevPreviewSchema | undefined = undefined;
 
     beforeEach(() => {
-      sandbox.stub(ManifestUtil, "loadFromPath").callsFake(async (path) => {
+      sandbox.stub(AppManifestUtils, "readTeamsManifest").callsFake(async (path) => {
         if (path === manifestPath) {
           return {
             extensions: [],
@@ -261,7 +261,7 @@ describe("HelperMethods", async () => {
         throw new Error("Invalid path");
       });
 
-      sandbox.stub(ManifestUtil, "writeToPath").callsFake(async (path, manifest) => {
+      sandbox.stub(AppManifestUtils, "writeTeamsManifest").callsFake(async (path, manifest) => {
         writePathResult = manifest as DevPreviewSchema;
         return;
       });

@@ -101,32 +101,11 @@ export interface Settings {
   trackingId: string;
 }
 
-export type ManifestCapability =
-  | {
-      name: "staticTab";
-      snippet?: IStaticTab;
-      existingApp?: boolean;
-    }
-  | {
-      name: "configurableTab";
-      snippet?: IConfigurableTab;
-      existingApp?: boolean;
-    }
-  | {
-      name: "Bot";
-      snippet?: IBot;
-      existingApp?: boolean;
-    }
-  | {
-      name: "MessageExtension";
-      snippet?: IComposeExtension;
-      existingApp?: boolean;
-    }
-  | {
-      name: "WebApplicationInfo";
-      snippet?: IWebApplicationInfo;
-      existingApp?: boolean;
-    };
+export type ManifestCapability = {
+  name: "staticTab";
+  snippet?: IStaticTab;
+  existingApp?: boolean;
+};
 
 export interface AuthInfo {
   serverUrl: string;
