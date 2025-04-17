@@ -10,6 +10,6 @@
     "sensitivity_label": "",
     {{/SensitivityLabelEnabled}}
     "name": "{{appName}}",
-    "description": "Declarative agent created with Teams Toolkit can assist user in calling APIs and retrieving responses",
+    "description": "Declarative agent created with Microsoft 365 Agents Toolkit can assist user in calling APIs and retrieving responses",
     "instructions": "$[file('instruction.txt')]"
 }

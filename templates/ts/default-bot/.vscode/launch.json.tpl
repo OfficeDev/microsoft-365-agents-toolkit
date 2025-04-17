@@ -69,7 +69,7 @@
             "name": "Launch Remote (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
                 "group": "3-remote",
                 "order": 3
@@ -84,7 +84,7 @@
                 "Launch App (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-local",
@@ -102,7 +102,7 @@
                 "Launch App (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-local",
@@ -119,7 +119,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
                 "group": "2-local",
                 "order": 3
@@ -127,11 +127,11 @@
             "stopAll": true
         },
         {
-            "name": "Debug in Test Tool",
+            "name": "Debug in Microsoft 365 Agents Playground",
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App (Test Tool)",
+            "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "1-local",

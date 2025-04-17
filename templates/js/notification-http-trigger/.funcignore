@@ -16,8 +16,8 @@ node_modules/azure-functions-core-tools
 node_modules/azurite
 README.md
 tsconfig.json
-teamsapp.yml
-teamsapp.*.yml
+m365agents.yml
+m365agents.*.yml
 /env/
 /appPackage/
 /infra/

@@ -27,7 +27,7 @@
       "name": "Launch Remote (Desktop)",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+      "preLaunchTask": "Start Agent in Desktop Client (Remote)",
       "presentation": {
         "group": "1-Teams",
         "order": 6
@@ -35,7 +35,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch App (Edge)",
+      "name": "Launch Agent (Edge)",
       "type": "msedge",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -46,7 +46,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch App (Chrome)",
+      "name": "Launch Agent (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -65,7 +65,7 @@
       "console": "integratedTerminal"
     },
     {
-        "name": "Start Test Tool",
+        "name": "Start Microsoft 365 Agents Playground",
         "type": "node",
         "request": "launch",
         "program": "${workspaceFolder}/devTools/teamsapptester/node_modules/@microsoft/teams-app-test-tool/cli.js",
@@ -145,9 +145,9 @@
   "compounds": [
     {
       "name": "Debug in Teams (Edge)",
-      "configurations": ["Launch App (Edge)", "Start Python"],
+      "configurations": ["Launch Agent (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 1
@@ -156,9 +156,9 @@
     },
     {
       "name": "Debug in Teams (Chrome)",
-      "configurations": ["Launch App (Chrome)", "Start Python"],
+      "configurations": ["Launch Agent (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 2
@@ -168,7 +168,7 @@
     {
       "name": "Debug in Teams (Desktop)",
       "configurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App in Desktop Client",
+      "preLaunchTask": "Start Agent in Desktop Client",
       "presentation": {
         "group": "1-Teams",
         "order": 3
@@ -176,15 +176,15 @@
       "stopAll": true
     },
     {
-        "name": "Debug in Test Tool",
+        "name": "Debug in Microsoft 365 Agents Playground",
         "configurations": [
             "Start Python",
-            "Start Test Tool"
+            "Start Microsoft 365 Agents Playground"
         ],
         "cascadeTerminateToConfigurations": [
-            "Start Test Tool"
+            "Start Microsoft 365 Agents Playground"
         ],
-        "preLaunchTask": "Deploy (Test Tool)",
+        "preLaunchTask": "Deploy (Microsoft 365 Agents Playground)",
         "presentation": {
             "group": "0-TestTool",
             "order": 1
@@ -196,7 +196,7 @@
       "name": "Debug in Copilot (Edge)",
       "configurations": ["Local debug in Copilot (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "3-M365",
         "order": 1
@@ -207,7 +207,7 @@
       "name": "Debug in Copilot (Chrome)",
       "configurations": ["Local debug in Copilot (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start Teams App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "3-M365",
         "order": 2

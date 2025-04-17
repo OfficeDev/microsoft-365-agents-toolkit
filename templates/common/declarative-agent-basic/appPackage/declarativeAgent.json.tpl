@@ -10,6 +10,6 @@
     "sensitivity_label": "",
     {{/SensitivityLabelEnabled}}
     "name": "{{appName}}",
-    "description": "Declarative agent created with Teams Toolkit",
+    "description": "Declarative agent created with Microsoft 365 Agents Toolkit",
     "instructions": "$[file('instruction.txt')]"
 }

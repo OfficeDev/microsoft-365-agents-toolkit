@@ -11,7 +11,7 @@
     {{/CEAEnabled}}
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
-        "name": "Teams App, Inc.",
+        "name": "My App, Inc.",
         "websiteUrl": "https://www.example.com",
         "privacyUrl": "https://www.example.com/privacy",
         "termsOfUseUrl": "https://www.example.com/termofuse"
@@ -66,8 +66,8 @@
                             "description": "How can you help me?"
                         },
                         {
-                            "title": "How to develop TeamsToolkit app?",
-                            "description": "How can I develop apps with Teams Toolkit?"
+                            "title": "How to develop Microsoft 365 agents?",
+                            "description": "How can I develop agents with Microsoft 365 Agents Toolkit?"
                         }
                     ]
                 }

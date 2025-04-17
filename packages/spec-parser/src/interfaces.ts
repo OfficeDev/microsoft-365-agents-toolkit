@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { IParameter } from "@microsoft/teams-manifest";
+import { IParameter } from "@microsoft/app-manifest";
 import { OpenAPIV3 } from "openapi-types";
 
 /**

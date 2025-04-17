@@ -132,8 +132,8 @@ expressApp.post("/api/notification", async (req, res) => {
 // Register an API endpoint with `express`. Teams sends messages to your application
 // through this endpoint.
 //
-// The Teams Toolkit bot registration configures the bot with `/api/messages` as the
-// Bot Framework endpoint. If you customize this route, update the Bot registration
+// The Microsoft 365 Agents Toolkit bot registration configures the bot with `/api/messages` as the
+// bot endpoint. If you customize this route, update the Bot registration
 // in `/templates/provision/bot.bicep`.
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {

@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit Notification Bot Sample (Express)",
+    "description": "Microsoft 365 Agents Toolkit Notification Bot Sample (Express)",
     "engines": {
         "node": "18 || 20 || 22"
     },

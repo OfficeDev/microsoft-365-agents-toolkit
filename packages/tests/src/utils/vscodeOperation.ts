@@ -612,6 +612,7 @@ export async function createNewProject(
       break;
     }
     case "crbot": {
+      console.log("create new crbot project: ", appName);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Chat Command");
@@ -768,6 +769,7 @@ export async function createNewProject(
       break;
     }
     case "workflow": {
+      console.log("create new workflow project: ", appName);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       // await input.selectQuickPick("Sequential Workflow in Chat");
       await input.setText("Sequential Workflow in Chat");

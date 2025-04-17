@@ -8,7 +8,7 @@ import {
   IConfigurableTab,
   IStaticTab,
   IWebApplicationInfo,
-} from "@microsoft/teams-manifest";
+} from "@microsoft/app-manifest";
 import { Platform } from "./constants";
 
 /**

@@ -4,7 +4,7 @@
   "msteams": {
     "teamsAppId": null
   },
-  "description": "Microsoft Teams Toolkit message extension search sample",
+  "description": "Microsoft 365 Agents Toolkit message extension search sample",
   "engines": {
     "node": "18 || 20 || 22"
   },

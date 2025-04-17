@@ -34,7 +34,7 @@ import { wrapAdaptiveCard, wrapResponseSemantics } from "./adaptiveCardWrapper";
 import { ValidatorFactory } from "./validators/validatorFactory";
 import { Validator } from "./validators/validator";
 import { createHash } from "crypto";
-import { PluginManifestSchema } from "@microsoft/teams-manifest";
+import { PluginManifestSchema } from "@microsoft/app-manifest";
 
 /**
  * A class that parses an OpenAPI specification file and provides methods to validate, list, and generate artifacts.

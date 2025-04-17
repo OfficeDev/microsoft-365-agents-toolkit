@@ -171,7 +171,7 @@
                 "Attach to Frontend in Teams (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 1
@@ -184,7 +184,7 @@
                 "Attach to Frontend in Teams (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 2
@@ -197,7 +197,7 @@
                 "Attach to Frontend in Outlook (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 1
@@ -210,7 +210,7 @@
                 "Attach to Frontend in Outlook (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 2
@@ -223,7 +223,7 @@
                 "Attach to Frontend in the Microsoft 365 app (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 3: the Microsoft 365 app",
                 "order": 1
@@ -236,7 +236,7 @@
                 "Attach to Frontend in the Microsoft 365 app (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 3: the Microsoft 365 app",
                 "order": 2
