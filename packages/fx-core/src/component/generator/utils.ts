@@ -401,9 +401,8 @@ export async function setGeneralSensitivityLabel(
     }
     const generalLabel = result.value;
 
-    const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-      declarativeAgentManifestPath
-    );
+    const declarativeAgentManifestRes =
+      await copilotGptManifestUtils.readDeclarativeAgentManifestFile(declarativeAgentManifestPath);
     if (declarativeAgentManifestRes.isErr()) {
       context.logProvider?.info(
         getDefaultString(
@@ -417,7 +416,7 @@ export async function setGeneralSensitivityLabel(
     declarativeAgentManifest.sensitivity_label = {
       id: generalLabel.id,
     };
-    const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+    const writeRes = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
       declarativeAgentManifest,
       declarativeAgentManifestPath
     );

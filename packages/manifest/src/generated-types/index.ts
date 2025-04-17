@@ -301,6 +301,10 @@ const daConverterMap: Converters = {
     DeclarativeAgentManifestV1D3Convert.toDeclarativeAgentManifestV1D3,
     DeclarativeAgentManifestV1D3Convert.declarativeAgentManifestV1D3ToJson,
   ],
+  "1.4": [
+    DeclarativeAgentManifestV1D4Convert.toDeclarativeAgentManifestV1D4,
+    DeclarativeAgentManifestV1D4Convert.declarativeAgentManifestV1D4ToJson,
+  ],
 };
 const ApiPluginConverterMap: Converters = {
   "2.1": [

@@ -1333,7 +1333,7 @@ describe("copilotGptManifestUtils", () => {
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
       };
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
@@ -1345,7 +1345,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if file does not exist", () => {
-      sandbox.stub(fs, "existsSync").returns(false);
+      sandbox.stub(fs, "pathExistsSync").returns(false);
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
 
@@ -1356,7 +1356,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if JSON parse fails", () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       sandbox.stub(fs, "readFileSync").returns("invalid json");
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
