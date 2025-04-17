@@ -341,9 +341,11 @@ describe("copilotExtension", async () => {
             token: "fake-token",
           })
         );
-      const getLabelStub = sandbox
-        .stub(GraphClient.prototype, "getGeneralSentivityLabelId")
-        .resolves(ok("label-id"));
+      const getLabelStub = sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabel").resolves(
+        ok({
+          id: "label-id",
+        })
+      );
       const DAManifest = {
         name: "test",
         description: "test description",
@@ -355,7 +357,7 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(ok(undefined));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils(context, manifestPath);
 
       assert.isTrue(tokenStub.calledOnce);
       assert.isTrue(getLabelStub.calledOnceWith("fake-token"));

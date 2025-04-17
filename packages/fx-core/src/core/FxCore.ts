@@ -2748,7 +2748,9 @@ export class FxCore {
         return err(declarativeAgentManifestRes.error);
       }
       const declarativeAgentManifest = declarativeAgentManifestRes.value;
-      declarativeAgentManifest.sensitivity_label = selectedLabel;
+      declarativeAgentManifest.sensitivity_label = {
+        id: selectedLabel,
+      };
       const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
         declarativeAgentManifest,
         declarativeAgentManifestPath

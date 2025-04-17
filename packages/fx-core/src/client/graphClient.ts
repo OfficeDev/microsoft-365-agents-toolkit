@@ -10,6 +10,7 @@ import {
   FxError,
   Result,
   SystemError,
+  SensitivityLabel,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import { ErrorContextMW } from "../common/globalVars";
@@ -27,10 +28,7 @@ import { GetChannelResponse } from "./interfaces/GetChannelResponse";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
-import {
-  SensitivityLabel,
-  ListSensitivityCacheValue,
-} from "./interfaces/ListSensitivityCacheValue";
+import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
 import { waitSeconds } from "../common/utils";
 import { getLocalizedString } from "../common/localizeUtils";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";

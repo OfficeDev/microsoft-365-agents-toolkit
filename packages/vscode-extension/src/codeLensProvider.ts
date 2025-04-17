@@ -677,7 +677,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
       return [];
     }
-    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
+    const Labelregex = /"sensitivity_label"\s*:\s*(\{[\s\S]*?\})/;
     const text = document.getText();
     const regex = new RegExp(Labelregex);
     const matches = regex.exec(text);
