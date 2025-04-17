@@ -1777,7 +1777,7 @@
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.use.title%"
             },
-            "when": "fx-extension.shouldhideTeamsAgentPreviewTag"
+            "when": "fx-extension.hideTeamsAgentPreviewTag"
           },
           {
             "id": "teamsAgentUseWithPreviewTag",
@@ -1787,7 +1787,7 @@
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.use.title%"
             },
-            "when": "!fx-extension.shouldhideTeamsAgentPreviewTag"
+            "when": "!fx-extension.hideTeamsAgentPreviewTag"
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"

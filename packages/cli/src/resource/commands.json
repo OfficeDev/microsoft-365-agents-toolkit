@@ -52,8 +52,8 @@
   "add.spfx-web-part": {
     "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
   },
-  "add.plugin": {
-    "description": "A plugin to extend Copilot using your APIs."
+  "add.action": {
+    "description": "An action to extend Copilot using your APIs."
   },
   "add.auth-config": {
     "description": "Add Configurations to Support Actions with Authentication in Declarative Agent"
@@ -190,4 +190,3 @@
     "description": "Validate the app using manifest schema, validation rules, or test cases."
   }
 }
-

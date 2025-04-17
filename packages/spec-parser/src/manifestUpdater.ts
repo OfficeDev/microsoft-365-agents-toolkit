@@ -27,7 +27,7 @@ import {
   FunctionObject,
   AuthObject,
   ManifestUtil,
-} from "@microsoft/teams-manifest";
+} from "@microsoft/app-manifest";
 import { AdaptiveCardGenerator } from "./adaptiveCardGenerator";
 import { wrapResponseSemantics } from "./adaptiveCardWrapper";
 
