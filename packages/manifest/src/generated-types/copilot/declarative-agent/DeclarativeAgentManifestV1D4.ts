@@ -515,6 +515,11 @@ const typeMap: any = {
       { json: "instructions", js: "instructions", typ: u(undefined, "") },
       { json: "name", js: "name", typ: "" },
       { json: "version", js: "version", typ: r("Version") },
+      {
+        json: "sensitivity_label",
+        js: "sensitivity_label",
+        typ: u(undefined, r("SensitivityLabel")),
+      },
     ],
     "any"
   ),
@@ -592,5 +597,6 @@ const typeMap: any = {
     "TeamsMessages",
     "WebSearch",
   ],
-  Version: ["v1.3"],
+  Version: ["v1.4"],
+  SensitivityLabel: o([{ json: "id", js: "id", typ: "" }], "any"),
 };

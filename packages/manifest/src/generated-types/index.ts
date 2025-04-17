@@ -289,29 +289,29 @@ const TeamsManifestConverterMap: Converters = {
   ],
 };
 const daConverterMap: Converters = {
-  "1.0": [
+  "v1.0": [
     DeclarativeAgentManifestV1D0Convert.toDeclarativeAgentManifestV1D0,
     DeclarativeAgentManifestV1D0Convert.declarativeAgentManifestV1D0ToJson,
   ],
-  "1.2": [
+  "v1.2": [
     DeclarativeAgentManifestV1D2Convert.toDeclarativeAgentManifestV1D2,
     DeclarativeAgentManifestV1D2Convert.declarativeAgentManifestV1D2ToJson,
   ],
-  "1.3": [
+  "v1.3": [
     DeclarativeAgentManifestV1D3Convert.toDeclarativeAgentManifestV1D3,
     DeclarativeAgentManifestV1D3Convert.declarativeAgentManifestV1D3ToJson,
   ],
-  "1.4": [
+  "v1.4": [
     DeclarativeAgentManifestV1D4Convert.toDeclarativeAgentManifestV1D4,
     DeclarativeAgentManifestV1D4Convert.declarativeAgentManifestV1D4ToJson,
   ],
 };
 const ApiPluginConverterMap: Converters = {
-  "2.1": [
+  "v2.1": [
     ApiPluginManifestV2D1Convert.toAPIPluginManifestV2D1,
     ApiPluginManifestV2D1Convert.aPIPluginManifestV2D1ToJson,
   ],
-  "2.2": [
+  "v2.2": [
     ApiPluginManifestV2D2Convert.toAPIPluginManifestV2D2,
     ApiPluginManifestV2D2Convert.aPIPluginManifestV2D2ToJson,
   ],
