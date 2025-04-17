@@ -8,7 +8,7 @@ import { execCommand } from "../../utils/execCommand";
 import { stopDebugging } from "../../utils/vscodeOperation";
 import { TestContext } from "../testContext";
 import { dotenvUtil } from "../../utils/envUtil";
-import { TestFilePath } from "../../utils/constants";
+import { TestFilePath, Lang } from "../../utils/constants";
 import { VSBrowser } from "vscode-extension-tester";
 
 export type LocalDebugTestName =
@@ -53,7 +53,7 @@ export class LocalDebugTestContext extends TestContext {
   constructor(
     testName: LocalDebugTestName,
     option?: {
-      lang?: "javascript" | "typescript" | "python";
+      lang?: Lang;
       framework?: "react" | "minimal" | "none";
       needMigrate?: boolean;
       existingSpfxFolder?: string;
@@ -70,7 +70,13 @@ export class LocalDebugTestContext extends TestContext {
   ) {
     super(testName);
     this.testName = testName;
-    this.lang = option?.lang ? option.lang : "javascript";
+
+    this.lang = option?.lang
+      ? (option?.lang?.toLocaleLowerCase() as
+          | "javascript"
+          | "typescript"
+          | "python")
+      : "javascript";
     this.framework = option?.framework ? option.framework : "react";
     this.needMigrate = option?.needMigrate;
     this.existingSpfxFolder = option?.existingSpfxFolder

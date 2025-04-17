@@ -12,6 +12,7 @@ import {
   Timeout,
   LocalDebugTaskLabel,
   LocalDebugTaskInfo,
+  Lang,
 } from "../../utils/constants";
 import { it } from "../../utils/it";
 import { Page } from "playwright";
@@ -58,7 +59,7 @@ describe("Func Hosted and Timer-trigger Notification Bot App Tests", function ()
     },
     async function () {
       await notiBotHappyPathTestForLocalDebug("ftNoti", {
-        lang: "typescript",
+        lang: Lang.TS,
         successFlag: successFlag,
         fileValidation: "src/httpTrigger.ts",
         localDebugTaskLabel: LocalDebugTaskLabel.StartBotApp,
@@ -79,7 +80,7 @@ describe("Func Hosted and Timer-trigger Notification Bot App Tests", function ()
     },
     async function () {
       await notiBotHappyPathTestForRemoteDebug("functimernoti", {
-        lang: "TypeScript",
+        lang: Lang.TS,
         successFlag: successFlag,
         fileValidation: "src/httpTrigger.ts",
         validationFn: validationNotiBot,

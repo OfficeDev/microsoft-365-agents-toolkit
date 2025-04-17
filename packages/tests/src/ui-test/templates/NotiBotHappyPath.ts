@@ -19,6 +19,7 @@ import {
   LocalDebugTaskLabel,
   LocalDebugTaskLabel2,
   Timeout,
+  Lang,
 } from "../../utils/constants";
 import { expect } from "chai";
 import { initPage } from "../../utils/playwrightOperation";
@@ -34,7 +35,7 @@ import {
 export async function notiBotHappyPathTestForLocalDebug(
   capability: LocalDebugTestName,
   options: {
-    lang: "javascript" | "typescript" | "python";
+    lang: Lang;
     successFlag: {
       successFlagForLocal: boolean;
       successFlagForRemote: boolean;
@@ -63,9 +64,9 @@ export async function notiBotHappyPathTestForLocalDebug(
       localDebugTestContext.testRootFolder,
       localDebugTestContext.appName
     );
-    if (options.lang === "javascript") {
+    if (options.lang === Lang.JS) {
       validateFileExist(projectPath, options.fileValidation || "src/index.js");
-    } else if (options.lang === "typescript") {
+    } else if (options.lang === Lang.TS) {
       validateFileExist(projectPath, options.fileValidation || "src/index.ts");
     }
     // local debug
@@ -132,7 +133,7 @@ export async function notiBotHappyPathTestForLocalDebug(
 export async function notiBotHappyPathTestForRemoteDebug(
   capability: AppType,
   options: {
-    lang: "JavaScript" | "TypeScript" | "Python";
+    lang: Lang;
     successFlag: {
       successFlagForLocal: boolean;
       successFlagForRemote: boolean;
@@ -159,9 +160,9 @@ export async function notiBotHappyPathTestForRemoteDebug(
   await createNewProject(capability, appName, {
     lang: options.lang,
   });
-  if (options.lang === "JavaScript") {
+  if (options.lang === Lang.JS) {
     validateFileExist(projectPath, options.fileValidation || "src/index.js");
-  } else if (options.lang === "TypeScript") {
+  } else if (options.lang === Lang.TS) {
     validateFileExist(projectPath, options.fileValidation || "src/index.ts");
   }
   await provisionProject(appName, projectPath);
