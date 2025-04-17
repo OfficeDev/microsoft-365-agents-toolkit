@@ -15,6 +15,7 @@ import {
   signedIn,
   DeclarativeCopilotManifestSchema,
   DeclarativeAgentManifest,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -38,7 +39,7 @@ import {
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
-import { setGeneralSensitivityLabel } from "../../../src/component/generator/utils";
+import * as utils from "../../../src/component/generator/utils";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -143,6 +144,7 @@ describe("copilotExtension", async () => {
         [QuestionNames.AppName]: "app",
       };
 
+      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
@@ -175,6 +177,7 @@ describe("copilotExtension", async () => {
       const logStub = sandbox.stub(MockLogProvider.prototype, "info").resolves();
       // mock sensitivity label feature flag
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
@@ -329,7 +332,6 @@ describe("copilotExtension", async () => {
   });
 
   describe("setGeneralSensitivityLabel", async () => {
-    const generator = new DeclarativeAgentGenerator();
     const context = createContext();
     const manifestPath = "test/manifest.json";
 
@@ -359,7 +361,7 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(ok(undefined));
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(tokenStub.calledOnce);
       assert.isTrue(getLabelStub.calledOnceWith("fake-token"));
@@ -383,14 +385,14 @@ describe("copilotExtension", async () => {
         .stub(context.tokenProvider!.m365TokenProvider, "getStatus")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -398,21 +400,27 @@ describe("copilotExtension", async () => {
       const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
         ok({
-          status: "notSignedIn",
+          status: signedOut,
           token: undefined,
         })
       );
 
-      await setGeneralSensitivityLabel(context, manifestPath);
-
-      assert.isTrue(infoStub.calledOnce);
-
-      const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
-
+    it("not signed in  - no logger", async () => {
+      const contextWithoutProvider = createContext() as any;
+      const infoStub = sandbox.stub(contextWithoutProvider.logProvider, "info");
+      sandbox.stub(contextWithoutProvider.tokenProvider!.m365TokenProvider, "getStatus").resolves(
+        ok({
+          status: signedOut,
+          token: undefined,
+        })
+      );
+      contextWithoutProvider.logProvider = undefined;
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      assert.isFalse(infoStub.calledOnce);
+    });
     it("token undefined", async () => {
       const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
@@ -422,13 +430,13 @@ describe("copilotExtension", async () => {
         })
       );
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -444,13 +452,13 @@ describe("copilotExtension", async () => {
         .stub(GraphClient.prototype, "getGeneralSentivityLabel")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -469,13 +477,13 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -500,13 +508,13 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
   });
