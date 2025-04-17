@@ -148,7 +148,7 @@ async function updateManifest(
       inputs[QuestionNames.ReplaceContentUrl],
       TabUrlType.ContentUrl,
       tabs,
-      existingManifestTemplate.staticTabs
+      existingManifestTemplate.staticTabs as any
     );
   }
 
@@ -161,7 +161,7 @@ async function updateManifest(
       inputs[QuestionNames.ReplaceWebsiteUrl],
       TabUrlType.WebsiteUrl,
       tabs,
-      existingManifestTemplate.staticTabs
+      existingManifestTemplate.staticTabs as any
     );
   }
 
@@ -187,7 +187,7 @@ async function updateManifest(
         existingManifestTemplate.composeExtensions &&
         existingManifestTemplate.composeExtensions.length > 0
       ) {
-        manifest.composeExtensions = existingManifestTemplate.composeExtensions;
+        manifest.composeExtensions = existingManifestTemplate.composeExtensions as any;
       } else {
         manifest.composeExtensions = COMPOSE_EXTENSIONS_TPL_V3;
         manifest.composeExtensions[0].botId = "${{BOT_ID}}";
@@ -199,12 +199,12 @@ async function updateManifest(
   if (!getProjectTypeAndCapability(appDefinition)) {
     // which means user selects a capability through TTK UI.
     manifest.bots = existingManifestTemplate.bots;
-    manifest.composeExtensions = existingManifestTemplate.composeExtensions;
-    manifest.staticTabs = existingManifestTemplate.staticTabs;
+    manifest.composeExtensions = existingManifestTemplate.composeExtensions as any;
+    manifest.staticTabs = existingManifestTemplate.staticTabs as any;
     manifest.configurableTabs = existingManifestTemplate.configurableTabs;
     manifest.permissions = existingManifestTemplate.permissions;
     manifest.validDomains = existingManifestTemplate.validDomains;
-    manifest.webApplicationInfo = existingManifestTemplate.webApplicationInfo;
+    manifest.webApplicationInfo = (existingManifestTemplate as any).webApplicationInfo;
   }
 
   // manifest: developer
