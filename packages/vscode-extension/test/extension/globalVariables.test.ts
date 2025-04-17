@@ -142,7 +142,7 @@ describe("Global Variables", () => {
         ok({
           name: "test-agent",
           description: "test description",
-          sensitivity_label: "test-label",
+          sensitivity_label: { id: "test-label" },
         } as any)
       );
 
