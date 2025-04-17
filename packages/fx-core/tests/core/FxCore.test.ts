@@ -5164,9 +5164,7 @@ describe("addPlugin", async () => {
       }
       return true;
     });
-    sandbox
-      .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
-      .resolves(ok({} as any));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok({} as any));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
