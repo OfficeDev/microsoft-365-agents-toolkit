@@ -1,7 +1,7 @@
-# Overview of the Basic AI Chatbot template
+# Overview of the Basic AI Agent template
 
-This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library).
-It showcases a bot app that responds to user questions like ChatGPT. This enables your users to talk with the AI bot in Teams.
+This app template is built on top of [Microsoft Agents SDK](https://github.com/Microsoft/Agents).
+It showcases an agent that responds to user questions like ChatGPT. This enables your users to talk with the AI agent in Teams.
 
 ## Get started with the template
 
@@ -31,12 +31,12 @@ It showcases a bot app that responds to user questions like ChatGPT. This enable
 {{#useAzureOpenAI}}
 1. In file *env/.env.testtool.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY=<your-key>`, endpoint `AZURE_OPENAI_ENDPOINT=<your-endpoint>`, and deployment name `AZURE_OPENAI_DEPLOYMENT_NAME=<your-deployment>`.
 {{/useAzureOpenAI}}
-1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. Press F5 to start debugging which launches your agent in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+1. You can send any message to get a response from the agent.
 
-**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
+**Congratulations**! You are running an agent that can now interact with users in Microsoft 365 Agents Playground:
 
-![Basic AI Chatbot](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
+![Basic AI Agent](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
@@ -46,13 +46,13 @@ It showcases a bot app that responds to user questions like ChatGPT. This enable
 {{#useAzureOpenAI}}
 1. In file *env/.env.local.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY=<your-key>`, endpoint `AZURE_OPENAI_ENDPOINT=<your-endpoint>`, and deployment name `AZURE_OPENAI_DEPLOYMENT_NAME=<your-deployment>`.
 {{/useAzureOpenAI}}
-1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. Press F5 to start debugging which launches your agent in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
+1. When Teams launches in the browser, select the Add button in the dialog to install your agent to Teams.
+1. You can send any message to get a response from the agent.
 
-**Congratulations**! You are running an application that can now interact with users in Teams:
+**Congratulations**! You are running an agent that can now interact with users in Teams:
 
-![Basic AI Chatbot](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
+![Basic AI Agent](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
 {{/enableTestToolByDefault}}
 
 ## What's included in the template
@@ -69,12 +69,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the bot app server.|
-|`src/adapter.ts`| Sets up the bot adapter.|
+|`src/index.ts`| Sets up the agent server.|
+|`src/adapter.ts`| Sets up the agent adapter.|
 |`src/config.ts`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.ts`| Handles business logics for the Basic AI Chatbot.|
+|`src/agent.ts`| Handles business logics for the Basic AI Agent.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
@@ -86,7 +86,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 
 ## Extend the template
 
-You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the Basic AI Chatbot template with more AI capabilities, like:
+You can follow [Build a Basic AI Agent in Teams](https://aka.ms/teamsfx-basic-ai-chatbot) to extend the Basic AI Agent template with more AI capabilities, like:
 - [Customize prompt](https://aka.ms/teamsfx-basic-ai-chatbot#customize-prompt)
 - [Customize user input](https://aka.ms/teamsfx-basic-ai-chatbot#customize-user-input)
 - [Customize conversation history](https://aka.ms/teamsfx-basic-ai-chatbot#customize-conversation-history)

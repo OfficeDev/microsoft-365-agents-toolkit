@@ -11,7 +11,7 @@ import express, { Response } from "express";
 import adapter from "./adapter";
 
 // This bot's main dialog.
-import { agentApp } from "./agent.ts.tpl";
+import { agentApp } from "./agent";
 
 // Create authentication configuration
 const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
