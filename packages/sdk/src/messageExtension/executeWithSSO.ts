@@ -136,11 +136,11 @@ export async function executionWithTokenAndConfig(
     ) {
       internalLogger.verbose("User not consent yet, return 412 to user consent first.");
       const response = { status: 412 };
-      await context.sendActivity({
+      const activity = Activity.fromObject({
         value: response,
         type: ActivityTypes.InvokeResponse,
-      } as Activity);
-      return;
+      });
+      await context.sendActivity(activity);
     } else if (
       err instanceof ErrorWithCode &&
       err.code === ErrorCode.UiRequiredError &&
@@ -152,10 +152,12 @@ export async function executionWithTokenAndConfig(
         initiateLoginEndpoint,
         scopes
       );
-      await context.sendActivity({
-        value: { status: 200, body: response },
-        type: ActivityTypes.InvokeResponse,
-      } as Activity);
+      await context.sendActivity(
+        Activity.fromObject({
+          value: { status: 200, body: response },
+          type: ActivityTypes.InvokeResponse,
+        })
+      );
       return;
     }
     throw err;

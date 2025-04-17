@@ -180,7 +180,16 @@ describe("Message Extension Query With SSO Tests - Node", () => {
 
   it("handleMessageExtensionQueryWithSSO get 412 response in Message Extension query", async () => {
     const adapter = new SimpleAdapter();
-    const context: TurnContext = new TurnContext(adapter, activity);
+    const context: TurnContext = new TurnContext(adapter, {
+      ...activity,
+      name: "composeExtension/query",
+      value: {
+        authentication: { token: ssoToken },
+      },
+      getConversationReference: () => {
+        return {};
+      },
+    } as Activity);
     const spy = sinon.spy(adapter, "sendActivities");
     sandbox
       .stub(OnBehalfOfUserCredential.prototype, "getToken")
@@ -190,9 +199,14 @@ describe("Message Extension Query With SSO Tests - Node", () => {
           ErrorCode.UiRequiredError
         )
       );
-    await handleMessageExtensionQueryWithSSO(context, authConfig, loginUrl, "", async (token) => {
-      token;
-    });
+    try {
+      await handleMessageExtensionQueryWithSSO(context, authConfig, loginUrl, "", async (token) => {
+        token;
+      });
+    } catch (err) {
+      assert.isTrue(err instanceof ErrorWithCode);
+      assert.strictEqual((err as ErrorWithCode).code, ErrorCode.UiRequiredError);
+    }
     spy.restore();
     sinon.assert.calledOnce(spy);
     assert.equal((spy.getCall(0).args[1][0].value as any).status, 412);
@@ -224,11 +238,14 @@ describe("Message Extension Query With SSO Tests - Node", () => {
 
   it("handleMessageExtensionLinkQueryWithSSO get AuthCard response in Message Extension link unfurling", async () => {
     const adapter = new SimpleAdapter();
-    const activityContext = {
+    const context: TurnContext = new TurnContext(adapter, {
+      ...activity,
       name: "composeExtension/queryLink",
       value: { authentication: { token: ssoToken } },
-    };
-    const context: TurnContext = new TurnContext(adapter, activity);
+      getConversationReference: () => {
+        return {};
+      },
+    } as Activity);
     const spy = sinon.spy(adapter, "sendActivities");
     sandbox
       .stub(OnBehalfOfUserCredential.prototype, "getToken")
@@ -264,7 +281,14 @@ describe("Message Extension Query With SSO Tests - Node", () => {
       expiresOnTimestamp: now,
     };
     sandbox.stub(OnBehalfOfUserCredential.prototype, "getToken").resolves(tokenRes);
-    const context: TurnContext = new TurnContext(new SimpleAdapter(), activity);
+    const context: TurnContext = new TurnContext(new SimpleAdapter(), {
+      ...activity,
+      name: "composeExtension/query",
+      value: { authentication: { token: ssoToken } },
+      getConversationReference: () => {
+        return {};
+      },
+    } as Activity);
     const logic = (token: MessageExtensionTokenResponse) => {};
     const callbackSpy = sinon.spy(logic);
     const res = await handleMessageExtensionQueryWithSSO(
@@ -297,7 +321,14 @@ describe("Message Extension Query With SSO Tests - Node", () => {
         )
       );
     const adapter = new SimpleAdapter();
-    const context: TurnContext = new TurnContext(adapter, activity);
+    const context: TurnContext = new TurnContext(adapter, {
+      ...activity,
+      name: "composeExtension/query",
+      value: { authentication: { token: ssoToken } },
+      getConversationReference: () => {
+        return {};
+      },
+    } as Activity);
     try {
       await handleMessageExtensionQueryWithSSO(context, authConfig, loginUrl, "", async (token) => {
         token;

@@ -26,6 +26,7 @@ import {
 } from "../../../../src/conversation/interface";
 import { InvokeResponseFactory } from "../../../../src/conversation/invokeResponseFactory";
 import { TeamsBotSsoPromptTokenResponse } from "../../../../src";
+import { remove } from "@microsoft/teams-js/dist/esm/packages/teams-js/dts/private/hostEntity/tab";
 
 export class TestTarget implements NotificationTarget {
   public content: any;
@@ -149,6 +150,16 @@ export class MockContext {
       recipient: {
         id: "1",
         name: "test-bot",
+      },
+      removeRecipientMention: () => {
+        return text;
+      },
+      getConversationReference: () => {
+        return {
+          conversation: {
+            id: "1",
+          },
+        };
       },
     };
   }
