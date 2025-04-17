@@ -821,18 +821,12 @@ describe("daSpecParser", () => {
   describe("generatePlugin with KiotaNPMIntegration enabled", () => {
     let kiotaGeneratePluginStub: sinon.SinonStub;
     let tmpDirSyncStub: sinon.SinonStub;
-    let fsReadJSONStub: sinon.SinonStub;
-    let fsCopyFileStub: sinon.SinonStub;
-    let fsWriteJsonStub: sinon.SinonStub;
     let parseAndUpdatePluginManifestStub: sinon.SinonStub;
     let pathRelativeStub: sinon.SinonStub;
 
     beforeEach(() => {
       kiotaGeneratePluginStub = sinon.stub(kiotaClient, "kiotageneratePlugin");
       tmpDirSyncStub = sinon.stub(require("tmp"), "dirSync");
-      fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
-      fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile");
-      fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson");
       parseAndUpdatePluginManifestStub = sinon.stub(
         daSpecParser,
         "parseAndUpdatePluginManifestForKiota"
@@ -847,14 +841,11 @@ describe("daSpecParser", () => {
         removeCallback: sinon.stub(),
         unsafeCleanup: true,
       });
-      fsReadJSONStub.resolves({ name: { short: "test-app" } });
       kiotaGeneratePluginStub.resolves({
         openAPISpec: "c:\\tmp\\working-dir\\plugin\\openapi.yaml",
         aiPlugin: "c:\\tmp\\working-dir\\plugin\\ai-plugin.json",
         logs: [],
       });
-      fsCopyFileStub.resolves();
-      fsWriteJsonStub.resolves();
       parseAndUpdatePluginManifestStub.resolves([]);
       pathRelativeStub.returns("../openapi.yaml");
     });
@@ -874,10 +865,17 @@ describe("daSpecParser", () => {
       const operations = ["GET /users", "POST /messages"];
       const adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -982,10 +980,17 @@ describe("daSpecParser", () => {
 
       isJsonSpecFileStub.resolves(true);
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -1033,12 +1038,18 @@ describe("daSpecParser", () => {
           short: "Complex$App-Name_${{ENV_VAR}}",
         },
       };
-      fsReadJSONStub.resolves(complexManifest);
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves(complexManifest);
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -1061,7 +1072,9 @@ describe("daSpecParser", () => {
 
     it("should update plugin manifest with relative path", async () => {
       pathRelativeStub.returns("..\\..\\openapi.yaml");
-      fsReadJSONStub.resolves({
+
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({
         name: { short: "test-app" },
         runtimes: [
           {
@@ -1069,11 +1082,15 @@ describe("daSpecParser", () => {
           },
         ],
       });
-
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -1109,13 +1126,20 @@ describe("daSpecParser", () => {
           },
         ],
       };
-      fsReadJSONStub.resolves(pluginManifest);
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves(pluginManifest);
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
+
       await generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
@@ -1152,10 +1176,17 @@ describe("daSpecParser", () => {
         "PATCH /settings",
       ];
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -1194,10 +1225,17 @@ describe("daSpecParser", () => {
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
@@ -1216,10 +1254,17 @@ describe("daSpecParser", () => {
     it("should handle both JSON and YAML original spec files", async () => {
       isJsonSpecFileStub.resolves(true);
 
+      const readdirStub = sinon.stub().resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub().resolves();
+      const fsWriteJsonStub = sinon.stub().resolves();
       const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
         "fs-extra": {
-          readdir: sinon.stub().resolves(["openapi.json"] as any),
-          "@noCallThru": false,
+          readdir: readdirStub,
+          readJSON: fsReadJSONStub,
+          copyFile: fsCopyFileStub,
+          writeJson: fsWriteJsonStub,
+          "@noCallThru": true,
         },
       });
 
