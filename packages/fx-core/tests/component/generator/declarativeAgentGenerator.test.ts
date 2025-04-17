@@ -37,6 +37,7 @@ import {
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
+import { setGeneralSensitivityLabel } from "../../../src/component/generator/utils";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -357,7 +358,7 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(ok(undefined));
 
-      await utils(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(tokenStub.calledOnce);
       assert.isTrue(getLabelStub.calledOnceWith("fake-token"));
@@ -379,14 +380,14 @@ describe("copilotExtension", async () => {
         .stub(context.tokenProvider!.m365TokenProvider, "getStatus")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -399,13 +400,13 @@ describe("copilotExtension", async () => {
         })
       );
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -418,13 +419,13 @@ describe("copilotExtension", async () => {
         })
       );
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -437,16 +438,16 @@ describe("copilotExtension", async () => {
         })
       );
       sandbox
-        .stub(GraphClient.prototype, "getGeneralSentivityLabelId")
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -458,18 +459,20 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabelId").resolves(ok("label-id"));
+      sandbox
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
+        .resolves(ok({ id: "label-id" }));
       sandbox
         .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -481,7 +484,9 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabelId").resolves(ok("label-id"));
+      sandbox
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
+        .resolves(ok({ id: "label-id" }));
       sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
         ok({
           name: "test",
@@ -492,13 +497,13 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
   });
