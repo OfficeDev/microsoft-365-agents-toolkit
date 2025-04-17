@@ -4,7 +4,7 @@
     "msteams": {
         "teamsAppId": null
     },
-    "description": "Microsoft 365 Agents Toolkit AI Assistant Bot sample with OpenAI Assistants API and Teams AI Library's built-in coordination",
+    "description": "Microsoft 365 Agents Toolkit AI Assistant Agent sample with OpenAI Assistants API and Teams AI Library's built-in coordination",
     "engines": {
         "node": "18 || 20 || 22"
     },

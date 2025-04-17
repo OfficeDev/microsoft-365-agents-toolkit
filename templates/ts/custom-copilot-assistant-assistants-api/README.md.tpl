@@ -97,7 +97,7 @@ Before running or debugging your agent, please follow these steps to setup your 
    ```
 {{/useAzureOpenAI}}
 
-### Run Teams Bot locally
+### Run Agent locally
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}

@@ -94,7 +94,7 @@ Before running or debugging your agent, please follow these steps to setup your 
    ```
 {{/useAzureOpenAI}}
 
-### Run Teams Bot locally
+### Run Agent locally
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
