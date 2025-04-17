@@ -12,6 +12,7 @@ import {
   Timeout,
   TreeViewCommands,
   CreateProjectQuestion,
+  Lang,
 } from "../../utils/constants";
 import { TreeViewTestContext } from "./treeviewContext";
 import {
@@ -53,7 +54,7 @@ describe("New project in existing project Tests", function () {
     },
     async function () {
       const appName = treeViewTestContext.appName;
-      await createNewProject("tab", appName, { lang: "TypeScript" });
+      await createNewProject("tab", appName, { lang: Lang.TS });
       newAppFolderName = appName + appNameCopySuffix;
       projectPath = path.resolve(testRootFolder, newAppFolderName);
       const filePath1 = path.join(projectPath, "src", "index.tsx");
