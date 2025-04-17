@@ -1,7 +1,7 @@
 # Overview of the Basic AI Chatbot template
 
 This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library). 
-It showcases a bot app that responds to user questions like ChatGPT, which enables your users to talk with the AI bot in Teams.
+It showcases an agent app that responds to user questions like ChatGPT, which enables your users to talk with the AI agent in Teams.
 
 ## Get started with the template
 
@@ -32,11 +32,11 @@ It showcases a bot app that responds to user questions like ChatGPT, which enabl
 1. In file *env/.env.testtool.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY=<your-key>`, endpoint `AZURE_OPENAI_ENDPOINT=<your-endpoint>`, and deployment name `AZURE_OPENAI_DEPLOYMENT_NAME=<your-deployment>`.
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![ai chat bot](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
+![ai chat agent](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
@@ -48,11 +48,11 @@ It showcases a bot app that responds to user questions like ChatGPT, which enabl
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
-![ai chat bot](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
+![ai chat agent](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
 {{/enableTestToolByDefault}}
 
 ## What's included in the template
@@ -69,8 +69,8 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the bot app server.|
-|`src/adapter.js`| Sets up the bot adapter.|
+|`src/index.js`| Sets up the agent app server.|
+|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|

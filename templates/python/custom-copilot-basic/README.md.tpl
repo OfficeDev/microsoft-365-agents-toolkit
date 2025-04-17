@@ -1,7 +1,7 @@
 # Overview of the Basic AI Chatbot template
 
 This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library).
-This template showcases a bot app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
+This template showcases an agent app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
 
 
 ## Get started with the template
@@ -31,18 +31,18 @@ This template showcases a bot app that responds to user questions like an AI ass
 1. In this template, default model name is `gpt-3.5-turbo`. If you want to use a different model from OpenAI, fill in your model name in [src/config.py](./src/config.py).
 {{/useOpenAI}}
 
-### Conversation with bot
+### Conversation with agent
 1. Select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You will receive a welcome message from the bot, or send any message to get a response.
+1. You will receive a welcome message from the agent, or send any message to get a response.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-![ai chat bot](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
+![ai chat agent](https://user-images.githubusercontent.com/7642967/258726187-8306610b-579e-4301-872b-1b5e85141eff.png)
 
 ## What's included in the template
 
@@ -91,7 +91,7 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 ## Known issue
 - If you use `Debug in Microsoft 365 Agents Playground` to local debug, you might get an error `InternalServiceError: connect ECONNREFUSED 127.0.0.1:3978` in Microsoft 365 Agents Playground console log or error message `Error: Cannot connect to your app,
 please make sure your app is running or restart your app` in log panel of Microsoft 365 Agents Playground web page. You can wait for Python launch console ready and then refresh the front end web page.
-- When you use `Launch Remote in Teams` to remote debug after deployment, you might loose interaction with your bot. This is because the remote service needs to restart. Please wait for several minutes to retry it.
+- When you use `Launch Remote in Teams` to remote debug after deployment, you might loose interaction with your agent. This is because the remote service needs to restart. Please wait for several minutes to retry it.
 {{#CEAEnabled}}
 - The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
 {{/CEAEnabled}}

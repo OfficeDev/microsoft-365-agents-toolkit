@@ -28,10 +28,10 @@ It showcases how to build an AI agent in Teams capable of helping users accompli
 ### Create your own OpenAI Assistant
 
 {{#useOpenAI}}
-Before running or debugging your bot, please follow these steps to setup your own [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview).
+Before running or debugging your agent, please follow these steps to setup your own [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview).
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-Before running or debugging your bot, please follow these steps to setup your own [Azure OpenAI Assistant](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/assistant).
+Before running or debugging your agent, please follow these steps to setup your own [Azure OpenAI Assistant](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/assistant).
 {{/useAzureOpenAI}}
 
 **If you haven't setup any Assistant yet**
@@ -101,7 +101,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
@@ -111,7 +111,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
@@ -132,8 +132,8 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the bot app server.|
-|`src/adapter.js`| Sets up the bot adapter.|
+|`src/index.js`| Sets up the agent app server.|
+|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
 |`src/creator.js`| One-time tool to create OpenAI Assistant.|
 |`src/app/app.js`| Handles business logics for the AI Agent.|

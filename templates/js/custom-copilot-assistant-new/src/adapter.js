@@ -11,9 +11,9 @@ const onTurnErrorHandler = async (context, error) => {
   //       application insights.
   console.error(`\n [onTurnError] unhandled error: ${error}`);
 
-  // Only send error message for user messages, not for other message types so the bot doesn't spam a channel or chat.
+  // Only send error message for user messages, not for other message types so the agent doesn't spam a channel or chat.
   if (context.activity.type === "message") {
-    // Send a trace activity, which will be displayed in Bot Framework Emulator
+    // Send a trace activity
     await context.sendTraceActivity(
       "OnTurnError Trace",
       `${error}`,
@@ -22,8 +22,8 @@ const onTurnErrorHandler = async (context, error) => {
     );
 
     // Send a message to the user
-    await context.sendActivity("The bot encountered an error or bug.");
-    await context.sendActivity("To continue to run this bot, please fix the bot source code.");
+    await context.sendActivity("The agent encountered an error or bug.");
+    await context.sendActivity("To continue to run this agent, please fix the agent source code.");
   }
 };
 

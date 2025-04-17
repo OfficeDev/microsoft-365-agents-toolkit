@@ -32,7 +32,7 @@ The app template is built using the Teams AI library, which provides the capabil
 1. In file *env/.env.testtool.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_ENDPOINT=<your-key>`, endpoint `SECRET_AZURE_OPENAI_ENDPOINT=<your-endpoint>` and deployment name `AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=<your-deployment-name>`.
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
@@ -48,7 +48,7 @@ The app template is built using the Teams AI library, which provides the capabil
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
@@ -70,14 +70,14 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the bot app server.|
-|`src/adapter.js`| Sets up the bot adapter.|
+|`src/index.js`| Sets up the agent app server.|
+|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
 |`src.prompts/chat/actions.json`| List of available actions.| 
-|`src/app/app.js`| Handles business logics for the AI bot.|
-|`src/app/utility.js`| Utility methods for the AI bot.|
+|`src/app/app.js`| Handles business logics for the AI agent.|
+|`src/app/utility.js`| Utility methods for the AI agent.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 

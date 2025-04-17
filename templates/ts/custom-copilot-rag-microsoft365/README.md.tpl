@@ -37,7 +37,7 @@ This app template also demonstrates usage of techniques like:
 1. Microsoft Graph Search API is available for searching SharePoint content, thus you just need to ensure your document in *src/data/\*.txt* is [uploaded to SharePoint / OneDrive](https://support.microsoft.com/office/upload-files-and-folders-to-a-library-da549fb1-1fcb-4167-87d0-4693e93cb7a0), no extra data ingestion required.
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 ![M365 RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/c2fff68c-53ce-445a-a101-97f0c127b825)
 
@@ -55,12 +55,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the bot app server.|
-|`src/adapter.ts`| Sets up the bot adapter.|
+|`src/index.ts`| Sets up the agent app server.|
+|`src/adapter.ts`| Sets up the agent adapter.|
 |`src/config.ts`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.ts`| Handles business logics for the RAG bot.|
+|`src/app/app.ts`| Handles business logics for the RAG agent.|
 |`src/app/m365DataSource.ts`| Defines the m365 data source.|
 |`src/data/*.txt`| Raw text data sources.|
 |`src/public/*.html`| Auth start page and an auth end page to be used by the user sign in flow.|

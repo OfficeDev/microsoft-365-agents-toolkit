@@ -30,7 +30,7 @@ This app template also demonstrates usage of techniques like:
 1. In file *env/.env.testtool.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_API_KEY=<your-key>`, endpoint `AZURE_OPENAI_ENDPOINT=<your-endpoint>` and deployment name `AZURE_OPENAI_DEPLOYMENT_NAME=<your-deployment>`.
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
@@ -50,12 +50,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.ts`| Sets up the bot app server.|
-|`src/adapter.ts`| Sets up the bot adapter.|
+|`src/index.ts`| Sets up the agent app server.|
+|`src/adapter.ts`| Sets up the agent adapter.|
 |`src/config.ts`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.ts`| Handles business logics for the RAG bot.|
+|`src/app/app.ts`| Handles business logics for the RAG agent.|
 |`src/app/myDataSource.ts`| Defines the data source.|
 |`src/data/*.md`| Raw text data sources.|
 

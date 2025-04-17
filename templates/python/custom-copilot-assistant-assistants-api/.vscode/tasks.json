@@ -35,7 +35,7 @@
             }
         },
         {
-            "label": "Start App Locally",
+            "label": "Start Agent Locally",
             "dependsOn": [
                 "Validate prerequisites",
                 "Start local tunnel",
@@ -105,7 +105,7 @@
             }
         },
         {
-            "label": "Start App in Desktop Client",
+            "label": "Start Agent in Desktop Client",
             "dependsOn": [
                 "Validate prerequisites",
                 "Start local tunnel",
@@ -124,7 +124,7 @@
             }
         },
         {
-            "label": "Start App in Desktop Client (Remote)",
+            "label": "Start Agent in Desktop Client (Remote)",
             "type": "teamsfx",
             "command": "launch-desktop-client",
             "args": {

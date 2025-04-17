@@ -37,7 +37,7 @@ This app template also demonstrates usage of techniques like:
 1. Do `npm install` and `npm run indexer:create -- <your-ai-search-key> <your-azure-openai-api-key>` to create the my documents index. Once you're done using the sample it's good practice to delete the index. You can do so with the `npm run indexer:delete -- <your-ai-search-key>` command.
 {{/useAzureOpenAI}}
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
@@ -57,12 +57,12 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the bot app server.|
-|`src/adapter.js`| Sets up the bot adapter.|
+|`src/index.js`| Sets up the agent app server.|
+|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
 |`src/prompts/chat/skprompt.txt`| Defines the prompt.|
 |`src/prompts/chat/config.json`| Configures the prompt.|
-|`src/app/app.js`| Handles business logics for the RAG bot.|
+|`src/app/app.js`| Handles business logics for the RAG agent.|
 |`src/app/azureAISearchDataSource.js`| Defines the Azure AI search data source.|
 |`src/indexers/data/*.md`| Raw text data sources.|
 |`src/indexers/utils.js`| Basic index tools. |

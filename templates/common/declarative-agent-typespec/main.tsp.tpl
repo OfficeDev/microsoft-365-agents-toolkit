@@ -12,7 +12,7 @@ using TypespecCopilotSkills.Agents;
 )
 
 @instructions("""
-  You are a declarative agent and were created with Team Toolkit.
+  You are a declarative agent and were created with Microsoft 365 Agents Toolkit.
 """)
 
 // Uncomment this part to add a conversation starter to the agent.

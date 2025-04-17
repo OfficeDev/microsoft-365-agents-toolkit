@@ -27,7 +27,7 @@
       "name": "Launch Remote (Desktop)",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "Start App in Desktop Client (Remote)",
+      "preLaunchTask": "Start Agent in Desktop Client (Remote)",
       "presentation": {
         "group": "1-Teams",
         "order": 6
@@ -35,7 +35,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch App (Edge)",
+      "name": "Launch Agent (Edge)",
       "type": "msedge",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -46,7 +46,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Launch App (Chrome)",
+      "name": "Launch Agent (Chrome)",
       "type": "chrome",
       "request": "launch",
       "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -145,9 +145,9 @@
   "compounds": [
     {
       "name": "Debug in Teams (Edge)",
-      "configurations": ["Launch App (Edge)", "Start Python"],
+      "configurations": ["Launch Agent (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 1
@@ -156,9 +156,9 @@
     },
     {
       "name": "Debug in Teams (Chrome)",
-      "configurations": ["Launch App (Chrome)", "Start Python"],
+      "configurations": ["Launch Agent (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "1-Teams",
         "order": 2
@@ -168,7 +168,7 @@
     {
       "name": "Debug in Teams (Desktop)",
       "configurations": ["Start Python"],
-      "preLaunchTask": "Start App in Desktop Client",
+      "preLaunchTask": "Start Agent in Desktop Client",
       "presentation": {
         "group": "1-Teams",
         "order": 3
@@ -196,7 +196,7 @@
       "name": "Debug in Copilot (Edge)",
       "configurations": ["Local debug in Copilot (Edge)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "3-M365",
         "order": 1
@@ -207,7 +207,7 @@
       "name": "Debug in Copilot (Chrome)",
       "configurations": ["Local debug in Copilot (Chrome)", "Start Python"],
       "cascadeTerminateToConfigurations": ["Start Python"],
-      "preLaunchTask": "Start App Locally",
+      "preLaunchTask": "Start Agent Locally",
       "presentation": {
         "group": "3-M365",
         "order": 2

@@ -1,7 +1,7 @@
 # Overview of the Chat With Your Data (Using Custom API) template
 
 This app template is built on top of [Teams AI library](https://aka.ms/teams-ai-library).
-This template showcases a bot app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
+This template showcases an agent app that responds to user questions like an AI assistant. This enables your users to talk with the AI assistant in Teams to find information.
 
 
 ## Get started with the template
@@ -29,12 +29,12 @@ This template showcases a bot app that responds to user questions like an AI ass
 1. In file *env/.env.testtool.user*, fill in your Azure OpenAI key `SECRET_AZURE_OPENAI_ENDPOINT=<your-key>`, endpoint `SECRET_AZURE_OPENAI_ENDPOINT=<your-endpoint>` and deployment name `AZURE_OPENAI_MODEL_DEPLOYMENT_NAME=<your-deployment-name>`.
 {{/useAzureOpenAI}}
 
-### Conversation with bot
+### Conversation with agent
 1. Select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You will receive a welcome message from the bot, or send any message to get a response.
+1. You will receive a welcome message from the agent, or send any message to get a response.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
@@ -89,4 +89,4 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 ## Known issue
 - If you use `Debug in Microsoft 365 Agents Playground` to local debug, you might get an error `InternalServiceError: connect ECONNREFUSED 127.0.0.1:3978` in Microsoft 365 Agents Playground console log or error message `Error: Cannot connect to your app,
 please make sure your app is running or restart your app` in log panel of Microsoft 365 Agents Playground web page. You can wait for Python launch console ready and then refresh the front end web page.
-- When you use `Launch Remote in Teams` to remote debug after deployment, you might loose interaction with your bot. This is because the remote service needs to restart. Please wait for several minutes to retry it. 
+- When you use `Launch Remote in Teams` to remote debug after deployment, you might loose interaction with your agent. This is because the remote service needs to restart. Please wait for several minutes to retry it. 
