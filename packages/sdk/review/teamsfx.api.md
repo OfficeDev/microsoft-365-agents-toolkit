@@ -48,6 +48,25 @@ export enum AdaptiveCardResponse {
     ReplaceForInteractor = 0
 }
 
+declare namespace AgentBuilderCloudAdapter {
+    export {
+        ConversationOptions,
+        NotificationOptions_2 as NotificationOptions,
+        ConversationBot,
+        BotSsoExecutionDialog,
+        Channel,
+        Member,
+        NotificationBot,
+        sendAdaptiveCard,
+        sendMessage,
+        TeamsBotInstallation,
+        SearchScope,
+        CommandBot,
+        CardActionBot
+    }
+}
+export { AgentBuilderCloudAdapter }
+
 // @public
 export enum ApiKeyLocation {
     Header = 0,
@@ -87,25 +106,6 @@ export class BearerTokenAuthProvider implements AuthProvider {
     constructor(getToken: () => Promise<string>);
     AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig>;
 }
-
-declare namespace BotBuilderCloudAdapter {
-    export {
-        ConversationOptions,
-        NotificationOptions_2 as NotificationOptions,
-        ConversationBot,
-        BotSsoExecutionDialog,
-        Channel,
-        Member,
-        NotificationBot,
-        sendAdaptiveCard,
-        sendMessage,
-        TeamsBotInstallation,
-        SearchScope,
-        CommandBot,
-        CardActionBot
-    }
-}
-export { BotBuilderCloudAdapter }
 
 // @public
 export interface BotSsoConfig {
@@ -343,6 +343,7 @@ export class MessageBuilder {
     static attachHeroCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<HeroCard>): Partial<Activity>;
     static attachO365ConnectorCard(card: O365ConnectorCard): Partial<Activity>;
     static AttachReceiptCard(card: ReceiptCard): Partial<Activity>;
+    static attachSigninCard(title: string, url: string, text?: string): Partial<Activity>;
     // (undocumented)
     static attachThumbnailCard(title: string, images?: (CardImage | string)[], buttons?: (CardAction | string)[], other?: Partial<ThumbnailCard>): Partial<Activity>;
 }

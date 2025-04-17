@@ -68,5 +68,5 @@ export {
 } from "./messageExtension/executeWithSSO";
 export { MessageExtensionTokenResponse } from "./messageExtension/teamsMsgExtTokenResponse";
 
-import * as BotBuilderCloudAdapter from "./conversationWithCloudAdapter/conversationWithCloudAdapter";
-export { BotBuilderCloudAdapter };
+import * as AgentBuilderCloudAdapter from "./conversationWithCloudAdapter/conversationWithCloudAdapter";
+export { AgentBuilderCloudAdapter };
