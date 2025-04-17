@@ -440,10 +440,11 @@ export class LocalDebugTaskResult {
   static readonly FunctionStarted = "Worker process started and initialized";
 }
 
-export enum LocalDebugTaskLabel2 {
-  StartBot2 = "Start Bot",
-  PythonDebugConsole = "Python Debug Console",
-  StartTestTool = "Start Test Tool",
+export class LocalDebugTaskLabel2 {
+  static readonly StartBot2 = "Start Bot";
+  static readonly PythonDebugConsole = "Python Debug Console";
+  static readonly StartTestTool = "Start Test Tool";
+  static readonly CompileTypescript = "Compile typescript";
 }
 
 export enum LocalDebugError {
@@ -460,6 +461,8 @@ export class LocalDebugTaskInfo {
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
   static readonly AppListening = "app listening";
+  static readonly BackendStartedInfo = "Worker process started and initialized";
+  static readonly NoError = "Found 0 errors";
 }
 
 export class DebugItemSelect {

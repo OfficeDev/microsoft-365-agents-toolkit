@@ -69,7 +69,7 @@
             "name": "Launch Remote (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
                 "group": "3-remote",
                 "order": 3
@@ -84,7 +84,7 @@
                 "Launch App (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "1-local",
                 "order": 1
@@ -97,7 +97,7 @@
                 "Launch App (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "1-local",
                 "order": 2
@@ -109,7 +109,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
                 "group": "1-local",
                 "order": 3

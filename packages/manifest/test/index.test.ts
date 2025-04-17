@@ -1,11 +1,18 @@
-import "mocha";
 import * as chai from "chai";
-import * as path from "path";
-import fs from "fs-extra";
 import chaiAsPromised from "chai-as-promised";
+import fs from "fs-extra";
+import "mocha";
+import * as path from "path";
 import sinon from "sinon";
-import { jsonToManifest, ManifestUtil, TeamsAppManifest, TeamsAppManifestJSONSchema } from "../src";
-import { Convert as MicrosoftTeamsV1D19Convert } from "../src/teams/MicrosoftTeams.v1d19";
+import {
+  AppManifestUtils,
+  ManifestUtil,
+  TeamsAppManifest,
+  TeamsManifest,
+  TeamsManifestConverter,
+  TeamsManifestLatest,
+  TeamsManifestV1D10,
+} from "../src";
 
 chai.use(chaiAsPromised);
 
@@ -198,7 +205,7 @@ describe("ManifestUtil", () => {
       validDomains: [],
     };
     try {
-      jsonToManifest(JSON.stringify(json));
+      TeamsManifestConverter.jsonToManifest(JSON.stringify(json));
       chai.assert.fail("Expected error not thrown");
     } catch (error: any) {
       chai.assert.include(error.message, `Invalid value for key "version"`);
@@ -206,20 +213,82 @@ describe("ManifestUtil", () => {
   });
   it("invalid manifestVersion", () => {
     try {
-      jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
+      TeamsManifestConverter.jsonToManifest(JSON.stringify({ manifestVersion: "1.100" }));
     } catch (error: any) {
-      chai.assert.include(error.message, "Unsupported manifest version: 1.100");
+      chai.assert.include(error.message, "Teams manifest version 1.100 is not supported");
     }
   });
   it("fetchSchema missing schema", async () => {
     try {
-      ManifestUtil.fetchSchema({} as any);
+      AppManifestUtils.fetchSchema({} as any);
     } catch (e: any) {
       chai.assert.include(
         e.message,
         "Manifest does not have a $schema property or schema url is not provided."
       );
     }
+  });
+  it("parseCommonTelemetryProperties", async () => {
+    const json = {
+      $schema:
+        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: "1.0",
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "huajiecea040906${{APP_NAME_SUFFIX}}",
+        full: "full name for huajiecea040906",
+      },
+      description: {
+        short: "Repair Service",
+        full: "A simple service to manage repairs",
+      },
+      accentColor: "#FFFFFF",
+      bots: [
+        {
+          botId: "${{BOT_ID}}",
+          scopes: ["personal", "team", "groupChat"],
+          supportsFiles: false,
+          isNotificationOnly: false,
+          commandLists: [
+            {
+              scopes: ["personal"],
+              commands: [
+                {
+                  title: "List all repairs without auth",
+                  description: "List all repairs without auth",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      composeExtensions: [],
+      configurableTabs: [],
+      staticTabs: [],
+      permissions: ["identity", "messageTeamMembers"],
+      validDomains: [],
+    };
+    const res = ManifestUtil.parseCommonTelemetryProperties(json as TeamsManifest);
+    chai.assert.deepEqual(res, {
+      id: "${{TEAMS_APP_ID}}",
+      version: "1.0",
+      capabilities: "Bot",
+      manifestVersion: "1.19",
+      isApiME: false,
+      isSPFx: false,
+      isApiMeAAD: false,
+    } as any);
   });
 });
 

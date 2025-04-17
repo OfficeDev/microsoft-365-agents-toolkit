@@ -8,7 +8,7 @@ dependencies:
   '@apidevtools/swagger-parser':
     specifier: ^10.1.1
     version: 10.1.1(openapi-types@7.2.3)
-  '@microsoft/teams-manifest':
+  '@microsoft/app-manifest':
     specifier: workspace:*
     version: link:../manifest
   fs-extra:

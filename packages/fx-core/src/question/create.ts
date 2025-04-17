@@ -1319,7 +1319,7 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
         ? getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
         : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");
     },
-    cliDescription: "API plugin type.",
+    cliDescription: "Action type.",
     staticOptions: ActionStartOptions.staticAll(doesProjectExists),
     dynamicOptions: (inputs: Inputs) => {
       return ActionStartOptions.all(inputs, doesProjectExists);
