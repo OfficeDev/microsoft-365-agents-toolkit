@@ -2741,15 +2741,18 @@ export class FxCore {
         return err(new UserCancelError());
       }
       const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
-      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-        declarativeAgentManifestPath
-      );
+      const declarativeAgentManifestRes =
+        await copilotGptManifestUtils.readDeclarativeAgentManifestFile(
+          declarativeAgentManifestPath
+        );
       if (declarativeAgentManifestRes.isErr()) {
         return err(declarativeAgentManifestRes.error);
       }
       const declarativeAgentManifest = declarativeAgentManifestRes.value;
-      declarativeAgentManifest.sensitivity_label = selectedLabel;
-      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest.sensitivity_label = {
+        id: selectedLabel,
+      };
+      const writeRes = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
         declarativeAgentManifest,
         declarativeAgentManifestPath
       );

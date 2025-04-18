@@ -968,7 +968,7 @@
       {
         "command": "fx-extension.setSensitivityLabel",
         "title": "%teamstoolkit.commandsTreeViewProvider.setSensitivityLabel%",
-        "category": "Teams",
+        "category": "Microsoft 365 Agents",
         "enablement": "fx-extension.isSensitivityLabelEnabled"
       },
       {
@@ -1009,7 +1009,7 @@
       {
         "command": "fx-extension.removeSharedAccess",
         "title": "%teamstoolkit.commands.removeSharedAccess%",
-        "category": "Teams",
+        "category": "Microsoft 365 Agents",
         "enablement": "fx-extension.isSharedEnabled"
       }
     ],

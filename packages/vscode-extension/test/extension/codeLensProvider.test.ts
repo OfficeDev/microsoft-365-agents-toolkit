@@ -1,5 +1,5 @@
 import { err, ok, SystemError, SystemErrorOptions, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
+import { copilotGptManifestUtils, envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import fs from "fs-extra";
 import { afterEach, describe } from "mocha";
@@ -927,7 +927,7 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "internal-only",
+            sensitivity_label: { id: "internal-only" },
           });
         },
         positionAt: () => {
@@ -951,7 +951,7 @@ publish:
     });
 
     it("should not provide codelens when manifest file does not exist", async () => {
-      sandbox.stub(fs, "existsSync").returns(false);
+      sandbox.stub(fs, "pathExistsSync").returns(false);
       sandbox
         .stub(globalVariables, "workspaceUri")
         .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
@@ -961,7 +961,7 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "internal-only",
+            sensitivity_label: { id: "internal-only" },
           });
         },
         positionAt: () => {
@@ -985,7 +985,7 @@ publish:
     });
 
     it("should not provide codelens when document path doesn't match declarative agent file path", async () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
 
@@ -1008,7 +1008,7 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "internal-only",
+            sensitivity_label: { id: "internal-only" },
           });
         },
         positionAt: () => {
@@ -1032,7 +1032,7 @@ publish:
     });
 
     it("should not provide codelens when manifest does not contain declarative agent", async () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
 
@@ -1046,7 +1046,7 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "internal-only",
+            sensitivity_label: { id: "internal-only" },
           });
         },
         positionAt: () => {
@@ -1070,7 +1070,7 @@ publish:
     });
 
     it("should provide sensitivity label codelens when label exists", async () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
@@ -1130,7 +1130,9 @@ publish:
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "test-label-id",
+            sensitivity_label: {
+              id: "test-label-id",
+            },
           });
         },
         positionAt: () => {
@@ -1139,14 +1141,21 @@ publish:
         lineAt: () => {
           return {
             lineNumber: 0,
-            text: '"sensitivity_label": "test-label-id"',
+            text: '"sensitivity_label": { "id": "test-label-id" }',
           };
         },
         uri: {
           fsPath: absoluteAgentPath,
         },
       } as any as vscode.TextDocument;
-
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
+        ok({
+          type: "declarative",
+          sensitivity_label: {
+            id: "test-label-id",
+          },
+        } as any)
+      );
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
@@ -1157,7 +1166,7 @@ publish:
     });
 
     it("should show login codelens when user not logged in", async () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
@@ -1191,13 +1200,22 @@ publish:
         },
       };
       sandbox.stub(tools, "tokenProvider").value(mockTokenProvider);
-
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
+        ok({
+          type: "declarative",
+          sensitivity_label: {
+            id: "test-label-id",
+          },
+        } as any)
+      );
       const document = {
         fileName: "agent.json",
         getText: () => {
           return JSON.stringify({
             type: "declarative",
-            sensitivity_label: "test-label-id",
+            sensitivity_label: {
+              id: "test-label-id",
+            },
           });
         },
         positionAt: () => {
@@ -1223,7 +1241,7 @@ publish:
     });
 
     it("should provide add sensitivity label codelens when label not exists", async () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);

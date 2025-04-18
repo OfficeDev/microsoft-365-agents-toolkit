@@ -23,6 +23,7 @@ import {
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
+import * as utils from "../../../../src/component/generator/utils";
 
 const tools = new MockTools();
 
@@ -219,6 +220,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -269,6 +271,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
 
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -304,6 +307,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -341,6 +345,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -362,7 +367,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -424,7 +433,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota without .kiota folder", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -483,7 +496,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota with .kiota folder already exists", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -542,7 +559,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota without adaptive card", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",

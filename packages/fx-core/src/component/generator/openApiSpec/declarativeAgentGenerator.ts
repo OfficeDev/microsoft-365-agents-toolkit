@@ -12,6 +12,7 @@ import {
   FxError,
   GeneratorResult,
   Inputs,
+  ManifestTemplateFileName,
   Platform,
   Result,
 } from "@microsoft/teamsfx-api";
@@ -27,6 +28,8 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import path from "path";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";
+import { setGeneralSensitivityLabel } from "../utils";
+import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 
 export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplateGenerator {
   componentName = "da-with-existing-api-generator";
@@ -66,6 +69,23 @@ export class DeclarativeAgentWithExistingApiSpecGenerator extends DefaultTemplat
         );
         await fs.ensureDir(embeddedKnowledgeFolderPath);
       }
+
+      if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
+        const teamsManifestPath = path.join(
+          destinationPath,
+          AppPackageFolderName,
+          ManifestTemplateFileName
+        );
+        const declarativeCopilotManifestPathRes = await copilotGptManifestUtils.getManifestPath(
+          teamsManifestPath
+        );
+        if (declarativeCopilotManifestPathRes.isErr()) {
+          return err(declarativeCopilotManifestPathRes.error);
+        }
+        // best-effort
+        await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+      }
+
       return await generateFilesFromApiSpec(
         context,
         inputs,
