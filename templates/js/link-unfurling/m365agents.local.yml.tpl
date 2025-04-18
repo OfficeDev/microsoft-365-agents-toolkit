@@ -86,6 +86,5 @@ deploy:
     with:
       target: ./.localConfigs
       envs:
-        BOT_ID: ${{BOT_ID}}
-        BOT_PASSWORD: ${{SECRET_BOT_PASSWORD}}
-        BOT_TYPE: 'MultiTenant'
+        clientId: ${{BOT_ID}}
+        clientSecret: ${{SECRET_BOT_PASSWORD}}

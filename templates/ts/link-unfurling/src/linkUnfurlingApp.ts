@@ -1,11 +1,10 @@
-import {
-  TeamsActivityHandler,
-  CardFactory,
-  TurnContext,
-  MessagingExtensionResponse,
-  AppBasedLinkQuery,
-} from "botbuilder";
+import { CardFactory, TurnContext } from "@microsoft/agents-hosting";
 import helloWorldCard from "./adaptiveCards/helloWorldCard.json";
+import {
+  AppBasedLinkQuery,
+  MessagingExtensionResponse,
+  TeamsActivityHandler,
+} from "@microsoft/agents-hosting-teams";
 
 export class LinkUnfurlingApp extends TeamsActivityHandler {
   // Link Unfurling.

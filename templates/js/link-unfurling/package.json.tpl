@@ -22,7 +22,8 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "botbuilder": "^4.23.1",
+        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting-teams": "^0.1.49",
         "express": "^5.0.1"
     },
     "devDependencies": {
