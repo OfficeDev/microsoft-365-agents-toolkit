@@ -4,7 +4,7 @@
 import { TemplateNames } from "../templateNames";
 import { Template } from "./interface";
 
-export const customEngineAgentTemplates: Template[] = [
+export const agentForTeamsTemplates: Template[] = [
   {
     id: "custom-copilot-basic-ts",
     name: TemplateNames.CustomCopilotBasic,

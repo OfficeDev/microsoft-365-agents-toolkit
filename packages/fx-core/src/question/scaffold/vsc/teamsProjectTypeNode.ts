@@ -34,6 +34,28 @@ import {
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 
+export function teamsAppProjectNode(platform: Platform): IQTreeNode {
+  return {
+    // project-type = Teams App
+    condition: { equals: ProjectTypeOptions.teamsAppOptionId },
+    data: {
+      name: QuestionNames.TeamsAppType,
+      title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
+      type: "singleSelect",
+      staticOptions: [
+        ProjectTypeOptions.bot(platform),
+        ProjectTypeOptions.tab(platform),
+        ProjectTypeOptions.me(platform),
+      ],
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.projectType.customCopilot.placeholder"
+      ),
+      // onDidSelection: setTemplateName,
+    },
+    children: [botProjectTypeNode(), tabProjectTypeNode(), meProjectTypeNode()],
+  };
+}
+
 export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTreeNode {
   return {
     condition: condition,

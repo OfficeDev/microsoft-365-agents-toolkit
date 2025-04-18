@@ -7,13 +7,15 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { ProjectTypeGroup } from "../../constants";
 
 export class ProjectTypeOptions {
+  static customEngineAgentOptionId = "custom-engine-agent-type";
+  static agentForTeamsOptionId = "agent-for-teams-type";
+  static teamsAppOptionId = "teams-app-type";
   static tabOptionId = "tab-type";
   static botOptionId = "bot-type";
   static meOptionId = "me-type";
   static outlookAddinOptionId = "outlook-addin-type";
   static officeMetaOSOptionId = "office-meta-os-type";
   static copilotAgentOptionId = "copilot-agent-type";
-  static customCopilotOptionId = "custom-copilot-type";
   static graphConnectorOptionId = "graph-connector-type";
   static startWithGithubCopilotOptionId = "start-with-github-copilot";
 
@@ -32,6 +34,28 @@ export class ProjectTypeOptions {
         "core.TabOption.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.tab.detail"),
+      // groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
+    };
+  }
+
+  static agentForTeams(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: ProjectTypeOptions.agentForTeamsOptionId,
+      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
+        "core.createProjectQuestion.projectType.agentForTeams.label"
+      )}`,
+      detail: getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.detail"),
+      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
+    };
+  }
+
+  static teamsApp(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: ProjectTypeOptions.teamsAppOptionId,
+      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
+        "core.createProjectQuestion.projectType.teamsApp.label"
+      )}`,
+      detail: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
   }
@@ -43,7 +67,7 @@ export class ProjectTypeOptions {
         "core.createProjectQuestion.projectType.bot.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.bot.detail"),
-      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
+      // groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -56,7 +80,7 @@ export class ProjectTypeOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"
       ),
-      groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
+      // groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
   }
 
@@ -103,7 +127,7 @@ export class ProjectTypeOptions {
 
   static customEngineAgent(platform: Platform = Platform.VSCode): OptionItem {
     return {
-      id: ProjectTypeOptions.customCopilotOptionId,
+      id: ProjectTypeOptions.customEngineAgentOptionId,
       label: `${
         platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
       }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,

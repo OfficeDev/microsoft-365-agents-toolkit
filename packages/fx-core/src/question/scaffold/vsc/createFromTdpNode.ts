@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import {
@@ -21,12 +22,11 @@ import {
   selectTabsContentUrlQuestion,
   selectTabWebsiteUrlQuestion,
 } from "../../create";
+import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { languageNode } from "./createRootNode";
-import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
-import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 export class TdpCapabilityOptions {
   static me(): OptionItem {
@@ -149,7 +149,7 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentProjectTypeNode(),
+          agentForTeamsProjectTypeNode(),
           botProjectTypeNode(),
           tabProjectTypeNode(),
           meProjectTypeNode(),

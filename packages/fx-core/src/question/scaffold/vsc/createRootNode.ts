@@ -17,11 +17,12 @@ import {
   TabCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
+import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
+import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
-import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
+import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
+import { teamsAppProjectNode } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -112,9 +113,11 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
             ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
               ? [ProjectTypeOptions.graphConnector(platform)]
               : []),
-            ProjectTypeOptions.bot(platform),
-            ProjectTypeOptions.tab(platform),
-            ProjectTypeOptions.me(platform),
+            ProjectTypeOptions.agentForTeams(platform),
+            ProjectTypeOptions.teamsApp(platform),
+            // ProjectTypeOptions.bot(platform),
+            // ProjectTypeOptions.tab(platform),
+            // ProjectTypeOptions.me(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -123,11 +126,13 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentProjectTypeNode(),
+          customEngineAgentNode(),
+          agentForTeamsProjectTypeNode(),
+          teamsAppProjectNode(platform),
           graphConnectorProjectTypeNode(),
-          botProjectTypeNode(),
-          tabProjectTypeNode(),
-          meProjectTypeNode(),
+          // botProjectTypeNode(),
+          // tabProjectTypeNode(),
+          // meProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
       },
@@ -166,7 +171,7 @@ export function getProjectTypeByCapability(capability: string): string {
       CustomCopilotCapabilityOptions.aiAgent().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.customCopilotOptionId;
+    return ProjectTypeOptions.customEngineAgentOptionId;
   }
   if (
     [
