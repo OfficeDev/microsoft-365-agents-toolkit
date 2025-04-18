@@ -3,24 +3,14 @@ const express = require("express");
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const {
-  CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
-} = require("botbuilder");
+const { authorizeJWT, CloudAdapter, loadAuthConfigFromEnv } = require("@microsoft/agents-hosting");
 const { ActionApp } = require("./actionApp");
-const config = require("./config");
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
-const credentialsFactory = new ConfigurationServiceClientCredentialFactory(config);
+// Create authentication configuration
+const authConfig = loadAuthConfigFromEnv();
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  credentialsFactory
-);
-
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+// Create adapter
+const adapter = new CloudAdapter(authConfig);
 
 adapter.onTurnError = async (context, error) => {
   // This check writes out errors to console log .vs. app insights.
@@ -38,16 +28,26 @@ adapter.onTurnError = async (context, error) => {
 const actionApp = new ActionApp();
 
 // Create express application.
-const expressApp = express();
-expressApp.use(express.json());
-
-const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
-});
+const server = express();
+server.use(express.json());
+server.use(authorizeJWT(authConfig));
 
 // Listen for incoming requests.
-expressApp.post("/api/messages", async (req, res) => {
+server.post("/api/messages", async (req, res) => {
   await adapter.process(req, res, async (context) => {
     await actionApp.run(context);
   });
 });
+
+// Start the server
+const port = process.env.PORT || 3978;
+server
+  .listen(port, () => {
+    console.log(
+      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+    );
+  })
+  .on("error", (err) => {
+    console.error(err);
+    process.exit(1);
+  });
