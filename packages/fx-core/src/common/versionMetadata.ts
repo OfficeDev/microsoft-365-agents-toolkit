@@ -66,7 +66,7 @@ export const MetadataV3Abandoned = {
 export const MetadataV4 = {
   configFile: "m365agents.yml",
   localConfigFile: "m365agents.local.yml",
-  testToolConfigFile: "m365agents.testtool.yml",
+  testToolConfigFile: "m365agents.playground.yml",
   sandboxConfigFile: "m365agents.sandbox.yml",
 };
 
