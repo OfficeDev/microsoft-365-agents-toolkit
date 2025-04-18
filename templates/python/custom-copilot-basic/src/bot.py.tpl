@@ -82,7 +82,7 @@ async def on_error(context: TurnContext, error: Exception):
     traceback.print_exc()
 
     # Send a message to the user
-    await context.send_activity("The bot encountered an error or bug.")
+    await context.send_activity("The agent encountered an error or bug.")
 
 @bot_app.feedback_loop()
 async def feedback_loop(_context: TurnContext, _state: TurnState, feedback_loop_data: FeedbackLoopData):

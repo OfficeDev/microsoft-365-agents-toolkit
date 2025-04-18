@@ -7,9 +7,9 @@ infra/
 env/
 __pycache__/
 README.md
-teamsapp.yml
-teamsapp.local.yml
-teamsapp.testtool.yml
+m365agents.yml
+m365agents.local.yml
+m365agents.testtool.yml
 .gitignore
 
 indexers/

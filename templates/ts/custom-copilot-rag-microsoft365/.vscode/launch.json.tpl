@@ -24,7 +24,7 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Launch App (Edge)",
+            "name": "Launch Agent (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -39,7 +39,7 @@
             "perScriptSourcemaps": "yes"
         },
         {
-            "name": "Launch App (Chrome)",
+            "name": "Launch Agent (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -69,7 +69,7 @@
             "name": "Launch Remote in Teams (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start Agent in Desktop Client (Remote)",
             "presentation": {
                 "group": "1-Teams",
                 "order": 6
@@ -147,10 +147,10 @@
         {
             "name": "Debug in Teams (Edge)",
             "configurations": [
-                "Launch App (Edge)",
+                "Launch Agent (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "1-local",
                 "order": 1
@@ -160,10 +160,10 @@
         {
             "name": "Debug in Teams (Chrome)",
             "configurations": [
-                "Launch App (Chrome)",
+                "Launch Agent (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "1-local",
                 "order": 2
@@ -175,7 +175,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start Agent in Desktop Client",
             "presentation": {
                 "group": "1-local",
                 "order": 3
@@ -189,7 +189,7 @@
                 "Launch in Copilot (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "2-M365",
                 "order": 1
@@ -202,7 +202,7 @@
                 "Launch in Copilot (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "2-M365",
                 "order": 2

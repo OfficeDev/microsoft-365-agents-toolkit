@@ -56,40 +56,42 @@ export function apiSpecWithSearchNode(): IQTreeNode {
   return {
     data: { type: "group", name: QuestionNames.FromExistingApi },
     condition: { equals: "api-spec" },
+    children: [inputOrSearchAPISpecNode()],
+  };
+}
+
+export function inputOrSearchAPISpecNode(): IQTreeNode {
+  return {
+    data: apiSpecTypeSelectQuestion(),
+    condition: (inputs: Inputs) => {
+      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
+      return true;
+    },
     children: [
       {
-        data: apiSpecTypeSelectQuestion(),
-        condition: (inputs: Inputs) => {
-          inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
-          return true;
-        },
+        condition: { equals: "enter-url-or-open-local-file" },
+        data: apiSpecLocationQuestion(),
         children: [
           {
-            condition: { equals: "enter-url-or-open-local-file" },
-            data: apiSpecLocationQuestion(),
-            children: [
-              {
-                condition: (inputs: Inputs) => {
-                  return !inputs[QuestionNames.ActionManifestPath];
-                },
-                data: apiOperationQuestion(),
-              },
-            ],
+            condition: (inputs: Inputs) => {
+              return !inputs[QuestionNames.ActionManifestPath];
+            },
+            data: apiOperationQuestion(),
+          },
+        ],
+      },
+      {
+        condition: { equals: "search-api" },
+        data: searchOpenAPISpecQueryQuestion(),
+        children: [
+          {
+            data: selectOpenApiSpecQuestion(),
           },
           {
-            condition: { equals: "search-api" },
-            data: searchOpenAPISpecQueryQuestion(),
-            children: [
-              {
-                data: selectOpenApiSpecQuestion(),
-              },
-              {
-                condition: (inputs: Inputs) => {
-                  return !!inputs[QuestionNames.SelectOpenApiSpec];
-                },
-                data: apiOperationQuestion(),
-              },
-            ],
+            condition: (inputs: Inputs) => {
+              return !!inputs[QuestionNames.SelectOpenApiSpec];
+            },
+            data: apiOperationQuestion(),
           },
         ],
       },

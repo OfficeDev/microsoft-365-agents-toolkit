@@ -111,7 +111,7 @@ expressApp.post("/api/notification", async (req, res) => {
   res.json({});
 });
 
-// Bot Framework message handler.
+// Microsoft Agents SDK message handler.
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {
     await teamsBot.run(context);

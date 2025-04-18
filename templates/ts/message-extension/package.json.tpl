@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit message extension Bot sample",
+    "description": "Microsoft 365 Agents Toolkit message extension Bot sample",
     "engines": {
         "node": "18 || 20 || 22"
     },

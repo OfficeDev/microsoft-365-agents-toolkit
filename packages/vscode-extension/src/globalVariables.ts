@@ -131,13 +131,13 @@ export function checkIsSensitivityLabelSet(directory: string): boolean {
     return false;
   }
   const appPackagePath = path.dirname(manifestUtils.getTeamsAppManifestPath(directory));
-  const declarativeAgentRes = copilotGptManifestUtils.readCopilotGptManifestFileSync(
+  const declarativeAgentRes = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync(
     path.resolve(appPackagePath, declarativeAgentPath)
   );
   if (!declarativeAgentRes.isOk()) {
     return false;
   }
-  return !!declarativeAgentRes.value.sensitivity_label;
+  return !!declarativeAgentRes.value.sensitivity_label?.id;
 }
 
 export function setCommandIsRunning(isRunning: boolean) {

@@ -20,6 +20,10 @@ import {
   Convert as DeclarativeAgentManifestV1D3Convert,
 } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
 import {
+  DeclarativeAgentManifestV1D4,
+  Convert as DeclarativeAgentManifestV1D4Convert,
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
+import {
   APIPluginManifestV2D1,
   Convert as ApiPluginManifestV2D1Convert,
 } from "./copilot/plugin/ApiPluginManifestV2D1";
@@ -28,9 +32,7 @@ import {
   Convert as ApiPluginManifestV2D2Convert,
 } from "./copilot/plugin/ApiPluginManifestV2D2";
 import { TeamsManifestV1D0 } from "./teams/TeamsManifestV1D0";
-import {
-  TeamsManifestV1D1, Convert as TeamsManifestV1D1Convert,
-} from "./teams/TeamsManifestV1D1";
+import { TeamsManifestV1D1, Convert as TeamsManifestV1D1Convert } from "./teams/TeamsManifestV1D1";
 import {
   TeamsManifestV1D10,
   Convert as TeamsManifestV1D10Convert,
@@ -67,130 +69,83 @@ import {
   TeamsManifestV1D19,
   Convert as TeamsManifestV1D19Convert,
 } from "./teams/TeamsManifestV1D19";
-import {
-  TeamsManifestV1D2,
-  Convert as TeamsManifestV1D2Convert,
-} from "./teams/TeamsManifestV1D2";
+import { TeamsManifestV1D2, Convert as TeamsManifestV1D2Convert } from "./teams/TeamsManifestV1D2";
 import {
   TeamsManifestV1D20,
   Convert as TeamsManifestV1D20Convert,
 } from "./teams/TeamsManifestV1D20";
-import {
-  TeamsManifestV1D3,
-  Convert as TeamsManifestV1D3Convert,
-} from "./teams/TeamsManifestV1D3";
-import {
-  TeamsManifestV1D4,
-  Convert as TeamsManifestV1D4Convert,
-} from "./teams/TeamsManifestV1D4";
-import {
-  TeamsManifestV1D5,
-  Convert as TeamsManifestV1D5Convert,
-} from "./teams/TeamsManifestV1D5";
-import {
-  TeamsManifestV1D6,
-  Convert as TeamsManifestV1D6Convert,
-} from "./teams/TeamsManifestV1D6";
-import {
-  TeamsManifestV1D7,
-  Convert as TeamsManifestV1D7Convert,
-} from "./teams/TeamsManifestV1D7";
-import {
-  TeamsManifestV1D8,
-  Convert as TeamsManifestV1D8Convert,
-} from "./teams/TeamsManifestV1D8";
-import {
-  TeamsManifestV1D9,
-  Convert as TeamsManifestV1D9Convert,
-} from "./teams/TeamsManifestV1D9";
+import { TeamsManifestV1D3, Convert as TeamsManifestV1D3Convert } from "./teams/TeamsManifestV1D3";
+import { TeamsManifestV1D4, Convert as TeamsManifestV1D4Convert } from "./teams/TeamsManifestV1D4";
+import { TeamsManifestV1D5, Convert as TeamsManifestV1D5Convert } from "./teams/TeamsManifestV1D5";
+import { TeamsManifestV1D6, Convert as TeamsManifestV1D6Convert } from "./teams/TeamsManifestV1D6";
+import { TeamsManifestV1D7, Convert as TeamsManifestV1D7Convert } from "./teams/TeamsManifestV1D7";
+import { TeamsManifestV1D8, Convert as TeamsManifestV1D8Convert } from "./teams/TeamsManifestV1D8";
+import { TeamsManifestV1D9, Convert as TeamsManifestV1D9Convert } from "./teams/TeamsManifestV1D9";
 import {
   TeamsManifestVDevPreview,
   Convert as TeamsManifestVDevPreviewConvert,
 } from "./teams/TeamsManifestVDevPreview";
 
-export {
-  TeamsManifestV1D1,
-  Convert as TeamsManifestV1D1Convert
-} from "./teams/TeamsManifestV1D1";
+export { TeamsManifestV1D1, Convert as TeamsManifestV1D1Convert } from "./teams/TeamsManifestV1D1";
 export {
   TeamsManifestV1D10,
-  Convert as TeamsManifestV1D10Convert
+  Convert as TeamsManifestV1D10Convert,
 } from "./teams/TeamsManifestV1D10";
 export {
   TeamsManifestV1D11,
-  Convert as TeamsManifestV1D11Convert
+  Convert as TeamsManifestV1D11Convert,
 } from "./teams/TeamsManifestV1D11";
 export {
   TeamsManifestV1D12,
-  Convert as TeamsManifestV1D12Convert
+  Convert as TeamsManifestV1D12Convert,
 } from "./teams/TeamsManifestV1D12";
 export {
   TeamsManifestV1D13,
-  Convert as TeamsManifestV1D13Convert
+  Convert as TeamsManifestV1D13Convert,
 } from "./teams/TeamsManifestV1D13";
 export {
   TeamsManifestV1D14,
-  Convert as TeamsManifestV1D14Convert
+  Convert as TeamsManifestV1D14Convert,
 } from "./teams/TeamsManifestV1D14";
 export {
   TeamsManifestV1D15,
-  Convert as TeamsManifestV1D15Convert
+  Convert as TeamsManifestV1D15Convert,
 } from "./teams/TeamsManifestV1D15";
 export {
   TeamsManifestV1D16,
-  Convert as TeamsManifestV1D16Convert
+  Convert as TeamsManifestV1D16Convert,
 } from "./teams/TeamsManifestV1D16";
 export {
   TeamsManifestV1D17,
-  Convert as TeamsManifestV1D17Convert
+  Convert as TeamsManifestV1D17Convert,
 } from "./teams/TeamsManifestV1D17";
 export {
   TeamsManifestV1D19,
-  Convert as TeamsManifestV1D19Convert
+  Convert as TeamsManifestV1D19Convert,
 } from "./teams/TeamsManifestV1D19";
-export {
-  TeamsManifestV1D2,
-  Convert as TeamsManifestV1D2Convert
-} from "./teams/TeamsManifestV1D2";
+export { TeamsManifestV1D2, Convert as TeamsManifestV1D2Convert } from "./teams/TeamsManifestV1D2";
 export {
   TeamsManifestV1D20,
-  Convert as TeamsManifestV1D20Convert
+  Convert as TeamsManifestV1D20Convert,
 } from "./teams/TeamsManifestV1D20";
+export { TeamsManifestV1D3, Convert as TeamsManifestV1D3Convert } from "./teams/TeamsManifestV1D3";
+export { TeamsManifestV1D4, Convert as TeamsManifestV1D4Convert } from "./teams/TeamsManifestV1D4";
+export { TeamsManifestV1D5, Convert as TeamsManifestV1D5Convert } from "./teams/TeamsManifestV1D5";
+export { TeamsManifestV1D6, Convert as TeamsManifestV1D6Convert } from "./teams/TeamsManifestV1D6";
+export { TeamsManifestV1D7, Convert as TeamsManifestV1D7Convert } from "./teams/TeamsManifestV1D7";
+export { TeamsManifestV1D8, Convert as TeamsManifestV1D8Convert } from "./teams/TeamsManifestV1D8";
+export { TeamsManifestV1D9, Convert as TeamsManifestV1D9Convert } from "./teams/TeamsManifestV1D9";
 export {
-  TeamsManifestV1D3,
-  Convert as TeamsManifestV1D3Convert
-} from "./teams/TeamsManifestV1D3";
-export {
-  TeamsManifestV1D4,
-  Convert as TeamsManifestV1D4Convert
-} from "./teams/TeamsManifestV1D4";
-export {
-  TeamsManifestV1D5,
-  Convert as TeamsManifestV1D5Convert
-} from "./teams/TeamsManifestV1D5";
-export {
-  TeamsManifestV1D6,
-  Convert as TeamsManifestV1D6Convert
-} from "./teams/TeamsManifestV1D6";
-export {
-  TeamsManifestV1D7,
-  Convert as TeamsManifestV1D7Convert
-} from "./teams/TeamsManifestV1D7";
-export {
-  TeamsManifestV1D8,
-  Convert as TeamsManifestV1D8Convert
-} from "./teams/TeamsManifestV1D8";
-export {
-  TeamsManifestV1D9,
-  Convert as TeamsManifestV1D9Convert
-} from "./teams/TeamsManifestV1D9";
-export { TeamsManifestVDevPreview as DevPreviewSchema, TeamsManifestVDevPreview, Convert as TeamsManifestVDevPreviewConvert } from "./teams/TeamsManifestVDevPreview";
+  TeamsManifestVDevPreview as DevPreviewSchema,
+  TeamsManifestVDevPreview,
+  Convert as TeamsManifestVDevPreviewConvert,
+} from "./teams/TeamsManifestVDevPreview";
 export type TeamsManifest =
-  | TeamsManifestV1D0 & { manifestVersion: "1.0"; $schema?: string }
-  | TeamsManifestV1D1 & { manifestVersion: "1.1" }
-  | TeamsManifestV1D2 & { manifestVersion: "1.2" }
-  | TeamsManifestV1D3 & { manifestVersion: "1.3" }
-  | TeamsManifestV1D4 & { manifestVersion: "1.4" }
+  | (TeamsManifestV1D0 & { manifestVersion: "1.0"; $schema?: string })
+  | (TeamsManifestV1D1 & { manifestVersion: "1.1" })
+  | (TeamsManifestV1D2 & { manifestVersion: "1.2" })
+  | (TeamsManifestV1D3 & { manifestVersion: "1.3" })
+  | (TeamsManifestV1D4 & { manifestVersion: "1.4" })
   | TeamsManifestV1D5
   | TeamsManifestV1D6
   | TeamsManifestV1D7
@@ -212,30 +167,36 @@ export type TeamsManifestLatest = TeamsManifestV1D20;
 
 export {
   DeclarativeAgentManifestV1D0,
-  Convert as DeclarativeAgentManifestV1D0Convert
+  Convert as DeclarativeAgentManifestV1D0Convert,
 } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D0";
 export {
   DeclarativeAgentManifestV1D2,
-  Convert as DeclarativeAgentManifestV1D2Convert
+  Convert as DeclarativeAgentManifestV1D2Convert,
 } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D2";
 export {
   DeclarativeAgentManifestV1D3,
-  Convert as DeclarativeAgentManifestV1D3Convert
+  Convert as DeclarativeAgentManifestV1D3Convert,
 } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D3";
+export {
+  DeclarativeAgentManifestV1D4,
+  SensitivityLabel,
+  Convert as DeclarativeAgentManifestV1D4Convert,
+} from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0
   | DeclarativeAgentManifestV1D2
-  | DeclarativeAgentManifestV1D3;
+  | DeclarativeAgentManifestV1D3
+  | DeclarativeAgentManifestV1D4;
 
-export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D3;
+export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D4;
 
 export {
   APIPluginManifestV2D1,
-  Convert as ApiPluginV2D1Convert
+  Convert as ApiPluginV2D1Convert,
 } from "./copilot/plugin/ApiPluginManifestV2D1";
 export {
   APIPluginManifestV2D2,
-  Convert as ApiPluginManifestV2D2Convert
+  Convert as ApiPluginManifestV2D2Convert,
 } from "./copilot/plugin/ApiPluginManifestV2D2";
 export type APIPluginManifest = APIPluginManifestV2D1 | APIPluginManifestV2D2;
 export type APIPluginManifestLatest = APIPluginManifestV2D2;
@@ -328,25 +289,29 @@ const TeamsManifestConverterMap: Converters = {
   ],
 };
 const daConverterMap: Converters = {
-  "1.0": [
+  "v1.0": [
     DeclarativeAgentManifestV1D0Convert.toDeclarativeAgentManifestV1D0,
     DeclarativeAgentManifestV1D0Convert.declarativeAgentManifestV1D0ToJson,
   ],
-  "1.2": [
+  "v1.2": [
     DeclarativeAgentManifestV1D2Convert.toDeclarativeAgentManifestV1D2,
     DeclarativeAgentManifestV1D2Convert.declarativeAgentManifestV1D2ToJson,
   ],
-  "1.3": [
+  "v1.3": [
     DeclarativeAgentManifestV1D3Convert.toDeclarativeAgentManifestV1D3,
     DeclarativeAgentManifestV1D3Convert.declarativeAgentManifestV1D3ToJson,
   ],
+  "v1.4": [
+    DeclarativeAgentManifestV1D4Convert.toDeclarativeAgentManifestV1D4,
+    DeclarativeAgentManifestV1D4Convert.declarativeAgentManifestV1D4ToJson,
+  ],
 };
 const ApiPluginConverterMap: Converters = {
-  "2.1": [
+  "v2.1": [
     ApiPluginManifestV2D1Convert.toAPIPluginManifestV2D1,
     ApiPluginManifestV2D1Convert.aPIPluginManifestV2D1ToJson,
   ],
-  "2.2": [
+  "v2.2": [
     ApiPluginManifestV2D2Convert.toAPIPluginManifestV2D2,
     ApiPluginManifestV2D2Convert.aPIPluginManifestV2D2ToJson,
   ],
@@ -414,8 +379,7 @@ export class ApiPluginManifestConverter {
   static jsonToManifest(json: string): APIPluginManifest {
     const parsed = JSON.parse(json);
     const schema_version = parsed.schema_version as string;
-    const converters =
-      ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
+    const converters = ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
     if (!converters) {
       throw new Error(
         `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
@@ -427,8 +391,7 @@ export class ApiPluginManifestConverter {
   }
   static manifestToJson(manifest: APIPluginManifest): string {
     const schema_version = manifest.schema_version as string;
-    const converters =
-      ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
+    const converters = ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
     if (!converters) {
       throw new Error(
         `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
@@ -443,13 +406,17 @@ export class ApiPluginManifestConverter {
 export class AppManifestUtils {
   /**
    * Fecth the schema from the manifest object, load from local if the schema is in the package
-   * @param manifest 
+   * @param manifest
    * @returns manifest schema object
    */
   static async fetchSchema(schemaUrl: string): Promise<JSONSchemaType<AppManifest>> {
-    if (schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/teams") 
-      || schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/declarative-agent") 
-      || schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/plugin")) {
+    if (
+      schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/teams") ||
+      schemaUrl.startsWith(
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent"
+      ) ||
+      schemaUrl.startsWith("https://developer.microsoft.com/json-schemas/copilot/plugin")
+    ) {
       const suffix = schemaUrl.substring("https://developer.microsoft.com/".length);
       const schemaFile = path.join(__dirname, "..", suffix);
       if (await fs.pathExists(schemaFile)) {
@@ -470,7 +437,10 @@ export class AppManifestUtils {
     }
     return result;
   }
-  static async validateAgainstSchema(manifest: AppManifest, schema?: JSONSchemaType<AppManifest>): Promise<string[]> {
+  static async validateAgainstSchema(
+    manifest: AppManifest,
+    schema?: JSONSchemaType<AppManifest>
+  ): Promise<string[]> {
     if (!schema) {
       const schemaUrl = manifest.$schema;
       if (!schemaUrl) {
@@ -558,7 +528,9 @@ export class AppManifestUtils {
    *
    * @returns The manifest Object and schema validation results
    */
-  static async readAndValidateDeclarativeAgentManifest(filePath: string): Promise<[DeclarativeAgentManifest, string[]]> {
+  static async readAndValidateDeclarativeAgentManifest(
+    filePath: string
+  ): Promise<[DeclarativeAgentManifest, string[]]> {
     const manifest = await this.readDeclarativeAgentManifest(filePath);
     const validateRes = await this.validateAgainstSchema(manifest);
     return [manifest, validateRes];
@@ -577,7 +549,7 @@ export class AppManifestUtils {
     const manifest = ApiPluginManifestConverter.jsonToManifest(jsonString);
     return manifest;
   }
-  
+
   /**
    * Read API plugin manifest from file with schema validation
    *
@@ -586,7 +558,9 @@ export class AppManifestUtils {
    *
    * @returns The manifest Object and schema validation results
    */
-  static async readAndValidateApiPluginManifest(filePath: string): Promise<[APIPluginManifest, string[]]> {
+  static async readAndValidateApiPluginManifest(
+    filePath: string
+  ): Promise<[APIPluginManifest, string[]]> {
     const manifest = await this.readApiPluginManifest(filePath);
     const validateRes = await this.validateAgainstSchema(manifest);
     return [manifest, validateRes];
@@ -600,10 +574,7 @@ export class AppManifestUtils {
    * @throws Will propagate any error thrown by the fs-extra#writeFile.
    *
    */
-  static async writeTeamsManifest(
-    filePath: string,
-    manifest: TeamsManifest
-  ): Promise<void> {
+  static async writeTeamsManifest(filePath: string, manifest: TeamsManifest): Promise<void> {
     const jsonString = TeamsManifestConverter.manifestToJson(manifest);
     return fs.writeFile(filePath, jsonString, "utf8");
   }

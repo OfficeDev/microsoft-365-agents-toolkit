@@ -1,6 +1,6 @@
 {
   "schema": 1.1,
-  "description": "A bot that can chat with users",
+  "description": "An agent that can chat with users",
   "type": "completion",
   "completion": {
     "completion_type": "chat",

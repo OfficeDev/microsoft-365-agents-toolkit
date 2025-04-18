@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit Workflow Bot Sample",
+    "description": "Microsoft 365 Agents Toolkit Workflow Bot Sample",
     "engines": {
         "node": "18 || 20 || 22"
     },

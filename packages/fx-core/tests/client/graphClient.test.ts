@@ -4,9 +4,8 @@
 import { expect } from "chai";
 import { createSandbox } from "sinon";
 import { RetryHandler } from "../../src/client/graphClient";
-import { SensitivityLabel } from "../../src/client/interfaces/ListSensitivityCacheValue";
 import { GraphClient } from "../../src/client/graphClient";
-import { ok, err, SystemError } from "@microsoft/teamsfx-api";
+import { ok, err, SystemError, SensitivityLabel } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import "mocha";
 import { MockedM365Provider } from "../core/utils";
@@ -348,7 +347,7 @@ describe("GraphAPIClient Test", () => {
     });
   });
 
-  describe("getGeneralSentivityLabelId", () => {
+  describe("getGeneralSentivityLabel", () => {
     const tokenProvider = new MockedM365Provider();
     it("Happy path", async () => {
       const graphAPIClient = new GraphClient(tokenProvider);
@@ -370,11 +369,11 @@ describe("GraphAPIClient Test", () => {
 
       sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(labels));
 
-      const result = await graphAPIClient.getGeneralSentivityLabelId(token);
+      const result = await graphAPIClient.getGeneralSentivityLabel(token);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
-        expect(result.value).to.equal("general-id");
+        expect(result.value.id).to.equal("general-id");
       }
     });
 
@@ -392,11 +391,11 @@ describe("GraphAPIClient Test", () => {
 
       sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(labels));
 
-      const result = await graphAPIClient.getGeneralSentivityLabelId(token);
+      const result = await graphAPIClient.getGeneralSentivityLabel(token);
 
       expect(result.isErr()).to.be.true;
       if (result.isErr()) {
-        expect(result.error.name).to.equal("getGeneralSentivityLabelIdError");
+        expect(result.error.name).to.equal("getGeneralSentivityLabelError");
       }
     });
 
@@ -419,11 +418,11 @@ describe("GraphAPIClient Test", () => {
 
       sandbox.stub(graphAPIClient, "listSensitivityLabels").resolves(ok(labels));
 
-      const result = await graphAPIClient.getGeneralSentivityLabelId(token);
+      const result = await graphAPIClient.getGeneralSentivityLabel(token);
 
       expect(result.isErr()).to.be.true;
       if (result.isErr()) {
-        expect(result.error.name).to.equal("getGeneralSentivityLabelIdError");
+        expect(result.error.name).to.equal("getGeneralSentivityLabelError");
       }
     });
 
@@ -443,7 +442,7 @@ describe("GraphAPIClient Test", () => {
         value: undefined,
       } as any);
 
-      const result = await graphAPIClient.getGeneralSentivityLabelId(token);
+      const result = await graphAPIClient.getGeneralSentivityLabel(token);
 
       expect(result.isErr()).to.be.true;
       if (result.isErr()) {

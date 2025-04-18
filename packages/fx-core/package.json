@@ -10,6 +10,7 @@
     "test:unit": "nyc mocha \"tests/**/*.test.ts\" ",
     "test:core": "nyc mocha \"tests/core/**/*.test.ts\"",
     "test:fxcore": "nyc mocha \"tests/core/FxCore.test.ts\"",
+    "test:daSpecParser": "nyc mocha \"tests/common/daSpecParser.test.ts\"",
     "test:common": "nyc mocha \"tests/common/**/*.test.ts\"",
     "test:bot": "nyc mocha \"tests/plugins/resource/bot/**/*.test.ts\"",
     "test:cicd": "nyc mocha \"tests/component/feature/cicd/**/*.test.ts\"",

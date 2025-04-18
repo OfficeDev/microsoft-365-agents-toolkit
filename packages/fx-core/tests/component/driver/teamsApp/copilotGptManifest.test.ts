@@ -19,6 +19,7 @@ import {
   DeclarativeCopilotCapabilityName,
   Ok,
   Err,
+  DeclarativeAgentManifestConverter,
 } from "@microsoft/teamsfx-api";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import {
@@ -1333,7 +1334,7 @@ describe("copilotGptManifestUtils", () => {
         name: "name${{APP_NAME_SUFFIX}}",
         description: "description",
       };
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
@@ -1345,7 +1346,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if file does not exist", () => {
-      sandbox.stub(fs, "existsSync").returns(false);
+      sandbox.stub(fs, "pathExistsSync").returns(false);
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
 
@@ -1356,7 +1357,7 @@ describe("copilotGptManifestUtils", () => {
     });
 
     it("should return FileNotFoundError if JSON parse fails", () => {
-      sandbox.stub(fs, "existsSync").returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       sandbox.stub(fs, "readFileSync").returns("invalid json");
 
       const res = copilotGptManifestUtils.readCopilotGptManifestFileSync("testPath");
@@ -1364,6 +1365,123 @@ describe("copilotGptManifestUtils", () => {
       chai.assert.isTrue(res.isErr());
       if (res.isErr()) {
         chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+  });
+
+  describe("readDeclarativeAgentManifestFile", async () => {
+    it("should read manifest file successfully", async () => {
+      const manifest = {
+        schema: "schema",
+        description: "description",
+      } as any;
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves(JSON.stringify(manifest) as any);
+      sandbox.stub(DeclarativeAgentManifestConverter, "jsonToManifest").returns(manifest as any);
+
+      const res = await copilotGptManifestUtils.readDeclarativeAgentManifestFile("testPath");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(res.value, manifest);
+      }
+    });
+
+    it("should return FileNotFoundError if file does not exist", async () => {
+      sandbox.stub(fs, "pathExists").resolves(false);
+
+      const res = await copilotGptManifestUtils.readDeclarativeAgentManifestFile("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+
+    it("should return JSONSyntaxError if manifest conversion fails", async () => {
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readFile").resolves("invalid json" as any);
+
+      const res = await copilotGptManifestUtils.readDeclarativeAgentManifestFile("testPath");
+
+      chai.assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("readDeclarativeAgentManifestFileSync", () => {
+    it("should read manifest file successfully", () => {
+      const manifest = {
+        schema: "schema",
+        description: "description",
+      } as any;
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
+      sandbox.stub(DeclarativeAgentManifestConverter, "jsonToManifest").returns(manifest as any);
+
+      const res = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        chai.assert.deepEqual(res.value, manifest);
+      }
+    });
+
+    it("should return FileNotFoundError if file does not exist", () => {
+      sandbox.stub(fs, "pathExistsSync").returns(false);
+
+      const res = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof FileNotFoundError);
+      }
+    });
+
+    it("should return JSONSyntaxError if manifest conversion fails", () => {
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns("invalid json");
+
+      const res = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync("testPath");
+
+      chai.assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("writeDeclarativeAgentManifestFile", async () => {
+    it("write manifest successfully", async () => {
+      const manifest = {
+        schema: "schema",
+        description: "description",
+      };
+      const convertedJson = '{"schema":"schema","description":"description"}';
+      sandbox.stub(DeclarativeAgentManifestConverter, "manifestToJson").returns(convertedJson);
+      sandbox.stub(fs, "writeFile").resolves();
+
+      const res = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
+        manifest as any,
+        "testPath"
+      );
+
+      chai.assert.isTrue(res.isOk());
+    });
+
+    it("write manifest error: write file error", async () => {
+      const manifest = {
+        schema: "schema",
+        description: "description",
+      };
+      const convertedJson = '{"schema":"schema","description":"description"}';
+      sandbox.stub(DeclarativeAgentManifestConverter, "manifestToJson").returns(convertedJson);
+      sandbox.stub(fs, "writeFile").throws("some error");
+
+      const res = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
+        manifest as any,
+        "testPath"
+      );
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.isTrue(res.error instanceof WriteFileError);
       }
     });
   });

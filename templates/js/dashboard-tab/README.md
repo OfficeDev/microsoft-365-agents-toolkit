@@ -14,9 +14,9 @@ This template showcases an app that embeds a canvas containing multiple cards th
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 >   Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect.
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
@@ -30,10 +30,10 @@ This template showcases an app that embeds a canvas containing multiple cards th
 | Folder       | Contents                                            |
 | ------------ | --------------------------------------------------- |
 | `.vscode`    | VSCode files for debugging                          |
-| `appPackage` | Templates for the Teams application manifest        |
+| `appPackage` | Templates for the application manifest        |
 | `env`        | Environment files                                   |
 | `infra`      | Templates for provisioning Azure resources          |
-| `src`        | The source code for the dashboard Teams application |
+| `src`        | The source code for the dashboard application |
 
 The following files can be customized and demonstrate an example implementation to get you started.
 
@@ -59,12 +59,12 @@ The following are project-related files. You generally will not need to customiz
 | `index.html`               | The entry point of the application         |
 | `vite.config.js`           | Vite configuration file                    |
 
-The following are Teams Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Teams Toolkit works.
+The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File                 | Contents                                                                                                                                  |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `teamsapp.yml`       | This is the main Teams Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
-| `teamsapp.local.yml` | This overrides `teamsapp.yml` with actions that enable local execution and debugging.                                                     |
+| `m365agents.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
+| `m365agents.local.yml` | This overrides `m365agents.yml` with actions that enable local execution and debugging.                                                     |
 
 ## Extend the Dashboard template to add a new widget
 

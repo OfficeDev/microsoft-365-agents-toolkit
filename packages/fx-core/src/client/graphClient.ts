@@ -10,6 +10,7 @@ import {
   FxError,
   Result,
   SystemError,
+  SensitivityLabel,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import { ErrorContextMW } from "../common/globalVars";
@@ -27,10 +28,7 @@ import { GetChannelResponse } from "./interfaces/GetChannelResponse";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
-import {
-  SensitivityLabel,
-  ListSensitivityCacheValue,
-} from "./interfaces/ListSensitivityCacheValue";
+import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
 import { waitSeconds } from "../common/utils";
 import { getLocalizedString } from "../common/localizeUtils";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
@@ -110,24 +108,23 @@ export class GraphClient {
       const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
 
       if (response && response.data && response.data.value) {
-        if (useCache) {
-          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
-          // only retrieve the necessary properties from the response.data.value
-          const labels = response.data.value.map(
-            (label: any) =>
-              ({
-                id: label?.id,
-                name: label?.name,
-                description: label?.description,
-                displayName: label?.displayName,
-              } as SensitivityLabel)
-          );
-          const cacheValue: ListSensitivityCacheValue = {
-            labels: labels,
-            unixTimestamp: Date.now(),
-          };
-          await globalStateUpdate(cacheKey, cacheValue);
-        }
+        // always update the cache when we get a response.
+        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+        // only retrieve the necessary properties from the response.data.value
+        const labels = response.data.value.map(
+          (label: any) =>
+            ({
+              id: label?.id,
+              name: label?.name,
+              description: label?.description,
+              displayName: label?.displayName,
+            } as SensitivityLabel)
+        );
+        const cacheValue: ListSensitivityCacheValue = {
+          labels: labels,
+          unixTimestamp: Date.now(),
+        };
+        await globalStateUpdate(cacheKey, cacheValue);
         return ok(response.data.value);
       } else {
         return err(
@@ -157,7 +154,7 @@ export class GraphClient {
     }
   }
 
-  async getGeneralSentivityLabelId(token: string): Promise<Result<string, FxError>> {
+  async getGeneralSentivityLabel(token: string): Promise<Result<SensitivityLabel, FxError>> {
     const result = await this.listSensitivityLabels(token);
     if (result.isErr()) {
       return err(result.error);
@@ -165,11 +162,11 @@ export class GraphClient {
     const labels = result.value;
     const generalLabel = labels.find((label) => label.displayName === GeneralLabelDisplayName);
     if (generalLabel && generalLabel.id) {
-      return ok(generalLabel.id);
+      return ok(generalLabel);
     } else {
       return err(
         new SystemError({
-          name: "getGeneralSentivityLabelIdError",
+          name: "getGeneralSentivityLabelError",
           message: getDefaultString(
             "error.graphAPI.apiFailed.message",
             "getGeneralSentivityLabelId",

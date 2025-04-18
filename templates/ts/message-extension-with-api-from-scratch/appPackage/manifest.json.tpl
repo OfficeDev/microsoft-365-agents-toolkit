@@ -4,7 +4,7 @@
     "id": "${{TEAMS_APP_ID}}",
     "version": "1.0.0",
     "developer": {
-        "name": "Teams App, Inc.",
+        "name": "My App, Inc.",
         "websiteUrl": "https://www.example.com",
         "privacyUrl": "https://www.example.com/privacy",
         "termsOfUseUrl": "https://www.example.com/termsofuse"

@@ -13,7 +13,7 @@ It showcases how to build an AI agent in Teams capable of helping users accompli
 {{^enableTestToolByDefault}}
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 {{#useAzureOpenAI}}
 > - An account with [Azure OpenAI](https://aka.ms/oai/access).
 {{/useAzureOpenAI}}
@@ -28,10 +28,10 @@ It showcases how to build an AI agent in Teams capable of helping users accompli
 ### Create your own OpenAI Assistant
 
 {{#useOpenAI}}
-Before running or debugging your bot, please follow these steps to setup your own [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview).
+Before running or debugging your agent, please follow these steps to setup your own [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview).
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-Before running or debugging your bot, please follow these steps to setup your own [Azure OpenAI Assistant](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/assistant).
+Before running or debugging your agent, please follow these steps to setup your own [Azure OpenAI Assistant](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/assistant).
 {{/useAzureOpenAI}}
 
 **If you haven't setup any Assistant yet**
@@ -94,24 +94,24 @@ Before running or debugging your bot, please follow these steps to setup your ow
    ```
 {{/useAzureOpenAI}}
 
-### Run Teams Bot locally
+### Run Agent locally
 
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-1. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-1. You can send any message to get a response from the bot.
+1. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+1. You can send any message to get a response from the agent.
 
-**Congratulations**! You are running an application that can now interact with users in Teams App Test Tool:
+**Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![AI Agent in Teams App Test Tool](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
+![AI Agent in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.
 1. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 1. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
-1. You can send any message to get a response from the bot.
+1. You can send any message to get a response from the agent.
 
 **Congratulations**! You are running an application that can now interact with users in Teams:
 
@@ -123,7 +123,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 | Folder       | Contents                                            |
 | - | - |
 | `.vscode`    | VSCode files for debugging                          |
-| `appPackage` | Templates for the Teams application manifest        |
+| `appPackage` | Templates for the application manifest        |
 | `env`        | Environment files                                   |
 | `infra`      | Templates for provisioning Azure resources          |
 | `src`        | The source code for the application                 |
@@ -132,21 +132,21 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`src/index.js`| Sets up the bot app server.|
-|`src/adapter.js`| Sets up the bot adapter.|
+|`src/index.js`| Sets up the agent app server.|
+|`src/adapter.js`| Sets up the agent adapter.|
 |`src/config.js`| Defines the environment variables.|
 |`src/creator.js`| One-time tool to create OpenAI Assistant.|
 |`src/app/app.js`| Handles business logics for the AI Agent.|
 |`src/app/messages.js`| Defines the message activity handlers.|
 |`src/app/actions.js`| Defines the AI actions.|
 
-The following are Teams Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Teams Toolkit works.
+The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
 | File                                 | Contents                                           |
 | - | - |
-|`teamsapp.yml`|This is the main Teams Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
-|`teamsapp.local.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging.|
-|`teamsapp.testtool.yml`|This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool.|
+|`m365agents.yml`|This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things:  Properties and configuration Stage definitions. |
+|`m365agents.local.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging.|
+|`m365agents.testtool.yml`|This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground.|
 
 ## Extend the template
 
@@ -156,7 +156,7 @@ You can follow [Build an AI Agent in Teams](https://aka.ms/teamsfx-ai-agent) to 
 
 ## Additional information and references
 
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
 - [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview)

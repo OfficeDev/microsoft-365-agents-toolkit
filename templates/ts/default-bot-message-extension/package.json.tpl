@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit hello world Bot sample",
+    "description": "Microsoft 365 Agents Toolkit hello world Bot sample",
     "engines": {
         "node": "18 || 20 || 22"
     },

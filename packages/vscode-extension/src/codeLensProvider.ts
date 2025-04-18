@@ -5,6 +5,7 @@ import {
   AppPackageFolderName,
   ManifestTemplateFileName,
   ManifestUtil,
+  SensitivityLabel,
   signedIn,
   TeamsAppManifest,
   TemplateFolderName,
@@ -19,6 +20,7 @@ import {
   getPermissionMap,
   ListSensitivityLabelScope,
   GraphClient,
+  copilotGptManifestUtils,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
@@ -659,7 +661,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    if (!fs.existsSync(manifestFilePath)) {
+    if (!fs.pathExistsSync(manifestFilePath)) {
       return [];
     }
     const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
@@ -677,11 +679,19 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
       return [];
     }
-    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
+    const Labelregex = /"sensitivity_label"\s*:/;
     const text = document.getText();
     const regex = new RegExp(Labelregex);
     const matches = regex.exec(text);
-    if (matches == null) {
+
+    const daManifest = await copilotGptManifestUtils.readDeclarativeAgentManifestFile(
+      document.uri.fsPath
+    );
+    let sensitivityLabel: SensitivityLabel | undefined;
+    if (daManifest.isOk()) {
+      sensitivityLabel = daManifest.value.sensitivity_label;
+    }
+    if (matches == null || daManifest.isErr() || !sensitivityLabel || !sensitivityLabel.id) {
       const startPosition = new vscode.Position(0, 0);
       const endPosition = document.positionAt(text.indexOf("\n"));
       const range = new vscode.Range(startPosition, endPosition);
@@ -694,7 +704,6 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       return [codeLens];
     }
     const line = document.lineAt(document.positionAt(matches.index).line);
-    const labelValue = matches[1];
     const startPosition = new vscode.Position(line.lineNumber, 0);
     const endPosition = new vscode.Position(line.lineNumber, 1);
     const range = new vscode.Range(startPosition, endPosition);
@@ -735,7 +744,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       );
       if (result.isOk()) {
         for (const label of result.value) {
-          if (label.id === labelValue) {
+          if (label.id === sensitivityLabel.id) {
             labelDisplayName = label.displayName;
             break;
           }

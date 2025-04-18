@@ -63,6 +63,7 @@ import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils"
 import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { GraphClient } from "../client/graphClient";
+import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
   const selectTeamsAppNode = selectTeamsAppManifestQuestionNode();
@@ -800,24 +801,28 @@ export function addPluginQuestionNode(): IQTreeNode {
           equals: ActionStartOptions.existingPlugin().id,
         },
       },
-      {
-        data: apiSpecLocationQuestion(),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-          );
-        },
-      },
-      {
-        data: apiOperationQuestion(true, true),
-        condition: (inputs: Inputs) => {
-          return (
-            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-          );
-        },
-      },
+      ...(featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+        ? [inputOrSearchAPISpecNode()]
+        : [
+            {
+              data: apiSpecLocationQuestion(),
+              condition: (inputs: Inputs) => {
+                return (
+                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+                );
+              },
+            },
+            {
+              data: apiOperationQuestion(true, true),
+              condition: (inputs: Inputs) => {
+                return (
+                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+                );
+              },
+            },
+          ]),
       {
         data: selectTeamsAppManifestQuestion(),
       },
