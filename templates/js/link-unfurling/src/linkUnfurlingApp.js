@@ -1,4 +1,5 @@
-const { TeamsActivityHandler, CardFactory } = require("botbuilder");
+const { CardFactory } = require("@microsoft/agents-hosting");
+const { TeamsActivityHandler } = require("@microsoft/agents-hosting-teams");
 const helloWorldCard = require("./adaptiveCards/helloWorldCard.json");
 
 class LinkUnfurlingApp extends TeamsActivityHandler {
