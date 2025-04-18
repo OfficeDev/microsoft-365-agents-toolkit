@@ -488,6 +488,15 @@ export class DACapabilityOptions {
       detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
     };
   }
+  static typeSpec(): OptionItem {
+    return {
+      id: "type-spec",
+      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
+      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.DeclarativeAgentWithTypeSpec,
+    };
+  }
   static withGC(): OptionItem {
     return {
       id: "gc",
@@ -500,6 +509,9 @@ export class DACapabilityOptions {
     const items: OptionItem[] = [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()];
     if (featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)) {
       items.push(DACapabilityOptions.withGC());
+    }
+    if (featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)) {
+      items.push(DACapabilityOptions.typeSpec());
     }
     return items;
   }
@@ -550,16 +562,6 @@ export class ActionStartOptions {
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
       data: TemplateNames.DeclarativeAgentWithExistingAction,
-    };
-  }
-
-  static typeSpec(): OptionItem {
-    return {
-      id: "type-spec",
-      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
-      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
-      data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
 }
