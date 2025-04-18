@@ -239,6 +239,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   registerActivateCommands(context);
 
+  await configMgr.checkKiotaInstallation();
+
   registerInternalCommands(context);
 
   if (featureFlagManager.getBooleanValue(CoreFeatureFlags.ChatParticipant)) {
@@ -314,8 +316,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
   await vscode.commands.executeCommand("setContext", "fx-extension.initialized", true);
-
-  await configMgr.checkKiotaInstallation();
 }
 
 // this method is called when your extension is deactivated
