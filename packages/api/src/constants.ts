@@ -79,6 +79,7 @@ export enum Stage {
   copilotPluginAddAPI = "copilotPluginAddAPI",
   syncManifest = "syncManifest",
   addPlugin = "addPlugin",
+  RegeneratePlugin = "regeneratePlugin",
   kiotaRegenerate = "kiotaRegenerate",
   addAuthAction = "addAuthAction",
   addKnowledge = "addKnowledge",

@@ -199,6 +199,10 @@ class TreeViewManager {
     )
       ? "fx-extension.invokeChat"
       : "fx-extension.invokeChatWithPreviewTag";
+    const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
+      FeatureFlags.KiotaNPMIntegration
+    );
+
     const treeviewCommands = [
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.createProjectTitle"),
@@ -234,6 +238,17 @@ class TreeViewManager {
               "fx-extension.addPlugin",
               "addPlugin",
               { name: "teamsfx-add-feature", custom: false }
+            ),
+          ]
+        : []),
+      ...(isDeclarativeCopilotApp && isKiotaNPMIntegrationEnabled
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.regenerateActionTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.regenerateActionDescription"),
+              "fx-extension.regeneratePlugin",
+              "regeneratePlugin",
+              { name: "teamsfx-regenerate-feature", custom: false }
             ),
           ]
         : []),
