@@ -13,10 +13,29 @@
  */
 export interface DeclarativeAgentManifestV1D3 {
     /**
-     * Optional. A list of objects that identify API plugins that provide actions accessible to
-     * the declarative agent.
+     * Required. Not localizable. The version of the schema this manifest is using.
      */
-    actions?: ActionElement[];
+    version: "v1.3";
+    /**
+     * Optional. Not localizable.
+     */
+    id?: string;
+    /**
+     * Required. Localizable. The name of the declarative agent. It MUST contain at least one
+     * nonwhitespace character and MUST be 100 characters or less.
+     */
+    name: string;
+    /**
+     * Required. Localizable. The description of the declarative agent. It MUST contain at least
+     * one nonwhitespace character and MUST be 1,000 characters or less.
+     */
+    description: string;
+    /**
+     * Optional. Not localizable. The detailed instructions or guidelines on how the declarative
+     * agent should behave, its functions, and any behaviors to avoid. It MUST contain at least
+     * one nonwhitespace character and MUST be 8,000 characters or less.
+     */
+    instructions?: string;
     /**
      * Optional. Contains an array of objects that define capabilities of the declarative agent.
      */
@@ -27,29 +46,10 @@ export interface DeclarativeAgentManifestV1D3 {
      */
     conversation_starters?: ConversationStarterElement[];
     /**
-     * Required. Localizable. The description of the declarative agent. It MUST contain at least
-     * one nonwhitespace character and MUST be 1,000 characters or less.
+     * Optional. A list of objects that identify API plugins that provide actions accessible to
+     * the declarative agent.
      */
-    description: string;
-    /**
-     * Optional. Not localizable.
-     */
-    id?: string;
-    /**
-     * Optional. Not localizable. The detailed instructions or guidelines on how the declarative
-     * agent should behave, its functions, and any behaviors to avoid. It MUST contain at least
-     * one nonwhitespace character and MUST be 8,000 characters or less.
-     */
-    instructions?: string;
-    /**
-     * Required. Localizable. The name of the declarative agent. It MUST contain at least one
-     * nonwhitespace character and MUST be 100 characters or less.
-     */
-    name: string;
-    /**
-     * Required. Not localizable. The version of the schema this manifest is using.
-     */
-    version: "v1.3";
+    actions?: ActionElement[];
     [property: string]: any;
 }
 
@@ -58,14 +58,14 @@ export interface DeclarativeAgentManifestV1D3 {
  */
 export interface ActionElement {
     /**
-     * Required. Not localizable. A path to the API plugin manifest for this action.
-     */
-    file: string;
-    /**
      * Required. Not localizable. A unique identifier for the action. It MAY be represented by a
      * GUID.
      */
     id: string;
+    /**
+     * Required. Not localizable. A path to the API plugin manifest for this action.
+     */
+    file: string;
     [property: string]: any;
 }
 
@@ -186,9 +186,26 @@ export interface FolderElement {
  */
 export interface ItemsBySharepointIDElement {
     /**
+     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive site.
+     */
+    site_id?: string;
+    /**
+     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive web.
+     */
+    web_id?: string;
+    /**
      * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive list.
      */
     list_id?: string;
+    /**
+     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive item.
+     */
+    unique_id?: string;
+    /**
+     * Boolean value indicating whether to enable searching associated sites. This value is only
+     * applicable when the site_id value references a SharePoint HubSite.
+     */
+    search_associated_sites?: boolean;
     /**
      * A JSON String that uniquely identifies a part of a SharePoint item. e.g a OneNote page.
      */
@@ -198,23 +215,6 @@ export interface ItemsBySharepointIDElement {
      * value can only be equal to the string literal: "OneNotePart".
      */
     part_type?: "OneNotePart";
-    /**
-     * Boolean value indicating whether to enable searching associated sites. This value is only
-     * applicable when the site_id value references a SharePoint HubSite.
-     */
-    search_associated_sites?: boolean;
-    /**
-     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive site.
-     */
-    site_id?: string;
-    /**
-     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive item.
-     */
-    unique_id?: string;
-    /**
-     * Optional. Not localizable. The GUID identifier of a SharePoint or OneDrive web.
-     */
-    web_id?: string;
 }
 
 /**
@@ -310,7 +310,7 @@ export class Convert {
     }
 
     public static declarativeAgentManifestV1D3ToJson(value: DeclarativeAgentManifestV1D3): string {
-        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D3")), null, 2);
+        return JSON.stringify(uncast(value, r("DeclarativeAgentManifestV1D3")), null, 4);
     }
 }
 
@@ -468,18 +468,18 @@ function r(name: string) {
 
 const typeMap: any = {
     "DeclarativeAgentManifestV1D3": o([
-        { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
+        { json: "version", js: "version", typ: r("Version") },
+        { json: "id", js: "id", typ: u(undefined, "") },
+        { json: "name", js: "name", typ: "" },
+        { json: "description", js: "description", typ: "" },
+        { json: "instructions", js: "instructions", typ: u(undefined, "") },
         { json: "capabilities", js: "capabilities", typ: u(undefined, a(r("CapabilityElement"))) },
         { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterElement"))) },
-        { json: "description", js: "description", typ: "" },
-        { json: "id", js: "id", typ: u(undefined, "") },
-        { json: "instructions", js: "instructions", typ: u(undefined, "") },
-        { json: "name", js: "name", typ: "" },
-        { json: "version", js: "version", typ: r("Version") },
+        { json: "actions", js: "actions", typ: u(undefined, a(r("ActionElement"))) },
     ], "any"),
     "ActionElement": o([
-        { json: "file", js: "file", typ: "" },
         { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
     ], "any"),
     "CapabilityElement": o([
         { json: "name", js: "name", typ: r("Name") },
@@ -499,13 +499,13 @@ const typeMap: any = {
         { json: "folder_id", js: "folder_id", typ: "" },
     ], "any"),
     "ItemsBySharepointIDElement": o([
+        { json: "site_id", js: "site_id", typ: u(undefined, "") },
+        { json: "web_id", js: "web_id", typ: u(undefined, "") },
         { json: "list_id", js: "list_id", typ: u(undefined, "") },
+        { json: "unique_id", js: "unique_id", typ: u(undefined, "") },
+        { json: "search_associated_sites", js: "search_associated_sites", typ: u(undefined, true) },
         { json: "part_id", js: "part_id", typ: u(undefined, "") },
         { json: "part_type", js: "part_type", typ: u(undefined, r("PartType")) },
-        { json: "search_associated_sites", js: "search_associated_sites", typ: u(undefined, true) },
-        { json: "site_id", js: "site_id", typ: u(undefined, "") },
-        { json: "unique_id", js: "unique_id", typ: u(undefined, "") },
-        { json: "web_id", js: "web_id", typ: u(undefined, "") },
     ], false),
     "ItemsByURLElement": o([
         { json: "url", js: "url", typ: u(undefined, "") },

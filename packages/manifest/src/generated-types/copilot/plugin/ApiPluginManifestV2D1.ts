@@ -13,42 +13,9 @@
  */
 export interface APIPluginManifestV2D1 {
     /**
-     * Describes capabilities of the plugin.
+     * The schema version. Previous versions are `v1` and `v2`.
      */
-    capabilities?: PluginCapabilitiesObject;
-    /**
-     * An email address of a contact for safety/moderation, support, and deactivation.
-     */
-    contact_email?: any;
-    /**
-     * A human-readable description of the plugin. Characters beyond 100 MAY be ignored. This
-     * property is localizable.
-     */
-    description_for_human: string;
-    /**
-     * The description for the plugin that is provided to the model. This description should
-     * describe what the plugin is for, and in what circumstances its functions are relevant.
-     * Characters beyond 2048 MAY be ignored. This property is localizable.
-     */
-    description_for_model?: string;
-    /**
-     * A set of function objects describing the functions available to the plugin. Each function
-     * object name MUST be unique within the array. The order of the array isn't significant. If
-     * the `functions` property isn't present and there's an OpenAPI runtime, the functions are
-     * inferred from the OpenAPI operations.
-     */
-    functions?: FunctionObject[];
-    /**
-     * An absolute URL that locates a document containing the terms of service for the plugin.
-     * This property is localizable.
-     */
-    legal_info_url?: any;
-    /**
-     * A URL used to fetch a logo that MAY be used by the orchestrator. Implementations MAY
-     * provide alternative methods to provide logos that meet their visual requirements. This
-     * property is localizable.
-     */
-    logo_url?: any;
+    schema_version: "v2.1";
     /**
      * A short, human-readable name for the plugin. It MUST contain at least one nonwhitespace
      * character. Characters beyond 20 MAY be ignored. This property is localizable.
@@ -61,18 +28,51 @@ export interface APIPluginManifestV2D1 {
      */
     namespace: string;
     /**
+     * The description for the plugin that is provided to the model. This description should
+     * describe what the plugin is for, and in what circumstances its functions are relevant.
+     * Characters beyond 2048 MAY be ignored. This property is localizable.
+     */
+    description_for_model?: string;
+    /**
+     * A human-readable description of the plugin. Characters beyond 100 MAY be ignored. This
+     * property is localizable.
+     */
+    description_for_human: string;
+    /**
+     * A URL used to fetch a logo that MAY be used by the orchestrator. Implementations MAY
+     * provide alternative methods to provide logos that meet their visual requirements. This
+     * property is localizable.
+     */
+    logo_url?: any;
+    /**
+     * An email address of a contact for safety/moderation, support, and deactivation.
+     */
+    contact_email?: any;
+    /**
+     * An absolute URL that locates a document containing the terms of service for the plugin.
+     * This property is localizable.
+     */
+    legal_info_url?: any;
+    /**
      * An absolute URL that locates a document containing the privacy policy for the plugin.
      * This property is localizable.
      */
     privacy_policy_url?: any;
     /**
+     * A set of function objects describing the functions available to the plugin. Each function
+     * object name MUST be unique within the array. The order of the array isn't significant. If
+     * the `functions` property isn't present and there's an OpenAPI runtime, the functions are
+     * inferred from the OpenAPI operations.
+     */
+    functions?: FunctionObject[];
+    /**
      * A set of runtime objects describing the runtimes used by the plugin.
      */
     runtimes?: OpenAPIRuntimeObject[];
     /**
-     * The schema version. Previous versions are `v1` and `v2`.
+     * Describes capabilities of the plugin.
      */
-    schema_version: "v2.1";
+    capabilities?: PluginCapabilitiesObject;
     [property: string]: any;
 }
 
@@ -81,15 +81,15 @@ export interface APIPluginManifestV2D1 {
  */
 export interface PluginCapabilitiesObject {
     /**
-     * Conversation starters that can be displayed to the user for suggestions on how to invoke
-     * the plugin.
-     */
-    conversation_starters?: ConversationStarterObject[];
-    /**
      * Provides mappings for strings in different languages and locales. Certain properties can
      * be localized using a [Liquid][] filter called `localize`.
      */
     localization?: { [key: string]: any };
+    /**
+     * Conversation starters that can be displayed to the user for suggestions on how to invoke
+     * the plugin.
+     */
+    conversation_starters?: ConversationStarterObject[];
     [property: string]: any;
 }
 
@@ -112,23 +112,18 @@ export interface ConversationStarterObject {
  * Information related to how the model should interact with a function.
  */
 export interface FunctionObject {
-    /**
-     * Contains a collection of data used to configure optional capabilities of the orchestrator
-     * while invoking the function.
-     */
-    capabilities?: FunctionCapabilitiesObject;
-    /**
-     * A description better tailored to the model, such as token context length considerations
-     * or keyword usage for improved plugin prompting.
-     */
-    description?: string;
-    id?:          string;
+    id?: string;
     /**
      * A string that uniquely identifies this function. Runtime objects MAY reference this
      * identifier to bind the runtime to the function. When the function is bound to an OpenAPI
      * runtime, the value must match an `operationId` value in the OpenAPI description.
      */
     name: string;
+    /**
+     * A description better tailored to the model, such as token context length considerations
+     * or keyword usage for improved plugin prompting.
+     */
+    description?: string;
     /**
      * An object that contains members that describe the parameters of a function in a runtime
      * agnostic way. It mirrors the shape of [json-schema][] but only supports a small subset of
@@ -146,6 +141,11 @@ export interface FunctionObject {
      * Defines state objects for orchestrator states.
      */
     states?: FunctionStatesObject;
+    /**
+     * Contains a collection of data used to configure optional capabilities of the orchestrator
+     * while invoking the function.
+     */
+    capabilities?: FunctionCapabilitiesObject;
     [property: string]: any;
 }
 
@@ -175,17 +175,17 @@ export interface FunctionCapabilitiesObject {
  */
 export interface ConfirmationObject {
     /**
-     * The text of the confirmation dialog. This property is localizable.
+     * Specifies the type of confirmation.
      */
-    body?: string;
+    type?: ConfirmationType;
     /**
      * The title of the confirmation dialog. This property is localizable.
      */
     title?: string;
     /**
-     * Specifies the type of confirmation.
+     * The text of the confirmation dialog. This property is localizable.
      */
-    type?: ConfirmationType;
+    body?: string;
     [property: string]: any;
 }
 
@@ -208,13 +208,6 @@ export interface ResponseSemanticsObject {
      */
     data_path: string;
     /**
-     * A JSON string containing a JSONPath query that when applied to the response payload will
-     * return an [Adaptive Card
-     * Template](https://learn.microsoft.com/adaptive-cards/templating/language) that will be
-     * used to authenticate the user.
-     */
-    oauth_card_path?: string;
-    /**
      * Allows mapping of JSONPath queries to well-known data elements. Each JSONPath query is
      * relative to a result value.
      */
@@ -227,6 +220,13 @@ export interface ResponseSemanticsObject {
      * card.
      */
     static_template?: { [key: string]: any };
+    /**
+     * A JSON string containing a JSONPath query that when applied to the response payload will
+     * return an [Adaptive Card
+     * Template](https://learn.microsoft.com/adaptive-cards/templating/language) that will be
+     * used to authenticate the user.
+     */
+    oauth_card_path?: string;
     [property: string]: any;
 }
 
@@ -236,31 +236,31 @@ export interface ResponseSemanticsObject {
  */
 export interface ResponseSemanticsPropertiesObject {
     /**
-     * Data sensitivity indicator of the result contents.
+     * Title of a citation for the result.
      */
-    information_protection_label?: string;
+    title?: string;
     /**
      * Subtitle of a citation for the result.
      */
     subtitle?: string;
+    /**
+     * URL of a citation for the result.
+     */
+    url?: string;
+    /**
+     * URL of a thumbnail image for the result.
+     */
+    thumbnail_url?: string;
+    /**
+     * Data sensitivity indicator of the result contents.
+     */
+    information_protection_label?: string;
     /**
      * A JSONPath query that returns an [Adaptive Card
      * Template](https://learn.microsoft.com/adaptive-cards/templating/language) from the API
      * response to be used for rendering the result.
      */
     template_selector?: string;
-    /**
-     * URL of a thumbnail image for the result.
-     */
-    thumbnail_url?: string;
-    /**
-     * Title of a citation for the result.
-     */
-    title?: string;
-    /**
-     * URL of a citation for the result.
-     */
-    url?: string;
     [property: string]: any;
 }
 
@@ -278,6 +278,10 @@ export interface ResponseSemanticsPropertiesObject {
  */
 export interface FunctionParametersObject {
     /**
+     * The JSON Schema type.
+     */
+    type?: "object";
+    /**
      * An object that maps parameter names to their definitions.
      */
     properties: { [key: string]: any };
@@ -286,10 +290,6 @@ export interface FunctionParametersObject {
      * in this array MUST match the names listed in the `properties` property.
      */
     required?: string[];
-    /**
-     * The JSON Schema type.
-     */
-    type?: "object";
     [property: string]: any;
 }
 
@@ -303,14 +303,14 @@ export interface FunctionParametersObject {
  */
 export interface ReturnObject {
     /**
-     * A description of the value returned by the API.
-     */
-    description?: string;
-    /**
      * Specifies the type of the value returned by the API.
      */
     type?: "string";
-    $ref?: "https://copilot.microsoft.com/schemas/rich-response-v1.0.json";
+    /**
+     * A description of the value returned by the API.
+     */
+    description?: string;
+    $ref?:        "https://copilot.microsoft.com/schemas/rich-response-v1.0.json";
     [property: string]: any;
 }
 
@@ -349,11 +349,6 @@ export interface StateObject {
      */
     description?: string;
     /**
-     * A string or an array of strings that are used to provide examples to the orchestrator on
-     * how this function can be invoked.
-     */
-    examples?: string[] | string;
-    /**
      * A string or an array of strings that are used to provide instructions to the orchestrator
      * on how to use this function while in a specific orchestrator state. Providing a single
      * string indicates the intent to provide a complete set of instructions that would override
@@ -361,6 +356,11 @@ export interface StateObject {
      * augment the built-in function prompting mechanism.
      */
     instructions?: string[] | string;
+    /**
+     * A string or an array of strings that are used to provide examples to the orchestrator on
+     * how this function can be invoked.
+     */
+    examples?: string[] | string;
     [property: string]: any;
 }
 
@@ -368,6 +368,10 @@ export interface StateObject {
  * Describes how the plugin invokes OpenAPI functions.
  */
 export interface OpenAPIRuntimeObject {
+    /**
+     * Identifies this runtime as an OpenAPI runtime.
+     */
+    type: "OpenApi";
     /**
      * Authentication information required to invoke the runtime.
      */
@@ -383,10 +387,6 @@ export interface OpenAPIRuntimeObject {
      * Contains the OpenAPI information required to invoke the runtime.
      */
     spec: OpenAPISpecificationObject;
-    /**
-     * Identifies this runtime as an OpenAPI runtime.
-     */
-    type: "OpenApi";
     [property: string]: any;
 }
 
@@ -397,13 +397,6 @@ export interface OpenAPIRuntimeObject {
  */
 export interface RuntimeAuthenticationObject {
     /**
-     * A value used when `type` is `OAuthPluginVault` or `ApiKeyPluginVault`. The `reference_id`
-     * value is acquired independently when providing the necessary authentication configuration
-     * values. This mechanism exists to prevent the need for storing secret values in the plugin
-     * manifest.
-     */
-    reference_id?: string;
-    /**
      * Specifies the type of authentication required to invoke a function.
      */
     type?: TypeEnum;
@@ -411,6 +404,13 @@ export interface RuntimeAuthenticationObject {
      * Specifies the type of authentication required to invoke a function.
      */
     Type?: TypeEnum;
+    /**
+     * A value used when `type` is `OAuthPluginVault` or `ApiKeyPluginVault`. The `reference_id`
+     * value is acquired independently when providing the necessary authentication configuration
+     * values. This mechanism exists to prevent the need for storing secret values in the plugin
+     * manifest.
+     */
+    reference_id?: string;
     [property: string]: any;
 }
 
@@ -424,6 +424,11 @@ export type TypeEnum = "None" | "OAuthPluginVault" | "ApiKeyPluginVault";
  */
 export interface OpenAPISpecificationObject {
     /**
+     * The URL to fetch the OpenAPI specification, called with a GET request. This member is
+     * required unless `api_description` is present.
+     */
+    url?: string;
+    /**
      * A string that contains an OpenAPI description. If this member is present, `url` isn't
      * required and is ignored if present.
      */
@@ -432,11 +437,6 @@ export interface OpenAPISpecificationObject {
      * The progress style that is used to display the progress of the function.
      */
     progress_style?: ProgressStyle;
-    /**
-     * The URL to fetch the OpenAPI specification, called with a GET request. This member is
-     * required unless `api_description` is present.
-     */
-    url?: string;
     [property: string]: any;
 }
 
@@ -453,7 +453,7 @@ export class Convert {
     }
 
     public static aPIPluginManifestV2D1ToJson(value: APIPluginManifestV2D1): string {
-        return JSON.stringify(uncast(value, r("APIPluginManifestV2D1")), null, 2);
+        return JSON.stringify(uncast(value, r("APIPluginManifestV2D1")), null, 4);
     }
 }
 
@@ -611,67 +611,67 @@ function r(name: string) {
 
 const typeMap: any = {
     "APIPluginManifestV2D1": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, r("PluginCapabilitiesObject")) },
-        { json: "contact_email", js: "contact_email", typ: u(undefined, "any") },
-        { json: "description_for_human", js: "description_for_human", typ: "" },
-        { json: "description_for_model", js: "description_for_model", typ: u(undefined, "") },
-        { json: "functions", js: "functions", typ: u(undefined, a(r("FunctionObject"))) },
-        { json: "legal_info_url", js: "legal_info_url", typ: u(undefined, "any") },
-        { json: "logo_url", js: "logo_url", typ: u(undefined, "any") },
+        { json: "schema_version", js: "schema_version", typ: r("SchemaVersion") },
         { json: "name_for_human", js: "name_for_human", typ: "" },
         { json: "namespace", js: "namespace", typ: "" },
+        { json: "description_for_model", js: "description_for_model", typ: u(undefined, "") },
+        { json: "description_for_human", js: "description_for_human", typ: "" },
+        { json: "logo_url", js: "logo_url", typ: u(undefined, "any") },
+        { json: "contact_email", js: "contact_email", typ: u(undefined, "any") },
+        { json: "legal_info_url", js: "legal_info_url", typ: u(undefined, "any") },
         { json: "privacy_policy_url", js: "privacy_policy_url", typ: u(undefined, "any") },
+        { json: "functions", js: "functions", typ: u(undefined, a(r("FunctionObject"))) },
         { json: "runtimes", js: "runtimes", typ: u(undefined, a(r("OpenAPIRuntimeObject"))) },
-        { json: "schema_version", js: "schema_version", typ: r("SchemaVersion") },
+        { json: "capabilities", js: "capabilities", typ: u(undefined, r("PluginCapabilitiesObject")) },
     ], "any"),
     "PluginCapabilitiesObject": o([
-        { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterObject"))) },
         { json: "localization", js: "localization", typ: u(undefined, m("any")) },
+        { json: "conversation_starters", js: "conversation_starters", typ: u(undefined, a(r("ConversationStarterObject"))) },
     ], "any"),
     "ConversationStarterObject": o([
         { json: "text", js: "text", typ: "" },
         { json: "title", js: "title", typ: u(undefined, "") },
     ], "any"),
     "FunctionObject": o([
-        { json: "capabilities", js: "capabilities", typ: u(undefined, r("FunctionCapabilitiesObject")) },
-        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "parameters", js: "parameters", typ: u(undefined, r("FunctionParametersObject")) },
         { json: "returns", js: "returns", typ: u(undefined, r("ReturnObject")) },
         { json: "states", js: "states", typ: u(undefined, r("FunctionStatesObject")) },
+        { json: "capabilities", js: "capabilities", typ: u(undefined, r("FunctionCapabilitiesObject")) },
     ], "any"),
     "FunctionCapabilitiesObject": o([
         { json: "confirmation", js: "confirmation", typ: u(undefined, r("ConfirmationObject")) },
         { json: "response_semantics", js: "response_semantics", typ: u(undefined, r("ResponseSemanticsObject")) },
     ], "any"),
     "ConfirmationObject": o([
-        { json: "body", js: "body", typ: u(undefined, "") },
-        { json: "title", js: "title", typ: u(undefined, "") },
         { json: "type", js: "type", typ: u(undefined, r("ConfirmationType")) },
+        { json: "title", js: "title", typ: u(undefined, "") },
+        { json: "body", js: "body", typ: u(undefined, "") },
     ], "any"),
     "ResponseSemanticsObject": o([
         { json: "data_path", js: "data_path", typ: "" },
-        { json: "oauth_card_path", js: "oauth_card_path", typ: u(undefined, "") },
         { json: "properties", js: "properties", typ: u(undefined, r("ResponseSemanticsPropertiesObject")) },
         { json: "static_template", js: "static_template", typ: u(undefined, m("any")) },
+        { json: "oauth_card_path", js: "oauth_card_path", typ: u(undefined, "") },
     ], "any"),
     "ResponseSemanticsPropertiesObject": o([
-        { json: "information_protection_label", js: "information_protection_label", typ: u(undefined, "") },
-        { json: "subtitle", js: "subtitle", typ: u(undefined, "") },
-        { json: "template_selector", js: "template_selector", typ: u(undefined, "") },
-        { json: "thumbnail_url", js: "thumbnail_url", typ: u(undefined, "") },
         { json: "title", js: "title", typ: u(undefined, "") },
+        { json: "subtitle", js: "subtitle", typ: u(undefined, "") },
         { json: "url", js: "url", typ: u(undefined, "") },
+        { json: "thumbnail_url", js: "thumbnail_url", typ: u(undefined, "") },
+        { json: "information_protection_label", js: "information_protection_label", typ: u(undefined, "") },
+        { json: "template_selector", js: "template_selector", typ: u(undefined, "") },
     ], "any"),
     "FunctionParametersObject": o([
+        { json: "type", js: "type", typ: u(undefined, r("ParametersType")) },
         { json: "properties", js: "properties", typ: m("any") },
         { json: "required", js: "required", typ: u(undefined, a("")) },
-        { json: "type", js: "type", typ: u(undefined, r("ParametersType")) },
     ], "any"),
     "ReturnObject": o([
-        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "type", js: "type", typ: u(undefined, r("ReturnsType")) },
+        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "$ref", js: "$ref", typ: u(undefined, r("Ref")) },
     ], "any"),
     "FunctionStatesObject": o([
@@ -680,24 +680,24 @@ const typeMap: any = {
     ], "any"),
     "StateObject": o([
         { json: "description", js: "description", typ: u(undefined, "") },
-        { json: "examples", js: "examples", typ: u(undefined, u(a(""), "")) },
         { json: "instructions", js: "instructions", typ: u(undefined, u(a(""), "")) },
+        { json: "examples", js: "examples", typ: u(undefined, u(a(""), "")) },
     ], "any"),
     "OpenAPIRuntimeObject": o([
+        { json: "type", js: "type", typ: r("RuntimeType") },
         { json: "auth", js: "auth", typ: r("RuntimeAuthenticationObject") },
         { json: "run_for_functions", js: "run_for_functions", typ: u(undefined, a("")) },
         { json: "spec", js: "spec", typ: r("OpenAPISpecificationObject") },
-        { json: "type", js: "type", typ: r("RuntimeType") },
     ], "any"),
     "RuntimeAuthenticationObject": o([
-        { json: "reference_id", js: "reference_id", typ: u(undefined, "") },
         { json: "type", js: "type", typ: u(undefined, r("TypeEnum")) },
         { json: "Type", js: "Type", typ: u(undefined, r("TypeEnum")) },
+        { json: "reference_id", js: "reference_id", typ: u(undefined, "") },
     ], "any"),
     "OpenAPISpecificationObject": o([
+        { json: "url", js: "url", typ: u(undefined, "") },
         { json: "api_description", js: "api_description", typ: u(undefined, "") },
         { json: "progress_style", js: "progress_style", typ: u(undefined, r("ProgressStyle")) },
-        { json: "url", js: "url", typ: u(undefined, "") },
     ], "any"),
     "ConfirmationType": [
         "AdaptiveCard",
