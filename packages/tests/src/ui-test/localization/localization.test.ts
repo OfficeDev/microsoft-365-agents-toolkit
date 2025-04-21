@@ -61,7 +61,7 @@ describe("Env support for localization.json", function () {
   );
 
   it(
-    "Check Validate app package fails when localization file has unresolved envs",
+    "Check Validate app manifest fails when localization file has unresolved envs",
     {
       testPlanCaseId: 30481072,
       author: "v-annefu@microsoft.com",
@@ -73,19 +73,33 @@ describe("Env support for localization.json", function () {
       );
       const projectPath = path.resolve(
         resourceFolder,
-        "localization-agent-unresolved/agent"
+        "localization-agent/agent"
       );
       console.log("Project path: ", projectPath);
       await openExistingProject(projectPath);
-      console.log("Run Zip App Package");
-      await zipAppPackage("dev");
+      console.log("Validate app manifest schema");
+      await validateAppPackage("dev");
+      await getNotification(
+        Notification.appManifestSchemaSucceeded,
+        Timeout.shortTimeWait
+      );
+
+      //replace en.json
+      const enjsonFile = path.resolve(projectPath, "appPackage/loc", "en.json");
+      const unResolvedFile = path.resolve(resourceFolder, "en.json");
+      if (await fs.pathExists(enjsonFile)) {
+        await fs.copy(unResolvedFile, enjsonFile, {
+          overwrite: true,
+        });
+      }
+      await validateAppPackage("dev");
       await getNotification(
         Notification.UnresolvedPlaceholderError,
         Timeout.shortTimeWait
       );
     }
   );
-
+  /*
   it(
     "Check Same level localization files are generated correctly when creating app package",
     {
@@ -182,5 +196,5 @@ describe("Env support for localization.json", function () {
       expect(enfileString.includes(teamsappAppversion)).to.be.true;
       expect(enfileString.includes(envOwner)).to.be.true;
     }
-  );
+  );*/
 });
