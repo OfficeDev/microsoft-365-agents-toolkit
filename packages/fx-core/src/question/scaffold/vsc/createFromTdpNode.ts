@@ -26,7 +26,12 @@ import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { languageNode } from "./createRootNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
+import {
+  botProjectTypeNode,
+  meProjectTypeNode,
+  tabProjectTypeNode,
+  TeamsProjectTypeOptions,
+} from "./teamsProjectTypeNode";
 
 export class TdpCapabilityOptions {
   static me(): OptionItem {
@@ -142,9 +147,9 @@ export function createFromTdpNode(platform: Platform = Platform.VSCode): IQTreeN
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            ProjectTypeOptions.bot(platform),
-            ProjectTypeOptions.tab(platform),
-            ProjectTypeOptions.me(platform),
+            TeamsProjectTypeOptions.bot(platform),
+            TeamsProjectTypeOptions.tab(platform),
+            TeamsProjectTypeOptions.me(platform),
           ],
         },
         children: [

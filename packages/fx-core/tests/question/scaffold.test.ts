@@ -41,12 +41,12 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
+import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import {
   apiSpecNode,
   apiSpecWithSearchNode,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
-import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -456,21 +456,21 @@ describe("getProjectTypeByCapability", () => {
     const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
     assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
   });
-  it("CEA", () => {
+  it("Agent for Teams", () => {
     const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.customCopilotOptionId);
+    assert.equal(type, ProjectTypeOptions.agentForTeamsOptionId);
   });
   it("Bot", () => {
     const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.botOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("Tab", () => {
     const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.tabOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("ME", () => {
     const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, ProjectTypeOptions.meOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("WXP", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);

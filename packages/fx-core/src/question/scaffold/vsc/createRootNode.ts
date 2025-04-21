@@ -11,6 +11,7 @@ import {
   ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
@@ -115,9 +116,6 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
               : []),
             ProjectTypeOptions.agentForTeams(platform),
             ProjectTypeOptions.teamsApp(platform),
-            // ProjectTypeOptions.bot(platform),
-            // ProjectTypeOptions.tab(platform),
-            // ProjectTypeOptions.me(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -130,9 +128,6 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           agentForTeamsProjectTypeNode(),
           teamsAppProjectNode(platform),
           graphConnectorProjectTypeNode(),
-          // botProjectTypeNode(),
-          // tabProjectTypeNode(),
-          // meProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
       },
@@ -164,6 +159,9 @@ export function getProjectTypeByCapability(capability: string): string {
   if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
     return ProjectTypeOptions.copilotAgentOptionId;
   }
+  if ([CustomEngineAgentOptions.basicCustomEngineAgent().id].includes(capability)) {
+    return ProjectTypeOptions.customEngineAgentOptionId;
+  }
   if (
     [
       CustomCopilotCapabilityOptions.basicChatbot().id,
@@ -171,7 +169,7 @@ export function getProjectTypeByCapability(capability: string): string {
       CustomCopilotCapabilityOptions.aiAgent().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.customEngineAgentOptionId;
+    return ProjectTypeOptions.agentForTeamsOptionId;
   }
   if (
     [
@@ -179,28 +177,16 @@ export function getProjectTypeByCapability(capability: string): string {
       BotCapabilityOptions.notificationBot().id,
       BotCapabilityOptions.commandBot().id,
       BotCapabilityOptions.workflowBot().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.botOptionId;
-  }
-  if (
-    [
       TabCapabilityOptions.nonSsoTab().id,
       TabCapabilityOptions.m365SsoLaunchPage().id,
       TabCapabilityOptions.dashboardTab().id,
       TabCapabilityOptions.SPFxTab().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.tabOptionId;
-  }
-  if (
-    [
       MeCapabilityOptions.m365SearchMe().id,
       MeCapabilityOptions.collectFormMe().id,
       MeCapabilityOptions.linkUnfurling().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.meOptionId;
+    return ProjectTypeOptions.teamsAppOptionId;
   }
   if (
     [
