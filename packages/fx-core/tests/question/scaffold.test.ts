@@ -24,6 +24,7 @@ import {
   ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
@@ -475,6 +476,10 @@ describe("getProjectTypeByCapability", () => {
   it("DA", () => {
     const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
     assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
+  });
+  it("Custom Engine Agent", () => {
+    const type = getProjectTypeByCapability(CustomEngineAgentOptions.basicCustomEngineAgent().id);
+    assert.equal(type, ProjectTypeOptions.customEngineAgentOptionId);
   });
   it("Agent for Teams", () => {
     const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
