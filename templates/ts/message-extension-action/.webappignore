@@ -4,7 +4,7 @@
 .localConfigs
 .localConfigs.testTool
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 /devTools
 .vscode
 *.js.map

@@ -20,7 +20,7 @@ lib/
 .localConfigs.testTool
 .localConfigs
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 
 # Dev tool directories
 /devTools/
