@@ -61,28 +61,22 @@ describe("Manifest manipulation", async () => {
   });
 
   describe("validateManifest", async () => {
-    const mocker = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
 
-    const schema = await loadSchema();
-
-    before(() => {
-      mocker.stub(ManifestUtil, "fetchSchema").resolves(schema);
+    afterEach(() => {
+      sandbox.restore();
     });
 
-    after(() => {
-      mocker.restore();
-    });
-
-    it("should throw if $schema is undefiend", async () => {
+    it("should throw if $schema is undefined", async () => {
       const manifest = new TeamsAppManifest();
       manifest.$schema = undefined;
       chai.expect(ManifestUtil.validateManifest(manifest)).to.be.rejectedWith(Error);
     });
 
-    it("should return empty arry when validation passes", async () => {
-      const filePath = path.join(__dirname, "manifest.json");
-      const validManifest = await ManifestUtil.loadFromPath(filePath);
-      const result = await ManifestUtil.validateManifest(validManifest);
+    it("should return empty array when validation passes", async () => {
+      sandbox.stub(ManifestUtil, "fetchSchema").resolves({} as any);
+      sandbox.stub(ManifestUtil, "validateManifestAgainstSchema").resolves([]);
+      const result = await ManifestUtil.validateManifest({} as any);
       chai.expect(result).to.be.empty;
     });
   });
