@@ -20,6 +20,7 @@ import {
   LocalDebugTaskLabel,
   LocalDebugError,
   LocalDebugTaskResult,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { validateFileExist } from "../../utils/commonUtils";
@@ -59,7 +60,7 @@ describe("Local Debug M365 Tests", function () {
     },
     async () => {
       const localDebugTestContext = new LocalDebugTestContext("m365lp", {
-        lang: "typescript",
+        lang: Lang.TS,
       });
       await localDebugTestContext.before();
       const projectPath = path.resolve(
@@ -145,7 +146,7 @@ describe("Local Debug M365 Tests", function () {
       //create tab project
       const driver = VSBrowser.instance.driver;
       try {
-        await createNewProject("m365lp", appName, { lang: "TypeScript" });
+        await createNewProject("m365lp", appName, { lang: Lang.TS });
         await setSkuNameToStandard(projectPath);
         await driver.sleep(Timeout.shortTimeWait);
         await provisionProject(appName, projectPath);

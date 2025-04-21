@@ -40,6 +40,9 @@ export enum TelemetryEvent {
   AddPluginStart = "add-plugin-start",
   AddPlugin = "add-plugin",
 
+  RegenerateActionStart = "regenerate-action-start",
+  RegenerateAction = "regenerate-action",
+
   AddKnowledgeStart = "add-knowledge-start",
   AddKnowledge = "add-knowledge",
 

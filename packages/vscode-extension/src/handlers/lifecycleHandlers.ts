@@ -131,6 +131,18 @@ export async function addWebpartHandler(...args: unknown[]) {
   return await runCommand(Stage.addWebpart);
 }
 
+export async function regeneratePluginHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.RegenerateActionStart,
+    getTriggerFromProperty(args)
+  );
+  const result = await runCommand(Stage.RegeneratePlugin);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+  return result;
+}
+
 export async function addPluginHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, getTriggerFromProperty(args));
   const result = await runCommand(Stage.addPlugin);

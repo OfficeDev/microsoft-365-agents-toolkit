@@ -12,6 +12,7 @@ import {
   Timeout,
   LocalDebugTaskLabel,
   LocalDebugTaskInfo,
+  Lang,
 } from "../../utils/constants";
 import { it } from "../../utils/it";
 import { Page } from "playwright";
@@ -57,7 +58,7 @@ describe("Express Notification Bot Tests", function () {
     },
     async function () {
       await notiBotHappyPathTestForLocalDebug("expressnoti", {
-        lang: "javascript",
+        lang: Lang.JS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartBotApp,
         localDebugTaskInfo: LocalDebugTaskInfo.StartBotInfo,
@@ -76,7 +77,7 @@ describe("Express Notification Bot Tests", function () {
     },
     async function () {
       await notiBotHappyPathTestForRemoteDebug("expressnoti", {
-        lang: "JavaScript",
+        lang: Lang.JS,
         successFlag: successFlag,
         validationFn: validationNotiBot,
         httpTrigger: true,

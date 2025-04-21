@@ -28,6 +28,7 @@ import {
   setSensitivityLabelHandler,
   m365PreAuthHandler,
   shareRemoveHandler,
+  regeneratePluginHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -600,6 +601,25 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(executeCommand.calledOnce);
       assert.isTrue(logError.notCalled);
       mockedEnvRestore();
+    });
+  });
+
+  describe("regeneratePluginHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("success:", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      await regeneratePluginHandler();
+    });
+
+    it("failed: when runCommand throw error", async () => {
+      sandbox.stub(shared, "runCommand").resolves(err(new UserError("source", "name", "message")));
+      const result = await regeneratePluginHandler();
+      assert.isTrue(result.isErr());
     });
   });
 

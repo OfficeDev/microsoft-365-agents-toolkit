@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout, ValidationContent } from "../../utils/constants";
+import { Lang, Timeout, ValidationContent } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   provisionProject,
@@ -71,7 +71,7 @@ describe("Remote debug Tests", function () {
       const driver = VSBrowser.instance.driver;
       await createNewProject("chatdata", appName, {
         aiType: "OpenAI",
-        lang: "Python",
+        lang: Lang.PY,
         dataOption: "Customize",
       });
       validateFileExist(projectPath, "src/app.py");

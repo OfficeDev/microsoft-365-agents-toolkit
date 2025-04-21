@@ -355,7 +355,7 @@ export class DeclarativeAgentManifestConverter {
     if (!converters) {
       throw new Error(
         `Declarative agent manifest version ${version} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
+          daConverterMap
         ).join(", ")}`
       );
     }
@@ -367,7 +367,7 @@ export class DeclarativeAgentManifestConverter {
     if (!converters) {
       throw new Error(
         `Declarative agent manifest version ${version} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
+          daConverterMap
         ).join(", ")}`
       );
     }
@@ -383,7 +383,7 @@ export class ApiPluginManifestConverter {
     if (!converters) {
       throw new Error(
         `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
+          ApiPluginConverterMap
         ).join(", ")}`
       );
     }
@@ -395,7 +395,7 @@ export class ApiPluginManifestConverter {
     if (!converters) {
       throw new Error(
         `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
+          ApiPluginConverterMap
         ).join(", ")}`
       );
     }

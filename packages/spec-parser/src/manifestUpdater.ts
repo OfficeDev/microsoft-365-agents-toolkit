@@ -26,12 +26,16 @@ import {
   PluginManifestSchema,
   FunctionObject,
   AuthObject,
-  ManifestUtil,
+  AppManifestUtils,
 } from "@microsoft/app-manifest";
 import { AdaptiveCardGenerator } from "./adaptiveCardGenerator";
 import { wrapResponseSemantics } from "./adaptiveCardWrapper";
 
 export class ManifestUpdater {
+  static async useCopilotExtensionsInSchema(manifest: TeamsAppManifest): Promise<boolean> {
+    const schema = await AppManifestUtils.fetchSchema(manifest.$schema!);
+    return !!schema.properties.copilotExtensions;
+  }
   static async updateManifestWithAiPlugin(
     manifestPath: string,
     outputSpecPath: string,
@@ -44,7 +48,7 @@ export class ManifestUpdater {
     const manifest: TeamsAppManifest = await fs.readJSON(manifestPath);
     const apiPluginRelativePath = ManifestUpdater.getRelativePath(manifestPath, apiPluginFilePath);
 
-    const useCopilotExtensionsInSchema = await ManifestUtil.useCopilotExtensionsInSchema(manifest);
+    const useCopilotExtensionsInSchema = await this.useCopilotExtensionsInSchema(manifest);
     if (manifest.copilotExtensions || useCopilotExtensionsInSchema) {
       manifest.copilotExtensions = manifest.copilotExtensions || {};
       if (!options.isGptPlugin) {

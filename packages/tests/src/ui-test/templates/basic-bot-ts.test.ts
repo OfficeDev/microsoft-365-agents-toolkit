@@ -17,6 +17,7 @@ import {
   LocalDebugTaskLabel,
   DebugItemSelect,
   LocalDebugTaskInfo,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -61,7 +62,7 @@ describe("Local Debug Tests", function () {
     async function () {
       let errorMessage = "";
       const localDebugTestContext = new LocalDebugTestContext("bot", {
-        lang: "typescript",
+        lang: Lang.TS,
       });
       await localDebugTestContext.before();
       try {
@@ -158,7 +159,7 @@ describe("Local Debug Tests", function () {
       const projectPath = path.resolve(testRootFolder, newAppFolderName);
       await remoteDebugTestContext.before();
       const driver = VSBrowser.instance.driver;
-      await createNewProject("bot", appName, { lang: "TypeScript" });
+      await createNewProject("bot", appName, { lang: Lang.TS });
       await provisionProject(appName, projectPath);
       try {
         await deployProject(projectPath, Timeout.botDeploy);

@@ -364,6 +364,49 @@ describe("Question Model - Visitor Test", () => {
       assert.sameOrderedMembers(expectedSequence, actualSequence);
     });
 
+    it("fail: go back and skip auto selected question", async () => {
+      const actualSequence: string[] = [];
+      const inputs = createInputs();
+      let backed = false;
+      sandbox
+        .stub(mockUI, "selectOption")
+        .callsFake(
+          async (config: SingleSelectConfig): Promise<Result<SingleSelectResult, FxError>> => {
+            actualSequence.push(config.name);
+            if (config.name === "3") {
+              if (backed) {
+                return ok({ type: "success", result: "1" });
+              } else {
+                backed = true;
+                return ok({ type: "back" });
+              }
+            }
+            return ok({ type: "success", result: "1" });
+          }
+        );
+      const expectedSequence: string[] = ["1", "3", "1", "3"];
+      const question2 = createSingleSelectQuestion("2", ["1"]);
+      question2.skipSingleOption = true;
+      const root: IQTreeNode = {
+        data: { type: "group" },
+        children: [
+          {
+            data: createSingleSelectQuestion("1", ["1", "2", "3"]),
+          },
+          {
+            data: question2,
+          },
+          {
+            data: createSingleSelectQuestion("3", ["1", "2", "3"]),
+          },
+        ],
+      };
+
+      const res = await traverse(root, inputs, mockUI);
+      assert.isTrue(res.isOk());
+      assert.sameOrderedMembers(expectedSequence, actualSequence);
+    });
+
     it("success: SingleSelectQuestion, MultiSelectQuestion", async () => {
       const actualSequence: string[] = [];
       const inputs = createInputs();

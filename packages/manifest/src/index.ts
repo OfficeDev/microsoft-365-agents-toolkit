@@ -291,11 +291,4 @@ export class ManifestUtil {
 
     return telemetryProperties;
   }
-
-  static async useCopilotExtensionsInSchema(
-    manifest: TeamsAppManifest | TeamsManifest
-  ): Promise<boolean> {
-    const schema = await this.fetchSchema(manifest);
-    return !!schema.properties.copilotExtensions;
-  }
 }

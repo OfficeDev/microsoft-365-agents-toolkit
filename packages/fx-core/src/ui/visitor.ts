@@ -469,9 +469,10 @@ export async function traverse(
             traversedNodeSet.delete(prevNode);
             if (prevNode.conditionResult && prevNode.data.type !== "group") {
               delete prevNode.data.value;
+              const valueType = prevNode.data.valueType;
               delete prevNode.data.valueType;
               delete clonedInputs[prevNode.data.name];
-              if (prevNode.data.valueType !== "skip") {
+              if (valueType !== "skip") {
                 break;
               }
             }

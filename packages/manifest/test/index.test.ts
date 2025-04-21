@@ -112,40 +112,6 @@ describe("Manifest manipulation", async () => {
       chai.expect(result[0]).to.contain("/manifestVersion");
     });
   });
-  describe("useCopilotExtensionsInSchema", async () => {
-    let fetchSchemaStub: sinon.SinonStub;
-
-    beforeEach(() => {
-      fetchSchemaStub = sinon.stub(ManifestUtil, "fetchSchema");
-    });
-
-    afterEach(() => {
-      sinon.restore();
-    });
-
-    it("should return true when copilotExtensions exist in schema definitions", async () => {
-      const mockSchema = {
-        properties: {
-          copilotExtensions: {},
-        },
-      };
-
-      fetchSchemaStub.resolves(mockSchema);
-
-      const result = await ManifestUtil.useCopilotExtensionsInSchema({} as any);
-      chai.assert.isTrue(result);
-    });
-
-    it("should return false when copilotExtensions do not exist in schema definitions", async () => {
-      const mockSchema = {
-        properties: {},
-      };
-      fetchSchemaStub.resolves(mockSchema);
-
-      const result = await ManifestUtil.useCopilotExtensionsInSchema({} as any);
-      chai.assert.isFalse(result);
-    });
-  });
 });
 
 describe("ManifestUtil", () => {

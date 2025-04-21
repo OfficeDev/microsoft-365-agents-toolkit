@@ -1,14 +1,25 @@
-const axios = require("axios");
-const querystring = require("querystring");
-const { TeamsActivityHandler, CardFactory } = require("botbuilder");
-const ACData = require("adaptivecards-templating");
-const searchResultCard = require("./adaptiveCards/searchResultCard.json");
-const actionCard = require("./adaptiveCards/actionCard.json");
-const linkUnfurlingCard = require("./adaptiveCards/linkUnfurlingCard.json");
+import { default as axios } from "axios";
+import * as querystring from "querystring";
+import { CardFactory, TurnContext } from "@microsoft/agents-hosting";
+import {
+  TeamsActivityHandler,
+  MessagingExtensionAction,
+  MessagingExtensionQuery,
+  MessagingExtensionResponse,
+  MessagingExtensionActionResponse,
+  AppBasedLinkQuery,
+} from "@microsoft/agents-hosting-teams";
+import * as ACData from "adaptivecards-templating";
+import searchResultCard from "./adaptiveCards/searchResultCard.json";
+import linkUnfurlingCard from "./adaptiveCards/linkUnfurlingCard.json";
+import actionCard from "./adaptiveCards/actionCard.json";
 
-class TeamsBot extends TeamsActivityHandler {
+export class AgentApp extends TeamsActivityHandler {
   // Action.
-  handleTeamsMessagingExtensionSubmitAction(context, action) {
+  public async handleTeamsMessagingExtensionSubmitAction(
+    context: TurnContext,
+    action: MessagingExtensionAction
+  ): Promise<MessagingExtensionActionResponse> {
     // The user has chosen to create a card by choosing the 'Create Card' context menu command.
     const template = new ACData.Template(actionCard);
     const card = template.expand({
@@ -29,7 +40,10 @@ class TeamsBot extends TeamsActivityHandler {
   }
 
   // Search.
-  async handleTeamsMessagingExtensionQuery(context, query) {
+  public async handleTeamsMessagingExtensionQuery(
+    context: TurnContext,
+    query: MessagingExtensionQuery
+  ): Promise<MessagingExtensionResponse> {
     const searchQuery = query.parameters[0].value;
 
     // Due to npmjs search limitations, do not search if input length < 2
@@ -74,7 +88,11 @@ class TeamsBot extends TeamsActivityHandler {
   }
 
   // Link Unfurling.
-  handleTeamsAppBasedLinkQuery(context, query) {
+  public async handleTeamsAppBasedLinkQuery(
+    context: TurnContext,
+    query: AppBasedLinkQuery
+  ): Promise<MessagingExtensionResponse> {
+    // When the returned card is an adaptive card, the previewCard property of the attachment is required.
     const previewCard = CardFactory.thumbnailCard("Preview Card", query.url, [
       "https://raw.githubusercontent.com/microsoft/botframework-sdk/master/icon.png",
     ]);
@@ -99,5 +117,3 @@ class TeamsBot extends TeamsActivityHandler {
     };
   }
 }
-
-module.exports.TeamsBot = TeamsBot;

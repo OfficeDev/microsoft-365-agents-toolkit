@@ -18,10 +18,10 @@ import {
 } from "../src/interfaces";
 import { ConstantString } from "../src/constants";
 import { Utils } from "../src/utils";
-import { PluginManifestSchema, ManifestUtil } from "@microsoft/app-manifest";
+import { PluginManifestSchema, ManifestUtil, AppManifestUtils } from "@microsoft/app-manifest";
 describe("updateManifestWithAiPlugin", () => {
   beforeEach(() => {
-    sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(false);
+    sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(false);
   });
   afterEach(() => {
     sinon.restore();
@@ -300,7 +300,7 @@ describe("updateManifestWithAiPlugin", () => {
 
     it("should generate response semantics based on the response - 2", async () => {
       sinon.restore();
-      sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(true);
+      sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(true);
       const spec: any = {
         openapi: "3.0.2",
         info: {
@@ -468,7 +468,7 @@ describe("updateManifestWithAiPlugin", () => {
 
     it("should generate response semantics based on the response - 3", async () => {
       sinon.restore();
-      sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(true);
+      sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(true);
       const spec: any = {
         openapi: "3.0.2",
         info: {
@@ -5781,6 +5781,40 @@ describe("manifestUpdater", () => {
 
     expect(result).to.deep.equal(expectedManifest);
     expect(warnings).to.deep.equal([]);
+  });
+  describe("useCopilotExtensionsInSchema", async () => {
+    let fetchSchemaStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      fetchSchemaStub = sinon.stub(AppManifestUtils, "fetchSchema");
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should return true when copilotExtensions exist in schema definitions", async () => {
+      const mockSchema = {
+        properties: {
+          copilotExtensions: {},
+        },
+      };
+
+      fetchSchemaStub.resolves(mockSchema);
+
+      const result = await ManifestUpdater.useCopilotExtensionsInSchema({} as any);
+      expect(result).to.be.true;
+    });
+
+    it("should return false when copilotExtensions do not exist in schema definitions", async () => {
+      const mockSchema = {
+        properties: {},
+      };
+      fetchSchemaStub.resolves(mockSchema);
+
+      const result = await ManifestUpdater.useCopilotExtensionsInSchema({} as any);
+      expect(result).to.be.false;
+    });
   });
 });
 

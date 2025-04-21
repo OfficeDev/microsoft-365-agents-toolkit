@@ -121,18 +121,25 @@
           "fontCharacter": "\\E007"
         }
       },
+      "teamsfx-regenerate-feature": {
+        "description": "Regenerate action feature icon in command tree view",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E008"
+        }
+      },
       "microsoft365-agents-toolkit-teams": {
         "description": "Teams app icon in scaffold questions",
         "default": {
           "fontPath": "./media/font/teamstoolkit.woff",
-          "fontCharacter": "\\E008"
+          "fontCharacter": "\\E009"
         }
       },
       "microsoft365-agents-office": {
         "description": "Office Add-in icon in scaffold questions",
         "default": {
           "fontPath": "./media/font/teamstoolkit.woff",
-          "fontCharacter": "\\E009"
+          "fontCharacter": "\\E00A"
         }
       }
     },
@@ -933,6 +940,12 @@
         "command": "fx-extension.addPlugin",
         "title": "%teamstoolkit.commandsTreeViewProvider.addPluginTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
+        "category": "Microsoft 365 Agents"
+      },
+      {
+        "command": "fx-extension.regeneratePlugin",
+        "title": "Regenerate Plugin",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isKiotaNPMIntegrationEnabled",
         "category": "Microsoft 365 Agents"
       },
       {

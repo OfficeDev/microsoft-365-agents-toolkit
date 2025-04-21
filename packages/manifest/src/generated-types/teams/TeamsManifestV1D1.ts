@@ -10,19 +10,31 @@
 export interface TeamsManifestV1D1 {
     $schema?: string;
     /**
+     * The version of the schema this manifest is using.
+     */
+    manifestVersion: string;
+    /**
+     * The version of the app. Changes to your manifest should cause a version change. This
+     * version string must follow the semver standard (http://semver.org).
+     */
+    version: string;
+    /**
+     * A unique identifier for this app. This id must be a GUID.
+     */
+    id: string;
+    /**
+     * A unique identifier for this app in reverse domain notation. E.g: com.example.myapp
+     */
+    packageName: string;
+    developer:   Developer;
+    name:        Name;
+    description: Description;
+    icons:       Icons;
+    /**
      * A color to use in conjunction with the icon. The value must be a valid HTML color code
      * starting with '#', for example `#4464ee`.
      */
     accentColor: string;
-    /**
-     * The set of bots for this app. Currently only one bot per app is supported.
-     */
-    bots?: Bot[];
-    /**
-     * The set of compose extensions for this app. Currently only one compose extension per app
-     * is supported.
-     */
-    composeExtensions?: ComposeExtension[];
     /**
      * These are tabs users can optionally add to their channels and require extra configuration
      * before they are added. Configurable tabs are not supported in the personal scope.
@@ -30,36 +42,29 @@ export interface TeamsManifestV1D1 {
      */
     configurableTabs?: ConfigurableTab[];
     /**
-     * The set of Office365 connectors for this app. Currently only one connector per app is
-     * supported.
-     */
-    connectors?: Connector[];
-    description: Description;
-    developer:   Developer;
-    icons:       Icons;
-    /**
-     * A unique identifier for this app. This id must be a GUID.
-     */
-    id: string;
-    /**
-     * The version of the schema this manifest is using.
-     */
-    manifestVersion: string;
-    name:            Name;
-    /**
-     * A unique identifier for this app in reverse domain notation. E.g: com.example.myapp
-     */
-    packageName: string;
-    /**
-     * Specifies the permissions the app requests from users.
-     */
-    permissions?: Permission[];
-    /**
      * A set of tabs that may be 'pinned' by default, without the user adding them manually.
      * Static tabs declared in personal scope are always pinned to the app's personal
      * experience. Static tabs do not currently support the 'teams' scope.
      */
     staticTabs?: StaticTab[];
+    /**
+     * The set of bots for this app. Currently only one bot per app is supported.
+     */
+    bots?: Bot[];
+    /**
+     * The set of Office365 connectors for this app. Currently only one connector per app is
+     * supported.
+     */
+    connectors?: Connector[];
+    /**
+     * The set of compose extensions for this app. Currently only one compose extension per app
+     * is supported.
+     */
+    composeExtensions?: ComposeExtension[];
+    /**
+     * Specifies the permissions the app requests from users.
+     */
+    permissions?: Permission[];
     /**
      * A list of valid domains from which the tabs expect to load any content. Domain listings
      * can include wildcards, for example `*.example.com`. If your tab configuration or content
@@ -67,11 +72,6 @@ export interface TeamsManifestV1D1 {
      * domain must be specified here.
      */
     validDomains?: string[];
-    /**
-     * The version of the app. Changes to your manifest should cause a version change. This
-     * version string must follow the semver standard (http://semver.org).
-     */
-    version: string;
 }
 
 export interface Bot {
@@ -81,45 +81,45 @@ export interface Bot {
      */
     botId: string;
     /**
-     * The list of commands that the bot supplies, including their usage, description, and the
-     * scope for which the commands are valid. A seperate command list should be used for each
-     * scope.
+     * This value describes whether or not the bot utilizes a user hint to add the bot to a
+     * specific channel.
      */
-    commandLists?: CommandList[];
+    needsChannelSelector?: boolean;
     /**
      * A value indicating whether or not the bot is a one-way notification only bot, as opposed
      * to a conversational bot.
      */
     isNotificationOnly?: boolean;
     /**
-     * This value describes whether or not the bot utilizes a user hint to add the bot to a
-     * specific channel.
-     */
-    needsChannelSelector?: boolean;
-    /**
      * Specifies whether the bot offers an experience in the context of a channel in a team, or
      * an experience scoped to an individual user alone. These options are non-exclusive.
      */
     scopes: CommandListScope[];
+    /**
+     * The list of commands that the bot supplies, including their usage, description, and the
+     * scope for which the commands are valid. A seperate command list should be used for each
+     * scope.
+     */
+    commandLists?: CommandList[];
 }
 
 export interface CommandList {
-    commands: CommandListCommand[];
     /**
      * Specifies the scopes for which the command list is valid
      */
-    scopes: CommandListScope[];
+    scopes:   CommandListScope[];
+    commands: CommandListCommand[];
 }
 
 export interface CommandListCommand {
     /**
-     * A simple text description or an example of the command syntax and its arguments.
-     */
-    description: string;
-    /**
      * The bot command name
      */
     title: string;
+    /**
+     * A simple text description or an example of the command syntax and its arguments.
+     */
+    description: string;
 }
 
 export type CommandListScope = "team" | "personal";
@@ -140,30 +140,26 @@ export interface ComposeExtension {
 
 export interface ComposeExtensionCommand {
     /**
-     * Description of the command.
-     */
-    description?: string;
-    /**
      * Id of the command.
      */
     id: string;
+    /**
+     * Title of the command.
+     */
+    title: string;
+    /**
+     * Description of the command.
+     */
+    description?: string;
     /**
      * A boolean value that indicates if the command should be run once initially with no
      * parameter.
      */
     initialRun?: boolean;
     parameters:  Parameter[];
-    /**
-     * Title of the command.
-     */
-    title: string;
 }
 
 export interface Parameter {
-    /**
-     * Description of the parameter.
-     */
-    description?: string;
     /**
      * Name of the parameter.
      */
@@ -172,18 +168,22 @@ export interface Parameter {
      * Title of the parameter.
      */
     title: string;
+    /**
+     * Description of the parameter.
+     */
+    description?: string;
 }
 
 export interface ConfigurableTab {
+    /**
+     * The url to use when configuring the tab.
+     */
+    configurationUrl: string;
     /**
      * A value indicating whether an instance of the tab's configuration can be updated by the
      * user after creation.
      */
     canUpdateConfiguration?: boolean;
-    /**
-     * The url to use when configuring the tab.
-     */
-    configurationUrl: string;
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
      * an experience scoped to an individual user alone. These options are non-exclusive.
@@ -208,14 +208,14 @@ export interface Connector {
 
 export interface Description {
     /**
-     * The full description of the app. Maximum length is 4000 characters.
-     */
-    full: string;
-    /**
      * A short description of the app used when space is limited. Maximum length is 80
      * characters.
      */
     short: string;
+    /**
+     * The full description of the app. Maximum length is 4000 characters.
+     */
+    full: string;
 }
 
 export interface Developer {
@@ -224,6 +224,10 @@ export interface Developer {
      */
     name: string;
     /**
+     * The url to the page that provides support information for the app.
+     */
+    websiteUrl: string;
+    /**
      * The url to the page that provides privacy information for the app.
      */
     privacyUrl: string;
@@ -231,42 +235,34 @@ export interface Developer {
      * The url to the page that provides the terms of use for the app.
      */
     termsOfUseUrl: string;
-    /**
-     * The url to the page that provides support information for the app.
-     */
-    websiteUrl: string;
 }
 
 export interface Icons {
-    /**
-     * A relative file path to a full color PNG icon. Size 96x96.
-     */
-    color: string;
     /**
      * A relative file path to a transparent PNG outline icon. The border color needs to be
      * white. Size 20x20.
      */
     outline: string;
+    /**
+     * A relative file path to a full color PNG icon. Size 96x96.
+     */
+    color: string;
 }
 
 export interface Name {
     /**
-     * The full name of the app, used if the full app name exceeds 30 characters.
-     */
-    full?: string;
-    /**
      * A short display name for the app.
      */
     short: string;
+    /**
+     * The full name of the app, used if the full app name exceeds 30 characters.
+     */
+    full?: string;
 }
 
 export type Permission = "identity" | "messageTeamMembers";
 
 export interface StaticTab {
-    /**
-     * The url which points to the entity UI to be displayed in the Teams canvas.
-     */
-    contentUrl: string;
     /**
      * A unique identifier for the entity which the tab displays.
      */
@@ -276,15 +272,19 @@ export interface StaticTab {
      */
     name: string;
     /**
+     * The url which points to the entity UI to be displayed in the Teams canvas.
+     */
+    contentUrl: string;
+    /**
+     * The url to point at if a user opts to view in a browser.
+     */
+    websiteUrl?: string;
+    /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
      * an experience scoped to an individual user alone. These options are non-exclusive.
      * Currently static tabs are only supported in the 'personal' scope.
      */
     scopes: CommandListScope[];
-    /**
-     * The url to point at if a user opts to view in a browser.
-     */
-    websiteUrl?: string;
 }
 
 // Converts JSON strings to/from your types
@@ -295,7 +295,7 @@ export class Convert {
     }
 
     public static teamsManifestV1D1ToJson(value: TeamsManifestV1D1): string {
-        return JSON.stringify(uncast(value, r("TeamsManifestV1D1")), null, 2);
+        return JSON.stringify(uncast(value, r("TeamsManifestV1D1")), null, 4);
     }
 }
 
@@ -454,37 +454,37 @@ function r(name: string) {
 const typeMap: any = {
     "TeamsManifestV1D1": o([
         { json: "$schema", js: "$schema", typ: u(undefined, "") },
-        { json: "accentColor", js: "accentColor", typ: "" },
-        { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
-        { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
-        { json: "configurableTabs", js: "configurableTabs", typ: u(undefined, a(r("ConfigurableTab"))) },
-        { json: "connectors", js: "connectors", typ: u(undefined, a(r("Connector"))) },
-        { json: "description", js: "description", typ: r("Description") },
-        { json: "developer", js: "developer", typ: r("Developer") },
-        { json: "icons", js: "icons", typ: r("Icons") },
-        { json: "id", js: "id", typ: "" },
         { json: "manifestVersion", js: "manifestVersion", typ: "" },
-        { json: "name", js: "name", typ: r("Name") },
-        { json: "packageName", js: "packageName", typ: "" },
-        { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
-        { json: "staticTabs", js: "staticTabs", typ: u(undefined, a(r("StaticTab"))) },
-        { json: "validDomains", js: "validDomains", typ: u(undefined, a("")) },
         { json: "version", js: "version", typ: "" },
+        { json: "id", js: "id", typ: "" },
+        { json: "packageName", js: "packageName", typ: "" },
+        { json: "developer", js: "developer", typ: r("Developer") },
+        { json: "name", js: "name", typ: r("Name") },
+        { json: "description", js: "description", typ: r("Description") },
+        { json: "icons", js: "icons", typ: r("Icons") },
+        { json: "accentColor", js: "accentColor", typ: "" },
+        { json: "configurableTabs", js: "configurableTabs", typ: u(undefined, a(r("ConfigurableTab"))) },
+        { json: "staticTabs", js: "staticTabs", typ: u(undefined, a(r("StaticTab"))) },
+        { json: "bots", js: "bots", typ: u(undefined, a(r("Bot"))) },
+        { json: "connectors", js: "connectors", typ: u(undefined, a(r("Connector"))) },
+        { json: "composeExtensions", js: "composeExtensions", typ: u(undefined, a(r("ComposeExtension"))) },
+        { json: "permissions", js: "permissions", typ: u(undefined, a(r("Permission"))) },
+        { json: "validDomains", js: "validDomains", typ: u(undefined, a("")) },
     ], false),
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
-        { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
-        { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
+        { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
+        { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
     ], false),
     "CommandList": o([
-        { json: "commands", js: "commands", typ: a(r("CommandListCommand")) },
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
+        { json: "commands", js: "commands", typ: a(r("CommandListCommand")) },
     ], false),
     "CommandListCommand": o([
-        { json: "description", js: "description", typ: "" },
         { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: "" },
     ], false),
     "ComposeExtension": o([
         { json: "botId", js: "botId", typ: "" },
@@ -492,20 +492,20 @@ const typeMap: any = {
         { json: "commands", js: "commands", typ: a(r("ComposeExtensionCommand")) },
     ], false),
     "ComposeExtensionCommand": o([
-        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "id", js: "id", typ: "" },
+        { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "initialRun", js: "initialRun", typ: u(undefined, true) },
         { json: "parameters", js: "parameters", typ: a(r("Parameter")) },
-        { json: "title", js: "title", typ: "" },
     ], false),
     "Parameter": o([
-        { json: "description", js: "description", typ: u(undefined, "") },
         { json: "name", js: "name", typ: "" },
         { json: "title", js: "title", typ: "" },
+        { json: "description", js: "description", typ: u(undefined, "") },
     ], false),
     "ConfigurableTab": o([
-        { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
+        { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
     ], false),
     "Connector": o([
@@ -513,29 +513,29 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
     ], false),
     "Description": o([
-        { json: "full", js: "full", typ: "" },
         { json: "short", js: "short", typ: "" },
+        { json: "full", js: "full", typ: "" },
     ], false),
     "Developer": o([
         { json: "name", js: "name", typ: "" },
+        { json: "websiteUrl", js: "websiteUrl", typ: "" },
         { json: "privacyUrl", js: "privacyUrl", typ: "" },
         { json: "termsOfUseUrl", js: "termsOfUseUrl", typ: "" },
-        { json: "websiteUrl", js: "websiteUrl", typ: "" },
     ], false),
     "Icons": o([
-        { json: "color", js: "color", typ: "" },
         { json: "outline", js: "outline", typ: "" },
+        { json: "color", js: "color", typ: "" },
     ], false),
     "Name": o([
-        { json: "full", js: "full", typ: u(undefined, "") },
         { json: "short", js: "short", typ: "" },
+        { json: "full", js: "full", typ: u(undefined, "") },
     ], false),
     "StaticTab": o([
-        { json: "contentUrl", js: "contentUrl", typ: "" },
         { json: "entityId", js: "entityId", typ: "" },
         { json: "name", js: "name", typ: "" },
-        { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
+        { json: "contentUrl", js: "contentUrl", typ: "" },
         { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
+        { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
     ], false),
     "CommandListScope": [
         "personal",
