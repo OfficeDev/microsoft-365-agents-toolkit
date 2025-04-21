@@ -684,11 +684,27 @@ describe("parseCommonProperties", () => {
     assert.isTrue(res.capabilities.includes("copilotGpt"));
   });
 
-  it("empty", async () => {
+  it("empty 1", async () => {
     const manifest: any = {
       id: "mockid",
       version: "1.0.0",
       manifestVersion: "1.14",
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isFalse(res.capabilities.includes("configurableTab"));
+    assert.isFalse(res.capabilities.includes("plugin"));
+    assert.isFalse(res.capabilities.includes("copilotGpt"));
+  });
+
+  it("empty 2", async () => {
+    const manifest: any = {
+      id: "mockid",
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      copilotExtensions: {},
+      copilotAgents: {
+        declarativeAgents: [],
+      },
     };
     const res = manifestUtils.parseCommonProperties(manifest);
     assert.isFalse(res.capabilities.includes("configurableTab"));
