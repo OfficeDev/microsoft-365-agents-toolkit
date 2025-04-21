@@ -84,7 +84,7 @@ describe("envUtils", () => {
     });
     it("happy path v4 testtool", async () => {
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      const res1 = pathUtils.getYmlFilePath(".", "testtool");
+      const res1 = pathUtils.getYmlFilePath(".", "playground");
       assert.equal(res1, path.join(".", MetadataV4.testToolConfigFile));
     });
     it("happy path v4 sandbox", async () => {
