@@ -1,0 +1,21 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "all": true,
+  "include": [
+    "src/"
+  ],
+  "extension": [".js",".ts"],
+  "exclude": [
+    "src/component/deps-checker/**/*",
+    "src/question/generator.ts"
+  ],
+  "reporter": [
+    "text",
+    "html",
+    "json-summary",
+    "cobertura",
+    "lcov"
+  ],
+  "check-coverage": true,
+  "lines": 72.7
+}
