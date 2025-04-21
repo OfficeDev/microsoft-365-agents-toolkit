@@ -6,7 +6,7 @@ import { Template } from "./interface";
 
 export const customEngineAgentTemplates: Template[] = [
   {
-    id: "basic-agent-ts",
+    id: "basic-custom-engine-agent-ts",
     name: TemplateNames.BasicCustomEngineAgent,
     language: "typescript",
     description: "",
