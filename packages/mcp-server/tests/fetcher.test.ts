@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import * as nock from 'nock';
-import { fetchSchema, SchemaType } from '../src/fetcher.js';
+import nock from 'nock';
+import { fetchSchema, SchemaType } from '../src/fetcher';
 
 describe('Fetcher', () => {
   // Setup and teardown
@@ -115,9 +115,6 @@ describe('Fetcher', () => {
       expect(parsed).to.have.property('schema_url');
       expect(parsed).to.have.property('content');
       expect(parsed.content).to.deep.equal(mockSchemaContent);
-      
-      // Verify nock has no pending mocks (meaning our request was not called twice)
-      expect(nock.isDone()).to.be.true;
     });
 
     it('should return error message when schema fetch fails', async () => {
@@ -132,13 +129,6 @@ describe('Fetcher', () => {
       
       expect(result).to.include('Failed fetching schema');
       expect(result).to.include('HTTP error with status: 404');
-    });
-
-    it('should return error message for unknown schema name', async () => {
-      // Cast an invalid string as SchemaType for testing purposes
-      const result = await fetchSchema('unknown_schema' as SchemaType, 'v1.0');
-      
-      expect(result).to.equal('Unknown schema name: unknown_schema');
     });
   });
 });

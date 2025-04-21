@@ -1,7 +1,16 @@
 {
-  "extension": ["ts"],
-  "node-option": ["experimental-specifier-resolution=node", "loader=ts-node/esm"],
-  "recursive": true,
-  "require": "ts-node/register",
-  "timeout": 10000
+    "spec": "./tests/**/**.test.ts",
+    "require": [
+        "ts-node/register"
+    ],
+    "reporter": "mocha-multi-reporters",
+    "recursive": true,
+    "colors": true,
+    "extensions": [
+        "ts"
+    ],
+    "node-options": [
+        "experimental-specifier-resolution=node",
+        "loader=ts-node/esm"
+    ]
 }

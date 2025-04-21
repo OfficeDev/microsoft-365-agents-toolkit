@@ -6,8 +6,7 @@
   ],
   "extension": [".js",".ts"],
   "exclude": [
-    "src/component/deps-checker/**/*",
-    "src/question/generator.ts"
+    "src/index.ts"
   ],
   "reporter": [
     "text",

@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { fetchSchema, SchemaTypeEnum } from "./fetcher.js";
+import { fetchSchema, SchemaTypeEnum } from "./fetcher";
 
 export function createServer(): McpServer {
   const server = new McpServer({
