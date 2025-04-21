@@ -578,3 +578,68 @@ describe("resolveLocFile", () => {
     }
   });
 });
+
+describe("parseCommonTelemetryProperties", () => {
+  it("parseCommonTelemetryProperties", async () => {
+    const json = {
+      $schema:
+        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: "1.0",
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "huajiecea040906${{APP_NAME_SUFFIX}}",
+        full: "full name for huajiecea040906",
+      },
+      description: {
+        short: "Repair Service",
+        full: "A simple service to manage repairs",
+      },
+      accentColor: "#FFFFFF",
+      bots: [
+        {
+          botId: "${{BOT_ID}}",
+          scopes: ["personal", "team", "groupChat"],
+          supportsFiles: false,
+          isNotificationOnly: false,
+          commandLists: [
+            {
+              scopes: ["personal"],
+              commands: [
+                {
+                  title: "List all repairs without auth",
+                  description: "List all repairs without auth",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      composeExtensions: [],
+      configurableTabs: [],
+      staticTabs: [],
+      permissions: ["identity", "messageTeamMembers"],
+      validDomains: [],
+    };
+    const res = manifestUtils.parseCommonTelemetryProperties(json as any);
+    chai.assert.deepEqual(res, {
+      id: "${{TEAMS_APP_ID}}",
+      version: "1.0",
+      capabilities: "Bot",
+      manifestVersion: "1.19",
+      isApiME: false,
+      isSPFx: false,
+      isApiMeAAD: false,
+    } as any);
+  });
+});
