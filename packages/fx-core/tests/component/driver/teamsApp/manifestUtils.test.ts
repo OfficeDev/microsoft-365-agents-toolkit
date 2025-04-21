@@ -5,6 +5,7 @@ import * as sinon from "sinon";
 import {
   manifestUtils,
   ManifestUtils,
+  SharePointAppId,
 } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import fs from "fs-extra";
 import path from "path";
@@ -28,6 +29,7 @@ import {
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../src/error";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import { randomUUID } from "crypto";
 
 const latestManifestVersion = "1.17";
 const oldManifestVersion = "1.16";
@@ -641,5 +643,61 @@ describe("parseCommonTelemetryProperties", () => {
       isSPFx: false,
       isApiMeAAD: false,
     } as any);
+  });
+});
+
+describe("parseCommonProperties", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("happy", async () => {
+    const manifest: any = {
+      id: randomUUID(),
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      configurableTabs: [{}],
+      webApplicationInfo: {
+        id: SharePointAppId,
+      },
+      composeExtensions: [
+        {
+          composeExtensionType: "apiBased",
+          authorization: {
+            authType: "microsoftEntra",
+          },
+        },
+      ],
+      copilotAgents: {
+        plugins: [
+          {
+            file: "xxx",
+          },
+        ],
+        declarativeAgents: [{}],
+      },
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isTrue(res.capabilities.includes("configurableTab"));
+    assert.isTrue(res.isSPFx);
+    assert.isTrue(res.isApiMeAAD);
+    assert.isTrue(res.capabilities.includes("plugin"));
+    assert.isTrue(res.capabilities.includes("copilotGpt"));
+  });
+
+  it("empty", async () => {
+    const manifest: any = {
+      id: randomUUID(),
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      configurableTabs: [{}],
+      webApplicationInfo: {
+        id: SharePointAppId,
+      },
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isFalse(res.capabilities.includes("configurableTab"));
+    assert.isFalse(res.capabilities.includes("plugin"));
+    assert.isFalse(res.capabilities.includes("copilotGpt"));
   });
 });
