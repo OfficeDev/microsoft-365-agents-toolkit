@@ -5,24 +5,14 @@ const express = require("express");
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const {
-  CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
-} = require("botbuilder");
-const { TeamsBot } = require("./agent");
-const config = require("./config");
+const { authorizeJWT, CloudAdapter, loadAuthConfigFromEnv } = require("@microsoft/agents-hosting");
+const { Agent } = require("./agent");
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
-const credentialsFactory = new ConfigurationServiceClientCredentialFactory(config);
+// Create authentication configuration
+const authConfig = loadAuthConfigFromEnv();
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  credentialsFactory
-);
-
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+// Create adapter
+const adapter = new CloudAdapter(authConfig);
 
 adapter.onTurnError = async (context, error) => {
   // This check writes out errors to console log .vs. app insights.

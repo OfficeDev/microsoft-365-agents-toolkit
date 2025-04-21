@@ -1,12 +1,13 @@
 const axios = require("axios");
 const querystring = require("querystring");
-const { TeamsActivityHandler, CardFactory } = require("botbuilder");
+const { CardFactory } = require("@microsoft/agents-hosting");
+const { TeamsActivityHandler } = require("@microsoft/agents-hosting-teams");
 const ACData = require("adaptivecards-templating");
 const searchResultCard = require("./adaptiveCards/searchResultCard.json");
 const actionCard = require("./adaptiveCards/actionCard.json");
 const linkUnfurlingCard = require("./adaptiveCards/linkUnfurlingCard.json");
 
-class TeamsBot extends TeamsActivityHandler {
+class Agent extends TeamsActivityHandler {
   // Action.
   handleTeamsMessagingExtensionSubmitAction(context, action) {
     // The user has chosen to create a card by choosing the 'Create Card' context menu command.
@@ -100,4 +101,4 @@ class TeamsBot extends TeamsActivityHandler {
   }
 }
 
-module.exports.TeamsBot = TeamsBot;
+module.exports.Agent = Agent;
