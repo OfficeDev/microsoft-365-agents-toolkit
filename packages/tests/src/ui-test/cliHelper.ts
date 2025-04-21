@@ -25,7 +25,7 @@ export class CliHelper {
     projectPath: string,
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const command = `teamsapp env add ${env} --env dev --telemetry false`;
+    const command = `atk env add ${env} --env dev --telemetry false`;
     const timeout = 100000;
 
     try {
@@ -62,7 +62,7 @@ export class CliHelper {
     const timeout = timeoutPromise(delay);
     let command = "";
     if (v3) {
-      command = `npx teamsapp -v`;
+      command = `npx atk -v`;
     } else {
       command = `npx teamsfx -v`;
     }
@@ -142,7 +142,7 @@ export class CliHelper {
     processEnv?: NodeJS.ProcessEnv
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp provision --env ${env} --interactive false --verbose ${option} --telemetry false`,
+      `atk provision --env ${env} --interactive false --verbose ${option} --telemetry false`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -163,7 +163,7 @@ export class CliHelper {
     projectPath: string,
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const result = await execAsyncWithRetry(`teamsapp --version`, {
+    const result = await execAsyncWithRetry(`atk --version`, {
       cwd: projectPath,
       env: processEnv ? processEnv : process.env,
       timeout: 0,
@@ -181,7 +181,7 @@ export class CliHelper {
     newCommand?: string
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp deploy --env ${env} --interactive false --verbose ${option} --telemetry false`,
+      `atk deploy --env ${env} --interactive false --verbose ${option} --telemetry false`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -206,7 +206,7 @@ export class CliHelper {
   ) {
     console.log(`[publish] ${projectPath}`);
     const result = await execAsyncWithRetry(
-      `teamsapp publish --env ${env} --verbose  ${option} --telemetry false`,
+      `atk publish --env ${env} --verbose  ${option} --telemetry false`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -271,7 +271,7 @@ export class CliHelper {
 
     let command = "";
     if (v3) {
-      command = `npx teamsapp -v`;
+      command = `npx atk -v`;
     } else {
       command = `npx teamsfx -v`;
     }
@@ -358,7 +358,7 @@ export class CliHelper {
     processEnv?: NodeJS.ProcessEnv,
     options = ""
   ): Promise<void> {
-    const command = `teamsapp new --interactive false --runtime dotnet --app-name ${appName} --capability ${capability} ${options} --telemetry false`;
+    const command = `atk new --interactive false --runtime dotnet --app-name ${appName} --capability ${capability} ${options} --telemetry false`;
     const timeout = 100000;
     try {
       const result = await execAsync(command, {
@@ -393,10 +393,10 @@ export class CliHelper {
     options = "",
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const command = `teamsapp new --interactive false --app-name ${appName} --capability ${capability} --programming-language ${lang} ${options} --telemetry false`;
+    const command = `atk new --interactive false --app-name ${appName} --capability ${capability} --programming-language ${lang} ${options} --telemetry false`;
     const timeout = 100000;
     try {
-      await Executor.execute("teamsapp -v", testFolder);
+      await Executor.execute("atk -v", testFolder);
       await Executor.execute(command, testFolder);
       const message = `scaffold project to ${path.resolve(
         testFolder,
@@ -425,14 +425,14 @@ export class CliHelper {
     console.log("cli version is V3 or not: " + CliHelper.getVersionFlag());
     const versionFlag = JSON.parse(CliHelper.getVersionFlag() as string);
     if (versionFlag) {
-      command = `teamsapp new --interactive false --app-name ${appName} --capability ${capability} --programming-language ${lang} ${options} --telemetry false`;
+      command = `atk new --interactive false --app-name ${appName} --capability ${capability} --programming-language ${lang} ${options} --telemetry false`;
     } else {
       command = `teamsfx new --interactive false --app-name ${appName} --capabilities ${capability} --programming-language ${lang} ${options}`;
     }
     const timeout = 100000;
     try {
       if (versionFlag) {
-        const { stdout } = await Executor.execute("teamsapp -v", testFolder);
+        const { stdout } = await Executor.execute("atk -v", testFolder);
         console.log(stdout);
       } else {
         const { stdout } = await Executor.execute("teamsfx -v", testFolder);
@@ -464,9 +464,9 @@ export class CliHelper {
     process.env["TEAMSFX_V3_MIGRATION"] = V3 ? "true" : "false";
 
     console.log("TEAMSFX_V3: " + process.env["TEAMSFX_V3"]);
-    console.log(await Executor.execute("teamsapp -v", testFolder));
+    console.log(await Executor.execute("atk -v", testFolder));
 
-    const command = `teamsapp new sample ${template} --interactive false --telemetry false`;
+    const command = `atk new sample ${template} --interactive false --telemetry false`;
     const timeout = 100000;
     try {
       const result = await Executor.execute(command, testFolder);

@@ -120,7 +120,7 @@ export class Executor {
     }
 
     const command =
-      `teamsapp new --interactive false --debug --app-name ${appName} --capability ${capability} ${languageParam} ` +
+      `atk new --interactive false --debug --app-name ${appName} --capability ${capability} ${languageParam} ` +
       Object.entries(customized)
         .map(([key, value]) => "--" + key + " " + value)
         .join(" ");
@@ -128,7 +128,7 @@ export class Executor {
   }
 
   static async addEnv(workspace: string, newEnv: string, env = "dev") {
-    const command = `teamsapp env add ${newEnv} --env ${env}`;
+    const command = `atk env add ${newEnv} --env ${env}`;
     return this.execute(command, workspace);
   }
 
@@ -140,7 +140,7 @@ export class Executor {
     localManifestPath: string
   ) {
     const command =
-      `teamsapp add spfx-web-part --spfx-webpart-name ${webpartName}` +
+      `atk add spfx-web-part --spfx-webpart-name ${webpartName}` +
       ` --spfx-folder ${spfxFolder} --teams-manifest-file ${manifestPath}` +
       ` --local-teams-manifest-file ${localManifestPath} --interactive false `;
     return this.execute(command, workspace);
@@ -341,7 +341,7 @@ export class Executor {
     template: TemplateProjectFolder,
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const command = `teamsapp new sample ${template} --interactive false `;
+    const command = `atk new sample ${template} --interactive false `;
     const timeout = 100000;
     try {
       await this.execute(command, testFolder, processEnv, timeout);
