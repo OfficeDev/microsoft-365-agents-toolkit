@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
     using Microsoft.Agents.Connector;
     using Microsoft.Agents.Core.Models;
     using Microsoft.Agents.Extensions.Teams.Models;
@@ -113,7 +113,7 @@
             (
                 new ConversationParameters {
                     IsGroup = false,
-                    Bot = context.Activity.Recipient,
+                    Agent = context.Activity.Recipient,
                     Members = new List<ChannelAccount>() { Account },
                     ChannelData = { },
                     TenantId = context.Activity.Conversation.TenantId,

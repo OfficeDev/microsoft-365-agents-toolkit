@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
     using AdaptiveCards;
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
     using Microsoft.Agents.Core.Models;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
