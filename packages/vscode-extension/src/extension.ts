@@ -42,7 +42,12 @@ import azureAccountManager from "./commonlib/azureLogin";
 import VsCodeLogInstance from "./commonlib/log";
 import M365TokenInstance from "./commonlib/m365Login";
 import { configMgr } from "./config";
-import { CommandKey as CommandKeys } from "./constants";
+import {
+  CommandKey as CommandKeys,
+  CONFIGURATION_PREFIX,
+  ConfigurationKey,
+  EnableMicrosoftKiota,
+} from "./constants";
 import { openWelcomePageAfterExtensionInstallation } from "./controls/openWelcomePage";
 import { TeamsFxTaskType } from "./debug/common/debugConstants";
 import { getLocalDebugSessionId, startLocalDebugSession } from "./debug/common/localDebugSession";
@@ -130,6 +135,7 @@ import {
   setSensitivityLabelHandler,
   shareHandler,
   shareRemoveHandler,
+  validateKiotaInstallation,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -188,7 +194,7 @@ import {
   handleOfficeFeedback,
   officeChatRequestHandler,
 } from "./officeChat/handlers";
-import { initVSCodeUI } from "./qm/vsc_ui";
+import { initVSCodeUI, VS_CODE_UI } from "./qm/vsc_ui";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
@@ -200,7 +206,7 @@ import { UriHandler, setUriEventHandler } from "./uriHandler";
 import { signOutAzure, signOutM365 } from "./utils/accountUtils";
 import { acpInstalled, delay, hasAdaptiveCardInWorkspace } from "./utils/commonUtils";
 import { updateAutoOpenGlobalKey } from "./utils/globalStateUtils";
-import { loadLocalizedStrings } from "./utils/localizeUtils";
+import { loadLocalizedStrings, localize } from "./utils/localizeUtils";
 import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/projectChecker";
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
@@ -315,7 +321,7 @@ export async function activate(context: vscode.ExtensionContext) {
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
   await vscode.commands.executeCommand("setContext", "fx-extension.initialized", true);
 
-  await configMgr.checkKiotaInstallation();
+  await checkKiotaInstallation(context);
 }
 
 // this method is called when your extension is deactivated
@@ -636,17 +642,7 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 
   // Register createPluginWithManifest command
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {
-    const createPluginWithManifestCommand = vscode.commands.registerCommand(
-      "fx-extension.createprojectfromkiota",
-      (args) => Correlator.run(createPluginWithManifest, args)
-    );
-    context.subscriptions.push(createPluginWithManifestCommand);
-
-    const kiotaRegenerateCommand = vscode.commands.registerCommand(
-      "fx-extension.kiotaregenerate",
-      (args) => Correlator.run(kiotaRegenerate, args)
-    );
-    context.subscriptions.push(kiotaRegenerateCommand);
+    registerKiotaCommands(context);
   }
 }
 
@@ -1514,5 +1510,56 @@ async function detectedTeamsFxProject(context: vscode.ExtensionContext) {
 async function recommendACPExtension(): Promise<void> {
   if (!acpInstalled() && (await hasAdaptiveCardInWorkspace())) {
     await installAdaptiveCardExt(TelemetryTriggerFrom.Auto);
+  }
+}
+
+function registerKiotaCommands(context: vscode.ExtensionContext) {
+  const createPluginWithManifestCommand = vscode.commands.registerCommand(
+    "fx-extension.createprojectfromkiota",
+    (args) => Correlator.run(createPluginWithManifest, args)
+  );
+  context.subscriptions.push(createPluginWithManifestCommand);
+
+  const kiotaRegenerateCommand = vscode.commands.registerCommand(
+    "fx-extension.kiotaregenerate",
+    (args) => Correlator.run(kiotaRegenerate, args)
+  );
+  context.subscriptions.push(kiotaRegenerateCommand);
+}
+
+export async function checkKiotaInstallation(context: vscode.ExtensionContext) {
+  const configuration: vscode.WorkspaceConfiguration =
+    vscode.workspace.getConfiguration(CONFIGURATION_PREFIX);
+  const currentConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiotaString);
+  if (currentConfig === EnableMicrosoftKiota.undefined && validateKiotaInstallation()) {
+    const previousConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiota);
+    if (previousConfig) {
+      await configuration.update(
+        ConfigurationKey.EnableMicrosoftKiotaString,
+        EnableMicrosoftKiota.enabled,
+        true
+      );
+      registerKiotaCommands(context);
+    } else {
+      // pop up question to ask if user want to enable kiota
+      const res = await VS_CODE_UI.showMessage(
+        "warn",
+        localize("teamstoolkit.config.enableKiota"),
+        true,
+        localize("teamstoolkit.config.enableKiota.yes"),
+        localize("teamstoolkit.config.enableKiota.no")
+      );
+      await configuration.update(
+        ConfigurationKey.EnableMicrosoftKiotaString,
+        res.isOk() && res.value === "Yes"
+          ? EnableMicrosoftKiota.enabled
+          : EnableMicrosoftKiota.disabled,
+        true
+      );
+      if (res.isOk() && res.value === "Yes") {
+        registerKiotaCommands(context);
+      }
+    }
+    configMgr.loadFeatureFlags();
   }
 }

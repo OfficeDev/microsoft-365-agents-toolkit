@@ -104,7 +104,7 @@ export class TypeSpecCompileDriver implements StepDriver {
               `${openApiSpecsFolderPath}/${spec}`,
               `${outputFolderPath}`,
               `${pluginManifestName}`,
-              ctx.projectPath
+              `${outputFolderPath}`
             );
           } else {
             for (const spec of openapiSpecs) {

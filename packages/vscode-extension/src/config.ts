@@ -7,9 +7,6 @@ import { LogLevel } from "@microsoft/teamsfx-api";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent } from "./telemetry/extTelemetryEvents";
 import { FeatureFlags } from "@microsoft/teamsfx-core";
-import { validateKiotaInstallation } from "./handlers/lifecycleHandlers";
-import { VS_CODE_UI } from "./qm/vsc_ui";
-import { localize } from "./utils/localizeUtils";
 
 export class ConfigManager {
   registerConfigChangeCallback() {
@@ -61,38 +58,6 @@ export class ConfigManager {
   changeConfigCallback(event: vscode.ConfigurationChangeEvent) {
     if (event.affectsConfiguration(CONFIGURATION_PREFIX)) {
       this.loadConfigs();
-    }
-  }
-  async checkKiotaInstallation() {
-    const configuration: vscode.WorkspaceConfiguration =
-      vscode.workspace.getConfiguration(CONFIGURATION_PREFIX);
-    const currentConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiotaString);
-    if (currentConfig === EnableMicrosoftKiota.undefined && validateKiotaInstallation()) {
-      const previousConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiota);
-      if (previousConfig) {
-        await configuration.update(
-          ConfigurationKey.EnableMicrosoftKiotaString,
-          EnableMicrosoftKiota.enabled,
-          true
-        );
-      } else {
-        // pop up question to ask if user want to enable kiota
-        const res = await VS_CODE_UI.showMessage(
-          "warn",
-          localize("teamstoolkit.config.enableKiota"),
-          true,
-          localize("teamstoolkit.config.enableKiota.yes"),
-          localize("teamstoolkit.config.enableKiota.no")
-        );
-        await configuration.update(
-          ConfigurationKey.EnableMicrosoftKiotaString,
-          res.isOk() && res.value === "Yes"
-            ? EnableMicrosoftKiota.enabled
-            : EnableMicrosoftKiota.disabled,
-          true
-        );
-      }
-      this.loadFeatureFlags();
     }
   }
 }
