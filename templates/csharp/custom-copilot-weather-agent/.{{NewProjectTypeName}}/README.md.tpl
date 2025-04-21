@@ -34,7 +34,6 @@ The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel
       "OpenAIDeploymentName": "<your-azure-openai-deployment-name>"
     }
     ```
-  > The domain of your endpoint should be as `.cognitiveservices.azure.com`. You can find it from [Azure AI Foundry](https://ai.azure.com/resource/overview/). 
 {{/useAzureOpenAI}}
 1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
 ![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)

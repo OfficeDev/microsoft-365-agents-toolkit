@@ -24,10 +24,10 @@
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
     <PackageReference Include="AdaptiveCards" Version="3.1.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.29.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.29.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.29.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.29.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.45.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.45.0" />
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.154-alpha" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.154-alpha" />
   </ItemGroup>
