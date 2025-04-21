@@ -689,10 +689,6 @@ describe("parseCommonProperties", () => {
       id: "mockid",
       version: "1.0.0",
       manifestVersion: "1.14",
-      configurableTabs: [{}],
-      webApplicationInfo: {
-        id: SharePointAppId,
-      },
     };
     const res = manifestUtils.parseCommonProperties(manifest);
     assert.isFalse(res.capabilities.includes("configurableTab"));
