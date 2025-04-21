@@ -19,6 +19,6 @@ deploy:
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
     with:
-      target: ./.localConfigs.testTool
+      target: ./.localConfigs.playground
       envs:
         TEAMSFX_NOTIFICATION_STORE_FILENAME: ${{TEAMSFX_NOTIFICATION_STORE_FILENAME}}

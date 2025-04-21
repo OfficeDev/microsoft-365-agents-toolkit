@@ -3,7 +3,7 @@ env/.env.*.user
 env/.env.local
 env/.env.sandbox
 .localConfigs
-.localConfigs.testTool
+.localConfigs.playground
 .localConfigs
 .notification.localstore.json
 .notification.playgroundstore.json

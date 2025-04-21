@@ -2,7 +2,7 @@
 .development
 .DS_Store
 .git*
-.localConfigs.testTool
+.localConfigs.playground
 .localConfigs
 .notification.localstore.json
 .notification.playgroundstore.json

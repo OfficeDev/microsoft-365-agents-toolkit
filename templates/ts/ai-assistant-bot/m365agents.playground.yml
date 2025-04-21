@@ -19,7 +19,7 @@ deploy:
   # Generate runtime environment variables
   - uses: file/createOrUpdateEnvironmentFile
     with:
-      target: ./.localConfigs.testTool
+      target: ./.localConfigs.playground
       envs:
         OPENAI_API_KEY: ${{SECRET_OPENAI_API_KEY}}
         OPENAI_ASSISTANT_ID: ${{SECRET_OPENAI_ASSISTANT_ID}}
