@@ -144,6 +144,11 @@ export async function runCommand(
         result = await core.addPlugin(inputs);
         break;
       }
+      case Stage.RegeneratePlugin: {
+        //TODO: result = await core.regeneratePlugin(inputs);
+        result = ok(undefined);
+        break;
+      }
       case Stage.kiotaRegenerate: {
         result = await core.kiotaRegenerate(inputs);
         break;
