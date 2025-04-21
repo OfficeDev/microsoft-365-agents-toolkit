@@ -1,18 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { InputsWithProjectPath, ok, Platform, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import {
+  InputsWithProjectPath,
+  ok,
+  Platform,
+  TeamsAppManifest,
+  TeamsManifestV1D10Convert,
+} from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import "mocha";
 import "reflect-metadata";
 import sinon from "sinon";
 import * as uuid from "uuid";
-import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import {
+  manifestUtils,
+  SharePointAppId,
+} from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { JSONSyntaxError, MissingEnvironmentVariablesError } from "../../../../src/error/common";
 import { newEnvInfoV3 } from "../../../helpers";
 import fs from "fs-extra";
 import { createContext, setTools } from "../../../../src/common/globalVars";
 import { MockTools } from "../../../core/utils";
 import { generateDriverContext } from "../../../../src/common/utils";
+import { verify } from "crypto";
 
 describe("getManifest V3", () => {
   const sandbox = sinon.createSandbox();
@@ -121,5 +131,44 @@ describe("_readAppManifest", () => {
     sandbox.stub(fs, "readFile").resolves("invalid json" as any);
     const res = await manifestUtils._readAppManifest("invalid json");
     chai.assert.isTrue(res.isErr() && res.error instanceof JSONSyntaxError);
+  });
+});
+
+describe("parseCommonProperties", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("configurableTab", async () => {
+    const manifest: any = {
+      id: uuid.v4(),
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      configurableTabs: [{}],
+      webApplicationInfo: {
+        id: SharePointAppId,
+      },
+      composeExtensions: [
+        {
+          composeExtensionType: "apiBased",
+          authorization: {
+            authType: "microsoftEntra",
+          },
+        },
+      ],
+      copilotAgents: {
+        plugins: [
+          {
+            file: "xxx",
+          },
+        ],
+        declarativeAgents: [{}],
+      },
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    chai.assert.isTrue(res.capabilities.includes("configurableTab"));
+    chai.assert.isTrue(res.isSPFx);
+    chai.assert.isTrue(res.isApiMeAAD);
+    chai.assert.isTrue(res.capabilities.includes("copilotGpt"));
   });
 });
