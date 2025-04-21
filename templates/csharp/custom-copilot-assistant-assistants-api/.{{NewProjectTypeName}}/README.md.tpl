@@ -21,7 +21,7 @@ The app template is built using the Teams AI library, which provides the capabil
 
 > This app template provides script `Create-Assistant.ps1` to help create assistant. The app assistant provides capabilities such as solving a math problem, calling functions for city weather and city nickname. Get more information in `ActionHandlers.cs`. You can change the instructions and settings in the script to customize assistant.
 {{#useOpenAI}}
-1. Ensure your OpenAI settings filled in `appsettings.TestTool.json`.
+1. Ensure your OpenAI settings filled in `appsettings.Playground.json`.
     ```
     "OpenAI": {
       "ApiKey": "<your-openai-api-key>"
@@ -29,7 +29,7 @@ The app template is built using the Teams AI library, which provides the capabil
     ```
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-1. Ensure your Azure OpenAI settings filled in `appsettings.TestTool.json`.
+1. Ensure your Azure OpenAI settings filled in `appsettings.Playground.json`.
     ```
     "Azure": {
       "OpenAIApiKey": "<your-azure-openai-api-key>",
@@ -43,11 +43,11 @@ The app template is built using the Teams AI library, which provides the capabil
    > . ./Create-Assistant.ps1
    ```
 1. The above command will display the properties of the newly created assistant, including the ID like "id: asst_xxx...". 
-1. Fill in your assistant id in `env/.env.local.user`, `env/.env.dev.user` and `appsettings.TestTool.json`.
+1. Fill in your assistant id in `env/.env.local.user`, `env/.env.dev.user` and `appsettings.Playground.json`.
 
 ### Debug agent in Microsoft 365 Agents Playground
 {{#useOpenAI}}
-1. Ensure your OpenAI API Key filled in `appsettings.TestTool.json`.
+1. Ensure your OpenAI API Key filled in `appsettings.Playground.json`.
     ```
     "OpenAI": {
       "ApiKey": "<your-openai-api-key>",
@@ -56,7 +56,7 @@ The app template is built using the Teams AI library, which provides the capabil
     ```
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-1. Ensure your Azure OpenAI settings filled in `appsettings.TestTool.json`.
+1. Ensure your Azure OpenAI settings filled in `appsettings.Playground.json`.
     ```
     "Azure": {
       "OpenAIApiKey": "<your-azure-openai-api-key>",

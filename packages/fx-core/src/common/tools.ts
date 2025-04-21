@@ -12,7 +12,7 @@ import { GraphClient } from "../client/graphClient";
 import { GraphReadUserScopes, SPFxScopes } from "./constants";
 import fs from "fs-extra";
 import path from "path";
-import { MetadataV3 } from "./versionMetadata";
+import { MetadataV3, MetadataV4 } from "./versionMetadata";
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
@@ -104,6 +104,10 @@ export async function listDevTunnels(
 }
 
 export function isTestToolEnabledProject(projectPath: string): boolean {
+  const testToolYmlPathV4 = path.join(projectPath, MetadataV4.testToolConfigFile);
+  if (fs.pathExistsSync(testToolYmlPathV4)) {
+    return true;
+  }
   const testToolYmlPath = path.join(projectPath, MetadataV3.testToolConfigFile);
   if (fs.pathExistsSync(testToolYmlPath)) {
     return true;
