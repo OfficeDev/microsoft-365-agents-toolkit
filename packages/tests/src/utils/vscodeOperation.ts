@@ -25,6 +25,7 @@ import {
   Timeout,
   CreateProjectQuestion,
   AppType,
+  Lang,
 } from "./constants";
 import { RetryHandler } from "./retryHandler";
 import isWsl from "is-wsl";
@@ -544,7 +545,7 @@ export async function createNewProject(
   appType: AppType,
   appName: string,
   option?: {
-    lang?: "JavaScript" | "TypeScript" | "Python";
+    lang?: Lang;
     spfxFrameworkType?: "React" | "None" | "Minimal";
     aiType?: "Azure OpenAI" | "OpenAI";
     aiManagement?: "Build from Scratch" | "Build with Assistants API";

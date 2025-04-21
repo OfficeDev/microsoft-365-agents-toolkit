@@ -28,9 +28,7 @@ describe("Local Debug Tests", function () {
   beforeEach(async function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
-    localDebugTestContext = new LocalDebugTestContext("dashboard", {
-      lang: "javascript",
-    });
+    localDebugTestContext = new LocalDebugTestContext("dashboard");
     await localDebugTestContext.before();
   });
 

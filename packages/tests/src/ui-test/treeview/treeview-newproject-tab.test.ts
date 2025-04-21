@@ -7,7 +7,7 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import { expect } from "chai";
-import { Timeout } from "../../utils/constants";
+import { Timeout, Lang } from "../../utils/constants";
 import { TreeViewTestContext } from "./treeviewContext";
 import { createNewProject } from "../../utils/vscodeOperation";
 import { it } from "../../utils/it";
@@ -41,7 +41,7 @@ describe("New project Tests", function () {
     },
     async function () {
       const appName = treeViewTestContext.appName;
-      await createNewProject("tab", appName, { lang: "TypeScript" });
+      await createNewProject("tab", appName, { lang: Lang.TS });
       newAppFolderName = appName + appNameCopySuffix;
       projectPath = path.resolve(testRootFolder, newAppFolderName);
       const filePath1 = path.join(projectPath, "src", "index.tsx");

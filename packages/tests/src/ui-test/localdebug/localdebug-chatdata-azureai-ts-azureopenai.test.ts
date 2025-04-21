@@ -16,6 +16,7 @@ import {
   LocalDebugTaskLabel,
   DebugItemSelect,
   ValidationContent,
+  Lang,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -32,7 +33,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      lang: "typescript",
+      lang: Lang.TS,
       customCopilotRagType: "custom-copilot-rag-azureAISearch",
     });
     await localDebugTestContext.before();

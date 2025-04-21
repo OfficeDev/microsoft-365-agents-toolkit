@@ -21,6 +21,7 @@ import {
   DebugItemSelect,
   ValidationContent,
   LocalDebugTaskLabel2,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -36,7 +37,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      lang: "python",
+      lang: Lang.PY,
       customCopilotRagType: "custom-copilot-rag-azureAISearch",
       llmServiceType: "llm-service-openai",
     });

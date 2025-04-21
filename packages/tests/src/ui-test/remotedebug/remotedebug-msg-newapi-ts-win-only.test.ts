@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout } from "../../utils/constants";
+import { Lang, Timeout } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   provisionProject,
@@ -65,7 +65,7 @@ describe("Remote debug Tests", function () {
     },
     async function () {
       const driver = VSBrowser.instance.driver;
-      await createNewProject("msgnewapi", appName, { lang: "TypeScript" });
+      await createNewProject("msgnewapi", appName, { lang: Lang.TS });
       await provisionProject(appName, projectPath);
       await deployProject(projectPath, Timeout.botDeploy);
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(

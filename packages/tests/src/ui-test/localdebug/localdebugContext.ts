@@ -8,7 +8,7 @@ import { execCommand } from "../../utils/execCommand";
 import { stopDebugging } from "../../utils/vscodeOperation";
 import { TestContext } from "../testContext";
 import { dotenvUtil } from "../../utils/envUtil";
-import { TestFilePath } from "../../utils/constants";
+import { TestFilePath, Lang } from "../../utils/constants";
 import { VSBrowser } from "vscode-extension-tester";
 
 export type LocalDebugTestName =
@@ -53,7 +53,7 @@ export class LocalDebugTestContext extends TestContext {
   constructor(
     testName: LocalDebugTestName,
     option?: {
-      lang?: "javascript" | "typescript" | "python";
+      lang?: Lang;
       framework?: "react" | "minimal" | "none";
       needMigrate?: boolean;
       existingSpfxFolder?: string;
@@ -70,7 +70,13 @@ export class LocalDebugTestContext extends TestContext {
   ) {
     super(testName);
     this.testName = testName;
-    this.lang = option?.lang ? option.lang : "javascript";
+
+    this.lang = option?.lang
+      ? (option?.lang?.toLocaleLowerCase() as
+          | "javascript"
+          | "typescript"
+          | "python")
+      : "javascript";
     this.framework = option?.framework ? option.framework : "react";
     this.needMigrate = option?.needMigrate;
     this.existingSpfxFolder = option?.existingSpfxFolder
@@ -156,75 +162,75 @@ export class LocalDebugTestContext extends TestContext {
       case "tab":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability sso-launch-page --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability sso-launch-page --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabnsso":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab-non-sso --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab-non-sso --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "funcNoti":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-functions --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-functions --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "expressnoti":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-express --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-express --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "crbot":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability command-bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability command-bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "function":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
         );
         await execCommand(
           path.resolve(this.testRootFolder, this.appName),
-          `teamsapp add azure-function --telemetry false`
+          `atk add azure-function --telemetry false`
         );
         break;
       case "bot":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msg":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability collect-form-message-extension --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability collect-form-message-extension --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgsa":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability search-app --me-architecture bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "tabbot":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
         );
         await execCommand(
           path.resolve(this.testRootFolder, this.appName),
-          `teamsapp add bot --telemetry false`
+          `atk add bot --telemetry false`
         );
         break;
       case "spfx":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab-spfx --spfx-framework-type ${this.framework} --spfx-webpart-name ${this.appName} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab-spfx --spfx-framework-type ${this.framework} --spfx-webpart-name ${this.appName} --telemetry false`
         );
         break;
       case "spfximport":
@@ -235,93 +241,93 @@ export class LocalDebugTestContext extends TestContext {
         );
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab-spfx --spfx-solution import --spfx-folder ${resourcePath} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab-spfx --spfx-solution import --spfx-folder ${resourcePath} --telemetry false`
         );
         break;
       case "botfunc":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability tab --programming-language ${this.lang} --telemetry false`
         );
         await execCommand(
           path.resolve(this.testRootFolder, this.appName),
-          `teamsapp add azure-function --telemetry false`
+          `atk add azure-function --telemetry false`
         );
         await execCommand(
           path.resolve(this.testRootFolder, this.appName),
-          `teamsapp add bot --telemetry false`
+          `atk add bot --telemetry false`
         );
         break;
       case "m365lp":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability sso-launch-page --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability sso-launch-page --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "workflow":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability workflow-bot --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability workflow-bot --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "dashboard":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability dashboard-tab --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability dashboard-tab --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "timeNoti":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger timer-functions --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger timer-functions --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "ftNoti":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-and-timer-functions --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability notification --bot-host-type-trigger http-and-timer-functions --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "linkunfurl":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability link-unfurling  --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability link-unfurling  --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "aichat":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability custom-copilot-basic --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-basic --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "aiagent":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability custom-copilot-agent --custom-copilot-agent ${this.customCeopilotAgent} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-agent --custom-copilot-agent ${this.customCeopilotAgent} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "chatdata":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgnewapi":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgapikey":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth bearer-token --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth bearer-token --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "msgmicroentra":
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth microsoft-entra --programming-language ${this.lang} --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability search-app  --me-architecture new-api --api-auth microsoft-entra --programming-language ${this.lang} --telemetry false`
         );
         break;
       case "cdcustomapi": //chat data customApi
@@ -329,7 +335,7 @@ export class LocalDebugTestContext extends TestContext {
           "https://raw.githubusercontent.com/SLdragon/example-openapi-spec/main/real-no-auth.yaml";
         await execCommand(
           this.testRootFolder,
-          `teamsapp new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
+          `atk new --app-name ${this.appName} --interactive false --capability custom-copilot-rag --custom-copilot-rag ${this.customCopilotRagType} --llm-service ${this.llmServiceType} --programming-language ${this.lang}  --openapi-spec-location ${apiSpecPath} --api-operation "GET /repairs" --telemetry false`
         );
         break;
     }

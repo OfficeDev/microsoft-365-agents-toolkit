@@ -10,6 +10,7 @@ import {
   LocalDebugTaskLabel,
   LocalDebugTaskInfo,
   ValidationContent,
+  Lang,
 } from "../../utils/constants";
 import { it } from "../../utils/it";
 import {
@@ -55,7 +56,7 @@ describe("Local Debug Tests", function () {
     },
     async function () {
       await botHappyPathTestForLocalDebug("crbot", {
-        lang: "typescript",
+        lang: Lang.TS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartBotApp,
         localDebugTaskInfo: LocalDebugTaskInfo.StartBotInfo,
@@ -74,7 +75,7 @@ describe("Local Debug Tests", function () {
     },
     async function () {
       await botHappyPathTestForRemoteDebug("crbot", {
-        lang: "TypeScript",
+        lang: Lang.TS,
         successFlag: successFlag,
         validationFn: validationCrbot,
         validationBotCommand: "helloWorld",
