@@ -318,7 +318,7 @@ export class ProjectTypeOptions {
   static startWithGithubCopilot(): OptionItem {
     return {
       id: "start-with-github-copilot",
-      label: `$(comment-discussion) ${getLocalizedString(
+      label: `$(question) ${getLocalizedString(
         "core.createProjectQuestion.projectType.copilotHelp.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),

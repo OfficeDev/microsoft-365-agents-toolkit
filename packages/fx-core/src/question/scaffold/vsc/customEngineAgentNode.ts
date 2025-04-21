@@ -28,10 +28,7 @@ export function customEngineAgentNode(): IQTreeNode {
       name: QuestionNames.Capabilities,
       title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
       type: "singleSelect",
-      staticOptions: [
-        CustomEngineAgentOptions.basicCustomEngineAgent(),
-        CustomEngineAgentOptions.weatherAgent(),
-      ],
+      staticOptions: [CustomEngineAgentOptions.basicCustomEngineAgent()],
       placeholder: getLocalizedString(
         "core.createProjectQuestion.projectType.customCopilot.placeholder"
       ),

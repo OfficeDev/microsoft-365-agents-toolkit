@@ -153,7 +153,7 @@ export class ProjectTypeOptions {
       : getLocalizedString("core.createProjectQuestion.option.description.preview");
     return {
       id: ProjectTypeOptions.startWithGithubCopilotOptionId,
-      label: `$(comment-discussion) ${getLocalizedString(
+      label: `$(question) ${getLocalizedString(
         "core.createProjectQuestion.projectType.copilotHelp.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),
