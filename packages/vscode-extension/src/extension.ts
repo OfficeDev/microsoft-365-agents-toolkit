@@ -131,6 +131,7 @@ import {
   m365PreAuthHandler,
   provisionHandler,
   publishHandler,
+  regeneratePluginHandler,
   scaffoldFromDeveloperPortalHandler,
   setSensitivityLabelHandler,
   shareHandler,
@@ -313,6 +314,15 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isDeclarativeCopilotApp",
     isDeclarativeCopilotApp
+  );
+
+  const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
+    FeatureFlags.KiotaNPMIntegration
+  );
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isKiotaNPMIntegrationEnabled",
+    isKiotaNPMIntegrationEnabled
   );
 
   void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
@@ -677,6 +687,12 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
 
+  registerInCommandController(
+    context,
+    "fx-extension.regeneratePlugin",
+    regeneratePluginHandler,
+    "regeneratePlugin"
+  );
   registerInCommandController(
     context,
     "fx-extension.addKnowledge",
