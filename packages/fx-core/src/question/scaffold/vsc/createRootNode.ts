@@ -23,7 +23,7 @@ import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
 import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { teamsAppProjectNode } from "./teamsProjectTypeNode";
+import { teamsAppProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -206,5 +206,36 @@ export function getProjectTypeByCapability(capability: string): string {
     return ProjectTypeOptions.outlookAddinOptionId;
   }
 
+  return "";
+}
+
+export function getTeamsProjectTypeByCapability(capability: string): string {
+  if (
+    [
+      BotCapabilityOptions.basicBot().id,
+      BotCapabilityOptions.notificationBot().id,
+      BotCapabilityOptions.commandBot().id,
+      BotCapabilityOptions.workflowBot().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.botOptionId;
+  } else if (
+    [
+      TabCapabilityOptions.nonSsoTab().id,
+      TabCapabilityOptions.m365SsoLaunchPage().id,
+      TabCapabilityOptions.dashboardTab().id,
+      TabCapabilityOptions.SPFxTab().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.tabOptionId;
+  } else if (
+    [
+      MeCapabilityOptions.m365SearchMe().id,
+      MeCapabilityOptions.collectFormMe().id,
+      MeCapabilityOptions.linkUnfurling().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.meOptionId;
+  }
   return "";
 }

@@ -40,6 +40,7 @@ import {
 import {
   folderAndAppNameCondition,
   getProjectTypeByCapability,
+  getTeamsProjectTypeByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
@@ -521,5 +522,20 @@ describe("getProjectTypeByCapability", () => {
   it("Outlook", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.outlookTaskPane().id);
     assert.equal(type, ProjectTypeOptions.outlookAddinOptionId);
+  });
+});
+
+describe("getTeamsProjectTypeByCapability", () => {
+  it("Tab", () => {
+    const type = getTeamsProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
+    assert.equal(type, TeamsProjectTypeOptions.tabOptionId);
+  });
+  it("Bot", () => {
+    const type = getTeamsProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
+    assert.equal(type, TeamsProjectTypeOptions.botOptionId);
+  });
+  it("Message Extension", () => {
+    const type = getTeamsProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
+    assert.equal(type, TeamsProjectTypeOptions.meOptionId);
   });
 });

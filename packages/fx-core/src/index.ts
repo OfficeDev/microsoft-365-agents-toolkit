@@ -12,24 +12,24 @@
  */
 
 import "reflect-metadata";
-export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
 export { GraphClient } from "./client/graphClient";
+export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
 export { askSubscription } from "./common/azureUtils";
 export {
   AppStudioScopes,
   AuthSvcScopes,
   AzureScopes,
+  getAllowedAppMaps,
   GraphReadUserScopes,
   GraphScopes,
   ListSensitivityLabelScope,
   SPFxScopes,
-  getAllowedAppMaps,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
+  featureFlagManager,
   FeatureFlagName,
   FeatureFlags,
-  featureFlagManager,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
@@ -38,14 +38,13 @@ export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {
+  projectTypeChecker,
   ProjectTypeResult,
   TeamsfxVersionState,
-  projectTypeChecker,
 } from "./common/projectTypeChecker";
 export { sendRequestWithRetry, sendRequestWithTimeout } from "./common/requestUtils";
-export { SampleConfig, SampleUrlInfo, sampleProvider } from "./common/samples";
+export { SampleConfig, sampleProvider, SampleUrlInfo } from "./common/samples";
 export {
-  MaskSecretOptions,
   convertToAlphanumericOnly,
   getHashedEnv,
   getResourceGroupNameFromResourceId,
@@ -54,14 +53,15 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
 export { telemetryUtils } from "./common/telemetry";
 export {
-  getSPFxTenant,
   getSideloadingStatus,
-  listDevTunnels,
+  getSPFxTenant,
   isSandboxedEnabled,
+  listDevTunnels,
 } from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";
 export { SummaryConstant } from "./component/configManager/constant";
@@ -81,6 +81,7 @@ export { FuncToolChecker } from "./component/deps-checker/internal/funcToolCheck
 export { LtsNodeChecker } from "./component/deps-checker/internal/nodeChecker";
 export { getPermissionMap } from "./component/driver/aad/permissions/index";
 export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
+export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
@@ -113,5 +114,7 @@ export * from "./question/constants";
 export * from "./question/inputs";
 export * from "./question/options";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
-export { getProjectTypeByCapability } from "./question/scaffold/vsc/createRootNode";
-export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
+export {
+  getProjectTypeByCapability,
+  getTeamsProjectTypeByCapability,
+} from "./question/scaffold/vsc/createRootNode";
