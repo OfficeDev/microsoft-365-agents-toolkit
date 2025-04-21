@@ -41,7 +41,7 @@ export function teamsAppProjectNode(platform: Platform): IQTreeNode {
     condition: { equals: ProjectTypeOptions.teamsAppOptionId },
     data: {
       name: QuestionNames.TeamsAppType,
-      title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
+      title: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.title"),
       type: "singleSelect",
       staticOptions: [
         TeamsProjectTypeOptions.bot(platform),

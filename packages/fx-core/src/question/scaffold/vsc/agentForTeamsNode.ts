@@ -160,7 +160,7 @@ export function agentForTeamsProjectTypeNode(): IQTreeNode {
     condition: { equals: ProjectTypeOptions.agentForTeamsOptionId },
     data: {
       name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
+      title: getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.title"),
       type: "singleSelect",
       staticOptions: [
         CustomCopilotCapabilityOptions.basicChatbot(),
