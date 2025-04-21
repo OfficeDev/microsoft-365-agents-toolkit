@@ -28,9 +28,9 @@ export class ProjectTypeOptions {
   static agentForTeams(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.agentForTeamsOptionId,
-      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.agentForTeams.label"
-      )}`,
+      label: `${
+        platform === Platform.VSCode ? "$(microsoft365-agents-toolkit-teams) " : ""
+      }${getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
@@ -39,9 +39,9 @@ export class ProjectTypeOptions {
   static teamsApp(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.teamsAppOptionId,
-      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.teamsApp.label"
-      )}`,
+      label: `${
+        platform === Platform.VSCode ? "$(microsoft365-agents-toolkit-teams) " : ""
+      }${getLocalizedString("core.createProjectQuestion.projectType.teamsApp.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };
@@ -61,9 +61,9 @@ export class ProjectTypeOptions {
   static officeMetaOS(platform: Platform = Platform.VSCode): OptionItem {
     return {
       id: ProjectTypeOptions.officeMetaOSOptionId,
-      label: `${platform === Platform.VSCode ? "$(teamsfx-m365) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.officeAddin.label"
-      )}`,
+      label: `${
+        platform === Platform.VSCode ? "$(microsoft365-agents-office) " : ""
+      }${getLocalizedString("core.createProjectQuestion.projectType.officeAddin.label")}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
       groupName: ProjectTypeOptions.groupName(ProjectTypeGroup.M365Apps),
     };

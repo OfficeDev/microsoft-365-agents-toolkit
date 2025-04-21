@@ -120,6 +120,20 @@
           "fontPath": "./media/font/teamstoolkit.woff",
           "fontCharacter": "\\E007"
         }
+      },
+      "microsoft365-agents-toolkit-teams": {
+        "description": "Teams app icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E008"
+        }
+      },
+      "microsoft365-agents-office": {
+        "description": "Office Add-in icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E009"
+        }
       }
     },
     "viewsContainers": {
