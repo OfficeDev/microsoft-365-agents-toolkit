@@ -615,6 +615,12 @@ describe("Lifecycle handlers", () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
       await regeneratePluginHandler();
     });
+
+    it("failed: when runCommand throw error", async () => {
+      sandbox.stub(shared, "runCommand").resolves(err(new UserError("source", "name", "message")));
+      const result = await regeneratePluginHandler();
+      assert.isTrue(result.isErr());
+    });
   });
 
   describe("AddAuthActionHandler", async () => {
