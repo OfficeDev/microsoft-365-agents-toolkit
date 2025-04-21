@@ -29,7 +29,6 @@ import {
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../src/error";
 import mockedEnv, { RestoreFn } from "mocked-env";
-import { randomUUID } from "crypto";
 
 const latestManifestVersion = "1.17";
 const oldManifestVersion = "1.16";
@@ -653,7 +652,7 @@ describe("parseCommonProperties", () => {
   });
   it("happy", async () => {
     const manifest: any = {
-      id: randomUUID(),
+      id: "mockid",
       version: "1.0.0",
       manifestVersion: "1.14",
       configurableTabs: [{}],
@@ -687,7 +686,7 @@ describe("parseCommonProperties", () => {
 
   it("empty", async () => {
     const manifest: any = {
-      id: randomUUID(),
+      id: "mockid",
       version: "1.0.0",
       manifestVersion: "1.14",
       configurableTabs: [{}],
