@@ -56,25 +56,25 @@ The app template is built using the Microsoft 365 Agents SDK and Semantic Kernel
     ```
 {{/useAzureOpenAI}}
 1. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel.
-2. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Teams Toolkit > Select Microsoft 365 Account**
-3. Sign in to Teams Toolkit with a **Microsoft 365 work or school account**
+2. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Microsoft 365 Agents Toolkit > Select Microsoft 365 Account**
+3. Sign in to Microsoft 365 Agents Toolkit with a **Microsoft 365 work or school account**
 4. Set `Startup Item` as `Microsoft Teams (browser)`.
 5. Press F5, or select Debug > Start Debugging menu in Visual Studio to start your app
 </br>![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/debug-button.png)
 6. In the opened web browser, select Add button to install the app in Teams
 7. In the chat bar, type and send anything to your agent to trigger a response.
 
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
 ## Additional information and references
-- [Microsoft 365 Agent SDK](https://github.com/microsoft/Agents)
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
 
 ## Learn more
 
-New to app development or Teams Toolkit? Learn more about app manifests, deploying to the cloud, and more in the documentation 
+New to app development or Microsoft 365 Agents Toolkit? Learn more about app manifests, deploying to the cloud, and more in the documentation 
 at https://aka.ms/teams-toolkit-vs-docs.
 
 ## Report an issue
