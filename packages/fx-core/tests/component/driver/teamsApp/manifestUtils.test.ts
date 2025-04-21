@@ -632,7 +632,7 @@ describe("parseCommonTelemetryProperties", () => {
       validDomains: [],
     };
     const res = manifestUtils.parseCommonTelemetryProperties(json as any);
-    chai.assert.deepEqual(res, {
+    assert.deepEqual(res, {
       id: "${{TEAMS_APP_ID}}",
       version: "1.0",
       capabilities: "Bot",
