@@ -10,7 +10,7 @@ const {
   ConfigurationServiceClientCredentialFactory,
   ConfigurationBotFrameworkAuthentication,
 } = require("botbuilder");
-const { TeamsBot } = require("./teamsBot");
+const { TeamsBot } = require("./agent");
 const config = require("./config");
 
 // Create adapter.
@@ -37,26 +37,29 @@ adapter.onTurnError = async (context, error) => {
 };
 
 // Create the bot that will handle incoming messages.
-const bot = new TeamsBot();
+const agent = new Agent();
 
 // Create express application.
-const expressApp = express();
-expressApp.use(express.json());
-
-const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
-});
+const server = express();
+server.use(express.json());
+server.use(authorizeJWT(authConfig));
 
 // Listen for incoming requests.
-expressApp.post("/api/messages", async (req, res) => {
+server.post("/api/messages", async (req, res) => {
   await adapter.process(req, res, async (context) => {
-    await bot.run(context);
+    await agent.run(context);
   });
 });
 
-// Gracefully shutdown HTTP server
-["exit", "uncaughtException", "SIGINT", "SIGTERM", "SIGUSR1", "SIGUSR2"].forEach((event) => {
-  process.on(event, () => {
-    server.close();
+// Start the server
+const port = process.env.PORT || 3978;
+server
+  .listen(port, () => {
+    console.log(
+      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+    );
+  })
+  .on("error", (err) => {
+    console.error(err);
+    process.exit(1);
   });
-});
