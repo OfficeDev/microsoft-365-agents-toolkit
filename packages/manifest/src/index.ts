@@ -8,7 +8,6 @@ import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
 import fetch from "node-fetch";
 import { ManifestCommonProperties } from "./ManifestCommonProperties";
-import { SharePointAppId } from "./constants";
 import { DeclarativeCopilotManifestSchema } from "./declarativeCopilotManifest";
 import {
   AppManifestUtils,
@@ -16,7 +15,7 @@ import {
   TeamsManifest,
   TeamsManifestConverter,
 } from "./generated-types";
-import { IComposeExtension, TeamsAppManifest } from "./manifest";
+import { TeamsAppManifest } from "./manifest";
 import { PluginManifestSchema } from "./pluginManifest";
 
 export * from "./declarativeCopilotManifest";
