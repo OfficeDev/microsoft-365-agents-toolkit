@@ -99,7 +99,7 @@ describe("Env support for localization.json", function () {
       );
     }
   );
-  /*
+
   it(
     "Check Same level localization files are generated correctly when creating app package",
     {
@@ -196,5 +196,5 @@ describe("Env support for localization.json", function () {
       expect(enfileString.includes(teamsappAppversion)).to.be.true;
       expect(enfileString.includes(envOwner)).to.be.true;
     }
-  );*/
+  );
 });
