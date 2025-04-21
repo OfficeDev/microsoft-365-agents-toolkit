@@ -701,6 +701,7 @@ class Coordinator {
       if (
         inputs.env !== environmentNameManager.getLocalEnvName() &&
         inputs.env !== environmentNameManager.getTestToolEnvName() &&
+        inputs.env !== environmentNameManager.getPlaygroundEnvName() &&
         inputs.env !== environmentNameManager.getSandboxEnvName()
       ) {
         const consent = await deployUtils.askForDeployConsentV3(ctx);
