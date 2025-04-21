@@ -41,6 +41,7 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
+import { customEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import {
@@ -296,6 +297,25 @@ describe("daProjectTypeNode", () => {
 
     const conditionFunc = apiSpecChildNode?.condition as ConditionFunc;
     assert.isTrue(conditionFunc(testInputs));
+  });
+});
+
+describe("customEngineAgentProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("customEngineAgentProjectTypeNode basic structure", () => {
+    const node = customEngineAgentNode();
+    const conditionFunc = node?.condition as StringValidation;
+
+    assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
+    assert.isDefined(node.children);
+
+    const basicCustomeEngineAgent = node.children?.[0];
+    assert.isDefined(basicCustomeEngineAgent);
   });
 });
 

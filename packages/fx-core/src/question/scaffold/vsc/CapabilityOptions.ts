@@ -26,14 +26,15 @@ export class CustomEngineAgentOptions {
     };
   }
 
-  static weatherAgent(): OptionItem {
-    return {
-      id: "weather-agent",
-      label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
-      detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
-      data: TemplateNames.CustomCopilotWeatherAgent,
-    };
-  }
+  // Uncomment when new template is ready
+  // static weatherAgent(): OptionItem {
+  //   return {
+  //     id: "weather-agent",
+  //     label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
+  //     detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
+  //     data: TemplateNames.CustomCopilotWeatherAgent,
+  //   };
+  // }
 }
 
 export class TabCapabilityOptions {
