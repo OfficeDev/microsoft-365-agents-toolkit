@@ -66,7 +66,7 @@
                             "description": "How can you help me?"
                         },
                         {
-                            "title": "How to use this toolkit?",
+                            "title": "How to develop agent for Teams?",
                             "description": "How can I develop agents with Microsoft 365 Agents Toolkit?"
                         }
                     ]
