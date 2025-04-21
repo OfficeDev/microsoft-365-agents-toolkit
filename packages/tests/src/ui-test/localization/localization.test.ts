@@ -73,7 +73,7 @@ describe("Env support for localization.json", function () {
       );
       const projectPath = path.resolve(
         resourceFolder,
-        "localization-agent/agent"
+        "localization-agent-unresolved/agent"
       );
       console.log("Project path: ", projectPath);
       await openExistingProject(projectPath);
