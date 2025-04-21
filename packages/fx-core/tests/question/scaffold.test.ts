@@ -13,6 +13,7 @@ import "mocha";
 import sinon from "sinon";
 import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
+import { getLocalizedString } from "../../src/common/localizeUtils";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
@@ -48,6 +49,7 @@ import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/offi
 import {
   apiSpecNode,
   apiSpecWithSearchNode,
+  TeamsProjectTypeOptions,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
@@ -388,6 +390,21 @@ describe("ProjectTypeOptions", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const option = ProjectTypeOptions.startWithGithubCopilot();
     assert.isUndefined(option.description);
+  });
+});
+
+describe("TeamsProjectTypeOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("CLI label", () => {
+    const tab = TeamsProjectTypeOptions.tab(Platform.CLI);
+    assert.equal(tab.label, getLocalizedString("core.TabOption.label"));
+    const bot = TeamsProjectTypeOptions.bot(Platform.CLI);
+    assert.equal(bot.label, getLocalizedString("core.createProjectQuestion.projectType.bot.label"));
+    const me = TeamsProjectTypeOptions.me(Platform.CLI);
+    assert.equal(me.label, getLocalizedString("core.MessageExtensionOption.label"));
   });
 });
 
