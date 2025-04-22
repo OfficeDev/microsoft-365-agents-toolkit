@@ -52,4 +52,8 @@ app.feedbackLoop(async (context, state, feedbackLoopData) => {
   console.log("Your feedback is " + JSON.stringify(context.activity.value));
 });
 
+app.conversationUpdate("membersAdded", async(context: TurnContext) => {
+  await context.sendActivity("Welcome to the AI chat bot! How can I help you today?");
+});
+
 export default app;
