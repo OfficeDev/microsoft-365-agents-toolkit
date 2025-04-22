@@ -30,14 +30,14 @@ namespace Microsoft.TeamsFx.Test
     {
         private readonly TestAdapter _adapter;
         private readonly Task _testTask;
-        private BotCallbackHandler _callback;
+        private AgentCallbackHandler _callback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestFlow"/> class.
         /// </summary>
         /// <param name="adapter">The test adapter to use.</param>
         /// <param name="callback">The bot turn processing logic to test.</param>
-        public TestFlow(TestAdapter adapter, BotCallbackHandler callback = null)
+        public TestFlow(TestAdapter adapter, AgentCallbackHandler callback = null)
         {
             _adapter = adapter;
             _callback = callback;
@@ -75,7 +75,7 @@ namespace Microsoft.TeamsFx.Test
         /// </summary>
         /// <param name="adapter">The test adapter to use.</param>
         /// <param name="bot">The bot containing the turn processing logic to test.</param>
-        public TestFlow(TestAdapter adapter, IBot bot)
+        public TestFlow(TestAdapter adapter, IAgent bot)
             : this(adapter, bot.OnTurnAsync)
         {
         }

@@ -4,6 +4,7 @@
 using Microsoft.Agents.Builder;
 using Microsoft.Agents.Builder.Compat;
 using Microsoft.Agents.Builder.Dialogs;
+using Microsoft.Agents.Builder.Dialogs.Prompts;
 using Microsoft.Agents.Builder.State;
 using Microsoft.Agents.Core.Models;
 using Microsoft.Agents.Extensions.Teams.Models;
@@ -199,7 +200,7 @@ public class TeamsBotSsoPromptTest
         })
         .AssertReply(a =>
         {
-            Assert.AreEqual(Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse, a.Type);
+            Assert.AreEqual(ActivityTypes.InvokeResponse, a.Type);
             var response = ((Activity)a).Value as InvokeResponse;
             Assert.IsNotNull(response);
             Assert.AreEqual(200, response!.Status);
@@ -273,7 +274,7 @@ public class TeamsBotSsoPromptTest
         })
         .AssertReply(a =>
         {
-            Assert.AreEqual(Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse, a.Type);
+            Assert.AreEqual(ActivityTypes.InvokeResponse, a.Type);
             var response = ((Activity)a).Value as InvokeResponse;
             Assert.IsNotNull(response);
             Assert.AreEqual(200, response!.Status);
@@ -296,7 +297,7 @@ public class TeamsBotSsoPromptTest
         var adapter = new TestAdapter()
             .Use(new AutoSaveStateMiddleware(convoState));
 
-        BotCallbackHandler botCallbackHandler = async (turnContext, cancellationToken) =>
+        AgentCallbackHandler AgentCallbackHandler = async (turnContext, cancellationToken) =>
         {
             var dc = await dialogs.CreateContextAsync(turnContext, cancellationToken);
 
@@ -319,7 +320,7 @@ public class TeamsBotSsoPromptTest
             }
         };
 
-        return new TestFlow(adapter, botCallbackHandler);
+        return new TestFlow(adapter, AgentCallbackHandler);
     }
     #endregion
 }
