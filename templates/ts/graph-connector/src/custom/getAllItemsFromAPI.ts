@@ -11,46 +11,67 @@ import { Item } from "../models/Item";
  */
 async function getPaginatedIssues(config: Config, per_page: number, repo: string, since?: Date) {
   const paginatedResponse = [];
-  const response = await fetch(
-    `https://api.github.com/repos/${repo}/issues?state=all&per_page=${per_page}${
-      since ? `&since=${since.toISOString()}` : ""
-    }`,
-    {
-      headers: {
-        Authorization: `Bearer ${config.connector.accessToken}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch items in repo ${repo}: ${response.statusText}`);
-  }
-
+  const fetchUrl = `https://api.github.com/repos/${repo}/issues?state=all&per_page=${per_page}${
+    since ? `&since=${since.toISOString()}` : ""
+  }`;
+  const response = await fetchIssues(config, fetchUrl, repo);
   paginatedResponse.push(await response.json());
 
-  if (response.headers.get("link")) {
-    // get next page of results
-    let nextPage = response.headers
-      .get("link")
-      .split(",")
-      .find((link) => link.includes('rel="next"'));
-    while (nextPage) {
-      // get next page url
-      const nextPageUrl = nextPage.match(/<(.+)>/)[1];
-      const response = await fetch(nextPageUrl, {
-        headers: {
-          Authorization: `Bearer ${config.connector.accessToken}`,
-        },
-      });
-      paginatedResponse.push(await response.json());
-      nextPage = response.headers
-        .get("link")
-        .split(",")
-        .find((link) => link.includes('rel="next"'));
-    }
+  let nextPageUrl = getNextPageUrl(response);
+  while (nextPageUrl) {
+    const response = await fetchIssues(config, nextPageUrl, repo);
+    paginatedResponse.push(await response.json());
+    
+    nextPageUrl = getNextPageUrl(response);
   }
 
   return paginatedResponse.flat();
+}
+
+/**
+  * Fetches issues from the GitHub API.
+  * @param config - The configuration object.
+  * @param fetchUrl - The URL to fetch issues from.
+  * @param repo - The repository name in the format 'owner/repo'.
+  * @returns A promise that resolves to the response.
+  */
+async function fetchIssues(config: Config, fetchUrl: string, repo: string): Promise<Response> {
+  // Use the access token from the config if available
+  // to authenticate the request to the GitHub API if using a private repo
+  // or to avoid rate limiting
+  const headers: HeadersInit = {};
+  if (config.connector.accessToken) {
+    headers["Authorization"] = `Bearer ${config.connector.accessToken}`;
+  }
+  const response = await fetch(fetchUrl, {
+    headers,
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch items in repo ${repo}: ${response.statusText}`);
+  }
+  return response;
+}
+
+/**
+ * Gets the URL for the next page of results from the response headers.
+ * Parse the link header to find the next page URL.
+ * @see https://docs.github.com/en/rest/using-the-rest-api/using-pagination-in-the-rest-api?apiVersion=2022-11-28#using-link-headers
+ * @param response - The response object from the fetch request.
+ * @returns The URL for the next page of results, or null if there are no more pages.
+ */
+function getNextPageUrl(response: Response): string | null {
+  const linkHeader = response.headers.get("link");
+  if (!linkHeader) {
+    return null;
+  }
+  const links = linkHeader.split(", ");
+  for (const link of links) {
+    const match = link.match(/<([^>]+)>; rel="next"/);
+    if (match) {
+      return match[1];
+    }
+  }
+  return null;
 }
 
 // [Customization point]
