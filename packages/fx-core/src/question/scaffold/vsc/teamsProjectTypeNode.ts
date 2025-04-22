@@ -5,6 +5,7 @@ import {
   ConditionFunc,
   Inputs,
   IQTreeNode,
+  OptionItem,
   Platform,
   StringValidation,
 } from "@microsoft/teamsfx-api";
@@ -33,6 +34,65 @@ import {
   TabCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
+
+export function teamsAppProjectNode(platform: Platform): IQTreeNode {
+  return {
+    // project-type = Teams App
+    condition: { equals: ProjectTypeOptions.teamsAppOptionId },
+    data: {
+      name: QuestionNames.TeamsAppType,
+      title: getLocalizedString("core.createProjectQuestion.projectType.teamsApp.title"),
+      type: "singleSelect",
+      staticOptions: [
+        TeamsProjectTypeOptions.bot(platform),
+        TeamsProjectTypeOptions.tab(platform),
+        TeamsProjectTypeOptions.me(platform),
+      ],
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.projectType.customCopilot.placeholder"
+      ),
+    },
+    children: [botProjectTypeNode(), tabProjectTypeNode(), meProjectTypeNode()],
+  };
+}
+
+export class TeamsProjectTypeOptions {
+  static tabOptionId = "tab-type";
+  static botOptionId = "bot-type";
+  static meOptionId = "me-type";
+
+  static tab(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: TeamsProjectTypeOptions.tabOptionId,
+      label: `${platform === Platform.VSCode ? "$(browser) " : ""}${getLocalizedString(
+        "core.TabOption.label"
+      )}`,
+      detail: getLocalizedString("core.createProjectQuestion.projectType.tab.detail"),
+    };
+  }
+
+  static bot(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: TeamsProjectTypeOptions.botOptionId,
+      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
+        "core.createProjectQuestion.projectType.bot.label"
+      )}`,
+      detail: getLocalizedString("core.createProjectQuestion.projectType.bot.detail"),
+    };
+  }
+
+  static me(platform: Platform = Platform.VSCode): OptionItem {
+    return {
+      id: TeamsProjectTypeOptions.meOptionId,
+      label: `${platform === Platform.VSCode ? "$(symbol-keyword) " : ""}${getLocalizedString(
+        "core.MessageExtensionOption.label"
+      )}`,
+      detail: getLocalizedString(
+        "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"
+      ),
+    };
+  }
+}
 
 export function apiSpecNode(condition: StringValidation | ConditionFunc): IQTreeNode {
   return {
@@ -128,7 +188,7 @@ export function notificationBotTriggerNode(platform: Platform = Platform.VSCode)
 export function botProjectTypeNode(): IQTreeNode {
   return {
     // project-type = Bot
-    condition: { equals: ProjectTypeOptions.botOptionId },
+    condition: { equals: TeamsProjectTypeOptions.botOptionId },
     data: {
       name: QuestionNames.Capabilities,
       title: getLocalizedString("core.createProjectQuestion.projectType.bot.title"),
@@ -149,7 +209,7 @@ export function botProjectTypeNode(): IQTreeNode {
 export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTreeNode {
   return {
     // project-type = Tab
-    condition: { equals: ProjectTypeOptions.tab().id },
+    condition: { equals: TeamsProjectTypeOptions.tabOptionId },
     data: {
       name: QuestionNames.Capabilities,
       title: getLocalizedString("core.createProjectQuestion.projectType.tab.title"),
@@ -185,6 +245,26 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         ],
       },
     ],
+  };
+}
+
+export function meProjectTypeNode(): IQTreeNode {
+  return {
+    // project-type = Messaging Extension
+    condition: { equals: TeamsProjectTypeOptions.meOptionId },
+    data: {
+      name: QuestionNames.Capabilities,
+      title: getLocalizedString("core.createProjectQuestion.projectType.messageExtension.title"),
+      type: "singleSelect",
+      staticOptions: [
+        MeCapabilityOptions.m365SearchMe(),
+        MeCapabilityOptions.collectFormMe(),
+        MeCapabilityOptions.linkUnfurling(),
+      ],
+      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      onDidSelection: setTemplateName,
+    },
+    children: [m365SearchMeSubNode()],
   };
 }
 
@@ -231,25 +311,5 @@ export function m365SearchMeSubNode(): IQTreeNode {
       },
       apiSpecNode({ equals: MeArchitectureOptions.openApiSpec().id }),
     ],
-  };
-}
-
-export function meProjectTypeNode(): IQTreeNode {
-  return {
-    // project-type = Messaging Extension
-    condition: { equals: ProjectTypeOptions.meOptionId },
-    data: {
-      name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.messageExtension.title"),
-      type: "singleSelect",
-      staticOptions: [
-        MeCapabilityOptions.m365SearchMe(),
-        MeCapabilityOptions.collectFormMe(),
-        MeCapabilityOptions.linkUnfurling(),
-      ],
-      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
-      onDidSelection: setTemplateName,
-    },
-    children: [m365SearchMeSubNode()],
   };
 }

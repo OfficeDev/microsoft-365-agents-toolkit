@@ -14,7 +14,6 @@ import {
   DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
-  IQTreeNode,
   InputResult,
   Inputs,
   LogProvider,
@@ -45,6 +44,7 @@ import {
   teamsDevPortalClient,
 } from "../../src";
 import { ConstantString } from "../../src/common/constants";
+import * as daSpecParser from "../../src/common/daSpecParser";
 import { FeatureFlagName, featureFlagManager } from "../../src/common/featureFlags";
 import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
@@ -67,6 +67,7 @@ import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
+import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
@@ -84,7 +85,6 @@ import "../../src/component/feature/sso";
 import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
-import * as daSpecParser from "../../src/common/daSpecParser";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -123,8 +123,6 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import * as shareUtils from "../../src/component/driver/share/utils";
-import proxyquire from "proxyquire";
 
 const tools = new MockTools();
 
@@ -766,7 +764,7 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tabOptionId,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,

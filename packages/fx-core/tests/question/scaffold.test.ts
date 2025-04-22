@@ -13,6 +13,7 @@ import "mocha";
 import sinon from "sinon";
 import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
+import { getLocalizedString } from "../../src/common/localizeUtils";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
@@ -24,6 +25,7 @@ import {
   ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
@@ -38,15 +40,18 @@ import {
 import {
   folderAndAppNameCondition,
   getProjectTypeByCapability,
+  getTeamsProjectTypeByCapability,
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
+import { customEngineAgentNode } from "../../src/question/scaffold/vsc/customEngineAgentNode";
+import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import { officeAddinProjectTypeNode } from "../../src/question/scaffold/vsc/officeAddinProjectTypeNode";
 import {
   apiSpecNode,
   apiSpecWithSearchNode,
+  TeamsProjectTypeOptions,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
-import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 
 describe("vsc", () => {
   const sandbox = sinon.createSandbox();
@@ -299,6 +304,25 @@ describe("daProjectTypeNode", () => {
   });
 });
 
+describe("customEngineAgentProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("customEngineAgentProjectTypeNode basic structure", () => {
+    const node = customEngineAgentNode();
+    const conditionFunc = node?.condition as StringValidation;
+
+    assert.equal(conditionFunc.equals, ProjectTypeOptions.customEngineAgentOptionId);
+    assert.isDefined(node.children);
+
+    const basicCustomeEngineAgent = node.children?.[0];
+    assert.isDefined(basicCustomeEngineAgent);
+  });
+});
+
 describe("m365ProjectTypeNode", () => {
   it("apiSpecNode", () => {
     const node = apiSpecNode({ equals: "a" });
@@ -367,6 +391,21 @@ describe("ProjectTypeOptions", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     const option = ProjectTypeOptions.startWithGithubCopilot();
     assert.isUndefined(option.description);
+  });
+});
+
+describe("TeamsProjectTypeOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("CLI label", () => {
+    const tab = TeamsProjectTypeOptions.tab(Platform.CLI);
+    assert.equal(tab.label, getLocalizedString("core.TabOption.label"));
+    const bot = TeamsProjectTypeOptions.bot(Platform.CLI);
+    assert.equal(bot.label, getLocalizedString("core.createProjectQuestion.projectType.bot.label"));
+    const me = TeamsProjectTypeOptions.me(Platform.CLI);
+    assert.equal(me.label, getLocalizedString("core.MessageExtensionOption.label"));
   });
 });
 
@@ -456,21 +495,25 @@ describe("getProjectTypeByCapability", () => {
     const type = getProjectTypeByCapability(DACapabilityOptions.declarativeAgent().id);
     assert.equal(type, ProjectTypeOptions.copilotAgentOptionId);
   });
-  it("CEA", () => {
+  it("Custom Engine Agent", () => {
+    const type = getProjectTypeByCapability(CustomEngineAgentOptions.basicCustomEngineAgent().id);
+    assert.equal(type, ProjectTypeOptions.customEngineAgentOptionId);
+  });
+  it("Agent for Teams", () => {
     const type = getProjectTypeByCapability(CustomCopilotCapabilityOptions.customCopilotRag().id);
-    assert.equal(type, ProjectTypeOptions.customCopilotOptionId);
+    assert.equal(type, ProjectTypeOptions.agentForTeamsOptionId);
   });
   it("Bot", () => {
     const type = getProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
-    assert.equal(type, ProjectTypeOptions.botOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("Tab", () => {
     const type = getProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
-    assert.equal(type, ProjectTypeOptions.tabOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("ME", () => {
     const type = getProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
-    assert.equal(type, ProjectTypeOptions.meOptionId);
+    assert.equal(type, ProjectTypeOptions.teamsAppOptionId);
   });
   it("WXP", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.wxpTaskPane().id);
@@ -479,5 +522,20 @@ describe("getProjectTypeByCapability", () => {
   it("Outlook", () => {
     const type = getProjectTypeByCapability(OfficeAddinCapabilityOptions.outlookTaskPane().id);
     assert.equal(type, ProjectTypeOptions.outlookAddinOptionId);
+  });
+});
+
+describe("getTeamsProjectTypeByCapability", () => {
+  it("Tab", () => {
+    const type = getTeamsProjectTypeByCapability(TabCapabilityOptions.nonSsoTab().id);
+    assert.equal(type, TeamsProjectTypeOptions.tabOptionId);
+  });
+  it("Bot", () => {
+    const type = getTeamsProjectTypeByCapability(BotCapabilityOptions.basicBot().id);
+    assert.equal(type, TeamsProjectTypeOptions.botOptionId);
+  });
+  it("Message Extension", () => {
+    const type = getTeamsProjectTypeByCapability(MeCapabilityOptions.m365SearchMe().id);
+    assert.equal(type, TeamsProjectTypeOptions.meOptionId);
   });
 });

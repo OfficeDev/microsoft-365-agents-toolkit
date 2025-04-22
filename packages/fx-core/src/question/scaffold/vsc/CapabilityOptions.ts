@@ -12,6 +12,31 @@ import {
   QuestionNames,
 } from "../../constants";
 
+export class CustomEngineAgentOptions {
+  static basicCustomEngineAgent(): OptionItem {
+    return {
+      id: "basic-custom-engine-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail"
+      ),
+      data: TemplateNames.BasicCustomEngineAgent,
+    };
+  }
+
+  // Uncomment when new template is ready
+  // static weatherAgent(): OptionItem {
+  //   return {
+  //     id: "weather-agent",
+  //     label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
+  //     detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
+  //     data: TemplateNames.CustomCopilotWeatherAgent,
+  //   };
+  // }
+}
+
 export class TabCapabilityOptions {
   static nonSsoTab(): OptionItem {
     return {

@@ -154,13 +154,13 @@ export function llmServiceNode(
   };
 }
 
-export function customEngineAgentProjectTypeNode(): IQTreeNode {
+export function agentForTeamsProjectTypeNode(): IQTreeNode {
   return {
-    // project-type = Custom Engine Agent
-    condition: { equals: ProjectTypeOptions.customCopilotOptionId },
+    // project-type = Agent for Teams
+    condition: { equals: ProjectTypeOptions.agentForTeamsOptionId },
     data: {
       name: QuestionNames.Capabilities,
-      title: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.title"),
+      title: getLocalizedString("core.createProjectQuestion.projectType.agentForTeams.title"),
       type: "singleSelect",
       staticOptions: [
         CustomCopilotCapabilityOptions.basicChatbot(),
