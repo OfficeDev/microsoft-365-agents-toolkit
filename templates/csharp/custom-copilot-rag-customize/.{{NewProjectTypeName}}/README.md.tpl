@@ -20,7 +20,7 @@ This app template also demonstrates usage of techniques like:
 
 ### Debug agent in Microsoft 365 Agents Playground
 {{#useOpenAI}}
-1. Ensure your OpenAI API Key is filled in `appsettings.TestTool.json`.
+1. Ensure your OpenAI API Key is filled in `appsettings.Playground.json`.
     ```
     "OpenAI": {
       "ApiKey": "<your-openai-api-key>"
@@ -28,7 +28,7 @@ This app template also demonstrates usage of techniques like:
     ```
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-1. Ensure your Azure OpenAI settings are filled in `appsettings.TestTool.json`.
+1. Ensure your Azure OpenAI settings are filled in `appsettings.Playground.json`.
     ```
     "Azure": {
       "OpenAIApiKey": "<your-azure-openai-api-key>",

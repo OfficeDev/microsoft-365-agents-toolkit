@@ -5,10 +5,8 @@ import { hooks } from "@feathersjs/hooks/lib";
 import {
   Colors,
   FxError,
-  ManifestUtil,
   Platform,
   Result,
-  TeamsAppManifest,
   TeamsManifestConverter,
   err,
   ok,
@@ -37,6 +35,7 @@ import {
 } from "./interfaces/AsyncAppValidationResponse";
 import { AsyncAppValidationResultsResponse } from "./interfaces/AsyncAppValidationResultsResponse";
 import { ValidateWithTestCasesArgs } from "./interfaces/ValidateWithTestCasesArgs";
+import { manifestUtils } from "./utils/ManifestUtils";
 
 const actionName = "teamsApp/validateWithTestCases";
 
@@ -87,7 +86,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
       metadataUtil.parseManifest(manifest);
 
       // Add common properties like isCopilotPlugin: boolean
-      const manifestTelemetries = ManifestUtil.parseCommonTelemetryProperties(manifest);
+      const manifestTelemetries = manifestUtils.parseCommonTelemetryProperties(manifest as any);
       merge(context.telemetryProperties, manifestTelemetries);
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({

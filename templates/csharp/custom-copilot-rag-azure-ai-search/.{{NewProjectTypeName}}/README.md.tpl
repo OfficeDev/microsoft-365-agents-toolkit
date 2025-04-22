@@ -24,7 +24,7 @@ This app template also demonstrates usage of techniques like:
 
 > This app template provides script `Indexer.ps1` to help create document index. You can change the instructions and settings in the script to customize the document index.
 {{#useOpenAI}}
-1. Ensure your OpenAI and Azure AI search settings filled in `appsettings.TestTool.json`.
+1. Ensure your OpenAI and Azure AI search settings filled in `appsettings.Playground.json`.
     ```
     "OpenAI": {
       "ApiKey": "<your-openai-api-key>",
@@ -37,7 +37,7 @@ This app template also demonstrates usage of techniques like:
     ```
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-1. Ensure your Azure OpenAI and Azure AI search settings filled in `appsettings.TestTool.json`.
+1. Ensure your Azure OpenAI and Azure AI search settings filled in `appsettings.Playground.json`.
     ```
     "Azure": {
       "OpenAIApiKey": "<your-azure-openai-api-key>",

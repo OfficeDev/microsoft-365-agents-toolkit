@@ -47,6 +47,7 @@ import {
   QuestionNames,
   ScratchOptions,
 } from "../../question/constants";
+import { TeamsProjectTypeOptions } from "../../question/scaffold/vsc/teamsProjectTypeNode";
 import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
@@ -159,6 +160,7 @@ class Coordinator {
       globalVars.isVS = language === "csharp";
       const capability = inputs.capabilities as string;
       const projectType = inputs[QuestionNames.ProjectType];
+      const teamsAppType = inputs[QuestionNames.TeamsAppType];
       delete inputs.folder;
 
       merge(actionContext?.telemetryProps, {
@@ -167,7 +169,7 @@ class Coordinator {
       });
       if (
         projectType === ProjectTypeOptions.customCopilot().id ||
-        (projectType === ProjectTypeOptions.bot().id && inputs.platform === Platform.VS)
+        (teamsAppType === TeamsProjectTypeOptions.botOptionId && inputs.platform === Platform.VS)
       ) {
         merge(actionContext?.telemetryProps, {
           [TelemetryProperty.CustomCopilotRAG]: inputs["custom-copilot-rag"] ?? "",
@@ -701,6 +703,7 @@ class Coordinator {
       if (
         inputs.env !== environmentNameManager.getLocalEnvName() &&
         inputs.env !== environmentNameManager.getTestToolEnvName() &&
+        inputs.env !== environmentNameManager.getPlaygroundEnvName() &&
         inputs.env !== environmentNameManager.getSandboxEnvName()
       ) {
         const consent = await deployUtils.askForDeployConsentV3(ctx);

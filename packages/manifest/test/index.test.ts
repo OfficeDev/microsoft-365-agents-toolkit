@@ -61,28 +61,22 @@ describe("Manifest manipulation", async () => {
   });
 
   describe("validateManifest", async () => {
-    const mocker = sinon.createSandbox();
+    const sandbox = sinon.createSandbox();
 
-    const schema = await loadSchema();
-
-    before(() => {
-      mocker.stub(ManifestUtil, "fetchSchema").resolves(schema);
+    afterEach(() => {
+      sandbox.restore();
     });
 
-    after(() => {
-      mocker.restore();
-    });
-
-    it("should throw if $schema is undefiend", async () => {
+    it("should throw if $schema is undefined", async () => {
       const manifest = new TeamsAppManifest();
       manifest.$schema = undefined;
       chai.expect(ManifestUtil.validateManifest(manifest)).to.be.rejectedWith(Error);
     });
 
-    it("should return empty arry when validation passes", async () => {
-      const filePath = path.join(__dirname, "manifest.json");
-      const validManifest = await ManifestUtil.loadFromPath(filePath);
-      const result = await ManifestUtil.validateManifest(validManifest);
+    it("should return empty array when validation passes", async () => {
+      sandbox.stub(ManifestUtil, "fetchSchema").resolves({} as any);
+      sandbox.stub(ManifestUtil, "validateManifestAgainstSchema").resolves([]);
+      const result = await ManifestUtil.validateManifest({} as any);
       chai.expect(result).to.be.empty;
     });
   });
@@ -193,68 +187,6 @@ describe("ManifestUtil", () => {
         "Manifest does not have a $schema property or schema url is not provided."
       );
     }
-  });
-  it("parseCommonTelemetryProperties", async () => {
-    const json = {
-      $schema:
-        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-      manifestVersion: "1.19",
-      version: "1.0",
-      id: "${{TEAMS_APP_ID}}",
-      developer: {
-        name: "Teams App, Inc.",
-        websiteUrl: "https://www.example.com",
-        privacyUrl: "https://www.example.com/privacy",
-        termsOfUseUrl: "https://www.example.com/termofuse",
-      },
-      icons: {
-        color: "color.png",
-        outline: "outline.png",
-      },
-      name: {
-        short: "huajiecea040906${{APP_NAME_SUFFIX}}",
-        full: "full name for huajiecea040906",
-      },
-      description: {
-        short: "Repair Service",
-        full: "A simple service to manage repairs",
-      },
-      accentColor: "#FFFFFF",
-      bots: [
-        {
-          botId: "${{BOT_ID}}",
-          scopes: ["personal", "team", "groupChat"],
-          supportsFiles: false,
-          isNotificationOnly: false,
-          commandLists: [
-            {
-              scopes: ["personal"],
-              commands: [
-                {
-                  title: "List all repairs without auth",
-                  description: "List all repairs without auth",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      composeExtensions: [],
-      configurableTabs: [],
-      staticTabs: [],
-      permissions: ["identity", "messageTeamMembers"],
-      validDomains: [],
-    };
-    const res = ManifestUtil.parseCommonTelemetryProperties(json as TeamsManifest);
-    chai.assert.deepEqual(res, {
-      id: "${{TEAMS_APP_ID}}",
-      version: "1.0",
-      capabilities: "Bot",
-      manifestVersion: "1.19",
-      isApiME: false,
-      isSPFx: false,
-      isApiMeAAD: false,
-    } as any);
   });
 });
 

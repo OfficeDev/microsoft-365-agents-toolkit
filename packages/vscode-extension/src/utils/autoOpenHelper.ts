@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  AppPackageFolderName,
-  ManifestTemplateFileName,
-  ManifestUtil,
-  Warning,
-} from "@microsoft/teamsfx-api";
+import { AppPackageFolderName, ManifestTemplateFileName, Warning } from "@microsoft/teamsfx-api";
 import {
   assembleError,
   featureFlagManager,
@@ -166,7 +161,7 @@ export async function ShowScaffoldingWarningSummary(
     let message;
     if (manifestRes.isOk()) {
       const teamsManifest = manifestRes.value;
-      const commonProperties = ManifestUtil.parseCommonProperties(teamsManifest);
+      const commonProperties = manifestUtils.parseCommonProperties(teamsManifest);
       if (commonProperties.capabilities.includes("plugin")) {
         const apiSpecFilePathRes = await pluginManifestUtils.getApiSpecFilePathFromTeamsManifest(
           teamsManifest,

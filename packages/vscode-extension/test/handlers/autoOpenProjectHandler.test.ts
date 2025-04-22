@@ -1,4 +1,4 @@
-import { err, ManifestUtil, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
@@ -75,7 +75,7 @@ describe("autoOpenProjectHandler", () => {
       }
     });
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as any));
-    sandbox.stub(ManifestUtil, "parseCommonProperties").resolves({ isCopilotPlugin: false });
+    sandbox.stub(manifestUtils, "parseCommonProperties").resolves({ isCopilotPlugin: false });
     sandbox.stub(globalState, "globalStateUpdate");
     sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
     const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
@@ -139,7 +139,9 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
+    const parseManifestStub = sandbox
+      .stub(manifestUtils, "parseCommonProperties")
+      .returns(parseRes);
     VsCodeLogInstance.outputChannel = {
       show: () => {},
       info: () => {},
@@ -189,7 +191,9 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
+    const parseManifestStub = sandbox
+      .stub(manifestUtils, "parseCommonProperties")
+      .returns(parseRes);
     VsCodeLogInstance.outputChannel = {
       show: () => {},
       info: () => {},
@@ -238,7 +242,9 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
+    const parseManifestStub = sandbox
+      .stub(manifestUtils, "parseCommonProperties")
+      .returns(parseRes);
     const getApiSpecStub = sandbox
       .stub(pluginManifestUtils, "getApiSpecFilePathFromTeamsManifest")
       .resolves(ok(["test"]));
@@ -344,7 +350,7 @@ describe("autoOpenProjectHandler", () => {
       isApiBasedMe: true,
       isApiMeAAD: false,
     };
-    sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
+    sandbox.stub(manifestUtils, "parseCommonProperties").returns(parseRes);
     const getApiSpecStub = sandbox
       .stub(pluginManifestUtils, "getApiSpecFilePathFromTeamsManifest")
       .resolves(err(new SystemError("test", "test", "", "")));
