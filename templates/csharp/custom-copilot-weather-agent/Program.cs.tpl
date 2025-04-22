@@ -53,7 +53,7 @@ builder.AddAgentApplicationOptions();
 builder.Services.AddTransient<AgentApplicationOptions>();
 
 // Add the bot (which is transient)
-builder.AddAgent<TEST.Bot.WeatherAgentBot>();
+builder.AddAgent<{{SafeProjectName}}.Bot.WeatherAgentBot>();
 
 var app = builder.Build();
 
