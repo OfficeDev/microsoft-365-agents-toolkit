@@ -1,10 +1,11 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Microsoft.Agents.Builder;
+using Microsoft.SemanticKernel;
 using System;
 using System.Threading.Tasks;
 
 namespace {{SafeProjectName}}.Bot.Plugins;
 
-public class WeatherForecastPlugin
+public class WeatherForecastPlugin(ITurnContext turnContext)
 {
     /// <summary>
     /// Retrieve the weather forecast for a specific date. This is a placeholder for a real implementation
@@ -16,6 +17,13 @@ public class WeatherForecastPlugin
     [KernelFunction]
     public Task<WeatherForecast> GetForecastForDate(string date,  string location)
     {
+        string searchingForDate = date;
+        if (DateTime.TryParse(date, out DateTime searchingDate))
+        {
+            searchingForDate = searchingDate.ToLongDateString();
+        }
+        turnContext.StreamingResponse.QueueInformativeUpdateAsync($"Looking up the Weather in {location} for {searchingForDate}");
+        
         return Task.FromResult(new WeatherForecast
         {
             Date = date,

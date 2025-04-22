@@ -1,21 +1,16 @@
 using {{SafeProjectName}};
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.SemanticKernel;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Agents.Hosting.AspNetCore;
-using Microsoft.Agents.BotBuilder.App;
 using {{SafeProjectName}}.Bot.Agents;
-using Microsoft.Extensions.Logging;
-using System;
+using Microsoft.SemanticKernel;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.Agents.Builder.App;
+using Microsoft.Agents.Builder;
+using Microsoft.Agents.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddCloudAdapter<AdapterWithErrorHandler>();
 builder.Logging.AddConsole();
 
 
@@ -45,11 +40,20 @@ builder.Services.AddTransient<WeatherForecastAgent>();
 // Add AspNet token validation
 builder.Services.AddBotAspNetAuthentication(builder.Configuration);
 
+// Register IStorage.  For development, MemoryStorage is suitable.
+// For production Agents, persisted storage should be used so
+// that state survives Agent restarts, and operate correctly
+// in a cluster of Agent instances.
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
+
+// Add AgentApplicationOptions from config.
+builder.AddAgentApplicationOptions();
+
 // Add AgentApplicationOptions.  This will use DI'd services and IConfiguration for construction.
 builder.Services.AddTransient<AgentApplicationOptions>();
 
 // Add the bot (which is transient)
-builder.AddBot<{{SafeProjectName}}.Bot.WeatherAgentBot>();
+builder.AddAgent<{{SafeProjectName}}.Bot.WeatherAgentBot>();
 
 var app = builder.Build();
 
@@ -63,6 +67,11 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapPost("/api/messages", async (HttpRequest request, HttpResponse response, IAgentHttpAdapter adapter, IAgent agent, CancellationToken cancellationToken) =>
+{
+    await adapter.ProcessAsync(request, response, agent, cancellationToken);
+});
 
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestTool")
 {

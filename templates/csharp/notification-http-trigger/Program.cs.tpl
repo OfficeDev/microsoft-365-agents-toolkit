@@ -1,5 +1,3 @@
-using Microsoft.Agents.BotBuilder.App;
-using Microsoft.Agents.BotBuilder.State;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
 using Microsoft.AspNetCore.Hosting;
@@ -16,8 +14,6 @@ var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddCloudAdapter<AdapterWithErrorHandler>();
-builder.Services.AddSingleton<IStorage, MemoryStorage>();
 builder.Logging.AddConsole();
 
 // Add AspNet token validation
@@ -27,15 +23,14 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddEnvironmentVariables();
 
-// Add ApplicationOptions
-builder.Services.AddTransient(sp =>
-{
-    return new AgentApplicationOptions()
-    {
-        StartTypingTimer = false,
-        TurnStateFactory = () => new TurnState(sp.GetService<IStorage>())
-    };
-});
+// Register IStorage.  For development, MemoryStorage is suitable.
+// For production Agents, persisted storage should be used so
+// that state survives Agent restarts, and operate correctly
+// in a cluster of Agent instances.
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
+
+// Add AgentApplicationOptions from config.
+builder.AddAgentApplicationOptions();
 
 // Create the Conversation with notification feature enabled.
 builder.Services.AddSingleton(sp =>

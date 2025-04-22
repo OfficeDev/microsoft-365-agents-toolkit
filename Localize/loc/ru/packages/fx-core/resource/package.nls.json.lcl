@@ -283,6 +283,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавьте идентификатор соединения для соединителя Graph]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавить идентификатор подключения]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.maxlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is longer than the 32 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор соединения длиннее 32 символов.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.minlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is shorter than the 3 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор соединения короче 3 символов.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.pattern" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connector ID must contain only alphanumeric characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор соединителя должен содержать только буквы и цифры.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.specialBeginner" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID should not begin with %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Идентификатор соединения не должен начинаться с %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.GCInputQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Connection ID]]></Val>
@@ -777,12 +831,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Используйте набор инструментов Microsoft 365 Agents Toolkit для создания нового приложения Teams.]]></Val>
+            <Val><![CDATA[Используйте набор инструментов Microsoft 365 Agents Toolkit для создания нового приложения.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+            <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1536,12 +1590,12 @@
       </Item>
       <Item ItemId=";core.collaboration.ListCollaboratorsSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
+          <Val><![CDATA[List of app owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Список владельцев приложений Microsoft 365. В случае успеха его можно просмотреть на [панели выходных данных]5D;(%s).]]></Val>
+            <Val><![CDATA[Список владельцев приложений создан, вы можете просмотреть его на [панели вывода]5D;(%s).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA['List Microsoft 365 App owners' succeeded, you can view it in [Output panel]5D;(%s).]]></Val>
+            <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1560,12 +1614,12 @@
       </Item>
       <Item ItemId=";core.collaboration.M365TeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
+          <Val><![CDATA[App (ID: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Microsoft 365 Teams (идентификатор: ]]></Val>
+            <Val><![CDATA[Приложение (ИД: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[M365 Teams App (ID: ]]></Val>
+            <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1650,22 +1704,25 @@
       </Item>
       <Item ItemId=";core.collaboration.StartingListAllTeamsAppOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
+          <Val><![CDATA[]A;Starting to list all app owners for environment: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[]A;Начало перечисления всех владельцев приложений Teams для среды: ]]></Val>
+            <Val><![CDATA[]A;Начинаем составлять список всех владельцев приложений для среды: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Starting list all teams app owners for environment: ]]></Val>
+            <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.TeamsAppOwner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Owner: ]]></Val>
+          <Val><![CDATA[App Owner: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Владелец приложения Teams: ]]></Val>
+            <Val><![CDATA[Владелец приложения: ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Owner: ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1743,12 +1800,12 @@
       </Item>
       <Item ItemId=";core.common.LifecycleComplete.prepareTeamsApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app prepared successfully.]]></Val>
+          <Val><![CDATA[app prepared successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams успешно подготовлено.]]></Val>
+            <Val><![CDATA[приложение успешно подготовлено.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Successfully prepared Teams app.]]></Val>
+            <Val><![CDATA[Teams app prepared successfully.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1830,36 +1887,36 @@
       </Item>
       <Item ItemId=";core.common.OfficeDesktopClientName" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
+          <Val><![CDATA[The app for desktop client id]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Идентификатор клиента приложения Microsoft 365 для настольных компьютеров]]></Val>
+            <Val><![CDATA[Приложение для идентификатора клиента на рабочем столе]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office desktop client id]]></Val>
+            <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
+          <Val><![CDATA[The app client id 1]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Идентификатор 1 клиента приложения Microsoft 365]]></Val>
+            <Val><![CDATA[Идентификатор клиента приложения 1]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 1]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
+          <Val><![CDATA[The app client id 2]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Идентификатор 2 клиента приложения Microsoft 365]]></Val>
+            <Val><![CDATA[Идентификатор клиента приложения 2]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 2]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2320,24 +2377,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Description for function "%s" shortened to %s characters to meet the length requirement.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Описание функции "%s" сокращено до %s символов для соответствия требованию к длине.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[ Mitigation: Update description for "%s" in "%s" so that Copilot can trigger the function.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ Устранение рисков: обновите описание "%s" в "%s", чтобы Copilot может активировать функцию.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Description for function "%s" is missing.]]></Val>
@@ -2475,12 +2514,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit загрузит ключ API на портал разработчиков Teams. Ключ API будет использоваться клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов Microsoft 365 Agents не будет хранить ваш ключ API.]]></Val>
+            <Val><![CDATA[Набор инструментов Microsoft 365 Agents Toolkit загрузит ключ API на портал разработчика. Ключ API будет использоваться клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов Microsoft 365 Agents не будет хранить ваш ключ API.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2505,12 +2544,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Набор инструментов Microsoft 365 Agents Toolkit загружает идентификатор/секрет клиента для регистрации OAuth на портал разработчиков Teams. Он используется клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов Microsoft 365 Agents не хранит ваш идентификатор/секрет клиента.]]></Val>
+            <Val><![CDATA[Набор инструментов Microsoft 365 Agents Toolkit загружает идентификатор/секрет клиента для регистрации OAuth на портал разработчика. Он используется клиентом Teams для безопасного доступа к вашему API во время выполнения. Набор инструментов Microsoft 365 Agents не хранит ваш идентификатор/секрет клиента.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2577,6 +2616,24 @@
           <Val><![CDATA[Import Manifest File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Импорт файла манифеста]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте декларативный агент с помощью соединителя Graph]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Добавить соединитель Graph]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3282,10 +3339,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create API Plugin]]></Val>
+          <Val><![CDATA[Create an Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создать подключаемый модуль API]]></Val>
+            <Val><![CDATA[Создание действия]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3630,12 +3690,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Пообщайтесь с GitHub Copilot и получите пошаговые инструкции по разработке вашего приложения Microsoft 365 или агента Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Пообщайтесь в чате с GitHub Copilot и получите пошаговые инструкции по разработке приложения или агента Microsoft 365 Copilot.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3930,12 +3990,12 @@
       </Item>
       <Item ItemId=";core.developerPortal.scaffold.CannotFindManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
+          <Val><![CDATA[Manifest not found from the downloaded package for app %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Манифест не найден в загруженных пакетах для приложения Teams %s.]]></Val>
+            <Val><![CDATA[Манифест не найден в загруженном пакете для приложения %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Could not find manifest from the downloaded package for teams app %s.]]></Val>
+            <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4572,12 +4632,12 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ваша версия CLI Microsoft 365 Agents Toolkit устарела и не поддерживает текущий проект. Выполните обновление до последней версии с помощью команды ниже:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[Существующая версия CLI Microsoft 365 Agents Toolkit не поддерживает текущий проект. Обновитесь до последней версии, используя следующую команду:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4596,12 +4656,12 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - app Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проект в решении создан с использованием предварительной версии функции Microsoft 365 Agents Toolkit — улучшения конфигурации приложений Teams. Чтобы продолжить, вы можете включить предварительную версию функции.]]></Val>
+            <Val><![CDATA[Проект в решении создан с использованием предварительной версии функции Microsoft 365 Agents Toolkit — улучшения конфигурации приложения. Чтобы продолжить, вы можете включить предварительную версию функции.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+            <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4791,12 +4851,12 @@
       </Item>
       <Item ItemId=";core.selectTeamsAppPackageQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams App Package File]]></Val>
+          <Val><![CDATA[Select app package File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выберите файл пакета приложения Teams]]></Val>
+            <Val><![CDATA[Выберите файл пакета приложения]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select Teams app package file]]></Val>
+            <Val><![CDATA[Select Teams App Package File]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4824,21 +4884,24 @@
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOptionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          <Val><![CDATA[Validate app before publishing app to Teams store]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверка приложения Teams перед публикацией приложения Teams в магазине Teams]]></Val>
+            <Val><![CDATA[Проверьте приложение перед публикацией в магазине Teams]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app manifest schema]]></Val>
+          <Val><![CDATA[Validate app manifest schema]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверить схему манифеста приложения Teams]]></Val>
+            <Val><![CDATA[Проверить схему манифеста приложения]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Validate using manifest schema]]></Val>
+            <Val><![CDATA[Validate Teams app manifest schema]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5130,10 +5193,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.teamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App ID (optional)]]></Val>
+          <Val><![CDATA[App ID (optional)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Идентификатор приложения Teams (необязательно)]]></Val>
+            <Val><![CDATA[Идентификатор приложения (необязательно)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App ID (optional)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5148,19 +5214,25 @@
       </Item>
       <Item ItemId=";core.teamsAppQuestion.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app]]></Val>
+          <Val><![CDATA[Your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ваше приложение Teams]]></Val>
+            <Val><![CDATA[Ваше приложение]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.teamsAppQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app]]></Val>
+          <Val><![CDATA[app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams]]></Val>
+            <Val><![CDATA[приложение]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5322,12 +5394,12 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Очистите ресурсы, связанные с определенной средой в проекте, созданном с помощью Microsoft 365 Agents Toolkit. Ресурсы включают регистрацию приложений на портале разработчиков Teams, регистрацию ботов на портале Bot Framework и пользовательские приложения, загруженные в приложения Microsoft 365.]]></Val>
+            <Val><![CDATA[Очистите ресурсы, связанные с определенной средой в проекте, созданном с помощью Microsoft 365 Agents Toolkit. Ресурсы включают регистрацию приложений на портале разработчика, регистрацию ботов на портале Bot Framework и пользовательские приложения, загруженные в приложения.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5361,12 +5433,12 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Очистите ресурсы, связанные с идентификатором манифеста. Сюда входит регистрация приложений на портале разработчиков Teams, регистрация ботов на портале Bot Framework и пользовательские приложения, загруженные в Microsoft 365. Идентификатор манифеста можно найти в файле среды (ключ среды по умолчанию: Teams_App_ID) в проекте, созданном с помощью Microsoft 365 Agents Toolkit.]]></Val>
+            <Val><![CDATA[Очистите ресурсы, связанные с идентификатором манифеста. Сюда входит регистрация приложений на портале разработчика, регистрация ботов на портале Bot Framework и пользовательские приложения, загруженные в Microsoft 365. Идентификатор манифеста можно найти в файле среды (ключ среды по умолчанию: Teams_App_ID) в проекте, созданном с помощью Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5682,10 +5754,13 @@
       </Item>
       <Item ItemId=";depChecker.failedToValidateTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          <Val><![CDATA[Unable to validate Microsoft 365 Agents Playground after installation. %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось проверить средство тестирования приложений Teams после установки. %s]]></Val>
+            <Val><![CDATA[Не удалось проверить тестовую площадку агентов Microsoft 365 после установки. %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5793,10 +5868,13 @@
       </Item>
       <Item ItemId=";depChecker.testToolVersionNotMatch" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          <Val><![CDATA[The version of Microsoft 365 Agents Playground (%s) is not compatible with the specified version range (%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Версия средства тестирования приложений Teams (%s) несовместима с указанным диапазоном версий (%s).]]></Val>
+            <Val><![CDATA[Версия тестовой площадки агентов Microsoft 365 (%s) несовместима с указанным диапазоном версий (%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6621,10 +6699,13 @@
       </Item>
       <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          <Val><![CDATA[Install app into sandboxed channel.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Установите приложение Teams в изолированный канал.]]></Val>
+            <Val><![CDATA[Установите приложение на тестовой площадке канала.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7011,10 +7092,13 @@
       </Item>
       <Item ItemId=";driver.prerequisite.error.testToolInstallationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          <Val><![CDATA[Unable to check and install Microsoft 365 Agents Playground.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось проверка и установить средство тестирования приложений Teams.]]></Val>
+            <Val><![CDATA[Не удалось проверить и установить тестовую площадку агентов Microsoft 365.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7098,19 +7182,25 @@
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Средство тестирования приложений Teams установлено.]]></Val>
+            <Val><![CDATA[Тестовая площадка агентов Microsoft 365 установлена.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installedWithPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed at %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Средство тестирования приложений Teams установлено в %s.]]></Val>
+            <Val><![CDATA[Тестовая площадка агентов Microsoft 365 установлена в %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7323,135 +7413,144 @@
       </Item>
       <Item ItemId=";driver.teamsApp.description.copyAppPackageToSPFxDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          <Val><![CDATA[copies the generated app package to SPFx solution.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[копирует созданный пакет приложения Teams в решение SPFx.]]></Val>
+            <Val><![CDATA[копирует созданный пакет приложения в решение SPFx.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createAppPackageDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[build Teams app package.]]></Val>
+          <Val><![CDATA[build app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[создайте пакет приложения Teams.]]></Val>
+            <Val><![CDATA[собрать пакет приложения.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[build a Teams app package.]]></Val>
+            <Val><![CDATA[build Teams app package.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[create Teams app.]]></Val>
+          <Val><![CDATA[create app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[создать приложение Teams.]]></Val>
+            <Val><![CDATA[создать приложение.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[create a Teams app.]]></Val>
+            <Val><![CDATA[create Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.publishDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
+          <Val><![CDATA[publish app to tenant app catalog.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[опубликуйте приложение Teams в каталоге приложений клиента.]]></Val>
+            <Val><![CDATA[опубликовать приложение в каталоге приложений клиента.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[publish a Teams app to tenant app catalog.]]></Val>
+            <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.updateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[update Teams app.]]></Val>
+          <Val><![CDATA[update app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[обновите приложение Teams.]]></Val>
+            <Val><![CDATA[обновить приложение.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[update a Teams app.]]></Val>
+            <Val><![CDATA[update Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.validateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[validate Teams app.]]></Val>
+          <Val><![CDATA[validate app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[проверить приложение Teams.]]></Val>
+            <Val><![CDATA[проверить приложение.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[validate a Teams app.]]></Val>
+            <Val><![CDATA[validate Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.copyAppPackageToSPFxStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          <Val><![CDATA[Copying app package to SPFx solution...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Выполняется копирование пакета приложения Teams в решение SPFx…]]></Val>
+            <Val><![CDATA[Копирование пакета приложения в решение SPFx...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.createTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Creating Teams app...]]></Val>
+          <Val><![CDATA[Creating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создание приложения Teams...]]></Val>
+            <Val><![CDATA[Создается приложение...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Creating Teams app]]></Val>
+            <Val><![CDATA[Creating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
+          <Val><![CDATA[Checking if the app is already submitted to tenant App Catalog]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверка того, отправлено ли приложение Teams в каталог приложений клиента]]></Val>
+            <Val><![CDATA[Проверка того, отправлено ли приложение в каталог приложений клиента]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Checking if the Teams app has already been submitted to tenant App Catalog]]></Val>
+            <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update published Teams app]]></Val>
+          <Val><![CDATA[Update published app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Обновление опубликованного приложения Teams]]></Val>
+            <Val><![CDATA[Обновить опубликованное приложение]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Update published Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publishing Teams app...]]></Val>
+          <Val><![CDATA[Publishing app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Публикация приложения Teams...]]></Val>
+            <Val><![CDATA[Приложение публикуется...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publishing Teams app]]></Val>
+            <Val><![CDATA[Publishing Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.updateTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Updating Teams app...]]></Val>
+          <Val><![CDATA[Updating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Обновление приложения Teams...]]></Val>
+            <Val><![CDATA[Обновляем приложение...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Updating Teams app]]></Val>
+            <Val><![CDATA[Updating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7467,30 +7566,36 @@
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.conflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[В настоящее время проводится проверка. Отправьте позже. Эту существующую проверку можно найти на [Портале разработчика Teams]5D;(%s).]]></Val>
+            <Val><![CDATA[В настоящее время проводится проверка. Отправьте позже. Эту существующую проверку можно найти на [портале разработчика]5D;(%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.step" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Запрос на проверку отправлен, состояние: %s. Вы будете уведомлены, когда результат будет готов, или вы можете проверить все свои записи проверки на [Портале разработчика Teams]5D;(%s).]]></Val>
+            <Val><![CDATA[Запрос на проверку отправлен, состояние: %s. Вы будете уведомлены, когда результат будет готов, или вы можете проверить все свои записи проверки на [портале разработчика]5D;(%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.copyAppPackageSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
+          <Val><![CDATA[App %s was successfully copied to %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams %s успешно скопировано в %s.]]></Val>
+            <Val><![CDATA[Приложение %s успешно скопировано в %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app %s was successfully copyed to %s.]]></Val>
+            <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7506,37 +7611,49 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.createTeamsAppAlreadyExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          <Val><![CDATA[App with id %s already exists, skipped creating a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams с идентификатором %s уже существует. Создание нового приложения Teams пропущено.]]></Val>
+            <Val><![CDATA[Приложение с идентификатором %s уже существует, создание нового приложения пропущено.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s already exists in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams с идентификатором %s уже существует в магазине приложений организации.]]></Val>
+            <Val><![CDATA[Приложение с идентификатором %s уже существует в магазине приложений организации.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppNotExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s does not exist in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams с идентификатором %s не существует в магазине приложений организации.]]></Val>
+            <Val><![CDATA[Приложение с идентификатором %s не существует в магазине приложений организации.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          <Val><![CDATA[App %s successfully published to the admin portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams %s опубликовано на портале администрирования.]]></Val>
+            <Val><![CDATA[Приложение %s успешно опубликовано на портале администратора.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7563,10 +7680,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate.checkPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          <Val><![CDATA[You can check and update your app package at %s.]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Вы можете проверка и обновить пакет приложения Teams в %s.]]></Val>
+            <Val><![CDATA[Вы можете проверить и обновить свой пакет приложения по адресу %s.]A;]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7824,12 +7944,12 @@
       </Item>
       <Item ItemId=";error.aad.manifest.AADManifestIssues" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the app:]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Манифест Microsoft Entra имеет следующие проблемы, которые потенциально могут нарушить работу приложения Teams:]A;]]></Val>
+            <Val><![CDATA[В манифесте Microsoft Entra есть следующие проблемы, которые потенциально могут нарушить работу приложения:]A;]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[AAD manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8205,24 +8325,24 @@
       </Item>
       <Item ItemId=";error.appstudio.publishFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
+          <Val><![CDATA[Unable to publish app with ID %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось опубликовать приложение Teams с идентификатором %s.]]></Val>
+            <Val><![CDATA[Невозможно опубликовать приложение с идентификатором %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to publish Teams app with ID %s.]]></Val>
+            <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.publishInDevPortalSuggestionForValidationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
+          <Val><![CDATA[Generate package from "Zip app package" and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создайте пакет из "Пакета приложения Zip Teams" и повторите попытку.]]></Val>
+            <Val><![CDATA[Создайте пакет из "Zip-архива приложения" и повторите попытку.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please try to generate package from "Zip Teams app package" and try again.]]></Val>
+            <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8250,64 +8370,73 @@
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          <Val><![CDATA[Manifest downloaded from Developer Portal is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Манифест, загруженный из teams Портал разработчика пуст]]></Val>
+            <Val><![CDATA[Манифест, загруженный с портала разработчика, пуст]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoTeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          <Val><![CDATA[Unable to load app ID from the env file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось загрузить идентификатор приложения Teams из env-файла.]]></Val>
+            <Val><![CDATA[Не удалось загрузить идентификатор приложения из файла env.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
+          <Val><![CDATA[Unable to create app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось создать приложение Teams. Возможно, идентификатор вашего приложения конфликтует с идентификатором другого приложения в вашем клиенте. Щелкните "Техническая поддержка", чтобы устранить эту проблему.]]></Val>
+            <Val><![CDATA[Невозможно создать приложение. Это может быть связано с тем, что идентификатор вашего приложения конфликтует с идентификатором другого приложения в клиенте. Нажмите "Получить помощь", чтобы решить эту проблему.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app with 409 Conflict error. That may come from your app id is conflicting with another app in your tenant. Click Get Help to learn more.]]></Val>
+            <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflictWithPublishedApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
+          <Val><![CDATA[app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams с таким идентификатором уже существует в магазине приложений вашей организации. Обновите приложение и повторите попытку.]]></Val>
+            <Val><![CDATA[приложение с таким же идентификатором уже существует в магазине приложений организации. Обновите приложение и повторите попытку.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[A Teams app with that id already exists in your organization's app store. Manually update the app id and try again.]]></Val>
+            <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to create app in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось создать приложение Teams на Портале разработчика Teams из-за %s]]></Val>
+            <Val><![CDATA[Не удается создать приложение на портале разработчика из-за %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppPublishConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          <Val><![CDATA[Unable to publish app because app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось опубликовать приложение Teams, так как приложение Teams с таким идентификатором уже существует в промежуточных приложениях. Обновите идентификатор приложения и повторите попытку.]]></Val>
+            <Val><![CDATA[Невозможно опубликовать приложение, так как приложение с таким идентификатором уже существует в подготовленных приложениях. Обновите идентификатор приложения и повторите попытку.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8322,24 +8451,24 @@
       </Item>
       <Item ItemId=";error.appstudio.teamsAppUpdateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to update app with ID %s in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось обновить приложение Teams с идентификатором %s в teams Портал разработчика из-за %s]]></Val>
+            <Val><![CDATA[Невозможно обновить приложение с идентификатором %s на портале разработчика из-за %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.updateManifestInvalidApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
+          <Val><![CDATA[Unable to find app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось найти приложение Teams с идентификатором %s. Запустите отладку или подготовку перед обновлением манифеста на платформу Teams.]]></Val>
+            <Val><![CDATA[Не удалось найти приложение с идентификатором %s. Запустите отладку или подготовку перед обновлением манифеста на платформе Teams.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Cannot find teams app with id %s. You must run debug or provision first before updating manifest to Teams platform.]]></Val>
+            <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9288,10 +9417,13 @@
       </Item>
       <Item ItemId=";error.m365.NotExtendedToM365Error" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          <Val><![CDATA[Unable to extend the app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend the app to Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удается расширить приложение Teams до Microsoft 365. Используйте действие «teamsApp/extendToM365», чтобы расширить приложение Teams до Microsoft 365.]]></Val>
+            <Val><![CDATA[Невозможно расширить приложение до Microsoft 365. Используйте действие "teamsApp/extendToM365", чтобы расширить приложение до Microsoft 365.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9429,21 +9561,24 @@
       </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          <Val><![CDATA[App with ID %s does not exist in Developer Portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams с идентификатором %s не существует на портале разработчика Teams.]]></Val>
+            <Val><![CDATA[Приложение с идентификатором %s не существует на портале разработчика.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.InvalidAppIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
+          <Val><![CDATA[App ID %s is invalid, must be a GUID.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Недопустимый идентификатор приложения Teams %s, это должен быть GUID.]]></Val>
+            <Val><![CDATA[Идентификатор приложения %s недействителен, должен быть GUID.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app ID %s is invalid]]></Val>
+            <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9459,21 +9594,24 @@
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          <Val><![CDATA[app package validation failed due to  %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Не удалось проверить пакет приложения Teams из-за %s]]></Val>
+            <Val><![CDATA[Проверка пакета приложения не удалась из-за %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[App pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Проверка пакета приложения Teams не пройдена. Для получения дополнительных сведений см. [панель выходных данных]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Проверка пакета приложения не удалась. Для получения дополнительных сведений см. [панель выходных данных]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app pacakge validation failed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9651,10 +9789,13 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.progressBar.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Building Teams app package...]]></Val>
+          <Val><![CDATA[Building app package...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Создание пакета приложения Teams...]]></Val>
+            <Val><![CDATA[Создание пакета приложения...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Building Teams app package...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9741,48 +9882,48 @@
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppCreatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s created successfully]]></Val>
+          <Val><![CDATA[app %s created successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams %s успешно создано]]></Val>
+            <Val><![CDATA[приложение %s создано]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app created %s]]></Val>
+            <Val><![CDATA[Teams app %s created successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedCLINotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully to ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Манифест приложения Teams успешно развернут в ]]></Val>
+            <Val><![CDATA[Манифест приложения развернут в ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed to ]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s updated successfully]]></Val>
+          <Val><![CDATA[app %s updated successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Приложение Teams %s успешно обновлено]]></Val>
+            <Val><![CDATA[приложение %s обновлено]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app updated %s]]></Val>
+            <Val><![CDATA[Teams app %s updated successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully. To see your app in Developer Portal, click "View in Developer Portal".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Манифест приложения Teams успешно развернут. Чтобы просмотреть приложение в Teams Портал разработчика, щелкните "Просмотреть в Портал разработчика".]]></Val>
+            <Val><![CDATA[Манифест вашего приложения развернут. Чтобы увидеть свое приложение на портале разработчика, нажмите "Просмотреть на портале разработчика".]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed. Click "View in Developer Portal" to view your application in Teams Developer Portal.]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

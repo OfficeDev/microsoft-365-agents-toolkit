@@ -450,7 +450,8 @@ export class LocalDebugTaskResult {
 export class LocalDebugTaskLabel2 {
   static readonly StartBot2 = "Start Bot";
   static readonly PythonDebugConsole = "Python Debug Console";
-  static readonly StartTestTool = "Start Test Tool";
+  static readonly StartAgentsPlayground =
+    "Start Microsoft 365 Agents Playground";
   static readonly CompileTypescript = "Compile typescript";
 }
 
@@ -474,7 +475,8 @@ export class LocalDebugTaskInfo {
 
 export class DebugItemSelect {
   static readonly DebugInTeamsUsingChrome = "Debug in Teams (Chrome)";
-  static readonly DebugInTestTool = "Debug in Test Tool";
+  static readonly DebugInAgentsPlayground =
+    "Debug in Microsoft 365 Agents Playground";
 }
 
 export class TestFilePath {
