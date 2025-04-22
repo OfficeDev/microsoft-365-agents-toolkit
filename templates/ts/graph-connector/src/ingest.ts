@@ -45,7 +45,7 @@ export async function ingestContent(config: Config, since?: Date): Promise<void>
   for await (const item of getAllItems(config, since)) {
     const transformedItem = getExternalItemFromItem(item);
 
-    // Graph connector API, load content item by item
+    // Copilot connector API, load content item by item
     // this is a custom implementation to load the content into the Graph API
     // you can customize this function to fit your needs
     // if you want to load the content in bulk, you can accumulate several items
