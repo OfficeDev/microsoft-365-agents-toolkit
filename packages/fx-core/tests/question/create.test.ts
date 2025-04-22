@@ -4,11 +4,9 @@ import {
   Context,
   FuncValidation,
   Inputs,
-  LocalFunc,
   LogProvider,
   OptionItem,
   Platform,
-  Question,
   TokenProvider,
   UserError,
   err,
@@ -40,10 +38,8 @@ import {
   oneDriveSharePointItemQuestion,
   webContentQuestion,
 } from "../../src/question";
-import { CapabilityOptions } from "../../src/question/CapabilityOptions";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
-import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("scaffold question", () => {
   const sandbox = sinon.createSandbox();
@@ -192,41 +188,6 @@ describe("scaffold question", () => {
       const result = await validFunc(input);
 
       assert.equal(result, getLocalizedString("core.QuestionAppName.validation.pattern"));
-    });
-  });
-
-  describe("CapabilityOptions", () => {
-    let mockedEnvRestore: RestoreFn = () => {};
-    beforeEach(() => {
-      mockedEnvRestore = mockedEnv({});
-    });
-    afterEach(() => {
-      mockedEnvRestore();
-    });
-    it("has 3 options in message extension type", () => {
-      // Act
-      const options = CapabilityOptions.mes();
-      // Assert
-      assert.equal(options.length, 3);
-      assert.deepEqual(options, [
-        CapabilityOptions.m365SearchMe(),
-        CapabilityOptions.collectFormMe(),
-        CapabilityOptions.linkUnfurling(),
-      ]);
-    });
-    describe("officeAddinCapabilities()", () => {
-      it("should return correct capabilities for outlook addin", () => {
-        const capabilities = CapabilityOptions.officeAddinCapabilities(
-          ProjectTypeOptions.outlookAddinOptionId
-        );
-        assert.equal(capabilities.length, 2);
-      });
-      it("should return correct capabilities for office addin", () => {
-        const capabilities = CapabilityOptions.officeAddinCapabilities(
-          ProjectTypeOptions.officeMetaOSOptionId
-        );
-        assert.equal(capabilities.length, 2);
-      });
     });
   });
 

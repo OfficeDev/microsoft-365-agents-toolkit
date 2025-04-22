@@ -16,7 +16,6 @@ import { CombinedProjectGenerator } from "../../../src/component/generator/combi
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import { MockTools } from "../../core/utils";
-import { CapabilityOptions } from "../../../src/question/CapabilityOptions";
 
 describe("combined generator", async () => {
   setTools(new MockTools());
@@ -60,7 +59,7 @@ describe("combined generator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
         [QuestionNames.AppName]: "app",
       };

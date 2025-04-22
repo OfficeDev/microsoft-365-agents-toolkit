@@ -28,7 +28,6 @@ import {
   MissingEnvironmentVariablesError,
   ReadFileError,
 } from "../../../../error/common";
-// import { CapabilityOptions } from "../../../../question/constants";
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
 import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";

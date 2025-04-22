@@ -113,10 +113,20 @@ export * from "./error/index";
 export * from "./question/constants";
 export * from "./question/inputs";
 export * from "./question/options";
+export { VSCapabilityOptions } from "./question/scaffold/vs/createRootNode";
+export {
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
+  DACapabilityOptions,
+  MeCapabilityOptions,
+  OfficeAddinCapabilityOptions,
+  TabCapabilityOptions,
+  TdpCapabilityOptions,
+} from "./question/scaffold/vsc/CapabilityOptions";
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export {
   getProjectTypeByCapability,
   getTeamsProjectTypeByCapability,
 } from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
-export { CapabilityOptions } from "./question/CapabilityOptions";

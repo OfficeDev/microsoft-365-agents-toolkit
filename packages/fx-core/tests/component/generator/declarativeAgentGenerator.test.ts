@@ -13,7 +13,6 @@ import {
   PluginManifestSchema,
   UserError,
   signedIn,
-  DeclarativeCopilotManifestSchema,
   DeclarativeAgentManifest,
   signedOut,
 } from "@microsoft/teamsfx-api";
@@ -31,11 +30,11 @@ import * as generatorHelper from "../../../src/component/generator/declarativeAg
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as commons from "../../../src/component/utils/common";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
-import { CapabilityOptions } from "../../../src/question/CapabilityOptions";
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
 import * as utils from "../../../src/component/generator/utils";
+import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -54,7 +53,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -100,7 +99,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -135,7 +134,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
@@ -165,7 +164,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
@@ -201,7 +200,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
         [QuestionNames.AppName]: "app",
       };
@@ -219,7 +218,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
@@ -238,7 +237,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.AppName]: "app",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
@@ -260,7 +259,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -278,7 +277,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -296,7 +295,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VS,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -314,7 +313,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
