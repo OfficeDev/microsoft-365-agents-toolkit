@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { fetchSchema, SchemaTypeEnum } from "./fetcher";
@@ -9,23 +11,23 @@ export function createServer(): McpServer {
   });
   server.tool(
     "get_schema",
-    "Get the schema for \"App manifest\", \"Declarative agent manifest\", \"API plugin manifest\", use it everytime before understanding, modifying or creating any of these manifest files.",
+    'Get the schema for "App manifest", "Declarative agent manifest", "API plugin manifest", use it everytime before understanding, modifying or creating any of these manifest files.',
     {
       schema_name: SchemaTypeEnum.describe("name of schema"),
       schema_version: z.string().describe("version of schema"),
     },
     async ({ schema_name, schema_version }) => {
-        const schema = await fetchSchema(schema_name, schema_version);
+      const schema = await fetchSchema(schema_name, schema_version);
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: schema
-            }
-          ]
-        };
-    },
+      return {
+        content: [
+          {
+            type: "text",
+            text: schema,
+          },
+        ],
+      };
+    }
   );
 
   return server;

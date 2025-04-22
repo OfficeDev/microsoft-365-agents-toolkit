@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
 import { z } from "zod";
 
 /**
@@ -6,7 +8,7 @@ import { z } from "zod";
 export const SchemaTypeEnum = z.enum([
   "app_manifest",
   "declarative_agent_manifest",
-  "api_plugin_manifest"
+  "api_plugin_manifest",
 ]);
 export type SchemaType = z.infer<typeof SchemaTypeEnum>;
 
@@ -29,7 +31,7 @@ const schemaRepositories: Record<SchemaType, SchemaRepository> = {
   },
   api_plugin_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/plugin/{{version}}/schema.json`,
-  }
+  },
 };
 
 /**
@@ -43,37 +45,38 @@ const schemaCache: Record<string, any> = {};
  * @param schemaVersion The version of the schema to fetch
  * @returns The requested schema as a JSON object with schema_url and content properties
  */
-export async function fetchSchema(schemaName: SchemaType, schemaVersion: string): Promise<string> {  // Create a cache key
+export async function fetchSchema(schemaName: SchemaType, schemaVersion: string): Promise<string> {
+  // Create a cache key
   const cacheKey = `${schemaName}:${schemaVersion}`;
-  
+
   // Check if we have this schema in cache
   if (schemaCache[cacheKey]) {
     return schemaCache[cacheKey];
   }
-  
+
   const repository = schemaRepositories[schemaName];
   if (!repository) {
     return `Unknown schema name: ${schemaName}`;
   }
-  
+
   try {
     const url = repository.baseUrl.replace("{{version}}", schemaVersion);
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error with status: ${response.status}`);
     }
-    
+
     const content = await response.json();
-    
+
     const result = JSON.stringify({
       schema_url: url,
-      content: content
+      content: content,
     });
-    
+
     // Save to cache
     schemaCache[cacheKey] = result;
-    
+
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
