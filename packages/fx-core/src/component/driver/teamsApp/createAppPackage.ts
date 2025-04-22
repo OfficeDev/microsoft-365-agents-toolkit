@@ -410,7 +410,7 @@ export class CreateAppPackageDriver implements StepDriver {
 
     const builtSuccess = [
       { content: "(√)Done: ", color: Colors.BRIGHT_GREEN },
-      { content: "Teams Package ", color: Colors.BRIGHT_WHITE },
+      { content: "App Package ", color: Colors.BRIGHT_WHITE },
       { content: zipFileName, color: Colors.BRIGHT_MAGENTA },
       { content: " built successfully!", color: Colors.BRIGHT_WHITE },
     ];
