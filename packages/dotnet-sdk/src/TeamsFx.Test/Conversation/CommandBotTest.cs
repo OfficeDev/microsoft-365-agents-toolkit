@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
     using Microsoft.Agents.Hosting.AspNetCore;
     using Microsoft.Agents.Hosting.AspNetCore.BackgroundQueue;
     using Microsoft.TeamsFx.Conversation;

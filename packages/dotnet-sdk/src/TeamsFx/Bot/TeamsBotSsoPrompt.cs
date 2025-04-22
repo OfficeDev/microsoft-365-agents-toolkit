@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Agents.BotBuilder;
-using Microsoft.Agents.BotBuilder.Dialogs;
+using Microsoft.Agents.Builder;
+using Microsoft.Agents.Builder.Dialogs;
+using Microsoft.Agents.Builder.Dialogs.Prompts;
 using Microsoft.Agents.Core.Models;
 using Microsoft.Agents.Extensions.Teams.Models;
 using Microsoft.Identity.Client;
@@ -287,7 +288,7 @@ public class TeamsBotSsoPrompt : Dialog
     {
         await turnContext.SendActivityAsync(
             new Activity {
-                Type = Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse,
+                Type = ActivityTypes.InvokeResponse,
                 Value = new InvokeResponse {
                     Status = (int)statusCode,
                     Body = body,
@@ -322,7 +323,7 @@ public class TeamsBotSsoPrompt : Dialog
         SignInResource signInResource = GetSignInResource(loginHint, tenantId);
 
         // Ensure prompt initialized
-        IMessageActivity prompt = Activity.CreateMessageActivity();
+        IActivity prompt = Activity.CreateMessageActivity();
         prompt.Attachments = new List<Attachment>();
         prompt.Attachments.Add(new Attachment {
             ContentType = OAuthCard.ContentType,

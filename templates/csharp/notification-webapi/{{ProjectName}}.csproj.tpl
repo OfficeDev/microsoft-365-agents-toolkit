@@ -25,8 +25,8 @@
 
   <ItemGroup>
     <PackageReference Include="AdaptiveCards.Templating" Version="1.3.1" />
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.171-alpha" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.171-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.*-*" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
     <PackageReference Include="Microsoft.TeamsFx" Version="3.0.0-rc">
       <!-- Exclude TeamsFx wwwroot static files which are for frontend only. -->
       <ExcludeAssets>contentFiles</ExcludeAssets>

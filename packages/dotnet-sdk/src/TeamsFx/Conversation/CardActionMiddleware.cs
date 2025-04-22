@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
     using Microsoft.Agents.Core.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -120,7 +120,7 @@ namespace Microsoft.TeamsFx.Conversation
         {
             var invokeActivity = new Activity
             {
-                Type = Microsoft.Bot.Schema.ActivityTypesEx.InvokeResponse,
+                Type = ActivityTypes.InvokeResponse,
                 Value = response
             };
 
