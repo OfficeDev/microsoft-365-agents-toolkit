@@ -5,6 +5,7 @@ import { err, FxError, ok, Result, UserError } from "@microsoft/teamsfx-api";
 import {
   ActionStartOptions,
   CapabilityOptions,
+  NewProjectTypeOptions,
   ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -44,7 +45,7 @@ export async function createDeclarativeAgentWithApiSpec(
   inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
   inputs.capabilities = CapabilityOptions.declarativeAgent().id;
   inputs[QuestionNames.WithPlugin] = "yes";
-  inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
+  inputs[QuestionNames.ProjectType] = NewProjectTypeOptions.copilotAgentOptionId;
   inputs[QuestionNames.OpenAPISpecType] = "enter-url-or-open-local-file";
 
   const result = await createNewProjectHandler("", inputs);

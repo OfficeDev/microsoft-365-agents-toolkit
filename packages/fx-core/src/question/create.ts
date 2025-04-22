@@ -77,12 +77,11 @@ import {
   KnowledgeSourceOptions,
   MeArchitectureOptions,
   ProgrammingLanguage,
-  ProjectTypeOptions,
   QuestionNames,
-  RuntimeOptions,
   SPFxVersionOptionIds,
 } from "./constants";
 import { ensureInputs } from "./utils";
+import { ProjectTypeOptions } from "./scaffold/vsc/ProjectTypeOptions";
 
 export function getProjectTypeAndCapability(
   teamsApp: AppDefinition
@@ -442,17 +441,6 @@ function sampleSelectQuestion(): SingleSelectQuestion {
   };
 }
 
-function runtimeQuestion(): SingleSelectQuestion {
-  return {
-    type: "singleSelect",
-    name: QuestionNames.Runtime,
-    title: getLocalizedString("core.getRuntimeQuestion.title"),
-    staticOptions: [RuntimeOptions.NodeJS(), RuntimeOptions.DotNet()],
-    default: RuntimeOptions.NodeJS().id,
-    placeholder: getLocalizedString("core.getRuntimeQuestion.placeholder"),
-    cliHidden: true,
-  };
-}
 const defaultTabLocalHostUrl = "https://localhost:53000/index.html#/tab";
 const tabContentUrlOptionItem = (tab: StaticTab): OptionItem => {
   return {
@@ -827,7 +815,7 @@ export function apiOperationQuestion(
           input.length < 1 ||
           (input.length > 10 &&
             inputs[QuestionNames.CustomCopilotRag] !== CustomCopilotRagOptions.customApi().id &&
-            inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id)
+            inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId)
         ) {
           return getLocalizedString(
             "core.createProjectQuestion.apiSpec.operation.invalidMessage",
@@ -1369,7 +1357,7 @@ export function GCNameQuestion(): TextInputQuestion {
         inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
 
         // Set template name and app name for Graph Connector Template
-        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
+        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId) {
           inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
           inputs[QuestionNames.AppName] = input;
         }
@@ -1382,7 +1370,7 @@ export function GCNameQuestion(): TextInputQuestion {
           return "Please enter a graph connector name.";
         }
         inputs = ensureInputs(inputs);
-        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.Agent().id) {
+        if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId) {
           // Graph Connector Template will use the name as app name, which has a minimum length of 2.
           if (input.trim().length < 2) {
             return "Please enter a graph connector name with minimum two characters.";

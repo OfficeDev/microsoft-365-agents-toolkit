@@ -33,7 +33,6 @@ import {
   ApiAuthOptions,
   CapabilityOptions,
   MeArchitectureOptions,
-  ProjectTypeOptions,
   QuestionNames,
   apiAuthQuestion,
   appNameQuestion,
@@ -44,6 +43,7 @@ import {
 } from "../../src/question";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
   try {
@@ -240,13 +240,13 @@ describe("scaffold question", () => {
     describe("officeAddinCapabilities()", () => {
       it("should return correct capabilities for outlook addin", () => {
         const capabilities = CapabilityOptions.officeAddinCapabilities(
-          ProjectTypeOptions.outlookAddin().id
+          ProjectTypeOptions.outlookAddinOptionId
         );
         assert.equal(capabilities.length, 2);
       });
       it("should return correct capabilities for office addin", () => {
         const capabilities = CapabilityOptions.officeAddinCapabilities(
-          ProjectTypeOptions.officeMetaOS().id
+          ProjectTypeOptions.officeMetaOSOptionId
         );
         assert.equal(capabilities.length, 2);
       });

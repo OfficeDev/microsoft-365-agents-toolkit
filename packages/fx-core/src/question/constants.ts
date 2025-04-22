@@ -4,6 +4,7 @@
 import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { getLocalizedString } from "../common/localizeUtils";
+import { ProjectTypeOptions } from "./scaffold/vsc/ProjectTypeOptions";
 
 export enum QuestionNames {
   Scratch = "scratch",
@@ -142,11 +143,6 @@ export enum QuestionNames {
   RemoveUsers = "users",
 }
 
-export enum ProjectTypeGroup {
-  AIAgent = "AI Agent",
-  M365Apps = "Apps for Microsoft 365",
-}
-
 export const AppNamePattern =
   '^(?=(.*[\\da-zA-Z]){2})[a-zA-Z][^"<>:\\?/*&|\u0000-\u001F]*[^"\\s.<>:\\?/*&|\u0000-\u001F]$';
 
@@ -217,113 +213,6 @@ export class ScratchOptions {
   }
   static all(): OptionItem[] {
     return [ScratchOptions.yes(), ScratchOptions.no()];
-  }
-}
-
-export class ProjectTypeOptions {
-  static getCreateGroupName(group: ProjectTypeGroup): string | undefined {
-    switch (group) {
-      case ProjectTypeGroup.AIAgent:
-        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.aiAgent");
-      case ProjectTypeGroup.M365Apps:
-        return getLocalizedString("core.createProjectQuestion.projectType.createGroup.m365Apps");
-    }
-  }
-  static tab(platform?: Platform): OptionItem {
-    return {
-      id: "tab-type",
-      label: `${platform === Platform.VSCode ? "$(browser) " : ""}${getLocalizedString(
-        "core.TabOption.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.tab.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static bot(platform?: Platform): OptionItem {
-    return {
-      id: "bot-type",
-      label: `${platform === Platform.VSCode ? "$(hubot) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.bot.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.bot.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static me(platform?: Platform): OptionItem {
-    return {
-      id: "me-type",
-      label: `${platform === Platform.VSCode ? "$(symbol-keyword) " : ""}${getLocalizedString(
-        "core.MessageExtensionOption.label"
-      )}`,
-      detail: getLocalizedString(
-        "core.createProjectQuestion.projectType.messageExtension.copilotEnabled.detail"
-      ),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static outlookAddin(platform?: Platform): OptionItem {
-    return {
-      id: "outlook-addin-type",
-      label: `${platform === Platform.VSCode ? "$(mail) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.outlookAddin.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.outlookAddin.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static officeMetaOS(platform?: Platform): OptionItem {
-    return {
-      id: "office-meta-os-type",
-      label: `${platform === Platform.VSCode ? "$(teamsfx-m365) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.officeAddin.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.officeAddin.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.M365Apps),
-    };
-  }
-
-  static officeAddinAllIds(platform?: Platform): string[] {
-    return [
-      ProjectTypeOptions.officeMetaOS(platform).id,
-      ProjectTypeOptions.outlookAddin(platform).id,
-    ];
-  }
-
-  static Agent(platform?: Platform): OptionItem {
-    return {
-      id: "copilot-agent-type",
-      label: `${platform === Platform.VSCode ? "$(teamsfx-agent) " : ""}${getLocalizedString(
-        "core.createProjectQuestion.projectType.declarativeAgent.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.declarativeAgent.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.AIAgent),
-    };
-  }
-
-  static customCopilot(platform?: Platform): OptionItem {
-    return {
-      id: "custom-copilot-type",
-      label: `${
-        platform === Platform.VSCode ? "$(teamsfx-custom-copilot) " : ""
-      }${getLocalizedString("core.createProjectQuestion.projectType.customCopilot.label")}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.customCopilot.detail"),
-      groupName: ProjectTypeOptions.getCreateGroupName(ProjectTypeGroup.AIAgent),
-    };
-  }
-
-  static startWithGithubCopilot(): OptionItem {
-    return {
-      id: "start-with-github-copilot",
-      label: `$(question) ${getLocalizedString(
-        "core.createProjectQuestion.projectType.copilotHelp.label"
-      )}`,
-      detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),
-      groupName: getLocalizedString("core.createProjectQuestion.projectType.copilotGroup.title"),
-    };
   }
 }
 
@@ -1220,27 +1109,6 @@ export class HubOptions {
   }
   static all(): OptionItem[] {
     return [this.teams(), this.outlook(), this.office()];
-  }
-}
-
-export class DeclarativeCopilotTypeOptions {
-  static noPlugin(): OptionItem {
-    return {
-      id: "no",
-      label: getLocalizedString("core.createProjectQuestion.noPlugin.label"),
-      detail: getLocalizedString("core.createProjectQuestion.noPlugin.detail"),
-    };
-  }
-  static withPlugin(): OptionItem {
-    return {
-      id: "yes",
-      label: getLocalizedString("core.createProjectQuestion.addPlugin.label"),
-      detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
-    };
-  }
-
-  static all(): OptionItem[] {
-    return [DeclarativeCopilotTypeOptions.noPlugin(), DeclarativeCopilotTypeOptions.withPlugin()];
   }
 }
 

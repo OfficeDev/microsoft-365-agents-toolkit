@@ -29,7 +29,6 @@ import {
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../../src/question/constants";
@@ -37,6 +36,7 @@ import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
 import { pathUtils } from "../../../src/component/utils/pathUtils";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -509,7 +509,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -531,7 +531,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
@@ -553,7 +553,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
@@ -575,7 +575,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddinOptionId,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.TemplateName]: TemplateNames.OutlookTaskpane,
@@ -596,7 +596,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -617,7 +617,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
@@ -635,7 +635,7 @@ describe("coordinator create", () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
       };
@@ -656,7 +656,7 @@ describe("coordinator create", () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
         [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",

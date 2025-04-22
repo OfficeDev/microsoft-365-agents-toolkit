@@ -43,7 +43,6 @@ import {
   ActionStartOptions,
   AppNamePattern,
   CapabilityOptions,
-  ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../question/constants";
@@ -66,6 +65,7 @@ import { metadataUtil } from "../utils/metadataUtil";
 import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
 import { SummaryReporter } from "./summary";
+import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
 
 const M365Actions = [
   "botAadApp/create",
@@ -168,7 +168,7 @@ class Coordinator {
         [TelemetryProperty.IsFromTdp]: (!!inputs.teamsAppFromTdp).toString(),
       });
       if (
-        projectType === ProjectTypeOptions.customCopilot().id ||
+        projectType === ProjectTypeOptions.customEngineAgentOptionId ||
         (teamsAppType === TeamsProjectTypeOptions.botOptionId && inputs.platform === Platform.VS)
       ) {
         merge(actionContext?.telemetryProps, {

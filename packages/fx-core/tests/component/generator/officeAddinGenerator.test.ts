@@ -38,13 +38,9 @@ import { HelperMethods } from "../../../src/component/generator/officeAddin/help
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
-import {
-  CapabilityOptions,
-  ProgrammingLanguage,
-  ProjectTypeOptions,
-  QuestionNames,
-} from "../../../src/question";
+import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import { MockTools } from "../../core/utils";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("OfficeAddinGenerator for Outlook Addin", function () {
   const testFolder = path.resolve("./tmp");
@@ -78,7 +74,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       projectPath: testFolder,
       "app-name": "outlook-addin-test",
     };
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
     inputs[QuestionNames.Capabilities] = "json-taskpane";
     inputs[QuestionNames.OfficeAddinFolder] = undefined;
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
@@ -95,7 +91,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       projectPath: testFolder,
       "app-name": "outlook-addin-test",
     };
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
     inputs[QuestionNames.Capabilities] = "json-taskpane";
     inputs[QuestionNames.OfficeAddinFolder] = undefined;
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
@@ -112,7 +108,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       projectPath: testFolder,
       "app-name": "outlook-addin-test",
     };
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
     inputs[QuestionNames.Capabilities] = "json-taskpane";
     inputs[QuestionNames.OfficeAddinFolder] = "somepath";
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
@@ -156,7 +152,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       projectPath: testFolder,
       "app-name": "outlook-addin-test",
     };
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
     inputs[QuestionNames.Capabilities] = "json-taskpane";
     inputs[QuestionNames.OfficeAddinFolder] = "somepath";
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
@@ -434,7 +430,7 @@ describe("OfficeAddinGenerator for Office Addin", function () {
       projectPath: testFolder,
       "app-name": "office-addin-test",
     };
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
     inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
     inputs[QuestionNames.OfficeAddinFolder] = undefined;
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
@@ -462,7 +458,6 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
       inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.JS;
       inputs[QuestionNames.TemplateName] = TemplateNames.OutlookTaskpane;
       const res = generator.activate(context, inputs);
@@ -474,7 +469,6 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.bot().id;
       inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.JS;
       const res = generator.activate(context, inputs);
       chai.assert.isFalse(res);
@@ -491,7 +485,7 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOS().id;
+      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOSOptionId;
       inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinImport().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OfficeAddinCommon;
       const res = await generator.getTemplateInfos(context, inputs, "./");
@@ -511,7 +505,7 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
       inputs[QuestionNames.Capabilities] = CapabilityOptions.outlookAddinImport().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OfficeAddinCommon;
       const res = await generator.getTemplateInfos(context, inputs, "./");
@@ -531,7 +525,7 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddin().id;
+      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
       inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OutlookTaskpane;
       const res = await generator.getTemplateInfos(context, inputs, "./");
@@ -550,7 +544,7 @@ describe("OfficeAddinGeneratorNew", () => {
         platform: Platform.CLI,
         projectPath: "./",
       };
-      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOS().id;
+      inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOSOptionId;
       inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.WXPTaskpane;
       const res = await generator.getTemplateInfos(context, inputs, "./");
