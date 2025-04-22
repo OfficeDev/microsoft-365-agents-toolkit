@@ -36,7 +36,6 @@ export * from "./options";
 
 export class QuestionNodes {
   createProject(platform: Platform): IQTreeNode {
-    // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
     return scaffoldQuestionForVSCode(platform);
   }
