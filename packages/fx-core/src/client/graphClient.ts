@@ -97,7 +97,7 @@ export class GraphClient {
         const cacheValueRes = await globalStateGet(cacheKey);
         if (cacheValueRes) {
           const timeStamp = cacheValueRes.unixTimestamp;
-          // if cache data is within 1 days, use the cache.
+          // if cache data is within 1 day, use the cache.
           if (Date.now() - timeStamp < 1000 * 60 * 60 * 24) {
             return ok(cacheValueRes.labels);
           }
