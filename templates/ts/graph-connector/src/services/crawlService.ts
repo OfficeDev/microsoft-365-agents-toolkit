@@ -22,11 +22,11 @@ export async function saveLastCrawl(lastCrawl: Date): Promise<void> {
  * Gets the last crawl date to a file
  * @returns {Promise<Date>} The last crawl date
  */
-export async function getLastCrawl(): Promise<Date> {
+export async function getLastCrawl(): Promise<Date | undefined> {
   try {
     const content = await fs.readFile(lastCrawlFilePath, "utf-8");
     return new Date(JSON.parse(content));
   } catch (error) {
-    return new Date(0);
+    return undefined;
   }
 }
