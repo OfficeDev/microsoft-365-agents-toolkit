@@ -261,9 +261,9 @@ export const sideloadingDisplayMessages = Object.freeze({
 });
 
 export const launchingTeamsClientDisplayMessages = Object.freeze({
-  title: "Launching Teams web client.",
+  title: "Launching web browser.",
   launchUrlMessage: (url: string) =>
-    `Teams web client is being launched for you to debug the app: ${url}.`,
+    `Web browser is being launched for you to debug the app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });

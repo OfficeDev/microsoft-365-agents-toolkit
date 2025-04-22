@@ -13,8 +13,8 @@
     "main": "./lib/src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
         "build": "tsc --build && shx cp -r ./src/prompts ./lib/src && shx cp -r ./src/data ./lib/src",
         "start": "node ./lib/src/index.js",

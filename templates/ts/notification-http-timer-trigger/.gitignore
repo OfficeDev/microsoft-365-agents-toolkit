@@ -27,9 +27,9 @@ _storage_emulator
 
 # Local data
 .localConfigs
-.localConfigs.testTool
+.localConfigs.playground
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 
 # production
 /build

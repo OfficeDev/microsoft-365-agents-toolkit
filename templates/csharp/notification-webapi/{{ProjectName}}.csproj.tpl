@@ -20,7 +20,7 @@
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <None Include=".notification.local*.json" />
-    <None Include=".notification.testtool*.json" />
+    <None Include=".notification.playground*.json" />
   </ItemGroup>
 
   <ItemGroup>

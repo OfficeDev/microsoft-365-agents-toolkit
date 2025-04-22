@@ -14,6 +14,7 @@ export enum QuestionNames {
   ProgrammingLanguage = "programming-language",
   ProjectType = "project-type",
   Capabilities = "capabilities",
+  TeamsAppType = "teams-app-type",
   BotTrigger = "bot-host-type-trigger",
   Runtime = "runtime",
   SPFxSolution = "spfx-solution",
@@ -317,7 +318,7 @@ export class ProjectTypeOptions {
   static startWithGithubCopilot(): OptionItem {
     return {
       id: "start-with-github-copilot",
-      label: `$(comment-discussion) ${getLocalizedString(
+      label: `$(question) ${getLocalizedString(
         "core.createProjectQuestion.projectType.copilotHelp.label"
       )}`,
       detail: getLocalizedString("core.createProjectQuestion.projectType.copilotHelp.detail"),

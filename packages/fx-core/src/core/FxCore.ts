@@ -26,7 +26,6 @@ import {
   IQTreeNode,
   Inputs,
   InputsWithProjectPath,
-  ManifestUtil,
   Platform,
   PluginManifestSchema,
   ResponseTemplatesFolderName,
@@ -1310,7 +1309,7 @@ export class FxCore {
     }
 
     const teamsAppId = manifestRes.value.id;
-    const properties = ManifestUtil.parseCommonProperties(manifestRes.value);
+    const properties = manifestUtils.parseCommonProperties(manifestRes.value);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
     const result = await launchHelper.getLaunchUrl(hub, teamsAppId, properties, true);

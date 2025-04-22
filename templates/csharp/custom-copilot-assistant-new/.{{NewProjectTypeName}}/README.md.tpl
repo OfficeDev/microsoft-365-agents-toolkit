@@ -18,7 +18,7 @@ The app template is built using the Teams AI library, which provides the capabil
 
 ### Debug agent in Microsoft 365 Agents Playground
 {{#useOpenAI}}
-1. Ensure your OpenAI API Key filled in `appsettings.TestTool.json`
+1. Ensure your OpenAI API Key filled in `appsettings.Playground.json`
     ```
     "OpenAI": {
       "ApiKey": "<your-openai-api-key>"
@@ -26,7 +26,7 @@ The app template is built using the Teams AI library, which provides the capabil
     ```
 {{/useOpenAI}}
 {{#useAzureOpenAI}}
-1. Ensure your Azure OpenAI settings filled in `appsettings.TestTool.json`
+1. Ensure your Azure OpenAI settings filled in `appsettings.Playground.json`
     ```
     "Azure": {
       "OpenAIApiKey": "<your-azure-openai-api-key>",

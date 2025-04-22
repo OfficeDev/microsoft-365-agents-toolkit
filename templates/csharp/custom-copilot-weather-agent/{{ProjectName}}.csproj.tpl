@@ -35,8 +35,12 @@
   <!-- Exclude local settings from publish -->
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
-    <Content Remove="appsettings.TestTool.json" />
-    <Content Include="appsettings.TestTool.json">
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>None</CopyToPublishDirectory>
+    </Content>
+    <Content Remove="appsettings.Playground.json" />
+    <Content Include="appsettings.Playground.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>None</CopyToPublishDirectory>
     </Content>

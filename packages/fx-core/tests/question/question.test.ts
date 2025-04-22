@@ -6,7 +6,6 @@ import {
   ConditionFunc,
   FuncValidation,
   Inputs,
-  ManifestUtil,
   Platform,
   Question,
   SingleSelectQuestion,
@@ -1290,7 +1289,7 @@ describe("addPluginQuestionNode", async () => {
 
   it("success: can add a plugin from api spec", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as TeamsAppManifest));
-    sandbox.stub(ManifestUtil, "parseCommonProperties").returns({
+    sandbox.stub(manifestUtils, "parseCommonProperties").returns({
       capabilities: ["copilotGpt"],
       isApiME: false,
       isSPFx: false,
@@ -1344,7 +1343,7 @@ describe("addPluginQuestionNode", async () => {
 
   it("success: can add a plugin from existing plugin", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as TeamsAppManifest));
-    sandbox.stub(ManifestUtil, "parseCommonProperties").returns({
+    sandbox.stub(manifestUtils, "parseCommonProperties").returns({
       capabilities: ["copilotGpt"],
       isApiME: false,
       isSPFx: false,

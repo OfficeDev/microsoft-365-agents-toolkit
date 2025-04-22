@@ -2,10 +2,10 @@
 .development
 .DS_Store
 .git*
-.localConfigs.testTool
+.localConfigs.playground
 .localConfigs
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 .vscode
 *.js.map
 *.ts

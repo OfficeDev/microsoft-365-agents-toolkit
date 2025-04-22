@@ -8,7 +8,6 @@ import Ajv2020 from "ajv/dist/2020";
 import fs from "fs-extra";
 import fetch from "node-fetch";
 import { ManifestCommonProperties } from "./ManifestCommonProperties";
-import { SharePointAppId } from "./constants";
 import { DeclarativeCopilotManifestSchema } from "./declarativeCopilotManifest";
 import {
   AppManifestUtils,
@@ -16,7 +15,7 @@ import {
   TeamsManifest,
   TeamsManifestConverter,
 } from "./generated-types";
-import { IComposeExtension, TeamsAppManifest } from "./manifest";
+import { TeamsAppManifest } from "./manifest";
 import { PluginManifestSchema } from "./pluginManifest";
 
 export * from "./declarativeCopilotManifest";
@@ -177,118 +176,5 @@ export class ManifestUtil {
   >(manifest: T): Promise<string[]> {
     const schema = await this.fetchSchema(manifest);
     return ManifestUtil.validateManifestAgainstSchema(manifest, schema);
-  }
-
-  /**
-   * Parse the manifest and get properties
-   * @param manifest
-   */
-  static parseCommonProperties<T extends Manifest | TeamsManifest = TeamsAppManifest>(
-    manifest: T
-  ): ManifestCommonProperties {
-    const capabilities: string[] = [];
-    if (manifest.staticTabs && manifest.staticTabs.length > 0) {
-      capabilities.push("staticTab");
-    }
-    if (manifest.configurableTabs && manifest.configurableTabs.length > 0) {
-      capabilities.push("configurableTab");
-    }
-    if (manifest.bots && manifest.bots.length > 0) {
-      capabilities.push("Bot");
-    }
-    if (manifest.composeExtensions && manifest.composeExtensions.length > 0) {
-      capabilities.push("MessageExtension");
-    }
-
-    const properties: ManifestCommonProperties = {
-      id: manifest.id,
-      version: manifest.version,
-      capabilities: capabilities,
-      manifestVersion: manifest.manifestVersion,
-      isApiME: false,
-      isSPFx: false,
-      isApiMeAAD: false,
-    };
-
-    // If it's copilot plugin app
-    if (
-      manifest.composeExtensions &&
-      manifest.composeExtensions.length > 0 &&
-      (manifest.composeExtensions[0] as IComposeExtension).composeExtensionType == "apiBased"
-    ) {
-      properties.isApiME = true;
-    }
-
-    // If it's SPFx app
-    if (
-      (manifest as any).webApplicationInfo &&
-      (manifest as any).webApplicationInfo.id &&
-      (manifest as any).webApplicationInfo.id == SharePointAppId
-    ) {
-      properties.isSPFx = true;
-    }
-
-    // If it's API ME with AAD auth
-    if (
-      manifest.composeExtensions &&
-      manifest.composeExtensions.length > 0 &&
-      (manifest.composeExtensions[0] as IComposeExtension).composeExtensionType == "apiBased" &&
-      (manifest.composeExtensions[0] as IComposeExtension).authorization?.authType ==
-        "microsoftEntra"
-    ) {
-      properties.isApiMeAAD = true;
-    }
-
-    if ((manifest as TeamsAppManifest).copilotExtensions?.plugins) {
-      const apiPlugins = (manifest as TeamsAppManifest).copilotExtensions?.plugins;
-      if (apiPlugins && apiPlugins.length > 0 && apiPlugins[0].file) capabilities.push("plugin");
-    }
-
-    if ((manifest as TeamsAppManifest).copilotExtensions?.declarativeCopilots) {
-      const copilotGpts = (manifest as TeamsAppManifest).copilotExtensions?.declarativeCopilots;
-      if (copilotGpts && copilotGpts.length > 0) capabilities.push("copilotGpt");
-    }
-
-    if ((manifest as TeamsAppManifest).copilotAgents?.plugins) {
-      const apiPlugins = (manifest as TeamsAppManifest).copilotAgents?.plugins;
-      if (
-        apiPlugins &&
-        apiPlugins.length > 0 &&
-        apiPlugins[0].file &&
-        !capabilities.includes("plugin")
-      )
-        capabilities.push("plugin");
-    }
-
-    if ((manifest as TeamsAppManifest).copilotAgents?.declarativeAgents) {
-      const copilotGpts = (manifest as TeamsAppManifest).copilotAgents?.declarativeAgents;
-      if (copilotGpts && copilotGpts.length > 0 && !capabilities.includes("copilotGpt"))
-        capabilities.push("copilotGpt");
-    }
-
-    return properties;
-  }
-
-  /**
-   * Parse the manifest and get telemetry propreties e.g. appId, capabilities etc.
-   * @param manifest
-   * @returns Telemetry properties
-   */
-  static parseCommonTelemetryProperties(manifest: TeamsAppManifest | TeamsManifest): {
-    [p: string]: string;
-  } {
-    const properties = ManifestUtil.parseCommonProperties(manifest);
-
-    const telemetryProperties: { [p: string]: string } = {};
-    const propertiesMap = new Map<string, any>(Object.entries(properties));
-    propertiesMap.forEach((value, key) => {
-      if (Array.isArray(value)) {
-        telemetryProperties[key] = value.join(";");
-      } else {
-        telemetryProperties[key] = value;
-      }
-    });
-
-    return telemetryProperties;
   }
 }

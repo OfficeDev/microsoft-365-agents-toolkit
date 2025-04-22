@@ -4,7 +4,6 @@
 import {
   AppPackageFolderName,
   ManifestTemplateFileName,
-  ManifestUtil,
   SensitivityLabel,
   signedIn,
   TeamsAppManifest,
@@ -21,6 +20,7 @@ import {
   ListSensitivityLabelScope,
   GraphClient,
   copilotGptManifestUtils,
+  manifestUtils,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
@@ -577,7 +577,7 @@ export class CopilotPluginCodeLensProvider implements vscode.CodeLensProvider {
     const codeLenses: vscode.CodeLens[] = [];
 
     const manifest: TeamsAppManifest = JSON.parse(document.getText());
-    const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+    const manifestProperties = manifestUtils.parseCommonProperties(manifest);
     if (!manifestProperties.isApiME) {
       return codeLenses;
     }
@@ -627,7 +627,7 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
       }
       const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
       const manifest = JSON.parse(manifestContent);
-      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      const manifestProperties = manifestUtils.parseCommonProperties(manifest);
       if (!manifestProperties.capabilities.includes("plugin")) {
         return [];
       }
@@ -891,7 +891,7 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
       }
       const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
       const manifest = JSON.parse(manifestContent);
-      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      const manifestProperties = manifestUtils.parseCommonProperties(manifest);
       if (!manifestProperties.capabilities.includes("copilotGpt")) {
         return [];
       }

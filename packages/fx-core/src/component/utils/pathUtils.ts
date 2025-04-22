@@ -17,7 +17,7 @@ class PathUtils {
       projectPath,
       envName === environmentNameManager.getLocalEnvName()
         ? MetadataV4.localConfigFile
-        : envName === environmentNameManager.getTestToolEnvName()
+        : envName === environmentNameManager.getPlaygroundEnvName()
         ? MetadataV4.testToolConfigFile
         : envName === environmentNameManager.getSandboxEnvName()
         ? MetadataV4.sandboxConfigFile

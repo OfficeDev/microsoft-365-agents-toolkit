@@ -6,21 +6,17 @@ import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import { QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
+import { aiAgentNode, customCopilotRagNode, llmServiceNode } from "../vsc/agentForTeamsNode";
 import {
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
   MeCapabilityOptions,
   setTemplateName,
 } from "../vsc/CapabilityOptions";
+import { TdpCapabilityOptions } from "../vsc/createFromTdpNode";
 import { folderAndAppNameCondition, languageNode } from "../vsc/createRootNode";
-import {
-  aiAgentNode,
-  customCopilotRagNode,
-  llmServiceNode,
-} from "../vsc/customAgentProjectTypeNode";
 import { daProjectTypeNode } from "../vsc/daProjectTypeNode";
 import { m365SearchMeSubNode, notificationBotTriggerNode } from "../vsc/teamsProjectTypeNode";
-import { TdpCapabilityOptions } from "../vsc/createFromTdpNode";
 
 export class VSCapabilityOptions {
   // empty

@@ -522,7 +522,11 @@ export function selectTargetEnvQuestion(
         return [defaultValueIfNoEnv];
       }
       // "testtool" env is a pure local env and doesn't have manifest
-      return res.value.filter((env) => env !== environmentNameManager.getTestToolEnvName());
+      return res.value.filter(
+        (env) =>
+          env !== environmentNameManager.getTestToolEnvName() &&
+          env !== environmentNameManager.getPlaygroundEnvName()
+      );
     },
     skipSingleOption: true,
     forgetLastValue: true,

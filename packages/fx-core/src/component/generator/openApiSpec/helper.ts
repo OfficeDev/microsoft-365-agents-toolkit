@@ -33,12 +33,9 @@ import {
   FxError,
   Inputs,
   ManifestTemplateFileName,
-  ManifestUtil,
   ok,
   Platform,
-  PluginManifestSchema,
   Result,
-  RuntimeObjectOpenapi,
   Stage,
   SystemError,
   TeamsAppManifest,
@@ -58,7 +55,6 @@ import {
   sendTelemetryErrorEvent,
   TelemetryProperty,
 } from "../../../common/telemetry";
-import { MetadataV3 } from "../../../common/versionMetadata";
 import { assembleError, MissingRequiredInputError } from "../../../error";
 import {
   CustomCopilotRagOptions,
@@ -803,7 +799,7 @@ function formatApiSpecValidationWarningMessage(
   const operationIdWarning = specWarnings.find((w) => w.type === WarningType.OperationIdMissing);
 
   if (operationIdWarning) {
-    const isApiMe = ManifestUtil.parseCommonProperties(teamsManifest).isApiME;
+    const isApiMe = manifestUtils.parseCommonProperties(teamsManifest).isApiME;
     resultWarnings.push(
       getLocalizedString(
         "core.copilotPlugin.scaffold.summary.warning.operationId",
@@ -892,7 +888,7 @@ function validateTeamsManifestLength(
   }
 
   // validate command
-  if (ManifestUtil.parseCommonProperties(teamsManifest).isApiME) {
+  if (manifestUtils.parseCommonProperties(teamsManifest).isApiME) {
     const optionalParamsOnlyWarnings = warnings.filter(
       (o) => o.type === WarningType.OperationOnlyContainsOptionalParam
     );

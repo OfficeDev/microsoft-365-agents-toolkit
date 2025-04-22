@@ -17,10 +17,10 @@ node_modules/
 lib/
 
 # Local data
-.localConfigs.testTool
+.localConfigs.playground
 .localConfigs
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 
 # Dev tool directories
 /devTools/

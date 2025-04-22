@@ -6,5 +6,5 @@ __pycache__/
 README.md
 m365agents.yml
 m365agents.local.yml
-m365agents.testtool.yml
+m365agents.playground.yml
 /devTools/

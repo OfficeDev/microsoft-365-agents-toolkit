@@ -5,6 +5,7 @@ import * as sinon from "sinon";
 import {
   manifestUtils,
   ManifestUtils,
+  SharePointAppId,
 } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import fs from "fs-extra";
 import path from "path";
@@ -576,5 +577,138 @@ describe("resolveLocFile", () => {
         "shortname - hello world"
       );
     }
+  });
+});
+
+describe("parseCommonTelemetryProperties", () => {
+  it("parseCommonTelemetryProperties", async () => {
+    const json = {
+      $schema:
+        "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+      manifestVersion: "1.19",
+      version: "1.0",
+      id: "${{TEAMS_APP_ID}}",
+      developer: {
+        name: "Teams App, Inc.",
+        websiteUrl: "https://www.example.com",
+        privacyUrl: "https://www.example.com/privacy",
+        termsOfUseUrl: "https://www.example.com/termofuse",
+      },
+      icons: {
+        color: "color.png",
+        outline: "outline.png",
+      },
+      name: {
+        short: "huajiecea040906${{APP_NAME_SUFFIX}}",
+        full: "full name for huajiecea040906",
+      },
+      description: {
+        short: "Repair Service",
+        full: "A simple service to manage repairs",
+      },
+      accentColor: "#FFFFFF",
+      bots: [
+        {
+          botId: "${{BOT_ID}}",
+          scopes: ["personal", "team", "groupChat"],
+          supportsFiles: false,
+          isNotificationOnly: false,
+          commandLists: [
+            {
+              scopes: ["personal"],
+              commands: [
+                {
+                  title: "List all repairs without auth",
+                  description: "List all repairs without auth",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      composeExtensions: [],
+      configurableTabs: [],
+      staticTabs: [],
+      permissions: ["identity", "messageTeamMembers"],
+      validDomains: [],
+    };
+    const res = manifestUtils.parseCommonTelemetryProperties(json as any);
+    assert.deepEqual(res, {
+      id: "${{TEAMS_APP_ID}}",
+      version: "1.0",
+      capabilities: "Bot",
+      manifestVersion: "1.19",
+      isApiME: false,
+      isSPFx: false,
+      isApiMeAAD: false,
+    } as any);
+  });
+});
+
+describe("parseCommonProperties", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  it("happy", async () => {
+    const manifest: any = {
+      id: "mockid",
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      configurableTabs: [{}],
+      webApplicationInfo: {
+        id: SharePointAppId,
+      },
+      composeExtensions: [
+        {
+          composeExtensionType: "apiBased",
+          authorization: {
+            authType: "microsoftEntra",
+          },
+        },
+      ],
+      copilotAgents: {
+        plugins: [
+          {
+            file: "xxx",
+          },
+        ],
+        declarativeAgents: [{}],
+      },
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isTrue(res.capabilities.includes("configurableTab"));
+    assert.isTrue(res.isSPFx);
+    assert.isTrue(res.isApiMeAAD);
+    assert.isTrue(res.capabilities.includes("plugin"));
+    assert.isTrue(res.capabilities.includes("copilotGpt"));
+  });
+
+  it("empty 1", async () => {
+    const manifest: any = {
+      id: "mockid",
+      version: "1.0.0",
+      manifestVersion: "1.14",
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isFalse(res.capabilities.includes("configurableTab"));
+    assert.isFalse(res.capabilities.includes("plugin"));
+    assert.isFalse(res.capabilities.includes("copilotGpt"));
+  });
+
+  it("empty 2", async () => {
+    const manifest: any = {
+      id: "mockid",
+      version: "1.0.0",
+      manifestVersion: "1.14",
+      copilotExtensions: {},
+      copilotAgents: {
+        declarativeAgents: [],
+      },
+    };
+    const res = manifestUtils.parseCommonProperties(manifest);
+    assert.isFalse(res.capabilities.includes("configurableTab"));
+    assert.isFalse(res.capabilities.includes("plugin"));
+    assert.isFalse(res.capabilities.includes("copilotGpt"));
   });
 });

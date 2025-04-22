@@ -15,6 +15,10 @@ export enum TemplateNames {
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
 
   // custom engine agent
+  BasicCustomEngineAgent = "basic-custom-engine-agent",
+  CustomCopilotWeatherAgent = "custom-copilot-weather-agent", // only supported in VS, using agent SDK
+
+  // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",
   CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
@@ -22,7 +26,6 @@ export enum TemplateNames {
   CustomCopilotRagMicrosoft365 = "custom-copilot-rag-microsoft365",
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
-  CustomCopilotWeatherAgent = "custom-copilot-weather-agent", // only supported in VS, using agent SDK
 
   // graph connector
   GraphConnector = "graph-connector", // vsc only

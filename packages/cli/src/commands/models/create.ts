@@ -4,10 +4,10 @@ import {
   CLICommand,
   CLICommandOption,
   CLIContext,
-  OptionItem,
-  Platform,
   err,
   ok,
+  OptionItem,
+  Platform,
 } from "@microsoft/teamsfx-api";
 import {
   CapabilityOptions,
@@ -17,6 +17,7 @@ import {
   featureFlagManager,
   FeatureFlags,
   getProjectTypeByCapability,
+  getTeamsProjectTypeByCapability,
   isTdpTemplate,
   MeArchitectureOptions,
   QuestionNames,
@@ -83,6 +84,8 @@ export function getCreateCommand(): CLICommand {
           const capability = inputs.capabilities as string;
           const projectType = getProjectTypeByCapability(capability);
           inputs["project-type"] = projectType as any;
+          const teamsAppType = getTeamsProjectTypeByCapability(capability);
+          inputs["teams-app-type"] = teamsAppType;
         }
       }
       const isTdp = isTdpTemplate(inputs);

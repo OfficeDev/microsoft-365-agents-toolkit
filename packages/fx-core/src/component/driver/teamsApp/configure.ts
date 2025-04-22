@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { FxError, ManifestUtil, Result, err, ok } from "@microsoft/teamsfx-api";
+import { FxError, Result, err, ok } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { merge } from "lodash";
 import { Service } from "typedi";
@@ -84,7 +84,7 @@ export class ConfigureTeamsAppDriver implements StepDriver {
       return err(manifest.error);
     }
 
-    const manifestTelemetries = ManifestUtil.parseCommonTelemetryProperties(manifest.value);
+    const manifestTelemetries = manifestUtils.parseCommonTelemetryProperties(manifest.value);
     merge(context.telemetryProperties, manifestTelemetries);
 
     // Fail if Teams app not exists, as this action only update the Teams app, not create

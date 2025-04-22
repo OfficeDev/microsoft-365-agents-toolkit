@@ -4,7 +4,7 @@ appPackage/build
 env/.env.*.user
 env/.env.local
 appsettings.Development.json
-appsettings.TestTool.json
+appsettings.Playground.json
 .deployment
 
 # User-specific files
@@ -26,5 +26,5 @@ bld/
 .notification.localstore.json
 
 # Microsoft 365 Agents Playground
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 devTools

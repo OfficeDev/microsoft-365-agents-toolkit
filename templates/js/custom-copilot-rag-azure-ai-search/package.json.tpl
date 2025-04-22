@@ -13,14 +13,14 @@
     "main": "./src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --inspect=9239 --signal SIGINT ./src/index.js",
         "start": "node ./src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\"",
-        "indexer:create": "env-cmd --silent -f env/.env.testtool.user node ./src/indexers/setup.js",
-        "indexer:delete": "env-cmd --silent -f env/.env.testtool.user node ./src/indexers/delete.js"
+        "indexer:create": "env-cmd --silent -f env/.env.playground.user node ./src/indexers/setup.js",
+        "indexer:delete": "env-cmd --silent -f env/.env.playground.user node ./src/indexers/delete.js"
     },
     "repository": {
         "type": "git",
