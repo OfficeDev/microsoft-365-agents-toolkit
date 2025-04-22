@@ -11,9 +11,10 @@ import {
   Result,
   SystemError,
   SensitivityLabel,
+  signedIn,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
-import { ErrorContextMW } from "../common/globalVars";
+import { ErrorContextMW, TOOLS } from "../common/globalVars";
 import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
 import {
   GraphTeamsAppSettingsReadScopes,
@@ -22,6 +23,7 @@ import {
   GraphTeamsInstallAppScopes,
   GraphTeamsTeamCreateScopes,
   GraphTeamsTeamReadScopes,
+  ListSensitivityLabelScope,
 } from "../common/constants";
 import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
 import { GetChannelResponse } from "./interfaces/GetChannelResponse";
@@ -82,12 +84,14 @@ export class GraphClient {
   @hooks([ErrorContextMW({ source: "Graph", component: "GraphAPIClient" })])
   async listSensitivityLabels(
     token: string,
-    useCache = false,
-    accountUniqueName = "",
-    tenantId = ""
+    useCache = false
   ): Promise<Result<SensitivityLabel[], FxError>> {
     try {
-      if (useCache) {
+      const userInfo = await this.getCurrentUserInfo();
+      const accountUniqueName = userInfo[0];
+      const tenantId = userInfo[1];
+
+      if (useCache && accountUniqueName && tenantId) {
         // TTK supports switching tenant, so we need to add tenantId in the cache key.
         const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
         const cacheValueRes = await globalStateGet(cacheKey);
@@ -108,23 +112,25 @@ export class GraphClient {
       const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
 
       if (response && response.data && response.data.value) {
-        // always update the cache when we get a response.
-        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
-        // only retrieve the necessary properties from the response.data.value
-        const labels = response.data.value.map(
-          (label: any) =>
-            ({
-              id: label?.id,
-              name: label?.name,
-              description: label?.description,
-              displayName: label?.displayName,
-            } as SensitivityLabel)
-        );
-        const cacheValue: ListSensitivityCacheValue = {
-          labels: labels,
-          unixTimestamp: Date.now(),
-        };
-        await globalStateUpdate(cacheKey, cacheValue);
+        if (accountUniqueName && tenantId) {
+          // always update the cache if the user is signed in.
+          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+          // only retrieve the necessary properties from the response.data.value
+          const labels = response.data.value.map(
+            (label: any) =>
+              ({
+                id: label?.id,
+                name: label?.name,
+                description: label?.description,
+                displayName: label?.displayName,
+              } as SensitivityLabel)
+          );
+          const cacheValue: ListSensitivityCacheValue = {
+            labels: labels,
+            unixTimestamp: Date.now(),
+          };
+          await globalStateUpdate(cacheKey, cacheValue);
+        }
         return ok(response.data.value);
       } else {
         return err(
@@ -404,5 +410,34 @@ export class GraphClient {
 
     const response = await requester.get(`/teams/${teamId}/channels`);
     return <GetChannelResponse[]>response.data.value;
+  }
+
+  /**
+   * Get current user info
+   * @returns unique name and tenant id in string array
+   */
+  private async getCurrentUserInfo(): Promise<string[]> {
+    // check if user has already logged in to the sensitivity label scope
+    const loginStatusRes = await TOOLS.tokenProvider?.m365TokenProvider?.getStatus({
+      scopes: [ListSensitivityLabelScope],
+    });
+    if (
+      !loginStatusRes ||
+      loginStatusRes.isErr() ||
+      loginStatusRes.value.status != signedIn ||
+      !loginStatusRes.value.token
+    ) {
+      return ["", ""];
+    }
+    let accountUniqueName = "";
+    let tenantId = "";
+    const accountInfo = loginStatusRes.value.accountInfo;
+    if (typeof accountInfo?.["unique_name"] === "string") {
+      accountUniqueName = accountInfo?.["unique_name"];
+    }
+    if (typeof accountInfo?.["tid"] === "string") {
+      tenantId = accountInfo?.["tid"];
+    }
+    return [accountUniqueName, tenantId];
   }
 }
