@@ -6,7 +6,6 @@ import {
   ActionStartOptions,
   CapabilityOptions,
   ProjectTypeOptions,
-  ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
 import { ExtensionSource } from "../error/error";
