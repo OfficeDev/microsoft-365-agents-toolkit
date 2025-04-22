@@ -14,7 +14,6 @@ import {
   needTabCode,
 } from "../../../component/driver/teamsApp/utils/utils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import { QuestionNames } from "../../constants";
 import {
   appNameQuestion,
   folderQuestion,
@@ -22,6 +21,7 @@ import {
   selectTabsContentUrlQuestion,
   selectTabWebsiteUrlQuestion,
 } from "../../create";
+import { QuestionNames } from "../../questionNames";
 import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
 import { languageNode } from "./createRootNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";

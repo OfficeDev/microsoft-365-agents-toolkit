@@ -4,8 +4,8 @@
 import { IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import { QuestionNames } from "../../constants";
 import { appNameQuestion, folderQuestion } from "../../create";
+import { QuestionNames } from "../../questionNames";
 import { aiAgentNode, customCopilotRagNode, llmServiceNode } from "../vsc/agentForTeamsNode";
 import {
   BotCapabilityOptions,
@@ -71,6 +71,19 @@ export class VSCapabilityOptions {
       data: TemplateNames.MessageExtensionSearch,
     };
   }
+  // Currently only for dotnet
+  static weatherAgentBot(): OptionItem {
+    return {
+      id: "custom-copilot-weather-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
+      ),
+      data: TemplateNames.CustomCopilotWeatherAgent,
+    };
+  }
 }
 
 /**
@@ -92,7 +105,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             CustomCopilotCapabilityOptions.basicChatbot(),
             CustomCopilotCapabilityOptions.customCopilotRag(),
             CustomCopilotCapabilityOptions.aiAgent(),
-            CustomCopilotCapabilityOptions.weatherAgentBot(),
+            VSCapabilityOptions.weatherAgentBot(),
             BotCapabilityOptions.basicBot(),
             BotCapabilityOptions.aiBot(),
             VSCapabilityOptions.aiAssistantBot(),
@@ -119,7 +132,7 @@ export function scaffoldQuestionForVS(): IQTreeNode {
               CustomCopilotCapabilityOptions.basicChatbot().id,
               CustomCopilotCapabilityOptions.customCopilotRag().id,
               CustomCopilotCapabilityOptions.aiAgent().id,
-              CustomCopilotCapabilityOptions.weatherAgentBot().id,
+              VSCapabilityOptions.weatherAgentBot().id,
             ],
           }),
           notificationBotTriggerNode(Platform.VS),

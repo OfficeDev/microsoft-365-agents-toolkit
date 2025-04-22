@@ -18,13 +18,13 @@ import {
   listCollaboratorQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
+  removeSharedAccessNode,
   selectTeamsAppManifestQuestionNode,
+  setSensitivityLabelNode,
+  shareNode,
   syncManifestQuestionNode,
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
-  setSensitivityLabelNode,
-  shareNode,
-  removeSharedAccessNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";

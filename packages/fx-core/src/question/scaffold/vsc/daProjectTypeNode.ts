@@ -4,13 +4,13 @@
 import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { QuestionNames } from "../../constants";
 import {
   GCConnectionIdQuestion,
   GCNameQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
 } from "../../create";
+import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
   ApiAuthOptions,

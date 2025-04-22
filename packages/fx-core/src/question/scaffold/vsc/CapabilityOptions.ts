@@ -5,12 +5,8 @@ import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import {
-  HostType,
-  HostTypeTriggerOptionItem,
-  NotificationTriggers,
-  QuestionNames,
-} from "../../constants";
+import { HostType, HostTypeTriggerOptionItem, NotificationTriggers } from "../../constants";
+import { QuestionNames } from "../../questionNames";
 
 export class CustomEngineAgentOptions {
   static basicCustomEngineAgent(): OptionItem {
@@ -141,19 +137,6 @@ export class CustomCopilotCapabilityOptions {
         "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
       ),
       description: description,
-    };
-  }
-
-  static weatherAgentBot(): OptionItem {
-    return {
-      id: "custom-copilot-weather-agent",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotWeatherOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
-      ),
-      data: TemplateNames.CustomCopilotWeatherAgent,
     };
   }
 }

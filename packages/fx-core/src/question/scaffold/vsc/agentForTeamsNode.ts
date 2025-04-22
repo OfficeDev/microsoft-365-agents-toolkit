@@ -9,7 +9,7 @@ import {
   StringValidation,
 } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { QuestionNames } from "../../constants";
+import { QuestionNames } from "../../questionNames";
 import {
   CustomCopilotAssistantOptions,
   CustomCopilotCapabilityOptions,

@@ -10,7 +10,6 @@ import {
   StringValidation,
 } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { QuestionNames } from "../../constants";
 import {
   apiOperationQuestion,
   apiSpecLocationQuestion,
@@ -23,6 +22,7 @@ import {
   SPFxSolutionQuestion,
   SPFxWebpartNameQuestion,
 } from "../../create";
+import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
   ApiAuthOptions,

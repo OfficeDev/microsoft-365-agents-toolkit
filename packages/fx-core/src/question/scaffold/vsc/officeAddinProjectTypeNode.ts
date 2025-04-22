@@ -4,7 +4,7 @@
 import { IQTreeNode } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { QuestionNames } from "../../constants";
+import { QuestionNames } from "../../questionNames";
 import { OfficeAddinCapabilityOptions, setTemplateName } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 

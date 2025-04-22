@@ -31,7 +31,6 @@ import { FileNotFoundError } from "../../src/error";
 import {
   ActionStartOptions,
   ApiAuthOptions,
-  CapabilityOptions,
   MeArchitectureOptions,
   QuestionNames,
   apiAuthQuestion,
@@ -41,32 +40,10 @@ import {
   oneDriveSharePointItemQuestion,
   webContentQuestion,
 } from "../../src/question";
+import { CapabilityOptions } from "../../src/question/CapabilityOptions";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
-import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
-
-export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
-  try {
-    if (question.default && typeof question.default !== "string") {
-      await (question.default as LocalFunc<string | undefined>)(inputs);
-    }
-
-    if (
-      (question.type === "singleSelect" || question.type === "multiSelect") &&
-      typeof question.dynamicOptions !== "object" &&
-      question.dynamicOptions
-    ) {
-      await question.dynamicOptions(inputs);
-    }
-    if (answer && (question as any).validation?.validFunc) {
-      await (question as any).validation.validFunc(answer, inputs);
-    }
-
-    if ((question as any).placeholder && typeof (question as any).placeholder !== "string") {
-      await (question as any).placeholder(inputs);
-    }
-  } catch (e) {}
-}
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 
 describe("scaffold question", () => {
   const sandbox = sinon.createSandbox();
