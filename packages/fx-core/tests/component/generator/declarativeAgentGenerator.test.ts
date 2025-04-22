@@ -30,12 +30,8 @@ import { DeclarativeAgentGenerator } from "../../../src/component/generator/decl
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as commons from "../../../src/component/utils/common";
-import {
-  ActionStartOptions,
-  ApiAuthOptions,
-  CapabilityOptions,
-  QuestionNames,
-} from "../../../src/question";
+import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
+import { CapabilityOptions } from "../../../src/question/CapabilityOptions";
 import { MockLogProvider, MockTools } from "../../core/utils";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";

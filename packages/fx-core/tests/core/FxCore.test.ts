@@ -107,7 +107,6 @@ import {
 } from "../../src/error/common";
 import { NoNeedUpgradeError } from "../../src/error/upgrade";
 import {
-  CapabilityOptions,
   QuestionNames,
   ScratchOptions,
   SyncManifestInputs,

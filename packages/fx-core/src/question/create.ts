@@ -69,7 +69,6 @@ import {
   ActionStartOptions,
   ApiAuthOptions,
   AppNamePattern,
-  CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
   GCSelectOptions,
@@ -80,35 +79,40 @@ import {
   QuestionNames,
   SPFxVersionOptionIds,
 } from "./constants";
-import { ensureInputs } from "./utils";
+import {
+  BotCapabilityOptions,
+  DACapabilityOptions,
+  TdpCapabilityOptions,
+} from "./scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "./scaffold/vsc/ProjectTypeOptions";
+import { ensureInputs } from "./utils";
 
 export function getProjectTypeAndCapability(
   teamsApp: AppDefinition
 ): { projectType: string; templateId: string } | undefined {
   // tab with bot, tab with message extension, tab with bot and message extension
   if (needTabAndBotCode(teamsApp)) {
-    return { projectType: "tab-bot-type", templateId: CapabilityOptions.nonSsoTabAndBot().id };
+    return { projectType: "tab-bot-type", templateId: TdpCapabilityOptions.nonSsoTabAndBot().id };
   }
 
   // tab only
   if (needTabCode(teamsApp)) {
-    return { projectType: "tab-type", templateId: CapabilityOptions.nonSsoTab().id };
+    return { projectType: "tab-type", templateId: TdpCapabilityOptions.nonSsoTab().id };
   }
 
   // bot and message extension
   if (isBotAndBotBasedMessageExtension(teamsApp)) {
-    return { projectType: "bot-me-type", templateId: CapabilityOptions.botAndMe().id };
+    return { projectType: "bot-me-type", templateId: TdpCapabilityOptions.botAndMe().id };
   }
 
   // bot based message extension
   if (isBotBasedMessageExtension(teamsApp)) {
-    return { projectType: "me-type", templateId: CapabilityOptions.me().id };
+    return { projectType: "me-type", templateId: TdpCapabilityOptions.me().id };
   }
 
   // bot
   if (isBot(teamsApp)) {
-    return { projectType: "bot-type", templateId: CapabilityOptions.basicBot().id };
+    return { projectType: "bot-type", templateId: BotCapabilityOptions.basicBot().id };
   }
 
   return undefined;
@@ -1006,13 +1010,13 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
     type: "singleSelect",
     name: QuestionNames.ActionType,
     title: (inputs: Inputs) => {
-      return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id ||
+      return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
         ? getLocalizedString("core.createProjectQuestion.addApiPlugin.title")
         : getLocalizedString("core.createProjectQuestion.createApiPlugin.title");
     },
     placeholder: (inputs: Inputs) => {
-      return inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id ||
+      return inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id ||
         doesProjectExists
         ? getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
         : getLocalizedString("core.createProjectQuestion.projectType.copilotExtension.placeholder");

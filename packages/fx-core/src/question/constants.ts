@@ -512,7 +512,8 @@ export class ActionStartOptions {
   static all(inputs: Inputs, doesProjectExists?: boolean): OptionItem[] {
     if (doesProjectExists) {
       return [ActionStartOptions.apiSpec(), ActionStartOptions.existingPlugin()];
-    } else if (inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id) {
+    } else if (inputs[QuestionNames.Capabilities] === "declarative-agent") {
+      // use constant string to avoid cycle dependency
       return [
         ActionStartOptions.newApi(),
         ActionStartOptions.apiSpec(),

@@ -50,7 +50,8 @@ import {
   simplifyAxiosError,
 } from "../../../src/component/generator/utils";
 import { ActionContext } from "../../../src/component/middleware/actionExecutionMW";
-import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { CapabilityOptions } from "../../../src/question/CapabilityOptions";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
 import os from "os";

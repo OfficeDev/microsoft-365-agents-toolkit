@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppDefinition } from "../../../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
@@ -23,6 +23,7 @@ import {
 } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
+import { TdpCapabilityOptions } from "./CapabilityOptions";
 import { languageNode } from "./createRootNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
@@ -32,43 +33,6 @@ import {
   tabProjectTypeNode,
   TeamsProjectTypeOptions,
 } from "./teamsProjectTypeNode";
-
-export class TdpCapabilityOptions {
-  static me(): OptionItem {
-    return {
-      id: "message-extension",
-      label: getLocalizedString("core.MessageExtensionOption.label"),
-      description: getLocalizedString("core.MessageExtensionOption.description"),
-      detail: getLocalizedString("core.MessageExtensionOption.detail"),
-      data: TemplateNames.MessageExtension,
-    };
-  }
-  static botAndMe(): OptionItem {
-    return {
-      id: "BotAndMessageExtension",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.BotAndMessageExtension,
-    };
-  }
-  static nonSsoTabAndBot(): OptionItem {
-    return {
-      id: "TabNonSsoAndBot",
-      label: "", // No need to set display name as this option won't be shown in UI
-      data: TemplateNames.TabAndDefaultBot,
-    };
-  }
-  static nonSsoTab(): OptionItem {
-    return {
-      id: "tab-non-sso",
-      label: `${getLocalizedString("core.TabNonSso.label")}`,
-      detail: getLocalizedString("core.TabNonSso.detail"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
-      data: TemplateNames.Tab,
-    };
-  }
-}
 
 export function getTemplateName(inputs: Inputs): string | undefined {
   if (inputs.teamsAppFromTdp) {

@@ -5,27 +5,18 @@
  * @author zhaofengxu@microsoft.com
  */
 
-import { err, Inputs, ok, Platform, UserError } from "@microsoft/teamsfx-api";
+import { Inputs, Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
 import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
-import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
-import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
-import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
-import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import {
-  ActionStartOptions,
-  ApiAuthOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../src/question";
-import { MockLogProvider, MockTools } from "../../core/utils";
-import { featureFlagManager } from "../../../src/common/featureFlags";
 import { CombinedProjectGenerator } from "../../../src/component/generator/combinedProject/generator";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { MockTools } from "../../core/utils";
+import { CapabilityOptions } from "../../../src/question/CapabilityOptions";
 
 describe("combined generator", async () => {
   setTools(new MockTools());

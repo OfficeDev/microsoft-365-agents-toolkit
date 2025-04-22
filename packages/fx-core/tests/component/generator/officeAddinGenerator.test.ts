@@ -38,9 +38,10 @@ import { HelperMethods } from "../../../src/component/generator/officeAddin/help
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
-import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
-import { MockTools } from "../../core/utils";
+import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { OfficeAddinCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { MockTools } from "../../core/utils";
 
 describe("OfficeAddinGenerator for Outlook Addin", function () {
   const testFolder = path.resolve("./tmp");
@@ -431,7 +432,7 @@ describe("OfficeAddinGenerator for Office Addin", function () {
       "app-name": "office-addin-test",
     };
     inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
-    inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
+    inputs[QuestionNames.Capabilities] = OfficeAddinCapabilityOptions.outlookTaskPane().id;
     inputs[QuestionNames.OfficeAddinFolder] = undefined;
     inputs[QuestionNames.ProgrammingLanguage] = "typescript";
     const result = await OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
@@ -486,7 +487,7 @@ describe("OfficeAddinGeneratorNew", () => {
         projectPath: "./",
       };
       inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOSOptionId;
-      inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinImport().id;
+      inputs[QuestionNames.Capabilities] = OfficeAddinCapabilityOptions.officeAddinImport().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OfficeAddinCommon;
       const res = await generator.getTemplateInfos(context, inputs, "./");
       chai.assert.isTrue(res.isOk());
@@ -506,7 +507,7 @@ describe("OfficeAddinGeneratorNew", () => {
         projectPath: "./",
       };
       inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
-      inputs[QuestionNames.Capabilities] = CapabilityOptions.outlookAddinImport().id;
+      inputs[QuestionNames.Capabilities] = OfficeAddinCapabilityOptions.outlookTaskPane().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OfficeAddinCommon;
       const res = await generator.getTemplateInfos(context, inputs, "./");
       chai.assert.isTrue(res.isOk());
@@ -526,7 +527,7 @@ describe("OfficeAddinGeneratorNew", () => {
         projectPath: "./",
       };
       inputs[QuestionNames.ProjectType] = ProjectTypeOptions.outlookAddinOptionId;
-      inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
+      inputs[QuestionNames.Capabilities] = OfficeAddinCapabilityOptions.outlookTaskPane().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.OutlookTaskpane;
       const res = await generator.getTemplateInfos(context, inputs, "./");
       chai.assert.isTrue(res.isOk());
@@ -545,7 +546,7 @@ describe("OfficeAddinGeneratorNew", () => {
         projectPath: "./",
       };
       inputs[QuestionNames.ProjectType] = ProjectTypeOptions.officeMetaOSOptionId;
-      inputs[QuestionNames.Capabilities] = CapabilityOptions.officeAddinTaskpane().id;
+      inputs[QuestionNames.Capabilities] = OfficeAddinCapabilityOptions.wxpTaskPane().id;
       inputs[QuestionNames.TemplateName] = TemplateNames.WXPTaskpane;
       const res = await generator.getTemplateInfos(context, inputs, "./");
       chai.assert.isTrue(res.isOk());

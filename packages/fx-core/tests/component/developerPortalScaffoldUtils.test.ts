@@ -29,12 +29,12 @@ import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdef
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { CommandScope, MeetingsContext } from "../../src/component/driver/teamsApp/utils/utils";
 import { DotenvOutput, envUtil } from "../../src/component/utils/envUtil";
-import { CapabilityOptions, QuestionNames } from "../../src/question/constants";
+import { QuestionNames } from "../../src/question/questionNames";
+import { CapabilityOptions } from "../../src/question/CapabilityOptions";
 import { getProjectTypeAndCapability } from "../../src/question/create";
 import { MockedAzureAccountProvider, MockedM365Provider, MockTools } from "../core/utils";
 import { InputValidationError } from "../../src/error";
 import { pathUtils } from "../../src/component/utils/pathUtils";
-import { toFormData } from "axios";
 
 describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());

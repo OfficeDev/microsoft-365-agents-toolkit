@@ -119,3 +119,4 @@ export {
   getTeamsProjectTypeByCapability,
 } from "./question/scaffold/vsc/createRootNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
+export { CapabilityOptions } from "./question/CapabilityOptions";

@@ -13,8 +13,8 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
+  TdpCapabilityOptions,
 } from "./scaffold/vsc/CapabilityOptions";
-import { TdpCapabilityOptions } from "./scaffold/vsc/createFromTdpNode";
 
 export class CapabilityOptions {
   // empty
