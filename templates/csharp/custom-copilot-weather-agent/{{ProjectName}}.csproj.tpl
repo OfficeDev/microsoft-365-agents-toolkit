@@ -28,21 +28,20 @@
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.45.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.45.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.45.0" />
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.154-alpha" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.154-alpha" />
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.*-*" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
   </ItemGroup>
 
   <!-- Exclude local settings from publish -->
   <ItemGroup>
     <Content Remove="appsettings.Development.json" />
-    <Content Include="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>None</CopyToPublishDirectory>
-    </Content>
     <Content Remove="appsettings.TestTool.json" />
     <Content Include="appsettings.TestTool.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>None</CopyToPublishDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.Development.json" />
   </ItemGroup>
 </Project>

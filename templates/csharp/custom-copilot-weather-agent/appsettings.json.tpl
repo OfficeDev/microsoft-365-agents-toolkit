@@ -36,7 +36,7 @@
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning",
-      "Microsoft.Copilot": "Warning",
+      "Microsoft.Agents": "Warning",
       "Microsoft.Hosting.Lifetime": "Information"
     }
   },

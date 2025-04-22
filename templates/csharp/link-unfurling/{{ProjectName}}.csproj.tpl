@@ -18,10 +18,9 @@
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
 	  <PackageReference Include="AdaptiveCards" Version="3.1.0" />
-	  <PackageReference Include="Microsoft.Agents.Authentication" Version="0.2.154-alpha" />
-	  <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.154-alpha" />
-	  <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.154-alpha" />
-	  <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.154-alpha" />
+	  <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.*-*" />
+	  <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.*-*" />
+	  <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
   </ItemGroup>
 
 </Project>

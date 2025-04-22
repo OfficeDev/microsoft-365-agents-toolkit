@@ -1,6 +1,6 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Builder;
 using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
 
