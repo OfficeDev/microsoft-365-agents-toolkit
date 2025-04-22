@@ -4,7 +4,7 @@ import { fetchSchema, SchemaTypeEnum } from "./fetcher";
 
 export function createServer(): McpServer {
   const server = new McpServer({
-    name: "mcp-m365",
+    name: "m365agentstoolkit-mcp",
     version: "0.1.0",
   });
   server.tool(

@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/mcp-m365",
+  "name": "@microsoft/m365agentstoolkit-mcp",
   "version": "0.1.0-alpha",
   "scripts": {
     "build": "tsc && shx chmod +x dist/index.js",
