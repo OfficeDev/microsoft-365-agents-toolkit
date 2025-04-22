@@ -604,7 +604,7 @@
   "core.common.SendingApiRequest": "Odesílá se požadavek rozhraní API: %s. Text požadavku: %s",
   "core.common.ReceiveApiResponse": "Přijala se odpověď rozhraní API: %s.",
   "core.common.shareToUser.success": "Successfully shared the app with users: %s.",
-  "core.common.removeShareAccess.success": "Shared app access removed for the users: %s.",
+  "core.common.removeShareAccess.success": "Shared app access removed from the users: %s.",
   "core.envFunc.unsupportedFile.errorLog": "\"%s\" je neplatný soubor. Podporovaný formát: %s.",
   "core.envFunc.unsupportedFile.errorMessage": "Neplatný soubor %s",
   "core.envFunc.unsupportedFunction.errorLog": "\"%s\" je neplatná funkce. Podporovaná funkce: \"%s\"",
