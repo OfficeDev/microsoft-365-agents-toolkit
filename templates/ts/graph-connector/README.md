@@ -9,7 +9,7 @@ This template project uses Microsoft 365 Agents Toolkit for Visual Studio Code t
 ## Features
 
 This template shows how to ingest data from a custom API into your Microsoft 365 tenant.
-It uses the GitHub API to provide a sample use case and is intended to be a starting point to create a PoC (Proof of Concept) to see the value of your data in M365 Copilot and then can be customized to your needs and LoB (Line of Business) APIs.
+It uses the GitHub API to provide a sample use case and is intended to be a starting point to help you bring your data in M365 Copilot and then customize it to your needs and LoB (Line of Business) APIs.
 
 The template illustrates the following concepts:
 
