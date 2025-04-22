@@ -123,7 +123,7 @@
   "teamstoolkit.commands.validateManifest.title": "Ověřit aplikaci",
   "teamstoolkit.commands.viewSamples.title": "Zobrazení ukázek",
   "teamstoolkit.commands.zipPackage.title": "Zip App Package",
-  "teamstoolkit.commands.removeSharedAccess": "Remove access to the shared app",
+  "teamstoolkit.commands.removeSharedAccess": "Remove access for shared app",
   "teamstoolkit.commmands.addWebpart.title": "Přidat webovou část SPFx",
   "teamstoolkit.commmands.addWebpart.description": "Přidat webovou část SPFx",
   "teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title": "Resolve selected text with @m365agents",
