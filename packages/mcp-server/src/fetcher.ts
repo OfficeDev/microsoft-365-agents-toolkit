@@ -4,7 +4,7 @@ import { z } from "zod";
  * Schema types supported by the fetcher
  */
 export const SchemaTypeEnum = z.enum([
-  "teams_app_manifest",
+  "app_manifest",
   "declarative_agent_manifest",
   "api_plugin_manifest"
 ]);
@@ -21,7 +21,7 @@ interface SchemaRepository {
  * Repository configurations for each schema type
  */
 const schemaRepositories: Record<SchemaType, SchemaRepository> = {
-  teams_app_manifest: {
+  app_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/teams/{{version}}/MicrosoftTeams.schema.json`,
   },
   declarative_agent_manifest: {

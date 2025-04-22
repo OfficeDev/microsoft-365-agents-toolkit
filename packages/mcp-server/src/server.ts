@@ -7,10 +7,9 @@ export function createServer(): McpServer {
     name: "mcp-m365",
     version: "0.1.0",
   });
-
   server.tool(
     "get_schema",
-    "Get the schema for \"Teams app manifest\", \"Declarative agent manifest\", \"API plugin manifest\", use it everytime before understanding, modifying or creating any of these manifest files.",
+    "Get the schema for \"App manifest\", \"Declarative agent manifest\", \"API plugin manifest\", use it everytime before understanding, modifying or creating any of these manifest files.",
     {
       schema_name: SchemaTypeEnum.describe("name of schema"),
       schema_version: z.string().describe("version of schema"),

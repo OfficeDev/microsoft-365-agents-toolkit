@@ -44,11 +44,10 @@ describe('MCP Server', () => {
     });
   });
   describe('get_schema tool', () => {
-    it('should call fetchSchema with the correct parameters', async () => {
-      // Set up a Transport mock to test the tool functionality
+    it('should call fetchSchema with the correct parameters', async () => {      // Set up a Transport mock to test the tool functionality
       const mockRequest = {
         params: {
-          schema_name: 'teams_app_manifest' as SchemaType,
+          schema_name: 'app_manifest' as SchemaType,
           schema_version: 'v1.16'
         }
       };
@@ -62,10 +61,9 @@ describe('MCP Server', () => {
       
       // Call the tool callback directly
       await toolCallback(mockRequest.params, { request: mockRequest });
-      
-      // Verify fetchSchema was called with the correct parameters
+        // Verify fetchSchema was called with the correct parameters
       expect(fetchSchemaSpy.calledOnce).to.be.true;
-      expect(fetchSchemaSpy.calledWith('teams_app_manifest', 'v1.16')).to.be.true;
+      expect(fetchSchemaSpy.calledWith('app_manifest', 'v1.16')).to.be.true;
     });
 
     it('should return schema content in the response', async () => {
@@ -131,13 +129,12 @@ describe('MCP Server', () => {
       // Create server
       const server = createServer();
       const serverAny = server as any;
-      
-      // Access the tool callback directly
+        // Access the tool callback directly
       const toolCallback = serverAny._registeredTools['get_schema'].callback;
       
       // Call the tool callback
       const response = await toolCallback({ 
-        schema_name: 'teams_app_manifest' as SchemaType, 
+        schema_name: 'app_manifest' as SchemaType, 
         schema_version: 'invalid-version' 
       }, {});
       

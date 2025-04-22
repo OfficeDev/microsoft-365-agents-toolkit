@@ -16,9 +16,8 @@ describe('Fetcher', () => {
     nock.enableNetConnect();
     sinon.restore();
   });
-
   describe('fetchSchema', () => {
-    it('should fetch teams_app_manifest schema successfully', async () => {
+    it('should fetch app_manifest schema successfully', async () => {
       const schemaVersion = 'v1.16';
       const mockSchemaContent = {
         $schema: 'http://json-schema.org/draft-07/schema#',
@@ -33,7 +32,7 @@ describe('Fetcher', () => {
         .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
         .reply(200, mockSchemaContent);
       
-      const result = await fetchSchema('teams_app_manifest' as SchemaType, schemaVersion);
+      const result = await fetchSchema('app_manifest' as SchemaType, schemaVersion);
       const parsed = JSON.parse(result);
       
       expect(parsed).to.have.property('schema_url');
@@ -104,12 +103,11 @@ describe('Fetcher', () => {
       nock('https://developer.microsoft.com')
         .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
         .reply(200, mockSchemaContent);
-      
-      // First fetch
-      await fetchSchema('teams_app_manifest' as SchemaType, schemaVersion);
+        // First fetch
+      await fetchSchema('app_manifest' as SchemaType, schemaVersion);
       
       // Second fetch - should use cache
-      const result = await fetchSchema('teams_app_manifest' as SchemaType, schemaVersion);
+      const result = await fetchSchema('app_manifest' as SchemaType, schemaVersion);
       const parsed = JSON.parse(result);
       
       expect(parsed).to.have.property('schema_url');
@@ -124,8 +122,7 @@ describe('Fetcher', () => {
       nock('https://developer.microsoft.com')
         .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
         .reply(404);
-      
-      const result = await fetchSchema('teams_app_manifest' as SchemaType, schemaVersion);
+        const result = await fetchSchema('app_manifest' as SchemaType, schemaVersion);
       
       expect(result).to.include('Failed fetching schema');
       expect(result).to.include('HTTP error with status: 404');
