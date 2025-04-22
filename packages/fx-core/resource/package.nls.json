@@ -491,8 +491,6 @@
   "core.ScratchOptionNo.detail": "Start your new app with an existing sample.",
   "core.RuntimeOptionNodeJS.detail": "A fast JavaScript server runtime",
   "core.RuntimeOptionDotNet.detail": "Free. Cross-platform. Open Source.",
-  "core.getRuntimeQuestion.title": "Microsoft 365 Agents Toolkit: select runtime for your app",
-  "core.getRuntimeQuestion.placeholder": "Select a runtime",
   "core.SampleSelect.title": "Start from a sample",
   "core.SampleSelect.placeholder": "Select a sample",
   "core.SampleSelect.buttons.viewSamples": "View samples",
