@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.*-*" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
-    <PackageReference Include="Microsoft.TeamsFx" Version="3.0.0-rc">
+    <PackageReference Include="Microsoft.TeamsFx" Version="3.0.*-*">
       <!-- Exclude TeamsFx wwwroot static files which are for frontend only. -->
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
