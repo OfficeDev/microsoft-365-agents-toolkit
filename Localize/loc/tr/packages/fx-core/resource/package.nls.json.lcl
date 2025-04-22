@@ -283,6 +283,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Grafik Bağlayıcısı için bağlantı kimliği ekleyin]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bağlantı kimliği ekleyin]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.maxlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is longer than the 32 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bağlantı kimliği 32 karakterden uzun.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.minlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is shorter than the 3 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bağlantı kimliği 3 karakterden kısa.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.pattern" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connector ID must contain only alphanumeric characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bağlayıcı kimliği yalnızca alfasayısal karakterler içermelidir.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.specialBeginner" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID should not begin with %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bağlantı kimliği %s ile başlamamalıdır.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.GCInputQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Connection ID]]></Val>
@@ -576,10 +630,13 @@
       </Item>
       <Item ItemId=";core.QuestionAppName.validation.lengthWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Microsoft 365 Agents Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yerel hata ayıklama için Teams Araç Seti tarafından eklenen "yerel" soneki nedeniyle uygulama adınız 30 karakteri aşıyor olabilir. Lütfen uygulama adınızı "manifest.json" dosyasında güncelleştirin.]]></Val>
+            <Val><![CDATA[Uygulama adınız, Microsoft 365 Aracı Araç Seti tarafından yerel hata ayıklama için eklenen "local" soneki nedeniyle 30 karakteri aşabilir. Lütfen uygulama adınızı "manifest.json" dosyasında güncelleyin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -774,12 +831,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yeni bir Teams uygulaması oluşturmak için Teams Araç Seti kullanın.]]></Val>
+            <Val><![CDATA[Yeni bir uygulama oluşturmak için Microsoft 365 Aracı Araç Seti'ni kullanın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams application.]]></Val>
+            <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -948,28 +1005,37 @@
       </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, "%s" klasörünüzdeki dosyaları, girdiğiniz yeni OpenAPI belgesine göre değiştirir. Beklenmeyen değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik izleme için git kullanın.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, "%s" klasörünüzdeki dosyaları, sağladığınız yeni OpenAPI belgesine göre değiştirecek. Beklenmedik değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik takibi için git kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.localTeamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, "%s" klasörünüzdeki, "%s" "%s", girdiğiniz yeni OpenAPI belgesine göre değiştirir. Beklenmeyen değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik izleme için git kullanın.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, "%s" klasörünüzdeki, "%s" ve "%s" konumundaki dosyaları, sağladığınız yeni OpenAPI belgesine göre değiştirecek. Beklenmedik değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik takibi için git kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.teamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, "%s" klasörünüzdeki dosyaları "%s" yeni OpenAPI belgesine göre değiştirir. Beklenmeyen değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik izleme için git kullanın.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, "%s" klasörünüzdeki ve "%s" konumundaki dosyaları, sağlanan yeni OpenAPI belgesine göre değiştirecek. Beklenmedik değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik takibi için git kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -984,10 +1050,13 @@
       </Item>
       <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, Microsoft Entra kimlik doğrulamasını seçili API'lere başarıyla ekledi. Lütfen: 1. .env dosyalarında yer tutucusu %s olan uygulama kimliği URI'sini bulun ve bunu Microsoft Entra uygulamasıyla güncelleştirin. 2. Microsoft Entra uygulamasının yönlendirme URI'sine https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect adresini ekleyin.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, Microsoft Entra kimlik doğrulamasını seçili API'lere başarıyla ekledi. Lütfen: 1. .env dosyalarında yer tutucusu %s olan uygulama kimliği URI'sini bulun ve bunu Microsoft Entra uygulamasıyla güncelleştirin. 2. Microsoft Entra uygulamasının yönlendirme URI'sine https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect adresini ekleyin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1176,12 +1245,12 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, "%s" klasörünüzdeki dosyaları, sağladığınız özellik kaynağına göre değiştirecektir. Beklenmedik değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik takibi için git kullanın.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, "%s" klasörünüzdeki dosyaları, sağladığınız özellik kaynağına göre değiştirecek. Beklenmedik değişiklikleri kaybetmemek için, devam etmeden önce dosyalarınızı yedekleyin veya değişiklik takibi için git kullanın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1372,6 +1441,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid email address]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[E-posta adresi geçersiz]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.aiAssistantBotOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[A custom AI Agent bot in Teams using Teams AI library and OpenAI Assistants API]]></Val>
@@ -1512,12 +1590,12 @@
       </Item>
       <Item ItemId=";core.collaboration.ListCollaboratorsSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
+          <Val><![CDATA[List of app owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Uygulama Microsoft 365 listesi başarılı, uygulama sahiplerini [Output panel]5D;(%s).]]></Val>
+            <Val><![CDATA[Uygulama sahiplerinin listesi başarılı bir şekilde oluşturuldu, bunu [Çıkış panelinde]5D;(%s) görüntüleyebilirsiniz.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA['List Microsoft 365 App owners' succeeded, you can view it in [Output panel]5D;(%s).]]></Val>
+            <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1536,12 +1614,12 @@
       </Item>
       <Item ItemId=";core.collaboration.M365TeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
+          <Val><![CDATA[App (ID: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Teams Uygulaması (Kimlik: ]]></Val>
+            <Val><![CDATA[Uygulama (Kimlik: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[M365 Teams App (ID: ]]></Val>
+            <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1626,22 +1704,25 @@
       </Item>
       <Item ItemId=";core.collaboration.StartingListAllTeamsAppOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
+          <Val><![CDATA[]A;Starting to list all app owners for environment: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[]A;Ortam için tüm ekip uygulama sahiplerini listelenmeye başlıyor: ]]></Val>
+            <Val><![CDATA[]A;Ortam için tüm uygulama sahipleri listelenmeye başlıyor: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Starting list all teams app owners for environment: ]]></Val>
+            <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.TeamsAppOwner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Owner: ]]></Val>
+          <Val><![CDATA[App Owner: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulaması Sahibi: ]]></Val>
+            <Val><![CDATA[Uygulama Sahibi: ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Owner: ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1719,12 +1800,12 @@
       </Item>
       <Item ItemId=";core.common.LifecycleComplete.prepareTeamsApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app prepared successfully.]]></Val>
+          <Val><![CDATA[app prepared successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması başarıyla hazırlandı.]]></Val>
+            <Val><![CDATA[uygulama başarıyla hazırlandı.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Successfully prepared Teams app.]]></Val>
+            <Val><![CDATA[Teams app prepared successfully.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1806,36 +1887,36 @@
       </Item>
       <Item ItemId=";core.common.OfficeDesktopClientName" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
+          <Val><![CDATA[The app for desktop client id]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Masaüstü istemci kimliği için Microsoft 365 uygulaması]]></Val>
+            <Val><![CDATA[Masaüstü istemci kimliği için uygulama]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office desktop client id]]></Val>
+            <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
+          <Val><![CDATA[The app client id 1]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 uygulama istemci kimliği 1]]></Val>
+            <Val><![CDATA[Uygulama istemci kimliği 1]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 1]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
+          <Val><![CDATA[The app client id 2]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 uygulama istemci kimliği 2]]></Val>
+            <Val><![CDATA[Uygulama istemci kimliği 2]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 2]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2074,6 +2155,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Paylaşılan uygulama erişimi kullanıcılar için kaldırıldı: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulama kullanıcılarla başarıyla paylaşıldı: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.confirmManifestQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Confirm you've selected the correct manifest file]]></Val>
@@ -2278,24 +2377,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Description for function "%s" shortened to %s characters to meet the length requirement.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[İşlevin açıklaması"%s" uzunluk gereksinimini %s karakter olacak şekilde kısaltıldı.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[ Mitigation: Update description for "%s" in "%s" so that Copilot can trigger the function.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ Risk Azaltma: Copilot'"%s" tetikleyebilmeniz "%s" için açıklamayı güncelleştirme.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Description for function "%s" is missing.]]></Val>
@@ -2373,12 +2454,12 @@
       </Item>
       <Item ItemId=";core.copilotPlugin.validate.apiSpec.summary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti OpenAPI açıklama belgenizi denetledi:]A;]A;Özet:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti OpenAPI açıklama belgenizi denetledi:]A;]A;Özet:]A;%s.]A;%s]A;%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked your API spec:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2433,10 +2514,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, API anahtarını Teams Geliştirici Portalı. API anahtarı, Teams istemcisi tarafından çalışma zamanında API'nize güvenli bir şekilde erişmek için kullanılır. Teams Araç Seti API anahtarınızı depolamaz.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, API anahtarını Geliştirici Portalı'na yükleyecek. API anahtarı, Teams istemcisi tarafından çalışma zamanında API'nize güvenli bir şekilde erişmek için kullanılacak. Microsoft 365 Aracı Araç Seti, API anahtarınızı depolamayacak.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2460,10 +2544,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, OAuth Kaydı için istemci kimliğini/gizli dizisini Teams Geliştirici Portalı. Çalışma zamanında API'nize güvenli bir şekilde erişmek için Teams istemcisi tarafından kullanılır. Teams Araç Seti istemci kimliğinizi/gizli dizinizi depolamaz.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, OAuth Kaydı için istemci kimliğini/gizli dizisini Teams Geliştirici Portalı'na yükler. Bu, Teams istemcisi tarafından çalışma zamanında API'nize güvenli bir şekilde erişmek için kullanılır. Microsoft 365 Aracı Araç Seti, istemci kimliğinizi/gizli dizinizi depolamaz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2529,6 +2616,24 @@
           <Val><![CDATA[Import Manifest File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Bildirim Dosyasını İçeri Aktar]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Grafik Bağlayıcısı ile bildirim temelli aracı oluşturun]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Grafik Bağlayıcısı Ekleyin]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3070,6 +3175,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 Aracı SDK'sı ve Anlamsal Çekirdek ile oluşturulan bir hava durumu tahmin aracı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Hava Durumu Aracısı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customEngineAgent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
@@ -3216,10 +3339,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create API Plugin]]></Val>
+          <Val><![CDATA[Create an Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API Eklentisi Oluştur]]></Val>
+            <Val><![CDATA[Eylem Oluştur]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3564,12 +3690,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ekip GitHub Copilot sohbet edin ve Teams uygulamanızı geliştirmek için adım adım yönergeler alın]]></Val>
+            <Val><![CDATA[GitHub Copilot ile sohbet edin ve uygulamanızı veya Microsoft 365 Copilot aracınızı geliştirmek için adım adım talimatlar alın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3864,12 +3990,12 @@
       </Item>
       <Item ItemId=";core.developerPortal.scaffold.CannotFindManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
+          <Val><![CDATA[Manifest not found from the downloaded package for app %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi için indirilen paketten bildirim %s.]]></Val>
+            <Val><![CDATA[%s uygulaması için indirilen pakette bildirim bulunamadı.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Could not find manifest from the downloaded package for teams app %s.]]></Val>
+            <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4080,10 +4206,13 @@
       </Item>
       <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti: uygulamanız için çalışma zamanını seçin]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti: uygulamanız için çalışma zamanını seçin]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4179,46 +4308,49 @@
       </Item>
       <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
+          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[En son sürümle uyumlu kalmak için Teams Toolkit projenizi yükseltin. Bir Yükseltme Özeti ile birlikte bir yedekleme dizini oluşturulacaktır.]]></Val>
+            <Val><![CDATA[En son sürümle uyumlu kalmak için Microsoft 365 Aracı Araç Seti projenizi yükseltin. Yükseltme Özeti ile birlikte yedekleme dizini de oluşturulacaktır.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please upgrade your project to stay compatible with the latest version, your current project contains configurations from an older Teams Toolkit.]A;The auto-upgrade process will generate backups in case an error occurs.]]></Val>
+            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
+          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[En son Teams Araç Seti sürümüyle uyumlu kalmak için çözümünüzü yükseltin. İçinde yükseltme raporu içeren bir yedekleme dizini oluşturulur.]]></Val>
+            <Val><![CDATA[En son Microsoft 365 Aracı Araç Seti sürümüyle uyumlu kalmak için çözümünüzü yükseltin. İçinde yükseltme raporu içeren bir yedekleme dizini oluşturulur.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit preview feature - Teams App Configuration Improvements is turned on. This project is required to be upgraded to work with the preview features. Select "Learn more" to read about the required changes or select "Upgrade" to perform the changes automatically. If you don't want to upgrade, you can turn off the preview feature.]]></Val>
+            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json yok. Visual Studio Code için Team Araç Seti v3.x / Team Araç Seti CLI v0.x / Visual Studio için Team Araç Seti v17.3 tarafından oluşturulan bir projeyi yükseltmeye çalışıyor olabilirsiniz. Lütfen Visual Studio Code için Team Araç Seti v4.x / Team Araç Seti CLI v1.x / Visual Studio için Team Araç Seti v17.4’ü yükleyin ve önce yükseltmeyi çalıştırın.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json yok. Visual Studio Code v3.x için Microsoft 365 Aracı Araç Seti / Microsoft 365 Aracı Araç Seti CLI v0.x / Visual Studio v17.3 için Microsoft 365 Aracı Araç Seti tarafından oluşturulan bir projeyi yükseltmeye çalışıyor olabilirsiniz. Lütfen önce Visual Studio Code v4.x için Microsoft 365 Aracı Araç Seti / Microsoft 365 Aracı Araç Seti CLI v1.x / Visual Studio v17.4 için Microsoft 365 Aracı Araç Seti'ni yükleyin ve yükseltmeyi çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu proje yalnızca önizleme içindir ve Teams Toolkit tarafından desteklenmeyecektir. Lütfen yeni bir proje oluşturarak Teams Toolkit'i deneyin]]></Val>
+            <Val><![CDATA[Bu proje yalnızca önizleme içindir ve Microsoft 365 Aracı Araç Seti tarafından desteklenmez. Lütfen yeni bir proje oluşturarak Microsoft 365 Aracı Araç Seti'ni deneyin]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4242,24 +4374,24 @@
       </Item>
       <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json yok. Visual Studio Code için Team Araç Seti v3.x / Team Araç Seti CLI v0.x / Visual Studio için Team Araç Seti v17.3 tarafından oluşturulan bir projeyi yükseltmeye çalışıyor olabilirsiniz. Lütfen Visual Studio Code için Team Araç Seti v4.x / Team Araç Seti CLI v1.x / Visual Studio için Team Araç Seti v17.4’ü yükleyin ve önce yükseltmeyi çalıştırın.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json yok. Visual Studio Code v3.x için Microsoft 365 Aracı Araç Seti / Microsoft 365 Aracı Araç Seti CLI v0.x / Visual Studio v17.3 için Microsoft 365 Aracı Araç Seti tarafından oluşturulan bir projeyi yükseltmeye çalışıyor olabilirsiniz. Lütfen önce Visual Studio Code v4.x için Microsoft 365 Aracı Araç Seti / Microsoft 365 Aracı Araç Seti CLI v1.x / Visual Studio v17.4 için Microsoft 365 Aracı Araç Seti'ni yükleyin ve yükseltmeyi çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti'nin Yayın Öncesi sürümü yeni proje yapılandırmasını destekler ve önceki sürümlerle uyumlu değildir. Yeni bir proje oluşturarak deneyin ya da önce projenizi yükseltmek için "teamsapp upgrade" komutunu çalıştırın.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti'nin Yayın Öncesi sürümü yeni proje yapılandırmasını destekler ve önceki sürümlerle uyumlu değildir. Yeni bir proje oluşturarak deneyin ya da önce projenizi yükseltmek için "teamsapp upgrade" komutunu çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsfx upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4500,31 +4632,37 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti CLI sürümünüz çok eski olduğundan geçerli projeyi desteklemiyor. Şu komutla en son sürüme yükseltmeniz gerek:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[Mevcut Microsoft 365 Aracı Araç Seti CLI sürümü, geçerli projeyi desteklemiyor. Aşağıdaki komutu kullanarak en son sürüme yükseltin:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your TeamFx CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsfx-cli@latest]]></Val>
+            <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Geçerli proje Teams Araç Seti'nin yüklü sürümüyle uyumlu değil.]]></Val>
+            <Val><![CDATA[Geçerli proje Microsoft 365 Aracı Araç Seti'nin yüklü sürümüyle uyumlu değil.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - app Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Çözümdeki proje, Teams Araç Seti önizleme özelliği (Teams Uygulama Yapılandırması İyileştirmeleri) ile oluşturulur. Devam etmek için önizleme özelliğini açabilirsiniz.]]></Val>
+            <Val><![CDATA[Çözümdeki proje, Microsoft 365 Aracı Araç Seti önizleme özelliği (uygulama Yapılandırması İyileştirmeleri) ile oluşturulur. Devam etmek için önizleme özelliğini açabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4713,13 +4851,22 @@
       </Item>
       <Item ItemId=";core.selectTeamsAppPackageQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams App Package File]]></Val>
+          <Val><![CDATA[Select app package File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Paketi Dosyası Seçin]]></Val>
+            <Val><![CDATA[Uygulama paketi Dosyasını seçin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select Teams app package file]]></Val>
+            <Val><![CDATA[Select Teams App Package File]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.selectUsersToRemoveShareAccess.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select users to remove access]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Erişimi kaldırmak için kullanıcıları seçin]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4737,21 +4884,24 @@
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOptionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          <Val><![CDATA[Validate app before publishing app to Teams store]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamasını Teams mağazasına yayımlamadan önce Teams uygulamasını doğrula]]></Val>
+            <Val><![CDATA[Uygulamayı Teams mağazasında yayımlamadan önce doğrulayın]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app manifest schema]]></Val>
+          <Val><![CDATA[Validate app manifest schema]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama bildirimi şemasını doğrula]]></Val>
+            <Val><![CDATA[Uygulama bildirimi şemasını doğrula]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Validate using manifest schema]]></Val>
+            <Val><![CDATA[Validate Teams app manifest schema]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4797,6 +4947,51 @@
           <Val><![CDATA[Set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Ayarla]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.share.removeAccess.operator" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot remove permission of the operator. Email: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[İşlecin izni kaldırılamıyor. E-posta: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Bir seçenek belirleyin]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulamayı paylaşın]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share with user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kullanıcılarla paylaş]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kullanıcı e-postalarını girin (virgülle ayırarak)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4950,10 +5145,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.env" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          <Val><![CDATA[Target Microsoft 365 Agents Toolkit Environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hedef Teams Araç Seti Ortamı]]></Val>
+            <Val><![CDATA[Hedef Microsoft 365 Aracı Araç Seti Ortamı]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4995,10 +5193,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.teamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App ID (optional)]]></Val>
+          <Val><![CDATA[App ID (optional)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulaması Kimliği (isteğe bağlı)]]></Val>
+            <Val><![CDATA[Uygulama Kimliği (isteğe bağlı)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App ID (optional)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5013,19 +5214,25 @@
       </Item>
       <Item ItemId=";core.teamsAppQuestion.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app]]></Val>
+          <Val><![CDATA[Your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamanız]]></Val>
+            <Val><![CDATA[Uygulamanız]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.teamsAppQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app]]></Val>
+          <Val><![CDATA[app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması]]></Val>
+            <Val><![CDATA[uygulama]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5175,19 +5382,25 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          <Val><![CDATA[Environment in Microsoft 365 Agents Toolkit Created Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti'nin Oluşturulan Projesindeki Ortam]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti tarafından oluşturulan projedeki ortam]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti tarafından oluşturulan projedeki belirli bir ortamla ilişkili kaynakları temizleyin. Kaynaklar, Teams Geliştirici Portalı'da uygulama kaydı, Bot Framework Portal'da bot kaydı ve bu uygulamalara yüklenen özel Microsoft 365 içerir.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti tarafından oluşturulan projedeki belirli bir ortamla ilişkili kaynakları temizleyin. Kaynaklar, Geliştirici Portalı'nda uygulama kaydı, Bot Framework Portalı'nda bot kaydı ve uygulamalara yüklenen özel uygulamaları içerir.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5220,10 +5433,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bildirim Kimliği ile ilişkili kaynakları temizleyin. Buna Teams Geliştirici Portalı'da uygulama kaydı, Bot Framework Portal'da bot kaydı ve Microsoft 365. Bildirim Kimliğini, Teams Araç Seti tarafından oluşturulan projede ortam dosyasında (Teams_App_ID ortam anahtarı: Teams_App_ID) bulun.]]></Val>
+            <Val><![CDATA[Bildirim kimliğiyle ilişkili kaynakları temizleyin. Buna Geliştirici Portalı'nda uygulama kaydı, Bot Framework Portalı'nda bot kaydı ve Microsoft 365'e yüklenen özel uygulamalar dahildir. Bildirim Kimliğini, Microsoft 365 Aracı Araç Seti tarafından oluşturulan projede ortam dosyasında (varsayılan ortam anahtarı: Teams_App_ID) bulabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5265,10 +5481,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.titleIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Microsoft 365 Agents Toolkit created project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Başlık Kimliği ile ilişkili karşıya yüklenen özel uygulamayı kaldırın. Başlık Kimliği, Teams Araç Seti tarafından oluşturulan projedeki ortam dosyasında bulunamıyor.]]></Val>
+            <Val><![CDATA[Başlık kimliğiyle ilişkili yüklenen özel uygulamayı kaldırın. Başlık Kimliği, Microsoft 365 Aracı Araç Seti tarafından oluşturulan projedeki ortam dosyasında bulunabilir.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5535,10 +5754,13 @@
       </Item>
       <Item ItemId=";depChecker.failedToValidateTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          <Val><![CDATA[Unable to validate Microsoft 365 Agents Playground after installation. %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Test Aracı yüklemeden sonra doğrulanamıyor. %s]]></Val>
+            <Val><![CDATA[Yüklemeden sonra Microsoft 365 Aracı Deneme Alanı doğrulanamıyor. %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5622,12 +5844,12 @@
       </Item>
       <Item ItemId=";depChecker.portableFuncNodeNotMatched" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Node.js sürümünüz (@NodeVersion) Teams Araç Seti Azure Functions Core Tools (@FuncVersion) ile uyumlu değil.]]></Val>
+            <Val><![CDATA[Node.js sürümünüz (@NodeVersion) Microsoft 365 Aracı Araç Seti Azure Functions Core Tools (@FuncVersion) ile uyumlu değil.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Node.js (@NodeVersion) is incompatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5646,10 +5868,13 @@
       </Item>
       <Item ItemId=";depChecker.testToolVersionNotMatch" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          <Val><![CDATA[The version of Microsoft 365 Agents Playground (%s) is not compatible with the specified version range (%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Test Aracı (%s) sürümü belirtilen sürüm aralığıyla (%s) uyumlu değil.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Deneme Alanı sürümü (%s) belirtilen sürüm aralığıyla (%s) uyumlu değil.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5778,10 +6003,13 @@
       </Item>
       <Item ItemId=";driver.aadApp.log.deleteAadAfterDebugging" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          <Val><![CDATA[ (Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[(Teams araç seti hata ayıklandıktan Microsoft Entra uygulamanın adını siler)]]></Val>
+            <Val><![CDATA[ (Microsoft 365 Aracı Araç Seti, hata ayıklama işleminden sonra Microsoft Entra uygulamasını silecek.)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6469,11 +6697,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Install app into sandboxed channel.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulamayı korumalı kanala yükleyin.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.progress.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Installing app...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulama yükleniyor...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.devChannel.install.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App installed into team %s with channel %s successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Uygulama %s ekibine %s kanalıyla başarıyla yüklendi.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.summary.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App '%s' already installed in team '%s'. It will now be updated to the latest version.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['%s' uygulaması zaten '%s' ekibinde yüklü. Şimdi en son sürüme güncellenecek.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6834,10 +7092,13 @@
       </Item>
       <Item ItemId=";driver.prerequisite.error.testToolInstallationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          <Val><![CDATA[Unable to check and install Microsoft 365 Agents Playground.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Test Aracı denetlenemiyor ve yüklenemiyor.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Deneme Alanı kontrol edilemiyor ve yüklenemiyor.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6921,19 +7182,25 @@
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Test Aracı yüklendi.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Deneme Alanı yüklü.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installedWithPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed at %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Test Aracı %s konumuna yüklendi.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Deneme Alanı %s konumunda yüklü.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7110,12 +7377,12 @@
       </Item>
       <Item ItemId=";driver.spfx.error.noValidAppCatelog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
+          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kiracınızda geçerli bir uygulama kataloğu yok. Teams Araç Seti’nin sizin için katalog oluşturmasını istiyorsanız %s konumundaki 'createAppCatalogIfNotExist' özelliğini true olarak güncelleştirin veya kendiniz katalog oluşturun.]]></Val>
+            <Val><![CDATA[Kiracınızda geçerli bir uygulama kataloğu yok. Microsoft 365 Aracı Araç Seti’nin sizin için katalog oluşturmasını istiyorsanız %s konumundaki 'createAppCatalogIfNotExist' özelliğini true olarak güncelleştirin veya kendiniz katalog oluşturun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in app.yml to true if you want us to create it for you or you can create it by yourself.]]></Val>
+            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7146,135 +7413,144 @@
       </Item>
       <Item ItemId=";driver.teamsApp.description.copyAppPackageToSPFxDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          <Val><![CDATA[copies the generated app package to SPFx solution.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[oluşturulan Teams uygulama paketini SPFx çözümüne kopyalar.]]></Val>
+            <Val><![CDATA[oluşturulan uygulama paketini SPFx çözümüne kopyalar.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createAppPackageDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[build Teams app package.]]></Val>
+          <Val><![CDATA[build app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi oluşturun.]]></Val>
+            <Val><![CDATA[uygulama paketini oluşturun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[build a Teams app package.]]></Val>
+            <Val><![CDATA[build Teams app package.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[create Teams app.]]></Val>
+          <Val><![CDATA[create app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması oluşturun.]]></Val>
+            <Val><![CDATA[uygulama oluşturun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[create a Teams app.]]></Val>
+            <Val><![CDATA[create Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.publishDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
+          <Val><![CDATA[publish app to tenant app catalog.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[kiracı uygulama kataloğunda bir Teams uygulaması yayımlayın.]]></Val>
+            <Val><![CDATA[kiracı uygulama kataloğunda uygulama yayımlayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[publish a Teams app to tenant app catalog.]]></Val>
+            <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.updateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[update Teams app.]]></Val>
+          <Val><![CDATA[update app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamasını güncelleştirin.]]></Val>
+            <Val><![CDATA[uygulamayı güncelleştir.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[update a Teams app.]]></Val>
+            <Val><![CDATA[update Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.validateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[validate Teams app.]]></Val>
+          <Val><![CDATA[validate app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamasını doğrulayın.]]></Val>
+            <Val><![CDATA[uygulamayı doğrulayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[validate a Teams app.]]></Val>
+            <Val><![CDATA[validate Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.copyAppPackageToSPFxStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          <Val><![CDATA[Copying app package to SPFx solution...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi, SPFx çözümüne kopyalanıyor...]]></Val>
+            <Val><![CDATA[Uygulama paketi, SPFx çözümüne kopyalanıyor...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.createTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Creating Teams app...]]></Val>
+          <Val><![CDATA[Creating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması oluşturuluyor...]]></Val>
+            <Val><![CDATA[Uygulama oluşturuluyor...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Creating Teams app]]></Val>
+            <Val><![CDATA[Creating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
+          <Val><![CDATA[Checking if the app is already submitted to tenant App Catalog]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamasının kiracı Uygulama Kataloğuna gönderilmiş olup olmadığı kontrol ediliyor]]></Val>
+            <Val><![CDATA[Uygulamanın kiracı Uygulama Kataloğuna gönderilmiş olup olmadığı kontrol ediliyor]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Checking if the Teams app has already been submitted to tenant App Catalog]]></Val>
+            <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update published Teams app]]></Val>
+          <Val><![CDATA[Update published app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yayımlanan Teams uygulamasını güncelleştir]]></Val>
+            <Val><![CDATA[Yayımlanan uygulamayı güncelleştir]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Update published Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publishing Teams app...]]></Val>
+          <Val><![CDATA[Publishing app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması yayımlanıyor...]]></Val>
+            <Val><![CDATA[Uygulama yayımlanıyor...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publishing Teams app]]></Val>
+            <Val><![CDATA[Publishing Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.updateTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Updating Teams app...]]></Val>
+          <Val><![CDATA[Updating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması güncelleştiriliyor...]]></Val>
+            <Val><![CDATA[Uygulama güncelleştiriliyor...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Updating Teams app]]></Val>
+            <Val><![CDATA[Updating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7290,30 +7566,36 @@
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.conflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Şu anda bir doğrulama işlemi devam ediyor, lütfen daha sonra gönderin. Bu mevcut doğrulamayı [Teams Developer Portal]5D;(%s).]]></Val>
+            <Val><![CDATA[Şu anda bir doğrulama işlemi devam ediyor, lütfen daha sonra gönderin. Bu mevcut doğrulamayı [Geliştirici Portalı'nda]5D;(%s) bulabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.step" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Doğrulama isteği gönderildi, durum: %s. Sonuç hazır olduğunda size bildirim gönderilir veya tüm doğrulama kayıtlarınızı [Teams Developer Portal]5D;(%s).]]></Val>
+            <Val><![CDATA[Doğrulama isteği gönderildi, durum: %s. Sonuç hazır olduğunda size bildirim gönderilecektir veya tüm doğrulama kayıtlarınızı [Geliştirici Portalı'nda]5D;(%s) kontrol edebilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.copyAppPackageSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
+          <Val><![CDATA[App %s was successfully copied to %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s Teams uygulaması %s uygulamasına başarıyla kopyalandı.]]></Val>
+            <Val><![CDATA[%s uygulaması şuraya başarıyla kopyalandı: %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app %s was successfully copyed to %s.]]></Val>
+            <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7329,48 +7611,60 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.createTeamsAppAlreadyExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          <Val><![CDATA[App with id %s already exists, skipped creating a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimlikli Teams uygulaması zaten var, yeni bir Teams uygulaması oluşturma atlandı.]]></Val>
+            <Val><![CDATA[%s kimlikli uygulama zaten var, yeni bir uygulama oluşturma atlandı.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s already exists in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimlikli Teams uygulaması, kuruluşun uygulama deposunda zaten var.]]></Val>
+            <Val><![CDATA[%s kimlikli uygulama, kuruluşun uygulama mağazasında zaten var.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppNotExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s does not exist in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimlikli Teams uygulaması, kuruluşun uygulama deposunda yok.]]></Val>
+            <Val><![CDATA[%s kimlikli uygulama, kuruluşun uygulama mağazasında yok.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          <Val><![CDATA[App %s successfully published to the admin portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s Teams uygulaması yönetici portalında başarıyla yayımlandı.]]></Val>
+            <Val><![CDATA[%s uygulaması yönetici portalında başarıyla yayımlandı.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti tüm doğrulama kuralları ile denetlendi:]A;]A;Özet:]A;%s.]A;%s%s]A;%s]A;]A;Doğrulamaların tam günlüğü burada bulunabilir: %s]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti tüm doğrulama kurallarıyla kontrol etti:]A;]A;Özet:]A;%s.]A;%s%s]A;%s]A;]A;Doğrulamaların tam günlüğü burada bulunabilir: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7386,10 +7680,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate.checkPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          <Val><![CDATA[You can check and update your app package at %s.]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketinizi otomatik olarak kontrol edip %s.]]></Val>
+            <Val><![CDATA[Uygulama paketinizi %s konumunda kontrol edip güncelleştirebilirsiniz.]A;]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7440,12 +7737,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, ilgili şemaya sahip bildirimleri kontrol etti:]A;]A;Özet:]A;%s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, bildirimleri karşılık gelen şemayla kontrol etti:]A;]A;Özet:]A;%s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked manifest with its schema:]A;]A;Summary:]A;%s.]A;%s]A;]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7497,22 +7794,25 @@
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, uygulama paketinizi doğrulama kuralları ile denetlemeyi tamamladı.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, uygulama paketinizi doğrulama kuralları ile denetlemeyi tamamladı. %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s failed, %s passed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, uygulama paketinizi doğrulama kurallarına göre denetlemeyi tamamladı. %s. Ayrıntılar için [Çıkış panelini]5D;(command:fx-extension.showOutputChannel) kontrol edin.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, uygulama paketinizi doğrulama kuralları ile denetlemeyi tamamladı. %s. Ayrıntılar için [Çıkış paneline]5D;(command:fx-extension.showOutputChannel) başvurun.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7620,36 +7920,36 @@
       </Item>
       <Item ItemId=";error.UpgradeV3CanceledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
+          <Val><![CDATA[Don't want to upgrade? Continue using old version of Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yükseltmek istemiyor musunuz? Teams Araç Seti'nin eski sürümünü kullanmaya devam et]]></Val>
+            <Val><![CDATA[Yükseltmek istemiyor musunuz? Microsoft 365 Aracı Araç Seti'nin eski sürümünü kullanmaya devam edin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[If you are not ready to upgrade, please continue to use the old version of Teams Toolkit]]></Val>
+            <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.VideoFilterAppNotRemoteSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, uzaktan video filtresi uygulamasını desteklemiyor. Proje README.md klasöründeki dosyanın adını denetleyin.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, uzaktan video filtre uygulamasını desteklemez. Proje kök klasöründeki README.md dosyasını kontrol edin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Video filter app in remote is not supported by Teams Toolkit. Check the README.md file in project root folder.]]></Val>
+            <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.aad.manifest.AADManifestIssues" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the app:]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Entra bildirimi, Teams Uygulamasını bozabilecek aşağıdaki sorunları içeriyor:]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra bildirimi, uygulamayı bozabilecek aşağıdaki sorunları içeriyor:]A;]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[AAD manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8025,24 +8325,24 @@
       </Item>
       <Item ItemId=";error.appstudio.publishFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
+          <Val><![CDATA[Unable to publish app with ID %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimlikli Teams uygulaması yayımlanamıyor.]]></Val>
+            <Val><![CDATA[%s kimlikli uygulama yayımlanamıyor.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to publish Teams app with ID %s.]]></Val>
+            <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.publishInDevPortalSuggestionForValidationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
+          <Val><![CDATA[Generate package from "Zip app package" and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lütfen "Zip Teams uygulama paketi"nden paket oluşturun ve tekrar deneyin.]]></Val>
+            <Val><![CDATA["Zip uygulama paketi"nden paket oluşturun ve tekrar deneyin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please try to generate package from "Zip Teams app package" and try again.]]></Val>
+            <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8070,64 +8370,73 @@
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          <Val><![CDATA[Manifest downloaded from Developer Portal is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams'ten indirilen Geliştirici Portalı boş]]></Val>
+            <Val><![CDATA[Geliştirici Portalı'ndan indirilen bildirim boş]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoTeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          <Val><![CDATA[Unable to load app ID from the env file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama kimliği env dosyasından yüklenemiyor.]]></Val>
+            <Val><![CDATA[Ortam dosyasından uygulama kimliği yüklenemiyor.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
+          <Val><![CDATA[Unable to create app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması oluşturulamıyor. Bunun nedeni, uygulama kimliğiniz kiracınızın başka bir uygulama kimliğiyle çakışıyor olabilir. Bu sorunu Yardım Alın'a tıklayın.]]></Val>
+            <Val><![CDATA[Uygulama oluşturulamıyor. Bunun nedeni, uygulama kimliğinizin kiracınızdaki başka bir uygulama kimliğiyle çakışıyor olması olabilir. Bu sorunu çözmek için 'Yardım Alın' seçeneğine tıklayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app with 409 Conflict error. That may come from your app id is conflicting with another app in your tenant. Click Get Help to learn more.]]></Val>
+            <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflictWithPublishedApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
+          <Val><![CDATA[app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kuruluşunuzun uygulama mağazasında aynı kimliğe sahip Teams uygulaması zaten var. Uygulamayı güncelleştirip yeniden deneyin.]]></Val>
+            <Val><![CDATA[kuruluşunuzun uygulama mağazasında aynı kimliğe sahip uygulama zaten var. Uygulamayı güncelleştirip yeniden deneyin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[A Teams app with that id already exists in your organization's app store. Manually update the app id and try again.]]></Val>
+            <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to create app in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s nedeniyle Teams Geliştirici Portalı’nda Teams uygulaması oluşturulamıyor]]></Val>
+            <Val><![CDATA[%s nedeniyle Geliştirici Portalı’nda uygulama oluşturulamıyor]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppPublishConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          <Val><![CDATA[Unable to publish app because app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu kimlikli Teams uygulaması hazırlanmış uygulamalarda zaten var olduğundan Teams uygulaması yayımlanamadı. Uygulama kimliğini güncelleştirin ve yeniden deneyin.]]></Val>
+            <Val><![CDATA[Bu kimlikli uygulama hazırlanmış uygulamalarda zaten mevcut olduğundan uygulama yayımlanamıyor. Uygulama kimliğini güncelleştirip yeniden deneyin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8142,24 +8451,24 @@
       </Item>
       <Item ItemId=";error.appstudio.teamsAppUpdateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to update app with ID %s in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimliğine sahip Teams uygulaması %s nedeniyle Teams Geliştirici Portalı’nda güncelleştirilemiyor]]></Val>
+            <Val><![CDATA[%s kimliğine sahip uygulama %s nedeniyle Geliştirici Portalı’nda güncelleştirilemiyor]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.updateManifestInvalidApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
+          <Val><![CDATA[Unable to find app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kimlik bilgilerine sahip Teams uygulaması %s. Bildirimi Teams platformuna güncelleştirmeden önce hata ayıklamayı veya sağlamayı çalıştırın.]]></Val>
+            <Val><![CDATA[%s kimliğine sahip uygulama bulunamıyor. Bildirimi Teams platformuna güncelleştirmeden önce hata ayıklamayı veya sağlamayı çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Cannot find teams app with id %s. You must run debug or provision first before updating manifest to Teams platform.]]></Val>
+            <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8232,10 +8541,13 @@
       </Item>
       <Item ItemId=";error.arm.DownloadBicepCliError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file m365agents.yml and Microsoft 365 Agents Toolkit will use bicep CLI in PATH]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bicep cli indirilemiyor şuradan indirilemiyor: '%s'. Hata iletisi: %s. Hatayı düzeltip yeniden deneyin veya teamsapp.yml yapılandırma dosyasındaki bicepCliVersion yapılandırmasını kaldırın. Teams Araç Seti, PATH yolundaki bicep CLI’yi kullanır]]></Val>
+            <Val><![CDATA[Bicep cli şuradan indirilemiyor: '%s'. Hata iletisi: %s. Hatayı düzeltip yeniden deneyin. Veya m365agents.yml yapılandırma dosyasındaki bicepCliVersion yapılandırmasını kaldırın; Microsoft 365 Aracı Araç Seti PATH yolundaki bicep CLI'yi kullanacak]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8469,22 +8781,25 @@
       </Item>
       <Item ItemId=";error.common.InvalidProjectError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu komut yalnızca Teams Araç Seti tarafından oluşturulan proje için çalışır. 'teamsapp.yml' veya 'teamsapp.local.yml' bulunamadı]]></Val>
+            <Val><![CDATA[Bu komut yalnızca Microsoft 365 Aracı Araç Seti tarafından oluşturulan projeler için çalışır. 'm365agents.yml' veya 'm365agents.local.yml' bulunamadı]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This command only works for project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.common.InvalidProjectError.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu komut yalnızca Teams Araç Seti tarafından oluşturulan proje için çalışır. Yaml dosyası bulunamadı: %s]]></Val>
+            <Val><![CDATA[Bu komut yalnızca Microsoft 365 Aracı Araç Seti tarafından oluşturulan projeler için çalışır. Yaml dosyası bulunamadı: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8502,12 +8817,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Dosya için '%s' değişkenleri eksik: %s. Lütfen .env dosyasını '%s' veya '%s' ya da sistem ortam değişkenlerini ayarlayın. Yeni Teams Araç Seti projeleri için, bu değişkenleri doğru şekilde ayarlamak için sağlama veya hata ayıklamayı çalıştır olduğunuzdan emin olun.]]></Val>
+            <Val><![CDATA['%s' dosyası için eksik ortam değişkenleri: %s. Lütfen .env dosyasını '%s' veya '%s' olarak düzenleyin ya da sistem ortam değişkenlerini ayarlayın. Yeni Microsoft 365 Aracı Araç Seti projeleri için, bu değişkenleri doğru şekilde ayarlamak için sağlama veya hata ayıklama işlemini çalıştırdığınızdan emin olun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The program cannot proceed as the following environment variables are missing: '%s', which are required for file: %s. Make sure the required variables are set either by editing the .env file '%s' with the correct names and values , or by setting the system environment variables with the correct names and values. If you are developing with a new project created with Teams Toolkit, running provision or debug will register correct values for these environment variables.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9037,6 +9352,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.kiota.KiotaGeneratePluginError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kiota kullanılarak eklenti bildirim dosyası oluşturulamıyor. Hata: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
@@ -9093,10 +9417,13 @@
       </Item>
       <Item ItemId=";error.m365.NotExtendedToM365Error" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          <Val><![CDATA[Unable to extend the app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend the app to Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması, Microsoft 365’e genişletilemiyor. Teams uygulamanızı Microsoft 365’e genişletmek için 'teamsApp/extendToM365' eylemini kullanın.]]></Val>
+            <Val><![CDATA[Uygulama, Microsoft 365’e genişletilemiyor. Uygulamayı Microsoft 365’e genişletmek için 'teamsApp/extendToM365' eylemini kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9160,23 +9487,98 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.share.appPackageConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the appPackagePath config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml dosyasında appPackagePath yapılandırması bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.appPackageNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the zip package in path: %s. You need to zip the package first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zip paketi şu yol içinde bulunamıyor: %s. Önce paketi sıkıştırmanız gerekir.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest file in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulama paketinde bildirim kimliği bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest ID in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Uygulama paketinde bildirim kimliği bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.shareActionConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "%s" action config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml dosyasında "%s" eylem yapılandırması bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "titleId" or "appId" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml dosyasında "titleId" veya "appId" yapılandırması bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[.env dosyasında paylaşılan başlık kimliği veya paylaşılan uygulama kimliği alınamıyor. Paylaşılan başlık kimliği: %s, paylaşılan uygulama kimliği: %s. Önce uygulamayı paylaşmanız gerekir.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml dosyasında "share" yapılandırması bulunamadı]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          <Val><![CDATA[App with ID %s does not exist in Developer Portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s kimliğine sahip Teams uygulaması Teams Geliştirici Portalında bulunmuyor.]]></Val>
+            <Val><![CDATA[%s kimliğine sahip uygulama, Geliştirici Portalı'nda bulunmuyor.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.InvalidAppIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
+          <Val><![CDATA[App ID %s is invalid, must be a GUID.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s Teams uygulama kimliği geçersiz, GUID olmalıdır.]]></Val>
+            <Val><![CDATA[%s uygulama kimliği geçersiz, GUID olmalıdır.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app ID %s is invalid]]></Val>
+            <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9192,21 +9594,24 @@
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          <Val><![CDATA[app package validation failed due to  %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi doğrulaması, %s nedeniyle başarısız oldu]]></Val>
+            <Val><![CDATA[Uygulama paketi doğrulaması, %s nedeniyle başarısız oldu]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[App pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi doğrulanamadı. Ayrıntılar için [Çıkış panelini]5D;(command:fx-extension.showOutputChannel) denetleyin.]]></Val>
+            <Val><![CDATA[Uygulama paketi doğrulanamadı. Ayrıntılar için [Çıkış paneline]5D;(command:fx-extension.showOutputChannel) başvurun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app pacakge validation failed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9264,12 +9669,12 @@
       </Item>
       <Item ItemId=";error.yaml.InvalidYamlSchemaErrorWithReason" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
+          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Yaml dosyası ayrıştırılamıyor: %s. Sebep: %s Lütfen yaml dosyasını inceleyin veya en son Teams Araç Seti'ne yükseltin.]]></Val>
+            <Val><![CDATA[Yaml dosyası ayrıştırılamıyor: %s. Neden: %s Lütfen yaml dosyasını inceleyin veya en son Microsoft 365 Aracı Araç Seti'ne yükseltin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file.]]></Val>
+            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9372,19 +9777,25 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. The file content will replace all the properties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[İşlev static_template dosya %s dosya %s diğer özelliklere sahip. Tüm özellikler dosya içeriği tarafından geçersiz kılınacak.]]></Val>
+            <Val><![CDATA[%s içindeki static_template (%s işlevi için), hem dosya hem de diğer özelliklere sahip. Dosya içeriği tüm özellikleri değiştirecek.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.progressBar.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Building Teams app package...]]></Val>
+          <Val><![CDATA[Building app package...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketi oluşturuluyor...]]></Val>
+            <Val><![CDATA[Uygulama paketi oluşturuluyor...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Building Teams app package...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9471,60 +9882,60 @@
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppCreatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s created successfully]]></Val>
+          <Val><![CDATA[app %s created successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması %s oluşturuldu]]></Val>
+            <Val><![CDATA[%s uygulaması başarıyla oluşturuldu]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app created %s]]></Val>
+            <Val><![CDATA[Teams app %s created successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedCLINotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully to ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama bildiriminiz şu kullanıcıya başarıyla dağıtıldı: ]]></Val>
+            <Val><![CDATA[Uygulama bildiriminiz şuraya başarıyla dağıtıldı: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed to ]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s updated successfully]]></Val>
+          <Val><![CDATA[app %s updated successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması %s başarıyla güncelleştirildi]]></Val>
+            <Val><![CDATA[%s uygulaması başarıyla güncelleştirildi]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app updated %s]]></Val>
+            <Val><![CDATA[Teams app %s updated successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully. To see your app in Developer Portal, click "View in Developer Portal".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama bildiriminiz başarıyla dağıtıldı. Uygulamanızı Teams'de görmek Geliştirici Portalı"e tıklayın Geliştirici Portalı.]]></Val>
+            <Val><![CDATA[Uygulama bildiriminiz başarıyla dağıtıldı. Uygulamanızı Geliştirici Portalı'nda görmek için "Geliştirici Portalı'nda Görüntüle" seçeneğine tıklayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed. Click "View in Developer Portal" to view your application in Teams Developer Portal.]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.unprocessedFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit did not process %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti bu %s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti %s öğesini işleyemedi.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[%s was not processed by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9981,19 +10392,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Çözüm %s SPFx sürümü makinenize yüklenmedi. Web bölümleri eklemeye devam etmek için Teams Araç Seti dizinine yüklemek istiyor musunuz?]]></Val>
+            <Val><![CDATA[Çözümünüzdeki %s SPFx sürümü makinenizde yüklü değil. Web bölümleri eklemeye devam etmek için Microsoft 365 Aracı Araç Seti dizinine yüklemek istiyor musunuz?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti SPFx sürüm %s ve çözümünüz SPFx sürümüne sahip %s. Teams Araç Seti dizinindeki sürüm sürümüne %s ve web bölümleri eklemek istiyor musunuz?]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti SPFx sürüm %s kullanıyor ve çözümünüz SPFx sürüm %s içeriyor. Microsoft 365 Aracı Araç Seti dizininde %s sürümüne yükseltmek ve web bölümleri eklemek istiyor musunuz?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10026,10 +10443,13 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Çözüm %s SPFx sürümü bu makinede yüklü değil. Teams Araç Seti, dizininde varsayılan olarak yüklü OLAN SPFx'i (%s. Sürüm uyuşmazlığı beklenmeyen hataya neden olabilir. Yine de devam etmek istiyor musunuz?]]></Val>
+            <Val><![CDATA[Çözümünüzdeki %s SPFx sürümü bu makinede yüklü değil. Microsoft 365 Aracı Araç Seti, dizininde varsayılan olarak yüklü olan SPFx'i (%s) kullanır. Sürüm uyuşmazlığı beklenmeyen hatalara neden olabilir. Yine de devam etmek istiyor musunuz?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10044,19 +10464,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Çözümdeki SPFx sürümü %s. Teams Araç Seti'%s (%s) varsayılan olarak kullanılan Teams Araç Seti dizinine %s. Sürüm uyuşmazlığı beklenmeyen hataya neden olabilir. Çözümde olası çözümleri %s.]]></Val>
+            <Val><![CDATA[Çözümünüzdeki SPFx sürümü %s. %s öğesini Microsoft 365 Aracı Araç Seti dizininde yüklediniz; bu, Microsoft 365 Aracı Araç Seti'nde varsayılan (%s) olarak kullanılır. Sürüm uyuşmazlığı beklenmeyen hatalara neden olabilir. Olası çözümleri %s adresinde bulabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Çözümdeki SPFx sürümü %s. Teams Toolkit %s varsayılan (%s) olarak kullanılan Teams Araç Seti dizinine genel %s yükleme yaptınız. Sürüm uyuşmazlığı beklenmeyen hataya neden olabilir. Çözümde olası çözümleri %s.]]></Val>
+            <Val><![CDATA[Çözümünüzdeki SPFx sürümü %s. %s öğesini küresel olarak ve Microsoft 365 Aracı Araç Seti dizininde %s olarak yüklediniz; bu, Microsoft 365 Aracı Araç Seti tarafından varsayılan (%s) olarak kullanılır. Sürüm uyuşmazlığı beklenmeyen hatalara neden olabilir. Olası çözümleri %s adresinde bulabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10155,12 +10581,12 @@
       </Item>
       <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Mevcut SPFx çözümü Teams Araç Seti'ne aktarılamıyor: %s]]></Val>
+            <Val><![CDATA[Mevcut SPFx çözümü Microsoft 365 Aracı Araç Seti'ne aktarılamıyor: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10278,24 +10704,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, SPFx çözümünüzü içeri aktaramıyor. Önemli ayrıntıların tam günlüğünü burada bulabilirsiniz: %s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, SPFx çözümünüzü içeri aktaramıyor. Önemli ayrıntıların tam günlüğünü burada bulabilirsiniz: %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to import your SPFx solution. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Araç Seti, SPFx çözümünüzü başarıyla içeri aktardı. İçeri aktarma ayrıntılarının tam günlüğünü burada bulabilirsiniz: %s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, SPFx çözümünüzü başarıyla içeri aktardı. İçeri aktarma ayrıntılarının tam günlüğünü burada bulabilirsiniz: %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has imported your SPFx solution successfully. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10353,24 +10779,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[En son SPFx’i Teams Araç Seti dizininde yerel olarak yükle ]]></Val>
+            <Val><![CDATA[En son SPFx’i Microsoft 365 Aracı Araç Seti dizininde yerel olarak yükleyin ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[En son SPFx’i (%s) Teams Araç Seti dizininde yerel olarak yükleyin ]]></Val>
+            <Val><![CDATA[En son SPFx’i (%s) Microsoft 365 Aracı Araç Seti dizininde yerel olarak yükleyin ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework (%s) locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
