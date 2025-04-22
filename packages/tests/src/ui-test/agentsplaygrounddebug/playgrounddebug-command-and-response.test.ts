@@ -21,18 +21,20 @@ import { validateFileExist } from "../../utils/commonUtils";
 import { VSBrowser } from "vscode-extension-tester";
 import { expect } from "chai";
 import { getScreenshotName } from "../../utils/nameUtil";
-import { validateNpm } from "../../utils/testToolValidations";
+import { validateWelcomeAndReplyBot } from "../../utils/testToolValidations";
 
-describe("Test Tool Debug Tests", function () {
+// TODO: Change preview test to normal test before rc release
+describe("Command And Response Bot Local Debug Tests", function () {
   this.timeout(Timeout.testAzureCase);
   let localDebugTestContext: LocalDebugTestContext;
   let successFlag = true;
   let errorMessage = "";
 
+  const oldEnv = Object.assign({}, process.env);
   beforeEach(async function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
-    localDebugTestContext = new LocalDebugTestContext("msgsa");
+    localDebugTestContext = new LocalDebugTestContext("crbot");
     await localDebugTestContext.before();
   });
 
@@ -48,9 +50,9 @@ describe("Test Tool Debug Tests", function () {
   });
 
   it(
-    "[ME] Debug Message Extension Search Command in Test Tool",
+    "[auto] Local debug using Test Tool for Command and Response Bot App",
     {
-      testPlanCaseId: 27548668,
+      testPlanCaseId: 25666171,
       author: "v-helzha@microsoft.com",
     },
     async function () {
@@ -63,20 +65,24 @@ describe("Test Tool Debug Tests", function () {
         const driver = VSBrowser.instance.driver;
 
         // local debug in Test Tool
-        await startDebugging(DebugItemSelect.DebugInTestTool);
+        await startDebugging(DebugItemSelect.DebugInAgentsPlayground);
 
         await waitForTerminal(
           LocalDebugTaskLabel.StartBotApp,
           LocalDebugTaskInfo.StartBotInfo
         );
 
-        await waitForTerminal(LocalDebugTaskLabel2.StartTestTool);
+        await waitForTerminal(LocalDebugTaskLabel2.StartAgentsPlayground);
 
         await driver.sleep(Timeout.startdebugging);
 
-        await validateNpm(localDebugTestContext.context!, {
-          npmName: "axios",
-          appName: localDebugTestContext.appName,
+        await validateWelcomeAndReplyBot(localDebugTestContext.context!, {
+          hasWelcomeMessage: false,
+          hasCommandReplyValidation: true,
+          botCommand: "helloWorld",
+          expectedWelcomeMessage: "Welcome to the Command Bot!",
+          expectedReplyMessage: "Your Hello World App is Running",
+          timeout: Timeout.longTimeWait,
         });
       } catch (error) {
         successFlag = false;
