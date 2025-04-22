@@ -14,7 +14,6 @@ import {
   ActionStartOptions,
   CapabilityOptions,
   KiotaLastCommands,
-  NewProjectTypeOptions,
   ProjectTypeOptions,
   QuestionNames,
 } from "@microsoft/teamsfx-core";
@@ -85,7 +84,7 @@ export async function createPluginWithManifest(args?: any[]): Promise<Result<any
     } else {
       inputs.capabilities = CapabilityOptions.apiPlugin().id;
     }
-    inputs[QuestionNames.ProjectType] = NewProjectTypeOptions.copilotAgentOptionId;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.copilotAgentOptionId;
     inputs[QuestionNames.Folder] = outputFolder;
     result = await runCommand(Stage.create, inputs);
 
