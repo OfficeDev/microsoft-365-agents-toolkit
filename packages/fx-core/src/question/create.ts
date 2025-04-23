@@ -468,7 +468,7 @@ const tabWebsiteUrlOptionItem = (tab: StaticTab): OptionItem => {
     ),
   };
 };
-function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
+export function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
   const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
   if (appDefinition?.staticTabs) {
     const tabsWithWebsiteUrls = appDefinition.staticTabs.filter((o) => !!o.websiteUrl);

@@ -38,6 +38,7 @@ import {
   appNameQuestion,
   folderQuestion,
   getSolutionName,
+  getTabWebsiteOptions,
   oneDriveSharePointItemQuestion,
   webContentQuestion,
 } from "../../src/question";
@@ -713,6 +714,34 @@ describe("scaffold question", () => {
         const res = (question.validation as any).validFunc("test", {} as any);
         assert.isUndefined(res);
       }
+    });
+  });
+
+  describe("getTabWebsiteOptions", () => {
+    it("happy", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        teamsAppFromTdp: {
+          staticTabs: [
+            {
+              name: "tabname",
+              websiteUrl: "https://example.com", // Provide a valid URL for the test
+            },
+          ],
+        },
+      };
+      const options = getTabWebsiteOptions(inputs);
+      assert.equal(options.length, 1);
+    });
+    it("empty tab", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        teamsAppFromTdp: {
+          staticTabs: [],
+        },
+      };
+      const options = getTabWebsiteOptions(inputs);
+      assert.equal(options.length, 0);
     });
   });
 });
