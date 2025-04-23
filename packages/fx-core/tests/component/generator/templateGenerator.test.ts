@@ -9,8 +9,10 @@ import { Generator } from "../../../src/component/generator/generator";
 import { Generators } from "../../../src/component/generator/generatorProvider";
 import { TemplateInfo } from "../../../src/component/generator/templates/templateInfo";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import { CapabilityOptions, QuestionNames } from "../../../src/question";
 import { ProgrammingLanguage } from "../../../src/question/constants";
+import { QuestionNames } from "../../../src/question/questionNames";
+import { VSCapabilityOptions } from "../../../src/question/scaffold/vs/createRootNode";
+import { TabCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools, randomAppName } from "../../core/utils";
 
 describe("TemplateGenerator", () => {
@@ -18,7 +20,7 @@ describe("TemplateGenerator", () => {
     // ...inputsToTemplateName,
     [
       {
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net8.0",
       },
@@ -26,7 +28,7 @@ describe("TemplateGenerator", () => {
     ],
     [
       {
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net8.0",
       },
@@ -34,7 +36,7 @@ describe("TemplateGenerator", () => {
     ],
     [
       {
-        [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+        [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net9.0",
       },
@@ -42,7 +44,7 @@ describe("TemplateGenerator", () => {
     ],
     [
       {
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
         targetFramework: "net9.0",
       },

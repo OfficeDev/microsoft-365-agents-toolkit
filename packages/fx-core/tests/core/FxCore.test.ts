@@ -109,7 +109,6 @@ import {
 } from "../../src/error/common";
 import { NoNeedUpgradeError } from "../../src/error/upgrade";
 import {
-  CapabilityOptions,
   QuestionNames,
   ScratchOptions,
   SyncManifestInputs,
@@ -125,6 +124,7 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 
 const tools = new MockTools();
 
@@ -767,7 +767,7 @@ describe("Core basic APIs", () => {
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,

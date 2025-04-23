@@ -12,7 +12,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import {
   ActionStartOptions,
-  CapabilityOptions,
+  DACapabilityOptions,
   KiotaLastCommands,
   ProjectTypeOptions,
   QuestionNames,
@@ -79,12 +79,12 @@ export async function createPluginWithManifest(args?: any[]): Promise<Result<any
     });
   } else {
     if (lastCommand === KiotaLastCommands.createDeclarativeCopilotWithManifest) {
-      inputs.capabilities = CapabilityOptions.declarativeAgent().id;
+      inputs.capabilities = DACapabilityOptions.declarativeAgent().id;
       inputs[QuestionNames.WithPlugin] = "yes";
     } else {
-      inputs.capabilities = CapabilityOptions.apiPlugin().id;
+      inputs.capabilities = "api-plugin";
     }
-    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.Agent().id;
+    inputs[QuestionNames.ProjectType] = ProjectTypeOptions.copilotAgentOptionId;
     inputs[QuestionNames.Folder] = outputFolder;
     result = await runCommand(Stage.create, inputs);
 

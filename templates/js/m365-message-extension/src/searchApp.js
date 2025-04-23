@@ -1,6 +1,7 @@
 const axios = require("axios");
 const querystring = require("querystring");
-const { TeamsActivityHandler, CardFactory } = require("botbuilder");
+const { CardFactory } = require("@microsoft/agents-hosting");
+const { TeamsActivityHandler } = require("@microsoft/agents-hosting-teams");
 const ACData = require("adaptivecards-templating");
 const helloWorldCard = require("./adaptiveCards/helloWorldCard.json");
 

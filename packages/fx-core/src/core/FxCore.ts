@@ -171,7 +171,6 @@ import {
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
-  ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
@@ -200,6 +199,7 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 
 export class FxCore {
   constructor(tools: Tools) {
