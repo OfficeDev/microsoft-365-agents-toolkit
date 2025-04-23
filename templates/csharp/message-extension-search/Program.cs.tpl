@@ -44,7 +44,7 @@ app.MapPost("/api/messages", async (HttpRequest request, HttpResponse response, 
     await adapter.ProcessAsync(request, response, agent, cancellationToken);
 });
 
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestTool")
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Playground")
 {
     app.MapGet("/", () => "Message Extension Search Bot");
     app.UseDeveloperExceptionPage();

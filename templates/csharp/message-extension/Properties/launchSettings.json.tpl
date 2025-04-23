@@ -11,7 +11,7 @@
       "launchUrl": "http://localhost:56150",
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
+        "ASPNETCORE_ENVIRONMENT": "Playground",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
@@ -51,7 +51,7 @@
       "launchUrl": "http://localhost:56150",
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
+        "ASPNETCORE_ENVIRONMENT": "Playground",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
@@ -78,7 +78,7 @@
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
+        "ASPNETCORE_ENVIRONMENT": "Playground",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
@@ -100,7 +100,7 @@
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "TestTool",
+        "ASPNETCORE_ENVIRONMENT": "Playground",
         "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
