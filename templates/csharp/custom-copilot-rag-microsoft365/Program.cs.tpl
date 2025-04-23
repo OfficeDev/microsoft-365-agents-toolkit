@@ -10,6 +10,7 @@ using Microsoft.Teams.AI.State;
 using Microsoft.Teams.AI.AI;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json.Linq;
 using {{SafeProjectName}}.Model;
 
 var builder = WebApplication.CreateBuilder(args);
