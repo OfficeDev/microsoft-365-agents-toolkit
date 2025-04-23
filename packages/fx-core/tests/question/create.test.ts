@@ -32,6 +32,8 @@ import {
   MeArchitectureOptions,
   QuestionNames,
   apiAuthQuestion,
+  apiOperationQuestion,
+  apiPluginStartQuestion,
   appNameQuestion,
   folderQuestion,
   getSolutionName,
@@ -643,6 +645,38 @@ describe("scaffold question", () => {
           assert.isNotNull(error);
         }
       });
+    });
+  });
+
+  describe("apiOperationQuestion", () => {
+    it("includeExistingAPIs = false", async () => {
+      const question = apiOperationQuestion(false);
+      if (question.placeholder) {
+        const placeholder =
+          typeof question.placeholder === "function"
+            ? question.placeholder({} as any)
+            : question.placeholder;
+        assert.equal(
+          placeholder,
+          getLocalizedString(
+            "core.createProjectQuestion.apiSpec.operation.placeholder.skipExisting"
+          )
+        );
+      }
+    });
+  });
+  describe("apiPluginStartQuestion", () => {
+    it("doesProjectExists = true", async () => {
+      const question = apiPluginStartQuestion(true);
+      const title =
+        typeof question.title === "function" ? question.title({} as any) : question.title;
+      assert.equal(title, getLocalizedString("core.createProjectQuestion.addApiPlugin.title"));
+    });
+    it("doesProjectExists = false", async () => {
+      const question = apiPluginStartQuestion(false);
+      const title =
+        typeof question.title === "function" ? question.title({} as any) : question.title;
+      assert.equal(title, getLocalizedString("core.createProjectQuestion.createApiPlugin.title"));
     });
   });
 });
