@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Microsoft.TeamsFx</AssemblyName>
     <RootNamespace>Microsoft.TeamsFx</RootNamespace>
-    <Version>3.0.0-rc.1</Version>
+    <Version>3.0.0-rc.2</Version>
     <Authors>Microsoft</Authors>
     <Company>Microsoft</Company>
     <RepositoryUrl>https://github.com/OfficeDev/TeamsFx</RepositoryUrl>

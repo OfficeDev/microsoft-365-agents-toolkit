@@ -5,7 +5,6 @@ namespace Microsoft.TeamsFx.Conversation
 {
     using Microsoft.Agents.Core.Models;
     using System.Net;
-    using AdaptiveCardInvokeResponse = Agents.Core.Models.AdaptiveCardInvokeResponse;
 
     /// <summary>
     /// Contains utility methods for various invoke response types for an adaptiveCard/action invoke response.
