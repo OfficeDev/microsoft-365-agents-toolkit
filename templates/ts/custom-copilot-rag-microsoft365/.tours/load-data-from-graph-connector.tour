@@ -1,10 +1,10 @@
 {
   "$schema": "https://aka.ms/codetour-schema",
-  "title": "Load data from Graph connector",
+  "title": "Load data from Copilot Connector",
   "steps": [
     {
       "file": "aad.manifest.json",
-      "description": "### Update Entra app manifest\n\nChange the permission to be able to read external items. This is necessary to grant your app access to external items imported to Microsoft 365 by the Microsoft Graph connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
+      "description": "### Update Entra app manifest\n\nChange the permission to be able to read external items. This is necessary to grant your app access to external items imported to Microsoft 365 by the Microsoft Copilot Connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
       "line": 24,
       "selection": {
         "start": {
@@ -20,7 +20,7 @@
     },
     {
       "file": "src/app/app.ts",
-      "description": "### Update default scopes\n\nUpdate the scopes that the Microsoft Graph client should request when connecting to Microsoft Graph. This is necessary for your app to be able to read external items imported by the Graph connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
+      "description": "### Update default scopes\n\nUpdate the scopes that the Microsoft Graph client should request when connecting to Microsoft Graph. This is necessary for your app to be able to read external items imported by the Copilot Connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
       "line": 41,
       "selection": {
         "start": {
@@ -36,7 +36,7 @@
     },
     {
       "file": "src/app/graphDataSource.ts",
-      "description": "### Update entity type\n\nUpdate entity type to search for external items. This instructs Microsoft Search to only search for items of type `externalItem` which represents external items ingested by Graph connectors. Change the code to:\n\n```text\nexternalItem\n```",
+      "description": "### Update entity type\n\nUpdate entity type to search for external items. This instructs Microsoft Search to only search for items of type `externalItem` which represents external items ingested by Copilot Connectors. Change the code to:\n\n```text\nexternalItem\n```",
       "line": 61,
       "selection": {
         "start": {

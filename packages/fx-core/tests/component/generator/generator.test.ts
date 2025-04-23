@@ -1339,7 +1339,7 @@ describe("render template", () => {
       assert.equal(vars.ShareEnabled, "");
     });
 
-    it("template variables with graph connector scaffold", async () => {
+    it("template variables with Copilot Connector scaffold", async () => {
       inputs.projectId = "test-id";
       inputs[QuestionNames.GCName] = "test-name";
       inputs[QuestionNames.GCConnectionId] = "test-id";

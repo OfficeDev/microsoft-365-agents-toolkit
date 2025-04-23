@@ -1485,7 +1485,7 @@ describe("addKnowledgeQuestionNode", async () => {
     ]);
   });
 
-  it("success: can add a knowledge from Graph Connector", async () => {
+  it("success: can add a knowledge from Copilot Connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1577,7 +1577,7 @@ describe("addKnowledgeQuestionNode", async () => {
   });
 });
 
-describe("scaffold graph connector", async () => {
+describe("scaffold Copilot Connector", async () => {
   const sandbox = sinon.createSandbox();
   const mockedEnvRestore: RestoreFn = () => {};
   afterEach(() => {

@@ -23,7 +23,7 @@ This app template also demonstrates usage of techniques like:
 {{/useAzureOpenAI}}
 
 > [!TIP]
-> You can adjust this template to use data from a Microsoft Graph connector. Follow the steps in the [CodeTour](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.codetour) included in the project to apply the necessary changes. To use data from a Microsoft Graph connector, you need a Graph connector deployed to your tenant. For testing, we recommend using the [Ingest custom API data using TypeScript, Node.js and Microsoft 365 Agents Toolkit for Visual Studio Code](https://adoption.microsoft.com/sample-solution-gallery/sample/pnp-graph-connector-nodejs-typescript-food-catalog) sample.
+> You can adjust this template to use data from a Microsoft Copilot Connector. Follow the steps in the [CodeTour](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.codetour) included in the project to apply the necessary changes. To use data from a Microsoft Copilot Connector, you need a Copilot Connector deployed to your tenant. For testing, we recommend using the [Ingest custom API data using TypeScript, Node.js and Microsoft 365 Agents Toolkit for Visual Studio Code](https://adoption.microsoft.com/sample-solution-gallery/sample/pnp-graph-connector-nodejs-typescript-food-catalog) sample.
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 

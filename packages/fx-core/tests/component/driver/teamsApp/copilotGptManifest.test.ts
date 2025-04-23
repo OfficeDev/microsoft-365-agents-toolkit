@@ -971,7 +971,7 @@ describe("copilotGptManifestUtils", () => {
     });
   });
 
-  describe("add knowledge for Graph Connector", async () => {
+  describe("add knowledge for Copilot Connector", async () => {
     setTools(new MockTools());
     const context = generateDriverContext(createContext(), {
       platform: Platform.VSCode,

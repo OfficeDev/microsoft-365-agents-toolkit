@@ -20,7 +20,7 @@
     },
     {
       "file": "src/app/app.js",
-      "description": "### Update default scopes\n\nUpdate the scopes that the Microsoft Graph client should request when connecting to Microsoft Graph. This is necessary for your app to be able to read external items imported by the Graph connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
+      "description": "### Update default scopes\n\nUpdate the scopes that the Microsoft Graph client should request when connecting to Microsoft Graph. This is necessary for your app to be able to read external items imported by the Copilot Connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
       "line": 41,
       "selection": {
         "start": {
@@ -36,7 +36,7 @@
     },
     {
       "file": "src/app/graphDataSource.js",
-      "description": "### Update entity type\n\nUpdate entity type to search for external items. This instructs Microsoft Search to only search for items of type `externalItem` which represents external items ingested by Graph connectors. Change the code to:\n\n```text\nexternalItem\n```",
+      "description": "### Update entity type\n\nUpdate entity type to search for external items. This instructs Microsoft Search to only search for items of type `externalItem` which represents external items ingested by Copilot Connectors. Change the code to:\n\n```text\nexternalItem\n```",
       "line": 42,
       "selection": {
         "start": {

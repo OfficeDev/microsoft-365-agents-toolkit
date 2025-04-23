@@ -115,7 +115,7 @@
         }
       },
       "teamsfx-graph-connector": {
-        "description": "Graph Connector icon in scaffold questions",
+        "description": "Copilot Connector icon in scaffold questions",
         "default": {
           "fontPath": "./media/font/teamstoolkit.woff",
           "fontCharacter": "\\E007"

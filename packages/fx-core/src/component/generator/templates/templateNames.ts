@@ -27,7 +27,7 @@ export enum TemplateNames {
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
 
-  // graph connector
+  // copilot connector
   GraphConnector = "graph-connector", // vsc only
 
   // tab
