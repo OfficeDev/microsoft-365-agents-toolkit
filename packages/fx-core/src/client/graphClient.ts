@@ -14,7 +14,7 @@ import {
   signedIn,
 } from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
-import { ErrorContextMW, TOOLS } from "../common/globalVars";
+import { ErrorContextMW } from "../common/globalVars";
 import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
 import {
   GraphTeamsAppSettingsReadScopes,
