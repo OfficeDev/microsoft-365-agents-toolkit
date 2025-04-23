@@ -3816,7 +3816,7 @@ describe("scaffold question", () => {
 
       assert.equal(question.type, "singleSelect");
       assert.equal(question.name, QuestionNames.SelectPluginManifest);
-      assert.equal(question.title, "Select plugin manifest file");
+      assert.equal(question.title, "Select plugin manifest file.");
       assert.equal(question.cliDescription, "Select plugin manifest file.");
       assert.deepEqual(question.staticOptions, []);
       assert.isFunction(question.onDidSelection);
@@ -3836,7 +3836,7 @@ describe("scaffold question", () => {
 
       assert.equal(question.type, "singleSelect");
       assert.equal(question.name, QuestionNames.SelectOpenAPISpecFromPlugin);
-      assert.equal(question.title, "Select OpenAPI Spec");
+      assert.equal(question.title, "Select OpenAPI description document file.");
       assert.deepEqual(question.staticOptions, []);
       assert.isFunction(question.onDidSelection);
       assert.isFunction(question.dynamicOptions);
@@ -4002,7 +4002,7 @@ describe("scaffold question", () => {
 
       assert.equal(question.type, "multiSelect");
       assert.equal(question.name, QuestionNames.ApiOperation);
-      assert.equal(question.title, "Select API Operation to regenerate");
+      assert.equal(question.title, "Select API operations to regenerate.");
       assert.equal(question.cliDescription, "Select operation(s) Copilot can interact with.");
       assert.equal(question.cliShortName, "o");
       assert.equal(

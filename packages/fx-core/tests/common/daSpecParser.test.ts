@@ -892,7 +892,7 @@ describe("daSpecParser", () => {
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[2], "testapp");
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], ["/users#GET", "/messages#POST"]);
 
-      assert.equal(fsCopyFileStub.callCount, 3);
+      assert.equal(fsCopyFileStub.callCount, 2);
 
       assert.isTrue(
         fsCopyFileStub.firstCall.calledWith(
@@ -902,14 +902,8 @@ describe("daSpecParser", () => {
       );
       assert.isTrue(
         fsCopyFileStub.secondCall.calledWith(
-          pathMatcher("c:/tmp/working-dir/plugin/ai-plugin.json"),
-          pathMatcher("path/to/output/ai-plugin.json")
-        )
-      );
-      assert.isTrue(
-        fsCopyFileStub.thirdCall.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.original.yaml")
+          pathMatcher("path/to/output/openapi.yaml.original")
         )
       );
 
@@ -1006,14 +1000,14 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
-          pathMatcher("path/to/output/openapi.yaml")
+          pathMatcher("path/to/output/openapi.spec")
         )
       );
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.original.json")
+          pathMatcher("path/to/output/openapi.spec.original")
         )
       );
     });
@@ -1235,7 +1229,7 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.original.json")
+          pathMatcher("path/to/output/openapi.spec.original")
         )
       );
 
@@ -1255,7 +1249,71 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.original.yaml")
+          pathMatcher("path/to/output/openapi.spec.original")
+        )
+      );
+    });
+
+    it("should handle original spec file properly based on updateExistingPlugin flag", async () => {
+      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
+      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
+      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+
+      fsReadJSONStub.resolves({
+        name: { short: "test-app" },
+        runtimes: [
+          {
+            spec: { url: "old-path.yaml" },
+          },
+        ],
+      });
+
+      parseAndUpdatePluginManifestStub.resolves([]);
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        undefined,
+        false
+      );
+
+      assert.equal(fsCopyFileStub.callCount, 2);
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
+        )
+      );
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
+          pathMatcher("path/to/output/openapi.yaml.original")
+        )
+      );
+
+      sinon.resetHistory();
+
+      await daSpecParser.generatePlugin(
+        "path/to/spec.yaml",
+        "path/to/manifest.json",
+        "path/to/output/openapi.yaml",
+        "path/to/output/ai-plugin.json",
+        ["GET /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        undefined,
+        true
+      );
+
+      assert.equal(fsCopyFileStub.callCount, 1);
+      assert.isTrue(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
+          pathMatcher("path/to/output/openapi.yaml")
         )
       );
     });
