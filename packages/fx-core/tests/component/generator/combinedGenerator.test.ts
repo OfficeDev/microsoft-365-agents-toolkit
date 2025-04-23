@@ -92,6 +92,7 @@ describe("combined generator", async () => {
         id: DACapabilityOptions.withGC().id,
         data: "test-template",
       } as OptionItem;
+
       setTemplateNameAndGC(optionItem, inputs);
     });
   });
