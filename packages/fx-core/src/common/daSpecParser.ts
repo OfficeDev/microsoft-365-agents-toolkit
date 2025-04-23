@@ -136,6 +136,15 @@ export async function generatePlugin(
     const apiSpecPath = kiotaGenerateResult.openAPISpec;
     const pluginPath = kiotaGenerateResult.aiPlugin;
 
+    const extname = path.extname(outputAPISpecPath);
+
+    const outputSpecWithoutExt = path.join(
+      path.dirname(outputAPISpecPath),
+      path.basename(outputAPISpecPath, extname)
+    );
+
+    outputAPISpecPath = outputSpecWithoutExt + ".yaml";
+
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);

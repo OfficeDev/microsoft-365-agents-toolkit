@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ErrorType, SpecParser } from "@microsoft/m365-spec-parser";
+import { ErrorType } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
   AppPackageFolderName,
@@ -25,7 +25,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
-import { cloneDeep } from "lodash";
 import * as os from "os";
 import * as path from "path";
 import { ConstantString, SpecParserSource } from "../common/constants";

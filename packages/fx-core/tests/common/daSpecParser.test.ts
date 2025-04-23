@@ -1000,14 +1000,14 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
-          pathMatcher("path/to/output/openapi.spec")
+          pathMatcher("path/to/output/openapi.yaml")
         )
       );
 
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.spec.original")
+          pathMatcher("path/to/output/openapi.yaml.original")
         )
       );
     });
@@ -1229,7 +1229,7 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.spec.original")
+          pathMatcher("path/to/output/openapi.yaml.original")
         )
       );
 
@@ -1249,7 +1249,7 @@ describe("daSpecParser", () => {
       assert.isTrue(
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
-          pathMatcher("path/to/output/openapi.spec.original")
+          pathMatcher("path/to/output/openapi.yaml.original")
         )
       );
     });
