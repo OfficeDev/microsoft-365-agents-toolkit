@@ -1308,7 +1308,7 @@ describe("daSpecParser", () => {
       fsReadJSONStub.callsFake(async (path: any) => {
         if (path.includes("manifest.json")) {
           return { name: { short: "test-app" } };
-        } else if (path.includes("ai-plugin.json")) {
+        } else if (path.includes("ai-plugin.json") && path.includes("tmp")) {
           return {
             name: "test-app",
             runtimes: [
@@ -1354,7 +1354,7 @@ describe("daSpecParser", () => {
       const outputAIPluginPath = "path/to/output/ai-plugin.json";
       const operations = ["GET /api/resource"];
 
-      await daSpecParser.generatePlugin(
+      const result = await daSpecParser.generatePlugin(
         specPath,
         teamsManifestPath,
         outputAPISpecPath,
