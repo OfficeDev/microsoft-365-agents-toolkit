@@ -10,6 +10,7 @@ import {
   TokenProvider,
   UserError,
   err,
+  ok,
 } from "@microsoft/teamsfx-api";
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { assert } from "chai";
@@ -25,7 +26,7 @@ import * as stringUtils from "../../src/common/stringUtils";
 import { OneDriveSharePointItemType } from "../../src/component/generator/constant";
 import * as generatorHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
-import { FileNotFoundError } from "../../src/error";
+import { FileNotFoundError, UserCancelError } from "../../src/error";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -40,11 +41,14 @@ import {
   getSolutionName,
   getTabWebsiteOptions,
   oneDriveSharePointItemQuestion,
+  pluginManifestQuestion,
   webContentQuestion,
 } from "../../src/question";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
 import { DACapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import * as daHelper from "../../src/component/generator/declarativeAgent/helper";
 
 describe("scaffold question", () => {
   const sandbox = sinon.createSandbox();
@@ -742,6 +746,29 @@ describe("scaffold question", () => {
       };
       const options = getTabWebsiteOptions(inputs);
       assert.equal(options.length, 0);
+    });
+  });
+
+  describe("pluginManifestQuestion", () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it("readPluginManifestFile fail", async () => {
+      sandbox
+        .stub(pluginManifestUtils, "readPluginManifestFile")
+        .resolves(err(new UserCancelError()));
+      const question = pluginManifestQuestion();
+      const validFunc = (question.validation as any).validFunc;
+      const res = validFunc("test", {} as any);
+      assert.isDefined(res);
+    });
+    it("validateSourcePluginManifest fail", async () => {
+      sandbox.stub(pluginManifestUtils, "readPluginManifestFile").resolves(ok({} as any));
+      sandbox.stub(daHelper, "validateSourcePluginManifest").resolves(err(new UserCancelError()));
+      const question = pluginManifestQuestion();
+      const validFunc = (question.validation as any).validFunc;
+      const res = validFunc("test", {} as any);
+      assert.isDefined(res);
     });
   });
 });
