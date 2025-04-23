@@ -44,6 +44,9 @@ provision:
       target: ./appsettings.Development.json
 {{/isNewProjectTypeEnabled}}
       content:
+        TokenValidation:
+          Audiences:
+            ClientId: ${{BOT_ID}}
         Connections:
           BotServiceConnection:
             Settings:
