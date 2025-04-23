@@ -52,7 +52,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestTool")
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Playground")
 {
     app.MapGet("/", () => "Notification Bot");
     app.UseDeveloperExceptionPage();
