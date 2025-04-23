@@ -1,5 +1,6 @@
 using {{SafeProjectName}};
 using {{SafeProjectName}}.Commands;
+using Microsoft.Agents.Builder;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
 using Microsoft.TeamsFx.Conversation;
