@@ -49,13 +49,13 @@ namespace Microsoft.TeamsFx.Conversation
 
                         if (invokeResponse != null)
                         {
-                            var body = JObject.FromObject(invokeResponse.Body);
-                            var responseValue = JsonConvert.DeserializeObject<AdaptiveCardInvokeResponse>(body.ToString());
+                            var body = invokeResponse.Body;
+                            var responseValue = body as AdaptiveCardInvokeResponse;
                             string contentType = responseValue.Type;
 
                             if (contentType == InvokeResponseContentType.AdaptiveCard)
                             {
-                                var card = responseValue.Value as string;
+                                var card = responseValue.Value as object;
                                 if (card == null)
                                 {
                                     string errorMessage = "Adaptive card content cannot be null.";
@@ -66,7 +66,7 @@ namespace Microsoft.TeamsFx.Conversation
                                     throw new ExceptionWithCode(errorMessage, ExceptionCode.InvalidParameter);
                                 }
 
-                                var isRefresh = JObject.Parse(card).ContainsKey("refresh");
+                                var isRefresh = JObject.FromObject(card).ContainsKey("refresh");
                                 var adaptiveCardResponse = handler.AdaptiveCardResponse;
 
                                 if (isRefresh && handler.AdaptiveCardResponse == AdaptiveCardResponse.ReplaceForInteractor)
@@ -78,7 +78,7 @@ namespace Microsoft.TeamsFx.Conversation
 
                                 var messageActivity = MessageFactory.Attachment
                                 (
-                                    new Agents.Core.Models.Attachment
+                                    new Attachment
                                     {
                                         ContentType = "application/vnd.microsoft.card.adaptive",
                                         Content = card,
