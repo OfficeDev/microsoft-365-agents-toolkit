@@ -94,6 +94,9 @@ describe("combined generator", async () => {
       } as OptionItem;
 
       setTemplateNameAndGC(optionItem, inputs);
+
+      optionItem.id = DACapabilityOptions.noPlugin().id;
+      setTemplateNameAndGC(optionItem, inputs);
     });
   });
 });
