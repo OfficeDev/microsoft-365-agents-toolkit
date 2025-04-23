@@ -21,7 +21,7 @@ export interface AddPluginInputs extends Inputs {
   "openapi-spec-type"?: "enter-url-or-open-local-file" | "search-api";
   /** @description OpenAPI Description Document */
   "openapi-spec-location"?: string;
-  /** @description Select Operation(s) Copilot Can Interact with */
+  /** @description Select Operation(s) Teams Can Interact with */
   "api-operation"?: string[];
   /** @description Search OpenAPI Description Document */
   "search-openapi-spec-query"?: string;

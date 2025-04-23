@@ -46,7 +46,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     name: "api-operation",
     type: "array",
     shortName: "o",
-    description: "Select operation(s) Copilot can interact with.",
+    description: "Select operation(s) Teams can interact with.",
   },
   {
     name: "search-openapi-spec-query",

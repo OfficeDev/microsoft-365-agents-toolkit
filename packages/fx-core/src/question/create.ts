@@ -1449,7 +1449,7 @@ export function selectApiOperationForRegenerateQuestion(): MultiSelectQuestion {
     type: "multiSelect",
     name: QuestionNames.ApiOperation,
     title: getLocalizedString("core.regenerateQuestion.selectApiOperationForRegenerateTitle"),
-    cliDescription: "Select API Operation to regenerate.",
+    cliDescription: "Select operation(s) Copilot can interact with.",
     cliShortName: "o",
     placeholder: getLocalizedString(
       "core.createProjectQuestion.apiSpec.operation.plugin.placeholder"
