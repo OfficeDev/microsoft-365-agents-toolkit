@@ -38,7 +38,6 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
-import { isJsonSpecFile } from "./utils";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -72,6 +71,8 @@ export async function generatePlugin(
     const tmpWorkingDir = tmp.dirSync({ unsafeCleanup: true });
     const tmpOutputDir = path.join(tmpWorkingDir.name, "plugin");
     const manifest: TeamsAppManifest = await fs.readJSON(teamsManifestPath);
+    console.log("manifest:" + JSON.stringify(manifest, null, 4));
+
     const namespace = removeEnvsAndSpecialCharaters(manifest.name.short);
     const includePatterns: string[] = [];
     for (const operation of operations) {
@@ -150,6 +151,7 @@ export async function generatePlugin(
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
     const generatedPluginManifest = (await fs.readJSON(pluginPath)) as PluginManifestSchema;
+    console.log("generatedPluginManifest:" + JSON.stringify(generatedPluginManifest, null, 4));
 
     if (!updateExistingPlugin) {
       const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
@@ -160,15 +162,15 @@ export async function generatePlugin(
       const outputOriginalSpecPath = outputAPISpecPath + ".original";
       await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
       generatedPluginManifest.runtimes?.forEach((runtime) => {
-        if ((runtime as RuntimeObjectOpenapi).spec) {
-          (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
-        }
+        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
       });
       await fs.writeJson(outputAIPluginPath, generatedPluginManifest, { spaces: 4 });
     } else {
       const existingPluginManifest = (await fs.readJSON(
         outputAIPluginPath
       )) as PluginManifestSchema;
+
+      console.log("existingPluginManifest:" + JSON.stringify(existingPluginManifest, null, 4));
 
       const functionNamesToRemove = new Set<string>();
       existingPluginManifest.runtimes?.forEach((runtime) => {

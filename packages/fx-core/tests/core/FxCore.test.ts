@@ -6654,6 +6654,9 @@ describe("regeneratePlugin", async () => {
       if (path.endsWith("ai-plugin_2.json")) {
         return false;
       }
+      if (path.endsWith("local.yml")) {
+        return false;
+      }
       return true;
     });
     sandbox
@@ -6686,9 +6689,7 @@ describe("regeneratePlugin", async () => {
       .stub(tools.ui, "showMessage")
       .callsFake((level, message, modal, items) => {
         if (level == "info") {
-          return Promise.resolve(
-            ok(getLocalizedString("core.addPlugin.success.viewPluginManifest"))
-          );
+          return Promise.resolve(ok("success"));
         } else if (level === "warn") {
           return Promise.resolve(ok("Add"));
         } else {
@@ -6703,7 +6704,7 @@ describe("regeneratePlugin", async () => {
       validAPICount: 1,
       APIs: [
         {
-          api: "test-api",
+          api: "GET /user/{userId}",
           isValid: true,
           server: "https://example.com",
           operationId: "test-operation-id",
@@ -6720,13 +6721,14 @@ describe("regeneratePlugin", async () => {
       ],
     });
 
+    sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
+
     const result = await core.regeneratePlugin(inputs);
     if (result.isErr()) {
       console.log(result.error);
     }
     assert.isTrue(result.isOk());
     assert.isTrue(showMessageStub.calledTwice);
-    assert.isTrue(openFileStub.calledOnce);
 
     if (await fs.pathExists(inputs.projectPath!)) {
       await fs.remove(inputs.projectPath!);

@@ -17,17 +17,25 @@ import {
   WarningResult,
   WarningType,
 } from "@microsoft/m365-spec-parser";
-import proxyquire from "proxyquire";
 
 describe("daSpecParser", () => {
   let listAPITreeInfoStub: sinon.SinonStub;
   let featureFlagStub: sinon.SinonStub;
   let isJsonSpecFileStub: sinon.SinonStub;
+  let parseAndUpdatePluginManifestStub: sinon.SinonStub;
 
   beforeEach(() => {
     listAPITreeInfoStub = sinon.stub(kiotaClient, "listAPITreeInfo");
     featureFlagStub = sinon.stub(featureFlagManager, "getBooleanValue");
     isJsonSpecFileStub = sinon.stub(utils, "isJsonSpecFile");
+    parseAndUpdatePluginManifestStub = sinon.stub(
+      daSpecParser,
+      "parseAndUpdatePluginManifestForKiota"
+    );
+    parseAndUpdatePluginManifestStub.callsFake(async (pluginPath, updatePlaceholder) => {
+      // This ensures we don't actually call the real implementation
+      return [];
+    });
     featureFlagStub.withArgs(FeatureFlags.KiotaNPMIntegration).returns(true);
     isJsonSpecFileStub.resolves(false);
   });
@@ -821,21 +829,15 @@ describe("daSpecParser", () => {
   describe("generatePlugin with KiotaNPMIntegration enabled", () => {
     let kiotaGeneratePluginStub: sinon.SinonStub;
     let tmpDirSyncStub: sinon.SinonStub;
-    let parseAndUpdatePluginManifestStub: sinon.SinonStub;
     let pathRelativeStub: sinon.SinonStub;
 
     beforeEach(() => {
       kiotaGeneratePluginStub = sinon.stub(kiotaClient, "kiotageneratePlugin");
       tmpDirSyncStub = sinon.stub(require("tmp"), "dirSync");
-      parseAndUpdatePluginManifestStub = sinon.stub(
-        daSpecParser,
-        "parseAndUpdatePluginManifestForKiota"
-      );
       pathRelativeStub = sinon.stub(require("path"), "relative");
 
       featureFlagStub.withArgs(FeatureFlags.KiotaNPMIntegration).returns(true);
 
-      // Setup common stubs
       tmpDirSyncStub.returns({
         name: "c:\\tmp\\working-dir",
         removeCallback: sinon.stub(),
@@ -846,7 +848,6 @@ describe("daSpecParser", () => {
         aiPlugin: "c:\\tmp\\working-dir\\plugin\\ai-plugin.json",
         logs: [],
       });
-      parseAndUpdatePluginManifestStub.resolves([]);
       pathRelativeStub.returns("../openapi.yaml");
     });
 
@@ -1044,8 +1045,8 @@ describe("daSpecParser", () => {
     it("should update plugin manifest with relative path", async () => {
       pathRelativeStub.returns("..\\..\\openapi.yaml");
 
-      const readdirStub = sinon.stub().resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub().resolves({
+      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON").resolves({
         name: { short: "test-app" },
         runtimes: [
           {
@@ -1053,19 +1054,10 @@ describe("daSpecParser", () => {
           },
         ],
       });
-      const fsCopyFileStub = sinon.stub().resolves();
-      const fsWriteJsonStub = sinon.stub().resolves();
-      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
-        "fs-extra": {
-          readdir: readdirStub,
-          readJSON: fsReadJSONStub,
-          copyFile: fsCopyFileStub,
-          writeJson: fsWriteJsonStub,
-          "@noCallThru": true,
-        },
-      });
+      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
+      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
 
-      await generatePlugin(
+      await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1139,21 +1131,14 @@ describe("daSpecParser", () => {
         "PATCH /settings",
       ];
 
-      const readdirStub = sinon.stub().resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub().resolves({ name: { short: "test-app" } });
-      const fsCopyFileStub = sinon.stub().resolves();
-      const fsWriteJsonStub = sinon.stub().resolves();
-      const { generatePlugin } = proxyquire("../../src/common/daSpecParser", {
-        "fs-extra": {
-          readdir: readdirStub,
-          readJSON: fsReadJSONStub,
-          copyFile: fsCopyFileStub,
-          writeJson: fsWriteJsonStub,
-          "@noCallThru": true,
-        },
-      });
+      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon
+        .stub(require("fs-extra"), "readJSON")
+        .resolves({ name: { short: "test-app" } });
+      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
+      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
 
-      await generatePlugin(
+      await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1269,8 +1254,6 @@ describe("daSpecParser", () => {
         ],
       });
 
-      parseAndUpdatePluginManifestStub.resolves([]);
-
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
@@ -1297,8 +1280,7 @@ describe("daSpecParser", () => {
       );
 
       sinon.resetHistory();
-
-      await daSpecParser.generatePlugin(
+      const result = await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
         "path/to/manifest.json",
         "path/to/output/openapi.yaml",
@@ -1314,6 +1296,123 @@ describe("daSpecParser", () => {
         fsCopyFileStub.calledWith(
           pathMatcher("c:/tmp/working-dir/plugin/openapi.yaml"),
           pathMatcher("path/to/output/openapi.yaml")
+        )
+      );
+    });
+
+    it("should properly filter and merge functions when updating existing plugin", async () => {
+      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
+      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
+
+      fsReadJSONStub.callsFake(async (path: any) => {
+        if (path.includes("manifest.json")) {
+          return { name: { short: "test-app" } };
+        } else if (path.includes("ai-plugin.json")) {
+          return {
+            name: "test-app",
+            runtimes: [
+              {
+                spec: { url: "path-to-be-replaced" },
+                run_for_functions: ["newFunction1", "newFunction2"],
+              },
+            ],
+            functions: [
+              { name: "newFunction1", description: "New function 1" },
+              { name: "newFunction2", description: "New function 2" },
+            ],
+          };
+        } else {
+          return {
+            name: "test-app",
+            runtimes: [
+              {
+                spec: { url: "../openapi.yaml" },
+                run_for_functions: ["oldFunction1", "oldFunction2"],
+              },
+              {
+                spec: { url: "other-spec.yaml" },
+                run_for_functions: ["keepFunction1"],
+              },
+            ],
+            functions: [
+              { name: "oldFunction1", description: "Old function 1" },
+              { name: "oldFunction2", description: "Old function 2" },
+              { name: "keepFunction1", description: "Keep function 1" },
+            ],
+          };
+        }
+      });
+
+      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+
+      pathRelativeStub.returns("../openapi.yaml");
+
+      const specPath = "path/to/spec.yaml";
+      const teamsManifestPath = "path/to/manifest.json";
+      const outputAPISpecPath = "path/to/output/openapi.yaml";
+      const outputAIPluginPath = "path/to/output/ai-plugin.json";
+      const operations = ["GET /api/resource"];
+
+      await daSpecParser.generatePlugin(
+        specPath,
+        teamsManifestPath,
+        outputAPISpecPath,
+        outputAIPluginPath,
+        operations,
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        undefined,
+        true
+      );
+
+      assert.isTrue(
+        fsWriteJsonStub.calledWith(
+          pathMatcher("path/to/output/ai-plugin.json"),
+          sinon.match((value) => {
+            const hasNoOldFunctions = value.functions.every(
+              (f: any) => f.name !== "oldFunction1" && f.name !== "oldFunction2"
+            );
+
+            const hasNewFunctions =
+              value.functions.some((f: any) => f.name === "newFunction1") &&
+              value.functions.some((f: any) => f.name === "newFunction2");
+
+            const preservedOtherFunctions = value.functions.some(
+              (f: any) => f.name === "keepFunction1"
+            );
+
+            const correctFunctionCount = value.functions.length === 3;
+
+            const preservedOtherRuntime = value.runtimes.some(
+              (r: any) =>
+                r.spec.url === "other-spec.yaml" && r.run_for_functions.includes("keepFunction1")
+            );
+
+            const addedNewRuntime = value.runtimes.some(
+              (r: any) =>
+                r.spec.url === "../openapi.yaml" &&
+                r.run_for_functions.includes("newFunction1") &&
+                r.run_for_functions.includes("newFunction2")
+            );
+
+            return (
+              hasNoOldFunctions &&
+              hasNewFunctions &&
+              preservedOtherFunctions &&
+              correctFunctionCount &&
+              preservedOtherRuntime &&
+              addedNewRuntime
+            );
+          }),
+          { spaces: 4 }
+        )
+      );
+
+      assert.equal(fsCopyFileStub.callCount, 1);
+      assert.isFalse(
+        fsCopyFileStub.calledWith(
+          pathMatcher("c:/tmp/working-dir/.kiota/documents/testapp/openapi.json"),
+          sinon.match.any
         )
       );
     });
