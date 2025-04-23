@@ -1,137 +1,101 @@
-import { expect } from "chai";
-import * as sinon from "sinon";
-import nock from "nock";
-import { fetchSchema, SchemaType } from "../src/fetcher";
+import { fetchSchema, SchemaType, clearSchemaCache } from "../src/fetcher";
 
-describe("Fetcher", () => {
-  // Setup and teardown
+// Mock the global fetch function
+global.fetch = jest.fn();
+
+describe("fetcher", () => {
   beforeEach(() => {
-    // Enable nock for HTTP request mocking
-    nock.disableNetConnect();
+    // Clear the mocks and cache before each test
+    jest.clearAllMocks();
+    clearSchemaCache();
+
+    // Setup the mock fetch implementation
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ test: "schema content" }),
+    });
   });
 
-  afterEach(() => {
-    // Clean up nock after each test
-    nock.cleanAll();
-    nock.enableNetConnect();
-    sinon.restore();
-  });
   describe("fetchSchema", () => {
-    it("should fetch app_manifest schema successfully", async () => {
+    it("should fetch schema from the correct URL", async () => {
+      const schemaName: SchemaType = "app_manifest";
       const schemaVersion = "v1.16";
-      const mockSchemaContent = {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        type: "object",
-        properties: {
-          // Mock properties
-        },
-      };
 
-      // Mock the HTTP request
-      nock("https://developer.microsoft.com")
-        .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
-        .reply(200, mockSchemaContent);
+      await fetchSchema(schemaName, schemaVersion);
 
-      const result = await fetchSchema("app_manifest" as SchemaType, schemaVersion);
-      const parsed = JSON.parse(result);
-
-      expect(parsed).to.have.property("schema_url");
-      expect(parsed.schema_url).to.equal(
-        `https://developer.microsoft.com/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`
-      );
-      expect(parsed).to.have.property("content");
-      expect(parsed.content).to.deep.equal(mockSchemaContent);
+      const expectedUrl = `https://developer.microsoft.com/json-schemas/teams/v1.16/MicrosoftTeams.schema.json`;
+      expect(global.fetch).toHaveBeenCalledWith(expectedUrl);
     });
 
-    it("should fetch declarative_agent_manifest schema successfully", async () => {
-      const schemaVersion = "v1.0";
-      const mockSchemaContent = {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        type: "object",
-        properties: {
-          // Mock properties
-        },
-      };
-
-      // Mock the HTTP request
-      nock("https://developer.microsoft.com")
-        .get(`/json-schemas/copilot/declarative-agent/${schemaVersion}/schema.json`)
-        .reply(200, mockSchemaContent);
-
-      const result = await fetchSchema("declarative_agent_manifest" as SchemaType, schemaVersion);
-      const parsed = JSON.parse(result);
-
-      expect(parsed).to.have.property("schema_url");
-      expect(parsed.schema_url).to.equal(
-        `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/${schemaVersion}/schema.json`
-      );
-      expect(parsed).to.have.property("content");
-      expect(parsed.content).to.deep.equal(mockSchemaContent);
-    });
-
-    it("should fetch api_plugin_manifest schema successfully", async () => {
-      const schemaVersion = "v1.0";
-      const mockSchemaContent = {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        type: "object",
-        properties: {
-          // Mock properties
-        },
-      };
-
-      // Mock the HTTP request
-      nock("https://developer.microsoft.com")
-        .get(`/json-schemas/copilot/plugin/${schemaVersion}/schema.json`)
-        .reply(200, mockSchemaContent);
-
-      const result = await fetchSchema("api_plugin_manifest" as SchemaType, schemaVersion);
-      const parsed = JSON.parse(result);
-
-      expect(parsed).to.have.property("schema_url");
-      expect(parsed.schema_url).to.equal(
-        `https://developer.microsoft.com/json-schemas/copilot/plugin/${schemaVersion}/schema.json`
-      );
-      expect(parsed).to.have.property("content");
-      expect(parsed.content).to.deep.equal(mockSchemaContent);
-    });
-
-    it("should return cached schema if already fetched", async () => {
+    it("should return schema with URL and content", async () => {
+      const schemaName: SchemaType = "app_manifest";
       const schemaVersion = "v1.16";
-      const mockSchemaContent = {
-        $schema: "http://json-schema.org/draft-07/schema#",
-        type: "object",
-        properties: {
-          // Mock properties
-        },
-      };
 
-      // Mock the HTTP request only once - it should not be called for the second fetch
-      nock("https://developer.microsoft.com")
-        .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
-        .reply(200, mockSchemaContent);
-      // First fetch
-      await fetchSchema("app_manifest" as SchemaType, schemaVersion);
+      const result = await fetchSchema(schemaName, schemaVersion);
+      const parsedResult = JSON.parse(result);
 
-      // Second fetch - should use cache
-      const result = await fetchSchema("app_manifest" as SchemaType, schemaVersion);
-      const parsed = JSON.parse(result);
-
-      expect(parsed).to.have.property("schema_url");
-      expect(parsed).to.have.property("content");
-      expect(parsed.content).to.deep.equal(mockSchemaContent);
+      expect(parsedResult).toHaveProperty("schema_url");
+      expect(parsedResult).toHaveProperty("content");
+      expect(parsedResult.content).toEqual({ test: "schema content" });
     });
 
-    it("should return error message when schema fetch fails", async () => {
-      const schemaVersion = "non-existent";
+    it("should support different schema types", async () => {
+      // Test declarative_agent_manifest
+      await fetchSchema("declarative_agent_manifest", "v1.0");
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.0/schema.json"
+      );
 
-      // Mock the HTTP request with a 404 response
-      nock("https://developer.microsoft.com")
-        .get(`/json-schemas/teams/${schemaVersion}/MicrosoftTeams.schema.json`)
-        .reply(404);
-      const result = await fetchSchema("app_manifest" as SchemaType, schemaVersion);
+      jest.clearAllMocks();
 
-      expect(result).to.include("Failed fetching schema");
-      expect(result).to.include("HTTP error with status: 404");
+      // Test api_plugin_manifest
+      await fetchSchema("api_plugin_manifest", "v1.0");
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://developer.microsoft.com/json-schemas/copilot/plugin/v1.0/schema.json"
+      );
+    });
+
+    it("should cache results for repeated requests", async () => {
+      // First call should make a fetch request
+      await fetchSchema("app_manifest", "v1.16");
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+
+      // Second call with same parameters should use the cached result
+      await fetchSchema("app_manifest", "v1.16");
+      expect(global.fetch).toHaveBeenCalledTimes(1); // Still just one call
+
+      // Different parameters should make a new fetch
+      await fetchSchema("app_manifest", "v1.15");
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it("should handle HTTP errors", async () => {
+      // Mock a failed response
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      });
+
+      const result = await fetchSchema("app_manifest", "invalid-version");
+
+      expect(result).toContain("Failed fetching schema at version: invalid-version");
+      expect(result).toContain("HTTP error with status: 404");
+    });
+
+    it("should handle network errors", async () => {
+      // Mock a network error
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await fetchSchema("app_manifest", "v1.16");
+
+      expect(result).toContain("Failed fetching schema at version: v1.16");
+      expect(result).toContain("Network error");
+    });
+
+    it("should handle unknown schema types", async () => {
+      const result = await fetchSchema("unknown_schema_type" as SchemaType, "v1.0");
+
+      expect(result).toContain("Unknown schema name");
     });
   });
 });

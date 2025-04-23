@@ -40,6 +40,15 @@ const schemaRepositories: Record<SchemaType, SchemaRepository> = {
 const schemaCache: Record<string, any> = {};
 
 /**
+ * Clear the schema cache
+ */
+export function clearSchemaCache(): void {
+  Object.keys(schemaCache).forEach((key) => {
+    delete schemaCache[key];
+  });
+}
+
+/**
  * Fetch schema from the appropriate repository
  * @param schemaName The type of schema to fetch
  * @param schemaVersion The version of the schema to fetch

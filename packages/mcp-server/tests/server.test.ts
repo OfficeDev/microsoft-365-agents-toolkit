@@ -1,16 +1,14 @@
-import { expect } from "chai";
-import * as sinon from "sinon";
 import { createServer } from "../src/server";
 import * as fetcherModule from "../src/fetcher";
 import { SchemaType } from "../src/fetcher";
 
 describe("MCP Server", () => {
-  let fetchSchemaSpy: sinon.SinonStub;
+  let fetchSchemaSpy: jest.SpyInstance;
 
   // Setup and teardown
   beforeEach(() => {
-    // Stub the fetchSchema function to avoid actual HTTP requests
-    fetchSchemaSpy = sinon.stub(fetcherModule, "fetchSchema").resolves(
+    // Mock the fetchSchema function to avoid actual HTTP requests
+    fetchSchemaSpy = jest.spyOn(fetcherModule, "fetchSchema").mockResolvedValue(
       JSON.stringify({
         schema_url: "https://example.com/schema.json",
         content: { test: "content" },
@@ -19,17 +17,18 @@ describe("MCP Server", () => {
   });
 
   afterEach(() => {
-    sinon.restore();
+    jest.restoreAllMocks();
   });
+
   describe("createServer", () => {
     it("should create an MCP server with the correct configuration", () => {
       const server = createServer();
 
       // We can't directly access name and version properties as they're not exposed in the API
       // Instead, we can test that the server instance was created without errors
-      expect(server).to.be.an.instanceOf(Object);
-      expect(server).to.have.property("server");
-      expect(server).to.have.property("connect").that.is.a("function");
+      expect(server).toBeInstanceOf(Object);
+      expect(server).toHaveProperty("server");
+      expect(typeof server.connect).toBe("function");
     });
 
     it("should register the get_schema tool", () => {
@@ -41,10 +40,11 @@ describe("MCP Server", () => {
       const serverAny = server as any;
 
       // Check if _registeredTools exists and has our get_schema tool
-      expect(serverAny._registeredTools).to.exist;
-      expect(serverAny._registeredTools).to.have.property("get_schema");
+      expect(serverAny._registeredTools).toBeDefined();
+      expect(serverAny._registeredTools).toHaveProperty("get_schema");
     });
   });
+
   describe("get_schema tool", () => {
     it("should call fetchSchema with the correct parameters", async () => {
       // Set up a Transport mock to test the tool functionality
@@ -64,9 +64,10 @@ describe("MCP Server", () => {
 
       // Call the tool callback directly
       await toolCallback(mockRequest.params, { request: mockRequest });
+
       // Verify fetchSchema was called with the correct parameters
-      expect(fetchSchemaSpy.calledOnce).to.be.true;
-      expect(fetchSchemaSpy.calledWith("app_manifest", "v1.16")).to.be.true;
+      expect(fetchSchemaSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSchemaSpy).toHaveBeenCalledWith("app_manifest", "v1.16");
     });
 
     it("should return schema content in the response", async () => {
@@ -75,8 +76,8 @@ describe("MCP Server", () => {
         content: { test: "schema content" },
       });
 
-      // Configure the stub to return the expected schema
-      fetchSchemaSpy.resolves(expectedSchema);
+      // Configure the mock to return the expected schema
+      fetchSchemaSpy.mockResolvedValue(expectedSchema);
 
       // Create server
       const server = createServer();
@@ -95,9 +96,10 @@ describe("MCP Server", () => {
       );
 
       // Verify the response contains the expected schema
-      expect(response).to.have.property("content").that.is.an("array");
-      expect(response.content[0]).to.have.property("type", "text");
-      expect(response.content[0]).to.have.property("text", expectedSchema);
+      expect(response).toHaveProperty("content");
+      expect(Array.isArray(response.content)).toBe(true);
+      expect(response.content[0]).toHaveProperty("type", "text");
+      expect(response.content[0]).toHaveProperty("text", expectedSchema);
     });
 
     it("should handle different schema types correctly", async () => {
@@ -117,10 +119,10 @@ describe("MCP Server", () => {
         {}
       );
 
-      expect(fetchSchemaSpy.calledWith("declarative_agent_manifest", "v1.0")).to.be.true;
+      expect(fetchSchemaSpy).toHaveBeenCalledWith("declarative_agent_manifest", "v1.0");
 
-      // Reset the spy to test another schema type
-      fetchSchemaSpy.resetHistory();
+      // Clear the mock's history for the next call
+      jest.clearAllMocks();
 
       // Test with api_plugin_manifest
       await toolCallback(
@@ -131,16 +133,17 @@ describe("MCP Server", () => {
         {}
       );
 
-      expect(fetchSchemaSpy.calledWith("api_plugin_manifest", "v1.0")).to.be.true;
+      expect(fetchSchemaSpy).toHaveBeenCalledWith("api_plugin_manifest", "v1.0");
     });
 
     it("should propagate errors from fetchSchema", async () => {
       const errorMessage = "Failed to fetch schema";
-      fetchSchemaSpy.resolves(errorMessage);
+      fetchSchemaSpy.mockResolvedValue(errorMessage);
 
       // Create server
       const server = createServer();
       const serverAny = server as any;
+
       // Access the tool callback directly
       const toolCallback = serverAny._registeredTools["get_schema"].callback;
 
@@ -154,9 +157,10 @@ describe("MCP Server", () => {
       );
 
       // Verify the response contains the error message
-      expect(response).to.have.property("content").that.is.an("array");
-      expect(response.content[0]).to.have.property("type", "text");
-      expect(response.content[0]).to.have.property("text", errorMessage);
+      expect(response).toHaveProperty("content");
+      expect(Array.isArray(response.content)).toBe(true);
+      expect(response.content[0]).toHaveProperty("type", "text");
+      expect(response.content[0]).toHaveProperty("text", errorMessage);
     });
   });
 });
