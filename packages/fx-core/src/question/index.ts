@@ -25,6 +25,7 @@ import {
   setSensitivityLabelNode,
   shareNode,
   removeSharedAccessNode,
+  regeneratePluginNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -84,6 +85,9 @@ export class QuestionNodes {
   }
   addPlugin(): IQTreeNode {
     return addPluginQuestionNode();
+  }
+  regeneratePlugin(): IQTreeNode {
+    return regeneratePluginNode();
   }
   uninstall(): IQTreeNode {
     return uninstallQuestionNode();

@@ -140,6 +140,10 @@ export enum QuestionNames {
   ShareOptionShareToUser = "share-with-users",
   ShareToUsers = "users",
   RemoveUsers = "users",
+
+  SelectPluginManifest = "select-plugin-manifest",
+  SelectOpenAPISpecFromPlugin = "select-openapi-spec-from-plugin",
+  SelectPluginId = "select-plugin-id",
 }
 
 export enum ProjectTypeGroup {

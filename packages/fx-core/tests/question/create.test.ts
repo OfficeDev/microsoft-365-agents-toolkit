@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 import { ErrorType, SpecParser, ValidationStatus, WarningType } from "@microsoft/m365-spec-parser";
 import {
+  ApiOperation,
+  AppPackageFolderName,
   Context,
   FuncValidation,
   FxError,
@@ -35,13 +37,21 @@ import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/ap
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import { convertToLangKey } from "../../src/component/generator/utils";
-import { FileNotFoundError } from "../../src/error";
+import {
+  ActionNotFoundError,
+  DeclarativeAgentPathNotFoundError,
+  EmptyOptionError,
+  FileNotFoundError,
+  OriginalSpecNotFoundError,
+  SpecNotFoundError,
+} from "../../src/error";
 import {
   ActionStartOptions,
   ApiAuthOptions,
   CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
+  DeclarativeAgentApiSpecOptionId,
   DeclarativeCopilotTypeOptions,
   MeArchitectureOptions,
   NotificationTriggerOptions,
@@ -66,6 +76,9 @@ import {
   pluginManifestQuestion,
   programmingLanguageQuestion,
   searchOpenAPISpecQueryQuestion,
+  selectApiOperationForRegenerateQuestion,
+  selectExistingPluginManifestQuestion,
+  selectOpenAPISpecFromPluginQuestion,
   selectOpenApiSpecQuestion,
   webContentQuestion,
 } from "../../src/question";
@@ -79,6 +92,7 @@ import * as stringUtils from "../../src/common/stringUtils";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as kiotaClient from "../../src/common/kiotaClient";
 import * as apiSpecHelper from "../../src/component/generator/openApiSpec/helper";
+import * as daSpecParser from "../../src/common/daSpecParser";
 
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
   try {
@@ -3662,6 +3676,490 @@ describe("scaffold question", () => {
         const validationRes = await validationFunc.validFunc!("test.json", inputs);
         assert.equal(validationRes, "invalidFile");
       });
+    });
+  });
+
+  describe("selectExistingPluginManifestQuestion", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("dynamicOptions: should throw error when projectPath is undefined", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      try {
+        await question.dynamicOptions!({} as any);
+        assert.fail("Should throw error");
+      } catch (e) {
+        assert.equal((e as Error).message, "projectPath is undefined");
+      }
+    });
+
+    it("dynamicOptions: should throw error when manifest read fails", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs = { projectPath: "test-path" };
+      const error = new Error("manifest read error");
+
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(err(error as any));
+
+      try {
+        await question.dynamicOptions!(inputs as any);
+        assert.fail("Should throw error");
+      } catch (e) {
+        assert.equal(e, error);
+      }
+    });
+
+    it("dynamicOptions: should throw DeclarativeAgentPathNotFoundError when no agent path", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs = { projectPath: "test-path" };
+      const manifest = {};
+
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as any));
+
+      try {
+        await question.dynamicOptions!(inputs as any);
+        assert.fail("Should throw DeclarativeAgentPathNotFoundError");
+      } catch (e) {
+        assert.isTrue(e instanceof DeclarativeAgentPathNotFoundError);
+      }
+    });
+
+    it("dynamicOptions: should throw ActionNotFoundError when no actions", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs = { projectPath: "test-path" };
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [{ file: "agent.json" }],
+        },
+      };
+      const agentJson = {};
+
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as any));
+      sandbox.stub(fs, "readJSON").resolves(agentJson);
+
+      try {
+        await question.dynamicOptions!(inputs as any);
+        assert.fail("Should throw ActionNotFoundError");
+      } catch (e) {
+        assert.isTrue(e instanceof ActionNotFoundError);
+      }
+    });
+
+    it("dynamicOptions: should throw ActionNotFoundError when actions is empty array", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs = { projectPath: "test-path" };
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [{ file: "agent.json" }],
+        },
+      };
+      const agentJson = { actions: [] };
+
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as any));
+      sandbox.stub(fs, "readJSON").resolves(agentJson);
+
+      try {
+        await question.dynamicOptions!(inputs as any);
+        assert.fail("Should throw ActionNotFoundError");
+      } catch (e) {
+        assert.isTrue(e instanceof ActionNotFoundError);
+      }
+    });
+
+    it("dynamicOptions: should return options for valid actions", async () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs = { projectPath: "test-path" };
+      const manifest = {
+        copilotAgents: {
+          declarativeAgents: [{ file: "agent.json" }],
+        },
+      };
+      const agentJson = {
+        actions: [
+          { file: "action1.json", id: "action1" },
+          { file: "action2.json", id: "action2" },
+        ],
+      };
+
+      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as any));
+      sandbox.stub(fs, "readJSON").resolves(agentJson);
+
+      const result: any = await question!.dynamicOptions!(inputs as any);
+
+      assert.equal(result.length, 2);
+      assert.equal(result[0].id, path.join("test-path", AppPackageFolderName, "action1.json"));
+      assert.equal(result[0].label, "action1.json");
+      assert.equal(result[0].data, "action1");
+      assert.equal(result[1].id, path.join("test-path", AppPackageFolderName, "action2.json"));
+      assert.equal(result[1].label, "action2.json");
+      assert.equal(result[1].data, "action2");
+    });
+
+    it("onDidSelection: should set SelectPluginId input", () => {
+      const question = selectExistingPluginManifestQuestion();
+      const inputs: any = {};
+      const item: OptionItem = {
+        id: "item-id",
+        label: "item-label",
+        data: "action-id",
+      };
+
+      question.onDidSelection!(item, inputs);
+
+      assert.equal(inputs[QuestionNames.SelectPluginId], "action-id");
+    });
+
+    it("should have correct properties", () => {
+      const question = selectExistingPluginManifestQuestion();
+
+      assert.equal(question.type, "singleSelect");
+      assert.equal(question.name, QuestionNames.SelectPluginManifest);
+      assert.equal(question.title, "Select plugin manifest file");
+      assert.equal(question.cliDescription, "Select plugin manifest file.");
+      assert.deepEqual(question.staticOptions, []);
+      assert.isFunction(question.onDidSelection);
+      assert.isFunction(question.dynamicOptions);
+    });
+  });
+
+  describe("selectOpenAPISpecFromPluginQuestion", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should have correct properties", () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+
+      assert.equal(question.type, "singleSelect");
+      assert.equal(question.name, QuestionNames.SelectOpenAPISpecFromPlugin);
+      assert.equal(question.title, "Select OpenAPI Spec");
+      assert.deepEqual(question.staticOptions, []);
+      assert.isFunction(question.onDidSelection);
+      assert.isFunction(question.dynamicOptions);
+    });
+
+    it("onDidSelection: should set ActionType to DeclarativeAgentApiSpecOptionId", () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const inputs: any = {};
+      const item: OptionItem = {
+        id: "item-id",
+        label: "item-label",
+      };
+
+      question.onDidSelection!(item, inputs);
+
+      assert.equal(inputs[QuestionNames.ActionType], DeclarativeAgentApiSpecOptionId);
+    });
+
+    it("dynamicOptions: should return options for valid plugin manifest with specs", async () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const manifestPath = "test-path/plugin.json";
+      const inputs: any = {
+        [QuestionNames.SelectPluginManifest]: manifestPath,
+      };
+
+      const pluginManifest = {
+        runtimes: [
+          {
+            spec: {
+              url: "spec1.json",
+            },
+            run_for_functions: ["function1", "function2"],
+          },
+          {
+            spec: {
+              url: "spec2.json",
+            },
+            run_for_functions: ["function3"],
+          },
+        ],
+      };
+
+      sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const result: any = await question.dynamicOptions!(inputs);
+
+      assert.equal(result.length, 2);
+      assert.equal(result[0].id, path.join(path.dirname(manifestPath), "spec1.json"));
+      assert.equal(result[0].label, "spec1.json");
+      assert.equal(result[1].id, path.join(path.dirname(manifestPath), "spec2.json"));
+      assert.equal(result[1].label, "spec2.json");
+    });
+
+    it("dynamicOptions: should combine specs with same URL", async () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const manifestPath = "test-path/plugin.json";
+      const inputs: any = {
+        [QuestionNames.SelectPluginManifest]: manifestPath,
+      };
+
+      const pluginManifest = {
+        runtimes: [
+          {
+            spec: {
+              url: "spec1.json",
+            },
+            run_for_functions: ["function1"],
+          },
+          {
+            spec: {
+              url: "spec1.json",
+            },
+            run_for_functions: ["function2"],
+          },
+        ],
+      };
+
+      sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const result: any = await question.dynamicOptions!(inputs);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, path.join(path.dirname(manifestPath), "spec1.json"));
+      assert.equal(result[0].label, "spec1.json");
+    });
+
+    it("dynamicOptions: should handle runtimes without run_for_functions", async () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const manifestPath = "test-path/plugin.json";
+      const inputs: any = {
+        [QuestionNames.SelectPluginManifest]: manifestPath,
+      };
+
+      const pluginManifest = {
+        runtimes: [
+          {
+            spec: {
+              url: "spec1.json",
+            },
+          },
+        ],
+      };
+
+      sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+
+      const result: any = await question.dynamicOptions!(inputs);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].id, path.join(path.dirname(manifestPath), "spec1.json"));
+      assert.equal(result[0].label, "spec1.json");
+    });
+
+    it("dynamicOptions: should throw SpecNotFoundError when no specs found", async () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const manifestPath = "test-path/plugin.json";
+      const inputs: any = {
+        [QuestionNames.SelectPluginManifest]: manifestPath,
+      };
+
+      const pluginManifest = {
+        runtimes: [],
+      };
+
+      sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+
+      try {
+        await question.dynamicOptions!(inputs);
+        assert.fail("Should throw SpecNotFoundError");
+      } catch (e) {
+        assert.isTrue(e instanceof SpecNotFoundError);
+      }
+    });
+
+    it("dynamicOptions: should throw SpecNotFoundError when no runtimes", async () => {
+      const question = selectOpenAPISpecFromPluginQuestion();
+      const manifestPath = "test-path/plugin.json";
+      const inputs: any = {
+        [QuestionNames.SelectPluginManifest]: manifestPath,
+      };
+
+      const pluginManifest = {};
+
+      sandbox.stub(fs, "readJSON").resolves(pluginManifest);
+
+      try {
+        await question.dynamicOptions!(inputs);
+        assert.fail("Should throw SpecNotFoundError");
+      } catch (e) {
+        assert.isTrue(e instanceof SpecNotFoundError);
+      }
+    });
+  });
+
+  describe("selectApiOperationForRegenerateQuestion", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should have correct properties", () => {
+      const question = selectApiOperationForRegenerateQuestion();
+
+      assert.equal(question.type, "multiSelect");
+      assert.equal(question.name, QuestionNames.ApiOperation);
+      assert.equal(question.title, "Select API Operation to regenerate");
+      assert.equal(question.cliDescription, "Select operation(s) Copilot can interact with.");
+      assert.equal(question.cliShortName, "o");
+      assert.equal(
+        question.placeholder,
+        getLocalizedString("core.createProjectQuestion.apiSpec.operation.plugin.placeholder")
+      );
+      assert.isTrue(question.forgetLastValue);
+      assert.deepEqual(question.staticOptions, []);
+      assert.isFunction((question.validation as any)?.validFunc);
+      assert.isFunction(question.dynamicOptions);
+    });
+
+    it("validation: should return undefined when all operations have the same server URL", () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const validationFunc = (question.validation as any).validFunc;
+
+      const operations: ApiOperation[] = [
+        {
+          id: "op1",
+          label: "Operation 1",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.example.com" },
+        },
+        {
+          id: "op2",
+          label: "Operation 2",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.example.com" },
+        },
+      ];
+
+      const inputs: any = {
+        supportedApisFromApiSpec: operations,
+      };
+
+      const result = validationFunc(["op1", "op2"], inputs);
+      assert.isUndefined(result);
+    });
+
+    it("validation: should return error message when operations have different server URLs", () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const validationFunc = (question.validation! as any).validFunc;
+
+      const operations: ApiOperation[] = [
+        {
+          id: "op1",
+          label: "Operation 1",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.example.com" },
+        },
+        {
+          id: "op2",
+          label: "Operation 2",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.another.com" },
+        },
+      ];
+
+      const inputs: any = {
+        supportedApisFromApiSpec: operations,
+      };
+
+      const result = validationFunc(["op1", "op2"], inputs);
+      assert.equal(
+        result,
+        getLocalizedString(
+          "core.createProjectQuestion.apiSpec.operation.multipleServer",
+          "https://api.example.com, https://api.another.com"
+        )
+      );
+    });
+
+    it("dynamicOptions: should throw OriginalSpecNotFoundError when spec file doesn't exist", async () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const inputs: any = {
+        [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
+      };
+
+      sandbox.stub(require("fs-extra"), "pathExists").resolves(false);
+
+      try {
+        await question.dynamicOptions!(inputs);
+        assert.fail("Should throw error");
+      } catch (e) {
+        assert.isTrue(e instanceof OriginalSpecNotFoundError);
+      }
+    });
+
+    it("dynamicOptions: should throw error when listOperations returns error", async () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const inputs: any = {
+        [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
+      };
+
+      const errorMessage = "List operations failed";
+      const mockError = [new Error(errorMessage)];
+
+      sandbox.stub(require("fs-extra"), "pathExists").resolves(true);
+      sandbox.stub(utils, "createContext").returns({} as Context);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockError as any));
+
+      try {
+        await question.dynamicOptions!(inputs);
+        assert.fail("Should throw error");
+      } catch (e) {
+        assert.deepEqual(e, mockError);
+      }
+    });
+
+    it("dynamicOptions: should throw EmptyOptionError when no operations found", async () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const inputs: any = {
+        [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
+      };
+
+      sandbox.stub(require("fs-extra"), "pathExists").resolves(true);
+      sandbox.stub(utils, "createContext").returns({} as Context);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok([]));
+
+      try {
+        await question.dynamicOptions!(inputs);
+        assert.fail("Should throw error");
+      } catch (e) {
+        assert.isTrue(e instanceof EmptyOptionError);
+      }
+    });
+
+    it("dynamicOptions: should return operations when listOperations succeeds", async () => {
+      const question = selectApiOperationForRegenerateQuestion();
+      const inputs: any = {
+        [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
+      };
+
+      const operations: ApiOperation[] = [
+        {
+          id: "op1",
+          label: "Operation 1",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.example.com" },
+        },
+        {
+          id: "op2",
+          label: "Operation 2",
+          groupName: "Group 1",
+          data: { serverUrl: "https://api.example.com" },
+        },
+      ];
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(utils, "createContext").returns({} as Context);
+      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(operations as any));
+
+      const result = await question.dynamicOptions!(inputs);
+
+      assert.deepEqual(result, operations);
+      assert.equal(inputs[QuestionNames.ApiSpecLocation], "path/to/spec.original");
+      assert.deepEqual(inputs.supportedApisFromApiSpec, operations);
     });
   });
 

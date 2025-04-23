@@ -60,7 +60,8 @@ export async function generatePlugin(
   outputAIPluginPath: string,
   operations: string[],
   adaptiveCardUpdateStrategy: AdaptiveCardUpdateStrategy,
-  platform?: string
+  platform?: string,
+  updateExistingPlugin = false
 ): Promise<GenerateResult> {
   const allowAPIKeyAuth = platform !== Platform.VS;
   const allowBearerTokenAuth = platform !== Platform.VS;
@@ -132,41 +133,60 @@ export async function generatePlugin(
       []
     );
 
-    const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
-    const files = await fs.readdir(originalSpecFolder);
-    const originalSpecFilename = files[0];
-    const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
-
     const apiSpecPath = kiotaGenerateResult.openAPISpec;
     const pluginPath = kiotaGenerateResult.aiPlugin;
 
-    const extname = path.extname(outputAPISpecPath);
-
-    const outputSpecWithoutExt = path.join(
-      path.dirname(outputAPISpecPath),
-      path.basename(outputAPISpecPath, extname)
-    );
-
-    const isJson = await isJsonSpecFile(originalSpecFile);
-    const originalSpecExt = isJson ? ".json" : ".yaml";
-    const outputOriginalSpecPath = outputSpecWithoutExt + ".original" + originalSpecExt;
-
-    // kiota will always generate yaml spec file
-    outputAPISpecPath = outputSpecWithoutExt + ".yaml";
-
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
-    await fs.copyFile(pluginPath, outputAIPluginPath);
-    await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
 
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
-    const pluginManifest = (await fs.readJSON(outputAIPluginPath)) as PluginManifestSchema;
-    pluginManifest.runtimes?.forEach((runtime) => {
-      if ((runtime as RuntimeObjectOpenapi).spec) {
-        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
+    const generatedPluginManifest = (await fs.readJSON(pluginPath)) as PluginManifestSchema;
+
+    if (!updateExistingPlugin) {
+      const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
+      const files = await fs.readdir(originalSpecFolder);
+      const originalSpecFilename = files[0];
+      const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
+
+      const outputOriginalSpecPath = outputAPISpecPath + ".original";
+      await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
+      generatedPluginManifest.runtimes?.forEach((runtime) => {
+        if ((runtime as RuntimeObjectOpenapi).spec) {
+          (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
+        }
+      });
+      await fs.writeJson(outputAIPluginPath, generatedPluginManifest, { spaces: 4 });
+    } else {
+      const existingPluginManifest = (await fs.readJSON(
+        outputAIPluginPath
+      )) as PluginManifestSchema;
+
+      const functionNamesToRemove = new Set<string>();
+      existingPluginManifest.runtimes?.forEach((runtime) => {
+        const runtimeObj = runtime as RuntimeObjectOpenapi;
+        if (runtimeObj.spec.url === normalizedPath && runtimeObj.run_for_functions) {
+          runtimeObj.run_for_functions.forEach((name) => functionNamesToRemove.add(name));
+        }
+      });
+
+      if (existingPluginManifest.functions) {
+        existingPluginManifest.functions = existingPluginManifest.functions
+          .filter((f) => !functionNamesToRemove.has(f.name))
+          .concat(generatedPluginManifest.functions ?? []);
+      } else {
+        existingPluginManifest.functions = generatedPluginManifest.functions ?? [];
       }
-    });
-    await fs.writeJson(outputAIPluginPath, pluginManifest, { spaces: 4 });
+
+      const runtimes = existingPluginManifest.runtimes;
+      existingPluginManifest.runtimes = runtimes?.filter((r) => r.spec.url !== normalizedPath);
+
+      for (const runtime of generatedPluginManifest.runtimes!) {
+        (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
+        existingPluginManifest.runtimes?.push(runtime);
+      }
+
+      await fs.writeJson(outputAIPluginPath, existingPluginManifest, { spaces: 4 });
+    }
 
     await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
     return {
@@ -218,7 +238,8 @@ export async function parseAndUpdatePluginManifestForKiota(
         auth.type !== "None"
       ) {
         const registrationId = auth.reference_id.replace(/[{}]/g, "");
-        const authName = registrationId.split("_")[0];
+        const parts = registrationId.split("_");
+        const authName = parts.slice(0, -2).join("_");
         const newReferenceId = authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
         authData.push({
           authName: authName,

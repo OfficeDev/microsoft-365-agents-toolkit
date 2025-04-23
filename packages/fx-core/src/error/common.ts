@@ -3,6 +3,7 @@
 
 import {
   FxError,
+  Stage,
   SystemError,
   SystemErrorOptions,
   UserError,
@@ -157,6 +158,62 @@ export class InjectOAuthActionFailedError extends UserError {
       displayMessage: getLocalizedString("core.copilot.addAPI.InjectOAuthActionFailed"),
       source: "coordinator",
       categories: [ErrorCategory.Internal],
+    });
+  }
+}
+
+export class DeclarativeAgentPathNotFoundError extends UserError {
+  constructor(manifestPath: string) {
+    super({
+      message: getDefaultString(
+        "core.regenerateQuestion.declarativeAgentPathNotFound",
+        manifestPath
+      ),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.declarativeAgentPathNotFound",
+        manifestPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class ActionNotFoundError extends UserError {
+  constructor(declarativeAgentPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.actionNotFound", declarativeAgentPath),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.actionNotFound",
+        declarativeAgentPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class SpecNotFoundError extends UserError {
+  constructor(pluginPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.specNotFound", pluginPath),
+      displayMessage: getLocalizedString("core.regenerateQuestion.specNotFound", pluginPath),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class OriginalSpecNotFoundError extends UserError {
+  constructor(originalSpecPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.originalSpecNotFound", originalSpecPath),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.originalSpecNotFound",
+        originalSpecPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
     });
   }
 }

@@ -57,6 +57,9 @@ import {
   GCInputQuestion,
   searchTypeQuestion,
   webContentQuestion,
+  selectExistingPluginManifestQuestion,
+  selectOpenAPISpecFromPluginQuestion,
+  selectApiOperationForRegenerateQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
@@ -783,6 +786,20 @@ export function createNewEnvQuestionNode(): IQTreeNode {
     children: [
       {
         data: selectSourceEnvQuestion(),
+      },
+    ],
+  };
+}
+
+export function regeneratePluginNode(): IQTreeNode {
+  return {
+    data: selectExistingPluginManifestQuestion(),
+    children: [
+      {
+        data: selectOpenAPISpecFromPluginQuestion(),
+      },
+      {
+        data: selectApiOperationForRegenerateQuestion(),
       },
     ],
   };

@@ -1,15 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ErrorType, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
+import { ErrorType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   ApiOperation,
   AppPackageFolderName,
   CLIPlatforms,
+  DeclarativeAgentManifest,
   DefaultPluginManifestFileName,
   FolderQuestion,
   IQTreeNode,
   Inputs,
+  ManifestTemplateFileName,
   MultiSelectQuestion,
   OptionItem,
   Platform,
@@ -55,15 +57,19 @@ import {
   getODSPItemInfo,
   validateSourcePluginManifest,
 } from "../component/generator/declarativeAgent/helper";
-import { getParserOptions, listOperations } from "../component/generator/openApiSpec/helper";
+import { listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
 import { Utils } from "../component/generator/spfx/utils/utils";
 import {
+  ActionNotFoundError,
   CoreSource,
+  DeclarativeAgentPathNotFoundError,
   EmptyOptionError,
   FileNotFoundError,
   FileNotSupportError,
+  OriginalSpecNotFoundError,
+  SpecNotFoundError,
   assembleError,
 } from "../error";
 import {
@@ -87,12 +93,14 @@ import {
   getRuntime,
   GCSelectOptions,
   KnowledgeSearchTypeOptions,
+  DeclarativeAgentApiSpecOptionId,
 } from "./constants";
 import { OneDriveSharePointItemType } from "../component/generator/constant";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import { searchOpenAPISpec, SearchOpenAPISpecResult } from "../common/kiotaClient";
 import { validateOpenAPISpec } from "../common/daSpecParser";
 import { ensureInputs } from "./utils";
+import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 
 export function projectTypeQuestion(): SingleSelectQuestion {
   const staticOptions: StaticOptions = [
@@ -1325,6 +1333,174 @@ export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelec
       return ActionStartOptions.all(inputs, doesProjectExists);
     },
     default: ActionStartOptions.newApi().id,
+  };
+}
+
+export function selectExistingPluginManifestQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.SelectPluginManifest,
+    title: getLocalizedString("core.regenerateQuestion.selectPluginManifestTitle"),
+    cliDescription: "Select plugin manifest file.",
+    staticOptions: [],
+    onDidSelection: (item: string | OptionItem, inputs: Inputs) => {
+      inputs[QuestionNames.SelectPluginId] = (item as OptionItem).data as string;
+    },
+    dynamicOptions: async (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        throw new Error("projectPath is undefined");
+      }
+      const options: OptionItem[] = [];
+      const manifestPath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        ManifestTemplateFileName
+      );
+
+      const manifestRes = await manifestUtils._readAppManifest(manifestPath);
+      if (manifestRes.isErr()) {
+        throw manifestRes.error;
+      }
+      const manifest = manifestRes.value;
+      const declarativeAgentPathRelativePath =
+        manifest?.copilotAgents?.declarativeAgents?.[0]?.file;
+      if (!declarativeAgentPathRelativePath) {
+        throw new DeclarativeAgentPathNotFoundError(manifestPath);
+      }
+      const declarativeAgentPath = path.join(
+        inputs.projectPath,
+        AppPackageFolderName,
+        declarativeAgentPathRelativePath
+      );
+      const declarativeAgentJson = (await fs.readJSON(
+        declarativeAgentPath
+      )) as DeclarativeAgentManifest;
+
+      const actions = declarativeAgentJson.actions;
+      if (!actions || actions.length === 0) {
+        throw new ActionNotFoundError(declarativeAgentPath);
+      }
+      for (const action of actions) {
+        const actionName = action.file;
+        options.push({
+          id: path.join(inputs.projectPath, AppPackageFolderName, actionName),
+          label: path.basename(actionName),
+          data: action.id,
+        });
+      }
+
+      return options;
+    },
+  };
+}
+
+export function selectOpenAPISpecFromPluginQuestion(): SingleSelectQuestion {
+  return {
+    type: "singleSelect",
+    name: QuestionNames.SelectOpenAPISpecFromPlugin,
+    title: getLocalizedString("core.regenerateQuestion.selectOpenAPISpecFromPluginTitle"),
+    cliDescription: "Select OpenAPI description document file.",
+    staticOptions: [],
+    onDidSelection: (itemOrId: string | OptionItem, inputs: Inputs) => {
+      inputs[QuestionNames.ActionType] = DeclarativeAgentApiSpecOptionId;
+    },
+    dynamicOptions: async (inputs: Inputs): Promise<OptionItem[]> => {
+      const pluginPath = inputs[QuestionNames.SelectPluginManifest] as string;
+
+      const options: OptionItem[] = [];
+
+      const pluginManifest = await fs.readJSON(inputs[QuestionNames.SelectPluginManifest]);
+
+      const specUrlMap = new Map<string, string[] | undefined>();
+      pluginManifest.runtimes?.forEach((runtime: any) => {
+        if (runtime.spec) {
+          const specPath = runtime.spec.url;
+          const functions = runtime.run_for_functions;
+          if (specUrlMap.has(specPath)) {
+            const existingValue = specUrlMap.get(specPath);
+            if (existingValue) {
+              existingValue.push(...(functions ?? []));
+            }
+          } else {
+            specUrlMap.set(specPath, functions ?? []);
+          }
+        }
+      });
+
+      specUrlMap.forEach((value, key) => {
+        const specAbsolutePath = path.join(path.dirname(pluginPath), key);
+        options.push({
+          id: specAbsolutePath,
+          label: key,
+        });
+      });
+
+      if (options.length === 0) {
+        throw new SpecNotFoundError(pluginPath);
+      }
+
+      return options;
+    },
+  };
+}
+
+export function selectApiOperationForRegenerateQuestion(): MultiSelectQuestion {
+  return {
+    type: "multiSelect",
+    name: QuestionNames.ApiOperation,
+    title: getLocalizedString("core.regenerateQuestion.selectApiOperationForRegenerateTitle"),
+    cliDescription: "Select API Operation to regenerate.",
+    cliShortName: "o",
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.apiSpec.operation.plugin.placeholder"
+    ),
+    forgetLastValue: true,
+    staticOptions: [],
+    validation: {
+      validFunc: (input: string[], inputs?: Inputs): string | undefined => {
+        const operations: ApiOperation[] = inputs!.supportedApisFromApiSpec as ApiOperation[];
+
+        const serverUrls: Set<string> = new Set();
+        for (const inputItem of input) {
+          const operation = operations.find((op) => op.id === inputItem);
+          if (operation) {
+            serverUrls.add(operation.data.serverUrl);
+          }
+        }
+
+        if (serverUrls.size > 1) {
+          return getLocalizedString(
+            "core.createProjectQuestion.apiSpec.operation.multipleServer",
+            Array.from(serverUrls).join(", ")
+          );
+        }
+      },
+    },
+    dynamicOptions: async (inputs: Inputs) => {
+      const specUrl = (inputs[QuestionNames.SelectOpenAPISpecFromPlugin] as string) + ".original";
+
+      if (!(await fs.pathExists(specUrl))) {
+        throw new OriginalSpecNotFoundError(specUrl);
+      }
+
+      inputs[QuestionNames.ApiSpecLocation] = specUrl;
+      const context = createContext();
+
+      const res = await listOperations(context, specUrl, inputs, true, false);
+      if (res.isOk()) {
+        inputs.supportedApisFromApiSpec = res.value;
+      } else {
+        throw res.error;
+      }
+
+      if (!inputs.supportedApisFromApiSpec || inputs.supportedApisFromApiSpec.length === 0) {
+        throw new EmptyOptionError(QuestionNames.ApiOperation, "question");
+      }
+
+      const operations = inputs.supportedApisFromApiSpec as ApiOperation[];
+
+      return operations;
+    },
   };
 }
 
