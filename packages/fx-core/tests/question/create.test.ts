@@ -29,6 +29,7 @@ import { FileNotFoundError } from "../../src/error";
 import {
   ActionStartOptions,
   ApiAuthOptions,
+  GCNameQuestion,
   MeArchitectureOptions,
   QuestionNames,
   apiAuthQuestion,
@@ -42,6 +43,7 @@ import {
 } from "../../src/question";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
+import { DACapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("scaffold question", () => {
   const sandbox = sinon.createSandbox();
@@ -666,6 +668,26 @@ describe("scaffold question", () => {
     });
   });
   describe("apiPluginStartQuestion", () => {
+    it("Capability === DACapabilityOptions.declarativeAgent().id", async () => {
+      const question = apiPluginStartQuestion(false);
+      const title =
+        typeof question.title === "function"
+          ? question.title({
+              [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
+            } as any)
+          : question.title;
+      assert.equal(title, getLocalizedString("core.createProjectQuestion.addApiPlugin.title"));
+      const placeholder =
+        typeof question.placeholder === "function"
+          ? question.placeholder({
+              [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
+            } as any)
+          : question.placeholder;
+      assert.equal(
+        placeholder,
+        getLocalizedString("core.createProjectQuestion.addApiPlugin.placeholder")
+      );
+    });
     it("doesProjectExists = true", async () => {
       const question = apiPluginStartQuestion(true);
       const title =
@@ -677,6 +699,20 @@ describe("scaffold question", () => {
       const title =
         typeof question.title === "function" ? question.title({} as any) : question.title;
       assert.equal(title, getLocalizedString("core.createProjectQuestion.createApiPlugin.title"));
+    });
+  });
+
+  describe("GCNameQuestion", () => {
+    it("happy", async () => {
+      const question = GCNameQuestion();
+      if ((question.additionalValidationOnAccept as any).validFunc) {
+        const res = (question.additionalValidationOnAccept as any).validFunc("test", {} as any);
+        assert.isUndefined(res);
+      }
+      if ((question.validation as any).validFunc) {
+        const res = (question.validation as any).validFunc("test", {} as any);
+        assert.isUndefined(res);
+      }
     });
   });
 });

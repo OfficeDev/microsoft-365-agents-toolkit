@@ -410,6 +410,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
+        [QuestionNames.ProjectType]: ProjectTypeOptions.customEngineAgentOptionId,
         [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
