@@ -121,6 +121,7 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
+import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
@@ -200,6 +201,7 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
+import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -2760,6 +2762,37 @@ export class FxCore {
       }
       return ok(undefined);
     });
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
+    ErrorHandlerMW,
+    EnvLoaderMW(false),
+    ConcurrentLockerMW,
+    ContextInjectorMW,
+  ])
+  async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const installAppDriver = Container.get<InstallAppToChannelDriver>("devChannel/installApp");
+    const context: DriverContext = createDriverContext(inputs);
+    setErrorContext({ component: "devChannelInstallApp" });
+    const env: string = inputs.env;
+
+    const readEnvRes = await envUtil.readEnv(context.projectPath, env, false, true);
+    if (readEnvRes.isErr()) {
+      return err(readEnvRes.error);
+    }
+    const envObject = readEnvRes.value;
+
+    const inputArgs: InstallAppArgs = {
+      appPackagePath: inputs.appPackagePath,
+      teamId: envObject.TEAM_ID,
+      channelId: envObject.CHANNEL_ID,
+    };
+    const res = await installAppDriver.execute(inputArgs, context, new Map());
+    if (res.result.isErr()) {
+      return err(res.result.error);
+    }
+    return ok(undefined);
   }
 
   private async updateAuthActionInYaml(

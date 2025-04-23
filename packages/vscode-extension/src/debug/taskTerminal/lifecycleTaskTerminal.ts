@@ -19,6 +19,7 @@ import { getSystemInputs } from "../../utils/systemEnvUtils";
 interface LifecycleArgs {
   template?: string;
   env?: string;
+  appPackagePath?: string;
 }
 
 export class LifecycleTaskTerminal extends BaseTaskTerminal {
@@ -26,7 +27,7 @@ export class LifecycleTaskTerminal extends BaseTaskTerminal {
 
   constructor(
     taskDefinition: vscode.TaskDefinition,
-    private stage: Stage.provision | Stage.deploy
+    private stage: Stage.provision | Stage.deploy | Stage.installApp
   ) {
     super(taskDefinition);
     this.args = taskDefinition.args as LifecycleArgs;
@@ -67,6 +68,12 @@ export class LifecycleTaskTerminal extends BaseTaskTerminal {
       inputs.workflowFilePath = path.resolve(
         workspaceUri?.fsPath ?? "",
         BaseTaskTerminal.resolveTeamsFxVariables(this.args.template)
+      );
+    }
+    if (this.args.appPackagePath) {
+      inputs.appPackagePath = path.resolve(
+        workspaceUri?.fsPath ?? "",
+        BaseTaskTerminal.resolveTeamsFxVariables(this.args.appPackagePath)
       );
     }
 

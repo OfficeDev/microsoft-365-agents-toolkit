@@ -1072,6 +1072,10 @@
               {
                 "const": "launch-desktop-client",
                 "description": "%teamstoolkit.taskDefinitions.command.launchDesktopClient.description%"
+              },
+              {
+                "const": "install-app",
+                "description": "%teamstoolkit.taskDefinitions.command.installApp.description%"
               }
             ]
           },
@@ -1257,6 +1261,24 @@
                   "url": {
                     "type": "string",
                     "description": "%teamstoolkit.taskDefinitions.args.url.title%"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "env",
+                  "appPackagePath"
+                ],
+                "properties": {
+                  "env": {
+                    "type": "string",
+                    "description": "%teamstoolkit.taskDefinitions.args.env.title%"
+                  },
+                  "appPackagePath": {
+                    "type": "string",
+                    "description": "%teamstoolkit.taskDefinitions.args.appPackagePath.title%"
                   }
                 },
                 "additionalProperties": false

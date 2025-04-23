@@ -84,6 +84,7 @@ export enum Stage {
   addAuthAction = "addAuthAction",
   addKnowledge = "addKnowledge",
   setSensitivityLabel = "setSensitivityLabel",
+  installApp = "installApp",
 }
 
 export enum TelemetryEvent {

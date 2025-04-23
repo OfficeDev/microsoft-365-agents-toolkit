@@ -165,6 +165,10 @@ export async function runCommand(
         result = await core.setSensitivityLabel(inputs);
         break;
       }
+      case Stage.installApp: {
+        result = await core.installAppToChannel(inputs);
+        break;
+      }
       default:
         throw new SystemError(
           ExtensionSource,
