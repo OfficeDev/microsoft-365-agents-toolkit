@@ -480,17 +480,19 @@ describe("GraphAPIClient Test", () => {
 
     it("Should return empty strings when user is not logged in", async () => {
       sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
     it("Should return empty strings when login status is error", async () => {
-      sandbox.stub(tokenProvider, "getStatus").resolves(err(new SystemError("source", "name", "Failed to get status")));
-      
+      sandbox
+        .stub(tokenProvider, "getStatus")
+        .resolves(err(new SystemError("source", "name", "Failed to get status")));
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
@@ -501,9 +503,9 @@ describe("GraphAPIClient Test", () => {
           token: "token",
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
@@ -514,13 +516,13 @@ describe("GraphAPIClient Test", () => {
           token: undefined,
           accountInfo: {
             unique_name: "test@example.com",
-            tid: "test-tenant-id"
-          }
+            tid: "test-tenant-id",
+          },
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
@@ -531,13 +533,13 @@ describe("GraphAPIClient Test", () => {
           token: "token",
           accountInfo: {
             unique_name: 123,
-            tid: true
-          }
+            tid: true,
+          },
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
@@ -548,13 +550,13 @@ describe("GraphAPIClient Test", () => {
           token: "token",
           accountInfo: {
             unique_name: "test@example.com",
-            tid: "test-tenant-id"
-          }
+            tid: "test-tenant-id",
+          },
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["test@example.com", "test-tenant-id"]);
     });
 
@@ -562,12 +564,12 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           status: signedIn,
-          token: "token"
+          token: "token",
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
 
@@ -578,13 +580,13 @@ describe("GraphAPIClient Test", () => {
           token: "token",
           accountInfo: {
             unique_name: undefined,
-            tid: undefined
-          }
+            tid: undefined,
+          },
         } as any)
       );
-      
+
       const result = await graphClient.getCurrentUserInfo();
-      
+
       expect(result).to.deep.equal(["", ""]);
     });
   });
