@@ -55,7 +55,7 @@ namespace Microsoft.TeamsFx.Conversation
 
                             if (contentType == InvokeResponseContentType.AdaptiveCard)
                             {
-                                var card = responseValue.Value as object;
+                                var card = responseValue.Value;
                                 if (card == null)
                                 {
                                     string errorMessage = "Adaptive card content cannot be null.";
