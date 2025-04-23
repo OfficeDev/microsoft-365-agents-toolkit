@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "m365agents MCP Server": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/index.js"]
+    }
+  }
+}

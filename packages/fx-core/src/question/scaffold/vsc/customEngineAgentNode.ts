@@ -3,7 +3,7 @@
 
 import { IQTreeNode } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { QuestionNames } from "../../constants";
+import { QuestionNames } from "../../questionNames";
 import { CustomEngineAgentOptions, setTemplateName } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 import { llmServiceNode } from "./agentForTeamsNode";

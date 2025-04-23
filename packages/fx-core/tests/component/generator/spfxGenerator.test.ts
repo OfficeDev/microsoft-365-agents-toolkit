@@ -25,13 +25,11 @@ import {
 import { getShellOptionValue, Utils } from "../../../src/component/generator/spfx/utils/utils";
 import { envUtil } from "../../../src/component/utils/envUtil";
 import { FileNotFoundError, UserCancelError } from "../../../src/error";
-import {
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-  SPFxVersionOptionIds,
-} from "../../../src/question";
+import { QuestionNames, SPFxVersionOptionIds } from "../../../src/question";
 import { MockTools } from "../../core/utils";
+import { TeamsProjectTypeOptions } from "../../../src/question/scaffold/vsc/teamsProjectTypeNode";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
+import { TabCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("SPFxGenerator", function () {
   const testFolder = path.resolve("./tmp");
@@ -1231,8 +1229,9 @@ describe("SPFxGeneratorNew", () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "new",
       };
       const isActive = generator.activate(context, inputs);
@@ -1249,8 +1248,9 @@ describe("SPFxGeneratorNew", () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "new",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1261,8 +1261,9 @@ describe("SPFxGeneratorNew", () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "new",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1281,8 +1282,9 @@ describe("SPFxGeneratorImport", () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const isActive = generator.activate(context, inputs);
@@ -1305,8 +1307,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1319,8 +1322,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1333,8 +1337,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1349,8 +1354,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
@@ -1369,8 +1375,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.post(context, inputs, "");
@@ -1383,8 +1390,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.post(context, inputs, "");
@@ -1397,8 +1405,9 @@ describe("SPFxGeneratorImport", () => {
         platform: Platform.CLI,
         projectPath: "./",
         [QuestionNames.AppName]: "testspfx",
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
       };
       const res = await generator.post(context, inputs, "");

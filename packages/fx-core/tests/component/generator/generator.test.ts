@@ -9,6 +9,7 @@ import fs from "fs-extra";
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import Mustache from "mustache";
+import os from "os";
 import path from "path";
 import { createSandbox } from "sinon";
 import * as folderUtils from "../../../../fx-core/src/folder";
@@ -50,10 +51,13 @@ import {
   simplifyAxiosError,
 } from "../../../src/component/generator/utils";
 import { ActionContext } from "../../../src/component/middleware/actionExecutionMW";
-import { CapabilityOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import {
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import sampleConfigV3 from "../../common/samples-config-v3.json";
 import { MockTools, randomAppName } from "../../core/utils";
-import os from "os";
 
 const mockedSampleInfo: SampleConfig = {
   id: "test-id",
@@ -516,7 +520,7 @@ describe("Generator error", async () => {
     platform: Platform.VSCode,
     [QuestionNames.AppName]: randomAppName(),
     [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.JS,
-    [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+    [QuestionNames.Capabilities]: BotCapabilityOptions.basicBot().id,
   } as Inputs;
   const sandbox = createSandbox();
   const tmpDir = path.join(__dirname, "tmp");
@@ -811,7 +815,7 @@ describe("render template", () => {
         platform: Platform.VSCode,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
-        [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+        [QuestionNames.Capabilities]: BotCapabilityOptions.basicBot().id,
         [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
       } as Inputs;
       sandbox.stub(process, "env").value({ TEAMSFX_NEW_GENERATOR: "true" });
@@ -1253,16 +1257,19 @@ describe("render template", () => {
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
-      assert.equal(CapabilityOptions.customCopilotBasic().description, descriptionAnswer);
-      assert.equal(CapabilityOptions.customCopilotRag().description, descriptionAnswer);
-      assert.equal(CapabilityOptions.customCopilotAssistant().description, descriptionAnswer);
+      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, descriptionAnswer);
+      assert.equal(
+        CustomCopilotCapabilityOptions.customCopilotRag().description,
+        descriptionAnswer
+      );
+      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
     it("CEA works in M365 tag doesn't show when CEA disabled", async () => {
       sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
-      assert.equal(CapabilityOptions.customCopilotBasic().description, undefined);
-      assert.equal(CapabilityOptions.customCopilotRag().description, undefined);
-      assert.equal(CapabilityOptions.customCopilotAssistant().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
+      assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
     });
 
     it("template name with language 'common' or 'none' uses full id as folderName", async () => {
@@ -1342,8 +1349,10 @@ describe("render template", () => {
     it("template variables with graph connector scaffold", async () => {
       inputs.projectId = "test-id";
       inputs[QuestionNames.GCName] = "test-name";
+      inputs[QuestionNames.GCConnectionId] = "test-id";
       const vars = getTemplateReplaceMap(inputs);
       assert.equal(vars.gcName, "test-name");
+      assert.equal(vars.gcConnectionId, "test-id");
     });
   });
 });
@@ -1454,7 +1463,7 @@ describe("getTemplateReplaceMap", () => {
     platform: Platform.VSCode,
     [QuestionNames.AppName]: randomAppName(),
     [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
-    [QuestionNames.Capabilities]: CapabilityOptions.basicBot().id,
+    [QuestionNames.Capabilities]: BotCapabilityOptions.basicBot().id,
     [QuestionNames.TemplateName]: TemplateNames.DefaultBot,
   } as Inputs;
   afterEach(() => {

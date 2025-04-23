@@ -346,7 +346,8 @@ export class CreateAppPackageDriver implements StepDriver {
               normalizePath(pluginFileRelativePath, useForwardSlash),
               hasTTKGeneratedFolder ? generatedFolder : appDirectory,
               context,
-              !shouldwriteAllManifest ? undefined : jsonFileDir
+              !shouldwriteAllManifest ? undefined : jsonFileDir,
+              hasTTKGeneratedFolder ? appDirectory : undefined
             );
 
             if (addPluginRes.isErr()) {
@@ -487,7 +488,8 @@ export class CreateAppPackageDriver implements StepDriver {
     pluginRelativePath: string,
     appDirectory: string,
     context: WrapDriverContext,
-    outputDirectory?: string
+    outputDirectory?: string,
+    defaultAppDirectry?: string
   ): Promise<Result<undefined, FxError>> {
     const pluginFile = path.resolve(appDirectory, pluginRelativePath);
     const checkExistenceRes = await this.validateReferencedFile(pluginFile, appDirectory);
@@ -507,12 +509,12 @@ export class CreateAppPackageDriver implements StepDriver {
       for (const func of pluginFileContent.functions) {
         if (func.capabilities?.response_semantics?.static_template?.file) {
           const staticTemplateFile = path.resolve(
-            path.dirname(pluginFile),
+            defaultAppDirectry ?? path.dirname(pluginFile),
             func.capabilities.response_semantics.static_template.file as string
           );
           const checkExistenceRes = await this.validateReferencedFile(
             staticTemplateFile,
-            appDirectory
+            defaultAppDirectry ?? appDirectory
           );
 
           if (checkExistenceRes.isErr()) {

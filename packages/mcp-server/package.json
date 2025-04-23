@@ -1,0 +1,58 @@
+{
+  "name": "@microsoft/m365agentstoolkit-mcp",
+  "version": "0.1.0-alpha",
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/index.js",
+    "watch": "tsc --watch",
+    "start": "node ./dist/index.js",
+    "test:unit": "jest",
+    "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint:staged": "lint-staged",
+    "lint:fix": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "mcp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OfficeDev/teams-toolkit.git"
+  },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "description": "MCP server for Microsoft 365 Agents Toolkit",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.10.0",
+    "@types/sinon": "^17.0.4",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "chai": "^5.2.0",
+    "eslint": "^7.29.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-no-secrets": "^0.8.9",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "nock": "^14.0.4",
+    "prettier": "^2.4.1",
+    "shx": "^0.3.4",
+    "sinon": "^20.0.0",
+    "ts-jest": "29.2.5",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.4.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,css,ts,tsx}": [
+      "npx eslint --cache --fix --quiet"
+    ]
+  }
+}
