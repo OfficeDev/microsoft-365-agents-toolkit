@@ -4002,7 +4002,7 @@ describe("scaffold question", () => {
 
       assert.equal(question.type, "multiSelect");
       assert.equal(question.name, QuestionNames.ApiOperation);
-      assert.equal(question.title, "Select API operations to regenerate.");
+      assert.equal(question.title, "Select operation(s) Copilot can interact with.");
       assert.equal(question.cliDescription, "Select operation(s) Copilot can interact with.");
       assert.equal(question.cliShortName, "o");
       assert.equal(
