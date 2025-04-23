@@ -283,6 +283,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Graph 커넥터에 대한 연결 ID 추가]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연결 ID 추가]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.maxlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is longer than the 32 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연결 ID가 32자보다 깁니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.minlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is shorter than the 3 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연결 ID가 3자보다 짧습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.pattern" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connector ID must contain only alphanumeric characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[커넥터 ID는 영숫자 문자만 포함해야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.specialBeginner" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID should not begin with %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연결 ID는 %s(으)로 시작하지 않아야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.GCInputQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Connection ID]]></Val>
@@ -576,10 +630,13 @@
       </Item>
       <Item ItemId=";core.QuestionAppName.validation.lengthWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Microsoft 365 Agents Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[로컬 디버깅을 위해 Teams Toolkit에서 추가한 "로컬" 접미사로 인해 앱 이름이 30자를 초과할 수 있습니다. "manifest.json" 파일에서 앱 이름을 업데이트하세요.]]></Val>
+            <Val><![CDATA[로컬 디버깅을 위해 Microsoft 365 Agents Toolkit에서 추가한 "로컬" 접미사로 인해 앱 이름이 30자를 초과할 수 있습니다. "manifest.json" 파일에서 앱 이름을 업데이트하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -774,12 +831,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트를 사용하여 새 Teams 앱을 만듭니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit를 사용하여 새 앱을 만듭니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams application.]]></Val>
+            <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -948,28 +1005,37 @@
       </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용을 잃지 않으려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 Git을 사용하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용이 손실되지 않도록 하려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 git을 사용합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.localTeamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더, "%s" 및 "%s" 파일을 수정합니다. 예기치 않은 변경 내용을 잃지 않으려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 Git을 사용하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더, "%s" 및 "%s"의 파일을 수정합니다. 예기치 않은 변경 내용이 손실되지 않도록 하려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 git을 사용합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.teamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더 및 "%s" 파일을 수정합니다. 예기치 않은 변경 내용을 잃지 않으려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 Git을 사용하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 사용자가 제공한 새 OpenAPI 문서를 기반으로 "%s" 폴더 및 "%s"의 파일을 수정합니다. 예기치 않은 변경 내용이 손실되지 않도록 하려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 git을 사용합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -984,10 +1050,13 @@
       </Item>
       <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트가 선택한 API에 Microsoft Entra 인증을 추가했습니다. 다음 확인: 1. .env 파일에서 자리 표시자가 %s인 애플리케이션 ID URI를 찾아 Microsoft Entra 앱으로 업데이트합니다. 2. Mcirosoft Entra 앱의 리디렉션 URI에 https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect를 추가합니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit에서 선택한 API에 Microsoft Entra 인증을 추가했습니다. 다음 확인: 1. .env 파일에서 자리 표시자가 %s인 애플리케이션 ID URI를 찾아 Microsoft Entra 앱으로 업데이트합니다. 2. Mcirosoft Entra 앱의 리디렉션 URI에 https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect를 추가합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1176,12 +1245,12 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 사용자가 제공한 기능 원본에 따라 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용의 손실을 방지하려면 진행하기 전에 파일을 백업하거나 변경 내용 추적을 위해 git을 사용하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 사용자가 제공한 기능 원본에 따라 "%s" 폴더의 파일을 수정합니다. 예기치 않은 변경 내용이 손실되지 않도록 하려면 계속하기 전에 파일을 백업하거나 변경 내용 추적에 git을 사용합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1372,6 +1441,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid email address]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[잘못된 전자 메일 주소]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.aiAssistantBotOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[A custom AI Agent bot in Teams using Teams AI library and OpenAI Assistants API]]></Val>
@@ -1512,12 +1590,12 @@
       </Item>
       <Item ItemId=";core.collaboration.ListCollaboratorsSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
+          <Val><![CDATA[List of app owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 앱 소유자 목록이 성공하면 [Output panel]5D;(%s)에서 볼 수 있습니다.]]></Val>
+            <Val><![CDATA[앱 소유자 목록이 작성되었습니다. [출력 패널]5D;(%s)에서 볼 수 있습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA['List Microsoft 365 App owners' succeeded, you can view it in [Output panel]5D;(%s).]]></Val>
+            <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1536,12 +1614,12 @@
       </Item>
       <Item ItemId=";core.collaboration.M365TeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
+          <Val><![CDATA[App (ID: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Teams 앱(ID: ]]></Val>
+            <Val><![CDATA[앱(ID: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[M365 Teams App (ID: ]]></Val>
+            <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1626,22 +1704,25 @@
       </Item>
       <Item ItemId=";core.collaboration.StartingListAllTeamsAppOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
+          <Val><![CDATA[]A;Starting to list all app owners for environment: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[]A;환경의 모든 Teams 앱 소유자 나열 시작: ]]></Val>
+            <Val><![CDATA[]A;환경의 모든 앱 소유자 나열 시작: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Starting list all teams app owners for environment: ]]></Val>
+            <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.TeamsAppOwner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Owner: ]]></Val>
+          <Val><![CDATA[App Owner: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 소유자: ]]></Val>
+            <Val><![CDATA[앱 소유자: ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Owner: ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1719,12 +1800,12 @@
       </Item>
       <Item ItemId=";core.common.LifecycleComplete.prepareTeamsApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app prepared successfully.]]></Val>
+          <Val><![CDATA[app prepared successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 준비했습니다.]]></Val>
+            <Val><![CDATA[앱이 준비되었습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Successfully prepared Teams app.]]></Val>
+            <Val><![CDATA[Teams app prepared successfully.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1806,36 +1887,36 @@
       </Item>
       <Item ItemId=";core.common.OfficeDesktopClientName" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
+          <Val><![CDATA[The app for desktop client id]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[데스크톱 클라이언트 ID에 대한 Microsoft 365 앱]]></Val>
+            <Val><![CDATA[데스크톱 클라이언트 ID용 앱]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office desktop client id]]></Val>
+            <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
+          <Val><![CDATA[The app client id 1]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 앱 클라이언트 ID 1]]></Val>
+            <Val><![CDATA[앱 클라이언트 ID 1]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 1]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
+          <Val><![CDATA[The app client id 2]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 앱 클라이언트 ID 2]]></Val>
+            <Val><![CDATA[앱 클라이언트 ID 2]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 2]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2074,6 +2155,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[사용자에 대한 공유 앱 액세스가 제거됨: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[사용자와 앱을 공유함: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.confirmManifestQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Confirm you've selected the correct manifest file]]></Val>
@@ -2278,24 +2377,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Description for function "%s" shortened to %s characters to meet the length requirement.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[길이 요구 사항을 충족하는 %s 문자로 줄인 함수 "%s" 대한 설명입니다.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[ Mitigation: Update description for "%s" in "%s" so that Copilot can trigger the function.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ 완화: Copilot가 함수를 트리거할 수 있도록 "%s" "%s" 대한 설명을 업데이트합니다.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Description for function "%s" is missing.]]></Val>
@@ -2373,12 +2454,12 @@
       </Item>
       <Item ItemId=";core.copilotPlugin.validate.apiSpec.summary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트에서 OpenAPI 설명 문서를 확인했습니다.]A;]A;요약:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit에서 OpenAPI 설명 문서를 확인했습니다.]A;]A;요약:]A;%s.]A;%s]A;%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked your API spec:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2433,10 +2514,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit에서 Teams 개발자 포털 API 키를 업로드합니다. API 키는 Teams 클라이언트가 런타임에 API에 안전하게 액세스하는 데 사용됩니다. Teams 도구 키트에서 API 키를 저장하지 않습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 API 키를 개발자 포털에 업로드합니다. API 키는 Teams 클라이언트가 런타임에 API에 안전하게 액세스하는 데 사용됩니다. Microsoft 365 Agents Toolkit는 API 키를 저장하지 않습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2460,10 +2544,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit은 OAuth 등록을 위한 클라이언트 ID/비밀을 Teams 개발자 포털 업로드합니다. Teams 클라이언트가 런타임에 API에 안전하게 액세스하는 데 사용됩니다. Teams 도구 키트는 클라이언트 ID/비밀을 저장하지 않습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 도구 키트는 OAuth 등록에 대한 클라이언트 ID/비밀을 개발자 포털에 업로드합니다. Teams 클라이언트가 런타임에 API에 안전하게 액세스하는 데 사용됩니다. Microsoft 365 에이전트 도구 키트는 클라이언트 ID/비밀을 저장하지 않습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2529,6 +2616,24 @@
           <Val><![CDATA[Import Manifest File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[매니페스트 파일 가져오기]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Graph 커넥터를 사용하여 선언적 에이전트 만들기]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[그래프 커넥터 추가]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3070,6 +3175,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 Agents SDK 및 의미 체계 커널을 사용하여 빌드된 일기 예보 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[날씨 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customEngineAgent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
@@ -3216,10 +3339,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create API Plugin]]></Val>
+          <Val><![CDATA[Create an Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 플러그 인 만들기]]></Val>
+            <Val><![CDATA[작업 만들기]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3564,12 +3690,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub Copilot 채팅하고 Teams 앱 개발을 위한 단계별 지침을 받으세요.]]></Val>
+            <Val><![CDATA[GitHub Copilot과 채팅하고 앱 또는 Microsoft 365 Copilot 에이전트를 개발하기 위한 단계별 지침을 확인하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3864,12 +3990,12 @@
       </Item>
       <Item ItemId=";core.developerPortal.scaffold.CannotFindManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
+          <Val><![CDATA[Manifest not found from the downloaded package for app %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 %s 다운로드한 패키지에서 매니페스트를 찾을 수 없습니다.]]></Val>
+            <Val><![CDATA[다운로드한 앱 %s용 패키지에서 매니페스트를 찾을 수 없습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Could not find manifest from the downloaded package for teams app %s.]]></Val>
+            <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4080,10 +4206,13 @@
       </Item>
       <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트: 앱의 런타임 선택]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit: 앱의 런타임 선택]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4179,46 +4308,49 @@
       </Item>
       <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
+          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[최신 버전과 계속 호환되도록 Teams 도구 키트 프로젝트를 업그레이드하세요. 업그레이드 요약과 함께 백업 디렉터리가 만들어집니다.]]></Val>
+            <Val><![CDATA[최신 버전과 계속 호환되도록 Microsoft 365 Agents Toolkit 프로젝트를 업그레이드하세요. 업그레이드 요약과 함께 백업 디렉터리가 만들어집니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please upgrade your project to stay compatible with the latest version, your current project contains configurations from an older Teams Toolkit.]A;The auto-upgrade process will generate backups in case an error occurs.]]></Val>
+            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
+          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[최신 Teams 도구 키트 버전과 호환되도록 솔루션을 업그레이드하세요. 업그레이드 보고서가 포함된 백업 디렉터리가 생성됩니다.]]></Val>
+            <Val><![CDATA[최신 Microsoft 365 Agents Toolkit 버전과 호환되도록 솔루션을 업그레이드합니다. 업그레이드 보고서가 포함된 백업 디렉터리가 생성됩니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit preview feature - Teams App Configuration Improvements is turned on. This project is required to be upgraded to work with the preview features. Select "Learn more" to read about the required changes or select "Upgrade" to perform the changes automatically. If you don't want to upgrade, you can turn off the preview feature.]]></Val>
+            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json이 없습니다. Visual Studio Code v3.x용 Teams 도구 키트 / Teams 도구 키트 CLI v0.x / Visual Studio v17.3용 Teams 도구 키트에서 만든 프로젝트를 업그레이드하려는 중일 수 있습니다. Visual Studio Code v4.x용 Teams 도구 키트 / Teams 도구 키트 CLI v1.x / Visual Studio v17.4용 Teams 도구 키트 설치와 업그레이드 실행을 먼저 수행하세요.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json이 없습니다. Visual Studio Code v3.x용 Microsoft 365 Agents Toolkit/ Microsoft 365 Agents Toolkit CLI v0.x/ Visual Studio v17.3용 Microsoft 365 Agents Toolkit에서 만든 프로젝트를 업그레이드하려고 할 수 있습니다. Visual Studio Code v4.x용 Microsoft 365 Agents Toolkit/ Microsoft 365 Agents Toolkit CLI v1.x/ Visual Studio v17.4용 Microsoft 365 Agents Toolkit를 설치하고 업그레이드를 먼저 실행하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이 프로젝트는 미리 보기 전용이며 Teams 도구 키트에서 지원되지 않습니다. 새 프로젝트를 만들어 Teams 도구 키트를 사용해 보세요.]]></Val>
+            <Val><![CDATA[이 프로젝트는 미리 보기 전용이며 Microsoft 365 Agents Toolkit에서 지원되지 않습니다. 새 프로젝트를 만들어 Microsoft 365 Agents Toolkit를 사용해 보세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4242,24 +4374,24 @@
       </Item>
       <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json이 없습니다. Visual Studio Code v3.x용 Teams 도구 키트 / Teams 도구 키트 CLI v0.x / Visual Studio v17.3용 Teams 도구 키트에서 만든 프로젝트를 업그레이드하려는 중일 수 있습니다. Visual Studio Code v4.x용 Teams 도구 키트 / Teams 도구 키트 CLI v1.x / Visual Studio v17.4용 Teams 도구 키트 설치와 업그레이드 실행을 먼저 수행하세요.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json이 없습니다. Visual Studio Code v3.x용 Microsoft 365 Agents Toolkit/ Microsoft 365 Agents Toolkit CLI v0.x/ Visual Studio v17.3용 Microsoft 365 Agents Toolkit에서 만든 프로젝트를 업그레이드하려고 할 수 있습니다. Visual Studio Code v4.x용 Microsoft 365 Agents Toolkit/ Microsoft 365 Agents Toolkit CLI v1.x/ Visual Studio v17.4용 Microsoft 365 Agents Toolkit를 설치하고 업그레이드를 먼저 실행하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트의 시험판 버전은 새 프로젝트 구성을 지원하며 이전 버전과 호환되지 않습니다. 새 프로젝트를 만들어 시도하거나 "teamsapp 업그레이드"를 실행하여 프로젝트를 먼저 업그레이드합니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit의 시험판 버전은 새 프로젝트 구성을 지원하며 이전 버전과 호환되지 않습니다. 새 프로젝트를 만들어 시도하거나 "teamsapp 업그레이드"를 실행하여 프로젝트를 먼저 업그레이드합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsfx upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4500,31 +4632,37 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트 CLI 버전이 오래되었으며 현재 프로젝트를 지원하지 않습니다. 아래 명령을 사용하여 최신 버전으로 업그레이드하세요.]A;npm 설치 -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[기존 Microsoft 365 Agents Toolkit CLI 버전은 현재 프로젝트를 지원하지 않습니다. 아래 명령을 사용하여 최신 버전으로 업그레이드하세요.]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your TeamFx CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsfx-cli@latest]]></Val>
+            <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[현재 프로젝트는 설치된 Teams 도구 키트 버전과 호환되지 않습니다.]]></Val>
+            <Val><![CDATA[현재 프로젝트가 설치된 버전의 Microsoft 365 Agents Toolkit와 호환되지 않습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - app Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[솔루션의 프로젝트는 Teams 도구 키트 미리 보기 기능인 Teams App Configuration 개선 사항을 사용하여 만들어집니다. 계속하려면 미리 보기 기능을 켤 수 있습니다.]]></Val>
+            <Val><![CDATA[솔루션의 프로젝트는 Microsoft 365 Agents Toolkit 미리 보기 기능인 앱 구성 개선 사항으로 만들어집니다. 계속하려면 미리 보기 기능을 켤 수 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4713,13 +4851,22 @@
       </Item>
       <Item ItemId=";core.selectTeamsAppPackageQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams App Package File]]></Val>
+          <Val><![CDATA[Select app package File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 패키지 파일 선택]]></Val>
+            <Val><![CDATA[앱 패키지 파일 선택]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select Teams app package file]]></Val>
+            <Val><![CDATA[Select Teams App Package File]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.selectUsersToRemoveShareAccess.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select users to remove access]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[액세스를 제거할 사용자 선택]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4737,21 +4884,24 @@
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOptionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          <Val><![CDATA[Validate app before publishing app to Teams store]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 Teams 스토어에 게시하기 전에 Teams 앱 유효성 검사]]></Val>
+            <Val><![CDATA[Teams 스토어에 앱을 게시하기 전에 앱 유효성 검사]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app manifest schema]]></Val>
+          <Val><![CDATA[Validate app manifest schema]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 매니페스트 스키마 유효성 검사]]></Val>
+            <Val><![CDATA[앱 매니페스트 스키마 유효성 검사]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Validate using manifest schema]]></Val>
+            <Val><![CDATA[Validate Teams app manifest schema]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4797,6 +4947,51 @@
           <Val><![CDATA[Set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[설정]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.share.removeAccess.operator" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot remove permission of the operator. Email: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[연산자의 사용 권한을 제거할 수 없습니다. 전자 메일: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[옵션 선택]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 공유]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share with user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[사용자와 공유]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[사용자 전자 메일 입력(쉼표로 구분)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4950,10 +5145,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.env" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          <Val><![CDATA[Target Microsoft 365 Agents Toolkit Environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[대상 Teams 도구 키트 환경]]></Val>
+            <Val><![CDATA[대상 Microsoft 365 Agents Toolkit 환경]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4995,10 +5193,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.teamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App ID (optional)]]></Val>
+          <Val><![CDATA[App ID (optional)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 ID(선택 사항)]]></Val>
+            <Val><![CDATA[앱 ID(선택 사항)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App ID (optional)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5013,19 +5214,25 @@
       </Item>
       <Item ItemId=";core.teamsAppQuestion.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app]]></Val>
+          <Val><![CDATA[Your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱]]></Val>
+            <Val><![CDATA[내 앱]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.teamsAppQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app]]></Val>
+          <Val><![CDATA[app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱]]></Val>
+            <Val><![CDATA[앱]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5175,19 +5382,25 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          <Val><![CDATA[Environment in Microsoft 365 Agents Toolkit Created Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트에서 만든 프로젝트의 환경]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit에서 생성한 프로젝트의 환경]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit 생성 프로젝트에서 특정 환경과 연결된 리소스를 정리합니다. 리소스에는 Teams 개발자 포털 앱 등록, Bot Framework 포털의 봇 등록 및 Microsoft 365 앱에 업로드된 사용자 지정 앱이 포함됩니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit에서 만든 프로젝트에서 특정 환경과 연결된 리소스를 정리합니다. 리소스에는 개발자 포털의 앱 등록, Bot Framework 포털의 봇 등록 및 앱에서 업로드된 사용자 지정 앱이 포함됩니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5220,10 +5433,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[매니페스트 ID와 연결된 리소스를 정리합니다. 여기에는 Teams 개발자 포털 앱 등록, Bot Framework 포털의 봇 등록 및 Microsoft 365 업로드된 사용자 지정 앱이 포함됩니다. Teams 도구 키트에서 만든 프로젝트의 환경 파일(기본 환경 키: Teams_App_ID)에서 매니페스트 ID를 찾을 수 있습니다.]]></Val>
+            <Val><![CDATA[매니페스트 ID와 연결된 리소스를 정리합니다. 여기에는 개발자 포털의 앱 등록, Bot Framework 포털의 봇 등록 및 Microsoft 365에 업로드된 사용자 지정 앱이 포함됩니다. Microsoft 365 Agents Toolkit에서 만든 프로젝트의 환경 파일(기본 환경 키: Teams_App_ID)에서 매니페스트 ID를 찾을 수 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5265,10 +5481,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.titleIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Microsoft 365 Agents Toolkit created project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[타이틀 ID와 연결된 업로드된 사용자 지정 앱을 제거합니다. 타이틀 ID는 Teams Toolkit 생성 프로젝트의 환경 파일에서 찾을 수 있습니다.]]></Val>
+            <Val><![CDATA[타이틀 ID와 연결된 업로드된 사용자 지정 앱을 제거합니다. 타이틀 ID는 Microsoft 365 Agents Toolkit에서 만든 프로젝트의 환경 파일에서 찾을 수 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5535,10 +5754,13 @@
       </Item>
       <Item ItemId=";depChecker.failedToValidateTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          <Val><![CDATA[Unable to validate Microsoft 365 Agents Playground after installation. %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[설치 후 Teams 앱 테스트 도구의 유효성을 검사할 수 없습니다. %s]]></Val>
+            <Val><![CDATA[설치 후 Microsoft 365 Agents Playground의 유효성을 검사할 수 없습니다. %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5622,12 +5844,12 @@
       </Item>
       <Item ItemId=";depChecker.portableFuncNodeNotMatched" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Node.js(@NodeVersion)이 Teams 도구 키트 Azure Functions Core Tools(@FuncVersion)와 호환되지 않습니다.]]></Val>
+            <Val><![CDATA[Node.js(@NodeVersion)는 Microsoft 365 Agents Toolkit Azure Functions Core Tools(@FuncVersion)와 호환되지 않습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Node.js (@NodeVersion) is incompatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5646,10 +5868,13 @@
       </Item>
       <Item ItemId=";depChecker.testToolVersionNotMatch" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          <Val><![CDATA[The version of Microsoft 365 Agents Playground (%s) is not compatible with the specified version range (%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 테스트 도구(%s) 버전이 지정한 버전 범위(%s)와 호환되지 않습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Playground(%s)의 버전이 지정된 버전 범위(%s)와 호환되지 않습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5778,10 +6003,13 @@
       </Item>
       <Item ItemId=";driver.aadApp.log.deleteAadAfterDebugging" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          <Val><![CDATA[ (Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[(Teams 도구 키트는 디버깅 후 Microsoft Entra 애플리케이션을 삭제합니다.)]]></Val>
+            <Val><![CDATA[ (Microsoft 365 Agents Toolkit는 디버깅 후 Microsoft Entra 애플리케이션을 삭제합니다.)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6469,11 +6697,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Install app into sandboxed channel.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[샌드박스 채널에 앱을 설치합니다.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.progress.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Installing app...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱을 설치하는 중...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.devChannel.install.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App installed into team %s with channel %s successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[앱이 %s 팀(채널 %s)에 설치되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.summary.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App '%s' already installed in team '%s'. It will now be updated to the latest version.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 '%s'이(가) 팀 '%s'에 이미 설치되어 있습니다. 이제 최신 버전으로 업데이트됩니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6834,10 +7092,13 @@
       </Item>
       <Item ItemId=";driver.prerequisite.error.testToolInstallationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          <Val><![CDATA[Unable to check and install Microsoft 365 Agents Playground.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 테스트 도구를 검사 및 설치할 수 없습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Playground를 검사하고 설치할 수 없습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6921,19 +7182,25 @@
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 테스트 도구가 설치되어 있습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Playground가 설치되어 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installedWithPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed at %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 테스트 도구가 %s에 설치되어 있습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Playground가 %s에 설치되어 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7110,12 +7377,12 @@
       </Item>
       <Item ItemId=";driver.spfx.error.noValidAppCatelog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
+          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[테넌트에 유효한 앱 카탈로그가 없습니다. %s에서 'createAppCatalogIfNotExist' 속성을 true로 업데이트하면 Teams 도구 키트에서 자동으로 만들어지며, 직접 만들 수도 있습니다.]]></Val>
+            <Val><![CDATA[테넌트에 유효한 앱 카탈로그가 없습니다. Microsoft 365 Agents Toolkit가 만들도록 하거나 직접 만들 수 있는 경우 %s의 'createAppCatalogIfNotExist' 속성을 true로 업데이트할 수 있습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in app.yml to true if you want us to create it for you or you can create it by yourself.]]></Val>
+            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7146,135 +7413,144 @@
       </Item>
       <Item ItemId=";driver.teamsApp.description.copyAppPackageToSPFxDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          <Val><![CDATA[copies the generated app package to SPFx solution.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[생성된 Teams 앱 패키지를 SPFx 솔루션에 복사합니다.]]></Val>
+            <Val><![CDATA[생성된 앱 패키지를 SPFx 솔루션에 복사합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createAppPackageDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[build Teams app package.]]></Val>
+          <Val><![CDATA[build app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 패키지를 빌드합니다.]]></Val>
+            <Val><![CDATA[앱 패키지를 빌드합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[build a Teams app package.]]></Val>
+            <Val><![CDATA[build Teams app package.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[create Teams app.]]></Val>
+          <Val><![CDATA[create app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 만들기]]></Val>
+            <Val><![CDATA[앱을 만듭니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[create a Teams app.]]></Val>
+            <Val><![CDATA[create Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.publishDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
+          <Val><![CDATA[publish app to tenant app catalog.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 테넌트 앱 카탈로그에 게시합니다.]]></Val>
+            <Val><![CDATA[테넌트 앱 카탈로그에 앱을 게시합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[publish a Teams app to tenant app catalog.]]></Val>
+            <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.updateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[update Teams app.]]></Val>
+          <Val><![CDATA[update app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 업데이트]]></Val>
+            <Val><![CDATA[앱을 업데이트합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[update a Teams app.]]></Val>
+            <Val><![CDATA[update Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.validateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[validate Teams app.]]></Val>
+          <Val><![CDATA[validate app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱의 유효성을 검사합니다.]]></Val>
+            <Val><![CDATA[앱의 유효성을 검사합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[validate a Teams app.]]></Val>
+            <Val><![CDATA[validate Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.copyAppPackageToSPFxStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          <Val><![CDATA[Copying app package to SPFx solution...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 패키지를 SPFx 솔루션에 복사하는 중...]]></Val>
+            <Val><![CDATA[SPFx 솔루션에 앱 패키지를 복사하는 중...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.createTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Creating Teams app...]]></Val>
+          <Val><![CDATA[Creating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 만드는 중...]]></Val>
+            <Val><![CDATA[앱을 만드는 중...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Creating Teams app]]></Val>
+            <Val><![CDATA[Creating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
+          <Val><![CDATA[Checking if the app is already submitted to tenant App Catalog]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱이 이미 테넌트 앱 카탈로그에 제출되었는지 확인]]></Val>
+            <Val><![CDATA[앱이 테넌트 앱 카탈로그에 이미 제출되었는지 확인]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Checking if the Teams app has already been submitted to tenant App Catalog]]></Val>
+            <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update published Teams app]]></Val>
+          <Val><![CDATA[Update published app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[게시된 Teams 앱 업데이트]]></Val>
+            <Val><![CDATA[게시된 앱 업데이트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Update published Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publishing Teams app...]]></Val>
+          <Val><![CDATA[Publishing app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 게시하는 중...]]></Val>
+            <Val><![CDATA[앱 게시 중...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publishing Teams app]]></Val>
+            <Val><![CDATA[Publishing Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.updateTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Updating Teams app...]]></Val>
+          <Val><![CDATA[Updating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 업데이트하는 중...]]></Val>
+            <Val><![CDATA[앱 업데이트 중...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Updating Teams app]]></Val>
+            <Val><![CDATA[Updating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7290,30 +7566,36 @@
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.conflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[현재 유효성 검사가 진행 중입니다. 나중에 제출하세요. [Teams Developer Portal]5D;(%s)에서 이 기존 유효성 검사를 찾을 수 있습니다.]]></Val>
+            <Val><![CDATA[현재 유효성 검사가 진행 중입니다. 나중에 제출하세요. [개발자 포털]5D;(%s)에서 이 기존 유효성 검사를 찾을 수 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.step" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[유효성 검사 요청이 제출되었습니다. 상태: %s. 결과가 준비되면 알림을 받거나 [Teams Developer Portal]5D;(%s)에서 모든 유효성 검사 레코드를 검사 수 있습니다.]]></Val>
+            <Val><![CDATA[유효성 검사 요청이 제출되었습니다. 상태: %s. 결과가 준비되면 알림을 받거나 [개발자 포털]5D;(%s)에서 모든 유효성 검사 기록을 확인할 수 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.copyAppPackageSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
+          <Val><![CDATA[App %s was successfully copied to %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 %s이(가) %s에 성공적으로 복사되었습니다.]]></Val>
+            <Val><![CDATA[%s 앱을 %s에 복사했습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app %s was successfully copyed to %s.]]></Val>
+            <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7329,48 +7611,60 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.createTeamsAppAlreadyExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          <Val><![CDATA[App with id %s already exists, skipped creating a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s인 Teams 앱이 이미 있습니다. 새 Teams 앱 만들기를 건너뛰었습니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 Teams 앱이 이미 있습니다. 새 앱 만들기를 건너뛰었습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s already exists in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s인 Teams 앱이 조직의 앱 스토어에 이미 있습니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 앱이 조직의 앱 스토어에 이미 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppNotExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s does not exist in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s인 Teams 앱이 조직의 앱 스토어에 없습니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 앱이 조직의 앱 스토어에 없습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          <Val><![CDATA[App %s successfully published to the admin portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s Teams 앱이 관리 포털에 게시되었습니다.]]></Val>
+            <Val><![CDATA[%s 앱이 관리 포털에 게시되었습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트가 모든 유효성 검사 규칙을 확인했습니다.]A;]A;요약:]A;%s.]A;%s: %s]A;%s]A;]A;전체 유효성 검사 로그는 %s에서 찾을 수 있습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit가 모든 유효성 검사 규칙을 확인했습니다.]A;]A;요약:]A;%s.]A;%s%s]A;%s]A;]A;전체 유효성 검사 로그는 %s에서 찾을 수 있습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7386,10 +7680,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate.checkPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          <Val><![CDATA[You can check and update your app package at %s.]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s Teams 앱 패키지를 검사 업데이트할 수 있습니다.]]></Val>
+            <Val><![CDATA[%s에서 앱 패키지를 확인하고 업데이트할 수 있습니다.]A;]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7440,12 +7737,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트가 해당 스키마를 사용하여 매니페스트를 확인했습니다.]A;]A;요약:]A;%s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit이 해당 스키마를 사용하여 매니페스트를 확인했습니다.]A;]A;요약:]A;%s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked manifest with its schema:]A;]A;Summary:]A;%s.]A;%s]A;]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7497,22 +7794,25 @@
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트에서 앱 패키지의 유효성 검사 규칙 확인을 완료했습니다. %s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit가 앱 패키지의 유효성 검사 규칙 확인을 완료했습니다. %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s failed, %s passed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트에서 유효성 검사 규칙에 대해 앱 패키지 검사를 완료했습니다. %s. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit가 앱 패키지의 유효성 검사 규칙 확인을 완료했습니다. %s. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7620,36 +7920,36 @@
       </Item>
       <Item ItemId=";error.UpgradeV3CanceledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
+          <Val><![CDATA[Don't want to upgrade? Continue using old version of Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[업그레이드하지 않으시겠습니까? 이전 버전의 Teams Toolkit 계속 사용]]></Val>
+            <Val><![CDATA[업그레이드하지 않으시겠습니까? 이전 버전의 Microsoft 365 Agents Toolkit 계속 사용]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[If you are not ready to upgrade, please continue to use the old version of Teams Toolkit]]></Val>
+            <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.VideoFilterAppNotRemoteSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit은 원격에서 비디오 필터 앱을 지원하지 않습니다. 프로젝트 루트 폴더에서 README.md 파일을 확인합니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit는 원격에서 비디오 필터 앱을 지원하지 않습니다. 프로젝트 루트 폴더에서 README.md 파일을 확인합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Video filter app in remote is not supported by Teams Toolkit. Check the README.md file in project root folder.]]></Val>
+            <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.aad.manifest.AADManifestIssues" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the app:]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft Entra 매니페스트에는 Teams 앱을 중단할 수 있는 다음과 같은 문제가 있습니다.]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra 매니페스트에는 앱을 잠재적으로 손상시킬 수 있는 다음과 같은 문제가 있습니다.]A;]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[AAD manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8025,24 +8325,24 @@
       </Item>
       <Item ItemId=";error.appstudio.publishFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
+          <Val><![CDATA[Unable to publish app with ID %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s인 Teams 앱을 게시할 수 없습니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 앱을 게시할 수 없습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to publish Teams app with ID %s.]]></Val>
+            <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.publishInDevPortalSuggestionForValidationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
+          <Val><![CDATA[Generate package from "Zip app package" and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA["Zip Teams 앱 패키지"에서 패키지를 생성하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA["Zip 앱 패키지"에서 패키지를 생성하고 다시 시도하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please try to generate package from "Zip Teams app package" and try again.]]></Val>
+            <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8070,64 +8370,73 @@
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          <Val><![CDATA[Manifest downloaded from Developer Portal is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 개발자 포털 다운로드한 매니페스트가 비어 있습니다.]]></Val>
+            <Val><![CDATA[개발자 포털에서 다운로드한 매니페스트가 비어 있습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoTeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          <Val><![CDATA[Unable to load app ID from the env file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[환경 파일에서 Teams 앱 ID를 로드할 수 없습니다.]]></Val>
+            <Val><![CDATA[env 파일에서 앱 ID를 로드할 수 없습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
+          <Val><![CDATA[Unable to create app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 만들 수 없습니다. 앱 ID가 테넌트의 다른 앱 ID와 충돌하기 때문일 수 있습니다. 이 문제를 resolve '도움말'를 클릭하세요.]]></Val>
+            <Val><![CDATA[앱 ID가 테넌트의 다른 앱 ID와 충돌하기 때문에 앱을 만들 수 없습니다. '도움말'을 클릭하여 이 문제를 해결합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app with 409 Conflict error. That may come from your app id is conflicting with another app in your tenant. Click Get Help to learn more.]]></Val>
+            <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflictWithPublishedApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
+          <Val><![CDATA[app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[동일한 ID의 Teams 앱이 조직의 앱 스토어에 이미 있습니다. 앱을 업데이트하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[동일한 ID의 앱이 조직의 앱 스토어에 이미 있습니다. 앱을 업데이트하고 다시 시도하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[A Teams app with that id already exists in your organization's app store. Manually update the app id and try again.]]></Val>
+            <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to create app in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s(으)로 인해 Teams 개발자 포털에서 앱을 만들 수 없습니다.]]></Val>
+            <Val><![CDATA[%s(으)로 인해 개발자 포털에서 앱을 만들 수 없습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppPublishConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          <Val><![CDATA[Unable to publish app because app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이 ID를 가진 Teams 앱이 스테이징된 앱에 이미 있으므로 Teams 앱을 게시할 수 없습니다. 앱 ID를 업데이트하고 다시 시도하세요.]]></Val>
+            <Val><![CDATA[이 ID의 앱이 스테이징된 앱에 이미 있으므로 앱을 게시할 수 없습니다. 앱 ID를 업데이트하고 다시 시도하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8142,24 +8451,24 @@
       </Item>
       <Item ItemId=";error.appstudio.teamsAppUpdateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to update app with ID %s in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s(으)로 인해 Teams 개발자 포털에서 %s ID로 Teams 앱을 업데이트할 수 없습니다.]]></Val>
+            <Val><![CDATA[%s(으)로 인해 개발자 포털에서 ID가 %s인 앱을 업데이트할 수 없습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.updateManifestInvalidApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
+          <Val><![CDATA[Unable to find app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s Teams 앱을 찾을 수 없습니다. Teams 플랫폼으로 매니페스트를 업데이트하기 전에 디버그 또는 프로비저닝을 실행합니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 앱을 찾을 수 없습니다. 매니페스트를 Teams 플랫폼으로 업데이트하기 전에 디버그 또는 프로비전을 실행합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Cannot find teams app with id %s. You must run debug or provision first before updating manifest to Teams platform.]]></Val>
+            <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8232,10 +8541,13 @@
       </Item>
       <Item ItemId=";error.arm.DownloadBicepCliError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file m365agents.yml and Microsoft 365 Agents Toolkit will use bicep CLI in PATH]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s'에서 Bicep CLI를 다운로드할 수 없습니다. 오류 메시지: %s. 오류를 수정하고 다시 시도하세요. 또는 구성 파일 teamapp.yml에서 bicepCliVersion 구성을 제거하면 Teams 도구 키트가 PATH에서 bicep CLI를 사용합니다.]]></Val>
+            <Val><![CDATA['%s'에서 Bicep cli를 다운로드할 수 없습니다. 오류 메시지: %s. 오류를 수정하고 다시 시도하세요. 또는 구성 파일 m365agents.yml에서 bicepCliVersion 구성을 제거하고 Microsoft 365 Agents Toolkit가 PATH에서 bicep CLI를 사용합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8469,22 +8781,25 @@
       </Item>
       <Item ItemId=";error.common.InvalidProjectError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이 명령은 Teams 도구 키트에서 만든 프로젝트에 대해서만 작동합니다. 'teamsapp.yml' 또는 'teamsapp.local.yml'을 찾을 수 없습니다.]]></Val>
+            <Val><![CDATA[이 명령은 Microsoft 365 Agents Toolkit에서 만든 프로젝트에 대해서만 작동합니다. 'm365agents.yml' 또는 'm365agents.local.yml'을 찾을 수 없습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This command only works for project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.common.InvalidProjectError.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[이 명령은 Teams 도구 키트에서 만든 프로젝트에 대해서만 작동합니다. Yaml 파일을 찾을 수 없음: %s]]></Val>
+            <Val><![CDATA[이 명령은 Microsoft 365 Agents Toolkit에서 만든 프로젝트에 대해서만 작동합니다. Yaml 파일을 찾을 수 없음: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8502,12 +8817,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s 파일에 대한 환경 변수 '%s' 없습니다. .env 파일 '%s' 또는 '%s' 편집하거나 시스템 환경 변수를 조정하세요. 새 Teams 도구 키트 프로젝트의 경우 프로비전 또는 디버그를 실행하여 이러한 변수를 올바르게 설정했는지 확인하세요.]]></Val>
+            <Val><![CDATA[파일 %s에 대한 환경 변수 '%s'이(가) 없습니다. .env 파일 '%s' 또는 '%s'을(를) 편집하거나 시스템 환경 변수를 조정하세요. 새 Microsoft 365 Agents Toolkit 프로젝트의 경우 프로비전 또는 디버그를 실행하여 이러한 변수를 올바르게 설정했는지 확인합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The program cannot proceed as the following environment variables are missing: '%s', which are required for file: %s. Make sure the required variables are set either by editing the .env file '%s' with the correct names and values , or by setting the system environment variables with the correct names and values. If you are developing with a new project created with Teams Toolkit, running provision or debug will register correct values for these environment variables.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9037,6 +9352,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.kiota.KiotaGeneratePluginError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kiota를 사용하여 플러그 인 매니페스트 파일을 생성할 수 없습니다. 오류: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
@@ -9093,10 +9417,13 @@
       </Item>
       <Item ItemId=";error.m365.NotExtendedToM365Error" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          <Val><![CDATA[Unable to extend the app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend the app to Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱을 Microsoft 365로 확장할 수 없습니다. Teams 앱을 Microsoft 365로 확장하려면 'teamsApp/extendToM365' 작업을 사용하세요.]]></Val>
+            <Val><![CDATA[앱을 Microsoft 365로 확장할 수 없습니다. 'teamsApp/extendToM365' 작업을 사용하여 앱을 Microsoft 365로 확장하세요.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9160,23 +9487,98 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.share.appPackageConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the appPackagePath config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml에서 appPackagePath 구성을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.appPackageNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the zip package in path: %s. You need to zip the package first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[경로에서 zip 패키지를 찾을 수 없음: %s. 먼저 패키지를 압축해야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest file in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 패키지에서 매니페스트 파일을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest ID in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 패키지에서 매니페스트 ID를 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.shareActionConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "%s" action config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml에서 "%s" 작업 구성을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "titleId" or "appId" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml에서 "titleId" 또는 "appId" 구성을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[.env 파일에서 공유 타이틀 ID 또는 공유 앱 ID를 가져올 수 없습니다. 공유 타이틀 ID: %s, 공유 앱 ID: %s. 먼저 앱을 공유해야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[m365agents.yml에서 "공유" 구성을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          <Val><![CDATA[App with ID %s does not exist in Developer Portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID가 %s인 Teams 앱이 Teams 개발자 포털에 없습니다.]]></Val>
+            <Val><![CDATA[ID가 %s인 앱이 개발자 포털에 없습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.InvalidAppIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
+          <Val><![CDATA[App ID %s is invalid, must be a GUID.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 ID %s 잘못되었습니다. GUID여야 합니다.]]></Val>
+            <Val><![CDATA[앱 ID %s이(가) 잘못되었습니다. GUID여야 합니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app ID %s is invalid]]></Val>
+            <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9192,21 +9594,24 @@
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          <Val><![CDATA[app package validation failed due to  %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s(으)로 인해 Teams 앱 패키지 유효성 검사에 실패했습니다.]]></Val>
+            <Val><![CDATA[%s(으)로 인해 앱 패키지 유효성 검사에 실패했습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[App pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 패키지 유효성 검사에 실패했습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
+            <Val><![CDATA[앱 패키지 유효성 검사에 실패했습니다. 자세한 내용은 [출력 패널]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app pacakge validation failed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9264,12 +9669,12 @@
       </Item>
       <Item ItemId=";error.yaml.InvalidYamlSchemaErrorWithReason" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
+          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s yaml 파일을 구문 분석할 수 없습니다. 이유: %s yaml 파일을 검토하거나 최신 Teams 도구 키트로 업그레이드하세요.]]></Val>
+            <Val><![CDATA[yaml을 구문 분석 할 수 없음: %s. 원인: %s yaml 파일을 검토하거나 최신 Microsoft 365 Agents Toolkit로 업그레이드하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file.]]></Val>
+            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9372,19 +9777,25 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. The file content will replace all the properties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[함수 %s %s static_template 파일 및 기타 속성이 모두 있습니다. 모든 속성이 파일 콘텐츠에 의해 재정의됩니다.]]></Val>
+            <Val><![CDATA[%s 함수에 대한 %s의 static_template 파일 및 기타 속성이 모두 있습니다. 파일 콘텐츠는 모든 속성을 대체합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.progressBar.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Building Teams app package...]]></Val>
+          <Val><![CDATA[Building app package...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 패키지를 빌드하는 중...]]></Val>
+            <Val><![CDATA[앱 패키지 빌드 중...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Building Teams app package...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9471,60 +9882,60 @@
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppCreatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s created successfully]]></Val>
+          <Val><![CDATA[app %s created successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 %s 만들었습니다.]]></Val>
+            <Val><![CDATA[%s 앱을 만들었습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app created %s]]></Val>
+            <Val><![CDATA[Teams app %s created successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedCLINotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully to ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 매니페스트가 배포되었습니다. ]]></Val>
+            <Val><![CDATA[앱 매니페스트가 다음에 성공적으로 배포되었습니다. ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed to ]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s updated successfully]]></Val>
+          <Val><![CDATA[app %s updated successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱이 업데이트되지 %s.]]></Val>
+            <Val><![CDATA[%s 앱을 업데이트했습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app updated %s]]></Val>
+            <Val><![CDATA[Teams app %s updated successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully. To see your app in Developer Portal, click "View in Developer Portal".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 앱 매니페스트가 배포되었습니다. Teams 개발자 포털 앱을 보려면 "개발자 포털 보기"를 클릭하세요.]]></Val>
+            <Val><![CDATA[앱 매니페스트가 성공적으로 배포되었습니다. 개발자 포털에서 앱을 보려면 "개발자 포털에서 보기"를 클릭하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed. Click "View in Developer Portal" to view your application in Teams Developer Portal.]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.unprocessedFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit did not process %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트가 %s 처리하지 않았습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit 가 %s을(를) 처리하지 않았습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[%s was not processed by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9981,19 +10392,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[솔루션의 SPFx %s 버전이 컴퓨터에 설치되어 있지 않습니다. 웹 파트를 계속 추가하려면 Teams Toolkit 디렉터리에 설치하시겠습니까?]]></Val>
+            <Val><![CDATA[솔루션의 SPFx %s 버전이 컴퓨터에 설치되어 있지 않습니다. 웹 파트를 계속 추가하려면 Microsoft 365 Agents Toolkit 디렉터리에 설치하시겠습니까?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit에서 SPFx 버전 %s 사용하고 있으며 솔루션에 SPFx 버전 %s 있습니다. Teams Toolkit 디렉터리의 버전 %s 업그레이드하고 웹 파트를 추가하시겠습니까?]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit 에서 SPFx 버전 %s을(를) 사용하고 있으며 솔루션에 SPFx 버전 %s이(가) 있습니다. Microsoft 365 Agents Toolkit 디렉터리에서 %s 버전으로 업그레이드하고 웹 파트를 추가하시겠습니까?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10026,10 +10443,13 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[솔루션의 SPFx 버전 %s 이 컴퓨터에 설치되어 있지 않습니다. Teams Toolkit은 기본적으로 디렉터리에 설치된 SPFx를 사용합니다(%s). 버전이 일치하지 않아 예기치 않은 오류가 발생할 수 있습니다. 계속하시겠습니까?]]></Val>
+            <Val><![CDATA[솔루션의 SPFx 버전 %s이(가) 이 컴퓨터에 설치되어 있지 않습니다. Microsoft 365 Agents Toolkit 는 기본적으로 해당 디렉터리에 설치된 SPFx를 사용합니다(%s). 버전이 일치하지 않으면 예기치 않은 오류가 발생할 수 있습니다. 계속하시겠습니까?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10044,19 +10464,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[솔루션의 SPFx 버전이 %s. Teams 도구 키트(%s)에서 기본값으로 사용되는 Teams 도구 키트 디렉터리에 %s 설치했습니다. 버전이 일치하지 않아 예기치 않은 오류가 발생할 수 있습니다. %s 가능한 해결 방법 찾기]]></Val>
+            <Val><![CDATA[솔루션의 SPFx 버전은 %s입니다. Microsoft 365 Agents Toolkit 디렉터리에 %s을(를) 설치했습니다. 이는 Microsoft 365 Agents Toolkit(%s)에서 기본값으로 사용됩니다. 버전이 일치하지 않으면 예기치 않은 오류가 발생할 수 있습니다. %s에서 가능한 솔루션을 찾습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[솔루션의 SPFx 버전이 %s. %s 전역으로 설치했으며 Teams Toolkit에서 기본값(%s)으로 사용되는 Teams Toolkit 디렉터리에 %s. 버전이 일치하지 않아 예기치 않은 오류가 발생할 수 있습니다. %s 가능한 해결 방법 찾기]]></Val>
+            <Val><![CDATA[솔루션의 SPFx 버전은 %s입니다. Microsoft 365 Agents Toolkit에서 디렉터리에 %s 및 %s을(를) 전역으로 설치했습니다. 이는 Microsoft 365 Agents Toolkit에서 기본값(%s)으로 사용됩니다. 버전이 일치하지 않으면 예기치 않은 오류가 발생할 수 있습니다. %s에서 가능한 솔루션을 찾습니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10155,12 +10581,12 @@
       </Item>
       <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[기존 SPFx 솔루션을 Teams 도구 키트로 가져올 수 없습니다. %s]]></Val>
+            <Val><![CDATA[기존 SPFx 솔루션을 Microsoft 365 Agents Toolkit로 가져올 수 없음: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10278,24 +10704,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트는 SPFx 솔루션을 가져올 수 없습니다. %s에서 중요한 세부 정보의 전체 로그를 찾습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit 에서 SPFx 솔루션을 가져올 수 없습니다. %s에서 중요한 세부 정보의 전체 로그를 찾습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to import your SPFx solution. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 도구 키트에서 SPFx 솔루션을 가져왔습니다. %s에서 가져오기 세부 정보의 전체 로그를 찾습니다.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit가 SPFx 솔루션을 가져왔습니다. %s에서 가져오기 세부 정보의 전체 로그를 찾습니다.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has imported your SPFx solution successfully. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10353,24 +10779,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit 디렉터리에 로컬로 최신 SPFx를 설치합니다. ]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit 디렉터리에 로컬로 최신 SPFx 설치 ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[최신 SPFx(%s)를 Teams Toolkit 디렉터리에 로컬로 설치합니다. ]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit 디렉터리에 로컬로 최신 SPFx(%s) 설치 ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework (%s) locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

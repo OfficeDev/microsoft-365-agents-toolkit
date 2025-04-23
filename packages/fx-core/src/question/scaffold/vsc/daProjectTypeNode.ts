@@ -1,15 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Inputs, IQTreeNode } from "@microsoft/teamsfx-api";
+import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import {
-  GCConnectionIdQuestion,
-  GCNameQuestion,
-  pluginApiSpecQuestion,
-  pluginManifestQuestion,
-} from "../../create";
+import { ProgrammingLanguage } from "../../constants";
+import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
 import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
@@ -47,7 +43,7 @@ export function daProjectTypeNode(
           placeholder: getLocalizedString(
             "core.createProjectQuestion.declarativeCopilot.placeholder"
           ),
-          onDidSelection: setTemplateName,
+          onDidSelection: setTemplateNameAndGC,
         },
         children: [
           {
@@ -114,22 +110,15 @@ export function daProjectTypeNode(
               },
             ],
           },
-          {
-            condition: { equals: DACapabilityOptions.withGC().id },
-            data: {
-              type: "group",
-            },
-            children: [
-              {
-                data: GCNameQuestion(),
-              },
-              {
-                data: GCConnectionIdQuestion(),
-              },
-            ],
-          },
         ],
       },
     ],
   };
+}
+
+export function setTemplateNameAndGC(selected: string | OptionItem, inputs: Inputs): void {
+  setTemplateName(selected, inputs);
+  if ((selected as OptionItem).id === DACapabilityOptions.withGC().id) {
+    inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
+  }
 }

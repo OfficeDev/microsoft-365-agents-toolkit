@@ -1349,8 +1349,10 @@ describe("render template", () => {
     it("template variables with graph connector scaffold", async () => {
       inputs.projectId = "test-id";
       inputs[QuestionNames.GCName] = "test-name";
+      inputs[QuestionNames.GCConnectionId] = "test-id";
       const vars = getTemplateReplaceMap(inputs);
       assert.equal(vars.gcName, "test-name");
+      assert.equal(vars.gcConnectionId, "test-id");
     });
   });
 });

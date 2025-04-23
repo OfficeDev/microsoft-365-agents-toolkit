@@ -5,7 +5,7 @@
  * @author zhaofengxu@microsoft.com
  */
 
-import { Inputs, Platform } from "@microsoft/teamsfx-api";
+import { Inputs, OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
@@ -15,6 +15,8 @@ import { createContext, setTools } from "../../../src/common/globalVars";
 import { CombinedProjectGenerator } from "../../../src/component/generator/combinedProject/generator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
+import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import { setTemplateNameAndGC } from "../../../src/question/scaffold/vsc/daProjectTypeNode";
 import { MockTools } from "../../core/utils";
 
 describe("combined generator", async () => {
@@ -69,6 +71,27 @@ describe("combined generator", async () => {
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("functions", async () => {
+    it("setTemplateNameAndGC", async () => {
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.Capabilities]: "api-plugin",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
+        [QuestionNames.AppName]: "app",
+      };
+      const optionItem = {
+        id: DACapabilityOptions.withGC().id,
+        data: "test-template",
+      } as OptionItem;
+
+      setTemplateNameAndGC(optionItem, inputs);
+
+      optionItem.id = DACapabilityOptions.noPlugin().id;
+      setTemplateNameAndGC(optionItem, inputs);
     });
   });
 });

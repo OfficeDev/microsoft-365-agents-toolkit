@@ -514,10 +514,11 @@ export class DACapabilityOptions {
     };
   }
   static all(): OptionItem[] {
-    const items: OptionItem[] = [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)) {
-      items.push(DACapabilityOptions.withGC());
-    }
+    const items: OptionItem[] = [
+      DACapabilityOptions.noPlugin(),
+      DACapabilityOptions.withPlugin(),
+      DACapabilityOptions.withGC(),
+    ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)) {
       items.push(DACapabilityOptions.typeSpec());
     }

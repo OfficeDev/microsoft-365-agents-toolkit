@@ -6,8 +6,14 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
 import { ProgrammingLanguage } from "../../constants";
-import { appNameQuestion, folderQuestion } from "../../create";
+import {
+  appNameQuestion,
+  folderQuestion,
+  GCConnectionIdQuestion,
+  GCNameQuestion,
+} from "../../create";
 import { QuestionNames } from "../../questionNames";
+
 import {
   ActionStartOptions,
   BotCapabilityOptions,
@@ -112,9 +118,7 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
-              ? [ProjectTypeOptions.graphConnector(platform)]
-              : []),
+            ProjectTypeOptions.graphConnector(platform),
             ProjectTypeOptions.agentForTeams(platform),
             ProjectTypeOptions.teamsApp(platform),
             ProjectTypeOptions.officeAddin(platform),
@@ -144,6 +148,22 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           },
           {
             data: appNameQuestion(),
+          },
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.WithPlugin] === DACapabilityOptions.withGC().id;
+            },
+            data: {
+              type: "group",
+            },
+            children: [
+              {
+                data: GCNameQuestion(),
+              },
+              {
+                data: GCConnectionIdQuestion(),
+              },
+            ],
           },
         ],
       },
