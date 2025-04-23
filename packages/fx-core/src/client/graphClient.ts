@@ -416,9 +416,9 @@ export class GraphClient {
    * Get current user info
    * @returns unique name and tenant id in string array
    */
-  private async getCurrentUserInfo(): Promise<string[]> {
+  public async getCurrentUserInfo(): Promise<string[]> {
     // check if user has already logged in to the sensitivity label scope
-    const loginStatusRes = await TOOLS.tokenProvider?.m365TokenProvider?.getStatus({
+    const loginStatusRes = await this.tokenProvider.getStatus({
       scopes: [ListSensitivityLabelScope],
     });
     if (

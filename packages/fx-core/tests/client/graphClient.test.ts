@@ -66,7 +66,7 @@ describe("GraphAPIClient Test", () => {
     it("Happy path", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(undefined);
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const response = {
         data: {
           value: [
@@ -105,7 +105,7 @@ describe("GraphAPIClient Test", () => {
     it("Return error for empty response", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(undefined);
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
 
       const response = {};
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
@@ -123,7 +123,7 @@ describe("GraphAPIClient Test", () => {
     it("Return error for empty data", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(undefined);
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const response = { data: {} };
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
@@ -140,7 +140,7 @@ describe("GraphAPIClient Test", () => {
     it("API failure", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(undefined);
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const error = new Error("API failed");
       sandbox.stub(fakeAxiosInstance, "get").rejects(error);
       sandbox.stub(RetryHandler, "Retry").rejects(error);
@@ -156,7 +156,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should use cache when useCache is true and cache is valid", async () => {
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(
+      sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           accountInfo: { unique_name: "name", tid: "123" },
           status: signedIn,
@@ -187,7 +187,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should not use cache when cache is expired", async () => {
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(
+      sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           accountInfo: { unique_name: "name", tid: "123" },
           status: signedIn,
@@ -230,7 +230,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should update cache after API call", async () => {
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(
+      sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           accountInfo: { unique_name: "name", tid: "123" },
           status: signedIn,
@@ -271,7 +271,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should not use cache when useCache is false", async () => {
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(
+      sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           accountInfo: { unique_name: "name", tid: "123" },
           status: signedIn,
@@ -313,7 +313,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should handle response with undefined or missing label properties", async () => {
-      sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getStatus").resolves(
+      sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
           accountInfo: { unique_name: "name", tid: "123" },
           status: signedIn,
@@ -467,6 +467,125 @@ describe("GraphAPIClient Test", () => {
       if (result.isErr()) {
         expect(result.error).to.equal(fakeError);
       }
+    });
+  });
+
+  describe("getCurrentUserInfo", () => {
+    const tokenProvider = new MockedM365Provider();
+    const graphClient = new GraphClient(tokenProvider);
+
+    beforeEach(() => {
+      sandbox.restore();
+    });
+
+    it("Should return empty strings when user is not logged in", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when login status is error", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(err(new SystemError("source", "name", "Failed to get status")));
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when user is not signed in", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: "SignedOut",
+          token: "token",
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when token is not available", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: undefined,
+          accountInfo: {
+            unique_name: "test@example.com",
+            tid: "test-tenant-id"
+          }
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when accountInfo values are not strings", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: 123,
+            tid: true
+          }
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return values when all required info is available", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: "test@example.com",
+            tid: "test-tenant-id"
+          }
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["test@example.com", "test-tenant-id"]);
+    });
+
+    it("Should return empty strings when accountInfo is missing", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token"
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should handle undefined values in accountInfo", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: undefined,
+            tid: undefined
+          }
+        } as any)
+      );
+      
+      const result = await graphClient.getCurrentUserInfo();
+      
+      expect(result).to.deep.equal(["", ""]);
     });
   });
 });
