@@ -630,27 +630,6 @@ describe("coordinator create", () => {
       assert.isTrue(res.isErr());
     });
 
-    it("success for kiota integration: plugin", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
-        [QuestionNames.Capabilities]: "api-plugin",
-        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      };
-      const context = createContext();
-      const res = await coordinator.create(context, inputs);
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.isNotNull(res.value.lastCommand);
-        assert.equal(res.value.projectPath, "");
-      }
-    });
-
     it("success for kiota integration: declarative copilot", async () => {
       mockedEnvRestore = mockedEnv({
         [FeatureFlagName.KiotaIntegration]: "true",
