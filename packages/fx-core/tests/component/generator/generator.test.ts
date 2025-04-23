@@ -1345,7 +1345,7 @@ describe("render template", () => {
       inputs[QuestionNames.GCConnectionId] = "test-id";
       const vars = getTemplateReplaceMap(inputs);
       assert.equal(vars.gcName, "test-name");
-      assert.equal(vars.GCConnectionId, "test-id");
+      assert.equal(vars.gcConnectionId, "test-id");
     });
   });
 });
