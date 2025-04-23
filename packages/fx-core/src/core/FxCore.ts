@@ -2329,6 +2329,7 @@ export class FxCore {
   async regeneratePlugin(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
     const projectPath = inputs.projectPath!;
     const context = createContext();
+
     const teamsManifestPath = inputs[QuestionNames.ManifestPath];
     const appPackageFolder = path.dirname(teamsManifestPath);
 

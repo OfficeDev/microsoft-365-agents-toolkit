@@ -1059,6 +1059,7 @@ export function selectExistingPluginManifestQuestion(): SingleSelectQuestion {
         ManifestTemplateFileName
       );
 
+      inputs[QuestionNames.ManifestPath] = manifestPath;
       const manifestRes = await manifestUtils._readAppManifest(manifestPath);
       if (manifestRes.isErr()) {
         throw manifestRes.error;
