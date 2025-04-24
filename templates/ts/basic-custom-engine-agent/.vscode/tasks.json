@@ -50,13 +50,13 @@
             "type": "teamsfx",
             "command": "deploy",
             "args": {
-                "env": "testtool",
+                "env": "playground",
             }
         },
         {
             "label": "Start application (Microsoft 365 Agents Playground)",
             "type": "shell",
-            "command": "npm run dev:teamsfx:testtool",
+            "command": "npm run dev:teamsfx:playground",
             "isBackground": true,
             "options": {
                 "cwd": "${workspaceFolder}",
@@ -80,18 +80,18 @@
         {
             "label": "Start Microsoft 365 Agents Playground",
             "type": "shell",
-            "command": "npm run dev:teamsfx:launch-testtool",
+            "command": "npm run dev:teamsfx:launch-playground",
             "isBackground": true,
             "options": {
                 "env": {
-                  "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin:${env:PATH}",
+                  "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin:${env:PATH}",
                   "DEFAULT_CHANNEL_ID": "emulator"
                 }
             },
             "windows": {
                 "options": {
                     "env": {
-                        "PATH": "${workspaceFolder}/devTools/teamsapptester/node_modules/.bin;${env:PATH}"
+                        "PATH": "${workspaceFolder}/devTools/playground/node_modules/.bin;${env:PATH}"
                     }
                 }
             },

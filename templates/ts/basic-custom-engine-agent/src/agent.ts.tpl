@@ -1,6 +1,6 @@
 import { ActivityTypes } from "@microsoft/agents-activity";
 import { AgentApplication, MemoryStorage, TurnContext } from "@microsoft/agents-hosting";
-import { AzureOpenAI } from "openai";
+import { AzureOpenAI, OpenAI } from "openai";
 import config from "./config";
 
 {{#useOpenAI}}
@@ -25,7 +25,7 @@ export const agentApp = new AgentApplication({
 });
 
 agentApp.conversationUpdate("membersAdded", async (context: TurnContext) => {
-  await context.sendActivity(`Hi there! I'm an echo bot.`);
+  await context.sendActivity(`Hi there! I'm an agent to chat with you.`);
 });
 
 // Listen for ANY message to be received. MUST BE AFTER ANY OTHER MESSAGE HANDLERS
