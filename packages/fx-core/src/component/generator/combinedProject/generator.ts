@@ -69,6 +69,7 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
         inputs.placeProjectFileInSolutionDir === "true"
       ),
       DeclarativeCopilot: "true",
+      CopilotConnector: "true",
       MicrosoftEntra: auth === ApiAuthOptions.microsoftEntra().id ? "true" : "",
     };
     const templateName = inputs[QuestionNames.TemplateName];

@@ -72,12 +72,12 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-teamsapp) (@teamsapp)简化了 Teams 应用开发，并启用了使用聊天功能自定义智能 Microsoft 365 Copilot 副驾驶®。]A;[安装适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[[适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-m365agents) (@m365agents)可简化 Teams 应用开发，并通过聊天功能支持自定义智能 Microsoft 365 Copilot 副驾驶®。]A;[安装适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -96,33 +96,36 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.installConfirm.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[请在安装 [适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-teamsapp)后将安装标记为已完成。]A;[将安装标记为已完成]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[请在安装[适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-m365agents)后将安装标记为已完成。]A;[将安装标记为已完成]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.installConfirm.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          <Val><![CDATA[⚠️Confirm the installation of @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️确认安装@teamsapp]]></Val>
+            <Val><![CDATA[⚠️确认安装 @m365agents]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展(@teamsapp)简化了 Teams 应用开发，并允许使用聊天功能自定义智能 Microsoft 365 Copilot 副驾驶®。详细了解 [适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-teamsapp)。]]></Val>
+            <Val><![CDATA[适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展(@m365agents)可简化应用开发，并通过聊天功能支持自定义智能 Microsoft 365 Copilot 副驾驶®。详细了解[适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展]5D;(https://aka.ms/install-m365agents)。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+            <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -174,31 +177,37 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[与适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展(@teamsapp)聊天，以生成 Teams 应用或自定义和扩展智能 Microsoft 365 Copilot 副驾驶®。]]></Val>
+            <Val><![CDATA[与适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展(@m365agents)聊天，以生成应用，或自定义和扩展智能 Microsoft 365 Copilot 副驾驶®。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start to use @teamsapp]]></Val>
+          <Val><![CDATA[Start to use @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[开始使用@teamsapp]]></Val>
+            <Val><![CDATA[开始使用 @m365agents]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start to use @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.title.preview" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start to use @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Start to use @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[开始使用 @teamsapp (预览版)]]></Val>
+            <Val><![CDATA[开始使用 @m365agents (预览版)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start to use @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -684,10 +693,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.create.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
+          <Val><![CDATA[Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用此命令可根据说明查找相关模板或示例，以生成 Teams 应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]]></Val>
+            <Val><![CDATA[使用此命令查找相关模板或示例，以根据说明生成应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -711,10 +723,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.create.noPromptAnswer" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to provide description and other details about the Teams app that you want to build.]A;]A;E.g. @teams /create a Teams app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo Teams app.]]></Val>
+          <Val><![CDATA[Use this command to provide description and other details about the app that you want to build.]A;]A;E.g. @teams /create an app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用此命令可提供有关要生成的 Teams 应用的说明和其他详细信息。]A;]A;例如，@teams /create 一个 Teams 应用，该应用将就新的 GitHub 拉取请求通知我的团队。]A;]A;@teams /create 我想创建 ToDo Teams 应用。]]></Val>
+            <Val><![CDATA[使用此命令提供有关要生成的应用的说明和其他详细信息。]A;]A;例如，@teams /create 创建一个将通知我的团队有关新 GitHub 拉取请求的应用。]A;]A;@teams /create 我想创建一个 ToDo 应用。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to provide description and other details about the Teams app that you want to build.]A;]A;E.g. @teams /create a Teams app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -756,22 +771,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.default.noConceptualAnswer" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[这是一个过程性问题，@teams 目前只能回答有关说明或概念的问题。可以尝试这些命令或从 [Microsoft 365 代理工具包文档]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)获取详细信息。]A;]A; • /create: 使用此命令查找相关模板或示例，以根据说明生成 Teams 应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]A;]A; • /nextstep: 使用此命令在 Teams 应用开发的任何阶段移动到下一步。]]></Val>
+            <Val><![CDATA[这是一个过程性问题，@teams 目前只能回答有关说明或概念的问题。可以尝试这些命令或从 [Microsoft 365 智能体工具包文档]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)获取详细信息。]A;]A; • /create: 使用此命令查找相关模板或示例，以根据说明生成应用。例如，@teams /create 创建可完成常见任务的 AI 助手机器人。]A;]A; • /nextstep: 使用此命令在应用开发的任何阶段移动到下一步。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Teams Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+            <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.nextStep.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          <Val><![CDATA[Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用此命令在 Teams 应用开发的任何阶段移动到下一步。]]></Val>
+            <Val><![CDATA[使用此命令在应用开发的任何阶段移动到下一步。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1029,10 +1047,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.teams.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this Copilot extension to ask questions about Teams app development.]]></Val>
+          <Val><![CDATA[Use this Copilot extension to ask questions about app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用此 Copilot 扩展可提出有关 Teams 应用开发的问题。]]></Val>
+            <Val><![CDATA[使用此 Copilot 扩展提出有关应用开发的问题。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this Copilot extension to ask questions about Teams app development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1320,12 +1341,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.addAppOwner.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
+          <Val><![CDATA[Add App (with Microsoft Entra App) Owners]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[添加 Microsoft 365 Teams 应用（使用 Microsoft Entra 应用）所有者]]></Val>
+            <Val><![CDATA[添加应用(使用 Microsoft Entra)所有者]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add Microsoft 365 Teams App (with AAD App) Owners]]></Val>
+            <Val><![CDATA[Add Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1455,22 +1476,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.debug.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select and Start Debugging Teams App]]></Val>
+          <Val><![CDATA[Select and Start Debugging App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[选择并开始调试 Teams 应用]]></Val>
+            <Val><![CDATA[选择并开始调试应用]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select and Start Debuging Teams App]]></Val>
+            <Val><![CDATA[Select and Start Debugging Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commands.debugInTestTool.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[测试工具中的调试]]></Val>
+            <Val><![CDATA[在 Microsoft 365 智能体操场调试]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Debug in Test Tool]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1488,12 +1512,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.deployManifest.ctxMenu.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update Teams App]]></Val>
+          <Val><![CDATA[Update App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[更新 Teams 应用]]></Val>
+            <Val><![CDATA[更新应用]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Update Teams app]]></Val>
+            <Val><![CDATA[Update Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1584,12 +1608,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.listAppOwner.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
+          <Val><![CDATA[List App (with Microsoft Entra App) Owners]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[列出Microsoft 365 Teams 应用（使用 Microsoft Entra 应用）所有者]]></Val>
+            <Val><![CDATA[列出应用(使用 Microsoft Entra)所有者]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[List Microsoft 365 Teams App (with AAD App) Owners]]></Val>
+            <Val><![CDATA[List Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1620,12 +1644,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.manageCollaborator.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
+          <Val><![CDATA[Manage Microsoft 365 App (with Microsoft Entra app) Collaborators]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[管理 M365 Teams 应用（使用 Microsoft Entra 应用）协作者]]></Val>
+            <Val><![CDATA[管理 Microsoft 365 应用(使用 Microsoft Entra 应用)协作者]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Manage M365 Teams App (with AAD app) Collaborators]]></Val>
+            <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1741,6 +1765,18 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.removeSharedAccess" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Remove access for shared app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[移除共享应用的访问权限]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[remove access for shared app]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.reportIssue.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Report Issues on GitHub]]></Val>
@@ -1836,12 +1872,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.updateManifest.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update Teams App]]></Val>
+          <Val><![CDATA[Update App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[更新 Teams 应用]]></Val>
+            <Val><![CDATA[更新应用]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Update Teams app]]></Val>
+            <Val><![CDATA[Update Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1893,12 +1929,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.zipPackage.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Zip Teams App Package]]></Val>
+          <Val><![CDATA[Zip App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zip Teams 应用包]]></Val>
+            <Val><![CDATA[Zip 应用包]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Zip Teams metadata package]]></Val>
+            <Val><![CDATA[Zip Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2040,24 +2076,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
+          <Val><![CDATA[Build your app into a package for publishing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[将 Teams 应用生成到包中以供发布。]]></Val>
+            <Val><![CDATA[将应用生成到包中以供发布。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+            <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Zip Teams App Package]]></Val>
+          <Val><![CDATA[Zip App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zip Teams 应用包]]></Val>
+            <Val><![CDATA[Zip 应用包]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build Teams Package]]></Val>
+            <Val><![CDATA[Zip Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2169,12 +2205,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
+          <Val><![CDATA[Execute the 'deploy' lifecycle stage in m365agents.yml.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 中执行“部署”生命周期阶段。]]></Val>
+            <Val><![CDATA[在 m365agents.yml 中执行“部署”生命周期阶段。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2193,10 +2229,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.documentationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Learn how to use the Toolkit to build Teams apps]]></Val>
+          <Val><![CDATA[Learn how to use the Toolkit to build apps]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[了解如何使用工具包生成 Teams 应用]]></Val>
+            <Val><![CDATA[了解如何使用工具包生成应用]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Learn how to use the Toolkit to build Teams apps]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2211,10 +2250,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your Teams app.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[与GitHub Copilot聊天，了解可使用 Teams 应用执行的操作。]]></Val>
+            <Val><![CDATA[与 GitHub Copilot 聊天，以了解可以使用你的应用或智能 Microsoft 365 Copilot 副驾驶® 智能体执行的操作。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2334,12 +2376,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.manageCollaboratorDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
+          <Val><![CDATA[Manage Microsoft 365 App (with Microsoft Entra app) Collaborators]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[管理 M365 Teams 应用（使用 Microsoft Entra 应用）协作者]]></Val>
+            <Val><![CDATA[管理 Microsoft 365 应用(使用 Microsoft Entra 应用)协作者]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Manage M365 Teams App (with AAD app) Collaborators]]></Val>
+            <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2502,24 +2544,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.previewDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug and preview your Teams app]]></Val>
+          <Val><![CDATA[Debug and preview your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[调试和预览 Teams 应用]]></Val>
+            <Val><![CDATA[调试和预览应用]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app locally]]></Val>
+            <Val><![CDATA[Debug and preview your Teams app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.previewTitle" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Preview Your Teams App (F5)]]></Val>
+          <Val><![CDATA[Preview Your App (F5)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[预览 Teams 应用(F5)]]></Val>
+            <Val><![CDATA[预览应用(F5)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app (F5)]]></Val>
+            <Val><![CDATA[Preview Your Teams App (F5)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2568,12 +2610,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'provision' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 文件中运行“预配”生命周期阶段。]]></Val>
+            <Val><![CDATA[在 m365agents.yml 文件中运行“预配”生命周期阶段。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
+            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2634,12 +2676,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'publish' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'publish' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 文件中运行“publish”生命周期阶段。]]></Val>
+            <Val><![CDATA[在 m365agents.yml 文件中运行“发布”生命周期阶段。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'publish' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Run the 'publish' lifecycle stage in teamsapp.yml file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2751,10 +2793,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.shareDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'share' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 teamsapp.yml 文件中运行“共享”生命周期阶段。]]></Val>
+            <Val><![CDATA[在 m365agents.yml 文件中运行“共享”生命周期阶段。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2778,10 +2823,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.teamsDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage your Teams app registration and access more tools]]></Val>
+          <Val><![CDATA[Manage your app registration and access more tools]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[管理 Teams 应用注册并访问更多工具]]></Val>
+            <Val><![CDATA[管理应用注册并访问更多工具]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manage your Teams app registration and access more tools]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2856,10 +2904,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.dialogContent" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @teamsapp".]]></Val>
+          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @m365agents".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[若要更好地了解错误并浏览解决方案，请选择“输出”下面的相关文本，右键单击，然后选择“使用@teamsapp解析所选文本”。]]></Val>
+            <Val><![CDATA[要更好地了解错误并探索解决方案，请在“输出”下选择相关文本，右键单击，然后选择“使用 @m365agents 解析所选文本”。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @teamsapp".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2874,37 +2925,49 @@
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @teamsapp]]></Val>
+          <Val><![CDATA[Resolve with @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用@teamsapp解析]]></Val>
+            <Val><![CDATA[使用 @m365agents 解析]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve with @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title.preview" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Resolve with @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[通过 @teamsapp 解析(预览版)]]></Val>
+            <Val><![CDATA[使用 @m365agents (预览)解析]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve with @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @teamsapp]]></Val>
+          <Val><![CDATA[Resolve selected text with @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用@teamsapp解析所选文本]]></Val>
+            <Val><![CDATA[使用 @m365agents 解析所选文本]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve selected text with @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title.preview" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Resolve selected text with @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[使用 @teamsapp (预览版)解析所选文本]]></Val>
+            <Val><![CDATA[使用 @m365agents (预览)解析所选文本]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve selected text with @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3042,12 +3105,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.devPortalIntegration.getTeamsAppError.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 代理工具包无法检索 Teams 应用。请使用正确的 Microsoft 365 帐户从开发人员门户重试。]]></Val>
+            <Val><![CDATA[Microsoft 365 智能体工具包无法检索 Teams 应用。请使用正确的 Microsoft 365 帐户从开发人员门户重试。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3231,12 +3294,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureAPIM.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[An API gateway manages APIs for Teams apps, making them available for consumption by other apps like Power Apps.]]></Val>
+          <Val><![CDATA[An API gateway manages APIs for apps, making them available for consumption by other apps like Power Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 网关管理 Teams 应用的 API，使其可供Power Apps等其他应用使用。]]></Val>
+            <Val><![CDATA[API 网关管理应用的 API，使其可供 Power Apps 等其他应用使用。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[An API gateway can be used to administer APIs created for Teams applications and publish them to consume on other applications, such as Power apps.]]></Val>
+            <Val><![CDATA[An API gateway manages APIs for Teams apps, making them available for consumption by other apps like Power Apps.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3252,10 +3315,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureFunction.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A serverless solution to create web APIs for your Teams applications backend.]]></Val>
+          <Val><![CDATA[A serverless solution to create web APIs for your applications backend.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[用于为 Teams 应用程序后端创建 Web API 的无服务器解决方案。]]></Val>
+            <Val><![CDATA[用于为应用程序后端创建 Web API 的无服务器解决方案。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A serverless solution to create web APIs for your Teams applications backend.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3270,10 +3336,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureKeyVault.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Safeguard cryptographic keys and other secrets used by Teams application.]]></Val>
+          <Val><![CDATA[Safeguard cryptographic keys and other secrets used by application.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[保护 Teams 应用程序使用的加密密钥和其他机密。]]></Val>
+            <Val><![CDATA[保护应用程序使用的加密密钥和其他机密。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Safeguard cryptographic keys and other secrets used by Teams application.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3288,10 +3357,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureSql.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your Teams applications data store.]]></Val>
+          <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your applications data store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[用作 Teams 应用程序数据存储的平台即服务(PaaS)数据库引擎。]]></Val>
+            <Val><![CDATA[用作应用程序数据存储的平台即服务(PaaS)数据库引擎。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your Teams applications data store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3435,10 +3507,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.cicdPipeline.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Automate development workflow while building Teams application for GitHub, Azure DevOps and Jenkins.]]></Val>
+          <Val><![CDATA[Automate development workflow while building application for GitHub, Azure DevOps and Jenkins.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[为 GitHub、Azure DevOps 和 Jenkins 生成 Teams 应用程序时，自动执行开发工作流。]]></Val>
+            <Val><![CDATA[为 GitHub、Azure DevOps 和 Jenkins 生成应用程序时，自动执行开发工作流。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Automate development workflow while building Teams application for GitHub, Azure DevOps and Jenkins.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3522,10 +3597,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.mobilePreview.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run and debug your Teams application on iOS or Android client.]]></Val>
+          <Val><![CDATA[Run and debug your application on iOS or Android client.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在 iOS 或 Android 客户端上运行和调试 Teams 应用程序。]]></Val>
+            <Val><![CDATA[在 iOS 或 Android 客户端上运行和调试应用程序。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Run and debug your Teams application on iOS or Android client.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3540,12 +3618,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.multiTenant.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enable Multi-Tenant support for Teams app.]]></Val>
+          <Val><![CDATA[Enable Multi-Tenant support for app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[为 Teams 应用启用多租户支持。]]></Val>
+            <Val><![CDATA[为应用启用多租户支持。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enable multi-Tenant support for Teams app.]]></Val>
+            <Val><![CDATA[Enable Multi-Tenant support for Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3651,12 +3729,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallCopilot" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[要在开发 Teams 应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展，需要先安装 GitHub Copilot。]]></Val>
+            <Val><![CDATA[要在开发应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展，需要先安装 GitHub Copilot。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3681,12 +3759,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallTeamsAgent" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[要在开发 Teams 应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展，请先安装它。如果已安装，请在下面确认。]]></Val>
+            <Val><![CDATA[要在开发应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展，请先安装它。如果已安装，请在下面确认。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3780,10 +3858,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.debugInTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[测试工具中的调试]]></Val>
+            <Val><![CDATA[在 Microsoft 365 智能体操场调试]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Debug in Test Tool]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3861,19 +3942,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.grantPermissionSucceeded" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Added account: '%s' to the environment '%s' as the Teams app owner.]]></Val>
+          <Val><![CDATA[Added account: '%s' to the environment '%s' as the app owner.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已将帐户 "%s" 作为 Teams 应用所有者添加到环境 "%s"。]]></Val>
+            <Val><![CDATA[已将帐户 "%s" 作为应用所有者添加到环境 "%s"。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Added account: '%s' to the environment '%s' as the Teams app owner.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.grantPermissionSucceededV3" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Added account: '%s' as the Teams app owner.]]></Val>
+          <Val><![CDATA[Added account: '%s' as the app owner.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[已将帐户“%s”添加为 Teams 应用所有者。]]></Val>
+            <Val><![CDATA[已将帐户 “%s” 添加为应用所有者。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Added account: '%s' as the Teams app owner.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3915,24 +4002,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[要在开发 Teams 应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展，请从 "%s" 安装适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展。]]></Val>
+            <Val><![CDATA[要在开发应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展，请从 "%s" 安装适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installCopilotAndAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[要在开发 Teams 应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展，请从 "%s" 安装 GitHub Copilot，并从 "%s" 安装适用于 Microsoft 365 代理工具包的 GitHub Copilot 扩展。]]></Val>
+            <Val><![CDATA[要在开发应用或自定义智能 Microsoft 365 Copilot 副驾驶® 时使用适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展，请从 "%s" 安装 GitHub Copilot，并从 "%s" 安装适用于 Microsoft 365 智能体工具包的 GitHub Copilot 扩展。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+            <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3975,12 +4062,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.invalidProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to debug Teams App. This is not a valid Teams project.]]></Val>
+          <Val><![CDATA[Unable to debug app. This is not a valid Teams project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[无法调试 Teams 应用。这不是有效的 Teams 项目。]]></Val>
+            <Val><![CDATA[无法调试应用。这不是有效的 Teams 项目。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to debug Teams App. The project is not a valid Teams project.]]></Val>
+            <Val><![CDATA[Unable to debug Teams App. This is not a valid Teams project.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3999,19 +4086,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.localDebugDescription.enabledTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Test Tool or Teams.]]></Val>
+          <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Microsoft 365 Agents Playground or Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[%s]5D; 已在 [local address]5D;(%s) 成功创建。现在可以在测试工具或 Teams 中调试应用。]]></Val>
+            <Val><![CDATA[[%s]5D; 已在[本地地址]5D;(%s)成功创建。现在可以在 Microsoft 365 智能体操场或 Teams 中调试应用。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Test Tool or Teams.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.localDebugDescription.enabledTestTool.fallback" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Test Tool or Teams.]]></Val>
+          <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Microsoft 365 Agents Playground or Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[%s]5D; 已在 %s 成功创建。现在可以在测试工具或 Teams 中调试应用。]]></Val>
+            <Val><![CDATA[[%s]5D; 已在 %s 成功创建。现在可以在 Microsoft 365 智能体操场或 Teams 中调试应用。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Test Tool or Teams.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4521,12 +4614,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.m365TenantHintMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend Teams apps across Microsoft 365.]]></Val>
+          <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend apps across Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在Office 365目标版本中注册开发人员租户后，注册可能会在数天后生效。单击“获取更多信息”按钮，了解有关设置开发环境以跨Microsoft 365扩展 Teams 应用的详细信息。]]></Val>
+            <Val><![CDATA[在 Office 365 目标版本中注册开发人员租户后，注册可能会在几天后生效。单击“获取更多信息”按钮，了解有关设置开发环境以跨 Microsoft 365 扩展应用的详细信息。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click 'Learn More' button for more information about setting up dev environment for extending Teams apps across Microsoft 365.]]></Val>
+            <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend Teams apps across Microsoft 365.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5091,12 +5184,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.manageCollaborator.grantPermission.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add owners to your Teams app and Microsoft Entra app registrations so they can make changes]]></Val>
+          <Val><![CDATA[Add owners to your app and Microsoft Entra app registrations so they can make changes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[向 Teams 应用和 Microsoft Entra 应用注册添加所有者，以便他们可以进行更改]]></Val>
+            <Val><![CDATA[向应用和 Microsoft Entra 应用注册添加所有者，以便他们可以进行更改]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add owners to your Teams app and Azure Active Director app registrations so they can make changes]]></Val>
+            <Val><![CDATA[Add owners to your Teams app and Microsoft Entra app registrations so they can make changes]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5457,24 +5550,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.publishInDevPortal.selectFile.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select your Teams app package or build one from "Zip Teams app package"]]></Val>
+          <Val><![CDATA[Select your app package or build one from "Zip App Package"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[选择 Teams 应用包，或者根据“Zip Teams 应用包”生成一个]]></Val>
+            <Val><![CDATA[选择应用包，或者根据“Zip 应用包”生成一个]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select your Teams app package or you could build one from "Zip Teams app package"]]></Val>
+            <Val><![CDATA[Select your Teams app package or build one from "Zip Teams app package"]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.publishInDevPortal.selectFile.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Your Teams App Package]]></Val>
+          <Val><![CDATA[Select Your App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[选择 Teams 应用包]]></Val>
+            <Val><![CDATA[选择应用包]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams App Package]]></Val>
+            <Val><![CDATA[Select Your Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5772,10 +5865,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.taskDefinitions.args.url.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Teams app URL.]]></Val>
+          <Val><![CDATA[The app URL.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams 应用 URL。]]></Val>
+            <Val><![CDATA[应用 URL。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The Teams app URL.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6183,19 +6279,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[需要更多帮助？[Chat with GitHub Copilot]5D;(command：fx-extension.invokeChat？%5B%22WalkThrough%22%5D) 以浏览 Teams 应用或智能 Microsoft 365 Copilot 副驾驶®代理开发。]]></Val>
+            <Val><![CDATA[需要更多帮助?[与 GitHub Copilot 聊天]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D)，以探索应用或智能 Microsoft 365 Copilot 副驾驶® 智能体开发。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[需要更多帮助?[与 GitHub Copilot 聊天]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D)，以探索 Teams 应用或 Microsoft 365 Copilot 代理开发。]]></Val>
+            <Val><![CDATA[需要更多帮助?[与 GitHub Copilot 聊天]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D)，以探索应用或智能 Microsoft 365 Copilot 副驾驶® 智能体开发。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6267,12 +6369,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitEnvironment.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To develop Teams app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first Teams app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+          <Val><![CDATA[To develop app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[若要使用 JavaScript 或 TypeScript 开发 Teams 应用，需要 NPM 和 Node.js。设置环境以开始生成第一个 Teams 应用。]A;[Check Prerequisites]5D;(command：fx-extension.validate-getStarted-prerequisites？%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[要使用 JavaScript 或 TypeScript 开发应用，需要 NPM 和 Node.js。设置环境以开始构建第一个应用。]A;[检查先决条件]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Developing Teams application with JavaScript or TypeScript requires NPM and Node.js. Check your environment and get ready for your first Teams app development.]A;[Run Prerequisite Checker]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[To develop Teams app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first Teams app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6345,24 +6447,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run and debug your app in the emulated App Test Tool environment.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
+          <Val><![CDATA[Run and debug your app in the emulated Microsoft 365 Agents Playground environment.]A;[Debug in Microsoft 365 Agents Playground]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在仿真应用测试工具环境中运行和调试应用。]A;[Debug in App Test Tool]5D;(command：fx-extension.localdebug)]A;提示： 在 Teams 中使用活动栏上的 [Run and Debug]5D;(command：workbench.view.debug) 面板进行调试。]]></Val>
+            <Val><![CDATA[在模拟 Microsoft 365 智能体操场环境中运行和调试应用。]A;[在 Microsoft 365 智能体操场中调试]5D;(command:fx-extension.localdebug)]A;提示: 使用活动栏上的[运行和调试]5D;(command:workbench.view.debug)面板在 Teams 中进行调试。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Press [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) or discover [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar, and click the play icon to locally preview your app in Teams context.]A;[Run Local Preview (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Tip: To run local preview, sign in to Microsoft 365 (organizational account) with custom app upload option.__]]></Val>
+            <Val><![CDATA[Run and debug your app in the emulated App Test Tool environment.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in App Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[在应用测试工具中调试]]></Val>
+            <Val><![CDATA[在 Microsoft 365 智能体操场调试]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app locally]]></Val>
+            <Val><![CDATA[Debug in App Test Tool]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

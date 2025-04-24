@@ -256,6 +256,8 @@
 
 /packages/spec-parser/ @KennethBWSong @SLdragon @adashen
 
+/packages/mcp-server/ @chagong @Alive-Fish @yuqizhou77
+
 /packages/tests/src/e2e/bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
 /packages/tests/src/e2e/bot/tdpIntegrationTemplates @yuqizhou77 @nliu-ms
 /packages/tests/src/e2e/collaboration @KennethBWSong @SLdragon

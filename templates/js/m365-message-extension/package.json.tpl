@@ -20,10 +20,11 @@
     "watch": "nodemon ./src/index.js"
   },
   "dependencies": {
+    "@microsoft/agents-hosting": "^0.1.49",
+    "@microsoft/agents-hosting-teams": "^0.1.49",
     "adaptive-expressions": "^4.20.0",
     "adaptivecards-templating": "^2.3.1",
     "adaptivecards": "^3.0.1",
-    "botbuilder": "^4.23.1",
     "express": "^5.0.1"
   },
   "devDependencies": {

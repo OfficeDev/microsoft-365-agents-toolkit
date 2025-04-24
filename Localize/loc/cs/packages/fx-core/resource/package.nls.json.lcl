@@ -283,6 +283,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Přidejte ID připojení pro konektor Graphu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a connection ID]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Přidat ID připojení]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.maxlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is longer than the 32 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID připojení je delší než 32 znaků.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.minlength" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID is shorter than the 3 characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID připojení je kratší než 3 znaky.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.pattern" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connector ID must contain only alphanumeric characters.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID konektoru musí obsahovat jenom alfanumerické znaky.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.GCConnectionIdQuestion.validation.specialBeginner" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Connection ID should not begin with %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID připojení by nemělo začínat na %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.GCInputQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Connection ID]]></Val>
@@ -576,10 +630,13 @@
       </Item>
       <Item ItemId=";core.QuestionAppName.validation.lengthWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Microsoft 365 Agents Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Název vaší aplikace může být delší než 30 znaků, protože sada Teams Toolkit přidala místní příponu pro místní ladění. Aktualizujte prosím název aplikace v souboru manifest.json.]]></Val>
+            <Val><![CDATA[Název aplikace může přesáhnout 30 znaků kvůli příponě „local“, kterou přidává sada Microsoft 365 Agents Toolkit pro místní ladění. Aktualizujte název aplikace v souboru manifest.json.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your app name may exceed 30 characters due to a "local" suffix added by Teams Toolkit for local debugging. Please update your app name in "manifest.json" file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -774,12 +831,12 @@
       </Item>
       <Item ItemId=";core.ScratchOptionYes.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use the Teams Toolkit to create a new Teams app.]]></Val>
+          <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytvořte si novou aplikaci Teams pomocí sady nástrojů Teams.]]></Val>
+            <Val><![CDATA[Pomocí sady nástrojů Microsoft 365 Agents Toolkit vytvořte novou aplikaci.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Use the Teams Toolkit to create a new Teams application.]]></Val>
+            <Val><![CDATA[Use the Microsoft 365 Agents Toolkit to create a new Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -948,28 +1005,37 @@
       </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit upraví soubory ve vaší "%s" složce na základě nového dokumentu OpenAPI, který jste zadali. Pokud chcete zabránit ztrátě neočekávaných změn, zazálohujte soubory nebo před pokračováním použijte ke sledování změn Git.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit upraví soubory ve složce %s na základě nového dokumentu OpenAPI, který jste poskytli. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.localTeamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit upraví soubory ve složce "%s", "%s" a "%s" na základě nového dokumentu OpenAPI, který jste zadali. Pokud chcete zabránit ztrátě neočekávaných změn, zazálohujte soubory nebo před pokračováním použijte ke sledování změn Git.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit upraví soubory ve složce %s, %s a %s na základě nového dokumentu OpenAPI, který jste poskytli. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder, "%s" and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.addApi.confirm.teamsYaml" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit upraví soubory ve složce "%s" a "%s" na základě nového vámi poskytnutého dokumentu OpenAPI. Pokud chcete zabránit ztrátě neočekávaných změn, zazálohujte soubory nebo před pokračováním použijte ke sledování změn Git.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit upraví soubory ve složce %s a %s na základě nového dokumentu OpenAPI, který jste poskytli. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder and "%s" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -984,10 +1050,13 @@
       </Item>
       <Item ItemId=";core.addAuthAction.microsoftEntra.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada nástrojů Teams úspěšně přidala ověřování Microsoft Entra do vybraných rozhraní API. Postupujte následovně: 1. V souborech .env vyhledejte identifikátor URI ID aplikace se zástupným symbolem %s a aktualizujte ho na aplikaci Microsoft Entra. 2. Přidejte https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect do identifikátoru URI přesměrování aplikace Microsoft Entra.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit úspěšně přidala ověřování Microsoft Entra do vybraných rozhraní API. Postupujte následovně: 1. V souborech .env vyhledejte identifikátor URI ID aplikace se zástupným symbolem %s a aktualizujte ho na aplikaci Microsoft Entra. 2. Přidejte https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect do identifikátoru URI přesměrování aplikace Microsoft Entra.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has successfully added Microsoft Entra authentication to the selected APIs. Please: 1. Find the application id uri with placeholder %s in .env files and update it to the Microsoft Entra app. 2. Add https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect to redirect uri of the Mcirosoft Entra app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1176,12 +1245,12 @@
       </Item>
       <Item ItemId=";core.addKnowledge.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada nástrojů Teams upraví soubory ve složce %s na základě zadaného zdroje schopností. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit upraví soubory ve složce %s na základě zadaného zdroje schopností. Pokud se chcete vyhnout ztrátě neočekávaných změn, před pokračováním zazálohujte soubory nebo použijte Git ke sledování změn.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the knowledge source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
+            <Val><![CDATA[Teams Toolkit will modify files in your "%s" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1372,6 +1441,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addUserQuestion.validation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Invalid email address]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Neplatná e-mailová adresa]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.aiAssistantBotOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[A custom AI Agent bot in Teams using Teams AI library and OpenAI Assistants API]]></Val>
@@ -1512,12 +1590,12 @@
       </Item>
       <Item ItemId=";core.collaboration.ListCollaboratorsSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
+          <Val><![CDATA[List of app owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Výpis vlastníků aplikace Microsoft 365 byl úspěšný. Výpis si můžete zobrazit ve [výstupním panelu]5D;(%s).]]></Val>
+            <Val><![CDATA[Výpis vlastníků aplikace byl úspěšný. Výpis si můžete zobrazit ve [výstupním panelu]5D;(%s).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA['List Microsoft 365 App owners' succeeded, you can view it in [Output panel]5D;(%s).]]></Val>
+            <Val><![CDATA[List of Microsoft 365 App owners is successful, you can view it in [Output panel]5D;(%s).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1536,12 +1614,12 @@
       </Item>
       <Item ItemId=";core.collaboration.M365TeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
+          <Val><![CDATA[App (ID: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Microsoft 365 Teams (ID: ]]></Val>
+            <Val><![CDATA[Aplikace (ID: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[M365 Teams App (ID: ]]></Val>
+            <Val><![CDATA[Microsoft 365 Teams App (ID: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1626,22 +1704,25 @@
       </Item>
       <Item ItemId=";core.collaboration.StartingListAllTeamsAppOwners" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
+          <Val><![CDATA[]A;Starting to list all app owners for environment: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[]A;Spouští se výpis všech vlastníků aplikace Teams pro prostředí: ]]></Val>
+            <Val><![CDATA[]A;Spouští se výpis všech vlastníků aplikace pro prostředí: ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Starting list all teams app owners for environment: ]]></Val>
+            <Val><![CDATA[]A;Starting to list all teams app owners for environment: ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.collaboration.TeamsAppOwner" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Owner: ]]></Val>
+          <Val><![CDATA[App Owner: ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vlastník aplikace Teams: ]]></Val>
+            <Val><![CDATA[Vlastník aplikace: ]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Owner: ]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1719,12 +1800,12 @@
       </Item>
       <Item ItemId=";core.common.LifecycleComplete.prepareTeamsApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app prepared successfully.]]></Val>
+          <Val><![CDATA[app prepared successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams se úspěšně připravila.]]></Val>
+            <Val><![CDATA[– aplikace byla úspěšně připravena.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Successfully prepared Teams app.]]></Val>
+            <Val><![CDATA[Teams app prepared successfully.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1806,36 +1887,36 @@
       </Item>
       <Item ItemId=";core.common.OfficeDesktopClientName" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
+          <Val><![CDATA[The app for desktop client id]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Microsoft 365 pro ID desktopového klienta]]></Val>
+            <Val><![CDATA[Aplikace pro ID desktopového klienta]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office desktop client id]]></Val>
+            <Val><![CDATA[The Microsoft 365 app for desktop client id]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
+          <Val><![CDATA[The app client id 1]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID 1 klienta aplikace Microsoft 365]]></Val>
+            <Val><![CDATA[ID klienta aplikace 1]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 1]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 1]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.common.OfficeWebClientName2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
+          <Val><![CDATA[The app client id 2]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID 2 klienta aplikace Microsoft 365]]></Val>
+            <Val><![CDATA[ID klienta aplikace 2]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Office.com client id 2]]></Val>
+            <Val><![CDATA[The Microsoft 365 app client id 2]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2074,6 +2155,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Pro uživatele %s se odebral přístup ke sdílené aplikaci.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.common.shareToUser.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Successfully shared the app with users: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aplikace se úspěšně nasdílela uživatelům: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.confirmManifestQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Confirm you've selected the correct manifest file]]></Val>
@@ -2278,24 +2377,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Description for function "%s" shortened to %s characters to meet the length requirement.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Popis funkce "%s" zkrácený tak, aby %s znaků, aby splňoval požadavek na délku.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.functionDescription.lengthExceeding.mitigation" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[ Mitigation: Update description for "%s" in "%s" so that Copilot can trigger the function.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ Zmírnění: Aktualizovat popis pro "%s" v "%s", aby copilot mohl aktivovat funkci]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.pluginManifest.missingFunctionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Description for function "%s" is missing.]]></Val>
@@ -2373,12 +2454,12 @@
       </Item>
       <Item ItemId=";core.copilotPlugin.validate.apiSpec.summary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada nástrojů Teams zkontrolovala váš dokument s popisem OpenAI:]A;]A;Shrnutí:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit zkontrolovala váš dokument s popisem OpenAI:]A;]A;Shrnutí:]A;%s.]A;%s]A;%s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked your API spec:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked your OpenAPI description document:]A;]A;Summary:]A;%s.]A;%s]A;%s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2433,10 +2514,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.ApiKeyConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Teams Toolkit will not store your API key.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit nahraje klíč rozhraní API na vývojářský portál Teams. Klient Teams použije klíč rozhraní API k zabezpečenému přístupu k rozhraní API v modulu runtime. Sada Teams Toolkit neukládá váš klíč rozhraní API.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit nahraje klíč rozhraní API na Portál pro vývojáře. Klíč rozhraní API bude použit klientem Teams k zabezpečenému přístupu k rozhraní API za běhu. Microsoft 365 Agents Toolkit neuloží váš klíč rozhraní API.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit will upload the API key to Teams Developer Portal. The API key will be used by Teams client to securely access your API in runtime. Microsoft 365 Agents Toolkit will not store your API key.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2460,10 +2544,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientSecretConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Teams Toolkit doesn't store your client id/secret.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit nahraje ID nebo tajný kód klienta pro registraci OAuth na vývojářský portál Teams. Klient Teams ho používá k zabezpečenému přístupu k rozhraní API za běhu. Sada Teams Toolkit neukládá VAŠE ID nebo tajný kód klienta.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit nahraje ID nebo tajný kód klienta pro registraci OAuth na Portál pro vývojáře. Klient Teams ho používá k zabezpečenému přístupu k rozhraní API za běhu. Microsoft 365 Agents Toolkit neukládá vaše ID nebo tajný kód klienta.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 Agents Toolkit uploads the client id/secret for OAuth Registration to Teams Developer Portal. It is used by Teams client to securely access your API at runtime. Microsoft 365 Agents Toolkit doesn't store your client id/secret.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2529,6 +2616,24 @@
           <Val><![CDATA[Import Manifest File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Importovat soubor manifestu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Vytvořit deklarativního agenta pomocí konektoru Graphu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Add a Graph Connector]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Přidání konektoru Graphu]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -3070,6 +3175,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent, which is built with Microsoft 365 Agents SDK and Semantic Kernel]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agent předpovědi počasí, který je vytvořený pomocí sady Microsoft 365 Agents SDK a sémantického jádra]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.customCopilotWeatherOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agent počasí]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customEngineAgent.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Works in Teams and Microsoft 365 Copilot]]></Val>
@@ -3216,10 +3339,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create API Plugin]]></Val>
+          <Val><![CDATA[Create an Action]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytvořit modul plug-in rozhraní API]]></Val>
+            <Val><![CDATA[Vytvořit akci]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create API Plugin]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3564,12 +3690,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.copilotHelp.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Teams app]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Chatujte s GitHub Copilot a získejte podrobné pokyny k vývoji aplikace Teams.]]></Val>
+            <Val><![CDATA[Chatujte s GitHub Copilotem a získejte podrobné pokyny k vývoji aplikace nebo agenta Microsoft 365 Copilotu.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot to get started on your Teams app and agent]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot and get step-by-step instructions to develop your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3864,12 +3990,12 @@
       </Item>
       <Item ItemId=";core.developerPortal.scaffold.CannotFindManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
+          <Val><![CDATA[Manifest not found from the downloaded package for app %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ze staženého balíčku pro %s aplikace Teams se nenašel manifest.]]></Val>
+            <Val><![CDATA[Ve staženém balíčku pro aplikaci %s se nenašel manifest.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Could not find manifest from the downloaded package for teams app %s.]]></Val>
+            <Val><![CDATA[Manifest not found from the downloaded package for Teams app %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4080,10 +4206,13 @@
       </Item>
       <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada nástrojů Teams: Vyberte modul runtime pro vaši aplikaci.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit: vyberte modul runtime pro aplikaci]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4179,46 +4308,49 @@
       </Item>
       <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
+          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Upgradujte projekt sady nástrojů Teams Toolkit a zůstaňte kompatibilní s nejnovější verzí. Vytvoří se záložní adresář se souhrnem upgradu.]]></Val>
+            <Val><![CDATA[Upgradujte projekt Microsoft 365 Agents Toolkit, abyste zajistili kompatibilitu s nejnovější verzí. Vytvoří se záložní adresář se souhrnem upgradu.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please upgrade your project to stay compatible with the latest version, your current project contains configurations from an older Teams Toolkit.]A;The auto-upgrade process will generate backups in case an error occurs.]]></Val>
+            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
+          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aktualizujte své řešení, aby bylo kompatibilní s nejnovější verzí sady Teams Toolkit. Bude vygenerován záložní adresář, ve kterém je zpráva o aktualizaci.]]></Val>
+            <Val><![CDATA[Upgradujte řešení, abyste zajistili kompatibilitu s nejnovější verzí sady Microsoft 365 Agents Toolkit. Bude vygenerován záložní adresář, ve kterém je zpráva o aktualizaci.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The Teams Toolkit preview feature - Teams App Configuration Improvements is turned on. This project is required to be upgraded to work with the preview features. Select "Learn more" to read about the required changes or select "Upgrade" to perform the changes automatically. If you don't want to upgrade, you can turn off the preview feature.]]></Val>
+            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json neexistuje. Možná se pokoušíte upgradovat projekt vytvořený sadou Teams Toolkit pro Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit pro Visual Studio v17.3. Nainstalujte sadu Teams Toolkit pro Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit pro Visual Studio v17.4 a nejprve spusťte upgrade.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json neexistuje. Možná se pokoušíte upgradovat projekt vytvořený sadou Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Nainstalujte sadu Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit pro Visual Studio v17.4 a nejprve spusťte upgrade.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tento projekt je určený jenom pro náhled a sada Teams Toolkit ho nebude podporovat. Vyzkoušejte sadu nástrojů Teams Toolkit vytvořením nového projektu.]]></Val>
+            <Val><![CDATA[Tento projekt je určený jenom pro náhled a sada Microsoft 365 Agents Toolkit ho nebude podporovat. Vyzkoušejte prosím Microsoft 365 Agents Toolkit vytvořením nového projektu]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4242,24 +4374,24 @@
       </Item>
       <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json neexistuje. Možná se pokoušíte upgradovat projekt vytvořený sadou Teams Toolkit pro Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit pro Visual Studio v17.3. Nainstalujte sadu Teams Toolkit pro Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit pro Visual Studio v17.4 a nejprve spusťte upgrade.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json neexistuje. Možná se pokoušíte upgradovat projekt vytvořený sadou Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Nainstalujte sadu Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit pro Visual Studio v17.4 a nejprve spusťte upgrade.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit <= v3.8.0. Please install Teams Toolkit v4.x and run upgrade first.]]></Val>
+            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Předběžná verze sady nástrojů Teams Toolkit podporuje novou konfiguraci projektu a není kompatibilní s předchozími verzemi. Pokud ji chcete vyzkoušet, nejprve vytvořte nový projekt nebo spusťte příkaz teamsapp upgrade.]]></Val>
+            <Val><![CDATA[Předběžná verze sady Microsoft 365 Agents Toolkit podporuje novou konfiguraci projektu a není kompatibilní s předchozími verzemi. Pokud ji chcete vyzkoušet, nejprve vytvořte nový projekt nebo spusťte příkaz teamsapp upgrade.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsfx upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4500,31 +4632,37 @@
       </Item>
       <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+          <Val><![CDATA[The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vaše verze CLI sady nástrojů Teams je příliš stará na to, aby podporovala aktuální projekt, upgradujte ji prosím na nejnovější verzi pomocí následujícího příkazu:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
+            <Val><![CDATA[Existující verze rozhraní příkazového řádku sady Microsoft 365 Agents Toolkit nepodporuje aktuální projekt. Upgradujte na nejnovější verzi pomocí následujícího příkazu:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your TeamFx CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsfx-cli@latest]]></Val>
+            <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aktuální projekt není kompatibilní s nainstalovanou verzí sady Teams Toolkit.]]></Val>
+            <Val><![CDATA[Aktuální projekt není kompatibilní s nainstalovanou verzí sady Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Teams Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - app Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Projekt v řešení je vytvořená pomocí funkce preview sady Teams Toolkit – Vylepšení konfigurace aplikace Teams. Pokud chcete pokračovat, můžete funkci Preview zapnout.]]></Val>
+            <Val><![CDATA[Projekt v řešení je vytvořený pomocí funkce Microsoft 365 Agents Toolkit ve verzi Preview – Vylepšení konfigurace aplikace. Pokud chcete pokračovat, můžete funkci Preview zapnout.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4713,13 +4851,22 @@
       </Item>
       <Item ItemId=";core.selectTeamsAppPackageQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams App Package File]]></Val>
+          <Val><![CDATA[Select app package File]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vybrat soubor balíčku aplikace Teams]]></Val>
+            <Val><![CDATA[Vybrat soubor balíčku aplikace]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select Teams app package file]]></Val>
+            <Val><![CDATA[Select Teams App Package File]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.selectUsersToRemoveShareAccess.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select users to remove access]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Vyberte uživatele, pro které chcete odebrat přístup]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4737,21 +4884,24 @@
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.appPackageOptionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          <Val><![CDATA[Validate app before publishing app to Teams store]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Před publikováním aplikace Teams do obchodu Teams ověřte aplikaci Teams.]]></Val>
+            <Val><![CDATA[Ověření aplikace před jejím publikováním do Obchodu Teams]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validate Teams app before publishing Teams app to Teams store]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.selectValidateMethodQuestion.validate.schemaOption" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validate Teams app manifest schema]]></Val>
+          <Val><![CDATA[Validate app manifest schema]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ověření schématu manifestu aplikace Teams]]></Val>
+            <Val><![CDATA[Ověřit schéma manifestu aplikace]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Validate using manifest schema]]></Val>
+            <Val><![CDATA[Validate Teams app manifest schema]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4797,6 +4947,51 @@
           <Val><![CDATA[Set]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Nastavit]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.share.removeAccess.operator" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot remove permission of the operator. Email: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze odebrat oprávnění operátora. E-mail: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select an option]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Vyberte možnost]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.share" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share the app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sdílet aplikaci]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareOptionQuestion.shareToUser" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Share with user(s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sdílet s uživateli]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.shareToUser.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter user emails (separated by commas)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zadejte e-maily uživatelů (oddělené čárkami)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4950,10 +5145,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.env" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          <Val><![CDATA[Target Microsoft 365 Agents Toolkit Environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cílové prostředí sady nástrojů Teams]]></Val>
+            <Val><![CDATA[Cílové prostředí sady Microsoft 365 Agents Toolkit]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Target Teams Toolkit Environment]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4995,10 +5193,13 @@
       </Item>
       <Item ItemId=";core.syncManifest.teamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App ID (optional)]]></Val>
+          <Val><![CDATA[App ID (optional)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID aplikace Teams (volitelné)]]></Val>
+            <Val><![CDATA[ID aplikace (volitelné)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App ID (optional)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5013,19 +5214,25 @@
       </Item>
       <Item ItemId=";core.teamsAppQuestion.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app]]></Val>
+          <Val><![CDATA[Your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vaše aplikace Teams]]></Val>
+            <Val><![CDATA[Vaše aplikace]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Your Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.teamsAppQuestion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app]]></Val>
+          <Val><![CDATA[app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams]]></Val>
+            <Val><![CDATA[aplikace]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5175,19 +5382,25 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          <Val><![CDATA[Environment in Microsoft 365 Agents Toolkit Created Project]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Prostředí v vytvořeném projektu sady Teams Toolkit]]></Val>
+            <Val><![CDATA[Prostředí v sadě Microsoft 365 Agents Toolkit vytvořila projekt]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Environment in Teams Toolkit Created Project]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.uninstallQuestion.envMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with a specific environment in the Teams Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyčistěte prostředky přidružené ke konkrétnímu prostředí v vytvořeném projektu Teams Toolkit. Mezi prostředky patří registrace aplikací na portálu pro vývojáře Teams, registrace robota na portálu Bot Framework a vlastní aplikace nahrané v Microsoft 365 aplikacích.]]></Val>
+            <Val><![CDATA[Vyčistěte prostředky přidružené ke konkrétnímu prostředí v projektu vytvořeném v sadě Microsoft 365 Agents Toolkit. Mezi prostředky patří registrace aplikací na Portálu pro vývojáře, registrace robota na portálu Bot Framework Portal a vlastní aplikace nahrané v aplikacích.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with a specific environment in the Microsoft 365 Agents Toolkit created project. Resources include app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded in Microsoft 365 apps.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5220,10 +5433,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.manifestIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Teams Toolkit.]]></Val>
+          <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vyčistěte prostředky přidružené k ID manifestu. Patří sem registrace aplikací na portálu pro vývojáře Teams, registrace robota na portálu Bot Framework a vlastní aplikace nahrané do Microsoft 365. ID manifestu najdete v souboru prostředí (výchozí klíč prostředí: Teams_App_ID) v projektu vytvořeném pomocí sady Teams Toolkit.]]></Val>
+            <Val><![CDATA[Vyčistěte prostředky přidružené k ID manifestu. Patří sem registrace aplikací na portálu pro vývojáře, registrace robota na portálu Bot Framework Portal a vlastní aplikace nahrané do Microsoft 365. ID manifestu najdete v souboru prostředí (výchozí klíč prostředí: Teams_App_ID) v projektu vytvořeném sadou Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Clean up resources associated with Manifest ID. This includes app registration in Teams Developer Portal, bot registration in Bot Framework Portal, and custom apps uploaded to Microsoft 365. You can find the Manifest ID in the environment file (default environment key: Teams_App_ID) in the project created by Microsoft 365 Agents Toolkit.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5265,10 +5481,13 @@
       </Item>
       <Item ItemId=";core.uninstallQuestion.titleIdMode.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Microsoft 365 Agents Toolkit created project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Odinstalujte nahranou vlastní aplikaci přidruženou k ID titulu. ID názvu najdete v souboru prostředí ve vytvořeném projektu Teams Toolkit.]]></Val>
+            <Val><![CDATA[Odinstalujte nahranou vlastní aplikaci přidruženou k ID názvu. ID názvu najdete v souboru prostředí v projektu vytvořeném v sadě Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Uninstall the uploaded custom app associated with Title ID. The Title ID can be found in the environment file in the Teams Toolkit created project.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5535,10 +5754,13 @@
       </Item>
       <Item ItemId=";depChecker.failedToValidateTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          <Val><![CDATA[Unable to validate Microsoft 365 Agents Playground after installation. %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Po instalaci se nepovedlo ověřit nástroj Teams App Test Tool. %s]]></Val>
+            <Val><![CDATA[Po instalaci se nepovedlo ověřit testovací prostředí pro agenty Microsoftu 365. %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to validate Teams App Test Tool after installation. %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5622,12 +5844,12 @@
       </Item>
       <Item ItemId=";depChecker.portableFuncNodeNotMatched" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+          <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Váš vlastní Node.js (@NodeVersion) není kompatibilní se sadoua nástrojů Teams Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Váš vlastní Node.js (@NodeVersion) není kompatibilní se sadou Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Node.js (@NodeVersion) is incompatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
+            <Val><![CDATA[Your Node.js (@NodeVersion) is not compatible with Teams Toolkit Azure Functions Core Tools (@FuncVersion).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5646,10 +5868,13 @@
       </Item>
       <Item ItemId=";depChecker.testToolVersionNotMatch" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          <Val><![CDATA[The version of Microsoft 365 Agents Playground (%s) is not compatible with the specified version range (%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verze Teams App Test Tool (%s) není kompatibilní se zadaným rozsahem verzí (%s).]]></Val>
+            <Val><![CDATA[Verze testovacího prostředí pro agenty Microsoftu 365 (%s) není kompatibilní se zadaným rozsahem verzí (%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The version of Teams App Test Tool (%s) is not compatible with the specified version range (%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -5778,10 +6003,13 @@
       </Item>
       <Item ItemId=";driver.aadApp.log.deleteAadAfterDebugging" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          <Val><![CDATA[ (Microsoft 365 Agents Toolkit will delete the Microsoft Entra application after debugging)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[(Sada nástrojů Teams po ladění odstraní Microsoft Entra aplikaci.)]]></Val>
+            <Val><![CDATA[ (Microsoft 365 Agents Toolkit po ladění odstraní aplikaci Microsoft Entra.)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[ (Teams toolkit will delete the Microsoft Entra application after debugging)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6469,11 +6697,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.devChannel.install.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Install app into sandboxed channel.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nainstalujte aplikaci do kanálu v sandboxu.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Install Teams app into sandboxed channel.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.progress.message" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Installing app...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Instaluje se aplikace…]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.devChannel.install.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[App installed into team %s with channel %s successfully.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Aplikaci se povedlo úspěšně nainstalovat v týmu %s s kanálem %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.devChannel.install.summary.exists" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App '%s' already installed in team '%s'. It will now be updated to the latest version.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aplikace %s už je v týmu %s nainstalovaná. Teď se aktualizuje na nejnovější verzi.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6834,10 +7092,13 @@
       </Item>
       <Item ItemId=";driver.prerequisite.error.testToolInstallationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          <Val><![CDATA[Unable to check and install Microsoft 365 Agents Playground.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se zkontrolovat a nainstalovat nástroj Teams App Test Tool.]]></Val>
+            <Val><![CDATA[Nepovedlo se zkontrolovat a nainstalovat testovací prostředí pro agenty Microsoftu 365.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to check and install Teams App Test Tool.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6921,19 +7182,25 @@
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nástroj Teams App Test Tool je nainstalovaný.]]></Val>
+            <Val><![CDATA[Testovací prostředí pro agenty Microsoftu 365 je nainstalováno.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.prerequisite.summary.testTool.installedWithPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Playground is installed at %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nástroj Teams App Test Tool je nainstalovaný v %s.]]></Val>
+            <Val><![CDATA[Testovací prostředí pro agenty Microsoftu 365 je nainstalováno v %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams App Test Tool is installed at %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7110,12 +7377,12 @@
       </Item>
       <Item ItemId=";driver.spfx.error.noValidAppCatelog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
+          <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Microsoft 365 Agents Toolkit to create it for you or you can create it by yourself.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ve vašem klientovi není žádný platný katalog aplikací. Pokud chcete, aby ho pro vás vytvořila sada nástrojů Teams Toolkit, můžete aktualizovat vlastnost createAppCatalogIfNotExist v %s na hodnotu true, případně ho můžete vytvořit sami.]]></Val>
+            <Val><![CDATA[Ve vašem tenantovi není žádný platný katalog aplikací. Pokud chcete, aby ho pro vás vytvořila sada Microsoft 365 Agents Toolkit, můžete aktualizovat vlastnost createAppCatalogIfNotExist v %s na hodnotu true, případně ho můžete vytvořit sami.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in app.yml to true if you want us to create it for you or you can create it by yourself.]]></Val>
+            <Val><![CDATA[There is no valid app catalog in your tenant. You can update the property 'createAppCatalogIfNotExist' in %s to true if you want Teams Toolkit to create it for you or you can create it by yourself.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7146,135 +7413,144 @@
       </Item>
       <Item ItemId=";driver.teamsApp.description.copyAppPackageToSPFxDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          <Val><![CDATA[copies the generated app package to SPFx solution.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[zkopíruje vygenerovaný balíček aplikace Teams do řešení SPFx.]]></Val>
+            <Val><![CDATA[zkopíruje vygenerovaný balíček aplikace do řešení SPFx.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[copies the generated Teams app package to SPFx solution.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createAppPackageDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[build Teams app package.]]></Val>
+          <Val><![CDATA[build app package.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[vytvořit balíček aplikace Teams]]></Val>
+            <Val><![CDATA[vytvořit balíček aplikace]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[build a Teams app package.]]></Val>
+            <Val><![CDATA[build Teams app package.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.createDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[create Teams app.]]></Val>
+          <Val><![CDATA[create app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[vytvořit aplikaci Teams]]></Val>
+            <Val><![CDATA[vytvořit aplikaci]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[create a Teams app.]]></Val>
+            <Val><![CDATA[create Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.publishDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
+          <Val><![CDATA[publish app to tenant app catalog.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[publikovat aplikaci Teams do katalogu aplikací tenanta]]></Val>
+            <Val><![CDATA[publikovat aplikaci do katalogu aplikací tenanta]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[publish a Teams app to tenant app catalog.]]></Val>
+            <Val><![CDATA[publish Teams app to tenant app catalog.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.updateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[update Teams app.]]></Val>
+          <Val><![CDATA[update app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[aktualizovat aplikaci Teams]]></Val>
+            <Val><![CDATA[aktualizovat aplikaci]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[update a Teams app.]]></Val>
+            <Val><![CDATA[update Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.description.validateDriver" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[validate Teams app.]]></Val>
+          <Val><![CDATA[validate app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ověřit aplikaci Teams]]></Val>
+            <Val><![CDATA[ověřit aplikaci]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[validate a Teams app.]]></Val>
+            <Val><![CDATA[validate Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.copyAppPackageToSPFxStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          <Val><![CDATA[Copying app package to SPFx solution...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kopírování balíčku aplikace Teams do řešení SPFx...]]></Val>
+            <Val><![CDATA[Kopírování balíčku aplikace do řešení SPFx...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Copying Teams app package to SPFx solution...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.createTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Creating Teams app...]]></Val>
+          <Val><![CDATA[Creating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytváří se aplikace Teams...]]></Val>
+            <Val><![CDATA[Vytváří se aplikace...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Creating Teams app]]></Val>
+            <Val><![CDATA[Creating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
+          <Val><![CDATA[Checking if the app is already submitted to tenant App Catalog]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kontroluje se, jestli už je aplikace Teams odeslaná do katalogu aplikací tenanta.]]></Val>
+            <Val><![CDATA[Kontroluje se, jestli už je aplikace odeslaná do katalogu aplikací tenanta.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Checking if the Teams app has already been submitted to tenant App Catalog]]></Val>
+            <Val><![CDATA[Checking if the Teams app is already submitted to tenant App Catalog]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.1" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update published Teams app]]></Val>
+          <Val><![CDATA[Update published app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aktualizovat publikovanou aplikaci Teams]]></Val>
+            <Val><![CDATA[Aktualizovat publikovanou aplikaci]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Update published Teams app]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.publishTeamsAppStep2.2" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Publishing Teams app...]]></Val>
+          <Val><![CDATA[Publishing app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Publikuje se aplikace Teams...]]></Val>
+            <Val><![CDATA[Publikuje se aplikace...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Publishing Teams app]]></Val>
+            <Val><![CDATA[Publishing Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.updateTeamsAppStepMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Updating Teams app...]]></Val>
+          <Val><![CDATA[Updating app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aktualizuje se aplikace Teams...]]></Val>
+            <Val><![CDATA[Aktualizuje se aplikace…]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Updating Teams app]]></Val>
+            <Val><![CDATA[Updating Teams app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7290,30 +7566,36 @@
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.conflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Právě probíhá ověřování, odešlete ho prosím později. Toto existující ověření najdete v [Teams Developer Portal]5D;(%s).]]></Val>
+            <Val><![CDATA[Právě probíhá ověřování. Opakujte prosím pokus o ověření později. Toto existující ověření najdete na [Portálu pro vývojáře]5D;(%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A validation is currently in progress, please submit later. You can find this existing validation in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.progressBar.validateWithTestCases.step" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Developer Portal]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Žádost o ověření byla odeslána. Stav: %s. Až bude výsledek připraven, budete o tom informováni, případně můžete zkontrolovat všechny záznamy o ověření na [Portálu pro vývojáře Teams]5D;(%s).]]></Val>
+            <Val><![CDATA[Žádost o ověření byla odeslána. Stav: %s. Až bude výsledek připraven, budete o tom informováni, případně můžete zkontrolovat všechny záznamy o ověření na [Portálu pro vývojáře]5D;(%s).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Validation request submitted, status: %s. You will be notified when the result is ready or you can check all your validation records in [Teams Developer Portal]5D;(%s).]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.copyAppPackageSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
+          <Val><![CDATA[App %s was successfully copied to %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams %s byla úspěšně zkopírována do %s.]]></Val>
+            <Val><![CDATA[Aplikace %s byla úspěšně zkopírována do %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app %s was successfully copyed to %s.]]></Val>
+            <Val><![CDATA[Teams app %s was successfully copied to %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7329,48 +7611,60 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.createTeamsAppAlreadyExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          <Val><![CDATA[App with id %s already exists, skipped creating a new app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams s ID %s už existuje. Přeskočilo se vytvoření nové aplikace Teams.]]></Val>
+            <Val><![CDATA[Aplikace s ID %s už existuje. Přeskočilo se vytvoření nové aplikace.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists, skipped creating a new Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s already exists in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams s ID %s už v obchodě s aplikacemi organizace existuje.]]></Val>
+            <Val><![CDATA[Aplikace s ID %s už v obchodě s aplikacemi organizace existuje.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s already exists in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppNotExists" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          <Val><![CDATA[App with id %s does not exist in the organization's app store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams s ID %s v obchodě s aplikacemi organizace neexistuje.]]></Val>
+            <Val><![CDATA[Aplikace s ID %s v obchodě s aplikacemi organizace neexistuje.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with id %s does not exist in the organization's app store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.publishTeamsAppSuccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          <Val><![CDATA[App %s successfully published to the admin portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams %s se úspěšně publikovala na portál pro správu.]]></Val>
+            <Val><![CDATA[Aplikace %s se úspěšně publikovala na portálu pro správu.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app %s successfully published to the admin portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit zkontrolovala všechna ověřovací pravidla:]A;]A;Shrnutí:]A;%s.]A;%s%s]A;%s]A;]A;V %s najdete úplný protokol ověření.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit provedla kontrolu na základě všech ověřovacích pravidel:]A;]A;Shrnutí:]A;%s.]A;%s%s]A;%s]A;]A;V %s najdete úplný protokol ověření]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked against all validation rules:]A;]A;Summary:]A;%s.]A;%s%s]A;%s]A;]A;A complete log of validations can be found in %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7386,10 +7680,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validate.checkPath" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          <Val><![CDATA[You can check and update your app package at %s.]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Balíček aplikace Teams můžete zkontrolovat a aktualizovat na %s.]]></Val>
+            <Val><![CDATA[Balíček aplikace můžete zkontrolovat a aktualizovat v umístění %s.]A;]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[You can check and update your Teams app package at %s.]A;]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7440,12 +7737,12 @@
       </Item>
       <Item ItemId=";driver.teamsApp.summary.validateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit zkontrolovala manifesty s odpovídajícím schématem:]A;]A;Shrnutí:]A;%s.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit zkontrolovala manifesty s odpovídajícím schématem:]A;]A;Shrnutí:]A;%s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has checked manifest with its schema:]A;]A;Summary:]A;%s.]A;%s]A;]]></Val>
+            <Val><![CDATA[Teams Toolkit has checked manifest(s) with the corresponding schema:]A;]A;Summary:]A;%s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -7497,22 +7794,25 @@
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit dokončila kontrolu ověřovacích pravidel balíčku aplikace. %s.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit dokončila kontrolu ověřovacích pravidel balíčku aplikace. %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s failed, %s passed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";driver.teamsApp.validate.result.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit dokončila kontrolu balíčku aplikace podle pravidel validace. %s. Podrobnosti najdete v [Output panel]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit dokončila kontrolu ověřovacích pravidel balíčku aplikace. %s. Podrobnosti najdete na [panelu Výstup]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit has completed checking your app package against validation rules. %s. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7620,36 +7920,36 @@
       </Item>
       <Item ItemId=";error.UpgradeV3CanceledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
+          <Val><![CDATA[Don't want to upgrade? Continue using old version of Microsoft 365 Agents Toolkit]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nechcete upgradovat? Dál používat starou verzi sady Teams Toolkit]]></Val>
+            <Val><![CDATA[Nechcete upgradovat? Pokračovat se starou verzí sady Microsoft 365 Agents Toolkit]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[If you are not ready to upgrade, please continue to use the old version of Teams Toolkit]]></Val>
+            <Val><![CDATA[Don't want to upgrade? Continue using old version of Teams Toolkit]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.VideoFilterAppNotRemoteSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit nepodporuje aplikaci pro filtrování videa ve vzdáleném režimu. Zkontrolujte soubor README.md v kořenové složce projektu.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit nepodporuje aplikaci filtru videa ve vzdáleném prostředí. Zkontrolujte soubor README.md v kořenové složce projektu.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Video filter app in remote is not supported by Teams Toolkit. Check the README.md file in project root folder.]]></Val>
+            <Val><![CDATA[Teams Toolkit doesn't support video filter app in remote. Check the README.md file in project root folder.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.aad.manifest.AADManifestIssues" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+          <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the app:]A;]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[V manifestu Microsoft Entra se vyskytují následující problémy, které mohou aplikaci Teams potenciálně poškodit:]A;]]></Val>
+            <Val><![CDATA[V manifestu Microsoft Entra se vyskytují následující problémy, které by mohly aplikaci poškodit:]A;]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[AAD manifest has following issues that may potentially break the Teams App:]A;]]></Val>
+            <Val><![CDATA[Microsoft Entra manifest has following issues that may potentially break the Teams App:]A;]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8025,24 +8325,24 @@
       </Item>
       <Item ItemId=";error.appstudio.publishFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
+          <Val><![CDATA[Unable to publish app with ID %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nelze publikovat aplikaci Teams s ID %s.]]></Val>
+            <Val><![CDATA[Nelze publikovat aplikaci s ID %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to publish Teams app with ID %s.]]></Val>
+            <Val><![CDATA[Unable to publish Teams app with ID %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.publishInDevPortalSuggestionForValidationError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
+          <Val><![CDATA[Generate package from "Zip app package" and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vygenerujte balíček z balíčku Zip aplikace Teams a zkuste to znovu.]]></Val>
+            <Val><![CDATA[Vygenerujte balíček z balíčku aplikace ZIP a zkuste to znovu.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please try to generate package from "Zip Teams app package" and try again.]]></Val>
+            <Val><![CDATA[Generate package from "Zip Teams app package" and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8070,64 +8370,73 @@
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          <Val><![CDATA[Manifest downloaded from Developer Portal is empty]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Manifest stažený z portálu pro vývojáře Teams je prázdný.]]></Val>
+            <Val><![CDATA[Manifest stažený z Portálu pro vývojáře je prázdný.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manifest downloaded from Teams Developer Portal is empty]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.syncManifestNoTeamsAppId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          <Val><![CDATA[Unable to load app ID from the env file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nejde načíst ID aplikace Teams ze souboru env.]]></Val>
+            <Val><![CDATA[Nepovedlo se načíst ID aplikace ze souboru .env.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to load Teams app ID from the env file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
+          <Val><![CDATA[Unable to create app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se vytvořit aplikaci Teams, což může být proto, že ID vaší aplikace je v konfliktu s ID jiné aplikace ve vašem tenantovi. Pokud chcete tento problém vyřešit, klikněte na Získat pomoc.]]></Val>
+            <Val><![CDATA[Nepovedlo se vytvořit aplikaci, což může být způsobeno tím, že ID vaší aplikace je v konfliktu s ID jiné aplikace ve vašem tenantovi. Pokud chcete tento problém vyřešit, klikněte na Získat pomoc.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app with 409 Conflict error. That may come from your app id is conflicting with another app in your tenant. Click Get Help to learn more.]]></Val>
+            <Val><![CDATA[Unable to create Teams app, which may be because your app ID is conflicting with another app's ID in your tenant. Click 'Get Help' to resolve this issue.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateConflictWithPublishedApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
+          <Val><![CDATA[app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams s daným ID už v obchodě s aplikacemi vaší organizace existuje. Aktualizujte aplikaci a zkuste to znovu.]]></Val>
+            <Val><![CDATA[aplikace s daným ID už v obchodě s aplikacemi vaší organizace existuje. Aktualizujte aplikaci a zkuste to znovu.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[A Teams app with that id already exists in your organization's app store. Manually update the app id and try again.]]></Val>
+            <Val><![CDATA[Teams app with the same ID already exists in your organization's app store. Update the app and try again.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppCreateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to create app in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se vytvořit aplikaci Teams na Portálu pro vývojáře Teams. Důvod: %s]]></Val>
+            <Val><![CDATA[Nepovedlo se vytvořit aplikaci na Portálu pro vývojáře. Důvod: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to create Teams app in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.teamsAppPublishConflict" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          <Val><![CDATA[Unable to publish app because app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikaci Teams nejde publikovat, protože aplikace Teams s tímto ID už v připravených aplikacích existuje. Aktualizujte ID aplikace a zkuste to znovu.]]></Val>
+            <Val><![CDATA[Aplikaci se nepovedlo publikovat, protože aplikace s tímto ID již existuje v připravených aplikacích. Aktualizujte ID aplikace a zkuste to znovu.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to publish Teams app because Teams app with this ID already exists in staged apps. Update the app ID and try again.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8142,24 +8451,24 @@
       </Item>
       <Item ItemId=";error.appstudio.teamsAppUpdateFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
+          <Val><![CDATA[Unable to update app with ID %s in Developer Portal due to %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se aktualizovat aplikaci Teams s ID %s na Portálu pro vývojáře Teams. Důvod: %s]]></Val>
+            <Val><![CDATA[Nepovedlo se aktualizovat aplikaci s ID %s na Portálu pro vývojáře. Důvod: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal, due to %s]]></Val>
+            <Val><![CDATA[Unable to update Teams app with ID %s in Teams Developer Portal due to %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.appstudio.updateManifestInvalidApp" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
+          <Val><![CDATA[Unable to find app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se najít aplikaci Teams s ID %s. Před aktualizací manifestu na platformu Teams spusťte ladění nebo zřízení.]]></Val>
+            <Val><![CDATA[Nepovedlo se najít aplikaci s ID %s. Před aktualizací manifestu na platformu Teams spusťte ladění nebo zřízení.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Cannot find teams app with id %s. You must run debug or provision first before updating manifest to Teams platform.]]></Val>
+            <Val><![CDATA[Unable to find Teams app with ID %s. Run debug or provision before updating manifest to Teams platform.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8232,10 +8541,13 @@
       </Item>
       <Item ItemId=";error.arm.DownloadBicepCliError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file m365agents.yml and Microsoft 365 Agents Toolkit will use bicep CLI in PATH]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Z %s se nepovedlo stáhnout rozhraní příkazového řádku Bicep. Chybová zpráva: %s. Opravte chybu a zkuste to znovu. Nebo odstraňte konfigurátor bicepCliVersion v konfiguračním souboru teamsapp.yml a sada Teams Toolkit bude používat rozhraní příkazového řádku bicep v PATH.]]></Val>
+            <Val><![CDATA[Z %s se nepovedlo stáhnout rozhraní příkazového řádku Bicep. Chybová zpráva: %s. Opravte chybu a zkuste to znovu. Nebo odeberte konfiguraci bicepCliVersion v konfiguračním souboru m365agents.yml a sada Microsoft 365 Agents Toolkit použije rozhraní příkazového řádku bicep v PATH]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to download Bicep cli from '%s'. The error message was: %s. Fix the error and try again. Or remove the bicepCliVersion config in the config file teamsapp.yml and Teams Toolkit will use bicep CLI in PATH]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8469,22 +8781,25 @@
       </Item>
       <Item ItemId=";error.common.InvalidProjectError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tento příkaz funguje jenom pro projekt vytvořený sadou Teams Toolkit. Teamsapp.yml nebo teamsapp.local.yml se nenašly.]]></Val>
+            <Val><![CDATA[Tento příkaz funguje jenom pro projekt vytvořený sadou Microsoft 365 Agents Toolkit. Soubor M365agents.yml nebo m365agents.local.yml se nenašel]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This command only works for project created by Teams Toolkit.]]></Val>
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. 'teamsapp.yml' or 'teamsapp.local.yml' not found]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.common.InvalidProjectError.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          <Val><![CDATA[This command only works for project created by Microsoft 365 Agents Toolkit. Yaml file not found: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Tento příkaz funguje jenom pro projekt vytvořený sadou Teams Toolkit. Soubor Yaml se nenašel: %s]]></Val>
+            <Val><![CDATA[Tento příkaz funguje jenom pro projekt vytvořený sadou Microsoft 365 Agents Toolkit. Soubor YAML %s se nenašel]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[This command only works for project created by Teams Toolkit. Yaml file not found: %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8502,12 +8817,12 @@
       </Item>
       <Item ItemId=";error.common.MissingEnvironmentVariablesError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
+          <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Microsoft 365 Agents Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Chybí '%s' proměnných prostředí pro soubor: %s. Upravte soubor .env '%s' nebo '%s' nebo upravte systémové proměnné prostředí. Pro nové projekty sady Teams Toolkit se ujistěte, že jste spustili zřizování nebo ladění, abyste tyto proměnné správně nastavili.]]></Val>
+            <Val><![CDATA[Chybí proměnné prostředí %s pro soubor: %s. Upravte soubor .env %s nebo %s, případně upravte proměnné prostředí systému. U nových projektů sady Microsoft 365 Agents Toolkit se ujistěte, že jste spustili zřizování nebo ladění, abyste tyto proměnné nastavili správně.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The program cannot proceed as the following environment variables are missing: '%s', which are required for file: %s. Make sure the required variables are set either by editing the .env file '%s' with the correct names and values , or by setting the system environment variables with the correct names and values. If you are developing with a new project created with Teams Toolkit, running provision or debug will register correct values for these environment variables.]]></Val>
+            <Val><![CDATA[Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new Teams Toolkit projects, make sure you've run provision or debug to set these variables correctly.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9037,6 +9352,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.kiota.KiotaGeneratePluginError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepovedlo se vygenerovat soubor manifestu modulu plug-in pomocí Kiota. Chyba: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.listSensitivityLabel.tokenFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
@@ -9093,10 +9417,13 @@
       </Item>
       <Item ItemId=";error.m365.NotExtendedToM365Error" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          <Val><![CDATA[Unable to extend the app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend the app to Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikaci Teams není možné rozšířit na Microsoft 365. Pro rozšíření aplikace Teams na Microsoft 365 použijte akci teamsApp/extendToM365.]]></Val>
+            <Val><![CDATA[Aplikaci není možné rozšířit do Microsoftu 365. Pro rozšíření aplikace do Microsoftu 365 použijte akci teamsApp/extendToM365.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9160,23 +9487,98 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.share.appPackageConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the appPackagePath config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V m365agents.yml se nepovedlo najít konfiguraci appPackagePath]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.appPackageNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the zip package in path: %s. You need to zip the package first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepovedlo se najít balíček ZIP v cestě: %s. Nejdřív musíte balíček zkomprimovat.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestFileNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest file in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V balíčku aplikace se nepovedlo najít soubor manifestu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.manifestIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the manifest ID in the app package]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V balíčku aplikace se nepovedlo najít ID manifestu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.shareActionConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "%s" action config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V m365agents.yml se nepovedlo najít konfiguraci akce %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "titleId" or "appId" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V m365agents.yml se nepovedlo najít konfiguraci titleId nebo appId]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.sharedIdNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to get shared title id or shared app id in the .env file. Shared title id: %s, shared app id: %s. You need to share the app first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V souboru .env se nepovedlo načíst ID sdíleného názvu nebo ID sdílené aplikace. ID sdíleného názvu: %s, ID sdílené aplikace: %s. Nejdřív musíte aplikaci sdílet.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.share.yamlConfigNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find the "share" config in the m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[V m365agents.yml se nepovedlo najít konfiguraci „share“]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.AppIdNotExistError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          <Val><![CDATA[App with ID %s does not exist in Developer Portal.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams s ID %s na Portálu pro vývojáře Teams neexistuje.]]></Val>
+            <Val><![CDATA[Aplikace s ID %s na Portálu pro vývojáře neexistuje.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app with ID %s does not exist in Teams Developer Portal.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.InvalidAppIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
+          <Val><![CDATA[App ID %s is invalid, must be a GUID.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ID aplikace Teams %s není platné, musí to být GUID.]]></Val>
+            <Val><![CDATA[ID aplikace %s není platné, musí to být GUID.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app ID %s is invalid]]></Val>
+            <Val><![CDATA[Teams app ID %s is invalid, must be a GUID.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9192,21 +9594,24 @@
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          <Val><![CDATA[app package validation failed due to  %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Kvůli %s se nepovedlo ověřit balíček aplikace Teams.]]></Val>
+            <Val><![CDATA[Ověření balíčku aplikace selhalo. Důvod: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams app package validation failed due to  %s]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";error.teamsApp.validate.apiFailed.display" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Val><![CDATA[App pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se ověřit balíček aplikace Teams. Podrobnosti najdete ve [výstupním panelu]5D;(command:fx-extension.showOutputChannel).]]></Val>
+            <Val><![CDATA[Nepovedlo se ověřit balíček aplikace. Podrobnosti najdete na [panelu Výstup]5D;(command:fx-extension.showOutputChannel).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app pacakge validation failed. Check [output window]5D;(%s) for details.]]></Val>
+            <Val><![CDATA[Teams app pacakge validation failed. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9264,12 +9669,12 @@
       </Item>
       <Item ItemId=";error.yaml.InvalidYamlSchemaErrorWithReason" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
+          <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nepovedlo se parsovat soubor yaml: %s. Důvod: %s Zkontrolujte prosím soubor yaml nebo upgradujte na nejnovější sadu nástrojů Teams.]]></Val>
+            <Val><![CDATA[Nepovedlo se parsovat soubor yaml: %s. Důvod: %s Zkontrolujte prosím soubor yaml nebo upgradujte na nejnovější sadu Microsoft 365 Agents Toolkit.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file.]]></Val>
+            <Val><![CDATA[Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Teams Toolkit.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9372,19 +9777,25 @@
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.aiPlugin.overrideWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          <Val><![CDATA[The static_template in %s for function %s has both file and other properties. The file content will replace all the properties.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[static_template v %s pro %s funkce má soubor i jiné vlastnosti. Všechny vlastnosti budou přepsány obsahem souboru.]]></Val>
+            <Val><![CDATA[Parametr static_template v %s pro funkci %s má soubor i další vlastnosti. Obsah souboru nahradí všechny vlastnosti.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The static_template in %s for function %s has both file and other properties. All properties will be overridden by the file content.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.createPackage.progressBar.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Building Teams app package...]]></Val>
+          <Val><![CDATA[Building app package...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Vytváří se balíček aplikace Teams...]]></Val>
+            <Val><![CDATA[Vytváří se balíček aplikace...]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Building Teams app package...]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -9471,60 +9882,60 @@
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppCreatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s created successfully]]></Val>
+          <Val><![CDATA[app %s created successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aplikace Teams %s úspěšně vytvořena.]]></Val>
+            <Val><![CDATA[aplikace %s se úspěšně vytvořila]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app created %s]]></Val>
+            <Val><![CDATA[Teams app %s created successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedCLINotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully to ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Manifest aplikace Teams se úspěšně nasadil do ]]></Val>
+            <Val><![CDATA[Manifest aplikace se úspěšně nasadil do ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed to ]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully to ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams app %s updated successfully]]></Val>
+          <Val><![CDATA[app %s updated successfully]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s aplikace Teams se úspěšně aktualizovala.]]></Val>
+            <Val><![CDATA[aplikace %s se úspěšně aktualizovala]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams app updated %s]]></Val>
+            <Val><![CDATA[Teams app %s updated successfully]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.teamsAppUpdatedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
+          <Val><![CDATA[Your app manifest is deployed successfully. To see your app in Developer Portal, click "View in Developer Portal".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Manifest aplikace Teams se úspěšně nasadil. Pokud se chcete podívat na svou aplikaci na portálu pro vývojáře Teams, klikněte na Zobrazit na portálu pro vývojáře.]]></Val>
+            <Val><![CDATA[Manifest aplikace se úspěšně nasadil. Pokud se chcete podívat na svou aplikaci na Portálu pro vývojáře, klikněte na Zobrazit na portálu pro vývojáře.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Your Teams application manifest has been successfully deployed. Click "View in Developer Portal" to view your application in Teams Developer Portal.]]></Val>
+            <Val><![CDATA[Your Teams app manifest is deployed successfully. To see your app in Teams Developer Portal, click "View in Developer Portal".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.unprocessedFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit did not process %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit nezpracovala %s.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit nezpracovala %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[%s was not processed by Teams Toolkit.]]></Val>
+            <Val><![CDATA[Teams Toolkit did not process %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9981,19 +10392,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verze %s SPFx ve vašem řešení není na vašem počítači nainstalovaná. Chcete ji nainstalovat do adresáře Teams Toolkit, abyste mohli pokračovat v přidávání webových částí?]]></Val>
+            <Val><![CDATA[Verze SPFx %s ve vašem řešení není na vašem počítači nainstalovaná. Chcete ji nainstalovat do adresáře Microsoft 365 Agents Toolkit, abyste mohli pokračovat v přidávání webových částí?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit používá %s verze SPFx a vaše řešení má verzi SPFx %s. Chcete ho upgradovat na verzi %s v adresáři Teams Toolkit a přidat webové části?]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit používá verzi SPFx %s a vaše řešení má verzi SPFx %s. Chcete ho upgradovat na verzi %s v adresáři sady Microsoft 365 Agents Toolkit a přidat webové části?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10026,10 +10443,13 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verze SPFx %s ve vašem řešení není na tomto počítači nainstalovaná. Sada Teams Toolkit používá ve výchozím nastavení rozhraní SPFx nainstalované ve svém adresáři (%s). Neshoda verzí může způsobit neočekávanou chybu. Chcete přesto pokračovat?]]></Val>
+            <Val><![CDATA[Verze SPFx %s ve vašem řešení není na tomto počítači nainstalovaná. Microsoft 365 Agents Toolkit ve výchozím nastavení používá SPFx nainstalovaný v příslušném adresáři (%s). Neshoda verzí může způsobit neočekávanou chybu. Chcete přesto pokračovat?]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10044,19 +10464,25 @@
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verze SPFx ve vašem řešení je %s. Nainstalovali jste %s do adresáře Teams Toolkit, který se používá jako výchozí v sadě Teams Toolkit (%s). Neshoda verzí může způsobit neočekávanou chybu. V %s najdete možná řešení.]]></Val>
+            <Val><![CDATA[Verze SPFx ve vašem řešení je %s. Nainstalovali jste %s do adresáře sady Microsoft 365 Agents Toolkit, který se v sadě Microsoft 365 Agents Toolkit používá jako výchozí (%s). Neshoda verzí může způsobit neočekávanou chybu. Najděte možná řešení v %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verze SPFx ve vašem řešení je %s. Nainstalovali jste %s globálně a %s v adresáři Teams Toolkit, který Teams Toolkit používá jako výchozí (%s). Neshoda verzí může způsobit neočekávanou chybu. V %s najdete možná řešení.]]></Val>
+            <Val><![CDATA[Verze SPFx ve vašem řešení je %s. Nainstalovali jste %s globálně a %s v adresáři sady Microsoft 365 Agents Toolkit, který sada Microsoft 365 Agents Toolkit používá jako výchozí (%s). Neshoda verzí může způsobit neočekávanou chybu. Najděte možná řešení v %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10155,12 +10581,12 @@
       </Item>
       <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Existující řešení SPFx nelze naimportovat do sady Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Existující řešení SPFx nelze naimportovat do sady Microsoft 365 Agents Toolkit: %s]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to import existing SPFx solution to Teams Toolkit: %s]]></Val>
+            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10278,24 +10704,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Toolkit nemůže naimportovat vaše řešení SPFx. Úplný protokol s důležitými podrobnostmi najdete v %s.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit nemůže importovat řešení SPFx. Úplný protokol s důležitými podrobnostmi najdete v %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit failed to import your SPFx solution. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sada Teams Toolkit úspěšně naimportovala vaše řešení SPFx. Úplný protokol podrobností o importu najdete v %s.]]></Val>
+            <Val><![CDATA[Sada Microsoft 365 Agents Toolkit úspěšně naimportovala vaše řešení SPFx. Úplný protokol podrobností o importu najdete v %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has imported your SPFx solution successfully. A complete log of import details can be found in %s.]]></Val>
+            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -10353,24 +10779,24 @@
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Místní instalace nejnovější verze SPFx v adresáři sady nástrojů Teams Toolkit ]]></Val>
+            <Val><![CDATA[Nainstalovat nejnovější SPFx místně v adresáři sady Microsoft 365 Agents Toolkit ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
+          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Místní instalace nejnovější verze SPFx (%s) v adresáři sady nástrojů Teams Toolkit ]]></Val>
+            <Val><![CDATA[Nainstalujte nejnovější nástroj SPFx (%s) místně v adresáři Microsoft 365 Agents Toolkit ]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SharePoint Framework (%s) locally in Teams Toolkit directory ]]></Val>
+            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

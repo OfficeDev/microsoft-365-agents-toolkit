@@ -5,12 +5,8 @@ import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import {
-  HostType,
-  HostTypeTriggerOptionItem,
-  NotificationTriggers,
-  QuestionNames,
-} from "../../constants";
+import { HostType, HostTypeTriggerOptionItem, NotificationTriggers } from "../../constants";
+import { QuestionNames } from "../../questionNames";
 
 export class CustomEngineAgentOptions {
   static basicCustomEngineAgent(): OptionItem {
@@ -141,19 +137,6 @@ export class CustomCopilotCapabilityOptions {
         "core.createProjectQuestion.capability.customCopilotAssistantOption.detail"
       ),
       description: description,
-    };
-  }
-
-  static weatherAgentBot(): OptionItem {
-    return {
-      id: "custom-copilot-weather-agent",
-      label: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotWeatherOption.label"
-      ),
-      detail: getLocalizedString(
-        "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
-      ),
-      data: TemplateNames.CustomCopilotWeatherAgent,
     };
   }
 }
@@ -531,10 +514,11 @@ export class DACapabilityOptions {
     };
   }
   static all(): OptionItem[] {
-    const items: OptionItem[] = [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)) {
-      items.push(DACapabilityOptions.withGC());
-    }
+    const items: OptionItem[] = [
+      DACapabilityOptions.noPlugin(),
+      DACapabilityOptions.withPlugin(),
+      DACapabilityOptions.withGC(),
+    ];
     if (featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)) {
       items.push(DACapabilityOptions.typeSpec());
     }
@@ -638,5 +622,42 @@ export class ApiAuthOptions {
 export function setTemplateName(selected: string | OptionItem, inputs: Inputs): void {
   if ((selected as OptionItem).data) {
     inputs[QuestionNames.TemplateName] = (selected as OptionItem).data as string;
+  }
+}
+
+export class TdpCapabilityOptions {
+  static me(): OptionItem {
+    return {
+      id: "message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      description: getLocalizedString("core.MessageExtensionOption.description"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.MessageExtension,
+    };
+  }
+  static botAndMe(): OptionItem {
+    return {
+      id: "BotAndMessageExtension",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.BotAndMessageExtension,
+    };
+  }
+  static nonSsoTabAndBot(): OptionItem {
+    return {
+      id: "TabNonSsoAndBot",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.TabAndDefaultBot,
+    };
+  }
+  static nonSsoTab(): OptionItem {
+    return {
+      id: "tab-non-sso",
+      label: `${getLocalizedString("core.TabNonSso.label")}`,
+      detail: getLocalizedString("core.TabNonSso.detail"),
+      description: getLocalizedString(
+        "core.createProjectQuestion.option.description.worksInOutlookM365"
+      ),
+      data: TemplateNames.Tab,
+    };
   }
 }

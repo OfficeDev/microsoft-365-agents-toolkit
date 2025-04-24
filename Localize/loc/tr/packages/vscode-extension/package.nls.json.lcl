@@ -72,12 +72,12 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.install.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+          <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı]5D;(https://aka.ms/install-teamsapp) (@teamsapp), Teams uygulaması geliştirmeyi basitleştirir ve Microsoft 365 Copilot'ı sohbet özellikleriyle özelleştirme olanağı sunar.]A;[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısını yükleyin]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı]5D;(https://aka.ms/install-m365agents) (@m365agents), uygulama geliştirmeyi basitleştirir ve Microsoft 365 Copilot'ı sohbet özellikleriyle özelleştirme olanağı sunar.]A;[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısını yükleyin]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Teams Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
+            <Val><![CDATA[The [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features.]A;[Install GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(command:fx-extension.openInstallTeamsAgent?%5B%22TeamsAgentWalkthrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -96,33 +96,36 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.installConfirm.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+          <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Lütfen [GitHub Copilot uzantısı için Microsoft 365 Aracı Araç Seti]5D;(https://aka.ms/install-teamsapp) yüklendikten sonra yüklemeyi tamamlandı olarak işaretleyin.]A;[Yüklemeyi tamamlandı olarak işaretle]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[Lütfen [Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı]5D;(https://aka.ms/install-m365agents) yüklendikten sonra yüklemeyi tamamlandı olarak işaretleyin.]A;[Yüklemeyi tamamlandı olarak işaretle]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
+            <Val><![CDATA[Please mark the installation as completed after [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp) is installed.]A;[Mark installation completed]5D;(command:fx-extension.markInstallTeamsAgentDone)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.installConfirm.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          <Val><![CDATA[⚠️Confirm the installation of @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[⚠️Uygulama yüklemesini @teamsapp]]></Val>
+            <Val><![CDATA[⚠️@m365agents uygulamasının yüklemesini onaylayın]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[⚠️Confirm the installation of @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.introduction.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+          <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-m365agents).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı (@teamsapp), Teams uygulaması geliştirmeyi basitleştirir ve Microsoft 365 Copilot'ı sohbet özellikleriyle özelleştirme olanağı sunar. [Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı]5D;(https://aka.ms/install-teamsapp) hakkında daha fazla bilgi edinin.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı (@m365agents), uygulama geliştirmeyi basitleştirir ve Microsoft 365 Copilot'ı sohbet özellikleriyle özelleştirme olanağı sunar. [Microsoft 365 Aracı Araç Seti için GitHub Copilot uzantısı]5D;(https://aka.ms/install-m365agents) hakkında daha fazla bilgi edinin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[The GitHub Copilot extension for Teams Toolkit (@teamsapp) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Teams Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
+            <Val><![CDATA[The GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) simplifies Teams app development and enables customization of Microsoft 365 Copilot with chat features. Learn more about the [GitHub Copilot extension for Microsoft 365 Agents Toolkit]5D;(https://aka.ms/install-teamsapp).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -174,31 +177,37 @@
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.description" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build apps or customize and extend Microsoft 365 Copilot.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamaları oluşturmak veya Microsoft 365 Copilot'ı özelleştirmek ve genişletmek istiyorsanız Microsoft 365 Aracı Araç Seti (@teamsapp) için GitHub Copilot uzantısı ile sohbet edin.]]></Val>
+            <Val><![CDATA[Uygulama oluşturmak veya Microsoft 365 Copilot'ı özelleştirmek ve genişletmek istiyorsanız Microsoft 365 Aracı Araç Seti (@m365agents) için GitHub Copilot uzantısı ile sohbet edin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Chat with GitHub Copilot extension for Teams Toolkit (@teamsapp) to build Teams apps or customize and extend Microsoft 365 Copilot.]]></Val>
+            <Val><![CDATA[Chat with GitHub Copilot extension for Microsoft 365 Agents Toolkit (@m365agents) to build Microsoft 365 apps or customize and extend Microsoft 365 Copilot.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start to use @teamsapp]]></Val>
+          <Val><![CDATA[Start to use @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Uygulamayı kullanmaya @teamsapp]]></Val>
+            <Val><![CDATA[@m365agents uygulamasını kullanmaya başlayın]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start to use @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamsagent.walkthrough.use.title.preview" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start to use @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Start to use @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[@teamsapp'i kullanmaya başlayın (önizleme)]]></Val>
+            <Val><![CDATA[@m365agents uygulamasını kullanmaya başlayın (önizleme)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start to use @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -684,10 +693,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.create.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
+          <Val><![CDATA[Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Açıklamanıza göre Teams uygulamanızı oluşturmak üzere ilgili şablonları veya örnekleri bulmak için bu komutu kullanın. Örneğin, @teams görevleri tamamebilecek bir yapay yardımcı yapay zeka botu oluşturun.]]></Val>
+            <Val><![CDATA[Açıklamanıza göre uygulamanızı oluşturmak üzere ilgili şablonları veya örnekleri bulmak için bu komutu kullanın. Örneğin: @teams /create sıradan görevleri yerine getirebilen bir yapay zeka asistan botu oluştur.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -711,10 +723,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.create.noPromptAnswer" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to provide description and other details about the Teams app that you want to build.]A;]A;E.g. @teams /create a Teams app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo Teams app.]]></Val>
+          <Val><![CDATA[Use this command to provide description and other details about the app that you want to build.]A;]A;E.g. @teams /create an app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Derlemek istediğiniz Teams uygulaması hakkında açıklama ve diğer ayrıntıları sağlamak için bu komutu kullanın.]A;]A;Örneğin, @teams gitHub çekme isteklerini takımıma bildiren bir Teams uygulaması oluşturun.]A;]A;@teams /create ToDo Teams uygulaması oluşturmak istiyor musunuz?]]></Val>
+            <Val><![CDATA[Oluşturmak istediğiniz uygulama hakkında açıklama ve diğer ayrıntıları sağlamak için bu komutu kullanın.]A;]A;Örneğin, @teams /ekibimi yeni GitHub çekme istekleri hakkında bilgilendirecek bir uygulama oluştur.]A;]A;@teams /create Bir ToDo uygulaması oluşturmak istiyorum.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to provide description and other details about the Teams app that you want to build.]A;]A;E.g. @teams /create a Teams app that will notify my team about new GitHub pull requests.]A;]A;@teams /create I want to create a ToDo Teams app.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -756,22 +771,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.default.noConceptualAnswer" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your app development.]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Bu prosedürle ilgili bir sorudur, @teams şimdilik yalnızca tanımlar veya kavramlarla ilgili soruları yanıtlayabilir. Bu komutları deneyebilir veya [Microsoft 365 Aracı Araç Seti belgeleri]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals) adresinden daha fazla bilgi edinebilirsiniz.]A;]A; • /create: Açıklamanıza göre Teams uygulamanızı oluşturmak üzere ilgili şablonları veya örnekleri bulmak için bu komutu kullanın. Örneğin: @teams /create sıradan görevleri yerine getirebilen bir yapay zeka asistan botu oluştur.]A;]A; • /nextstep: Teams uygulama geliştirmenizin herhangi bir aşamasında bir sonraki adıma geçmek için bu komutu kullanın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Teams Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+            <Val><![CDATA[This is a procedural question, @teams can only answer questions regarding descriptions or concepts for now. You could try these commands or get more info from [Microsoft 365 Agents Toolkit documentation]5D;(https://learn.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals).]A;]A; • /create: Use this command to find relevant templates or samples to build your Teams app as per your description. E.g. @teams /create create an AI assistant bot that can complete common tasks.]A;]A; • /nextstep: Use this command to move to the next step at any stage of your Teams app development.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.nextStep.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          <Val><![CDATA[Use this command to move to the next step at any stage of your app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama geliştirmenizin herhangi bir aşamasında sonraki adıma taşımak için bu komutu kullanın.]]></Val>
+            <Val><![CDATA[Uygulama geliştirmenizin herhangi bir aşamasında bir sonraki adıma geçmek için bu komutu kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this command to move to the next step at any stage of your Teams app development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1029,10 +1047,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.chatParticipants.teams.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Use this Copilot extension to ask questions about Teams app development.]]></Val>
+          <Val><![CDATA[Use this Copilot extension to ask questions about app development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama geliştirme hakkında soru sormak için bu Copilot uzantısını kullanın.]]></Val>
+            <Val><![CDATA[Uygulama geliştirme hakkında soru sormak için bu Copilot uzantısını kullanın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Use this Copilot extension to ask questions about Teams app development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1320,12 +1341,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.addAppOwner.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
+          <Val><![CDATA[Add App (with Microsoft Entra App) Owners]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Teams Uygulaması (Microsoft Entra Uygulaması ile) Sahiplerini Ekle]]></Val>
+            <Val><![CDATA[Uygulama (Microsoft Entra Uygulaması ile) Sahiplerini Ekle]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add Microsoft 365 Teams App (with AAD App) Owners]]></Val>
+            <Val><![CDATA[Add Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1455,22 +1476,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.debug.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select and Start Debugging Teams App]]></Val>
+          <Val><![CDATA[Select and Start Debugging App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulamasını Seçin ve Uygulamada Hata Ayıklamaya Başlayın]]></Val>
+            <Val><![CDATA[Uygulamada Hata Ayıklamayı Seçin ve Başlatın]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select and Start Debuging Teams App]]></Val>
+            <Val><![CDATA[Select and Start Debugging Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commands.debugInTestTool.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Test Aracında Hata Ayıkla]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Oyun Alanı'nda Hata Ayıkla]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Debug in Test Tool]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1488,12 +1512,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.deployManifest.ctxMenu.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update Teams App]]></Val>
+          <Val><![CDATA[Update App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulamasını Güncelleştir]]></Val>
+            <Val><![CDATA[Uygulamayı Güncelleştir]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Update Teams app]]></Val>
+            <Val><![CDATA[Update Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1584,12 +1608,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.listAppOwner.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
+          <Val><![CDATA[List App (with Microsoft Entra App) Owners]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Teams Uygulaması (Microsoft Entra Uygulaması ile) Sahiplerini Listele]]></Val>
+            <Val><![CDATA[Uygulama (Microsoft Entra Uygulaması ile) Sahiplerini Listele]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[List Microsoft 365 Teams App (with AAD App) Owners]]></Val>
+            <Val><![CDATA[List Microsoft 365 Teams App (with Microsoft Entra App) Owners]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1620,12 +1644,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.manageCollaborator.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
+          <Val><![CDATA[Manage Microsoft 365 App (with Microsoft Entra app) Collaborators]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[M365 Teams Uygulaması (Microsoft Entra uygulaması ile) Ortak Çalışanlarını Yönetin]]></Val>
+            <Val><![CDATA[Microsoft 365 Uygulaması (Microsoft Entra uygulaması ile) Ortak Çalışanlarını Yönetin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Manage M365 Teams App (with AAD app) Collaborators]]></Val>
+            <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1741,6 +1765,18 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.commands.removeSharedAccess" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Remove access for shared app]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Paylaşılan uygulama için erişimi kaldır]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[remove access for shared app]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.commands.reportIssue.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Report Issues on GitHub]]></Val>
@@ -1836,12 +1872,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.updateManifest.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update Teams App]]></Val>
+          <Val><![CDATA[Update App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulamasını Güncelleştir]]></Val>
+            <Val><![CDATA[Uygulamayı Güncelleştir]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Update Teams app]]></Val>
+            <Val><![CDATA[Update Teams App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1893,12 +1929,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.zipPackage.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Zip Teams App Package]]></Val>
+          <Val><![CDATA[Zip App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zip Teams Uygulama Paketi]]></Val>
+            <Val><![CDATA[Zip Uygulama Paketi]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Zip Teams metadata package]]></Val>
+            <Val><![CDATA[Zip Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2040,24 +2076,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
+          <Val><![CDATA[Build your app into a package for publishing.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamanızı yayımlama paketi olarak oluşturun.]]></Val>
+            <Val><![CDATA[Uygulamanızı yayımlama paketi olarak oluşturun.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build your Teams app into a package for publishing]]></Val>
+            <Val><![CDATA[Build your Teams app into a package for publishing.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.buildPackageTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Zip Teams App Package]]></Val>
+          <Val><![CDATA[Zip App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Zip Teams Uygulama Paketi]]></Val>
+            <Val><![CDATA[Zip Uygulama Paketi]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Build Teams Package]]></Val>
+            <Val><![CDATA[Zip Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2169,12 +2205,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.deployDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
+          <Val><![CDATA[Execute the 'deploy' lifecycle stage in m365agents.yml.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'dağıt' yaşam döngüsü aşamasını yürütün.]]></Val>
+            <Val><![CDATA[m365agents.yml dosyasında 'dağıt' yaşam döngüsü aşamasını yürütün.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Execute the 'deploy' lifecycle stage in teamsapp.yml.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2193,10 +2229,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.documentationDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Learn how to use the Toolkit to build Teams apps]]></Val>
+          <Val><![CDATA[Learn how to use the Toolkit to build apps]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamaları oluşturmak için Araç Setini kullanmayı öğrenin]]></Val>
+            <Val><![CDATA[Uygulamaları oluşturmak için Araç Setini kullanmayı öğrenin]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Learn how to use the Toolkit to build Teams apps]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2211,10 +2250,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your Teams app.]]></Val>
+          <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your app or Microsoft 365 Copilot agent.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams GitHub Copilot neler yaptığınızı görmek için sohbet edin.]]></Val>
+            <Val><![CDATA[Uygulamanız veya Microsoft 365 Copilot aracınızla yapabileceklerinizi öğrenmek için GitHub Copilot ile sohbet edin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Chat with GitHub Copilot to know what you can do with your Microsoft 365 app or Microsoft 365 Copilot agent.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2334,12 +2376,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.manageCollaboratorDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
+          <Val><![CDATA[Manage Microsoft 365 App (with Microsoft Entra app) Collaborators]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[M365 Teams Uygulaması (Microsoft Entra uygulaması ile) Ortak Çalışanlarını Yönetin]]></Val>
+            <Val><![CDATA[Microsoft 365 Uygulaması (Microsoft Entra uygulaması ile) Ortak Çalışanlarını Yönetin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Manage M365 Teams App (with AAD app) Collaborators]]></Val>
+            <Val><![CDATA[Manage M365 Teams App (with Microsoft Entra app) Collaborators]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2502,24 +2544,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.previewDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug and preview your Teams app]]></Val>
+          <Val><![CDATA[Debug and preview your app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamanızın hatalarını ayıklayın ve önizlemesini görüntüleyin]]></Val>
+            <Val><![CDATA[Uygulamanızın hatalarını ayıklayın ve önizlemesini görüntüleyin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app locally]]></Val>
+            <Val><![CDATA[Debug and preview your Teams app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.previewTitle" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Preview Your Teams App (F5)]]></Val>
+          <Val><![CDATA[Preview Your App (F5)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulamanızı Önizleyin (F5)]]></Val>
+            <Val><![CDATA[Uygulamanızın Önizlemesini Görüntüleyin (F5)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app (F5)]]></Val>
+            <Val><![CDATA[Preview Your Teams App (F5)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2568,12 +2610,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.provisionDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'provision' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'sağla' yaşam döngüsü aşamasını çalıştırın.]]></Val>
+            <Val><![CDATA[m365agents.yml dosyasında 'sağla' yaşam döngüsü aşamasını çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file]]></Val>
+            <Val><![CDATA[Run the 'provision' lifecycle stage in teamsapp.yml file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2634,12 +2676,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.publishDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'publish' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'publish' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'yayımla' yaşam döngüsü aşamasını çalıştırın.]]></Val>
+            <Val><![CDATA[m365agents.yml dosyasında 'yayımla' yaşam döngüsü aşamasını çalıştırın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Execute the 'publish' lifecycle stage in teamsapp.yml]]></Val>
+            <Val><![CDATA[Run the 'publish' lifecycle stage in teamsapp.yml file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2751,10 +2793,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.shareDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
+          <Val><![CDATA[Run the 'share' lifecycle stage in m365agents.yml file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[teamsapp.yml dosyasında 'paylaş' yaşam döngüsü aşamasını çalıştırın.]]></Val>
+            <Val><![CDATA[m365agents.yml dosyasında 'paylaş' yaşam döngüsü aşamasını çalıştırın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Run the 'share' lifecycle stage in teamsapp.yml file.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2778,10 +2823,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.teamsDevPortalDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Manage your Teams app registration and access more tools]]></Val>
+          <Val><![CDATA[Manage your app registration and access more tools]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama kaydınızı yönetin ve daha fazla araca erişin]]></Val>
+            <Val><![CDATA[Uygulama kaydınızı yönetin ve daha fazla araca erişin]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Manage your Teams app registration and access more tools]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2856,10 +2904,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.dialogContent" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @teamsapp".]]></Val>
+          <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @m365agents".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hatayı daha iyi anlamak ve çözümleri keşfetmek için "Çıkış" altında ilgili metni seçin, sağ tıklayın ve "Seçili metni metinle çözümle" @teamsapp.]]></Val>
+            <Val><![CDATA[Hatayı daha iyi anlamak ve çözümleri keşfetmek için "Çıkış" altında ilgili metni seçin, sağ tıklayın ve "Seçili metni @m365agents ile çöz" seçeneğini belirtin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To better understand the error and explore solutions, select relevant text under "Output", right-click, and choose "Resolve selected text with @teamsapp".]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2874,37 +2925,49 @@
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @teamsapp]]></Val>
+          <Val><![CDATA[Resolve with @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu hatayla @teamsapp]]></Val>
+            <Val><![CDATA[@m365agents ile çöz]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve with @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentResolve.title.preview" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve with @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Resolve with @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[@teamsapp ile çözümleyin (önizleme)]]></Val>
+            <Val><![CDATA[@m365agents ile çöz (önizleme)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve with @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @teamsapp]]></Val>
+          <Val><![CDATA[Resolve selected text with @m365agents]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seçili metni metinle @teamsapp]]></Val>
+            <Val><![CDATA[Seçili metni @m365agents ile çöz]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve selected text with @teamsapp]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commmands.teamsAgentTroubleshootSelectedText.title.preview" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Resolve selected text with @teamsapp (preview)]]></Val>
+          <Val><![CDATA[Resolve selected text with @m365agents (preview)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[@teamsapp ile seçili metni çözümleyin (önizleme)]]></Val>
+            <Val><![CDATA[Seçili metni @m365agents ile çöz (önizleme)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Resolve selected text with @teamsapp (preview)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3042,12 +3105,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.devPortalIntegration.getTeamsAppError.message" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, Teams uygulamanızı alamadı. Lütfen doğru Microsoft 365 hesabı ile oturum açarak Geliştirici Portalı’ndan tekrar deneyin.]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Araç Seti, uygulamanızı alamadı. Lütfen doğru Microsoft 365 hesabı ile oturum açarak Geliştirici Portalı’ndan tekrar deneyin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit couldn't retrieve your Teams app. Please try again from Developer Portal by signing in with the correct Microsoft 365 account.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3231,12 +3294,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureAPIM.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[An API gateway manages APIs for Teams apps, making them available for consumption by other apps like Power Apps.]]></Val>
+          <Val><![CDATA[An API gateway manages APIs for apps, making them available for consumption by other apps like Power Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API ağ geçidi, Teams uygulamaları için API'leri yöneterek bu api'leri bu uygulamalar gibi diğer Power Apps.]]></Val>
+            <Val><![CDATA[API ağ geçidi, uygulamalar için API'leri yöneterek bu API'leri Power Apps gibi diğer uygulamalar tarafından kullanılabilir hale getirir.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[An API gateway can be used to administer APIs created for Teams applications and publish them to consume on other applications, such as Power apps.]]></Val>
+            <Val><![CDATA[An API gateway manages APIs for Teams apps, making them available for consumption by other apps like Power Apps.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3252,10 +3315,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureFunction.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A serverless solution to create web APIs for your Teams applications backend.]]></Val>
+          <Val><![CDATA[A serverless solution to create web APIs for your applications backend.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamalarınızın arka ucu için web API'leri oluşturan sunucusuz bir çözüm.]]></Val>
+            <Val><![CDATA[Uygulamalarınızın arka ucu için web API'leri oluşturan sunucusuz bir çözüm.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A serverless solution to create web APIs for your Teams applications backend.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3270,10 +3336,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureKeyVault.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Safeguard cryptographic keys and other secrets used by Teams application.]]></Val>
+          <Val><![CDATA[Safeguard cryptographic keys and other secrets used by application.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması tarafından kullanılan şifreleme anahtarlarını ve diğer gizli anahtarları koruyun.]]></Val>
+            <Val><![CDATA[Uygulama tarafından kullanılan şifreleme anahtarlarını ve diğer gizli anahtarları koruyun.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Safeguard cryptographic keys and other secrets used by Teams application.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3288,10 +3357,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.addAzureSql.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your Teams applications data store.]]></Val>
+          <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your applications data store.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamalarınız için veri deposu işlevi görecek, hizmet olarak (PaaS) veritabanı altyapısı.]]></Val>
+            <Val><![CDATA[Uygulamalarınız için veri deposu işlevi görecek hizmet olarak platform (PaaS) veritabanı altyapısı.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[A platform as a service (PaaS) database engine to serve as your Teams applications data store.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3435,10 +3507,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.cicdPipeline.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Automate development workflow while building Teams application for GitHub, Azure DevOps and Jenkins.]]></Val>
+          <Val><![CDATA[Automate development workflow while building application for GitHub, Azure DevOps and Jenkins.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[GitHub, Azure DevOps Jenkins için Teams uygulaması derlerken geliştirme iş akışını otomatikleştirin.]]></Val>
+            <Val><![CDATA[GitHub, Azure DevOps ve Jenkins için uygulama derlerken geliştirme iş akışını otomatikleştirin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Automate development workflow while building Teams application for GitHub, Azure DevOps and Jenkins.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3522,10 +3597,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.mobilePreview.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run and debug your Teams application on iOS or Android client.]]></Val>
+          <Val><![CDATA[Run and debug your application on iOS or Android client.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamanızı iOS veya Android istemcide çalıştırın ve hatalarını ayıklayın.]]></Val>
+            <Val><![CDATA[Uygulamanızı iOS veya Android istemcide çalıştırın ve hatalarını ayıklayın.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Run and debug your Teams application on iOS or Android client.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3540,12 +3618,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.guides.multiTenant.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enable Multi-Tenant support for Teams app.]]></Val>
+          <Val><![CDATA[Enable Multi-Tenant support for app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulaması için Çok Kiracılı desteği etkinleştirin.]]></Val>
+            <Val><![CDATA[Uygulama için Çok Kiracılı desteği etkinleştirin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enable multi-Tenant support for Teams app.]]></Val>
+            <Val><![CDATA[Enable Multi-Tenant support for Teams app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3651,12 +3729,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallCopilot" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamalarını geliştirirken veya Microsoft 365 Copilot'u özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için önce GitHub Copilot’ı yüklemelisiniz.]]></Val>
+            <Val><![CDATA[Uygulamaları geliştirirken veya Microsoft 365 Copilot'ı özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için önce GitHub Copilot’ı yüklemelisiniz.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, you need to install GitHub Copilot first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3681,12 +3759,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.askInstallTeamsAgent" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamalarını geliştirirken veya Microsoft 365 Copilot'u özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için lütfen önce bu uzantıyı yükleyin. Zaten yüklediyseniz, aşağıdan onaylayın.]]></Val>
+            <Val><![CDATA[Uygulamaları geliştirirken veya Microsoft 365 Copilot'ı özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için lütfen önce bu uzantıyı yükleyin. Zaten yüklediyseniz, aşağıdan onaylayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, please install it first. If you've already installed it, confirm below.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3780,10 +3858,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.debugInTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Test Aracında Hata Ayıkla]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Oyun Alanı'nda Hata Ayıkla]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Debug in Test Tool]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3861,19 +3942,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.grantPermissionSucceeded" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Added account: '%s' to the environment '%s' as the Teams app owner.]]></Val>
+          <Val><![CDATA[Added account: '%s' to the environment '%s' as the app owner.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA['%s' hesabı '%s' ortamına Teams uygulaması sahibi olarak eklendi.]]></Val>
+            <Val><![CDATA['%s' hesabı '%s' ortamına uygulama sahibi olarak eklendi.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Added account: '%s' to the environment '%s' as the Teams app owner.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.grantPermissionSucceededV3" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Added account: '%s' as the Teams app owner.]]></Val>
+          <Val><![CDATA[Added account: '%s' as the app owner.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hesap eklendi: Teams uygulaması sahibi olarak '%s'.]]></Val>
+            <Val><![CDATA['%s' hesabı uygulama sahibi olarak eklendi.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Added account: '%s' as the Teams app owner.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3915,24 +4002,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamaları geliştirirken veya Microsoft 365 Copilot’ı özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısını kullanmak için "%s" adresinden Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısını yükleyin.]]></Val>
+            <Val><![CDATA[Uygulamaları geliştirirken veya Microsoft 365 Copilot’ı özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısını kullanmak için "%s" adresinden Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısını yükleyin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+            <Val><![CDATA[To use GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.installCopilotAndAgent.output" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
+          <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulamalarını geliştirirken veya Microsoft 365 Copilot'u özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için “%s” adresinden GitHub Copilot'u ve “%s” adresinden Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı yükleyin.]]></Val>
+            <Val><![CDATA[Uygulamaları geliştirirken veya Microsoft 365 Copilot'ı özelleştirirken Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı kullanmak için “%s” adresinden GitHub Copilot'ı ve “%s” adresinden Microsoft 365 Aracı Araç Seti için GitHub Copilot Uzantısı'nı yükleyin.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To use the GitHub Copilot Extension for Teams Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Teams Toolkit from "%s".]]></Val>
+            <Val><![CDATA[To use the GitHub Copilot Extension for Microsoft 365 Agents Toolkit when developing Teams apps or customizing Microsoft 365 Copilot, install GitHub Copilot from "%s" and GitHub Copilot Extension for Microsoft 365 Agents Toolkit from "%s".]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3975,12 +4062,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.invalidProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to debug Teams App. This is not a valid Teams project.]]></Val>
+          <Val><![CDATA[Unable to debug app. This is not a valid Teams project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulaması’nda hata ayıklanamıyor. Bu, geçerli bir Teams projesi değil.]]></Val>
+            <Val><![CDATA[Uygulamada hata ayıklanamıyor. Bu, geçerli bir Teams projesi değil.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Failed to debug Teams App. The project is not a valid Teams project.]]></Val>
+            <Val><![CDATA[Unable to debug Teams App. This is not a valid Teams project.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3999,19 +4086,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.localDebugDescription.enabledTestTool" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Test Tool or Teams.]]></Val>
+          <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Microsoft 365 Agents Playground or Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[%s]5D;, [local address]5D;(%s) konumunda başarıyla oluşturuldu. Artık Test Aracı veya Teams'de uygulamanızın hatalarını ayıklayın.]]></Val>
+            <Val><![CDATA[[%s]5D;, [yerel adreste]5D;(%s) başarıyla oluşturuldu. Artık Microsoft 365 Aracı Deneme Alanı'nda veya Teams'de uygulamanızın hatalarını ayıklayabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[[%s]5D; successfully created at [local address]5D;(%s). You can now debug your app in Test Tool or Teams.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.localDebugDescription.enabledTestTool.fallback" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Test Tool or Teams.]]></Val>
+          <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Microsoft 365 Agents Playground or Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[[%s]5D;, şu anda başarıyla %s. Artık Test Aracı veya Teams'de uygulamanızın hatalarını ayıklayın.]]></Val>
+            <Val><![CDATA[[%s]5D;, %s konumunda başarıyla oluşturuldu. Artık Microsoft 365 Aracı Deneme Alanı'nda veya Teams'de uygulamanızın hatalarını ayıklayabilirsiniz.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[[%s]5D; successfully created at %s. You can now debug your app in Test Tool or Teams.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4521,12 +4614,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.localDebug.m365TenantHintMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend Teams apps across Microsoft 365.]]></Val>
+          <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend apps across Microsoft 365.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Geliştirici kiracınızı Hedef Sürüm Office 365 kaydettikten sonra kayıt birkaç gün içinde etkili olabilir. Teams uygulamalarını tüm platformlarda genişletmek için geliştirme ortamını ayarlama hakkında ayrıntılar için 'Daha Fazla Bilgi Al' Microsoft 365.]]></Val>
+            <Val><![CDATA[Geliştirici kiracınızı Office 365 Hedef Sürüm'e kaydettikten sonra kayıt birkaç gün içinde geçerli olabilir. Uygulamaları Microsoft 365 genelinde genişletmek üzere geliştirme ortamını ayarlama ile ilgili ayrıntılar için 'Daha Fazla Bilgi Al' düğmesine tıklayın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect. Please click 'Learn More' button for more information about setting up dev environment for extending Teams apps across Microsoft 365.]]></Val>
+            <Val><![CDATA[After enrolling your developer tenant in Office 365 Target Release, enrollment may come into effect in couple of days. Click 'Get More Info' button for details on setting up dev environment to extend Teams apps across Microsoft 365.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5091,12 +5184,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.manageCollaborator.grantPermission.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add owners to your Teams app and Microsoft Entra app registrations so they can make changes]]></Val>
+          <Val><![CDATA[Add owners to your app and Microsoft Entra app registrations so they can make changes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Değişiklik yapabilmeleri için Teams uygulamanıza ve Microsoft Entra uygulama kayıtlarınıza sahip ekleyin]]></Val>
+            <Val><![CDATA[Değişiklik yapabilmeleri için uygulamalarınıza ve Microsoft Entra uygulama kayıtlarınıza sahip ekleyin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add owners to your Teams app and Azure Active Director app registrations so they can make changes]]></Val>
+            <Val><![CDATA[Add owners to your Teams app and Microsoft Entra app registrations so they can make changes]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5457,24 +5550,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.publishInDevPortal.selectFile.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select your Teams app package or build one from "Zip Teams app package"]]></Val>
+          <Val><![CDATA[Select your app package or build one from "Zip App Package"]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama paketinizi seçin veya "Zip Teams uygulama paketi"nden bir tane oluşturun]]></Val>
+            <Val><![CDATA[Uygulama paketinizi seçin veya "Zip Uygulama Paketi"nden bir tane oluşturun]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select your Teams app package or you could build one from "Zip Teams app package"]]></Val>
+            <Val><![CDATA[Select your Teams app package or build one from "Zip Teams app package"]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.publishInDevPortal.selectFile.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Your Teams App Package]]></Val>
+          <Val><![CDATA[Select Your App Package]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams Uygulama Paketinizi seçin]]></Val>
+            <Val><![CDATA[Uygulama Paketinizi Seçin]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams App Package]]></Val>
+            <Val><![CDATA[Select Your Teams App Package]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5772,10 +5865,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.taskDefinitions.args.url.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[The Teams app URL.]]></Val>
+          <Val><![CDATA[The app URL.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams uygulama URL'si.]]></Val>
+            <Val><![CDATA[Uygulama URL'si.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[The Teams app URL.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6183,19 +6279,25 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Daha fazla yardıma mı ihtiyacınız var? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) kullanarak Teams uygulamasını veya Microsoft 365 Copilot geliştirmeyi keşfedin.]]></Val>
+            <Val><![CDATA[Daha fazla yardıma mı ihtiyacınız var? [GitHub Copilot ile sohbet ederek]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) uygulamayı veya Microsoft 365 Copilot aracısını geliştirmeyi keşfedin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.helpwithGitHubCopilot.preview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Teams app or Microsoft 365 Copilot agent development.]]></Val>
+          <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore app or Microsoft 365 Copilot agent development.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Daha fazla yardıma mı ihtiyacınız var? [GitHub Copilot ile sohbet ederek]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) Teams uygulamasını veya Microsoft 365 Copilot aracısını geliştirmeyi keşfedin.]]></Val>
+            <Val><![CDATA[Daha fazla yardıma mı ihtiyacınız var? [GitHub Copilot ile sohbet ederek]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) uygulamayı veya Microsoft 365 Copilot aracısını geliştirmeyi keşfedin.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Need more help? [Chat with GitHub Copilot]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22WalkThrough%22%5D) to explore Microsoft 365 app or Microsoft 365 Copilot agent development.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6267,12 +6369,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitEnvironment.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To develop Teams app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first Teams app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+          <Val><![CDATA[To develop app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[JavaScript veya TypeScript ile Teams uygulaması geliştirmek için NPM ve Node.js. İlk Teams uygulamasını oluşturmaya başlamak için ortamınızı ayarlayın.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[JavaScript veya TypeScript ile uygulama geliştirmek için NPM ve Node.js gereklidir. İlk uygulamanızı oluşturmaya başlamak için ortamınızı ayarlayın.]A;[Ön Koşulları Kontrol Et]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Developing Teams application with JavaScript or TypeScript requires NPM and Node.js. Check your environment and get ready for your first Teams app development.]A;[Run Prerequisite Checker]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[To develop Teams app with JavaScript or TypeScript, you need NPM and Node.js. Set up your environment to start building first Teams app.]A;[Check Prerequisites]5D;(command:fx-extension.validate-getStarted-prerequisites?%5B%22WalkThrough%22%5D)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -6345,24 +6447,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Run and debug your app in the emulated App Test Tool environment.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
+          <Val><![CDATA[Run and debug your app in the emulated Microsoft 365 Agents Playground environment.]A;[Debug in Microsoft 365 Agents Playground]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Öykünülen Uygulama Test Aracı ortamında uygulamanızı çalıştırın ve hatalarını ayıklayın.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;İpucu: Teams[Run and Debug]5D; hata ayıklamak için etkinlik çubuğundaki [Run and Debug]5D;(command:workbench.view.debug) panelini kullanın.]]></Val>
+            <Val><![CDATA[Öykünülen Microsoft 365 Aracı Deneme Alanı'nda uygulamanızı çalıştırın ve hatalarını ayıklayın.]A;[Microsoft 365 Aracı Deneme Alanı'nda hata ayıkla]5D;(command:fx-extension.localdebug)]A;İpucu: Teams'de hata ayıklamak için etkinlik çubuğundaki [Çalıştır ve Hata Ayıkla]5D;(command:workbench.view.debug) panelini kullanın.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Press [F5]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D) or discover [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar, and click the play icon to locally preview your app in Teams context.]A;[Run Local Preview (F5)]5D;(command:fx-extension.selectAndDebug?%5B%22WalkThrough%22%5D)]A;__Tip: To run local preview, sign in to Microsoft 365 (organizational account) with custom app upload option.__]]></Val>
+            <Val><![CDATA[Run and debug your app in the emulated App Test Tool environment.]A;[Debug in App Test Tool]5D;(command:fx-extension.localdebug)]A;Tip: Use [Run and Debug]5D;(command:workbench.view.debug) panel on the activity bar to debug in Teams.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.walkthroughs.steps.teamsToolkitPreview.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Debug in App Test Tool]]></Val>
+          <Val><![CDATA[Debug in Microsoft 365 Agents Playground]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Uygulama Test Aracında Hata Ayıkla]]></Val>
+            <Val><![CDATA[Microsoft 365 Aracı Oyun Alanı'nda Hata Ayıkla]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Preview your Teams app locally]]></Val>
+            <Val><![CDATA[Debug in App Test Tool]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

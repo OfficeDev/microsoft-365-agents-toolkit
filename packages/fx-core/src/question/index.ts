@@ -18,13 +18,13 @@ import {
   listCollaboratorQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
+  removeSharedAccessNode,
   selectTeamsAppManifestQuestionNode,
+  setSensitivityLabelNode,
+  shareNode,
   syncManifestQuestionNode,
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
-  setSensitivityLabelNode,
-  shareNode,
-  removeSharedAccessNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -36,7 +36,6 @@ export * from "./options";
 
 export class QuestionNodes {
   createProject(platform: Platform): IQTreeNode {
-    // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
     return scaffoldQuestionForVSCode(platform);
   }

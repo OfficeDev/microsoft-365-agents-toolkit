@@ -1,13 +1,72 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { CLICommand, OptionItem, Platform, ok } from "@microsoft/teamsfx-api";
-import { CapabilityOptions } from "@microsoft/teamsfx-core";
+import { CLICommand, ok, OptionItem } from "@microsoft/teamsfx-api";
+import {
+  BotCapabilityOptions,
+  CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
+  DACapabilityOptions,
+  featureFlagManager,
+  FeatureFlags,
+  MeCapabilityOptions,
+  OfficeAddinCapabilityOptions,
+  TabCapabilityOptions,
+  TdpCapabilityOptions,
+  VSCapabilityOptions,
+} from "@microsoft/teamsfx-core";
 import chalk from "chalk";
 import Table from "cli-table3";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ListFormatOption } from "../common";
+
+export function listAllCapabilities(): OptionItem[] {
+  if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
+    // return all capabilities for .NET
+    return [
+      VSCapabilityOptions.empty(),
+      VSCapabilityOptions.declarativeAgent(),
+      CustomCopilotCapabilityOptions.basicChatbot(),
+      CustomCopilotCapabilityOptions.customCopilotRag(),
+      CustomCopilotCapabilityOptions.aiAgent(),
+      VSCapabilityOptions.weatherAgentBot(),
+      BotCapabilityOptions.basicBot(),
+      BotCapabilityOptions.aiBot(),
+      VSCapabilityOptions.aiAssistantBot(),
+      BotCapabilityOptions.notificationBot(),
+      BotCapabilityOptions.commandBot(),
+      BotCapabilityOptions.workflowBot(),
+      VSCapabilityOptions.nonSsoTab(),
+      VSCapabilityOptions.tab(),
+      MeCapabilityOptions.m365SearchMe(),
+      MeCapabilityOptions.collectFormMe(),
+      VSCapabilityOptions.SearchMeVS(),
+      MeCapabilityOptions.linkUnfurling(),
+      TdpCapabilityOptions.me(),
+    ];
+  }
+  return [
+    DACapabilityOptions.declarativeAgent(),
+    CustomEngineAgentOptions.basicCustomEngineAgent(),
+    CustomCopilotCapabilityOptions.basicChatbot(),
+    CustomCopilotCapabilityOptions.customCopilotRag(),
+    CustomCopilotCapabilityOptions.aiAgent(),
+    BotCapabilityOptions.basicBot(),
+    BotCapabilityOptions.notificationBot(),
+    BotCapabilityOptions.commandBot(),
+    BotCapabilityOptions.workflowBot(),
+    TabCapabilityOptions.nonSsoTab(),
+    TabCapabilityOptions.m365SsoLaunchPage(),
+    TabCapabilityOptions.dashboardTab(),
+    TabCapabilityOptions.SPFxTab(),
+    MeCapabilityOptions.m365SearchMe(),
+    MeCapabilityOptions.collectFormMe(),
+    MeCapabilityOptions.linkUnfurling(),
+    OfficeAddinCapabilityOptions.wxpTaskPane(),
+    OfficeAddinCapabilityOptions.outlookTaskPane(),
+  ];
+}
 
 export const listTemplatesCommand: CLICommand = {
   name: "templates",
@@ -18,9 +77,9 @@ export const listTemplatesCommand: CLICommand = {
     const format = ctx.optionValues.format;
     let result;
     if (format === "table") {
-      result = jsonToTable(CapabilityOptions.all({ platform: Platform.CLI }));
+      result = jsonToTable(listAllCapabilities());
     } else {
-      result = JSON.stringify(CapabilityOptions.all({ platform: Platform.CLI }), null, 2);
+      result = JSON.stringify(listAllCapabilities(), null, 2);
     }
     logger.info(result);
     return ok(undefined);
