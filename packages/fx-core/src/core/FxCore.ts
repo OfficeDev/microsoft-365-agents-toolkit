@@ -156,6 +156,7 @@ import {
   InvalidProjectError,
   MissingRequiredInputError,
   MultipleServerError,
+  NeedRedoError,
   UnhandledError,
   UserCancelError,
   assembleError,
@@ -178,6 +179,7 @@ import {
 } from "../question/constants";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -192,6 +194,7 @@ import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
 import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
   getTrackingIdFromPath,
@@ -199,7 +202,6 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -317,6 +319,20 @@ export class FxCore {
     inputs.projectPath = context.projectPath;
     return res;
   }
+
+  /**
+   * Wrapper of provisionResourcesOnce, which will retry if NeedRedoError is thrown.
+   */
+  async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const res = runWithRetry(
+      async () => {
+        return this.provisionResourcesOnce(inputs);
+      },
+      (result, attempt) => result.isErr() && result.error instanceof NeedRedoError
+    );
+    return res;
+  }
+
   /**
    * lifecycle commands: provision
    */
@@ -329,7 +345,7 @@ export class FxCore {
     ContextInjectorMW,
     EnvWriterMW,
   ])
-  async provisionResources(
+  async provisionResourcesOnce(
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {

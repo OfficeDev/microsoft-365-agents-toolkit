@@ -402,6 +402,18 @@ export class UserCancelError extends UserError {
   }
 }
 
+export class NeedRedoError extends UserError {
+  constructor(source: string) {
+    super({
+      source: source,
+      name: "NeedRedoError",
+      message: "Need re-execute the operation",
+      displayMessage: "Need re-execute the operation",
+      categories: [ErrorCategory.Internal],
+    });
+  }
+}
+
 export class EmptyOptionError extends SystemError {
   constructor(name: string, source?: string) {
     super({
