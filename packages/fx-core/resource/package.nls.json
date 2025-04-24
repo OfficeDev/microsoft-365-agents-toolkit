@@ -333,7 +333,7 @@
   "core.createProjectQuestion.projectType.tab.title": "App Features Using a Tab",
   "core.createProjectQuestion.projectType.copilotExtension.title": "App Features Using Agents",
   "core.createProjectQuestion.projectType.copilotExtension.placeholder": "Select an option",
-  "core.createProjectQuestion.projectType.customCopilot.detail": "Build intelligent agent where you manage orchestration and provide your own LLM.",
+  "core.createProjectQuestion.projectType.customCopilot.detail": "Build intelligent agent where you manage orchestration and provide your own LLM",
   "core.createProjectQuestion.projectType.customCopilot.label": "Custom Engine Agent",
   "core.createProjectQuestion.projectType.customCopilot.title": "App Features Using Microsoft 365 Agents SDK",
   "core.createProjectQuestion.projectType.customCopilot.placeholder": "Select an option",
