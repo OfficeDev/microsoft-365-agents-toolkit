@@ -5,12 +5,11 @@ import {
   ensureConnection,
   setSearchSettings,
 } from "../connection";
-import { ensureSchema } from "../schema";
+import { ensureSchema, schemaExists } from "../schema";
 import { ingestContent } from "../ingest";
 import { initConfig } from "../config";
 import { getLastCrawl, saveLastCrawl } from "../services/crawlService";
 
-let connectionDeployed = false;
 let fullCrawlInProgress = false;
 let retractInProgress = false;
 
@@ -24,16 +23,16 @@ let retractInProgress = false;
 export async function deployConnection(timer: Timer, context: InvocationContext): Promise<void> {
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
+  const initialTimestamp = Date.now();
 
   // Creates the connection
-  const connectionResult = await ensureConnection(config);
+  const connectionResult = await ensureConnection(config, initialTimestamp);
   if (connectionResult) {
     // Creates the schema
     await ensureSchema(config);
 
     // Updates the search settings with the result template
     await setSearchSettings(config);
-    connectionDeployed = true;
 
     // Starts a full crawl
     await fullCrawl(timer, context);
@@ -50,6 +49,7 @@ export async function fullCrawl(timer: Timer, context: InvocationContext): Promi
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
+  const connectionDeployed = await schemaExists(config);
   if (!connectionDeployed) {
     context.warn("Connection not deployed yet...");
   }
@@ -81,6 +81,7 @@ export async function incrementalCrawl(timer: Timer, context: InvocationContext)
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
+  const connectionDeployed = await schemaExists(config);
   if (!connectionDeployed) {
     context.warn("Connection not deployed yet...");
     return;
@@ -120,17 +121,18 @@ export async function retractConnection(
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
+  const connectionDeployed = await schemaExists(config);
   if (!connectionDeployed) {
     context.warn("Connection not deployed yet...");
     return;
   }
 
-  connectionDeployed = false;
   fullCrawlInProgress = false;
   retractInProgress = false;
 
   // Deletes the connection
-  await deleteConnection(config);
+  const initialTimestamp = Date.now();
+  await deleteConnection(config, initialTimestamp);
   await saveLastCrawl(new Date(0));
 
   retractInProgress = false;
@@ -151,6 +153,7 @@ export async function clearConnection(
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
+  const connectionDeployed = await schemaExists(config);
   if (!connectionDeployed) {
     context.warn("Connection not deployed yet...");
     return;

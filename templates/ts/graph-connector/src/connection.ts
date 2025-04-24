@@ -6,7 +6,6 @@ import { getAllItems } from "./services/itemsService";
 
 const timeout = 600_000; // 10 minutes
 const retryInterval = 15_000; // 15 seconds
-const initialTimestamp = Date.now();
 let consentRequested = false;
 let client = getClient();
 
@@ -81,7 +80,7 @@ export async function connectionExists(config: Config): Promise<boolean> {
  * Ensures that the connection exists in Microsoft Graph.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function ensureConnection(config: Config): Promise<boolean> {
+export async function ensureConnection(config: Config, initialTimestamp: number): Promise<boolean> {
   try {
     // If time elapsed is less than 10 minutes, try again
     if (Date.now() - initialTimestamp <= timeout) {
@@ -114,7 +113,7 @@ export async function ensureConnection(config: Config): Promise<boolean> {
       }
 
       await delay(retryInterval);
-      return await ensureConnection(config);
+      return await ensureConnection(config, initialTimestamp);
     } else {
       config.context.error(e);
     }
@@ -149,7 +148,7 @@ export async function clearConnectionItems(config: Config): Promise<boolean> {
  * Ensures that the connection exists in Microsoft Graph.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function deleteConnection(config: Config): Promise<boolean> {
+export async function deleteConnection(config: Config, initialTimestamp: number): Promise<boolean> {
   try {
     if (Date.now() - initialTimestamp <= timeout) {
       client = getClient();
@@ -187,7 +186,7 @@ export async function deleteConnection(config: Config): Promise<boolean> {
       }
 
       await delay(retryInterval);
-      return await deleteConnection(config);
+      return await deleteConnection(config, initialTimestamp);
     } else {
       config.context.error(e);
     }
