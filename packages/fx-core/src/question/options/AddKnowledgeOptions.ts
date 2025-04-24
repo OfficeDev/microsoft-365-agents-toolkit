@@ -55,19 +55,19 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
   {
     name: "graph-connector-content",
     type: "string",
-    description: "Graph Connector Content",
+    description: "Copilot Connector Content",
     choices: ["listConnections", "inputConnectionId"],
   },
   {
     name: "graph-connector-list",
     type: "array",
-    description: "Select one or more Graph Connectors as capability source",
+    description: "Select one or more Copilot Connectors as capability source",
     default: [],
   },
   {
     name: "graph-connector-input",
     type: "string",
-    description: "a connection ID for Graph Connector",
+    description: "a connection ID for Copilot Connector",
   },
   {
     name: "embedded-knowledge-files",

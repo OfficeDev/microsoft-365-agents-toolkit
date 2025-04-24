@@ -1,10 +1,10 @@
 {
   "$schema": "https://aka.ms/codetour-schema",
-  "title": "Load data from Graph connector",
+  "title": "Load data from Copilot connector",
   "steps": [
     {
       "file": "aad.manifest.json",
-      "description": "### Update Entra app manifest\n\nChange the permission to be able to read external items. This is necessary to grant your app access to external items imported to Microsoft 365 by the Microsoft Graph connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
+      "description": "### Update Entra app manifest\n\nChange the permission to be able to read external items. This is necessary to grant your app access to external items imported to Microsoft 365 by the Microsoft Copilot connector. Change the permission to:\n\n```text\nExternalItem.Read.All\n```",
       "line": 24,
       "selection": {
         "start": {
