@@ -223,6 +223,13 @@ describe("SharedOpts", () => {
       await runCommand(Stage.shareRemove);
       sinon.assert.calledOnce(removeSharedAccess);
     });
+    it("installApp", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const installAppStub = sandbox.spy(globalVariables.core, "installAppToChannel");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.installApp);
+      sinon.assert.calledOnce(installAppStub);
+    });
   });
 
   describe("processResult", () => {

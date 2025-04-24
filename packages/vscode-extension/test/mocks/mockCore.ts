@@ -135,6 +135,9 @@ export class MockCore {
   async removeSharedAccess(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
+  async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
   async getProjectInfo(
     projectPath: string,
     env: string
