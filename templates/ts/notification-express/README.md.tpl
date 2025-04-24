@@ -2,7 +2,7 @@
 
 This template showcases an app that send a message to Teams with Adaptive Cards triggered by a HTTP post request. You can further extend the template to consume, transform and post events to individual, chat or channel in Teams.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Agents SDK to implement this scenario.
+The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft 365 Agents SDK to implement this scenario.
 
 ## Get Started with the Notification bot
 

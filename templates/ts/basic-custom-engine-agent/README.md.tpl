@@ -1,6 +1,6 @@
 # Overview of the Basic Custom Engine Agent template
 
-This app template is built on top of [Microsoft Agents SDK](https://github.com/Microsoft/Agents).
+This app template is built on top of [Microsoft 365 Agents SDK](https://github.com/Microsoft/Agents).
 It showcases an agent that responds to user questions like ChatGPT. This enables your users to talk with the agent using your custome engine.
 
 ## Get started with the template
