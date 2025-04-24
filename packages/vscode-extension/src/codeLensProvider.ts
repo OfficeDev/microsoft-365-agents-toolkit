@@ -730,18 +730,8 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       let labelDisplayName: string | undefined;
       // query display name of the current label
       const token = loginStatusRes.value.token;
-      const accountInfo = loginStatusRes.value.accountInfo;
-      const accountUniqueName =
-        typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
-      const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
-
       const graphClient = new GraphClient(tools.tokenProvider?.m365TokenProvider);
-      const result = await graphClient.listSensitivityLabels(
-        token,
-        !!accountUniqueName && !!tenantId,
-        accountUniqueName,
-        tenantId
-      );
+      const result = await graphClient.listSensitivityLabels(token, true);
       if (result.isOk()) {
         for (const label of result.value) {
           if (label.id === sensitivityLabel.id) {

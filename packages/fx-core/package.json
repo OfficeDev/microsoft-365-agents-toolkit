@@ -77,6 +77,7 @@
     "test:devTool": "nyc mocha \"tests/component/driver/devTool/*.test.ts\"",
     "test:metadataUtil": "nyc mocha \"tests/component/util/metadataUtil.test.ts\"",
     "test:migrate": "nyc mocha \"tests/component/migrate.test.ts\"",
+    "test:retry": "npx mocha \"tests/core/middleware/retry.test.ts\"",
     "clean": "rm -rf build",
     "prebuild": "npm run gen:cli",
     "build": "tsc -p ./ --incremental",

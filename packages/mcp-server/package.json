@@ -10,6 +10,9 @@
     "lint:staged": "lint-staged",
     "lint:fix": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\""
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist"
   ],
