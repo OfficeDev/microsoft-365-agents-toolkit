@@ -264,6 +264,27 @@ describe("Wrapped Axios Client Test", () => {
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
+  it("MOS API error response url not classified", async () => {
+    const mockedError = {
+      request: {
+        method: "POST",
+        host: "https://titles.prod.mos.microsoft.com",
+        path: "/abc/def",
+      },
+      config: {},
+      response: {
+        status: 400,
+        data: {
+          code: "BadRequest",
+          message: "Invalid request",
+        },
+      },
+    } as any;
+    const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+    WrappedAxiosClient.onRejected(mockedError);
+    chai.expect(telemetryChecker.calledOnce).to.be.true;
+  });
+
   it("Create bot API start telemetry", async () => {
     const mockedRequest = {
       method: "POST",
