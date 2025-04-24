@@ -1015,6 +1015,35 @@
                     "type": "string",
                     "description": "Resource url of app for acquiring auth token for SSO.",
                     "maxLength": 2048
+                },
+                "nestedAppAuthInfo": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "description": "By including this property, an NAA token based on its contents will be prefetched when the tab is loaded.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "redirectUri": {
+                          "type": "string",
+                          "description": "Represents the nested app's valid redirect URI (always a base origin)."
+                        },
+                        "scopes": {
+                          "type": "array",
+                          "description": "Represents the stringified list of scopes the access token requested requires. Order must match that of the proceeding NAA request in the app.",
+                          "maxItems": 20,
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "claims": {
+                          "type": "string",
+                          "description": "An optional JSON formatted object of client capabilities that represents if the resource server is CAE capable. Do not use an empty string for this value. If unsupported, keep the field undefined. If supported, use the following string exactly: '{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}'. More info on client capabilities here: https://learn.microsoft.com/en-us/entra/identity-platform/claims-challenge?tabs=dotnet#how-to-communicate-client-capabilities-to-microsoft-entra-id ",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [ "redirectUri", "scopes" ],
+                      "additionalProperties": false
+                    }
                 }
             },
             "required": [

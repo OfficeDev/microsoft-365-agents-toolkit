@@ -206,21 +206,7 @@ export interface ItemsBySharepointIDElement {
      * applicable when the site_id value references a SharePoint HubSite.
      */
     search_associated_sites?: boolean;
-    /**
-     * A JSON String that uniquely identifies a part of a SharePoint item. e.g a OneNote page.
-     */
-    part_id?: string;
-    /**
-     * A String that qualifies the kind of part that the "part_id" refers to. Currently this
-     * value can only be equal to the string literal: "OneNotePart".
-     */
-    part_type?: "OneNotePart";
 }
-
-/**
- * A String that qualifies the kind of part that the "part_id" refers to. Currently this
- * value can only be equal to the string literal: "OneNotePart".
- */
 
 /**
  * Represents the URL of a SharePoint or OneDrive resource.
@@ -504,8 +490,6 @@ const typeMap: any = {
         { json: "list_id", js: "list_id", typ: u(undefined, "") },
         { json: "unique_id", js: "unique_id", typ: u(undefined, "") },
         { json: "search_associated_sites", js: "search_associated_sites", typ: u(undefined, true) },
-        { json: "part_id", js: "part_id", typ: u(undefined, "") },
-        { json: "part_type", js: "part_type", typ: u(undefined, r("PartType")) },
     ], false),
     "ItemsByURLElement": o([
         { json: "url", js: "url", typ: u(undefined, "") },
@@ -528,9 +512,6 @@ const typeMap: any = {
         { json: "text", js: "text", typ: "" },
         { json: "title", js: "title", typ: u(undefined, "") },
     ], "any"),
-    "PartType": [
-        "OneNotePart",
-    ],
     "Name": [
         "CodeInterpreter",
         "Dataverse",

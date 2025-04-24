@@ -557,17 +557,6 @@
                 "search_associated_sites": {
                     "type": "boolean",
                     "description": "Boolean value indicating whether to enable searching associated sites. This value is only applicable when the site_id value references a SharePoint HubSite."
-                },
-                "part_id": {
-                    "type": "string",
-                    "description": "A JSON String that uniquely identifies a part of a SharePoint item. e.g a OneNote page."
-                },
-                "part_type": {
-                    "type": "string",
-                    "description": "A String that qualifies the kind of part that the \"part_id\" refers to. Currently this value can only be equal to the string literal: \"OneNotePart\".",
-                    "enum": [
-                        "OneNotePart"
-                    ]
                 }
             },
             "propertyNames": {
@@ -576,9 +565,6 @@
                     "web_id",
                     "list_id",
                     "unique_id",
-                    "search_associated_sites",
-                    "part_id",
-                    "part_type",
                     "search_associated_sites"
                 ]
             },

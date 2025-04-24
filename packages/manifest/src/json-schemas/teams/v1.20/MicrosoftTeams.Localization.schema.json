@@ -210,5 +210,5 @@
       "maxLength": 2048
     }
   },
-  "required": [ "name.short", "name.full", "description.short", "description.full" ]
+  "required": [ "name.short", "description.short", "description.full" ]
 }

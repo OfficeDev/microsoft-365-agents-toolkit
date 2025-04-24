@@ -74,6 +74,10 @@ import {
   TeamsManifestV1D20,
   Convert as TeamsManifestV1D20Convert,
 } from "./teams/TeamsManifestV1D20";
+import {
+  TeamsManifestV1D21,
+  Convert as TeamsManifestV1D21Convert,
+} from "./teams/TeamsManifestV1D21";
 import { TeamsManifestV1D3, Convert as TeamsManifestV1D3Convert } from "./teams/TeamsManifestV1D3";
 import { TeamsManifestV1D4, Convert as TeamsManifestV1D4Convert } from "./teams/TeamsManifestV1D4";
 import { TeamsManifestV1D5, Convert as TeamsManifestV1D5Convert } from "./teams/TeamsManifestV1D5";
@@ -128,6 +132,10 @@ export {
   TeamsManifestV1D20,
   Convert as TeamsManifestV1D20Convert,
 } from "./teams/TeamsManifestV1D20";
+export {
+  TeamsManifestV1D21,
+  Convert as TeamsManifestV1D21Convert,
+} from "./teams/TeamsManifestV1D21";
 export { TeamsManifestV1D3, Convert as TeamsManifestV1D3Convert } from "./teams/TeamsManifestV1D3";
 export { TeamsManifestV1D4, Convert as TeamsManifestV1D4Convert } from "./teams/TeamsManifestV1D4";
 export { TeamsManifestV1D5, Convert as TeamsManifestV1D5Convert } from "./teams/TeamsManifestV1D5";
@@ -161,9 +169,10 @@ export type TeamsManifest =
   | TeamsManifestV1D17
   | TeamsManifestV1D19
   | TeamsManifestV1D20
+  | TeamsManifestV1D21
   | TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D20;
+export type TeamsManifestLatest = TeamsManifestV1D21;
 
 export {
   DeclarativeAgentManifestV1D0,
