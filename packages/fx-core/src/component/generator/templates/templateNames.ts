@@ -16,7 +16,7 @@ export enum TemplateNames {
 
   // custom engine agent
   BasicCustomEngineAgent = "basic-custom-engine-agent",
-  CustomCopilotWeatherAgent = "custom-copilot-weather-agent", // only supported in VS, using agent SDK
+  WeatherAgent = "weather-agent",
 
   // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",

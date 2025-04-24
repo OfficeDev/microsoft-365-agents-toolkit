@@ -27,7 +27,7 @@ export class CustomEngineAgentOptions {
       id: "weather-agent",
       label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
       detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
-      data: TemplateNames.BasicCustomEngineAgent,
+      data: TemplateNames.WeatherAgent,
     };
   }
 }

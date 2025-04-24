@@ -11,4 +11,16 @@ export const customEngineAgentTemplates: Template[] = [
     language: "typescript",
     description: "",
   },
+  {
+    id: "weather-agent-ts",
+    name: TemplateNames.WeatherAgent,
+    language: "typescript",
+    description: "",
+  },
+  {
+    id: "custom-copilot-weather-agent-csharp",
+    name: TemplateNames.WeatherAgent,
+    language: "csharp",
+    description: "",
+  },
 ];

@@ -81,7 +81,7 @@ export class VSCapabilityOptions {
       detail: getLocalizedString(
         "core.createProjectQuestion.capability.customCopilotWeatherOption.detail"
       ),
-      data: TemplateNames.CustomCopilotWeatherAgent,
+      data: TemplateNames.WeatherAgent,
     };
   }
 }
