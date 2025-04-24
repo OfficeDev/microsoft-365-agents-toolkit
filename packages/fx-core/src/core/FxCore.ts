@@ -204,7 +204,6 @@ import {
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
-import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 
 export class FxCore {
   constructor(tools: Tools) {

@@ -924,6 +924,7 @@
   "driver.devChannel.install.description": "Install app into sandboxed channel.",
   "driver.devChannel.install.progress.message": "Installing app...",
   "driver.devChannel.install.summary.exists": "App '%s' already installed in team '%s'. It will now be updated to the latest version.",
+  "error.installApp.outsideSandbox": "Unable to install app outside sandboxed Team. Please update TEAM_ID and CHANNEL_ID.",
   "error.yaml.InvalidYamlSchemaError": "Unable to parse yaml file: %s. Please open the yaml file for detailed errors.",
   "error.yaml.InvalidYamlSchemaErrorWithReason": "Unable to parse yaml file: %s. Reason: %s Please review the yaml file or upgrade to the latest Microsoft 365 Agents Toolkit.",
   "error.yaml.VersionNotSupported": "version %s is not supported. Supported versions: %s.",
