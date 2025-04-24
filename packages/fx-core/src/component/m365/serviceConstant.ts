@@ -10,7 +10,7 @@ export interface MOS3Api {
   path: RegExp;
 }
 
-export const MOS3ApiDefinitions: any = {
+export const MOS3ApiDefinitions: { [key: string]: MOS3Api } = {
   GetConfigEnv: {
     key: "get_config_env",
     method: "GET",
@@ -70,5 +70,15 @@ export const MOS3ApiDefinitions: any = {
     key: "get_catalog_ui_types",
     method: "GET",
     path: /^\/catalog\/v1\/users\/uitypes$/,
+  },
+  PutTitleOwners: {
+    key: "put_title_owners",
+    method: "PUT",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+\/owners/,
+  },
+  GetMarketplaceTitlePreview: {
+    key: "get_marketplace_title_preview",
+    method: "GET",
+    path: /^\/marketplace\/v1\/users\/titles\/[^\/]+\/preview/,
   },
 };
