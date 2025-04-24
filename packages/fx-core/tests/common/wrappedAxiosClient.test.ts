@@ -529,6 +529,18 @@ describe("Wrapped Axios Client Test", () => {
     );
     chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetCatalogUITypes);
 
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "PUT",
+      `/builder/v1/users/titles/${fakeId}/owners?idType=TitleId`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.PutTitleOwners);
+
+    modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS(
+      "GET",
+      `/marketplace/v1/users/titles/${fakeId}/preview?idType=TitleId`
+    );
+    chai.assert.deepEqual(modApiDef, MOS3ApiDefinitions.GetMarketplaceTitlePreview);
+
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS("GET", "/abcdef/v1/users/xxxxx");
     chai.assert.isUndefined(modApiDef);
   });

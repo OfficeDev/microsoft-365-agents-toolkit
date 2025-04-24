@@ -10,7 +10,7 @@ export interface MOS3Api {
   path: RegExp;
 }
 
-export const MOS3ApiDefinitions: { [key: string]: MOS3Api } = {
+export const MOS3ApiDefinitions = {
   GetConfigEnv: {
     key: "get_config_env",
     method: "GET",

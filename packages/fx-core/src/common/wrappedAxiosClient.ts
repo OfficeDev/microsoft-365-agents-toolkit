@@ -145,7 +145,7 @@ export class WrappedAxiosClient {
       if (mosApiDef) {
         properties.url = `mos_${mosApiDef.key}`;
       } else {
-        properties.url = `mos_${method.toLowerCase()}_unknown`;
+        properties.url = `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
       }
     }
 
