@@ -138,12 +138,13 @@ export async function generatePlugin(
 
     const extname = path.extname(outputAPISpecPath);
 
-    const outputSpecWithoutExt = path.join(
-      path.dirname(outputAPISpecPath),
-      path.basename(outputAPISpecPath, extname)
-    );
-
-    outputAPISpecPath = outputSpecWithoutExt + ".yaml";
+    if (!updateExistingPlugin) {
+      const outputSpecWithoutExt = path.join(
+        path.dirname(outputAPISpecPath),
+        path.basename(outputAPISpecPath, extname)
+      );
+      outputAPISpecPath = outputSpecWithoutExt + ".yaml";
+    }
 
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
 

@@ -2379,12 +2379,12 @@ export class FxCore {
       "warn",
       confirmMessage,
       true,
-      getLocalizedString("core.addApi.continue")
+      getLocalizedString("core.regenerateApi.continue")
     );
 
     if (confirmRes.isErr()) {
       return err(confirmRes.error);
-    } else if (confirmRes.value !== getLocalizedString("core.addApi.continue")) {
+    } else if (confirmRes.value !== getLocalizedString("core.regenerateApi.continue")) {
       return err(new UserCancelError());
     }
 
@@ -2427,7 +2427,8 @@ export class FxCore {
         authNameAndScheme.authScheme,
         projectPath,
         destinationApiSpecPath,
-        destinationPluginManifestPath
+        destinationPluginManifestPath,
+        false
       );
     }
 

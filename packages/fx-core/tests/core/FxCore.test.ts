@@ -6691,7 +6691,7 @@ describe("regeneratePlugin", async () => {
         if (level == "info") {
           return Promise.resolve(ok("success"));
         } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
+          return Promise.resolve(ok("Regenerate"));
         } else {
           throw new NotImplementedError("TEST", "showMessage");
         }
@@ -6942,7 +6942,7 @@ describe("regeneratePlugin", async () => {
             ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
           );
         } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
+          return Promise.resolve(ok("Regenerate"));
         } else {
           throw new NotImplementedError("TEST", "showMessage");
         }
@@ -7050,7 +7050,7 @@ describe("regeneratePlugin", async () => {
     sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
 
     const core = new FxCore(tools);
-    const messageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("Add"));
+    const messageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("Regenerate"));
     const result = await core.regeneratePlugin(inputs);
 
     assert.isTrue(result.isOk());
@@ -7129,7 +7129,7 @@ describe("regeneratePlugin", async () => {
             ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
           );
         } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
+          return Promise.resolve(ok("Regenerate"));
         } else {
           throw new NotImplementedError("TEST", "showMessage");
         }
@@ -7200,7 +7200,7 @@ describe("regeneratePlugin", async () => {
             ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
           );
         } else if (level === "warn") {
-          return Promise.resolve(ok("Add"));
+          return Promise.resolve(ok("Regenerate"));
         } else {
           throw new NotImplementedError("TEST", "showMessage");
         }

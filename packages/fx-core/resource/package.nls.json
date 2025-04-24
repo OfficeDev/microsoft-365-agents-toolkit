@@ -3,6 +3,7 @@
   "core.addApi.confirm.teamsYaml": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder and \"%s\" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addApi.confirm.localTeamsYaml": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder, \"%s\" and \"%s\" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addApi.continue": "Add",
+  "core.regenerateApi.continue": "Regenerate",
   "core.addKnowledge.confirm": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder based on the capability source you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addKnowledge.continue": "Add",
   "core.setSensitivityLabel.confirm": "Teams Toolkit will modify the file \"%s\" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
