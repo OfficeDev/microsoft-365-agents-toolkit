@@ -27,9 +27,9 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Microsoft.TeamsFx.Test</_Parameter1>
     </AssemblyAttribute>
-    <PackageReference Include="Microsoft.Agents.Builder.Dialogs" Version="0.2.*-*" />
-    <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="0.2.*-*" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
+    <PackageReference Include="Microsoft.Agents.Builder.Dialogs" Version="1.*" />
+    <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="1.*" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.14" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
