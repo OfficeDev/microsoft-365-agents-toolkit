@@ -13,6 +13,9 @@ import {
   PluginAuthType,
 } from "@microsoft/kiota";
 import { KiotaGeneratePluginError } from "../error";
+import { getLocalizedString } from "./localizeUtils";
+
+const ERROR_LOG_LEVEL = 4;
 
 export async function searchOpenAPISpec(query: string): Promise<SearchOpenAPISpecResult[]> {
   if (process.env.KIOTA_BINARY_PATH) {
@@ -46,7 +49,7 @@ export async function listAPITreeInfo(
   specPath: string,
   includeFilters?: string[],
   excludeFilters?: string[]
-): Promise<KiotaTreeResult | undefined> {
+): Promise<KiotaTreeResult> {
   if (process.env.KIOTA_BINARY_PATH) {
     setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
   }
@@ -57,6 +60,18 @@ export async function listAPITreeInfo(
     clearCache: true,
     includeKiotaValidationRules: true,
   });
+
+  if (!treeInfo) {
+    throw new Error(getLocalizedString("error.kiotaClient.EmptyResult"));
+  }
+
+  const errors = treeInfo.logs
+    .filter((log) => log.level >= ERROR_LOG_LEVEL)
+    .map((log) => log.message);
+
+  if (errors.length > 0) {
+    throw new Error(errors.join("\n"));
+  }
 
   return treeInfo;
 }

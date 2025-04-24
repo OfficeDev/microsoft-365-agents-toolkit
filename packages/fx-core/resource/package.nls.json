@@ -1102,5 +1102,7 @@
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
   "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment.",
   "driver.typeSpec.compile.reprovision": "File %s is updated. Please run provision again.",
-  "error.kiota.KiotaGeneratePluginError": "Unable to generate plugin manifest file using Kiota. Error: %s"
+  "error.kiota.KiotaGeneratePluginError": "Unable to generate plugin manifest file using Kiota. Error: %s",
+  "error.daSpecParser.InvalidSpecError": "OpenAPI specification file is not valid: %s",
+  "error.kiotaClient.EmptyResult": "Get empty result when parser OpenAPI description file."
 }

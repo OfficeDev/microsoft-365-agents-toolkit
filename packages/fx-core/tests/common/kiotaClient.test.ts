@@ -209,6 +209,55 @@ describe("kiotaClient", () => {
       assert.deepEqual(result, mockTreeResult);
     });
 
+    it("listAPITreeInfo should throw error if contains logs level >= 4", async () => {
+      const mockTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "getResource",
+          children: [],
+        },
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [
+          {
+            level: 4,
+            message: "Error parsing OpenAPI spec",
+          },
+          {
+            level: 2,
+            message: "Info log",
+          },
+          {
+            level: 5,
+            message: "Fatal error",
+          },
+        ],
+      };
+
+      process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      try {
+        const result = await listAPITreeInfo("path/to/spec");
+        assert.fail("Should have thrown an error");
+      } catch (error) {
+        assert.equal((error as Error).message, "Error parsing OpenAPI spec\nFatal error");
+      }
+    });
+
     it("edge case: listAPITreeInfo returns undefined", async () => {
       const getKiotaTreeStub = sinon.stub().resolves(undefined);
 
@@ -222,10 +271,17 @@ describe("kiotaClient", () => {
         },
       });
 
-      const result = await listAPITreeInfo("path/to/spec");
+      try {
+        const result = await listAPITreeInfo("path/to/spec");
+        assert.fail("Should have thrown an error");
+      } catch (error) {
+        assert.equal(
+          (error as Error).message,
+          "Get empty result when parser OpenAPI description file."
+        );
+      }
 
       assert(getKiotaTreeStub.calledOnce);
-      assert.isUndefined(result);
     });
 
     it("error path: listAPITreeInfo throws exception", async () => {
