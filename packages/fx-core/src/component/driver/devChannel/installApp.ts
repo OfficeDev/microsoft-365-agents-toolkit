@@ -109,12 +109,7 @@ export class InstallAppToChannelDriver implements StepDriver {
             "Failed to execute TeamsGraphService backend request GetSandboxingConfigurationRequest"
           )
         ) {
-          context.logProvider.error(
-            getLocalizedString("driver.devChannel.install.appNotFound", teamsAppId)
-          );
-          const errorMessage = getLocalizedString("error.installApp.outsideSandbox");
-          context.addSummary(errorMessage);
-          context.logProvider.error(errorMessage);
+          context.logProvider.error(getLocalizedString("error.installApp.outsideSandbox"));
           return err(new InstallAppOutsideSandboxError(actionName));
         }
 

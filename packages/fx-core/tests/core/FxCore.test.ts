@@ -152,10 +152,9 @@ describe("Core basic APIs", () => {
         CHANNEL_ID: "mock-channel-id",
       })
     );
-    const driverStub = sandbox
-      .stub(InstallAppToChannelDriver.prototype, "install")
-      .resolves(ok(new Map()));
-    const result = await core.installAppToChannel(inputs);
+    sandbox.stub(InstallAppToChannelDriver.prototype, "install").resolves(ok(new Map()));
+    const res = await core.installAppToChannel(inputs);
+    assert.isTrue(res.isOk());
   });
 
   it("install app to channel - missing env", async () => {
@@ -168,7 +167,7 @@ describe("Core basic APIs", () => {
     const result = await core.installAppToChannel(inputs);
     assert.isTrue(result.isErr());
     if (result.isErr()) {
-      assert.equal(result.error.name, "FileNotFoundError");
+      assert.equal(result.error.name, "MissingRequiredFileError");
     }
   });
 
@@ -185,6 +184,9 @@ describe("Core basic APIs", () => {
         CHANNEL_ID: "mock-channel-id",
       })
     );
+    sandbox
+      .stub(InstallAppToChannelDriver.prototype, "install")
+      .resolves(err(new FileNotFoundError("source", "test-file")));
 
     const result = await core.installAppToChannel(inputs);
     assert.isTrue(result.isErr());

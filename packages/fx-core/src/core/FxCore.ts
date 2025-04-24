@@ -2942,7 +2942,6 @@ export class FxCore {
     ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
     ErrorHandlerMW,
     EnvLoaderMW(false),
-    ConcurrentLockerMW,
     ContextInjectorMW,
   ])
   async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
@@ -2951,7 +2950,7 @@ export class FxCore {
     setErrorContext({ component: "devChannelInstallApp" });
     const env: string = inputs.env;
 
-    const readEnvRes = await envUtil.readEnv(context.projectPath, env, false, true);
+    const readEnvRes = await envUtil.readEnv(context.projectPath, env, false, false);
     if (readEnvRes.isErr()) {
       return err(readEnvRes.error);
     }
