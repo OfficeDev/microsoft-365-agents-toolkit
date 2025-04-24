@@ -12,6 +12,8 @@ param connectorId string
 param connectorName string
 param connectorDescription string
 param connectorRepos string
+@secure()
+param connectorReposAccessToken string
 param teamsfxEnv string
 param location string = resourceGroup().location
 param appServiceName string = resourceBaseName
@@ -129,6 +131,10 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
           value: connectorRepos
         }
         {
+          name: 'CONNECTOR_ACCESS_TOKEN'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${keyVault::connectorReposAccessTokenSecret.name})'
+        }
+        {
           name: 'TEAMSFX_ENV'
           value: teamsfxEnv
         }
@@ -187,6 +193,9 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
       enabled: true
     }
   }
+  dependsOn: [
+    appServiceSiteExtension
+  ]
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
@@ -211,6 +220,15 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       value: clientSecret
     }
   }
+
+  resource connectorReposAccessTokenSecret 'secrets' = {
+    name: 'ConnectorReposAccessToken'
+    properties: {
+      contentType: 'text/plain'
+      value: connectorReposAccessToken
+    }
+  }
+
 }
 
 resource keyVaultFunctionAppPermissions 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
