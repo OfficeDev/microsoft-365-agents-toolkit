@@ -21,7 +21,7 @@
 /packages/api @jayzhang @nliu-ms
 /packages/api/src/schemas @dooriya @qinezh @a1exwang @kimizhu
 
-/packages/cli @chagong @Alive-Fish @jayzhang
+/packages/cli @chagong @Alive-Fish @jayzhang @anchenyi
 /packages/cli/src/cmds/m365 @swatDong @kuojianlu @kimizhu
 /packages/cli/src/cmds/preview @swatDong @kuojianlu @qinezh @a1exwang
 /packages/cli/src/commands @jayzhang @Alive-Fish
@@ -162,7 +162,7 @@
 /packages/fx-core/src/component/generator/templates @tecton @jayzhang 
 /packages/fx-core/src/component/generator/templateNames.ts @tecton @jayzhang 
 /packages/fx-core/src/component/local @kimizhu @swatDong @kuojianlu @XiaofuHuang
-/packages/fx-core/src/component/m365 @kimizhu @swatDong @kuojianlu
+/packages/fx-core/src/component/m365 kimizhu @swatDong @kuojianlu @jayzhang @anchenyi
 /packages/fx-core/src/component/resource/aadApp @KennethBWSong @SLdragon
 /packages/fx-core/src/component/resource/botService @kimizhu @swatDong @kuojianlu
 /packages/fx-core/src/core @jayzhang @jayzhang @nliu-ms @xzf0587 @hund030
