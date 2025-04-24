@@ -469,14 +469,15 @@ interface SpecParserGenerateResult {
   warnings: WarningResult[];
 }
 export async function generateFromApiSpec(
-  specParser: SpecParser,
+  specParser: SpecParser | undefined,
   teamsManifestPath: string,
   inputs: Inputs,
   context: Context,
   sourceComponent: string,
   projectType: ProjectType,
   outputFilePath: SpecParserOutputFilePath,
-  specPath: string
+  specPath: string,
+  updateExistingPlugin = false
 ): Promise<Result<SpecParserGenerateResult, FxError>> {
   const operations = inputs[QuestionNames.ApiOperation] as string[];
 
@@ -484,7 +485,7 @@ export async function generateFromApiSpec(
   if (projectType === ProjectType.Copilot) {
     validationRes = await validateOpenAPISpec(specPath, inputs.platform);
   } else {
-    validationRes = await specParser.validate();
+    validationRes = await specParser!.validate();
   }
   const warnings = validationRes.warnings;
   const operationIdWarning = warnings.find((w) => w.type === WarningType.OperationIdMissing);
@@ -543,9 +544,10 @@ export async function generateFromApiSpec(
             outputFilePath.pluginManifestFilePath!,
             operations,
             adaptiveCardUpdateStrategy,
-            inputs.platform
+            inputs.platform,
+            updateExistingPlugin
           )
-        : await specParser.generate(
+        : await specParser!.generate(
             teamsManifestPath,
             operations,
             outputFilePath.destinationApiSpecFilePath,
@@ -680,7 +682,10 @@ export async function injectAuthAction(
 
   const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
-  if ((!!authScheme && Utils.isBearerTokenAuth(authScheme)) || authType === APIKeyAuthType) {
+  if (
+    (!!authScheme && (Utils.isBearerTokenAuth(authScheme) || Utils.isAPIKeyAuth(authScheme))) ||
+    authType === APIKeyAuthType
+  ) {
     const res = await ActionInjector.injectCreateAPIKeyAction(
       ymlPath,
       authName,

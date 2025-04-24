@@ -5,11 +5,12 @@ import { expect } from "chai";
 import { createSandbox } from "sinon";
 import { RetryHandler } from "../../src/client/graphClient";
 import { GraphClient } from "../../src/client/graphClient";
-import { ok, err, SystemError, SensitivityLabel } from "@microsoft/teamsfx-api";
+import { ok, err, SystemError, SensitivityLabel, signedIn } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import "mocha";
-import { MockedM365Provider } from "../core/utils";
+import { MockedM365Provider, MockTools } from "../core/utils";
 import * as globalState from "../../src/common/globalState";
+import { setTools, TOOLS } from "../../src/common/globalVars";
 
 describe("GraphAPIClient Test", () => {
   const sandbox = createSandbox();
@@ -61,10 +62,11 @@ describe("GraphAPIClient Test", () => {
 
   describe("listSensitivityLabels", () => {
     const tokenProvider = new MockedM365Provider();
+    setTools(new MockTools());
     it("Happy path", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const response = {
         data: {
           value: [
@@ -103,6 +105,7 @@ describe("GraphAPIClient Test", () => {
     it("Return error for empty response", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
 
       const response = {};
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
@@ -120,7 +123,7 @@ describe("GraphAPIClient Test", () => {
     it("Return error for empty data", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const response = { data: {} };
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
@@ -137,7 +140,7 @@ describe("GraphAPIClient Test", () => {
     it("API failure", async () => {
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
-
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
       const error = new Error("API failed");
       sandbox.stub(fakeAxiosInstance, "get").rejects(error);
       sandbox.stub(RetryHandler, "Retry").rejects(error);
@@ -153,6 +156,13 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should use cache when useCache is true and cache is valid", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          accountInfo: { unique_name: "name", tid: "123" },
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
       const graphAPIClient = new GraphClient(tokenProvider);
       const labels = [
         {
@@ -168,12 +178,7 @@ describe("GraphAPIClient Test", () => {
       };
 
       sandbox.stub(globalState, "globalStateGet").resolves(cacheValue);
-      const result = await graphAPIClient.listSensitivityLabels(
-        token,
-        true,
-        "testAccount - Should use cache when useCache is true and cache is valid",
-        "testTenant"
-      );
+      const result = await graphAPIClient.listSensitivityLabels(token, true);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -182,6 +187,13 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should not use cache when cache is expired", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          accountInfo: { unique_name: "name", tid: "123" },
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -209,12 +221,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphClient(tokenProvider);
-      const result = await graphAPIClient.listSensitivityLabels(
-        token,
-        true,
-        "testAccount - Should not use cache when cache is expired",
-        "testTenant"
-      );
+      const result = await graphAPIClient.listSensitivityLabels(token, true);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -222,7 +229,14 @@ describe("GraphAPIClient Test", () => {
       }
     });
 
-    it("Should update cache after API call with useCache", async () => {
+    it("Should update cache after API call", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          accountInfo: { unique_name: "name", tid: "123" },
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -248,12 +262,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphClient(tokenProvider);
-      const result = await graphAPIClient.listSensitivityLabels(
-        token,
-        true,
-        "testAccount - Should update cache after API call with useCache",
-        "testTenant"
-      );
+      const result = await graphAPIClient.listSensitivityLabels(token, false);
 
       expect(result.isOk()).to.be.true;
       expect(updatedCache).to.not.be.undefined;
@@ -262,6 +271,13 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should not use cache when useCache is false", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          accountInfo: { unique_name: "name", tid: "123" },
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -297,6 +313,14 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should handle response with undefined or missing label properties", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          accountInfo: { unique_name: "name", tid: "123" },
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
+      sandbox.stub(globalState, "globalStateGet").resolves(undefined);
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -326,12 +350,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphClient(tokenProvider);
-      const result = await graphAPIClient.listSensitivityLabels(
-        token,
-        true,
-        "testAccount - Should handle response with undefined or missing label properties",
-        "testTenant"
-      );
+      const result = await graphAPIClient.listSensitivityLabels(token, true);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -448,6 +467,127 @@ describe("GraphAPIClient Test", () => {
       if (result.isErr()) {
         expect(result.error).to.equal(fakeError);
       }
+    });
+  });
+
+  describe("getCurrentUserInfo", () => {
+    const tokenProvider = new MockedM365Provider();
+    const graphClient = new GraphClient(tokenProvider);
+
+    beforeEach(() => {
+      sandbox.restore();
+    });
+
+    it("Should return empty strings when user is not logged in", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(undefined);
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when login status is error", async () => {
+      sandbox
+        .stub(tokenProvider, "getStatus")
+        .resolves(err(new SystemError("source", "name", "Failed to get status")));
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when user is not signed in", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: "SignedOut",
+          token: "token",
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when token is not available", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: undefined,
+          accountInfo: {
+            unique_name: "test@example.com",
+            tid: "test-tenant-id",
+          },
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return empty strings when accountInfo values are not strings", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: 123,
+            tid: true,
+          },
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should return values when all required info is available", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: "test@example.com",
+            tid: "test-tenant-id",
+          },
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["test@example.com", "test-tenant-id"]);
+    });
+
+    it("Should return empty strings when accountInfo is missing", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
+    });
+
+    it("Should handle undefined values in accountInfo", async () => {
+      sandbox.stub(tokenProvider, "getStatus").resolves(
+        ok({
+          status: signedIn,
+          token: "token",
+          accountInfo: {
+            unique_name: undefined,
+            tid: undefined,
+          },
+        } as any)
+      );
+
+      const result = await graphClient.getCurrentUserInfo();
+
+      expect(result).to.deep.equal(["", ""]);
     });
   });
 });

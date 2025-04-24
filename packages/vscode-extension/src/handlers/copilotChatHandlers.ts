@@ -282,7 +282,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     default:
       query =
-        "@m365agents Write your own query message to find relevant templates or samples to build your app and agent as per your description. E.g. @m365agents create an AI assistant bot that can complete common tasks.";
+        "@m365agents Write your own query message to find relevant templates or samples to build your app and agent as per your description. E.g. @m365agents create an intelligent agent that can respond to users' questions.";
   }
 
   const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);

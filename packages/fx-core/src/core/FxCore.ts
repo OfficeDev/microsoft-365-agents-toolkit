@@ -157,6 +157,7 @@ import {
   InvalidProjectError,
   MissingRequiredInputError,
   MultipleServerError,
+  NeedRedoError,
   UnhandledError,
   UserCancelError,
   assembleError,
@@ -179,6 +180,7 @@ import {
 } from "../question/constants";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -193,6 +195,7 @@ import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
 import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
   getTrackingIdFromPath,
@@ -319,6 +322,20 @@ export class FxCore {
     inputs.projectPath = context.projectPath;
     return res;
   }
+
+  /**
+   * Wrapper of provisionResourcesOnce, which will retry if NeedRedoError is thrown.
+   */
+  async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const res = runWithRetry(
+      async () => {
+        return this.provisionResourcesOnce(inputs);
+      },
+      (result, attempt) => result.isErr() && result.error instanceof NeedRedoError
+    );
+    return res;
+  }
+
   /**
    * lifecycle commands: provision
    */
@@ -331,7 +348,7 @@ export class FxCore {
     ContextInjectorMW,
     EnvWriterMW,
   ])
-  async provisionResources(
+  async provisionResourcesOnce(
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
@@ -2322,6 +2339,164 @@ export class FxCore {
     return ok(undefined);
   }
 
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.RegeneratePlugin }),
+    ErrorHandlerMW,
+    QuestionMW("regeneratePlugin"),
+    ConcurrentLockerMW,
+  ])
+  async regeneratePlugin(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    const projectPath = inputs.projectPath!;
+    const context = createContext();
+
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const gptManifestFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (gptManifestFilePathRes.isErr()) {
+      return err(gptManifestFilePathRes.error);
+    }
+
+    let confirmMessage = getLocalizedString(
+      "core.addApi.confirm",
+      path.relative(projectPath, appPackageFolder)
+    );
+
+    // Will be used if generating from API spec
+    let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
+
+    const specPath = inputs[QuestionNames.ApiSpecLocation].trim() as string;
+
+    const listResult = await listAPIInfo(specPath);
+
+    authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
+
+    if (authNameAndSchemes.length > 0) {
+      const doesLocalYamlPathExists = await fs.pathExists(
+        path.join(projectPath, MetadataV3.localConfigFile)
+      );
+      confirmMessage = doesLocalYamlPathExists
+        ? getLocalizedString(
+            "core.addApi.confirm.localTeamsYaml",
+            path.relative(projectPath, appPackageFolder),
+            MetadataV4.localConfigFile,
+            MetadataV4.configFile
+          )
+        : getLocalizedString(
+            "core.addApi.confirm.teamsYaml",
+            path.relative(projectPath, appPackageFolder),
+            MetadataV4.configFile
+          );
+    }
+
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.regenerateApi.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.regenerateApi.continue")) {
+      return err(new UserCancelError());
+    }
+
+    const destinationPluginManifestPath = inputs[QuestionNames.SelectPluginManifest];
+    const destinationApiSpecPath = inputs[QuestionNames.SelectOpenAPISpecFromPlugin];
+
+    const generateRes = await generateFromApiSpec(
+      undefined,
+      teamsManifestPath,
+      inputs,
+      context,
+      Stage.RegeneratePlugin,
+      ProjectType.Copilot,
+      {
+        destinationApiSpecFilePath: destinationApiSpecPath,
+        pluginManifestFilePath: destinationPluginManifestPath,
+      },
+      inputs[QuestionNames.ApiSpecLocation].trim(),
+      true
+    );
+    if (generateRes.isErr()) {
+      return err(generateRes.error);
+    }
+
+    const warnings = generateRes.value.warnings;
+    if (warnings && warnings.length > 0) {
+      const warnSummary = await generateScaffoldingSummary(
+        warnings,
+        manifestRes.value,
+        path.relative(projectPath, destinationApiSpecPath),
+        path.relative(projectPath, destinationPluginManifestPath),
+        projectPath
+      );
+      context.logProvider.info(warnSummary + "\n");
+    }
+
+    for (const authNameAndScheme of authNameAndSchemes) {
+      await this.updateAuthActionInYaml(
+        authNameAndScheme.authName,
+        authNameAndScheme.authScheme,
+        projectPath,
+        destinationApiSpecPath,
+        destinationPluginManifestPath,
+        false
+      );
+    }
+
+    const declarativeAgentManifestPath = gptManifestFilePathRes.value;
+
+    const declarativeAgentManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifesRes.isErr()) {
+      return err(declarativeAgentManifesRes.error);
+    }
+
+    const declarativeAgentManifest = declarativeAgentManifesRes.value;
+    for (const action of declarativeAgentManifest.actions!) {
+      const actionPath = path.normalize(path.join(appPackageFolder, action.file));
+      await copilotGptManifestUtils.updateConversationStarters(
+        actionPath,
+        declarativeAgentManifest
+      );
+    }
+
+    const actionId = inputs[QuestionNames.SelectPluginId];
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.regeneratePlugin.success.vsc", actionId);
+      const viewPluginManifest = getLocalizedString(
+        "core.regeneratePlugin.success.viewPluginManifest"
+      );
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewPluginManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewPluginManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewPluginManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString(
+        "core.regeneratePlugin.success",
+        actionId,
+        destinationPluginManifestPath
+      );
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
+    return ok(undefined);
+  }
+
   /**
    * Add Knowledge
    */
@@ -2841,7 +3016,8 @@ export class FxCore {
         operation &&
         operation.auth &&
         (Utils.isBearerTokenAuth(operation.auth.authScheme) ||
-          Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme))
+          Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme) ||
+          Utils.isAPIKeyAuth(operation.auth.authScheme))
       ) {
         if (result.find((value) => value.authName === operation.auth!.name)) {
           continue;

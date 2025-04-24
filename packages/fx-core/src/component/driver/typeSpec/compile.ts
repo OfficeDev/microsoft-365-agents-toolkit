@@ -22,6 +22,7 @@ import {
   assembleError,
   InputValidationError,
   InvalidActionInputError,
+  NeedRedoError,
 } from "../../../error/common";
 import { injectAuthAction } from "../../generator/openApiSpec/helper";
 import { DriverContext } from "../interface/commonArgs";
@@ -30,7 +31,6 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
 import { MultipleActionError } from "./error/multipleActionError";
 import { NoSpecError } from "./error/noSpecError";
-import { ReProvisionError } from "./error/reProvisionError";
 import { TypeSpecCompileArgs } from "./interface/typeSpecCompileArgs";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
@@ -178,7 +178,7 @@ export class TypeSpecCompileDriver implements StepDriver {
             false
           );
           return {
-            result: err(new ReProvisionError(actionName, MetadataV4.configFile)),
+            result: err(new NeedRedoError(actionName)),
             summaries: summaries,
           };
         }

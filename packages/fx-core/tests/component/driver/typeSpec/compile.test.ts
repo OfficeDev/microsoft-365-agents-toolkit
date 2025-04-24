@@ -297,7 +297,7 @@ describe("typeSpecCompilt", async () => {
     const result = await typeSpecCompileDriver.execute(args, mockedDriverContext);
     expect(result.result.isErr()).to.be.true;
     if (result.result.isErr()) {
-      expect(result.result.error.name).to.be.equal("ReProvisionError");
+      expect(result.result.error.name).to.be.equal("NeedRedoError");
     }
   });
 
