@@ -29,7 +29,7 @@ export async function runWithRetry<T>(
         throw e;
       }
     }
-    TOOLS.logProvider?.info(`Retrying operation ... (${i + 1}/${maxRetry})`);
+    TOOLS?.logProvider?.info(`Retrying operation ... (${i + 1}/${maxRetry})`);
   }
   return lastResult;
 }
