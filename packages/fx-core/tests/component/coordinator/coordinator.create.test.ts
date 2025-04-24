@@ -20,23 +20,26 @@ import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGe
 import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
 import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import { pathUtils } from "../../../src/component/utils/pathUtils";
 import { FxCore } from "../../../src/core/FxCore";
 import { InputValidationError, MissingRequiredInputError } from "../../../src/error/common";
 import { CreateSampleProjectInputs } from "../../../src/question";
 import {
   ActionStartOptions,
   ApiAuthOptions,
-  CapabilityOptions,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
-  ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../../src/question/constants";
+import {
+  DACapabilityOptions,
+  TabCapabilityOptions,
+} from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
 import { MockedUserInteraction } from "../../plugins/solution/util";
-import { pathUtils } from "../../../src/component/utils/pathUtils";
 
 describe("coordinator create", () => {
   const sandbox = sinon.createSandbox();
@@ -190,7 +193,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -209,7 +212,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -228,7 +231,7 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: CapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -407,6 +410,7 @@ describe("coordinator create", () => {
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.ProgrammingLanguage]: "typescript",
         [QuestionNames.SafeProjectName]: "safeprojectname",
+        [QuestionNames.ProjectType]: ProjectTypeOptions.customEngineAgentOptionId,
         [QuestionNames.TemplateName]: TemplateNames.CustomCopilotRagCustomApi,
         [QuestionNames.CustomCopilotRag]: CustomCopilotRagOptions.customApi().id,
         [QuestionNames.ApiSpecLocation]: "spec",
@@ -509,8 +513,8 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
@@ -531,8 +535,8 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.apiKey().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
@@ -553,8 +557,8 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.ApiAuth]: ApiAuthOptions.oauth().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
@@ -575,7 +579,7 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.outlookAddinOptionId,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.TemplateName]: TemplateNames.OutlookTaskpane,
@@ -596,8 +600,8 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
@@ -617,35 +621,14 @@ describe("coordinator create", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: randomAppName(),
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
       };
       const res = await coordinator.create(v3ctx, inputs);
       assert.isTrue(res.isErr());
-    });
-
-    it("success for kiota integration: plugin", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
-        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
-      };
-      const context = createContext();
-      const res = await coordinator.create(context, inputs);
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.isNotNull(res.value.lastCommand);
-        assert.equal(res.value.projectPath, "");
-      }
     });
 
     it("success for kiota integration: declarative copilot", async () => {
@@ -656,8 +639,8 @@ describe("coordinator create", () => {
       sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.ProjectType]: ProjectTypeOptions.Agent().id,
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.copilotAgentOptionId,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.WithPlugin]: "yes",
       };

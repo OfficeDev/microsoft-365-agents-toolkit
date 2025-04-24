@@ -4,8 +4,9 @@
 import { Inputs, IQTreeNode, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { ProgrammingLanguage, QuestionNames } from "../../constants";
+import { ProgrammingLanguage } from "../../constants";
 import { pluginApiSpecQuestion, pluginManifestQuestion } from "../../create";
+import { QuestionNames } from "../../questionNames";
 import {
   ActionStartOptions,
   ApiAuthOptions,

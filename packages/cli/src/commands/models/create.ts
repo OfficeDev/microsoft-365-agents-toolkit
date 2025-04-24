@@ -10,7 +10,6 @@ import {
   Platform,
 } from "@microsoft/teamsfx-api";
 import {
-  CapabilityOptions,
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
@@ -31,12 +30,13 @@ import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
+import { listAllCapabilities } from "./listTemplates";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = CapabilityOptions.all({ platform: Platform.CLI }).map((o) => o.id);
+      option.choices = listAllCapabilities().map((o) => o.id);
       break;
     }
   }

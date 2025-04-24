@@ -11,7 +11,6 @@ import {
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
-import { TdpCapabilityOptions } from "../../build/question/scaffold/vsc/createFromTdpNode";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
@@ -30,6 +29,7 @@ import {
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
+  TdpCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import {

@@ -6,6 +6,7 @@ import {
   ConditionFunc,
   FuncValidation,
   Inputs,
+  LocalFunc,
   Platform,
   Question,
   SingleSelectQuestion,
@@ -63,11 +64,31 @@ import {
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
-import { callFuncs } from "./create.test";
 import { featureFlagManager, FeatureFlags } from "../../src";
 
 const ui = new MockUserInteraction();
+export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
+  try {
+    if (question.default && typeof question.default !== "string") {
+      await (question.default as LocalFunc<string | undefined>)(inputs);
+    }
 
+    if (
+      (question.type === "singleSelect" || question.type === "multiSelect") &&
+      typeof question.dynamicOptions !== "object" &&
+      question.dynamicOptions
+    ) {
+      await question.dynamicOptions(inputs);
+    }
+    if (answer && (question as any).validation?.validFunc) {
+      await (question as any).validation.validFunc(answer, inputs);
+    }
+
+    if ((question as any).placeholder && typeof (question as any).placeholder !== "string") {
+      await (question as any).placeholder(inputs);
+    }
+  } catch (e) {}
+}
 describe("none scaffold questions", () => {
   const mockedEnvRestore: RestoreFn = () => {};
   const sandbox = sinon.createSandbox();

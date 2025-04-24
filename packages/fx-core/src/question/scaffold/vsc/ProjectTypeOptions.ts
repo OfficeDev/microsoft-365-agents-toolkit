@@ -4,7 +4,11 @@
 import { OptionItem, Platform } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { ProjectTypeGroup } from "../../constants";
+
+export enum ProjectTypeGroup {
+  AIAgent = "AI Agent",
+  M365Apps = "Apps for Microsoft 365",
+}
 
 export class ProjectTypeOptions {
   static copilotAgentOptionId = "copilot-agent-type";

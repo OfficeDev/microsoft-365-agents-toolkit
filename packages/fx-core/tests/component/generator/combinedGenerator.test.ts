@@ -12,17 +12,12 @@ import "mocha";
 import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
-import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import {
-  ApiAuthOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../src/question";
-import { MockTools } from "../../core/utils";
 import { CombinedProjectGenerator } from "../../../src/component/generator/combinedProject/generator";
-import { setTemplateNameAndGC } from "../../../src/question/scaffold/vsc/daProjectTypeNode";
+import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
+import { ApiAuthOptions, ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
+import { setTemplateNameAndGC } from "../../../src/question/scaffold/vsc/daProjectTypeNode";
+import { MockTools } from "../../core/utils";
 
 describe("combined generator", async () => {
   setTools(new MockTools());
@@ -66,7 +61,7 @@ describe("combined generator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
         [QuestionNames.AppName]: "app",
       };
@@ -84,7 +79,7 @@ describe("combined generator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithGraphConnector,
         [QuestionNames.AppName]: "app",
       };

@@ -5,13 +5,15 @@ import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
-import { ProgrammingLanguage, QuestionNames } from "../../constants";
+import { ProgrammingLanguage } from "../../constants";
 import {
   appNameQuestion,
   folderQuestion,
   GCConnectionIdQuestion,
   GCNameQuestion,
 } from "../../create";
+import { QuestionNames } from "../../questionNames";
+
 import {
   ActionStartOptions,
   BotCapabilityOptions,
