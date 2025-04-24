@@ -123,6 +123,7 @@ import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeO
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 
 const tools = new MockTools();
 
@@ -134,6 +135,60 @@ describe("Core basic APIs", () => {
   });
   afterEach(async () => {
     sandbox.restore();
+  });
+
+  it("install app to channel - success", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+      env: "dev",
+    };
+    sandbox.stub(envUtil, "readEnv").resolves(
+      ok({
+        TEAM_ID: "mock-team-app-id",
+        CHANNEL_ID: "mock-channel-id",
+      })
+    );
+    const driverStub = sandbox
+      .stub(InstallAppToChannelDriver.prototype, "install")
+      .resolves(ok(new Map()));
+    const result = await core.installAppToChannel(inputs);
+  });
+
+  it("install app to channel - missing env", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+    };
+
+    const result = await core.installAppToChannel(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "FileNotFoundError");
+    }
+  });
+
+  it("install app to channel - file not found", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+      env: "dev",
+    };
+    sandbox.stub(envUtil, "readEnv").resolves(
+      ok({
+        TEAM_ID: "mock-team-app-id",
+        CHANNEL_ID: "mock-channel-id",
+      })
+    );
+
+    const result = await core.installAppToChannel(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "FileNotFoundError");
+    }
   });
 
   it("deploy aad manifest happy path with param", async () => {
