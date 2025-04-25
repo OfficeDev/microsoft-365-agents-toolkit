@@ -45,7 +45,7 @@ You can specify a concrete version type:
 
 ### Manifest to/from JSON converters
 
-Convert JSON string to manifest type and check the version at run time:
+Convert JSON string to Teams manifest type and check the version at run time:
 
 ```typescript
 const json = "{ \"manifestVersion\": \"1.20\", \"id\": \"app-id\", ...}";
@@ -57,12 +57,19 @@ if (manifest.manifestVersion === "1.20") {
 }
 ```
 
-Convert JSON string to manifest type by specifying the version at compile time:
+Convert JSON string to Teams manifest type by specifying the version at compile time:
 
 ```typescript
 const json = "{ \"manifestVersion\": \"1.20\", \"id\": \"app-id\", ...}";
 const manifest = TeamsManifestConverter.jsonToManifest(json) as TeamsManifestV1D20;
 // You can now access properties specific to TeamsManifestV1D20
+```
+
+Convert JSON string to declarative agent manifest type and api plugin manifest type:
+
+```typescript
+const daManifest = DeclarativeAgentManifestConverter.jsonToManifest(daManifestJSON) as DeclarativeAgentManifest;
+const pluginManifest = ApiPluginManifestConverter.jsonToManifest(pluginManifestJSON) as APIPluginManifest;
 ```
 
 Convert manifest object to JSON string:
@@ -97,7 +104,6 @@ const daManifestPath = "path/to/your/da_manifest.json";
 const daManifest1 = await AppManifestUtils.readDeclarativeAgentManifest(daManifestPath);
 // read declarative agent manifest and validate against schema
 const [daManifest2, failedValidations2] = await AppManifestUtils.readAndValidateDeclarativeAgentManifest(daManifestPath);
-
 
 const pluginManifestPath = "path/to/your/plugin_manifest.json"; 
 // read API plugin manifest with type check
