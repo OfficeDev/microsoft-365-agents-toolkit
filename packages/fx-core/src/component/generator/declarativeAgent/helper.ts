@@ -333,17 +333,17 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
   } catch (error) {
     if (error.response?.status === 403) {
       const err = new UserError(
-        "getGraphConnectors",
+        "getCopilotConnectors",
         "GraphApiError",
         getDefaultString("core.GCList.insufficientPermission"),
         getDefaultString("core.GCList.insufficientPermission")
       );
       throw err;
     } else {
-      const message = `Failed to get Graph Connector item: ${
+      const message = `Failed to get Copilot Connector item: ${
         error instanceof Error ? error.message : String(error)
       }`;
-      const err = new UserError("getGraphConnectors", "GraphApiError", message, message);
+      const err = new UserError("copilotConnectors", "GraphApiError", message, message);
       throw err;
     }
   }

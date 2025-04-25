@@ -78,5 +78,5 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 - [Declarative agents for Microsoft 365](https://aka.ms/teams-toolkit-declarative-agent)
 - [Extend Microsoft 365 Copilot](https://aka.ms/teamsfx-copilot-plugin)
 - [Message extensions for Microsoft 365 Copilot](https://learn.microsoft.com/microsoft-365-copilot/extensibility/overview-message-extension-bot)
-- [Microsoft Graph Connectors for Microsoft 365 Copilot](https://learn.microsoft.com/microsoft-365-copilot/extensibility/overview-graph-connector)
+- [Microsoft Copilot Connectors for Microsoft 365 Copilot](https://learn.microsoft.com/microsoft-365-copilot/extensibility/overview-graph-connector)
 - [Microsoft 365 Copilot extensibility samples](https://learn.microsoft.com/microsoft-365-copilot/extensibility/samples)

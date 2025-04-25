@@ -58,7 +58,7 @@
         },
         {{#DeclarativeCopilot}}
         {
-            "name": "Preview DA with local Graph Connector (Edge)",
+            "name": "Preview DA with local Copilot Connector (Edge)",
             "configurations": ["Preview in Copilot (Edge)"],
             "preLaunchTask": "Prepare DA",
             "presentation": {
@@ -68,7 +68,7 @@
             "stopAll": true
         },
         {
-            "name": "Preview DA with local Graph Connector (Chrome)",
+            "name": "Preview DA with local Copilot Connector (Chrome)",
             "configurations": ["Preview in Copilot (Chrome)"],
             "preLaunchTask": "Prepare DA",
             "presentation": {

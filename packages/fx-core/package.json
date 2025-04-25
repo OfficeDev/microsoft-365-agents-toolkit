@@ -105,7 +105,7 @@
     "@feathersjs/hooks": "^0.6.5",
     "@microsoft/dev-tunnels-contracts": "1.1.9",
     "@microsoft/dev-tunnels-management": "1.1.9",
-    "@microsoft/kiota": "1.25.1",
+    "@microsoft/kiota": "1.25.1-preview.202504170001",
     "@microsoft/m365-spec-parser": "workspace:^",
     "@microsoft/teamsfx-api": "workspace:*",
     "adm-zip": "^0.5.10",

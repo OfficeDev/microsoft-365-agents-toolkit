@@ -73,7 +73,7 @@ describe("daSpecParser", () => {
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
           isOperation: true,
-          path: "api/resource",
+          path: "api/resource#GET",
           segment: "GET",
           operationId: "getResource",
           summary: "Get resource",
@@ -96,6 +96,43 @@ describe("daSpecParser", () => {
       assert.equal(result.APIs.length, 1);
       assert.deepEqual(result.APIs[0], {
         api: "GET api/resource",
+        server: "https://api.example.com",
+        operationId: "getResource",
+        isValid: true,
+        reason: [],
+        auth: undefined,
+        summary: "Get resource",
+        description: "Get a specific resource",
+      });
+    });
+
+    it("should extract operations with multiple # in path", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "/#api/resource#GET",
+          segment: "GET",
+          operationId: "getResource",
+          summary: "Get resource",
+          description: "Get a specific resource",
+          selected: true,
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.allAPICount, 1);
+      assert.equal(result.validAPICount, 1);
+      assert.equal(result.APIs.length, 1);
+      assert.deepEqual(result.APIs[0], {
+        api: "GET /#api/resource",
         server: "https://api.example.com",
         operationId: "getResource",
         isValid: true,
@@ -137,7 +174,7 @@ describe("daSpecParser", () => {
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
           isOperation: true,
-          path: "api\\resource",
+          path: "api\\resource#GET",
           segment: "GET",
           operationId: "getResource",
           summary: "Get resource",
@@ -168,7 +205,7 @@ describe("daSpecParser", () => {
           children: [
             {
               isOperation: true,
-              path: "api/users",
+              path: "api/users#GET",
               segment: "GET",
               operationId: "getUsers",
               summary: "Get users",
@@ -178,7 +215,7 @@ describe("daSpecParser", () => {
             },
             {
               isOperation: true,
-              path: "api/posts",
+              path: "api/posts#POST",
               segment: "POST",
               operationId: "createPost",
               summary: "Create post",
@@ -219,7 +256,7 @@ describe("daSpecParser", () => {
               children: [
                 {
                   isOperation: true,
-                  path: "api/users/profile",
+                  path: "api/users/profile#GET",
                   segment: "GET",
                   operationId: "getUserProfile",
                   summary: "Get profile",
@@ -672,7 +709,10 @@ describe("daSpecParser", () => {
 
       assert.equal(result.status, ValidationStatus.Error);
       assert.deepEqual(result.errors, [
-        { type: ErrorType.SpecNotValid, content: `Error: ${errorMessage}` },
+        {
+          type: ErrorType.SpecNotValid,
+          content: `OpenAPI specification file is not valid: Error: ${errorMessage}`,
+        },
       ]);
       assert.equal(result.specHash, "");
     });
@@ -709,7 +749,7 @@ describe("daSpecParser", () => {
           children: [
             {
               isOperation: true,
-              path: "api/resource",
+              path: "api/resource#GET",
               segment: "GET",
               operationId: "getResource",
               servers: [],
