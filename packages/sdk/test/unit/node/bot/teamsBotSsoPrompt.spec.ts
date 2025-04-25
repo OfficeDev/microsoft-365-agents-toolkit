@@ -491,22 +491,26 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
 
     // Initialize TestAdapter.
     const adapter: TestAdapter = new TestAdapter(async (turnContext) => {
-      const dc = await dialogs.createContext(turnContext);
-      dc.context.activity.channelId = channelId === undefined ? Channels.Msteams : channelId;
+      try {
+        turnContext.activity.channelId = channelId === undefined ? Channels.Msteams : channelId;
+        const dc = await dialogs.createContext(turnContext);
 
-      const results = await dc.continueDialog();
-      if (results.status === DialogTurnStatus.empty) {
-        await dc.beginDialog(TeamsBotSsoPromptId);
-      } else if (results.status === DialogTurnStatus.complete) {
-        if (results.result?.token) {
-          await turnContext.sendActivity(SsoLogInResult.Success);
-          const resultStr = JSON.stringify(results.result);
-          await turnContext.sendActivity(resultStr);
-        } else {
-          await turnContext.sendActivity(SsoLogInResult.Fail);
+        const results = await dc.continueDialog();
+        if (results.status === DialogTurnStatus.empty) {
+          await dc.beginDialog(TeamsBotSsoPromptId);
+        } else if (results.status === DialogTurnStatus.complete) {
+          if (results.result?.token) {
+            await turnContext.sendActivity(SsoLogInResult.Success);
+            const resultStr = JSON.stringify(results.result);
+            await turnContext.sendActivity(resultStr);
+          } else {
+            await turnContext.sendActivity(SsoLogInResult.Fail);
+          }
         }
+        await convoState.saveChanges(turnContext);
+      } catch (error: any) {
+        console.log(error);
       }
-      await convoState.saveChanges(turnContext);
     });
     return adapter;
   }

@@ -11,7 +11,14 @@ import {
   AttachmentInfo,
   BaseAdapter,
 } from "@microsoft/agents-hosting";
-import { Activity, ActivityTypes } from "@microsoft/agents-activity";
+import {
+  Activity,
+  ActivityTypes,
+  ConversationReference,
+  ConversationAccount,
+  ChannelAccount,
+  Channels,
+} from "@microsoft/agents-activity";
 import {
   AdaptiveCardResponse,
   CommandMessage,
@@ -225,7 +232,22 @@ export class TestAdapter extends BaseAdapter {
   }
 
   public async processActivity(activity: Partial<Activity>): Promise<void> {
-    const context = new TurnContext(this as any, activity as Activity);
+    const conversation = TestAdapter.createConversation(activity.text!);
+    const context = new TurnContext(
+      this as any,
+      {
+        ...activity,
+        conversation: conversation.conversation,
+        user: conversation.user,
+        from: conversation.user,
+        getConversationReference: () => {
+          return {};
+        },
+        removeRecipientMention: () => {
+          return activity.text;
+        },
+      } as any
+    );
     await this.runMiddleware(context, this.logic);
   }
 
@@ -268,6 +290,18 @@ export class TestAdapter extends BaseAdapter {
 
   public async getAttachment(attachmentId: string, viewId: string): Promise<NodeJS.ReadableStream> {
     return {} as NodeJS.ReadableStream;
+  }
+
+  static createConversation(name: string, user = "User1", bot = "Bot"): ConversationReference {
+    const conversationReference: ConversationReference = {
+      channelId: Channels.Test,
+      serviceUrl: "https://test.com",
+      conversation: { isGroup: false, id: name, name: name } as ConversationAccount,
+      user: { id: user.toLowerCase(), name: user } as ChannelAccount,
+      agent: { id: bot.toLowerCase(), name: bot } as ChannelAccount,
+      locale: "en-us",
+    };
+    return conversationReference;
   }
 }
 

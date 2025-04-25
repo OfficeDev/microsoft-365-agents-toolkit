@@ -458,8 +458,8 @@ describe("BotSsoExecutionDialog Tests - Node", () => {
 
     // Initialize TestAdapter.
     const adapter: TestAdapter = new TestAdapter(async (turnContext) => {
+      turnContext.activity.channelId = channelId === undefined ? Channels.Msteams : channelId;
       const dc = await dialogs.createContext(turnContext);
-      dc.context.activity.channelId = channelId === undefined ? Channels.Msteams : channelId;
 
       await ssoExecutionDialog.run(turnContext, dialogState);
       await convoState.saveChanges(turnContext, false);
