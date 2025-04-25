@@ -1,7 +1,7 @@
 const { tool } = require("@langchain/core/tools");
 const { z } = require("zod");
 
-export const getWeatherTool = tool(
+const getWeatherTool = tool(
   async ({ date, location }) => {
     console.log("************Getting random weather for", date, location);
     const min = -22;

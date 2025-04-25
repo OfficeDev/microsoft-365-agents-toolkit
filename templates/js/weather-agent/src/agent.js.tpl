@@ -6,7 +6,7 @@ const { ActivityTypes, ApplicationBuilder, MessageFactory, } = require("@microso
 const { dateTool } = require("./tools/dateTimeTool");
 const { getWeatherTool } = require("./tools/getWeatherTool");
 
-export const weatherAgent = new ApplicationBuilder().build();
+const weatherAgent = new ApplicationBuilder().build();
 
 weatherAgent.conversationUpdate(
   "membersAdded",
@@ -78,3 +78,7 @@ weatherAgent.activity(ActivityTypes.Message, async (context, state) => {
     await context.sendActivity(response);
   }
 });
+
+module.exports = {
+  weatherAgent,
+};
