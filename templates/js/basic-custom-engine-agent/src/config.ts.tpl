@@ -10,4 +10,4 @@ const config = {
   {{/useAzureOpenAI}}
 };
 
-export default config;
+module.exports = config;
