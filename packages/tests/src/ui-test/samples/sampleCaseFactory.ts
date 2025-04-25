@@ -352,6 +352,7 @@ export abstract class CaseFactory {
       beforeEach(async function () {
         // ensure workbench is ready
         this.timeout(Timeout.prepareTestCase);
+        await VSBrowser.instance.driver.sleep(Timeout.shortTimeLoading);
         try {
           sampledebugContext = new SampledebugContext(
             sampleName,
