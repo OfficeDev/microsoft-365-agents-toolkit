@@ -938,15 +938,25 @@ describe("daSpecParser", () => {
       assert.equal(fsCopyFileStub.callCount, 2);
 
       assert.equal(fsCopyStub.callCount, 1);
-      assert.isTrue(
-        fsCopyStub.firstCall.calledWith(
-          pathMatcher("c:/tmp/working-dir/plugin/adaptiveCards"),
-          pathMatcher("path/to/output/adaptiveCards"),
-          {
-            overwrite: true,
-            errorOnExist: false,
-          }
-        )
+
+      const copyCallArgs = fsCopyStub.firstCall.args;
+      assert.equal(
+        copyCallArgs[0].replace(/\\/g, "/"),
+        "c:/tmp/working-dir/plugin/adaptiveCards",
+        "Source path doesn't match"
+      );
+      assert.equal(
+        copyCallArgs[1].replace(/\\/g, "/"),
+        "path/to/output/adaptiveCards",
+        `Destination path doesn't match: ${copyCallArgs[1]}`
+      );
+      assert.deepEqual(
+        copyCallArgs[2],
+        {
+          overwrite: true,
+          errorOnExist: false,
+        },
+        "Copy options don't match"
       );
 
       assert.isTrue(
@@ -1465,15 +1475,24 @@ describe("daSpecParser", () => {
       );
 
       assert.equal(fsCopyStub.callCount, 1);
-      assert.isTrue(
-        fsCopyStub.firstCall.calledWith(
-          pathMatcher("c:/tmp/working-dir/plugin/adaptiveCards"),
-          pathMatcher("path/to/output/adaptiveCards"),
-          {
-            overwrite: false,
-            errorOnExist: false,
-          }
-        )
+      const copyCallArgs = fsCopyStub.firstCall.args;
+      assert.equal(
+        copyCallArgs[0].replace(/\\/g, "/"),
+        "c:/tmp/working-dir/plugin/adaptiveCards",
+        "Source path doesn't match"
+      );
+      assert.equal(
+        copyCallArgs[1].replace(/\\/g, "/"),
+        "path/to/output/adaptiveCards",
+        `Destination path doesn't match: ${copyCallArgs[1]}`
+      );
+      assert.deepEqual(
+        copyCallArgs[2],
+        {
+          overwrite: false,
+          errorOnExist: false,
+        },
+        "Copy options don't match"
       );
 
       assert.equal(fsCopyFileStub.callCount, 1);
