@@ -335,7 +335,7 @@ export class TeamsBotSsoPrompt extends Dialog {
     const tokenPostResource: TokenPostResource = {};
 
     return {
-      signingLink: signInLink,
+      signInLink: signInLink,
       tokenExchangeResource: tokenExchangeResource,
       tokenPostResource: tokenPostResource,
     };
