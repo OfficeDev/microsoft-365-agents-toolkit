@@ -352,13 +352,22 @@ export abstract class CaseFactory {
       beforeEach(async function () {
         // ensure workbench is ready
         this.timeout(Timeout.prepareTestCase);
-        sampledebugContext = new SampledebugContext(
-          sampleName,
-          sampleProjectMap[sampleName],
-          options?.testRootFolder ?? "./resource",
-          options?.repoPath ?? "./resource"
-        );
-        await sampledebugContext.before();
+        try {
+          sampledebugContext = new SampledebugContext(
+            sampleName,
+            sampleProjectMap[sampleName],
+            options?.testRootFolder ?? "./resource",
+            options?.repoPath ?? "./resource"
+          );
+          await sampledebugContext.before();
+        } catch (error) {
+          successFlag_dev = false;
+          errorMessage = "[Error]: " + error;
+          await VSBrowser.instance.takeScreenshot(getScreenshotName("error"));
+          await VSBrowser.instance.driver.sleep(
+            Timeout.playwrightDefaultTimeout
+          );
+        }
       });
 
       after(async function () {
