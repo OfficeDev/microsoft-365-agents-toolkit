@@ -37,7 +37,7 @@ const enum telemetryProperties {
 }
 
 /**
- * Generator for DA with Graph Connector.
+ * Generator for DA with Copilot Connector.
  */
 export class CombinedProjectGenerator extends DefaultTemplateGenerator {
   componentName = "combined-project-generator";
@@ -82,7 +82,7 @@ export class CombinedProjectGenerator extends DefaultTemplateGenerator {
         inputs[QuestionNames.ActionType] === ActionStartOptions.existingPlugin().id.toString(),
     });
 
-    // current template name is declarative agent with graph connector, no other template.
+    // current template name is declarative agent with copilot connector, no other template.
     if (templateName === TemplateNames.DeclarativeAgentWithGraphConnector) {
       return Promise.resolve(
         ok([

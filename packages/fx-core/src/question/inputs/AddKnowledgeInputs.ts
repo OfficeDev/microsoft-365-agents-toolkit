@@ -27,9 +27,9 @@ export interface AddKnowledgeInputs extends Inputs {
   oneDriveSharePointURL?: string;
   /** @description OneDrive or SharePoint Content */
   oneDriveSharePointContent?: string;
-  /** @description Graph Connector Content */
+  /** @description Copilot Connector Content */
   "graph-connector-content"?: "listConnections" | "inputConnectionId";
-  /** @description Select one or more Graph Connectors as capability source */
+  /** @description Select one or more Copilot Connectors as capability source */
   "graph-connector-list"?: string[];
   /** @description Connection ID */
   "graph-connector-input"?: string;
