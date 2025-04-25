@@ -907,7 +907,7 @@ export async function createNewProject(
       break;
     }
     case "aiagentassist": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Agent with API");
       await input.setText("Agent with API");
@@ -928,7 +928,7 @@ export async function createNewProject(
       break;
     }
     case "aiagentnew": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Agent with API");
       await input.setText("Agent with API");
