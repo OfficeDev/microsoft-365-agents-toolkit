@@ -149,6 +149,16 @@ export async function generatePlugin(
 
     await fs.copyFile(apiSpecPath, outputAPISpecPath);
 
+    const adaptiveCardsFolder = path.join(path.dirname(apiSpecPath), "adaptiveCards");
+    const destAdaptiveCardsFolder = path.join(path.dirname(outputAIPluginPath), "adaptiveCards");
+
+    if (await fs.pathExists(adaptiveCardsFolder)) {
+      await fs.copy(adaptiveCardsFolder, destAdaptiveCardsFolder, {
+        overwrite: !updateExistingPlugin,
+        errorOnExist: false,
+      });
+    }
+
     const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
     const generatedPluginManifest = (await fs.readJSON(pluginPath)) as PluginManifestSchema;

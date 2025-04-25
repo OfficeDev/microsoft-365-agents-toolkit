@@ -906,12 +906,14 @@ describe("daSpecParser", () => {
       const operations = ["GET /users", "POST /messages"];
       const adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
 
+      const pathExistsStub = sinon.stub(require("fs-extra"), "pathExists").resolves(true);
       const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
         .stub(require("fs-extra"), "readJSON")
         .resolves({ name: { short: "test-app" } });
       const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
       const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
 
       const result = await daSpecParser.generatePlugin(
         specPath,
@@ -934,6 +936,18 @@ describe("daSpecParser", () => {
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[6], ["/users#GET", "/messages#POST"]);
 
       assert.equal(fsCopyFileStub.callCount, 2);
+
+      assert.equal(fsCopyStub.callCount, 1);
+      assert.isTrue(
+        fsCopyStub.firstCall.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/adaptiveCards"),
+          pathMatcher("path/to/output/adaptiveCards"),
+          {
+            overwrite: true,
+            errorOnExist: false,
+          }
+        )
+      );
 
       assert.isTrue(
         fsCopyFileStub.firstCall.calledWith(
@@ -1344,6 +1358,8 @@ describe("daSpecParser", () => {
       const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
       const fsCopyFileStub = sinon.stub(require("fs-extra"), "copyFile").resolves();
       const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
+      const fsPathExistsStub = sinon.stub(require("fs-extra"), "pathExists").resolves(true);
+      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
 
       fsReadJSONStub.callsFake(async (path: any) => {
         if (path.includes("manifest.json")) {
@@ -1445,6 +1461,18 @@ describe("daSpecParser", () => {
             );
           }),
           { spaces: 4 }
+        )
+      );
+
+      assert.equal(fsCopyStub.callCount, 1);
+      assert.isTrue(
+        fsCopyStub.firstCall.calledWith(
+          pathMatcher("c:/tmp/working-dir/plugin/adaptiveCards"),
+          pathMatcher("path/to/output/adaptiveCards"),
+          {
+            overwrite: false,
+            errorOnExist: false,
+          }
         )
       );
 
