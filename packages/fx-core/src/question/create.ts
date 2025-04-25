@@ -1466,12 +1466,12 @@ export function GCInputQuestion(): TextInputQuestion {
     type: "text",
     name: QuestionNames.GCInput,
     title: getLocalizedString("core.GCInputQuestion.title"),
-    cliDescription: "a connection ID for Graph Connector",
+    cliDescription: "a connection ID for Copilot Connector",
     forgetLastValue: true,
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!input || input.trim().length === 0) {
-          return "Please enter a connection ID for Graph Connector.";
+          return "Please enter a connection ID for Copilot Connector.";
         }
       },
     },
@@ -1529,7 +1529,7 @@ export function GCNameQuestion(): TextInputQuestion {
     name: QuestionNames.GCName,
     title: getLocalizedString("core.GCNameQuestion.title"),
     placeholder: getLocalizedString("core.GCNameQuestion.placeholder"),
-    cliDescription: "a name for Graph Connector",
+    cliDescription: "a name for Copilot Connector",
     forgetLastValue: true,
     additionalValidationOnAccept: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
@@ -1537,7 +1537,7 @@ export function GCNameQuestion(): TextInputQuestion {
 
         inputs[QuestionNames.ProgrammingLanguage] = ProgrammingLanguage.TS;
 
-        // Set template name and app name for Graph Connector Template
+        // Set template name and app name for Copilot Connector Template
         if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId) {
           inputs[QuestionNames.TemplateName] = TemplateNames.GraphConnector;
           inputs[QuestionNames.AppName] = input;
@@ -1548,13 +1548,14 @@ export function GCNameQuestion(): TextInputQuestion {
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
         if (!input || input.trim().length === 0) {
-          return "Please enter a graph connector name.";
+          return "Please enter a Copilot Connector name.";
         }
         inputs = ensureInputs(inputs);
+
         if (inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId) {
-          // Graph Connector Template will use the name as app name, which has a minimum length of 2.
+          // Copilot Connector Template will use the name as app name, which has a minimum length of 2.
           if (input.trim().length < 2) {
-            return "Please enter a graph connector name with minimum two characters.";
+            return "Please enter a Copilot Connector name with minimum two characters.";
           }
         }
         return undefined;
@@ -1569,7 +1570,7 @@ export function GCConnectionIdQuestion(): TextInputQuestion {
     name: QuestionNames.GCConnectionId,
     title: getLocalizedString("core.GCConnectionIdQuestion.title"),
     placeholder: getLocalizedString("core.GCConnectionIdQuestion.placeholder"),
-    cliDescription: "a connection id for Graph Connector",
+    cliDescription: "a connection id for Copilot Connector",
     forgetLastValue: true,
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {

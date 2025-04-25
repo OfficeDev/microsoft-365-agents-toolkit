@@ -9,8 +9,10 @@ export class Extension {
   public static readonly activatedItemName: string = "DEVELOPMENT";
   public static readonly sidebarWelcomeSectionName: string =
     "Microsoft 365 Agents Toolkit";
-  public static readonly sidebarWelcomeContentName: string = "Create a New App";
-  public static readonly sidebarCommandContentName: string = "Create New App";
+  public static readonly sidebarWelcomeContentName: string =
+    "Create a New Agent/App";
+  public static readonly sidebarCommandContentName: string =
+    "Create New Agent/App";
   public static readonly sidebarCommandContentNameOfficeDev: string =
     "Preview Your Office Add-in (F5)";
   public static readonly settingsCategory: string = "Fx-extension";
@@ -335,7 +337,7 @@ export class CommandPaletteCommands {
   public static readonly SamplesCommand: string =
     "Microsoft 365 Agents: View Samples";
   public static readonly CreateProjectCommand: string =
-    "Microsoft 365 Agents: Create New App";
+    "Microsoft 365 Agents: Create New Agent/App";
   public static readonly ManifestValidateCommand: string =
     "Microsoft 365 Agents: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
@@ -503,6 +505,8 @@ export class Notification {
 
 export class CreateProjectQuestion {
   static readonly CustomCopilot = "Custom Engine Agent";
+  static readonly TeamsApp = "Teams App";
+  static readonly AgentForTeams = "Agent for Teams";
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
@@ -517,7 +521,10 @@ export class CreateProjectQuestion {
   static readonly BuildNotificationBot = "Build a Notification Bot";
   static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
   static readonly StartWithNewApi = "Start with a New API";
+  static readonly AgentWithApi = "Agent with API";
   static readonly DeclarativeAgent = "Declarative Agent";
+  static readonly BasicCustomEngineAgent = "Basic Custom Engine Agent";
+  static readonly BasicAgentForTeams = "Basic Agent for Teams";
 }
 
 export class ValidationContent {

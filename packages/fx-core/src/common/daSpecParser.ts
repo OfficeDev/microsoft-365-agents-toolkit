@@ -38,6 +38,7 @@ import * as fs from "fs-extra";
 import tmp from "tmp";
 import { createHash } from "crypto";
 import path from "path";
+import { getLocalizedString } from "./localizeUtils";
 
 const daProjectConfig: ParseOptions = {
   projectType: ProjectType.Copilot,
@@ -321,7 +322,15 @@ export async function validateOpenAPISpec(
       return {
         status: ValidationStatus.Error,
         warnings: [],
-        errors: [{ type: ErrorType.SpecNotValid, content: (e as Error).toString() }],
+        errors: [
+          {
+            type: ErrorType.SpecNotValid,
+            content: getLocalizedString(
+              "error.daSpecParser.InvalidSpecError",
+              (e as Error).toString()
+            ),
+          },
+        ],
         specHash: hash,
       };
     }
@@ -403,7 +412,9 @@ function traverseTreeNodeForOperations(
   const security = Object.keys(node.security || {}).length > 0 ? node.security : parentSecurity;
 
   if (node.isOperation) {
-    const resourcePath = node.path.split("#")[0].replace(/\\/g, "/");
+    const normalizedPath = node.path.replace(/\\/g, "/");
+    const lastHashIndex = normalizedPath.lastIndexOf("#");
+    const resourcePath = normalizedPath.substring(0, lastHashIndex);
 
     let auth: AuthInfo | undefined;
     if (security) {
