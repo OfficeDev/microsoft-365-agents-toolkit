@@ -34,7 +34,7 @@
     "mocha": "^9.2.2",
     "nyc": "^15.1.0",
     "prettier": "^2.4.1",
-    "quicktype": "^23.0.171",
+    "quicktype-core-jayzhang": "18.0.16-beta.2025042501",
     "rimraf": "^3.0.0",
     "sinon": "^9.2.2",
     "ts-node": "^10.1.0",
