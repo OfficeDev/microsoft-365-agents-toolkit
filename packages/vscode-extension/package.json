@@ -1793,7 +1793,7 @@
             "title": "%teamsagent.walkthrough.install.title%",
             "description": "%teamsagent.walkthrough.install.description%",
             "media": {
-              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "svg": "media/walkthroughs/teams-agent/install-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.install.title%"
             }
           },
@@ -1802,7 +1802,7 @@
             "title": "%teamsagent.walkthrough.installConfirm.title%",
             "description": "%teamsagent.walkthrough.installConfirm.description%",
             "media": {
-              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "svg": "media/walkthroughs/teams-agent/install-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.installConfirm.title%"
             },
             "completionEvents": [
