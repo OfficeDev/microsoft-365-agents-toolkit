@@ -31,7 +31,7 @@
             "type": "teamsfx",
             "command": "deploy",
             "args": {
-                "env": "testtool",
+                "env": "playground",
             }
         },
         {
