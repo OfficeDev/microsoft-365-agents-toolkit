@@ -411,21 +411,16 @@ export async function traverse(
   visitor: QuestionTreeVisitor = questionVisitor
 ): Promise<Result<undefined, FxError>> {
   // The reason to clone is that we don't want to change the original inputs if user cancel the process
-  const clonedInputs = cloneDeep(inputs);
+  let currentInput = cloneDeep(inputs);
   const parentMap = new Map<IQTreeNode, IQTreeNode>();
-  const stack: IQTreeNode[] = [];
-  const traversedNodeList: IQTreeNode[] = []; // traverse history node list
-  const traversedNodeSet = new Set<IQTreeNode>(); // a set to record whether a node has been traversed to avoid duplicate visit
+  const historyStacks: IQTreeNode[][] = [];
+  const historyInputs: Inputs[] = [];
+  let stack: IQTreeNode[] = [];
   stack.push(root);
   let step = 1; // step number means the number of nodes that is really visited by UI, except cases for: group node, skip node and node with condition failure
   while (stack.length > 0) {
     // get the last node but not pop it right now
     const node = stack[stack.length - 1];
-
-    if (traversedNodeSet.has(node)) {
-      stack.pop();
-      continue;
-    }
 
     let conditionPass = true;
     // check condition
@@ -438,7 +433,7 @@ export async function traverse(
       const validRes = await validate(
         node.condition,
         parentValue as string | string[] | OptionItem | OptionItem[],
-        clonedInputs
+        currentInput
       );
       if (validRes !== undefined) {
         conditionPass = false;
@@ -452,8 +447,10 @@ export async function traverse(
         const question = node.data;
         let res;
         try {
-          res = await visitor(question, ui, clonedInputs, step, undefined);
-          sendTelemetryEvent(telemetryReporter, res, question, clonedInputs);
+          question.value = undefined;
+          question.valueType = undefined;
+          res = await visitor(question, ui, currentInput, step, undefined);
+          sendTelemetryEvent(telemetryReporter, res, question, currentInput);
         } catch (e) {
           return err(assembleError(e));
         }
@@ -463,34 +460,23 @@ export async function traverse(
         }
         const inputResult = res.value;
         if (inputResult.type === "back") {
-          // go backward
-          let prevNode = traversedNodeList.pop();
-          while (prevNode) {
-            traversedNodeSet.delete(prevNode);
-            if (prevNode.conditionResult && prevNode.data.type !== "group") {
-              delete prevNode.data.value;
-              const valueType = prevNode.data.valueType;
-              delete prevNode.data.valueType;
-              delete clonedInputs[prevNode.data.name];
-              if (valueType !== "skip") {
-                break;
-              }
-            }
-            stack.push(prevNode);
-            prevNode = traversedNodeList.pop();
-          }
-          if (!prevNode) {
+          if (historyStacks.length === 0) {
             return err(new UserCancelError());
           }
+          stack = historyStacks.pop()!;
+          currentInput = historyInputs.pop()!;
           step--;
-          stack.push(prevNode);
           continue;
         } else {
           // go forward: success or skip
           question.value = inputResult.result;
           question.valueType = inputResult.type;
-          clonedInputs[question.name] = question.value;
+          const historyInput = cloneDeep(currentInput);
+          currentInput[question.name] = question.value;
           if (question.valueType === "success") {
+            const clonedStack = [...stack];
+            historyStacks.push(clonedStack);
+            historyInputs.push(historyInput);
             step++;
           }
         }
@@ -498,23 +484,19 @@ export async function traverse(
     }
 
     stack.pop();
-    traversedNodeList.push(node);
-    traversedNodeSet.add(node);
 
-    if (conditionPass) {
-      //push children into stack from end to start
-      if (node.children && node.children.length > 0) {
-        for (let i = node.children.length - 1; i >= 0; --i) {
-          const child = node.children[i];
-          if (child) {
-            parentMap.set(child, node);
-            stack.push(child);
-          }
+    //check and push children into stack from end to start
+    if (node.conditionResult && node.children && node.children.length > 0) {
+      for (let i = node.children.length - 1; i >= 0; --i) {
+        const child = node.children[i];
+        if (child) {
+          parentMap.set(child, node);
+          stack.push(child);
         }
       }
     }
   }
-  assign(inputs, clonedInputs);
+  assign(inputs, currentInput);
   return ok(undefined);
 }
 
