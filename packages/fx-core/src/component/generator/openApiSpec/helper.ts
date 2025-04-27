@@ -277,6 +277,9 @@ export async function listOperations(
       [telemetryProperties.oauth2AuthCount]: oauth2AuthAPIs.length.toString(),
       [telemetryProperties.otherAuthCount]: otherAuthAPIs.length.toString(),
       [telemetryProperties.specHash]: validationRes.specHash!,
+      [TelemetryProperty.IsKiotaNPMIntegrationEnabled]: featureFlagManager
+        .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+        .toString(),
     });
 
     // Filter out exsiting APIs
@@ -562,6 +565,9 @@ export async function generateFromApiSpec(
         .map((w) => `${w.type.toString()}: ${w.content}`)
         .join(";"),
       [TelemetryProperty.Component]: sourceComponent,
+      [TelemetryProperty.IsKiotaNPMIntegrationEnabled]: featureFlagManager
+        .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+        .toString(),
     });
     if (generateResult.warnings && generateResult.warnings.length > 0) {
       generateResult.warnings.find((o) => {
@@ -610,6 +616,10 @@ export function logValidationResults(
     if (specHash) {
       properties[telemetryProperties.specHash] = specHash;
     }
+
+    properties[TelemetryProperty.IsKiotaNPMIntegrationEnabled] = featureFlagManager
+      .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+      .toString();
 
     const specNotValidError = errors.find((error) => error.type === ErrorType.SpecNotValid);
     if (specNotValidError) {

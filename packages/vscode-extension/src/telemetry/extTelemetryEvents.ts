@@ -436,6 +436,7 @@ export enum TelemetryProperty {
   TeamsJSVersion = "version-teams-js",
   BotbuilderVersion = "version-botbuilder",
   KiotaInstalled = "kiota-installed",
+  KiotaNPMIntegrationEnabled = "kiota-npm-integration-enabled",
   ShowAddPluginTreeView = "show-add-plugin-tree-view",
   // Used with OpenTutorial
   TutorialName = "tutorial-name",

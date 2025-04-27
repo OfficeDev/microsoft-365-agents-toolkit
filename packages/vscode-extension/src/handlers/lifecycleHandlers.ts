@@ -144,7 +144,12 @@ export async function regeneratePluginHandler(...args: unknown[]) {
 }
 
 export async function addPluginHandler(...args: unknown[]) {
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, getTriggerFromProperty(args));
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, {
+    ...getTriggerFromProperty(args),
+    [TelemetryProperty.KiotaNPMIntegrationEnabled]: featureFlagManager
+      .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+      .toString(),
+  });
   const result = await runCommand(Stage.addPlugin);
   if (result.isErr()) {
     return err(result.error);
