@@ -2,8 +2,10 @@
   "name": "@microsoft/m365agentstoolkit-mcp",
   "version": "0.1.0-alpha",
   "scripts": {
-    "build": "tsc && shx chmod +x dist/index.js",
-    "watch": "tsc --watch",
+    "build": "npm run build:prod",
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
+    "watch": "webpack --watch --mode development",
     "start": "node ./dist/index.js",
     "test:unit": "jest",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
@@ -49,9 +51,14 @@
     "prettier": "^2.4.1",
     "shx": "^0.3.4",
     "sinon": "^20.0.0",
+    "terser-webpack-plugin": "^5.3.14",
     "ts-jest": "29.2.5",
+    "ts-loader": "^9.5.2",
     "ts-node": "^9.1.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1",
+    "webpack-node-externals": "^3.0.0"
   },
   "lint-staged": {
     "*.{js,jsx,css,ts,tsx}": [

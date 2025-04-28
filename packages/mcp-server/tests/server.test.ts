@@ -1,9 +1,12 @@
+// filepath: c:\Users\chagon\dev\m365-agents-toolkit\packages\mcp-server\tests\server.test.ts
 import { createServer } from "../src/server";
 import * as fetcherModule from "../src/fetcher";
+import * as retrieverModule from "../src/retriever";
 import { SchemaType } from "../src/fetcher";
 
 describe("MCP Server", () => {
   let fetchSchemaSpy: jest.SpyInstance;
+  let retrieveResourceSpy: jest.SpyInstance;
 
   // Setup and teardown
   beforeEach(() => {
@@ -14,6 +17,11 @@ describe("MCP Server", () => {
         content: { test: "content" },
       })
     );
+
+    // Mock the retrieveResource function to avoid actual API calls
+    retrieveResourceSpy = jest
+      .spyOn(retrieverModule, "retrieveResource")
+      .mockResolvedValue("Mocked resource content");
   });
 
   afterEach(() => {
@@ -42,6 +50,16 @@ describe("MCP Server", () => {
       // Check if _registeredTools exists and has our get_schema tool
       expect(serverAny._registeredTools).toBeDefined();
       expect(serverAny._registeredTools).toHaveProperty("get_schema");
+    });
+
+    it("should register the get_knowledge, get_samples, and troubleshoot tools", () => {
+      const server = createServer();
+      const serverAny = server as any;
+
+      // Check if _registeredTools has our new tools
+      expect(serverAny._registeredTools).toHaveProperty("get_knowledge");
+      expect(serverAny._registeredTools).toHaveProperty("get_samples");
+      expect(serverAny._registeredTools).toHaveProperty("troubleshoot");
     });
   });
 
@@ -155,6 +173,83 @@ describe("MCP Server", () => {
         },
         {}
       );
+
+      // Verify the response contains the error message
+      expect(response).toHaveProperty("content");
+      expect(Array.isArray(response.content)).toBe(true);
+      expect(response.content[0]).toHaveProperty("type", "text");
+      expect(response.content[0]).toHaveProperty("text", errorMessage);
+    });
+  });
+
+  describe("knowledge and resource tools", () => {
+    it("get_knowledge tool should call retrieveResource with correct parameters", async () => {
+      const server = createServer();
+      const serverAny = server as any;
+      const toolCallback = serverAny._registeredTools["get_knowledge"].callback;
+
+      // Call the tool callback with a question
+      await toolCallback({ question: "How do I create a Teams app?" }, {});
+
+      // Verify retrieveResource was called with the correct parameters
+      expect(retrieveResourceSpy).toHaveBeenCalledTimes(1);
+      expect(retrieveResourceSpy).toHaveBeenCalledWith("documents", "How do I create a Teams app?");
+    });
+
+    it("get_samples tool should call retrieveResource with correct parameters", async () => {
+      const server = createServer();
+      const serverAny = server as any;
+      const toolCallback = serverAny._registeredTools["get_samples"].callback;
+
+      // Call the tool callback with a query
+      await toolCallback({ question: "Teams message extension sample" }, {});
+
+      // Verify retrieveResource was called with the correct parameters
+      expect(retrieveResourceSpy).toHaveBeenCalledTimes(1);
+      expect(retrieveResourceSpy).toHaveBeenCalledWith("samples", "Teams message extension sample");
+    });
+
+    it("troubleshoot tool should call retrieveResource with correct parameters", async () => {
+      const server = createServer();
+      const serverAny = server as any;
+      const toolCallback = serverAny._registeredTools["troubleshoot"].callback;
+
+      // Call the tool callback with an issue description
+      await toolCallback({ question: "App manifest validation error" }, {});
+
+      // Verify retrieveResource was called with the correct parameters
+      expect(retrieveResourceSpy).toHaveBeenCalledTimes(1);
+      expect(retrieveResourceSpy).toHaveBeenCalledWith("issues", "App manifest validation error");
+    });
+
+    it("should return resource content in the response", async () => {
+      const mockedContent = "Here is the information you requested about Microsoft 365 development";
+      retrieveResourceSpy.mockResolvedValue(mockedContent);
+
+      const server = createServer();
+      const serverAny = server as any;
+      const toolCallback = serverAny._registeredTools["get_knowledge"].callback;
+
+      // Call the tool callback
+      const response = await toolCallback({ question: "How do I use Microsoft Graph?" }, {});
+
+      // Verify the response contains the expected content
+      expect(response).toHaveProperty("content");
+      expect(Array.isArray(response.content)).toBe(true);
+      expect(response.content[0]).toHaveProperty("type", "text");
+      expect(response.content[0]).toHaveProperty("text", mockedContent);
+    });
+
+    it("should propagate errors from retrieveResource", async () => {
+      const errorMessage = "Failed to retrieve resource";
+      retrieveResourceSpy.mockResolvedValue(errorMessage);
+
+      const server = createServer();
+      const serverAny = server as any;
+      const toolCallback = serverAny._registeredTools["get_samples"].callback;
+
+      // Call the tool callback
+      const response = await toolCallback({ question: "Invalid query" }, {});
 
       // Verify the response contains the error message
       expect(response).toHaveProperty("content");
