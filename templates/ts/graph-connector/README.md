@@ -41,7 +41,27 @@ Version|Date|Comments
 - [Azure Functions Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
 - [Microsoft 365 Developer tenant](https://developer.microsoft.com/microsoft-365/dev-program) with [uploading custom apps enabled](https://learn.microsoft.com/microsoftteams/platform/m365-apps/prerequisites#prepare-a-developer-tenant-for-testing)
 - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-- Have the ability to admin consent in Entra Admin Center.
+- Have the ability to admin consent in Entra Admin Center. See [Grant tenant-wide admin consent to an application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent?pivots=portal#prerequisites) for the required roles
+
+## Minimal path to awesome - Debug against a real Microsoft 365 tenant
+
+- Clone repo
+- Open repo in VSCode
+- Fill env file in `env` folder
+  - Open the `.env.local`. Update the `CONNECTOR_REPOS` value
+- Press <kbd>F5</kbd>, follow the sign in prompts
+- When prompted, click on the link in the console to perform the tenant-wide admin consent
+- Wait for all tasks to complete
+- In the web browser navigate to the [Search & Intelligence](https://admin.microsoft.com/#/MicrosoftSearch/Connectors) area in the Microsoft 365 Admin Center
+- A table will display available connections. Locate the **GitHub Issues** connection. In the **Required actions** column, select the link to **Include Connector Results** and confirm the prompt
+- Navigate to [Microsoft 365 Copilot](https://m365.cloud.microsoft/chat)
+- Using the search box on top, search for: `Summarize the latest GitHub issues`. You should see the following result:
+
+![External content in Microsoft 365 Copilot](assets/copilot-results.png)
+
+> [!NOTE]  
+> It can take a moment for the results to appear. If you don't see the results immediately, wait a few moments and try again.
+> If you are getting results from the web, you can turn off web for better isolation of your connector results.
 
 ## Further customization
 
@@ -52,10 +72,10 @@ This template is an opinionated starting point for your own connector. You can f
 
 In addition to those folders, other parts of the code might be customized depending on the scenario. You can search the code for comments starting with the `[Customization point]` string, which indicate candidate areas for customization.
 
-## Minimal path to awesome - Debug against a real Microsoft 365 tenant
+### Use GitHub Personal Access Token
 
-- Clone repo
-- Open repo in VSCode
+If you want to index content from private GitHub repositories, or you want to be able to have a higher rate limit for the GitHub API, you need to follow the steps below:
+
 - Create a GitHub fine-grained token
   - Go to [GitHub](https://github.com)
   - Click on your profile picture and select **Settings**
@@ -70,19 +90,25 @@ In addition to those folders, other parts of the code might be customized depend
     - Metadata: Read-Only
   - Click on **Generate token**
   - Copy the token
-- Fill env file in `env` folder
-  - Open the `.env.local`. Update the `CONNECTOR_REPOS` value
-  - Open the `.env.local.user` and add the your GitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
-- Press <kbd>F5</kbd>, follow the sign in prompts
-- When prompted, click on the link in the console to perform the tenant-wide admin consent
-- Wait for all tasks to complete
-- In the web browser navigate to the [Search & Intelligence](https://admin.microsoft.com/#/MicrosoftSearch/Connectors) area in the Microsoft 365 Admin Center
-- A table will display available connections. Locate the **GitHub Issues** connection. In the **Required actions** column, select the link to **Include Connector Results** and confirm the prompt
-- Navigate to [Microsoft 365 Copilot](https://m365.cloud.microsoft/chat)
-- Using the search box on top, search for: `Summarize the latest GitHub issues`. You should see the following result:
+- Fill env file in `env` folder for local environment
+  - Open the `.env.local.user` and add there your GitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
+- Uncomment the `CONNECTOR_ACCESS_TOKEN` line in the `teamsapp.local.yml` file 
 
-![External content in Microsoft 365 Copilot](assets/copilot-results.png)
+### Deployment in Azure
 
-> [!NOTE]  
-> It can take a moment for the results to appear. If you don't see the results immediately, wait a few moments and try again.
-> If you are getting results from the web, you can turn off web for better isolation of your connector results.
+To deploy the connector in Azure, you need to follow these steps:
+
+- Fill env file in `env` folder for dev environment
+  - Open the `.env.dev`. Update the `CONNECTOR_REPOS` value
+- Go to Agents Toolkit `Lifecycle` tab and select **Provision**. This will create the Azure resources needed for the connector
+- Go to Agents Toolkit `Lifecycle` tab and select **Deploy**. This will deploy the Azure Function application with the connector code
+
+If using a GitHub personal access token, it is needed to follow these additional steps:
+
+- Open `.env.dev.user` and add there your gitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
+- Add this parameter to `azure.parameters.json` file in `infra` folder:
+```json
+    "connectorReposAccessToken": {
+      "value": "${{SECRET_CONNECTOR_ACCESS_TOKEN}}"
+    }
+```

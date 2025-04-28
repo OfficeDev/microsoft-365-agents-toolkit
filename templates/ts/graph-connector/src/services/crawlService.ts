@@ -1,7 +1,7 @@
 import * as fs from "fs-extra";
 const lastCrawlFilePath = "./tmp/lastCrawl.json";
 
-// [Customization point]: For demo purposes, we are using a local file to store the last crawl date.
+// [Customization point]: For simple scenarios purposes, we are using a local file to store the last crawl date.
 // In a production environment, you might want to use a more robust solution like Azure Blob Storage, Cosmos DB or any other storage solution.
 /**
  * Save the last crawl date to a file
@@ -16,7 +16,7 @@ export async function saveLastCrawl(lastCrawl: Date): Promise<void> {
   }
 }
 
-// [Customization point]: For demo purposes, we are using a local file to store the last crawl date.
+// [Customization point]: For simple scenarios purposes, we are using a local file to store the last crawl date.
 // In a production environment, you might want to use a more robust solution like Azure Blob Storage, Cosmos DB or any other storage solution.
 /**
  * Gets the last crawl date to a file

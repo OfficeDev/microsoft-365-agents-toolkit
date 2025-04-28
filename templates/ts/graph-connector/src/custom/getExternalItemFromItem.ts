@@ -7,9 +7,13 @@ import { getAclFromITem } from "./getAclFromItem";
 // This function is used to transform the item into a format that can be ingested by the Graph API.
 // The item is transformed into an ExternalItem object that can be ingested by the Graph API.
 // The ExternalItem object is used to represent the item in the Graph API.
+// See the Graph API documentation to understand the structure of the ExternalItem object and how to convert the item into it.
+// https://learn.microsoft.com/en-us/graph/api/resources/connectors-api-overview?view=graph-rest-1.0
+// https://learn.microsoft.com/en-us/graph/api/externalconnectors-externalconnection-put-items?view=graph-rest-1.0
+
 /**
  * @param item - The item to transform.
- * @returns 
+ * @returns
  */
 export function getExternalItemFromItem(item: Item): ExternalConnectors.ExternalItem {
   return {

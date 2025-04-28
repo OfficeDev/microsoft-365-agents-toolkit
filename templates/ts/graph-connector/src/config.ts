@@ -64,9 +64,6 @@ export function validateConfig(config: Config): void {
   if (!config.clientId) {
     throw new Error("Invalid configuration: Missing clientId");
   }
-  if (!config.connector.accessToken) {
-    throw new Error("Invalid configuration: Missing connector access token");
-  }
   if (!config.connector.id) {
     throw new Error("Invalid configuration: Missing connector id");
   }
@@ -110,7 +107,7 @@ export function validateConnectorId(id: string): void {
   if (!/^[a-zA-Z0-9]+$/.test(id)) {
     throw new Error("Connector ID must contain only alphanumeric characters.");
   }
-  if (disallowedConnectorIds.some(item => id.toLowerCase().startsWith(item.toLowerCase()))) {
+  if (disallowedConnectorIds.some((item) => id.toLowerCase().startsWith(item.toLowerCase()))) {
     throw new Error(`Connector ID cannot start with: ${disallowedConnectorIds.join(", ")}.`);
   }
 }

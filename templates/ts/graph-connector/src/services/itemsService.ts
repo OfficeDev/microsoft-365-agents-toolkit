@@ -15,8 +15,7 @@ import { Config } from "../models/Config";
  * @returns An async generator that yields items from the repository.
  */
 export async function* getAllItems(config: Config, since?: Date) {
-  const items = await getAllItemsFromAPI(config, since);
-  for (const item of items) {
+  for await (const item of getAllItemsFromAPI(config, since)) {
     yield item;
   }
 }
