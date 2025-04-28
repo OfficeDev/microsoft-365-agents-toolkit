@@ -334,7 +334,7 @@ jobs:
           npx ts-node src/scripts/testPlan.ts report ./testplan.json src/e2e/mochawesome-report
 
   tear-down:
-    needs: [execute-case, e2e-coverage]
+    needs: [execute-case, e2e-coverage, setup]
     if: ${{always() && (toJSON(needs.execute-case.outputs.cases) != 'null' || needs.e2e-coverage.result != 'skipped' )}}
     runs-on: ubuntu-latest
     env:
@@ -378,7 +378,7 @@ jobs:
            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"5"}}'
 
   report:
-    needs: execute-case
+    needs: [execute-case]
     if: ${{ github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 5)) }}
     runs-on: ubuntu-latest
     steps:
@@ -561,6 +561,7 @@ jobs:
   e2e-coverage:
     if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'true' }}
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
