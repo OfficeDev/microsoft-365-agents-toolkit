@@ -1,0 +1,15 @@
+{
+    "name": "spe-typescript-react-azurefunction",
+    "private": true,
+    "scripts": {
+        "start": "npm i -D && concurrently --names \"API,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run start-api\" \"npm run start-client\"",
+        "start-api": "cd function-api && npm install && npm run start",
+        "start-client": "cd react-client && npm install && npm run start",
+        "dev:teamsfx": "npm run start",
+        "dev:teamsfx:testtool": "npm run start",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start"
+    },
+    "devDependencies": {
+        "concurrently": "^9.0.1"
+    }
+}

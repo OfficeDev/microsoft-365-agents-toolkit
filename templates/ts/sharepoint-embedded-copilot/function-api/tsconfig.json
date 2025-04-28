@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "lib": [
+      "es5",
+      "es6",
+      "dom",
+      "es2015.collection"
+    ],
+    "esModuleInterop": true,
+    "moduleResolution": "node16",
+    "strict": true,
+    "outDir": "./dist",
+    "rootDir": "../",
+  }
+}

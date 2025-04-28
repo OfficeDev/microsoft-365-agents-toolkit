@@ -475,6 +475,15 @@ export class DACapabilityOptions {
       detail: getLocalizedString("core.createProjectQuestion.addPlugin.detail"),
     };
   }
+
+  static createSharePointEmbeddedApp(): OptionItem {
+    return {
+      id: "sharepoint-embedded-copilot-app",
+      label: getLocalizedString("core.createProjectQuestion.createSharePointEmbeddedAgent.label"),
+      detail: getLocalizedString("core.createProjectQuestion.createSharePointEmbeddedAgent.detail"),
+      data: TemplateNames.DeclarativeAgentSharePointEmbeddedCopilotApp,
+    };
+  }
 }
 
 export class ActionStartOptions {

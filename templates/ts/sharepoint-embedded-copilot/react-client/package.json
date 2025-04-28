@@ -1,0 +1,51 @@
+{
+  "name": "typescript-react-azurefunction",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@azure/msal-browser": "^3.13.0",
+    "@fluentui/react": "^8.122.0",
+    "@fluentui/react-components": "^9.49.0",
+    "@fluentui/react-file-type-icons": "^8.11.8",
+    "@fluentui/react-icons": "^2.0.237",
+    "@microsoft/mgt-element": "^4.2.1",
+    "@microsoft/mgt-msal2-provider": "^4.2.1",
+    "@microsoft/mgt-react": "^4.2.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@microsoft/sharepointembedded-copilotchat-react": "https://download.microsoft.com/download/e2d6b1ec-7168-4787-b8de-4a9862f10744/microsoft-sharepointembedded-copilotchat-react-1.0.8.tgz",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.2.79",
+    "@types/react-dom": "^18.2.25",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "react-scripts": "^5.0.1",
+    "socket.io-client": "^4.7.5",
+    "typescript": "^4.9.5",
+    "web-vitals": "^3.5.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "host": "ngrok http 3000"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@microsoft/microsoft-graph-types": "2.40.0",
+    "env-cmd": "10.1.0",
+    "npm-run-all": "4.1.5"
+  }
+}

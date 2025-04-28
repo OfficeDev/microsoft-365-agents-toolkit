@@ -12,6 +12,7 @@ import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
 import { wxpTemplates } from "./wxp";
 import { graphConnectorTemplates } from "./graphConnector";
+import { sharePointEmbeddedTemplates } from "./sharepointembedded";
 
 const allTemplates: Template[] = [
   ...tabTemplates,
@@ -23,6 +24,7 @@ const allTemplates: Template[] = [
   ...vsOnlyTemplates,
   ...wxpTemplates,
   ...graphConnectorTemplates,
+  ...sharePointEmbeddedTemplates,
 ];
 
 const defaultGeneratorTemplates: Template[] = [
@@ -33,6 +35,7 @@ const defaultGeneratorTemplates: Template[] = [
   ...tdpTemplates,
   ...vsOnlyTemplates,
   ...graphConnectorTemplates,
+  ...sharePointEmbeddedTemplates,
 ];
 
 // used by programming language question options filter

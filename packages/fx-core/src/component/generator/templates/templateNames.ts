@@ -12,6 +12,7 @@ export enum TemplateNames {
   DeclarativeAgentWithActionFromExistingApiSpec = "api-plugin-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentSharePointEmbeddedCopilotApp = "sharepoint-embedded-copilot-app", // handled by DefaultGenerator
 
   // custom engine agent
   CustomCopilotBasic = "custom-copilot-basic",
@@ -67,4 +68,7 @@ export enum TemplateNames {
   AIBot = "ai-bot",
   AIAssistantBot = "ai-assistant-bot",
   MessageExtensionSearch = "message-extension-search",
+
+  // SharePointEmbedded
+  SharePointEmbeddedCopilotApp = "sharepoint-embedded-copilot-app",
 }

@@ -16,6 +16,7 @@ export class ProjectTypeOptions {
   static customCopilotOptionId = "custom-copilot-type";
   static graphConnectorOptionId = "graph-connector-type";
   static startWithGithubCopilotOptionId = "start-with-github-copilot";
+  static sharePointEmbeddedOptionId = "sharepoint-embedded-copilot-app";
 
   static groupName(group: ProjectTypeGroup): string | undefined {
     switch (group) {

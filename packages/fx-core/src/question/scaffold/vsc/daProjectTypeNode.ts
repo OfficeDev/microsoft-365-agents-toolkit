@@ -38,7 +38,11 @@ export function daProjectTypeNode(
           title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
           cliDescription: "Whether to add API plugin for your declarative Copilot.",
           type: "singleSelect",
-          staticOptions: [DACapabilityOptions.noPlugin(), DACapabilityOptions.withPlugin()],
+          staticOptions: [
+            DACapabilityOptions.noPlugin(),
+            DACapabilityOptions.withPlugin(),
+            DACapabilityOptions.createSharePointEmbeddedApp(),
+          ],
           placeholder: getLocalizedString(
             "core.createProjectQuestion.declarativeCopilot.placeholder"
           ),

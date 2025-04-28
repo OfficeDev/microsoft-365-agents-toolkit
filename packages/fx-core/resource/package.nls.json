@@ -446,6 +446,8 @@
   "core.createProjectQuestion.addPlugin.pluginManifestMultipleApiSpec": "Found multiple OpenAPI description documents: \"%s\".",
   "core.createProjectQuestion.addKnowledge.title": "Add Capability",
   "core.createProjectQuestion.addKnowledge.placeholder": "Select a capability source as grounding information for declarative agent",
+  "core.createProjectQuestion.createSharePointEmbeddedAgent.label": "Create a SharePointEmbedded Copilot agent",
+  "core.createProjectQuestion.createSharePointEmbeddedAgent.detail": "Create a SharePointEmbedded Copilot agent",
   "core.aiAssistantBotOption.label": "AI Agent Bot",
   "core.aiAssistantBotOption.detail": "A custom AI Agent bot in Teams using Teams AI library and OpenAI Assistants API",
   "core.aiBotOption.label": "AI Chat Bot",
