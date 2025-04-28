@@ -489,7 +489,7 @@ function isAuthTypeSupported(
   allowOauth2: boolean
 ): boolean {
   return (
-    (allowAPIKeyAuth && Utils.isAPIKeyAuth(authScheme)) ||
+    (allowAPIKeyAuth && Utils.isAPIKeyAuthButNotInCookie(authScheme)) ||
     (allowOauth2 && Utils.isOAuthWithAuthCodeFlow(authScheme)) ||
     (allowBearerTokenAuth && Utils.isBearerTokenAuth(authScheme))
   );

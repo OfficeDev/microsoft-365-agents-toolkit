@@ -827,7 +827,8 @@ export function apiOperationQuestion(
           input.length < 1 ||
           (input.length > 10 &&
             inputs[QuestionNames.CustomCopilotRag] !== CustomCopilotRagOptions.customApi().id &&
-            inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId)
+            inputs[QuestionNames.ProjectType] !== ProjectTypeOptions.copilotAgentOptionId &&
+            inputs[QuestionNames.ActionType] !== ActionStartOptions.apiSpec().id)
         ) {
           return getLocalizedString(
             "core.createProjectQuestion.apiSpec.operation.invalidMessage",

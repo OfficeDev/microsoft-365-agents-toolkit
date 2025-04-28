@@ -693,7 +693,8 @@ export async function injectAuthAction(
   const relativeSpecPath = `./${path.relative(projectPath, outputApiSpecPath).replace(/\\/g, "/")}`;
 
   if (
-    (!!authScheme && (Utils.isBearerTokenAuth(authScheme) || Utils.isAPIKeyAuth(authScheme))) ||
+    (!!authScheme &&
+      (Utils.isBearerTokenAuth(authScheme) || Utils.isAPIKeyAuthButNotInCookie(authScheme))) ||
     authType === APIKeyAuthType
   ) {
     const res = await ActionInjector.injectCreateAPIKeyAction(

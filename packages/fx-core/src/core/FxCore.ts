@@ -3015,7 +3015,7 @@ export class FxCore {
         operation.auth &&
         (Utils.isBearerTokenAuth(operation.auth.authScheme) ||
           Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme) ||
-          Utils.isAPIKeyAuth(operation.auth.authScheme))
+          Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme))
       ) {
         if (result.find((value) => value.authName === operation.auth!.name)) {
           continue;
