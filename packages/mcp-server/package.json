@@ -8,6 +8,7 @@
     "watch": "webpack --watch --mode development",
     "start": "node ./dist/index.js",
     "test:unit": "jest",
+    "precommit": "lint-staged",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "lint:staged": "lint-staged",
     "lint:fix": "eslint --fix \"src/**/*.ts\" \"tests/**/*.ts\""
@@ -47,6 +48,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^29.7.0",
     "jest-environment-node": "^29.7.0",
+    "lint-staged": "^15.5.1",
     "nock": "^14.0.4",
     "prettier": "^2.4.1",
     "shx": "^0.3.4",
