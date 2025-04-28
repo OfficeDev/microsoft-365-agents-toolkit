@@ -131,7 +131,7 @@ describe("Remote debug Tests", function () {
       const testToolEnvPath = path.resolve(
         projectPath,
         "env",
-        ".env.testtool.user"
+        ".env.playground.user"
       );
       editDotEnvFile(
         testToolEnvPath,

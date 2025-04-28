@@ -1642,7 +1642,7 @@ export async function validateBot(
               fullPage: true,
             });
             const btn = await frame?.waitForSelector(
-              `div.ui-box button:has-text("Continue")`
+              `div.ac-actionSet button:has-text("Add")`
             );
             await btn?.click();
             // wait for new tab to show

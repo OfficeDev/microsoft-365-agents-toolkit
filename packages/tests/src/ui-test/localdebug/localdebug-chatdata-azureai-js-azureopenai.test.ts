@@ -110,7 +110,7 @@ describe("Local Debug Tests", function () {
       const testToolEnvPath = path.resolve(
         projectPath,
         "env",
-        ".env.testtool.user"
+        ".env.playground.user"
       );
       editDotEnvFile(
         testToolEnvPath,
