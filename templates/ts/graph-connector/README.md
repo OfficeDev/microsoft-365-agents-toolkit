@@ -112,3 +112,10 @@ If using a GitHub personal access token, it is needed to follow these additional
       "value": "${{SECRET_CONNECTOR_ACCESS_TOKEN}}"
     }
 ```
+
+Once the deployment is finished, you can go to the Azure portal and navigate to the Azure Function application. You will see three functions created:
+- `deployConnection`: This function is run once per day and it ensures that the connection is up to date. Run it manually if you want to accelerate crawling since it is needed to run, at least once, for the other functions to work.
+- `fullCrawl`: This function is run once per day and it ensures that all the content is crawled. Run it manually if you want to test in advance.
+- `incrementalCrawl`: This function is run every minute and it ensures that the content is updated. You can run it manually as well.
+
+*Note*: For Azure based deployments, it is needed to give admin consent to the permissions of the connector app for this deployment. You can find the Application (Client) ID of this application looking into `AZURE_CLIENT_ID` environment variable defined for the Azure Function application.
