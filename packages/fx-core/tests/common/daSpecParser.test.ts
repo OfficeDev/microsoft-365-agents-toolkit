@@ -9,7 +9,7 @@ import * as daSpecParser from "../../src/common/daSpecParser";
 import * as utils from "../../src/common/utils";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { Platform } from "@microsoft/teamsfx-api";
-import { KiotaOpenApiNode, KiotaTreeResult } from "@microsoft/kiota";
+import { KiotaOpenApiNode, KiotaTreeResult, OpenApiSpecVersion } from "@microsoft/kiota";
 import {
   AdaptiveCardUpdateStrategy,
   ErrorType,
@@ -85,6 +85,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -122,6 +123,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -159,6 +161,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -186,6 +189,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -229,6 +233,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -279,6 +284,7 @@ describe("daSpecParser", () => {
             referenceId: "",
           },
         },
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -328,6 +334,7 @@ describe("daSpecParser", () => {
           },
         },
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -373,6 +380,7 @@ describe("daSpecParser", () => {
           },
         },
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -399,6 +407,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -425,6 +434,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -452,6 +462,7 @@ describe("daSpecParser", () => {
         security: undefined,
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfoNoSecurity);
@@ -473,6 +484,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfoEmptySecurity);
@@ -494,6 +506,7 @@ describe("daSpecParser", () => {
         security: [{}],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfoEmptyRequirement);
@@ -588,6 +601,7 @@ describe("daSpecParser", () => {
           bearer_auth: { type: "http", scheme: "bearer", referenceId: "" },
         },
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -617,6 +631,7 @@ describe("daSpecParser", () => {
         } as KiotaOpenApiNode,
         security: [],
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -652,6 +667,7 @@ describe("daSpecParser", () => {
           api_key: { type: "apiKey", name: "x-api-key", in: "header", referenceId: "" },
         },
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -681,6 +697,7 @@ describe("daSpecParser", () => {
           auth2: { type: "oauth2", flows: {}, referenceId: "" },
         },
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -729,6 +746,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -762,8 +780,8 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
-
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
       const checkServerUrlStub = sinon.stub();
@@ -808,6 +826,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -849,6 +868,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
