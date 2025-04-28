@@ -611,6 +611,9 @@ jobs:
           AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+          M365_ACCOUNT_NAME: ${{ needs.setup.outputs.M365_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+          M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
           CI_ENABLED: "true"
           TEAMSFX_DEBUG_TEMPLATE: "true"
           NODE_ENV: "development"
