@@ -73,7 +73,7 @@ function Create {
             }
     
             $body = @{
-                instructions = "You are an intelligent bot that can\n - write and run code to answer math questions\n - use the provided functions to answer questions"
+                instructions = "You are an intelligent agent that can\n - write and run code to answer math questions\n - use the provided functions to answer questions"
                 name         = "Assistant"
                 tools        = $tools
                 model        = "gpt-3.5-turbo"
@@ -88,7 +88,7 @@ function Create {
             }
         
             $body = @{
-                instructions = "You are an intelligent bot that can\n - write and run code to answer math questions\n - use the provided functions to answer questions"
+                instructions = "You are an intelligent agent that can\n - write and run code to answer math questions\n - use the provided functions to answer questions"
                 name         = "Assistant"
                 tools        = $tools
                 model        = $Auzre_OpenAI_DEPLOYMENTNAME
