@@ -19,6 +19,12 @@ declare global {
 
       KIOTA_BINARY_PATH?: string;
       AAD_APP_ACCESS_AS_USER_PERMISSION_ID?: string;
+
+      AAD_APP_CLIENT_ID?: string;
+      AAD_APP_OBJECT_ID?: string;
+      AAD_APP_TENANT_ID?: string;
+      AAD_APP_OAUTH_AUTHORITY_HOST?: string;
+      AAD_APP_OAUTH_AUTHORITY?: string;
     }
   }
 }

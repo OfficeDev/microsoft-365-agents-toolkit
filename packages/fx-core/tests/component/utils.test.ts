@@ -165,26 +165,6 @@ describe("expandEnvironmentVariable", () => {
     expect(result).to.equal("myappabc");
     expect(resolved.length).to.equal(1);
   });
-  it("resolveString for empty SECRET_CONNECTOR_ACCESS_TOKEN", () => {
-    const template = "${{ SECRET_CONNECTOR_ACCESS_TOKEN }}";
-    envRestore = mockedEnv({
-      SECRET_CONNECTOR_ACCESS_TOKEN: "",
-    });
-    const resolved: string[] = [];
-    const unresolved: string[] = [];
-    resolveString(template, resolved, unresolved);
-    expect(resolved.length).to.equal(1);
-  });
-  it("resolveString for undefined SECRET_CONNECTOR_ACCESS_TOKEN", () => {
-    const template = "${{ SECRET_CONNECTOR_ACCESS_TOKEN }}";
-    envRestore = mockedEnv({
-      SECRET_CONNECTOR_ACCESS_TOKEN: undefined,
-    });
-    const resolved: string[] = [];
-    const unresolved: string[] = [];
-    resolveString(template, resolved, unresolved);
-    expect(unresolved.length).to.equal(1);
-  });
 
   it("support input envs", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";

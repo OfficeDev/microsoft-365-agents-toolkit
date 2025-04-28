@@ -83,7 +83,7 @@ export function resolve(
   }
 }
 
-export const allowedEmptyKeys = ["APP_NAME_SUFFIX", "SECRET_CONNECTOR_ACCESS_TOKEN"];
+export const allowedEmptyKeys = ["APP_NAME_SUFFIX"];
 export function resolveString(
   val: string,
   resolved: ResolvedPlaceholders,
