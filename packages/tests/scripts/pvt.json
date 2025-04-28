@@ -22,7 +22,7 @@
       "remotedebug-tab-aad-deploy-win-only",
       "remotedebug-link-unfurling-win-only",
       "remotedebug-link-unfurling-ts-win-only",
-      "aiagent-assistapi-openai-bot-win-only",
+      "aiagent-assistapi-openai-bot",
       "aiagent-assistapi-openai-bot-ts",
       "aiagent-assistapi-openai-bot-py",
       "aiagent-assistapi-azureopenai-bot",
