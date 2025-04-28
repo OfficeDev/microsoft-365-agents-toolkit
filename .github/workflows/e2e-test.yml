@@ -82,7 +82,7 @@ jobs:
         run: |
           # print m365 account in env
           email=${{ env.M365_ACCOUNT_NAME }}
-          echo "${email:0:5}"
+          echo "${email:0:6}"
 
       - name: List cases for schedule
         id: schedule-cases
