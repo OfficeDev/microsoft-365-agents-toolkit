@@ -104,7 +104,12 @@ export class TypeSpecCompileDriver implements StepDriver {
               `${openApiSpecsFolderPath}/${spec}`,
               `${outputFolderPath}`,
               `${pluginManifestName}`,
-              `${outputFolderPath}`
+              `${outputFolderPath}`,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              true
             );
           } else {
             for (const spec of openapiSpecs) {
@@ -123,7 +128,12 @@ export class TypeSpecCompileDriver implements StepDriver {
                 `${openApiSpecsFolderPath}/${spec}`,
                 `${outputFolderPath}`,
                 `${pluginManifestName}`,
-                `${outputFolderPath}`
+                `${outputFolderPath}`,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                true
               );
             }
           }

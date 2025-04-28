@@ -342,7 +342,12 @@ describe("generatePlugin", async () => {
       "specPath",
       "outputPath",
       "pluginName",
-      "workingDirectory"
+      "workingDirectory",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      true
     );
     assert.deepEqual(res, {
       aiPlugin: "mocked-ai-plugin",

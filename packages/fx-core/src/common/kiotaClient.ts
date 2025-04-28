@@ -84,7 +84,8 @@ export async function kiotageneratePlugin(
   authType?: PluginAuthType,
   authRefId?: string,
   includePatterns?: string[],
-  excludePatterns?: string[]
+  excludePatterns?: string[],
+  noWorkspace?: boolean
 ): Promise<GeneratePluginResult> {
   if (process.env.KIOTA_BINARY_PATH) {
     setKiotaConfig({ binaryLocation: process.env.KIOTA_BINARY_PATH });
@@ -103,6 +104,7 @@ export async function kiotageneratePlugin(
     pluginAuthType: authType ?? null,
     pluginAuthRefid: authRefId ?? undefined,
     workingDirectory: workingDirectory,
+    noWorkspace: noWorkspace,
   };
 
   try {
