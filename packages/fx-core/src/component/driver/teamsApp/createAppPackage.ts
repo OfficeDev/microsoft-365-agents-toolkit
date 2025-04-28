@@ -11,6 +11,7 @@ import {
   PluginManifestSchema,
   DeclarativeCopilotCapabilityName,
   EmbeddedKnowledgeCapability,
+  FunctionObject,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -508,24 +509,14 @@ export class CreateAppPackageDriver implements StepDriver {
     if (pluginFileContent.functions) {
       for (const func of pluginFileContent.functions) {
         if (func.capabilities?.response_semantics?.static_template?.file) {
-          const staticTemplateFile = path.resolve(
-            defaultAppDirectry ?? path.dirname(pluginFile),
-            func.capabilities.response_semantics.static_template.file as string
+          const staticTemplateFile = await this.getAdaptiveCardTemplateFile(
+            context,
+            pluginFile,
+            func,
+            appDirectory,
+            defaultAppDirectry
           );
-          const checkExistenceRes = await this.validateReferencedFile(
-            staticTemplateFile,
-            defaultAppDirectry ?? appDirectory
-          );
-
-          if (checkExistenceRes.isErr()) {
-            delete func.capabilities.response_semantics.static_template.file;
-            context.logProvider.warning(
-              getLocalizedString(
-                "plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning",
-                pluginFile,
-                func.name
-              )
-            );
+          if (!staticTemplateFile) {
             continue;
           }
 
@@ -706,5 +697,48 @@ export class CreateAppPackageDriver implements StepDriver {
     await fs.ensureDir(path.dirname(jsonFileName));
     await fs.writeFile(jsonFileName, content);
     await fs.chmod(jsonFileName, 0o444);
+  }
+
+  private async getAdaptiveCardTemplateFile(
+    context: WrapDriverContext,
+    pluginFile: string,
+    func: FunctionObject,
+    appDirectory: string,
+    defaultAppDirectry?: string
+  ): Promise<string | undefined> {
+    let staticTemplateFile = path.resolve(
+      defaultAppDirectry ?? path.dirname(pluginFile),
+      func.capabilities!.response_semantics!.static_template!.file as string
+    );
+    let checkExistenceRes = await this.validateReferencedFile(
+      staticTemplateFile,
+      defaultAppDirectry ?? appDirectory
+    );
+    if (checkExistenceRes.isOk()) {
+      return staticTemplateFile;
+    }
+
+    if (defaultAppDirectry) {
+      // Try generated folder
+      staticTemplateFile = path.resolve(
+        appDirectory,
+        func.capabilities!.response_semantics!.static_template!.file as string
+      );
+      checkExistenceRes = await this.validateReferencedFile(staticTemplateFile, appDirectory);
+    }
+
+    if (checkExistenceRes.isErr()) {
+      delete func.capabilities!.response_semantics!.static_template!.file;
+      context.logProvider.warning(
+        getLocalizedString(
+          "plugins.appstudio.createPackage.aiPlugin.invalidFilePropertyWarning",
+          pluginFile,
+          func.name
+        )
+      );
+      return undefined;
+    }
+
+    return staticTemplateFile;
   }
 }
