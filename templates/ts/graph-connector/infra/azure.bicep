@@ -13,7 +13,7 @@ param connectorName string
 param connectorDescription string
 param connectorRepos string
 @secure()
-param connectorReposAccessToken string
+param connectorReposAccessToken string = ''
 param teamsfxEnv string
 param location string = resourceGroup().location
 param appServiceName string = resourceBaseName
@@ -92,7 +92,7 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~18' // Set NodeJS version to 18.x
+          value: '~20' // Set NodeJS version to 20.x
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'

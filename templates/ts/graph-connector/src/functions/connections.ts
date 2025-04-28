@@ -3,9 +3,10 @@ import {
   clearConnectionItems,
   deleteConnection,
   ensureConnection,
+  isConnectionReady,
   setSearchSettings,
 } from "../connection";
-import { ensureSchema, schemaExists } from "../schema";
+import { ensureSchema } from "../schema";
 import { ingestContent } from "../ingest";
 import { initConfig } from "../config";
 import { getLastCrawl, saveLastCrawl } from "../services/crawlService";
@@ -49,9 +50,10 @@ export async function fullCrawl(timer: Timer, context: InvocationContext): Promi
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
-  const connectionDeployed = await schemaExists(config);
-  if (!connectionDeployed) {
-    context.warn("Connection not deployed yet...");
+  const connectionReady = await isConnectionReady(config);
+  if (!connectionReady) {
+    context.warn("Connection not ready yet...");
+    return;
   }
 
   fullCrawlInProgress = true;
@@ -81,9 +83,9 @@ export async function incrementalCrawl(timer: Timer, context: InvocationContext)
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
-  const connectionDeployed = await schemaExists(config);
-  if (!connectionDeployed) {
-    context.warn("Connection not deployed yet...");
+  const connectionReady = await isConnectionReady(config);
+  if (!connectionReady) {
+    context.warn("Connection not ready yet...");
     return;
   }
 
@@ -121,9 +123,9 @@ export async function retractConnection(
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
-  const connectionDeployed = await schemaExists(config);
-  if (!connectionDeployed) {
-    context.warn("Connection not deployed yet...");
+  const connectionReady = await isConnectionReady(config);
+  if (!connectionReady) {
+    context.warn("Connection not ready yet...");
     return;
   }
 
@@ -153,9 +155,9 @@ export async function clearConnection(
   // Initializes the configuration for the current invocation
   const config = initConfig(context);
 
-  const connectionDeployed = await schemaExists(config);
-  if (!connectionDeployed) {
-    context.warn("Connection not deployed yet...");
+  const connectionReady = await isConnectionReady(config);
+  if (!connectionReady) {
+    context.warn("Connection not ready yet...");
     return;
   }
 

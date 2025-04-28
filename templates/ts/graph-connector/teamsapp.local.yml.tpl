@@ -42,4 +42,5 @@ provision:
           CONNECTOR_NAME: ${{CONNECTOR_NAME}}
           CONNECTOR_DESCRIPTION: ${{CONNECTOR_DESCRIPTION}}
           CONNECTOR_REPOS: ${{CONNECTOR_REPOS}}
-          CONNECTOR_ACCESS_TOKEN: ${{SECRET_CONNECTOR_ACCESS_TOKEN}}
+          # Uncomment this line to use GitHub Personal Access Token for authentication
+          # CONNECTOR_ACCESS_TOKEN: ${{SECRET_CONNECTOR_ACCESS_TOKEN}}
