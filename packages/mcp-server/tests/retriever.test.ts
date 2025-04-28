@@ -65,9 +65,11 @@ describe("Retriever", () => {
 
       // Verify that fetch was not called
       expect(global.fetch).not.toHaveBeenCalled();
-      
+
       // Verify the error message
-      expect(result).toBe("RETRIEVER_API_ENDPOINT is not set, set it in your MCP server configuration to use this tool.");
+      expect(result).toBe(
+        "RETRIEVER_API_ENDPOINT is not set, set it in your MCP server configuration to use this tool."
+      );
     });
 
     it("should return an error message if no token is provided", async () => {
