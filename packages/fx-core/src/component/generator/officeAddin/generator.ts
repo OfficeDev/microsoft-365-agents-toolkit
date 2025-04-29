@@ -63,7 +63,7 @@ export class OfficeAddinGenerator {
         );
         if (manifestFile.endsWith(".xml")) {
           // Need to convert to json project first
-          await convertProject(manifestFile, "./backup.zip", "", true);
+          await convertProject(manifestFile, "./backup.zip", addinRoot, true);
           manifestFile = manifestFile.replace(/\.xml$/, ".json");
         }
         inputs[QuestionNames.OfficeAddinHost] = await getHost(manifestFile);
