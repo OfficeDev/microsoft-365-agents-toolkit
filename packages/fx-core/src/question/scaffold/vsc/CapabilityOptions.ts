@@ -517,10 +517,8 @@ export class DACapabilityOptions {
       DACapabilityOptions.noPlugin(),
       DACapabilityOptions.withPlugin(),
       DACapabilityOptions.withGC(),
+      DACapabilityOptions.typeSpec(),
     ];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.TypeSpec)) {
-      items.push(DACapabilityOptions.typeSpec());
-    }
     return items;
   }
 }
