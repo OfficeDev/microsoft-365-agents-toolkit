@@ -20,6 +20,34 @@ describe("CardAction Middleware Tests - Node", () => {
     assert.isTrue(doStuffAction.isInvoked);
   });
 
+  it("onTurn should invoke card action handler if verb is matched - adaptivecard", async () => {
+    const card = {
+      attachments: [
+        {
+          content: {
+            type: "AdaptiveCard",
+            body: [
+              {
+                type: "TextBlock",
+                text: "Hello, test!",
+              },
+            ],
+          },
+          contentType: "application/vnd.microsoft.card.adaptive",
+        },
+      ],
+      refresh: true,
+    };
+    const doStuffAction = new MockCardActionHandler("doStuff", card);
+    const middleware = new CardActionMiddleware([doStuffAction]);
+
+    const testContext = new MockActionInvokeContext("doStuff");
+    await middleware.onTurn(testContext as any, async () => {});
+
+    // Assert the card action handler is invoked
+    assert.isTrue(doStuffAction.isInvoked);
+  });
+
   it("onTurn shouldn't invoke card action handler if verb is not matched", async () => {
     const doStuffAction = new MockCardActionHandler("doStuff", "myResponseMessage");
     const middleware = new CardActionMiddleware([doStuffAction]);

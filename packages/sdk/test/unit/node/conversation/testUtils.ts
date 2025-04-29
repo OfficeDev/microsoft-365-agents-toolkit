@@ -216,6 +216,12 @@ export class MockActionInvokeContext {
       resolve();
     });
   }
+
+  public updateActivity(activity: any): Promise<void> {
+    return new Promise((resolve) => {
+      resolve();
+    });
+  }
 }
 
 export class TestAdapter extends BaseAdapter {

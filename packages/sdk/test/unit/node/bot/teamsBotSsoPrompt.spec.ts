@@ -341,6 +341,28 @@ describe("TeamsBotSsoPrompt Tests - Node", () => {
     });
   });
 
+  it("teams bot sso prompt should throw error with negative timeout", async function () {
+    const adapter: TestAdapter = await initializeTestEnv(-10, true);
+
+    await adapter.send("Hello").catch((error) => {
+      assert.strictEqual(
+        error.message,
+        "value of timeout property in teamsBotSsoPromptSettings should be positive."
+      );
+    });
+  });
+
+  it("teams bot sso prompt should only work in MS Teams Channel", async function () {
+    const adapter: TestAdapter = await initializeTestEnv("abc" as any, true);
+
+    await adapter.send("Hello").catch((error) => {
+      assert.strictEqual(
+        error.message,
+        "type of timeout property in teamsBotSsoPromptSettings should be number."
+      );
+    });
+  });
+
   it("teams bot sso prompt should work with undefined user Principal Name", async function () {
     getMemberStub.restore();
     sandbox.stub(TeamsInfo, "getMember").callsFake(async () => {
