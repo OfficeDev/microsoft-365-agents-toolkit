@@ -15,17 +15,17 @@ dependencies:
     specifier: ^2.14.0
     version: 2.14.0
   '@microsoft/agents-activity':
-    specifier: 0.2.10-g3ac88ff25e
-    version: 0.2.10-g3ac88ff25e
+    specifier: 0.2.14
+    version: 0.2.14
   '@microsoft/agents-hosting':
-    specifier: 0.2.10-g3ac88ff25e
-    version: 0.2.10-g3ac88ff25e(supports-color@9.4.0)
+    specifier: 0.2.14
+    version: 0.2.14(supports-color@9.4.0)
   '@microsoft/agents-hosting-dialogs':
-    specifier: 0.2.10-g3ac88ff25e
-    version: 0.2.10-g3ac88ff25e(supports-color@9.4.0)
+    specifier: 0.2.14
+    version: 0.2.14(supports-color@9.4.0)
   '@microsoft/agents-hosting-teams':
-    specifier: 0.2.10-g3ac88ff25e
-    version: 0.2.10-g3ac88ff25e(supports-color@9.4.0)
+    specifier: 0.2.14
+    version: 0.2.14(supports-color@9.4.0)
   '@microsoft/teams-js':
     specifier: ^2.31.1
     version: 2.31.1(supports-color@9.4.0)
@@ -683,19 +683,19 @@ packages:
       '@jridgewell/sourcemap-codec': 1.5.0
     dev: true
 
-  /@microsoft/agents-activity@0.2.10-g3ac88ff25e:
-    resolution: {integrity: sha512-CINhTCVyVGj+ChZcab8SyZiSNlVITq6C+OYdOByT38X2k3wjIycbbhfoQmIemvBNhO91vS73BaHP3yvae9GjsA==}
+  /@microsoft/agents-activity@0.2.14:
+    resolution: {integrity: sha512-Qhvt0E3D2u8ElFrysqdGRn1YZsTtYfQiw66PehJv92LBTwaJWMCEQBbdXPr2ND6UzzK56cUx4jwZeFhWaCAJ9w==}
     engines: {node: '>=18.0.0'}
     dependencies:
       uuid: 11.1.0
       zod: 3.24.3
     dev: false
 
-  /@microsoft/agents-hosting-dialogs@0.2.10-g3ac88ff25e(supports-color@9.4.0):
-    resolution: {integrity: sha512-BdY5OvdNGxcTV12S+HOkizzPXqSUkzLsJN/5x5dLc6QD4gfakMnBFUJ58AIjHK9fiEB8tWX2M8Pj0H9D3hZpmw==}
+  /@microsoft/agents-hosting-dialogs@0.2.14(supports-color@9.4.0):
+    resolution: {integrity: sha512-IGuF18zmpQ9LkS55NkQR9j9WDp4xyiDRJxpYYdtpZPnxwNu1GHbzgva+bJDkScA3t9cYWEMocEKW0V/Dwe9k4g==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@microsoft/agents-hosting': 0.2.10-g3ac88ff25e(supports-color@9.4.0)
+      '@microsoft/agents-hosting': 0.2.14(supports-color@9.4.0)
       '@microsoft/recognizers-text-choice': 1.3.1
       '@microsoft/recognizers-text-date-time': 1.3.2
       '@microsoft/recognizers-text-number': 1.3.1
@@ -707,20 +707,20 @@ packages:
       - supports-color
     dev: false
 
-  /@microsoft/agents-hosting-teams@0.2.10-g3ac88ff25e(supports-color@9.4.0):
-    resolution: {integrity: sha512-IsAU5pCA8BprdFAe6pVNO0Xf6XTHy9/N2Qu8ODiREc7vvNMQxwjNAcpV5JBBPRT5ZpIWvBoGztZ42T98ayIDXA==}
+  /@microsoft/agents-hosting-teams@0.2.14(supports-color@9.4.0):
+    resolution: {integrity: sha512-fA2M/u5qtpm+jFi5rLDivzs+knkWxYbRThy/LvYknptELQy3ke/P7eXksKMppahM/Or6aG3QVa1OCR7np9NlVw==}
     dependencies:
-      '@microsoft/agents-hosting': 0.2.10-g3ac88ff25e(supports-color@9.4.0)
+      '@microsoft/agents-hosting': 0.2.14(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@microsoft/agents-hosting@0.2.10-g3ac88ff25e(supports-color@9.4.0):
-    resolution: {integrity: sha512-hBgtZPtqbsl2BLh7D5wUyb31e+VmI1rnzp7TqSxr7q5UyBXkZyZZ4Tl64dJs9tehVw6/gkeOXkdQZVnplto5Kg==}
+  /@microsoft/agents-hosting@0.2.14(supports-color@9.4.0):
+    resolution: {integrity: sha512-/Z0j55YCHNzSmxEHGewJu9KcxoVO+G0oSiDa8Xnbm6pU7VaK6FWrIbWYQPpoFkiR/UvTS2IPGuTVswQN0yOWbQ==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@azure/msal-node': 3.5.1
-      '@microsoft/agents-activity': 0.2.10-g3ac88ff25e
+      '@microsoft/agents-activity': 0.2.14
       axios: 1.8.3(debug@4.4.0)
       debug: 4.4.0(supports-color@9.4.0)
       jsonwebtoken: 9.0.2

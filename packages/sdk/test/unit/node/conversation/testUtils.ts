@@ -33,7 +33,8 @@ import {
 } from "../../../../src/conversation/interface";
 import { InvokeResponseFactory } from "../../../../src/conversation/invokeResponseFactory";
 import { TeamsBotSsoPromptTokenResponse } from "../../../../src";
-import { remove } from "@microsoft/teams-js/dist/esm/packages/teams-js/dts/private/hostEntity/tab";
+import assert from "assert";
+import { v4 as uuidv4 } from "uuid";
 
 export class TestTarget implements NotificationTarget {
   public content: any;
@@ -219,6 +220,7 @@ export class MockActionInvokeContext {
 
 export class TestAdapter extends BaseAdapter {
   private logic: (context: TurnContext) => Promise<void>;
+  readonly activeQueue: Partial<Activity>[] = [];
 
   constructor(logic: (context: TurnContext) => Promise<void>) {
     super();
@@ -232,22 +234,19 @@ export class TestAdapter extends BaseAdapter {
   }
 
   public async processActivity(activity: Partial<Activity>): Promise<void> {
-    const conversation = TestAdapter.createConversation(activity.text!);
-    const context = new TurnContext(
-      this as any,
-      {
-        ...activity,
-        conversation: conversation.conversation,
-        user: conversation.user,
-        from: conversation.user,
-        getConversationReference: () => {
-          return {};
-        },
-        removeRecipientMention: () => {
-          return activity.text;
-        },
-      } as any
-    );
+    const conversation = TestAdapter.createConversation(activity.text);
+    const context = new TurnContext(this, {
+      ...activity,
+      conversation: conversation.conversation,
+      user: conversation.user,
+      from: conversation.user,
+      getConversationReference: () => {
+        return {};
+      },
+      removeRecipientMention: () => {
+        return activity.text;
+      },
+    } as any);
     await this.runMiddleware(context, this.logic);
   }
 
@@ -270,10 +269,35 @@ export class TestAdapter extends BaseAdapter {
     context: TurnContext,
     activities: Partial<Activity>[]
   ): Promise<ResourceResponse[]> {
-    const responses: ResourceResponse[] = [];
-    for (let i = 0; i < activities.length; i++) {
-      responses.push({ id: i.toString() });
+    if (!context) {
+      throw new Error("TurnContext cannot be null.");
     }
+
+    if (!activities) {
+      throw new Error("Activities cannot be null.");
+    }
+
+    if (activities.length == 0) {
+      throw new Error("Expecting one or more activities, but the array was empty.");
+    }
+
+    const responses: ResourceResponse[] = [];
+
+    for (let i = 0; i < activities.length; i++) {
+      const activity = activities[i];
+
+      if (!activity.id) {
+        activity.id = uuidv4();
+      }
+
+      if (!activity.timestamp) {
+        activity.timestamp = new Date();
+      }
+      this.activeQueue.push(activity);
+
+      responses.push({ id: activity.id } as ResourceResponse);
+    }
+
     return responses;
   }
 
@@ -292,7 +316,7 @@ export class TestAdapter extends BaseAdapter {
     return {} as NodeJS.ReadableStream;
   }
 
-  static createConversation(name: string, user = "User1", bot = "Bot"): ConversationReference {
+  static createConversation(name = "Hello", user = "User1", bot = "Bot"): ConversationReference {
     const conversationReference: ConversationReference = {
       channelId: Channels.Test,
       serviceUrl: "https://test.com",
@@ -304,6 +328,8 @@ export class TestAdapter extends BaseAdapter {
     return conversationReference;
   }
 }
+
+export type TestActivityInspector = (activity: Partial<Activity>, description?: string) => void;
 
 export class TestFlow {
   private readonly adapter: TestAdapter;
@@ -329,12 +355,80 @@ export class TestFlow {
     expected: string | Partial<Activity> | ((activity: Partial<Activity>) => void),
     description?: string
   ): TestFlow {
+    function validateActivity(activity: Partial<Activity>, expected: Partial<Activity>): void {
+      // tslint:disable-next-line:forin
+      Object.keys(expected).forEach((prop: any) => {
+        assert.equal((<any>activity)[prop], (<any>expected)[prop]);
+      });
+    }
+    function defaultInspector(reply: Partial<Activity>, description2?: string): void {
+      if (typeof expected === "object") {
+        validateActivity(reply, expected);
+      } else {
+        assert.equal(
+          reply.type,
+          ActivityTypes.Message,
+          `${description2} type === '${reply.type}'. `
+        );
+        assert.equal(reply.text, expected, `${description2} text === "${reply.text}"`);
+      }
+    }
+    if (!description) {
+      description = "";
+    }
+    const inspector: TestActivityInspector =
+      typeof expected === "function" ? expected : defaultInspector;
     return new TestFlow(
       this.adapter,
-      this.previous.then(async () => {
-        if (typeof expected === "function") {
-          expected({} as Activity);
-        }
+      this.previous.then(() => {
+        let timeout: number | undefined;
+        // tslint:disable-next-line:promise-must-complete
+        return new Promise<void>((resolve: any, reject: any): void => {
+          if (!timeout) {
+            timeout = 3000;
+          }
+          const start: number = new Date().getTime();
+          const adapter: TestAdapter = this.adapter;
+
+          function waitForActivity(): void {
+            const current: number = new Date().getTime();
+            if (current - start > <number>timeout) {
+              // Operation timed out
+              let expecting: string;
+              switch (typeof expected) {
+                case "string":
+                default:
+                  expecting = `"${expected.toString()}"`;
+                  break;
+                case "object":
+                  expecting = `"${(expected as Activity).text}`;
+                  break;
+                case "function":
+                  expecting = expected.toString();
+                  break;
+              }
+              reject(
+                new Error(
+                  `TestAdapter.assertReply(${expecting}): ${description} Timed out after ${
+                    current - start
+                  }ms.`
+                )
+              );
+            } else if (adapter.activeQueue.length > 0) {
+              // Activity received
+              const reply: Partial<Activity> = adapter.activeQueue.shift() as Activity;
+              try {
+                inspector(reply, description as string);
+              } catch (err) {
+                reject(err);
+              }
+              resolve();
+            } else {
+              setTimeout(waitForActivity, 5);
+            }
+          }
+          waitForActivity();
+        });
       })
     );
   }
