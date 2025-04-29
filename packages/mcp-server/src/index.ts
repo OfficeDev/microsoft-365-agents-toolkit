@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
