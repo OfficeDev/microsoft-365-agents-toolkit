@@ -17,33 +17,33 @@ const downloader = new AttachmentDownloader();
 
 // Define storage and application
 const storage = new MemoryStorage();
-export const agentApp = new AgentApplication<ApplicationTurnState>({
+export const teamsBot = new AgentApplication<ApplicationTurnState>({
   storage,
   fileDownloaders: [downloader],
 });
 
 // Listen for user to say '/reset' and then delete conversation state
-agentApp.message("/reset", async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.message("/reset", async (context: TurnContext, state: ApplicationTurnState) => {
   state.deleteConversationState();
   await context.sendActivity("Ok I've deleted the current conversation state.");
 });
 
-agentApp.message("/count", async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.message("/count", async (context: TurnContext, state: ApplicationTurnState) => {
   const count = state.conversation.count ?? 0;
   await context.sendActivity(`The count is ${count}`);
 });
 
-agentApp.message("/diag", async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.message("/diag", async (context: TurnContext, state: ApplicationTurnState) => {
   await state.load(context, storage);
   await context.sendActivity(JSON.stringify(context.activity));
 });
 
-agentApp.message("/state", async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.message("/state", async (context: TurnContext, state: ApplicationTurnState) => {
   await state.load(context, storage);
   await context.sendActivity(JSON.stringify(state));
 });
 
-agentApp.message("/runtime", async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.message("/runtime", async (context: TurnContext, state: ApplicationTurnState) => {
   const runtime = {
     nodeversion: process.version,
     sdkversion: version,
@@ -51,7 +51,7 @@ agentApp.message("/runtime", async (context: TurnContext, state: ApplicationTurn
   await context.sendActivity(JSON.stringify(runtime));
 });
 
-agentApp.conversationUpdate(
+teamsBot.conversationUpdate(
   "membersAdded",
   async (context: TurnContext, state: ApplicationTurnState) => {
     await context.sendActivity(
@@ -61,7 +61,7 @@ agentApp.conversationUpdate(
 );
 
 // Listen for ANY message to be received. MUST BE AFTER ANY OTHER MESSAGE HANDLERS
-agentApp.activity(
+teamsBot.activity(
   ActivityTypes.Message,
   async (context: TurnContext, state: ApplicationTurnState) => {
     // Increment count state
@@ -73,11 +73,11 @@ agentApp.activity(
   }
 );
 
-agentApp.activity(/^message/, async (context: TurnContext, state: ApplicationTurnState) => {
+teamsBot.activity(/^message/, async (context: TurnContext, state: ApplicationTurnState) => {
   await context.sendActivity(`Matched with regex: ${context.activity.type}`);
 });
 
-agentApp.activity(
+teamsBot.activity(
   async (context: TurnContext) => Promise.resolve(context.activity.type === "message"),
   async (context, state) => {
     await context.sendActivity(`Matched function: ${context.activity.type}`);

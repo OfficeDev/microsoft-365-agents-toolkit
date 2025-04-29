@@ -6,7 +6,7 @@ const express = require("express");
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { authorizeJWT, CloudAdapter, loadAuthConfigFromEnv } = require("@microsoft/agents-hosting");
-const { agentApp } = require("./agent");
+const { teamsBot } = require("./teamsBot");
 
 // Create authentication configuration
 const authConfig = loadAuthConfigFromEnv();
@@ -37,14 +37,14 @@ expressApp.use(authorizeJWT(authConfig));
 const port = process.env.port || process.env.PORT || 3978;
 const server = expressApp.listen(port, () => {
   console.log(
-    `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+    `Bot Started, listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
   );
 });
 
 // Listen for incoming requests.
 expressApp.post("/api/messages", async (req, res) => {
   await adapter.process(req, res, async (context) => {
-    await agentApp.run(context);
+    await teamsBot.run(context);
   });
 });
 

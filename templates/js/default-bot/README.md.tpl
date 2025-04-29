@@ -1,12 +1,12 @@
 # Overview of the Basic Bot template
 
-Examples of Microsoft 365 Agents in everyday use include:
+Examples of Microsoft Teams bots in everyday use include:
 
-- Agents that notify about build failures.
-- Agents that provide information about the weather or bus schedules.
-- Agents that provide travel information.
+- Bots that notify about build failures.
+- Bots that provide information about the weather or bus schedules.
+- Bots that provide travel information.
 
-An agent interaction can be a quick question and answer, or it can be a complex conversation. Being a cloud application, an agent can provide valuable and secure access to cloud services and corporate resources.
+A bot interaction can be a quick question and answer, or it can be a complex conversation. Being a cloud application, a bot can provide valuable and secure access to cloud services and corporate resources.
 
 ## Get started with the Basic Bot template
 
@@ -57,7 +57,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`agent.js`| Handles business logics for the echo bot.|
+|`teamsBot.js`| Handles business logics for the echo bot.|
 |`index.js`|`index.js` is used to setup and configure the echo bot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
