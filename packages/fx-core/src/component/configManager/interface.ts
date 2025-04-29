@@ -13,6 +13,18 @@ export type AdditionalMetadata = {
   [key: string]: unknown;
 };
 
+export interface GraphPermission {
+  hasGraphPermission: boolean;
+  hasRole: boolean;
+  hasAdminScope: boolean;
+  scopes: string[];
+  roles: string[];
+}
+
+export interface AadPermission {
+  graphPermission: GraphPermission;
+}
+
 export type RawProjectModel = {
   registerApp?: DriverDefinition[];
   provision?: DriverDefinition[];
@@ -35,6 +47,7 @@ export type ProjectModel = {
   environmentFolderPath?: string;
   version: string;
   additionalMetadata?: AdditionalMetadata;
+  aadPermission?: AadPermission;
 };
 
 export type DriverDefinition = {
