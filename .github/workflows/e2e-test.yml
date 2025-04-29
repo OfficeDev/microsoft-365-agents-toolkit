@@ -54,17 +54,20 @@ jobs:
       contents: read
     outputs:
       cases: ${{ steps.schedule-cases.outputs.cases || steps.dispatch-cases.outputs.cases || steps.pr-cases.outputs.cases }}
+      M365_ACCOUNT_NAME: ${{ steps.set-m365-account.outputs.M365_ACCOUNT_NAME }}
     env:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_USER_OBJECT_ID }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_USERNAME: "test14@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
-      M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME_2 }}
       AUTO_TEST_PLAN_ID: ${{ github.event.inputs.target-testplan-id }}
     steps:
       - name: Checkout
@@ -78,6 +81,16 @@ jobs:
 
       - name: setup project
         uses: ./.github/actions/setup-project
+
+      - name: Set m365 account
+        id: set-m365-account
+        run: |
+          users=("${{ env.M365_USERNAME }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_OUTPUT
 
       - name: List cases for schedule
         id: schedule-cases
@@ -131,7 +144,6 @@ jobs:
           path: |
             ./packages/tests/testplan.json
 
-
   execute-case:
     if: ${{ needs.setup.outputs.cases }}
     env:
@@ -140,7 +152,7 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_ACCOUNT_NAME: ${{ needs.setup.outputs.M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
@@ -322,7 +334,7 @@ jobs:
           npx ts-node src/scripts/testPlan.ts report ./testplan.json src/e2e/mochawesome-report
 
   tear-down:
-    needs: [execute-case, e2e-coverage]
+    needs: [execute-case, e2e-coverage, setup]
     if: ${{always() && (toJSON(needs.execute-case.outputs.cases) != 'null' || needs.e2e-coverage.result != 'skipped' )}}
     runs-on: ubuntu-latest
     env:
@@ -331,7 +343,7 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_ACCOUNT_NAME: ${{ needs.setup.outputs.M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
@@ -549,6 +561,7 @@ jobs:
   e2e-coverage:
     if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'true' }}
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -599,11 +612,10 @@ jobs:
           AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-          M365_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          M365_TENANT_ID: ${{ secrets.TEST_TENANT_ID_2 }}
+          M365_ACCOUNT_NAME: ${{ needs.setup.outputs.M365_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+          M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
           CI_ENABLED: "true"
-          M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME }}
           TEAMSFX_DEBUG_TEMPLATE: "true"
           NODE_ENV: "development"
           TEAMSFX_AAD_DEPLOY_ONLY: "true"

@@ -35,7 +35,6 @@ export class FeatureFlagName {
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
   static readonly ShareEnabled = "TEAMSFX_SHARE";
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
-  static readonly TypeSpec = "TEAMSFX_TYPESPEC";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
 }
@@ -119,10 +118,6 @@ export class FeatureFlags {
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,
-    defaultValue: "false",
-  };
-  static readonly TypeSpec = {
-    name: FeatureFlagName.TypeSpec,
     defaultValue: "false",
   };
   static readonly SandBoxedTeam = {

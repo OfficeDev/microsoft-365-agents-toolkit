@@ -31,7 +31,7 @@
     "@azure/identity": "^3.3.0",
     "@microsoft/microsoft-graph-client": "^3.0.6",
     "@microsoft/microsoft-graph-types": "^2.40.0",
-    "@types/node": "18.x",
+    "@types/node": "^18.0.0",
     "azure-functions-core-tools": "^4.0.5907",
     "azurite": "^3.29.0",
     "minimist": "^1.2.8",

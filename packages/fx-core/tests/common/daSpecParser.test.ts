@@ -45,12 +45,13 @@ describe("daSpecParser", () => {
   });
 
   describe("listAPIInfo with KiotaNPMIntegration enabled", () => {
-    it("should return empty result when treeInfo is undefined", async () => {
-      listAPITreeInfoStub.resolves(undefined);
+    it("should return empty result when treeInfo is {}", async () => {
+      listAPITreeInfoStub.resolves({});
 
       const result = await daSpecParser.listAPIInfo("path/to/spec");
 
       assert.deepEqual(result, {
+        specVersion: undefined,
         allAPICount: 0,
         validAPICount: 0,
         APIs: [],
@@ -63,6 +64,7 @@ describe("daSpecParser", () => {
       const result = await daSpecParser.listAPIInfo("path/to/spec");
 
       assert.deepEqual(result, {
+        specVersion: undefined,
         allAPICount: 0,
         validAPICount: 0,
         APIs: [],
@@ -826,7 +828,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
-        specVersion: OpenApiSpecVersion.V3_0,
+        specVersion: OpenApiSpecVersion.V2_0,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -843,7 +845,8 @@ describe("daSpecParser", () => {
 
       assert.equal(result.status, ValidationStatus.Valid);
       assert.isEmpty(result.errors);
-      assert.isEmpty(result.warnings);
+      assert.isTrue(result.warnings.length === 1);
+      assert.isTrue(result.warnings[0].type === WarningType.ConvertSwaggerToOpenAPI);
 
       const expectedHash = require("crypto")
         .createHash("sha256")

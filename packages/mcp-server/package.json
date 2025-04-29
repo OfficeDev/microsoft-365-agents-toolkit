@@ -1,6 +1,9 @@
 {
   "name": "@microsoft/m365agentstoolkit-mcp",
   "version": "0.1.0-alpha",
+  "bin": {
+    "m365agentstoolkit-mcp": "./dist/index.js"
+  },
   "scripts": {
     "build": "npm run build:prod",
     "build:dev": "webpack --mode development",

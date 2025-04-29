@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { AppPackageFolderName, ManifestTemplateFileName, Warning } from "@microsoft/teamsfx-api";
+import {
+  AppPackageFolderName,
+  DefaultApiSpecFolderName,
+  DefaultApiSpecYamlFileName,
+  DefaultPluginManifestFileName,
+  ManifestTemplateFileName,
+  Warning,
+} from "@microsoft/teamsfx-api";
 import {
   assembleError,
   featureFlagManager,
@@ -195,6 +202,14 @@ export async function ShowScaffoldingWarningSummary(
           teamsManifest,
           path.join(AppPackageFolderName, teamsManifest.composeExtensions![0].apiSpecificationFile),
           undefined,
+          workspacePath
+        );
+      } else if (commonProperties.capabilities.includes("copilotGpt")) {
+        message = await generateScaffoldingSummary(
+          createWarnings,
+          teamsManifest,
+          path.join(AppPackageFolderName, DefaultApiSpecFolderName, DefaultApiSpecYamlFileName),
+          path.join(AppPackageFolderName, DefaultPluginManifestFileName),
           workspacePath
         );
       } else {

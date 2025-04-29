@@ -3,10 +3,10 @@ import { getClient } from "./graphClient";
 import { ExternalConnectors } from "@microsoft/microsoft-graph-types";
 import { Config } from "./models/Config";
 import { getAllItems } from "./services/itemsService";
+import { schemaExists } from "./schema";
 
 const timeout = 600_000; // 10 minutes
 const retryInterval = 15_000; // 15 seconds
-const initialTimestamp = Date.now();
 let consentRequested = false;
 let client = getClient();
 
@@ -81,7 +81,7 @@ export async function connectionExists(config: Config): Promise<boolean> {
  * Ensures that the connection exists in Microsoft Graph.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function ensureConnection(config: Config): Promise<boolean> {
+export async function ensureConnection(config: Config, initialTimestamp: number): Promise<boolean> {
   try {
     // If time elapsed is less than 10 minutes, try again
     if (Date.now() - initialTimestamp <= timeout) {
@@ -114,11 +114,39 @@ export async function ensureConnection(config: Config): Promise<boolean> {
       }
 
       await delay(retryInterval);
-      return await ensureConnection(config);
+      return await ensureConnection(config, initialTimestamp);
     } else {
       config.context.error(e);
     }
 
+    return false;
+  }
+}
+
+/**
+ * Checks if the connection is ready.
+ * @param config - The configuration object.
+ * @returns A boolean indicating if the connection is ready.
+ */
+export async function isConnectionReady(config: Config): Promise<boolean> {
+  try {
+    client = getClient();
+    const connection = await getConnection(config);
+    if (connection.state && connection.state !== "ready") {
+      config.context.log(`Connection ${config.connector.id} is not ready`);
+      return false;
+    }
+    config.context.log(`Connection ${config.connector.id} is ready`);
+
+    const schemaIsDeployed = await schemaExists(config);
+    if (!schemaIsDeployed) {
+      config.context.log(`Schema is not deployed`);
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    config.context.error(`Error checking connection ${config.connector.id}: ${e}`);
     return false;
   }
 }
@@ -149,7 +177,7 @@ export async function clearConnectionItems(config: Config): Promise<boolean> {
  * Ensures that the connection exists in Microsoft Graph.
  * @returns A boolean indicating if the connection was successfully created or already exists.
  */
-export async function deleteConnection(config: Config): Promise<boolean> {
+export async function deleteConnection(config: Config, initialTimestamp: number): Promise<boolean> {
   try {
     if (Date.now() - initialTimestamp <= timeout) {
       client = getClient();
@@ -187,7 +215,7 @@ export async function deleteConnection(config: Config): Promise<boolean> {
       }
 
       await delay(retryInterval);
-      return await deleteConnection(config);
+      return await deleteConnection(config, initialTimestamp);
     } else {
       config.context.error(e);
     }
