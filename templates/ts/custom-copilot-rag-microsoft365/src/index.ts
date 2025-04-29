@@ -5,16 +5,16 @@ import express from "express";
 import adapter from "./adapter";
 
 // This bot's main dialog.
-import app from "./app/app";
 import path from "path";
 import send from "send";
+import app from "./app/app";
 
 // Create express application.
 const expressApp = express();
 expressApp.use(express.json());
 
 const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
+  console.log(`\nAgent started, ${expressApp.name} listening to`, server.address());
 });
 
 // Listen for incoming requests.
