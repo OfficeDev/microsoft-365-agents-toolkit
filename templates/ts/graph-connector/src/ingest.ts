@@ -6,7 +6,6 @@ import { getExternalItemFromItem } from "./custom/getExternalItemFromItem";
 
 const client = getClient();
 
-
 /**
  * Loads the content into the Graph API.
  * @param config - The configuration object.
