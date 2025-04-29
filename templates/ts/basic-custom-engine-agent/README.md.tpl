@@ -36,7 +36,7 @@ It showcases an agent that responds to user questions like ChatGPT. This enables
 
 **Congratulations**! You are running an agent that can now interact with users in Microsoft 365 Agents Playground:
 
-![Basic AI Agent](https://github.com/OfficeDev/TeamsFx/assets/9698542/9bd22201-8fda-4252-a0b3-79531c963e5e)
+![Basic AI Agent](https://github.com/user-attachments/assets/984af126-222b-4c98-9578-0744790b103a)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.

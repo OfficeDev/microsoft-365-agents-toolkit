@@ -71,7 +71,7 @@ Before running or debugging your bot, please follow these steps to setup your ow
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![ai assistant bot in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/15644078/90868166-115b-4394-a0d2-272bd985d0aa)
+![ai assistant bot in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/2618217b-1adc-48cc-ae6e-d411369e4deb)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.

@@ -34,7 +34,7 @@ This app template also demonstrates usage of techniques like:
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![RAG Bot](https://github.com/OfficeDev/TeamsFx/assets/13211513/f56e7602-a5d3-436a-ae01-78546d61717d)
+![RAG Bot](https://github.com/user-attachments/assets/464fe1b0-d8c6-4ecf-a410-8dde7d9ca9b3)
 
 ## What's included in the template
 

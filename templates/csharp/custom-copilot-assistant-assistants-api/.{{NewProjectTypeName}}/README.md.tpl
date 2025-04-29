@@ -72,7 +72,7 @@ The app template is built using the Teams AI library, which provides the capabil
 1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your agent to trigger a response.
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![AI Agent in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
+![AI Agent in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/79841a5c-58fb-44c0-ac60-5dbd1d7bb2cc)
 
 ### Debug agent in Teams Web Client
 
