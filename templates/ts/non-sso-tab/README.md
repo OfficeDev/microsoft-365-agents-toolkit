@@ -36,7 +36,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                             | Contents                                                                                                        |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `src/static/scripts/teamsapp.ts` | A script that calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running. |
+| `src/static/scripts/m365agents.ts` | A script that calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running. |
 | `src/static/styles/custom.css`   | css file for the app.                                                                                           |
 | `src/static/views/hello.html`    | html file for the app.                                                                                          |
 | `src/app.ts`                     | Starting an `express` server.                                                                                   |
