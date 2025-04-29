@@ -7,8 +7,8 @@
 
 Microsoft 365 Agents Toolkit for Visual Studio, Visual Studio Code, and Command Line Interface (CLI) are tools for building agents or apps for Microsoft 365 Copilot, Microsoft Teams and Microsoft 365 easy and fast. Whether you are new or a seasoned developer, Microsoft 365 Agents Toolkit is the best way for you to start creating, building, debuging, testing, and deploying.
 
-[WIP to replace this pic]
-<img width="1350" alt="MicrosoftTeams-image" src="./docs/images/vscode-extension/slogan.jpg">
+<img width="2405" alt="DarkBg_Slogan_250429" src="https://github.com/user-attachments/assets/84fa9339-cc14-43fc-bef2-22fc8513e57c" />
+
 
 Microsoft 365 Agents Toolkit provides support for the end-to-end development journey, including:
 
