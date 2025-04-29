@@ -1,6 +1,7 @@
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 const TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
 
 is_production = process.argv[process.argv.indexOf("--mode") + 1] === "production";
 console.log("is_production: ", is_production);
@@ -28,6 +29,7 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     clean: true,
   },
+  plugins: [new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true })],
   optimization: {
     minimize: is_production,
     minimizer: [
