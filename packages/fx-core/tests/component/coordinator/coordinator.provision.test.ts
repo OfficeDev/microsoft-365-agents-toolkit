@@ -38,6 +38,7 @@ import { UserCancelError } from "../../../src/error/common";
 import { MockTools, randomAppName } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import { showAadResourceLink } from "../../../src/component/coordinator";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -1079,6 +1080,10 @@ describe("coordinator provision", () => {
             with: undefined,
           },
           {
+            uses: "aadApp/update",
+            with: undefined,
+          },
+          {
             uses: "teamsApp/create",
             with: undefined,
           },
@@ -1695,5 +1700,28 @@ describe("coordinator provision", () => {
     const fxCore = new FxCore(tools);
     const res = await fxCore.provisionResources(inputs);
     assert.isTrue(res.isErr());
+  });
+
+  it("provision showAadResourceLink", async () => {
+    const mockProjectModel = {
+      aadPermission: {
+        graphPermission: {
+          hasGraphPermission: true,
+          hasRole: true,
+          hasAdminScope: true,
+          scopes: ["scope1", "scope2"],
+          roles: ["role1", "role2"],
+        },
+      },
+    } as ProjectModel;
+    const ctx = tools as unknown as DriverContext;
+    showAadResourceLink(ctx, false, mockProjectModel);
+    showAadResourceLink(ctx, true, mockProjectModel);
+    process.env.AAD_APP_CLIENT_ID = "1";
+    showAadResourceLink(ctx, true, mockProjectModel);
+    mockProjectModel.aadPermission?.graphPermission.roles.push(
+      "ExternalConnection.ReadWrite.OwnedBy"
+    );
+    showAadResourceLink(ctx, true, mockProjectModel);
   });
 });
