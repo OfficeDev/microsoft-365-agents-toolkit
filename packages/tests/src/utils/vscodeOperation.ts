@@ -874,9 +874,9 @@ export async function createNewProject(
       break;
     }
     case "aichat": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick(CreateProjectQuestion.BasicCustomEngineAgent);
+      await input.selectQuickPick(CreateProjectQuestion.BasicAgentForTeams);
       await driver.sleep(Timeout.input);
       // Choose ai type
       await input.setText(aiType);

@@ -535,7 +535,7 @@ export class ValidationContent {
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =
     "I'm an assistant bot. How can I help you today?";
-  static readonly AiBotErrorMessage = "The bot encountered an error or bug";
+  static readonly AiBotErrorMessage = "The agent encountered an error or bug";
   static readonly AiBotErrorMessage2 = "An AI request failed";
   static readonly AiBotMeetingMessage = "Team Meeting";
 }
