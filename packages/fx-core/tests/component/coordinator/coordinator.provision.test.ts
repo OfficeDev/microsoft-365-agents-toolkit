@@ -1717,11 +1717,10 @@ describe("coordinator provision", () => {
     const ctx = tools as unknown as DriverContext;
     showAadResourceLink(ctx, false, mockProjectModel);
     showAadResourceLink(ctx, true, mockProjectModel);
-    process.env.AAD_APP_CLIENT_ID = "1";
-    showAadResourceLink(ctx, true, mockProjectModel);
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
     mockProjectModel.aadPermission?.graphPermission.roles.push(
       "ExternalConnection.ReadWrite.OwnedBy"
     );
-    showAadResourceLink(ctx, true, mockProjectModel);
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
   });
 });

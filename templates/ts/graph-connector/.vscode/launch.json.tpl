@@ -47,7 +47,7 @@
     ],
     "compounds": [
         {
-            "name": "Debug Connector",
+            "name": "Debug Copilot Connector",
             "configurations": ["Attach to Node Functions"],
             "preLaunchTask": "TTK",
             "presentation": {

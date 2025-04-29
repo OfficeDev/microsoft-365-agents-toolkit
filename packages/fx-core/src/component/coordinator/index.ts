@@ -623,7 +623,7 @@ class Coordinator {
             ctx.ui?.openUrl(url);
           }
         });
-        showAadResourceLink(ctx, containsUpdateAad, projectModel);
+        showAadResourceLink(ctx, containsUpdateAad, projectModel, process.env.AAD_APP_CLIENT_ID);
       } else {
         if (url && ctx.platform === Platform.CLI) {
           ctx.ui?.showMessage(
@@ -915,10 +915,10 @@ export const coordinator = new Coordinator();
 export function showAadResourceLink(
   ctx: DriverContext,
   isAadUpdateAction: boolean,
-  projectModel: ProjectModel
+  projectModel: ProjectModel,
+  clientId?: string
 ): void {
   const gcPermission = "ExternalConnection.ReadWrite.OwnedBy";
-  const clientId = process.env.AAD_APP_CLIENT_ID;
   if (
     isAadUpdateAction &&
     clientId &&
