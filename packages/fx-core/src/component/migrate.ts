@@ -5,7 +5,6 @@ import { pathExistsSync } from "fs-extra";
 import { cloneDeep } from "lodash";
 import { join } from "path";
 import { isVSProject } from "../common/projectSettingsHelper";
-import { CapabilityOptions } from "../question/constants";
 
 export const ComponentNames = {
   TeamsTab: "teams-tab",
@@ -124,7 +123,7 @@ export function convertProjectSettingsV2ToV3(settingsV2: any, projectPath: strin
       const hostType = settingsV2.pluginSettings?.["fx-resource-bot"]?.["host-type"];
       let botCapabilities = settingsV2.pluginSettings?.["fx-resource-bot"]?.["capabilities"];
       if (
-        solutionSettings.capabilities.includes(CapabilityOptions.me().id) &&
+        solutionSettings.capabilities.includes("message-extension") &&
         !botCapabilities?.includes("message-extension")
       ) {
         botCapabilities = botCapabilities || [];

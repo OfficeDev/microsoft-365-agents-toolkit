@@ -18,7 +18,7 @@ describe("account command", function () {
     `auth login help support tenant parameter`,
     { testPlanCaseId: 30431027, author: "huihuiwu@microsoft.com" },
     async function () {
-      stdlog = await execAsync(`teamsapp auth login m365 -h`, {
+      stdlog = await execAsync(`atk auth login m365 -h`, {
         env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
         timeout: 0,
       });
@@ -32,7 +32,7 @@ describe("account command", function () {
     `auth login to specified tenant`,
     { testPlanCaseId: 30430995, author: "huihuiwu@microsoft.com" },
     async function () {
-      stdlog = await execAsync(`teamsapp auth login m365`, {
+      stdlog = await execAsync(`atk auth login m365`, {
         env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
         timeout: 0,
       });
@@ -46,7 +46,7 @@ describe("account command", function () {
     `auth list`,
     { testPlanCaseId: 15232246, author: "zhiyou@microsoft.com" },
     async function () {
-      stdlog = await execAsync(`teamsapp auth list`, {
+      stdlog = await execAsync(`atk auth list`, {
         env: { ...process.env, TEAMSFX_MULTI_TENANT: "true" },
         timeout: 0,
       });
@@ -60,7 +60,7 @@ describe("account command", function () {
     `auth logout`,
     { testPlanCaseId: 15232255, author: "zhiyou@microsoft.com" },
     async function () {
-      stdlog = await execAsync(`teamsapp auth logout azure`, {
+      stdlog = await execAsync(`atk auth logout azure`, {
         env: process.env,
         timeout: 0,
       });

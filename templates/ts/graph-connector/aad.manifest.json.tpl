@@ -1,9 +1,13 @@
 {
   "id": "${{AAD_APP_OBJECT_ID}}",
   "appId": "${{AAD_APP_CLIENT_ID}}",
-  "name": "{{appName}}-${{TEAMSFX_ENV}}",
-  "accessTokenAcceptedVersion": 2,
+  "displayName": "{{appName}}-${{TEAMSFX_ENV}}",
   "signInAudience": "AzureADMyOrg",
+  "api": {
+    "requestedAccessTokenVersion": 2
+  },
+  "info": {},
+  "publicClient": {},
   "requiredResourceAccess": [
     {
       "resourceAppId": "Microsoft Graph",
@@ -18,5 +22,9 @@
         }
       ]
     }
-  ]
+  ],
+  "web": {
+    "implicitGrantSettings": {}
+  },
+  "spa": {}
 }

@@ -19,11 +19,11 @@ export const validateCommand: CLICommand = {
   examples: [
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} validate --app-package-file ./appPackage/build/appPackage.dev.zip`,
-      description: "Validate the Microsoft 365 App package.",
+      description: "Validate the app package.",
     },
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} validate --teams-manifest-file ./appPackage/manifest.json --env dev`,
-      description: "Validate the Microsoft 365 App manifest using its schema.",
+      description: "Validate the app manifest using its schema.",
     },
   ],
   defaultInteractiveOption: false,

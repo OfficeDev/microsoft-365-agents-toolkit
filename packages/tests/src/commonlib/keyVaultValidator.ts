@@ -3,7 +3,7 @@
 
 import MockAzureAccountProvider, {
   AzureAccountProviderUserPassword,
-} from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
+} from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import { AzureScopes } from "@microsoft/teamsfx-core";
 import axios from "axios";
 import * as chai from "chai";

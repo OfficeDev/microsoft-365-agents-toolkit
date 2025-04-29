@@ -149,7 +149,7 @@ export default class SampleDetailPage extends React.Component<SampleProps, Sampl
   private getBanner = () => {
     let message = "Coming soon";
     if (this.props.sample.versionComparisonResult < 0) {
-      message = `This sample is upgraded to only work with newer version of Teams Toolkit, please install v${this.props.sample.minimumToolkitVersion} to run it.`;
+      message = `This sample is upgraded to only work with newer version of Microsoft 365 Agents Toolkit, please install v${this.props.sample.minimumToolkitVersion} to run it.`;
     }
     return (
       <div className="upgrade-banner">
@@ -163,7 +163,7 @@ export default class SampleDetailPage extends React.Component<SampleProps, Sampl
               this.props.upgradeToolkit(this.props.sample, TelemetryTriggerFrom.SampleDetailPage)
             }
           >
-            Upgrade Teams Toolkit
+            Upgrade Microsoft 365 Agents Toolkit
           </VSCodeButton>
         )}
       </div>

@@ -13,7 +13,8 @@ import {
   PluginManifestSchema,
   UserError,
   signedIn,
-  DeclarativeCopilotManifestSchema,
+  DeclarativeAgentManifest,
+  signedOut,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -28,15 +29,12 @@ import { DeclarativeAgentGenerator } from "../../../src/component/generator/decl
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as commons from "../../../src/component/utils/common";
-import {
-  ActionStartOptions,
-  ApiAuthOptions,
-  CapabilityOptions,
-  QuestionNames,
-} from "../../../src/question";
+import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
 import { MockLogProvider, MockTools } from "../../core/utils";
-import { graphAPIClient } from "../../../src/client/graphAPIClient";
+import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
+import * as utils from "../../../src/component/generator/utils";
+import { DACapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 
 describe("copilotExtension", async () => {
   setTools(new MockTools());
@@ -55,7 +53,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -101,7 +99,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.newApi().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromScratch,
         [QuestionNames.ApiAuth]: ApiAuthOptions.none().id,
@@ -136,11 +134,12 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
 
+      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
@@ -165,7 +164,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
@@ -173,6 +172,7 @@ describe("copilotExtension", async () => {
       const logStub = sandbox.stub(MockLogProvider.prototype, "info").resolves();
       // mock sensitivity label feature flag
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
@@ -200,7 +200,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
         [QuestionNames.AppName]: "app",
       };
@@ -218,7 +218,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "app",
       };
@@ -237,7 +237,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.AppName]: "app",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
@@ -259,7 +259,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -277,7 +277,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -295,7 +295,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VS,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -313,7 +313,7 @@ describe("copilotExtension", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentBasic,
         [QuestionNames.AppName]: "app",
       };
@@ -327,7 +327,6 @@ describe("copilotExtension", async () => {
   });
 
   describe("setGeneralSensitivityLabel", async () => {
-    const generator = new DeclarativeAgentGenerator();
     const context = createContext();
     const manifestPath = "test/manifest.json";
 
@@ -341,21 +340,23 @@ describe("copilotExtension", async () => {
             token: "fake-token",
           })
         );
-      const getLabelStub = sandbox
-        .stub(graphAPIClient, "getGeneralSentivityLabelId")
-        .resolves(ok("label-id"));
+      const getLabelStub = sandbox.stub(GraphClient.prototype, "getGeneralSentivityLabel").resolves(
+        ok({
+          id: "label-id",
+        })
+      );
       const DAManifest = {
         name: "test",
         description: "test description",
-      } as DeclarativeCopilotManifestSchema;
+      } as DeclarativeAgentManifest;
       const readStub = sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-        .resolves(ok(DAManifest));
+        .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
+        .resolves(ok(DAManifest as any));
       const writeStub = sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(ok(undefined));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(tokenStub.calledOnce);
       assert.isTrue(getLabelStub.calledOnceWith("fake-token"));
@@ -364,11 +365,13 @@ describe("copilotExtension", async () => {
       assert.deepEqual(writeStub.firstCall.args[0], {
         name: "test",
         description: "test description",
-        sensitivity_label: "label-id",
-      });
+        sensitivity_label: {
+          id: "label-id",
+        },
+      } as any);
       assert.equal(writeStub.firstCall.args[1], manifestPath);
       assert.isFalse(infoStub.called);
-      assert.isTrue(DAManifest.sensitivity_label === "label-id");
+      assert.isTrue(DAManifest.sensitivity_label.id === "label-id");
     });
 
     it("token provider error", async () => {
@@ -377,14 +380,14 @@ describe("copilotExtension", async () => {
         .stub(context.tokenProvider!.m365TokenProvider, "getStatus")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.tokenProvider = undefined;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -392,21 +395,27 @@ describe("copilotExtension", async () => {
       const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
         ok({
-          status: "notSignedIn",
+          status: signedOut,
           token: undefined,
         })
       );
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
-
-      assert.isTrue(infoStub.calledOnce);
-
-      const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
-
+    it("not signed in  - no logger", async () => {
+      const contextWithoutProvider = createContext() as any;
+      const infoStub = sandbox.stub(contextWithoutProvider.logProvider, "info");
+      sandbox.stub(contextWithoutProvider.tokenProvider!.m365TokenProvider, "getStatus").resolves(
+        ok({
+          status: signedOut,
+          token: undefined,
+        })
+      );
+      contextWithoutProvider.logProvider = undefined;
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      assert.isFalse(infoStub.calledOnce);
+    });
     it("token undefined", async () => {
       const infoStub = sandbox.stub(context.logProvider, "info");
       sandbox.stub(context.tokenProvider!.m365TokenProvider, "getStatus").resolves(
@@ -416,13 +425,13 @@ describe("copilotExtension", async () => {
         })
       );
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -435,16 +444,16 @@ describe("copilotExtension", async () => {
         })
       );
       sandbox
-        .stub(graphAPIClient, "getGeneralSentivityLabelId")
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -456,18 +465,20 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
       sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
+        .resolves(ok({ id: "label-id" }));
+      sandbox
+        .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
 
@@ -479,24 +490,26 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      sandbox.stub(graphAPIClient, "getGeneralSentivityLabelId").resolves(ok("label-id"));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+      sandbox
+        .stub(GraphClient.prototype, "getGeneralSentivityLabel")
+        .resolves(ok({ id: "label-id" }));
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
         ok({
           name: "test",
           description: "test description",
-        })
+        } as any)
       );
       sandbox
-        .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+        .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
         .resolves(err(new UserError("source", "name", "message")));
 
-      await generator.setGeneralSensitivityLabel(context, manifestPath);
+      await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
 
       const contextWithoutProvider = createContext() as any;
       contextWithoutProvider.logProvider = undefined;
-      await generator.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
+      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
       assert.isTrue(infoStub.calledOnce);
     });
   });

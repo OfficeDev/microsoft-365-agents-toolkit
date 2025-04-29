@@ -12,13 +12,13 @@ This is a simple hello world application with both Bot and Message extension cap
 
 - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 - An M365 account. If you do not have M365 account, apply one from [M365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program)
-- [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
 ## Debug
 
 - From Visual Studio Code: Start debugging the project by hitting the `F5` key in Visual Studio Code.
 - Alternatively use the `Run and Debug Activity Panel` in Visual Studio Code and click the `Run and Debug` green arrow button.
-- From Teams Toolkit CLI:
+- From Microsoft 365 Agents Toolkit CLI:
   - Install [dev tunnel cli](https://aka.ms/teamsfx-install-dev-tunnel).
   - Login with your M365 Account using the command `devtunnel user login`.
   - Start your local tunnel service by running the command `devtunnel host -p 3978 --protocol http --allow-anonymous`.
@@ -33,9 +33,9 @@ This is a simple hello world application with both Bot and Message extension cap
 
 ## Edit the manifest
 
-You can find the Teams app manifest in `./appPackage` folder. The folder contains one manifest file:
+You can find the app manifest in `./appPackage` folder. The folder contains one manifest file:
 
-- `manifest.json`: Manifest file for Teams app running locally or running remotely (After deployed to Azure).
+- `manifest.json`: Manifest file for app running locally or running remotely (After deployed to Azure).
 
 This file contains template arguments with `${{...}}` statements which will be replaced at build time. You may add any extra properties or permissions you require to this file. See the [schema reference](https://docs.microsoft.com/en-us/microsoftteams/platform/resources/schema/manifest-schema) for more information.
 
@@ -43,9 +43,9 @@ This file contains template arguments with `${{...}}` statements which will be r
 
 Deploy your project to Azure by following these steps:
 
-| From Visual Studio Code                                                                                                                                                                                                                                                                                                                                                                                                                                             | From Teams Toolkit CLI                                                                                                                                               |
+| From Visual Studio Code                                                                                                                                                                                                                                                                                                                                                                                                                                             | From Microsoft 365 Agents Toolkit CLI                                                                                                                                               |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <ul><li>Open Teams Toolkit, and sign into Azure by clicking the `Sign in to Azure` under the `ACCOUNTS` section from sidebar.</li> <li>After you signed in, select a subscription under your account.</li><li>Open the Teams Toolkit and click `Provision` from DEPLOYMENT section or open the command palette and select: `Teams: Provision`.</li><li>Open the Teams Toolkit and click `Deploy` or open the command palette and select: `Teams: Deploy`.</li></ul> | <ul> <li>Run command `teamsapp auth login azure`.</li> <li>Run command `teamsapp provision --env dev`.</li> <li>Run command: `teamsapp deploy --env dev`. </li></ul> |
+| <ul><li>Open Microsoft 365 Agents Toolkit, and sign into Azure by clicking the `Sign in to Azure` under the `ACCOUNTS` section from sidebar.</li> <li>After you signed in, select a subscription under your account.</li><li>Open the Microsoft 365 Agents Toolkit and click `Provision` from DEPLOYMENT section or open the command palette and select: `Teams: Provision`.</li><li>Open the Microsoft 365 Agents Toolkit and click `Deploy` or open the command palette and select: `Teams: Deploy`.</li></ul> | <ul> <li>Run command `teamsapp auth login azure`.</li> <li>Run command `teamsapp provision --env dev`.</li> <li>Run command: `teamsapp deploy --env dev`. </li></ul> |
 
 > Note: Provisioning and deployment may incur charges to your Azure Subscription.
 
@@ -59,26 +59,26 @@ Once the provisioning and deployment steps are finished, you can preview your ap
   1. Select `Launch Remote (Edge)` or `Launch Remote (Chrome)` from the launch configuration drop-down.
   1. Press the Play (green arrow) button to launch your app - now running remotely from Azure.
 
-- From Teams Toolkit CLI: execute `teamsapp preview --env dev` in your project directory to launch your application.
+- From Microsoft 365 Agents Toolkit CLI: execute `teamsapp preview --env dev` in your project directory to launch your application.
 
 ## Validate manifest file
 
 To check that your manifest file is valid:
 
 - From Visual Studio Code: open the command palette and select: `Teams: Validate Application`.
-- From Teams Toolkit CLI: run command `teamsapp validate` in your project directory.
+- From Microsoft 365 Agents Toolkit CLI: run command `teamsapp validate` in your project directory.
 
 ## Package
 
-- From Visual Studio Code: open the Teams Toolkit and click `Zip Teams App Package` or open the command palette and select `Teams: Zip Teams App Package`.
+- From Visual Studio Code: open the Microsoft 365 Agents Toolkit and click `Zip app package` or open the command palette and select `Teams: Zip app package`.
 - Alternatively, from the command line run `teamsapp package` in the project directory.
 
 ## Publish to Teams
 
 Once deployed, you may want to distribute your application to your organization's internal app store in Teams. Your app will be submitted for admin approval.
 
-- From Visual Studio Code: open the Teams Toolkit and click `Publish` or open the command palette and select: `Teams: Publish`.
-- From Teams Toolkit CLI: run command `teamsapp publish` in your project directory.
+- From Visual Studio Code: open the Microsoft 365 Agents Toolkit and click `Publish` or open the command palette and select: `Teams: Publish`.
+- From Microsoft 365 Agents Toolkit CLI: run command `teamsapp publish` in your project directory.
 
 ## Play with Message Extension
 

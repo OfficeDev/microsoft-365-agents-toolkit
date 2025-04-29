@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { CombinedProjectGenerator } from "./combinedProject/generator";
 import { DeclarativeAgentGenerator } from "./declarativeAgent/generator";
 import { DefaultTemplateGenerator } from "./defaultGenerator";
 import { OfficeAddinGeneratorNew } from "./officeAddin/generator";
@@ -24,4 +25,5 @@ export const Generators = [
   new CustomEngineAgentWithExistingApiSpecGenerator(),
   new MessageExtensionWithExistingApiSpecGenerator(),
   new DeclarativeAgentGenerator(),
+  new CombinedProjectGenerator(),
 ];

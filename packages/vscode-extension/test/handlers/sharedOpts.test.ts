@@ -209,6 +209,27 @@ describe("SharedOpts", () => {
       await runCommand(Stage.setSensitivityLabel);
       sinon.assert.calledOnce(setSensitivityLabel);
     });
+    it("share", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const shareApplication = sandbox.spy(globalVariables.core, "shareApplication");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.share);
+      sinon.assert.calledOnce(shareApplication);
+    });
+    it("shareRemove", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const removeSharedAccess = sandbox.spy(globalVariables.core, "removeSharedAccess");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.shareRemove);
+      sinon.assert.calledOnce(removeSharedAccess);
+    });
+    it("installApp", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const installAppStub = sandbox.spy(globalVariables.core, "installAppToChannel");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.installApp);
+      sinon.assert.calledOnce(installAppStub);
+    });
   });
 
   describe("processResult", () => {

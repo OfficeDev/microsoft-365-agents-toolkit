@@ -8,7 +8,7 @@
 
    ```bash
    # download test version
-   npm install -g @microsoft/teamsapp-cli@VERSION
+   npm install -g @microsoft/m365agentstoolkit-cli@VERSION
    ```
 
 2. Download Teamsfx Project
@@ -150,7 +150,7 @@ import {
 import { AadValidator, BotValidator } from "../../commonlib";
 import { TemplateProject } from "../../commonlib/constants";
 import { CliHelper } from "../../commonlib/cliHelper";
-import m365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import { environmentNameManager } from "@microsoft/teamsfx-core";
 
 describe("teamsfx new sample", function () {

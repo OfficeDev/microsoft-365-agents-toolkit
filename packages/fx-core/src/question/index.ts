@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { IQTreeNode, Platform } from "@microsoft/teamsfx-api";
-import { createProjectCliHelpNode, createSampleProjectQuestionNode } from "./create";
+import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
   addKnowledgeQuestionNode,
@@ -18,11 +18,14 @@ import {
   listCollaboratorQuestionNode,
   oauthQuestion,
   previewWithTeamsAppManifestQuestionNode,
+  removeSharedAccessNode,
   selectTeamsAppManifestQuestionNode,
+  setSensitivityLabelNode,
+  shareNode,
   syncManifestQuestionNode,
   uninstallQuestionNode,
   validateTeamsAppQuestionNode,
-  setSensitivityLabelNode,
+  regeneratePluginNode,
 } from "./other";
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
@@ -34,7 +37,6 @@ export * from "./options";
 
 export class QuestionNodes {
   createProject(platform: Platform): IQTreeNode {
-    // return createProjectQuestionNode();
     if (platform === Platform.VS) return scaffoldQuestionForVS();
     return scaffoldQuestionForVSCode(platform);
   }
@@ -43,9 +45,6 @@ export class QuestionNodes {
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
-  }
-  createProjectCliHelp(): IQTreeNode {
-    return createProjectCliHelpNode();
   }
   addWebpart(): IQTreeNode {
     return addWebPartQuestionNode();
@@ -86,6 +85,9 @@ export class QuestionNodes {
   addPlugin(): IQTreeNode {
     return addPluginQuestionNode();
   }
+  regeneratePlugin(): IQTreeNode {
+    return regeneratePluginNode();
+  }
   uninstall(): IQTreeNode {
     return uninstallQuestionNode();
   }
@@ -103,6 +105,12 @@ export class QuestionNodes {
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();
+  }
+  share(): IQTreeNode {
+    return shareNode();
+  }
+  removeSharedAccess(): IQTreeNode {
+    return removeSharedAccessNode();
   }
 }
 

@@ -31,6 +31,7 @@ import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUt
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
 import { expandEnvironmentVariable } from "../../../../src/component/utils/common";
+import * as utils from "../../../../src/component/driver/util/utils";
 
 describe("teamsApp/createAppPackage", async () => {
   const teamsAppDriver = new CreateAppPackageDriver();
@@ -92,6 +93,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "existsSync").returns(true);
     sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
     const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
     const driverContext: any = {

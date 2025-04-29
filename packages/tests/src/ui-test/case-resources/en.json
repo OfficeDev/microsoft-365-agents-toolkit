@@ -1,0 +1,19 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.Localization.schema.json",
+    "name.short": "GitHub Agent",
+    "name.full": "Issues Agent for GitHub",
+    "description.short": "Agent for project management professionals with GitHub",
+    "description.full": "Agent for project management professionals with GitHub that allows to create tasks, assign tasks and get help on using GitHub for project management",
+    "localizationKeys": {
+        "Agent_Name": "GitHub Agent (${{TEAMS_APP_VERSION}}) - ${{UNRESOLVED_ENV}}",
+        "Agent_Description": "An assistant for project management professionals with GitHub.",
+        "Agent_CS_My_Issues_Title": "My issues",
+        "Agent_CS_My_Issues_Text": "What are my issues?",
+        "Agent_CS_All_Issues_Title": "All issues",
+        "Agent_CS_All_Issues_Text": "List all GitHub issues",
+        "Agent_CS_Summarize_Latest_Issues_Title": "Summarize latest issues",
+        "Agent_CS_Summarize_Latest_Issues_Text": "Summarize me the last 10 issues from GitHub",
+        "Agent_CS_Assign_Issue_Title": "Assign Issue",
+        "Agent_CS_Assign_Issue_Text": "Assign the issue #3 to sebastienlevert"
+    }
+}

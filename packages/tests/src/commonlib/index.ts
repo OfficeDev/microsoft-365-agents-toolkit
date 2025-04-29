@@ -3,7 +3,7 @@
 
 "use strict";
 
-export * as cfg from "@microsoft/teamsapp-cli/src/commonlib/common/userPasswordConfig";
+export * as cfg from "@microsoft/m365agentstoolkit-cli/src/commonlib/common/userPasswordConfig";
 export * from "./aadValidate";
 export * from "./simpleAuthValidator";
 export * from "./aadManager";

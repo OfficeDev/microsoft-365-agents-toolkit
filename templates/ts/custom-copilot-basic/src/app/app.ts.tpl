@@ -32,6 +32,9 @@ const planner = new ActionPlanner({
   model,
   prompts,
   defaultPrompt: "chat",
+  {{#CEAEnabled}} 
+  startStreamingMessage: 'Loading stream results...',
+  {{/CEAEnabled}}
 });
 
 // Define storage and application

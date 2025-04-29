@@ -85,6 +85,26 @@ describe("copilotChatHandler", async () => {
       }
     });
 
+    it("open with query switching mode error", async () => {
+      const executeCommandStub = sandbox
+        .stub(vscode.commands, "executeCommand")
+        .callsFake(async (command: string) => {
+          if (command === "workbench.action.chat.toggleAgentMode") {
+            throw new Error("Install Error");
+          } else {
+            return {};
+          }
+        });
+
+      const res = await handlers.openGithubCopilotChat([
+        extTelemetryEvents.TelemetryTriggerFrom.CreateAppQuestionFlow,
+        "test",
+      ]);
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(executeCommandStub.called);
+    });
+
     it("open with query error", async () => {
       sandbox.stub(vscode.commands, "executeCommand").callsFake(async (command: string) => {
         if (command === "workbench.panel.chat.view.copilot.focus") {

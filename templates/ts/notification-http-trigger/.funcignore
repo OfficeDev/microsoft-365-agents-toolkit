@@ -2,10 +2,10 @@
 .development
 .DS_Store
 .git*
-.localConfigs.testTool
+.localConfigs.playground
 .localConfigs
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 .vscode
 *.js.map
 *.ts
@@ -16,8 +16,8 @@ local.settings.json
 /node_modules/azurite
 README.md
 tsconfig.json
-teamsapp.yml
-teamsapp.*.yml
+m365agents.yml
+m365agents.*.yml
 /env/
 /appPackage/
 /infra/

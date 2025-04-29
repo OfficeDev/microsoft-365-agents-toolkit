@@ -13,7 +13,7 @@ import { expect } from "chai";
 
 class AddWebSearchByUrl extends CaseFactory {
   public async onAfterCreate(projectPath: string): Promise<void> {
-    const command = `teamsapp add capability -i false --knowledge-source web-search --search-type url --web-content https://example.com`;
+    const command = `atk add capability -i false --knowledge-source web-search --search-type url --web-content https://example.com`;
     const { success } = await Executor.execute(command, projectPath);
     expect(success).to.be.true;
     return Promise.resolve();

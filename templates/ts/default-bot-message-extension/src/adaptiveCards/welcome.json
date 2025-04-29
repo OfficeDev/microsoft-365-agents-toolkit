@@ -9,7 +9,7 @@
     },
     {
       "type": "TextBlock",
-      "text": "Congratulations! Your hello world bot is running. Click the documentation below to learn more about Bots and the Teams Toolkit.",
+      "text": "Congratulations! Your hello world bot is running. Click the documentation below to learn more about Bots and the Microsoft 365 Agents Toolkit.",
       "wrap": true
     }
   ],
@@ -21,7 +21,7 @@
     },
     {
       "type": "Action.OpenUrl",
-      "title": "Teams Toolkit Docs",
+      "title": "Microsoft 365 Agents Toolkit Docs",
       "url": "https://aka.ms/teamsfx-docs"
     }
   ],

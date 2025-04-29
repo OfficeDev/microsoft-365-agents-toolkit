@@ -6,7 +6,7 @@ import {
   ConditionFunc,
   FuncValidation,
   Inputs,
-  ManifestUtil,
+  LocalFunc,
   Platform,
   Question,
   SingleSelectQuestion,
@@ -34,6 +34,7 @@ import {
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import {
+  GCConnectionIdQuestion,
   GCInputQuestion,
   GCListQuestion,
   GCNameQuestion,
@@ -49,6 +50,7 @@ import {
   GCSelectOptions,
 } from "../../src/question/constants";
 import {
+  addPluginQuestionNode,
   apiSpecApiKeyQuestion,
   createNewEnvQuestionNode,
   envQuestionCondition,
@@ -62,10 +64,31 @@ import {
 } from "../../src/question/other";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
-import { callFuncs } from "./create.test";
+import { featureFlagManager, FeatureFlags } from "../../src";
 
 const ui = new MockUserInteraction();
+export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
+  try {
+    if (question.default && typeof question.default !== "string") {
+      await (question.default as LocalFunc<string | undefined>)(inputs);
+    }
 
+    if (
+      (question.type === "singleSelect" || question.type === "multiSelect") &&
+      typeof question.dynamicOptions !== "object" &&
+      question.dynamicOptions
+    ) {
+      await question.dynamicOptions(inputs);
+    }
+    if (answer && (question as any).validation?.validFunc) {
+      await (question as any).validation.validFunc(answer, inputs);
+    }
+
+    if ((question as any).placeholder && typeof (question as any).placeholder !== "string") {
+      await (question as any).placeholder(inputs);
+    }
+  } catch (e) {}
+}
 describe("none scaffold questions", () => {
   const mockedEnvRestore: RestoreFn = () => {};
   const sandbox = sinon.createSandbox();
@@ -1251,9 +1274,43 @@ describe("addPluginQuestionNode", async () => {
     mockedEnvRestore();
   });
 
+  it("should include inputOrSearchAPISpecNode when KiotaNPMIntegration is enabled", async () => {
+    const sandbox = sinon.createSandbox();
+    try {
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.KiotaNPMIntegration) {
+          return true;
+        }
+        return false;
+      });
+
+      const questionNode = addPluginQuestionNode();
+
+      assert.isObject(questionNode);
+      assert.property(questionNode, "data");
+      assert.property(questionNode, "children");
+
+      const children = questionNode.children;
+      assert.isArray(children);
+
+      assert.equal(children![0].data.name, QuestionNames.PluginManifestFilePath);
+      assert.equal(children![1].data.name, QuestionNames.PluginOpenApiSpecFilePath);
+
+      const thirdChild = children![2];
+      assert.isObject(thirdChild);
+
+      assert.equal(
+        children![children!.length - 1].data.name,
+        QuestionNames.TeamsAppManifestFilePath
+      );
+    } finally {
+      sandbox.restore();
+    }
+  });
+
   it("success: can add a plugin from api spec", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as TeamsAppManifest));
-    sandbox.stub(ManifestUtil, "parseCommonProperties").returns({
+    sandbox.stub(manifestUtils, "parseCommonProperties").returns({
       capabilities: ["copilotGpt"],
       isApiME: false,
       isSPFx: false,
@@ -1307,7 +1364,7 @@ describe("addPluginQuestionNode", async () => {
 
   it("success: can add a plugin from existing plugin", async () => {
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as TeamsAppManifest));
-    sandbox.stub(ManifestUtil, "parseCommonProperties").returns({
+    sandbox.stub(manifestUtils, "parseCommonProperties").returns({
       capabilities: ["copilotGpt"],
       isApiME: false,
       isSPFx: false,
@@ -1449,7 +1506,7 @@ describe("addKnowledgeQuestionNode", async () => {
     ]);
   });
 
-  it("success: can add a knowledge from Graph Connector", async () => {
+  it("success: can add a knowledge from Copilot Connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1481,12 +1538,13 @@ describe("addKnowledgeQuestionNode", async () => {
       projectPath: "./test",
     };
     const question = GCInputQuestion();
-    const validation = question.additionalValidationOnAccept as FuncValidation<string>;
-    try {
-      const res = validation.validFunc("test");
-      assert.fail("Should throw error");
-    } catch (error) {}
-    validation.validFunc("test", inputs);
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test");
+    assert.isTrue(res1 === undefined);
+    const res2 = validation.validFunc("");
+    assert.isFalse(res2 === undefined);
+    const res3 = validation.validFunc("    ");
+    assert.isFalse(res3 === undefined);
   });
 
   it("GCList validate check", async () => {
@@ -1540,7 +1598,7 @@ describe("addKnowledgeQuestionNode", async () => {
   });
 });
 
-describe("scaffold graph connector", async () => {
+describe("scaffold Copilot Connector", async () => {
   const sandbox = sinon.createSandbox();
   const mockedEnvRestore: RestoreFn = () => {};
   afterEach(() => {
@@ -1548,7 +1606,24 @@ describe("scaffold graph connector", async () => {
     mockedEnvRestore();
   });
 
-  it("GCName validate check", async () => {
+  it("GCName validation check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCNameQuestion();
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test", inputs);
+    assert.isTrue(res1 === undefined);
+    const res2 = validation.validFunc("", inputs);
+    assert.isFalse(res2 === undefined);
+    const res3 = validation.validFunc("    ", inputs);
+    assert.isFalse(res3 === undefined);
+    const res4 = validation.validFunc("a", inputs);
+    assert.isFalse(res4 === undefined);
+  });
+
+  it("GCName additionalValidationOnAccept check", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1560,5 +1635,31 @@ describe("scaffold graph connector", async () => {
       assert.fail("Should throw error");
     } catch (error) {}
     validation.validFunc("test", inputs);
+  });
+
+  it("GC connection id validate check", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./test",
+    };
+    const question = GCConnectionIdQuestion();
+    const validation = question.validation as FuncValidation<string>;
+    const res1 = validation.validFunc("test");
+    assert.isTrue(res1 === undefined);
+
+    const res2 = validation.validFunc("");
+    assert.isFalse(res2 === undefined);
+
+    const res3 = validation.validFunc("ab");
+    assert.isFalse(res3 === undefined);
+
+    const res4 = validation.validFunc("---");
+    assert.isFalse(res4 === undefined);
+
+    const res5 = validation.validFunc("1234567890123456789012345678901234567890123456");
+    assert.isFalse(res5 === undefined);
+
+    const res6 = validation.validFunc("microsoft-graph-connector");
+    assert.isFalse(res6 === undefined);
   });
 });

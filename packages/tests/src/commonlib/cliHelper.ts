@@ -26,7 +26,7 @@ export class CliHelper {
     projectPath: string,
     processEnv?: NodeJS.ProcessEnv
   ) {
-    const command = `teamsapp env add ${env} --env dev`;
+    const command = `atk env add ${env} --env dev`;
     const timeout = 100000;
 
     try {
@@ -59,7 +59,7 @@ export class CliHelper {
     processEnv?: NodeJS.ProcessEnv
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp provision --env ${env} --interactive false --verbose ${option}`,
+      `atk provision --env ${env} --interactive false --verbose ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -84,7 +84,7 @@ export class CliHelper {
     newCommand?: string
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp entra-app update ${option} --interactive false`,
+      `atk entra-app update ${option} --interactive false`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -110,7 +110,7 @@ export class CliHelper {
     newCommand?: string
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp deploy --env ${env} --interactive false --verbose ${option}`,
+      `atk deploy --env ${env} --interactive false --verbose ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -136,7 +136,7 @@ export class CliHelper {
     newCommand?: string
   ) {
     const result = await execAsyncWithRetry(
-      `teamsapp deploy ${resourceToDeploy} ${option}`,
+      `atk deploy ${resourceToDeploy} ${option}`,
       {
         cwd: projectPath,
         env: processEnv ? processEnv : process.env,
@@ -160,7 +160,7 @@ export class CliHelper {
     processEnv?: NodeJS.ProcessEnv,
     options = ""
   ): Promise<void> {
-    const command = `teamsapp new --interactive false --runtime dotnet --app-name ${appName} --capability ${capability} ${options}`;
+    const command = `atk new --interactive false --runtime dotnet --app-name ${appName} --capability ${capability} ${options}`;
     const timeout = 100000;
     try {
       const result = await execAsync(command, {
@@ -196,7 +196,7 @@ export class CliHelper {
     npx = false
   ) {
     const npxCommand = npx ? "npx" : "";
-    const command = `${npxCommand} teamsapp new --interactive false --app-name ${appName} --capability ${capability} ${options}`;
+    const command = `${npxCommand} atk new --interactive false --app-name ${appName} --capability ${capability} ${options}`;
     const timeout = 100000;
     try {
       const result = await execAsync(command, {
@@ -313,7 +313,7 @@ export class CliHelper {
     projectPath: string,
     capabilityToAdd: Capability
   ) {
-    const command = `teamsapp add ${capabilityToAdd}`;
+    const command = `atk add ${capabilityToAdd}`;
     const timeout = 100000;
     try {
       const result = await execAsync(command, {
@@ -344,7 +344,7 @@ export class CliHelper {
   ): Promise<string> {
     const value = "";
     // config not supported
-    // const command = `teamsapp config get ${key} --env ${env}`;
+    // const command = `atk config get ${key} --env ${env}`;
     // const timeout = 100000;
     // try {
     //   const result = await execAsync(command, {

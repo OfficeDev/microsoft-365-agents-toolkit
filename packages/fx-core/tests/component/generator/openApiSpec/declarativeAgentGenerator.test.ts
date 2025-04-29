@@ -6,22 +6,19 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { err, ok } from "neverthrow";
 import * as sinon from "sinon";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
 import { featureFlagManager, FeatureFlagName } from "../../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../../src/common/globalVars";
+import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { DeclarativeAgentWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/declarativeAgentGenerator";
 import * as helper from "../../../../src/component/generator/openApiSpec/helper";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
-import {
-  ActionStartOptions,
-  CapabilityOptions,
-  ProgrammingLanguage,
-  QuestionNames,
-} from "../../../../src/question";
+import { ActionStartOptions, ProgrammingLanguage, QuestionNames } from "../../../../src/question";
+import { DACapabilityOptions } from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
-import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
 
 const tools = new MockTools();
 
@@ -63,7 +60,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
         [QuestionNames.AppName]: "testapp",
@@ -114,14 +111,14 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ActionManifestPath]: "ai-plugin.json",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
         {
           authName: "mockedAuthName",
           authType: "apiKey",
@@ -147,14 +144,14 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.AppName]: "testapp",
         [QuestionNames.ActionManifestPath]: "ai-plugin.json",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
       inputs[QuestionNames.ApiSpecLocation] = "test.yaml";
-      sandbox.stub(helper, "parseAndUpdatePluginManifestForKiota").resolves([]);
+      sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([]);
       const res = await generator.getTemplateInfos(context, inputs, ".");
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -204,7 +201,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -218,6 +215,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -244,7 +242,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         supportedApisFromApiSpec: [
           {
@@ -268,6 +266,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
 
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -289,7 +288,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -303,6 +302,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -326,7 +326,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.declarativeAgent().id,
+        [QuestionNames.Capabilities]: DACapabilityOptions.declarativeAgent().id,
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -340,6 +340,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
       sandbox
         .stub(SpecParser.prototype, "validate")
         .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
@@ -361,7 +362,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -369,7 +374,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -423,7 +428,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota without .kiota folder", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -431,7 +440,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -482,7 +491,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota with .kiota folder already exists", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -490,7 +503,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -541,7 +554,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
     });
 
     it("generate for kiota without adaptive card", async function () {
-      mockedEnvRestore = mockedEnv({ [FeatureFlagName.KiotaIntegration]: "true" });
+      mockedEnvRestore = mockedEnv({
+        [FeatureFlagName.KiotaIntegration]: "true",
+        [FeatureFlagName.SensitivityLabelEnabled]: "false",
+        [FeatureFlagName.EmbeddedKnowledgeEnabled]: "false",
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
@@ -549,7 +566,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
         [QuestionNames.ApiSpecLocation]: "test.yaml",
         [QuestionNames.ApiOperation]: ["operation1"],
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ActionManifestPath]: "test.json",
         [QuestionNames.ProjectType]: "copilot-agent-type",
@@ -605,7 +622,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -629,8 +646,10 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
 
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
@@ -641,7 +660,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -665,7 +684,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
 
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
@@ -677,7 +698,7 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const inputs: Inputs = {
         platform: Platform.VS,
         projectPath: "path",
-        [QuestionNames.Capabilities]: CapabilityOptions.apiPlugin().id,
+        [QuestionNames.Capabilities]: "api-plugin",
         [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
         [QuestionNames.ApiSpecLocation]: "https://test.com",
         [QuestionNames.ApiOperation]: ["operation1"],
@@ -706,7 +727,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
         .resolves({ allSuccess: true, warnings: [] });
       sandbox.stub(copilotGptManifestUtils, "updateDeclarativeAgentManifest").resolves(ok(""));
       sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: FeatureFlagName) => {
+        return flag === FeatureFlagName.EmbeddedKnowledgeEnabled;
+      });
 
       const generator = new DeclarativeAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");

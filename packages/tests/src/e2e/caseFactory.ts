@@ -29,7 +29,7 @@ import {
   FunctionValidator,
   ValidatorType,
 } from "../commonlib";
-import m365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import m365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 
 export abstract class CaseFactory {
   public capability: Capability;

@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.TeamsFx.Test.Conversation
 {
     using AdaptiveCards;
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
     using Microsoft.Agents.Core.Models;
     using Microsoft.TeamsFx.Conversation;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -126,7 +126,7 @@
             Assert.IsNotNull(responseBody);
             Assert.AreEqual(InvokeResponseContentType.AdaptiveCard, responseBody.Type);
             Assert.IsNotNull(responseBody.Value);
-            Assert.AreEqual(GetAdaptiveCard(), responseBody.Value);
+            Assert.AreEqual(GetAdaptiveCard().ToString(), responseBody.Value.ToString());
         }
 
         [TestMethod]
@@ -166,7 +166,7 @@
             Assert.IsNotNull(responseBody);
             Assert.AreEqual(InvokeResponseContentType.AdaptiveCard, responseBody.Type);
             Assert.IsNotNull(responseBody.Value);
-            Assert.AreEqual(GetAdaptiveCard(), responseBody.Value);
+            Assert.AreEqual(GetAdaptiveCard().ToString(), responseBody.Value.ToString());
         }
 
         [TestMethod]
@@ -317,7 +317,7 @@
             return mockHandler;
         }
 
-        private static string GetAdaptiveCard()
+        private static object GetAdaptiveCard()
         {
             AdaptiveCard card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0));
 
@@ -326,7 +326,7 @@
                 Text = "This is a sample response card.",
             });
 
-            return card.ToJson();
+            return card;
         }
     }
 }

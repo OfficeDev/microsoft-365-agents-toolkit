@@ -13,7 +13,7 @@ import {
   validateApiMeResult,
 } from "../../utils/playwrightOperation";
 import { LocalDebugTestContext } from "./localdebugContext";
-import { Timeout, LocalDebugTaskLabel } from "../../utils/constants";
+import { Timeout, LocalDebugTaskLabel, Lang } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
 import { validateFileExist } from "../../utils/commonUtils";
@@ -26,7 +26,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("msgapikey", {
-      lang: "typescript",
+      lang: Lang.TS,
     });
     await localDebugTestContext.before();
   });

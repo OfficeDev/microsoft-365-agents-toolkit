@@ -1,6 +1,6 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
-using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Builder;
 using Microsoft.Agents.Core.Models;
 using Microsoft.TeamsFx.Conversation;
 
@@ -39,7 +39,7 @@ namespace {{SafeProjectName}}.Commands
                 new HelloWorldModel
                 {
                     Title = "Your Hello World App is Running",
-                    Body = "Congratulations! Your Hello World App is running. Open the documentation below to learn more about how to build applications with the Teams Toolkit.",
+                    Body = "Congratulations! Your Hello World App is running. Open the documentation below to learn more about how to build applications with the Microsoft 365 Agents Toolkit.",
                 }
             );
 

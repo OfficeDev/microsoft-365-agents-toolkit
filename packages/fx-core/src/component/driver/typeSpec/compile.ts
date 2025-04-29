@@ -1,13 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Service } from "typedi";
-import { ExecutionResult, StepDriver } from "../interface/stepDriver";
-import { getLocalizedString } from "../../../common/localizeUtils";
-import { DriverContext } from "../interface/commonArgs";
-import { TypeSpecCompileArgs } from "./interface/typeSpecCompileArgs";
 import { hooks } from "@feathersjs/hooks";
-import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import {
   DeclarativeCopilotManifestSchema,
   err,
@@ -17,22 +11,27 @@ import {
   TeamsAppManifest,
   UserError,
 } from "@microsoft/teamsfx-api";
-import path from "path";
 import fs from "fs-extra";
+import path from "path";
+import { Service } from "typedi";
+import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
+import { kiotageneratePlugin } from "../../../common/kiotaClient";
+import { getLocalizedString } from "../../../common/localizeUtils";
+import { MetadataV4 } from "../../../common/versionMetadata";
 import {
   assembleError,
   InputValidationError,
   InvalidActionInputError,
+  NeedRedoError,
 } from "../../../error/common";
+import { injectAuthAction } from "../../generator/openApiSpec/helper";
+import { DriverContext } from "../interface/commonArgs";
+import { ExecutionResult, StepDriver } from "../interface/stepDriver";
+import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { defaultDAManifestFileName, defaultOpenApiOutputDir, helpLink } from "./constants";
-import { NoSpecError } from "./error/noSpecError";
 import { MultipleActionError } from "./error/multipleActionError";
-import {
-  injectAuthAction,
-  parseAndUpdatePluginManifestForKiota,
-} from "../../generator/openApiSpec/helper";
-import { MetadataV3 } from "../../../common/versionMetadata";
-import { ReProvisionError } from "./error/reProvisionError";
+import { NoSpecError } from "./error/noSpecError";
+import { TypeSpecCompileArgs } from "./interface/typeSpecCompileArgs";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
 
@@ -101,12 +100,16 @@ export class TypeSpecCompileDriver implements StepDriver {
             }
 
             const pluginManifestName = actions[0].id;
-            await this.generatePluginManifestWithKiota(
-              ctx,
-              outputFolderPath,
-              openApiSpecsFolderPath,
-              spec,
-              pluginManifestName
+            await kiotageneratePlugin(
+              `${openApiSpecsFolderPath}/${spec}`,
+              `${outputFolderPath}`,
+              `${pluginManifestName}`,
+              `${outputFolderPath}`,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              true
             );
           } else {
             for (const spec of openapiSpecs) {
@@ -121,12 +124,16 @@ export class TypeSpecCompileDriver implements StepDriver {
                 continue;
               }
               const pluginManifestName = action.id;
-              await this.generatePluginManifestWithKiota(
-                ctx,
-                outputFolderPath,
-                openApiSpecsFolderPath,
-                spec,
-                pluginManifestName
+              await kiotageneratePlugin(
+                `${openApiSpecsFolderPath}/${spec}`,
+                `${outputFolderPath}`,
+                `${pluginManifestName}`,
+                `${outputFolderPath}`,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                true
               );
             }
           }
@@ -177,11 +184,11 @@ export class TypeSpecCompileDriver implements StepDriver {
         if (showAlert) {
           void ctx.ui.showMessage(
             "warn",
-            getLocalizedString("driver.typeSpec.compile.reprovision", MetadataV3.configFile),
+            getLocalizedString("driver.typeSpec.compile.reprovision", MetadataV4.configFile),
             false
           );
           return {
-            result: err(new ReProvisionError(actionName, MetadataV3.configFile)),
+            result: err(new NeedRedoError(actionName)),
             summaries: summaries,
           };
         }
@@ -247,49 +254,12 @@ export class TypeSpecCompileDriver implements StepDriver {
     }
   }
 
-  private async generatePluginManifestWithKiota(
-    ctx: DriverContext,
-    outputFolderPath: string,
-    openApiSpecsFolderPath: string,
-    specName: string,
-    pluginManifestName: string
-  ): Promise<void> {
-    const generateRes = await ctx.ui!.runCommand!({
-      cmd: `kiota plugin add \
-        -d ${openApiSpecsFolderPath}/${specName} \
-        --plugin-name ${pluginManifestName} \
-        --output ${outputFolderPath} \
-        --type apiplugin`,
-      workingDirectory: ctx.projectPath,
-      env: {
-        KIOTA_CONFIG_PREVIEW: "true",
-      },
-    });
-
-    if (generateRes.isErr()) {
-      throw generateRes.error;
-    }
-
-    // Remove all plugins from Kiota to avoid error when re-provision
-    const removeRes = await ctx.ui!.runCommand!({
-      cmd: `kiota plugin remove \
-        --plugin-name ${pluginManifestName}`,
-      workingDirectory: ctx.projectPath,
-      env: {
-        KIOTA_CONFIG_PREVIEW: "true",
-      },
-    });
-    if (removeRes.isErr()) {
-      throw removeRes.error;
-    }
-  }
-
   private removeGeneratedFiles(outputFolderPath: string): void {
     const files = fs.readdirSync(outputFolderPath);
     for (const file of files) {
-      if (file === defaultOpenApiOutputDir) {
-        const openApiSpecsFolderPath = path.join(outputFolderPath, defaultOpenApiOutputDir);
-        fs.rmSync(openApiSpecsFolderPath, { recursive: true, force: true });
+      if (file === defaultOpenApiOutputDir || file === ".kiota") {
+        const folderPath = path.join(outputFolderPath, file);
+        fs.rmSync(folderPath, { recursive: true, force: true });
       }
 
       if (

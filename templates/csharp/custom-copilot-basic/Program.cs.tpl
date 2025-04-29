@@ -77,7 +77,12 @@ builder.Services.AddTransient<IBot>(sp =>
                 return await Task.FromResult(template);
             }
         )
-        { LogRepairs = true },
+        { 
+            LogRepairs = true,
+            {{#CEAEnabled}}
+            StartStreamingMessage = "Loading stream results...",
+            {{/CEAEnabled}}
+        },
         loggerFactory: loggerFactory
     );
 

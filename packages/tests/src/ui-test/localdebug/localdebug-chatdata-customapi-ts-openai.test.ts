@@ -13,6 +13,7 @@ import {
   LocalDebugTaskLabel,
   DebugItemSelect,
   ValidationContent,
+  Lang,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -26,7 +27,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("cdcustomapi", {
-      lang: "typescript",
+      lang: Lang.TS,
       customCopilotRagType: "custom-copilot-rag-customApi",
       llmServiceType: "llm-service-openai",
     });

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  AuthType,
   ErrorType,
   ListAPIResult,
   SpecParser,
@@ -14,7 +15,6 @@ import {
   DeclarativeCopilotCapabilityName,
   DeclarativeCopilotManifestSchema,
   FxError,
-  IQTreeNode,
   InputResult,
   Inputs,
   LogProvider,
@@ -45,6 +45,7 @@ import {
   teamsDevPortalClient,
 } from "../../src";
 import { ConstantString } from "../../src/common/constants";
+import * as daSpecParser from "../../src/common/daSpecParser";
 import { FeatureFlagName, featureFlagManager } from "../../src/common/featureFlags";
 import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
@@ -67,6 +68,7 @@ import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
+import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
@@ -94,6 +96,7 @@ import { environmentManager } from "../../src/core/environment";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
 import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
 import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
+import * as createQuestions from "../../src/question/create";
 import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
@@ -106,7 +109,6 @@ import {
 } from "../../src/error/common";
 import { NoNeedUpgradeError } from "../../src/error/upgrade";
 import {
-  CapabilityOptions,
   QuestionNames,
   ScratchOptions,
   SyncManifestInputs,
@@ -122,6 +124,8 @@ import {
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 
 const tools = new MockTools();
 
@@ -133,6 +137,62 @@ describe("Core basic APIs", () => {
   });
   afterEach(async () => {
     sandbox.restore();
+  });
+
+  it("install app to channel - success", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+      env: "dev",
+    };
+    sandbox.stub(envUtil, "readEnv").resolves(
+      ok({
+        TEAM_ID: "mock-team-app-id",
+        CHANNEL_ID: "mock-channel-id",
+      })
+    );
+    sandbox.stub(InstallAppToChannelDriver.prototype, "install").resolves(ok(new Map()));
+    const res = await core.installAppToChannel(inputs);
+    assert.isTrue(res.isOk());
+  });
+
+  it("install app to channel - missing env", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+    };
+
+    const result = await core.installAppToChannel(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "MissingRequiredFileError");
+    }
+  });
+
+  it("install app to channel - file not found", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "test-project",
+      env: "dev",
+    };
+    sandbox.stub(envUtil, "readEnv").resolves(
+      ok({
+        TEAM_ID: "mock-team-app-id",
+        CHANNEL_ID: "mock-channel-id",
+      })
+    );
+    sandbox
+      .stub(InstallAppToChannelDriver.prototype, "install")
+      .resolves(err(new FileNotFoundError("source", "test-file")));
+
+    const result = await core.installAppToChannel(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, "FileNotFoundError");
+    }
   });
 
   it("deploy aad manifest happy path with param", async () => {
@@ -225,7 +285,6 @@ describe("Core basic APIs", () => {
       stage: Stage.addWebpart,
       projectPath: appPath,
     };
-
     sandbox.stub(fs, "pathExists").callsFake(async (directory: string) => {
       if (directory.includes(path.join("webparts", "helloworld"))) {
         return false;
@@ -509,7 +568,6 @@ describe("Core basic APIs", () => {
 
   it("phantomMigrationV3 return error for invalid V2 project", async () => {
     sandbox.stub(projectMigratorV3, "checkActiveResourcePlugins").resolves(false);
-
     const core = new FxCore(tools);
     const appName = await mockV2Project();
     const inputs: Inputs = {
@@ -765,8 +823,8 @@ describe("Core basic APIs", () => {
         [QuestionNames.AppName]: appName,
         [QuestionNames.Scratch]: ScratchOptions.yes().id,
         [QuestionNames.ProgrammingLanguage]: "javascript",
-        [QuestionNames.ProjectType]: ProjectTypeOptions.tabOptionId,
-        [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
         [QuestionNames.Folder]: os.tmpdir(),
         [QuestionNames.TemplateName]: TemplateNames.Tab,
         stage: Stage.create,
@@ -797,12 +855,14 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -818,12 +878,14 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -846,9 +908,11 @@ describe("Core basic APIs", () => {
       ignoreLockByUT: true,
     };
     sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox
       .stub(TOOLS.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.setSensitivityLabel.continue")));
@@ -865,13 +929,13 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
     sandbox
-      .stub(copilotGptManifestUtils, "writeCopilotGptManifestFile")
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
       .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
     sandbox
       .stub(TOOLS.ui, "showMessage")
@@ -889,12 +953,14 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(err(new UserCancelError("mockedSource")));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
@@ -909,12 +975,14 @@ describe("Core basic APIs", () => {
       platform: Platform.VSCode,
       ignoreLockByUT: true,
     };
-    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(
+    sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").resolves(
       ok({
         actions: [{}],
-      } as DeclarativeCopilotManifestSchema)
+      } as any)
     );
-    sandbox.stub(copilotGptManifestUtils, "writeCopilotGptManifestFile").resolves(ok(undefined));
+    sandbox
+      .stub(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
+      .resolves(ok(undefined));
     sandbox.stub(TOOLS.ui, "showMessage").resolves(ok("cancel"));
     const core = new FxCore(tools);
     const result = await core.setSensitivityLabel(inputs);
@@ -928,6 +996,308 @@ describe("Core basic APIs", () => {
     };
     const res = await core.uninstall(inputs);
     assert.isTrue(res.isErr());
+  });
+  it("remove shared access happy path", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: "user1@example.com,user2@example.com",
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isOk());
+  });
+  it("remove shared access - invalid email", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+
+    const inputs2: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: [],
+    };
+    const result2 = await core.removeSharedAccess(inputs2);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("emails"));
+    }
+  });
+  it("remove shared access - parse error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - token error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox
+      .stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken")
+      .resolves(err(new SystemError("mockedSource", "mockedError", "mockedMessage")));
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - getCurrentUserInfo", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox
+      .stub(collaborator.CollaborationUtil, "getCurrentUserInfo")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
+  });
+  it("remove shared access - get use info error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves(undefined);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("Invalid user"));
+    }
+  });
+  it("remove shared access - remove current user", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId1",
+        displayName: "mockDisplayName1",
+        userPrincipalName: "mockUserPrincipalName1",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox.stub(PackageService.GetSharedInstance(), "removePermission").resolves(ok(undefined));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(
+        result.error.message.includes(
+          getLocalizedString("core.share.removeAccess.operator", "user1@example.com")
+        )
+      );
+    }
+  });
+  it("remove shared access - mos grant permission error", async () => {
+    sandbox
+      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .resolves(ok(["mockAppId, MockTitleId, MockAppId"]));
+    sandbox.stub(collaborator.CollaborationUtil, "getUserInfo").resolves({
+      aadId: "mockAadId1",
+      displayName: "mockDisplayName1",
+      userPrincipalName: "mockUserPrincipalName1",
+    } as any);
+    sandbox.stub(collaborator.CollaborationUtil, "getCurrentUserInfo").resolves(
+      ok({
+        aadId: "mockAadId2",
+        displayName: "mockDisplayName2",
+        userPrincipalName: "mockUserPrincipalName2",
+      } as any)
+    );
+    sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+    sandbox
+      .stub(PackageService.GetSharedInstance(), "removePermission")
+      .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+    sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(
+      ok({
+        value: "token",
+      } as any)
+    );
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "./tests/plugins/resource/daTemplate/da-no-action-test-template",
+      ignoreLockByUT: true,
+      nonInteractive: true,
+      [QuestionNames.RemoveUsers]: ["user1@example.com", "user2@example.com"],
+    };
+    const core = new FxCore(tools);
+    const result = await core.removeSharedAccess(inputs);
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error.message.includes("mockedMessage"));
+    }
   });
   it("uninstall with invalid mode", async () => {
     const core = new FxCore(tools);
@@ -1414,6 +1784,12 @@ describe("Core basic APIs", () => {
     const ctx: CoreHookContext = { arguments: [], envVars: { existingKey: "value" } };
     core.resetEnvVar("testKey", ctx, false);
     expect(ctx.envVars).to.deep.equal({ existingKey: "value", testKey: "" });
+  });
+  it("provisionResources", async () => {
+    const core = new FxCore(tools);
+    sandbox.stub(core, "provisionResourcesOnce").resolves(ok(undefined));
+    const res = await core.provisionResources({} as any);
+    assert.isTrue(res.isOk() && res.value === undefined);
   });
 });
 
@@ -2270,149 +2646,12 @@ describe("isEnvFile", async () => {
     }
   });
 });
-describe("getQuestions", async () => {
-  const sandbox = sinon.createSandbox();
-  let mockedEnvRestore: RestoreFn = () => {};
-  afterEach(() => {
-    sandbox.restore();
-    mockedEnvRestore();
-  });
-  it("happy path", async () => {
-    mockedEnvRestore = mockedEnv({
-      TEAMSFX_CLI_DOTNET: "false",
-    });
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-  });
-  it("happy path with runtime", async () => {
-    mockedEnvRestore = mockedEnv({
-      TEAMSFX_CLI_DOTNET: "true",
-    });
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "runtime",
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-  });
-
-  it("happy path: API Copilot plugin enabled", async () => {
-    const restore = mockedEnv({});
-    const core = new FxCore(tools);
-    const res = await core.getQuestions(Stage.create, { platform: Platform.CLI_HELP });
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      const node = res.value;
-      const names: string[] = [];
-      collectNodeNames(node!, names);
-      assert.deepEqual(names, [
-        "capabilities",
-        "bot-host-type-trigger",
-        "spfx-solution",
-        "spfx-install-latest-package",
-        "spfx-framework-type",
-        "spfx-webpart-name",
-        "spfx-folder",
-        "me-architecture",
-        "with-plugin",
-        "api-plugin-type",
-        "plugin-manifest-path",
-        "plugin-opeanapi-spec-path",
-        "api-auth",
-        "custom-copilot-rag",
-        "openapi-spec-location",
-        "api-operation",
-        "custom-copilot-agent",
-        "programming-language",
-        "llm-service",
-        "azure-openai-key",
-        "azure-openai-endpoint",
-        "azure-openai-deployment-name",
-        "openai-key",
-        "folder",
-        "app-name",
-      ]);
-    }
-    restore();
-  });
-
-  function collectNodeNames(node: IQTreeNode, names: string[]) {
-    if (node.data.type !== "group") {
-      names.push(node.data.name);
-    }
-    if (node.children) {
-      for (const child of node.children) {
-        collectNodeNames(child, names);
-      }
-    }
-  }
-});
 describe("copilotPlugin", async () => {
   let mockedEnvRestore: RestoreFn = () => {};
 
+  beforeEach(() => {
+    sinon.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+  });
   afterEach(() => {
     sinon.restore();
     mockedEnvRestore();
@@ -4988,9 +5227,7 @@ describe("addPlugin", async () => {
       }
       return true;
     });
-    sandbox
-      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
-      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFile").resolves(ok({} as any));
     sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
@@ -6075,7 +6312,7 @@ describe("addPlugin", async () => {
         },
       ],
     };
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6409,6 +6646,647 @@ describe("addPlugin", async () => {
   });
 });
 
+describe("regeneratePlugin", async () => {
+  const sandbox = sinon.createSandbox();
+
+  beforeEach(() => {
+    setTools(tools);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("from API spec: add action success", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+    const manifest = new TeamsAppManifest();
+    manifest.copilotAgents = {
+      declarativeAgents: [
+        {
+          file: "test1.json",
+          id: "action_1",
+        },
+      ],
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(manifestUtils, "_writeAppManifest").resolves(ok(undefined));
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("");
+
+    sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
+      if (path.endsWith("openapi_1.yaml")) {
+        return true;
+      }
+      if (path.endsWith("ai-plugin_1.json")) {
+        return true;
+      }
+      if (path.endsWith("openapi_2.yaml")) {
+        return false;
+      }
+      if (path.endsWith("ai-plugin_2.json")) {
+        return false;
+      }
+      if (path.endsWith("local.yml")) {
+        return false;
+      }
+      return true;
+    });
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(
+        ok({ actions: [], name: "test", description: "test" } as DeclarativeCopilotManifestSchema)
+      );
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    const core = new FxCore(tools);
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(SpecParser.prototype, "list").resolves({
+      APIs: [
+        {
+          api: "GET /user/{userId}",
+          server: "https://example.com",
+          operationId: "getExample",
+          isValid: true,
+          reason: [],
+        },
+      ],
+      allAPICount: 1,
+      validAPICount: 1,
+    });
+
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake((level, message, modal, items) => {
+        if (level == "info") {
+          return Promise.resolve(ok("success"));
+        } else if (level === "warn") {
+          return Promise.resolve(ok("Regenerate"));
+        } else {
+          throw new NotImplementedError("TEST", "showMessage");
+        }
+      });
+
+    const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "GET /user/{userId}",
+          isValid: true,
+          server: "https://example.com",
+          operationId: "test-operation-id",
+          reason: [],
+          auth: {
+            name: "test-auth",
+            authScheme: {
+              type: "apiKey",
+              in: "header",
+              name: "Authorization",
+            },
+          },
+        },
+      ],
+    });
+
+    sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
+
+    const result = await core.regeneratePlugin(inputs);
+    if (result.isErr()) {
+      console.log(result.error);
+    }
+    assert.isTrue(result.isOk());
+    assert.isTrue(showMessageStub.calledTwice);
+
+    if (await fs.pathExists(inputs.projectPath!)) {
+      await fs.remove(inputs.projectPath!);
+    }
+  });
+
+  it("should return error if reading app manifest fails", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    const appManifestError = new SystemError("test-source", "test-name", "test-message");
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(err(appManifestError));
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error, appManifestError);
+    }
+  });
+
+  it("should return error if getting manifest path fails", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+
+    const pathError = new SystemError("test-source", "test-name", "test-message");
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(err(pathError));
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error, pathError);
+    }
+  });
+
+  it("should return user cancel error if user doesn't confirm", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [],
+    });
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.isTrue(result.error instanceof UserCancelError);
+    }
+  });
+
+  it("should return error if generateFromApiSpec fails", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [],
+    });
+
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake((level, message, modal, items) => {
+        if (level == "info") {
+          return Promise.resolve(
+            ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
+          );
+        } else if (level === "warn") {
+          return Promise.resolve(ok("Regenerate"));
+        } else {
+          throw new NotImplementedError("TEST", "showMessage");
+        }
+      });
+
+    const generateError = new UserError("test-source", "test-name", "test-message");
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(err(generateError));
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error, generateError);
+    }
+  });
+
+  it("should handle warnings from generateFromApiSpec", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [
+        {
+          api: "test-api",
+          isValid: true,
+          server: "https://example.com",
+          operationId: "test-operation-id",
+          reason: [],
+          auth: {
+            name: "test-auth",
+            authScheme: {
+              type: "apiKey",
+              in: "header",
+              name: "Authorization",
+            },
+          },
+        },
+      ],
+    });
+
+    // Setup generateFromApiSpec with warnings
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(
+      ok({
+        warnings: [
+          {
+            type: "OperationIdWithoutSummaryAndDescription" as any,
+            content: "Warning message",
+            data: {},
+          },
+        ],
+      })
+    );
+
+    sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("Warning summary");
+    sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
+
+    const declarativeAgentManifest = {
+      actions: [{ id: "test-plugin-id", file: "test-file.json" }],
+      name: "test",
+      description: "test",
+    } as DeclarativeCopilotManifestSchema;
+
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok(declarativeAgentManifest));
+    sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
+
+    const core = new FxCore(tools);
+    const messageStub = sandbox.stub(tools.ui, "showMessage").resolves(ok("Regenerate"));
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(messageStub.calledTwice);
+
+    if (await fs.pathExists(inputs.projectPath!)) {
+      await fs.remove(inputs.projectPath!);
+    }
+  });
+
+  it("should show success message for CLI platform", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [],
+    });
+
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
+
+    const declarativeAgentManifest = {
+      actions: [{ id: "test-plugin-id", file: "test-file.json" }],
+      name: "test",
+      description: "test",
+    } as DeclarativeCopilotManifestSchema;
+
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok(declarativeAgentManifest));
+    sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
+
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake((level, message, modal, items) => {
+        if (level == "info") {
+          return Promise.resolve(
+            ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
+          );
+        } else if (level === "warn") {
+          return Promise.resolve(ok("Regenerate"));
+        } else {
+          throw new NotImplementedError("TEST", "showMessage");
+        }
+      });
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(showMessageStub.calledTwice);
+
+    if (await fs.pathExists(inputs.projectPath!)) {
+      await fs.remove(inputs.projectPath!);
+    }
+  });
+
+  it("should return error if reading declarative agent manifest fails", async () => {
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ApiSpecLocation]: "test.yaml",
+      [QuestionNames.ApiOperation]: ["GET /user/{userId}"],
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      [QuestionNames.SelectPluginManifest]: "test-plugin-manifest",
+      [QuestionNames.SelectOpenAPISpecFromPlugin]: "test-openapi-spec",
+      [QuestionNames.SelectPluginId]: "test-plugin-id",
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    sandbox.stub(createQuestions, "selectExistingPluginManifestQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectPluginManifest,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectOpenAPISpecFromPluginQuestion").returns({
+      type: "singleSelect",
+      title: "mock question",
+      name: QuestionNames.SelectOpenAPISpecFromPlugin,
+      staticOptions: [],
+    });
+    sandbox.stub(createQuestions, "selectApiOperationForRegenerateQuestion").returns({
+      type: "multiSelect",
+      title: "mock question",
+      name: QuestionNames.ApiOperation,
+      staticOptions: [],
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+
+    sandbox
+      .stub(manifestUtils, "_readAppManifest")
+      .resolves(ok({ version: "1.0", id: "test-id" } as any));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+
+    sandbox.stub(daSpecParser, "listAPIInfo").resolves({
+      allAPICount: 1,
+      validAPICount: 1,
+      APIs: [],
+    });
+
+    const showMessageStub = sandbox
+      .stub(tools.ui, "showMessage")
+      .callsFake((level, message, modal, items) => {
+        if (level == "info") {
+          return Promise.resolve(
+            ok(getLocalizedString("core.regeneratePlugin.success.viewPluginManifest"))
+          );
+        } else if (level === "warn") {
+          return Promise.resolve(ok("Regenerate"));
+        } else {
+          throw new NotImplementedError("TEST", "showMessage");
+        }
+      });
+
+    sandbox.stub(openApiSpecHelper, "generateFromApiSpec").resolves(ok({ warnings: [] }));
+    sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
+
+    const manifestError = new SystemError("test-source", "test-name", "test-message");
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(err(manifestError));
+
+    const core = new FxCore(tools);
+    const result = await core.regeneratePlugin(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error, manifestError);
+    }
+  });
+});
+
 describe("kiotaRegenerate", async () => {
   const sandbox = sinon.createSandbox();
   let mockedEnvRestore: RestoreFn;
@@ -6482,7 +7360,7 @@ describe("kiotaRegenerate", async () => {
       ],
     } as any);
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",
@@ -6567,7 +7445,7 @@ describe("kiotaRegenerate", async () => {
       } as DeclarativeCopilotManifestSchema)
     );
 
-    sandbox.stub(openApiSpecHelper, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         authType: "apiKey",

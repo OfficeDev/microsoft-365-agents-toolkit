@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit message extension search sample",
+    "description": "Microsoft 365 Agents Toolkit message extension search sample",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -10,8 +10,8 @@
     "main": "./lib/src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
         "build": "tsc --build",
         "start": "node ./lib/src/index.js",
@@ -23,10 +23,11 @@
         "url": "https://github.com"
     },
     "dependencies": {
+        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting-teams": "^0.1.49",
         "adaptive-expressions": "^4.20.0",
         "adaptivecards-templating": "^2.3.1",
         "adaptivecards": "^3.0.1",
-        "botbuilder": "^4.23.1",
         "express": "^5.0.1"
     },
     "devDependencies": {

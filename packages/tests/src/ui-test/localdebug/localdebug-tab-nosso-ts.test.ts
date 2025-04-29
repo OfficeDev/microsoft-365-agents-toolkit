@@ -18,6 +18,7 @@ import {
   ValidationContent,
   DebugItemSelect,
   LocalDebugTaskResult,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -41,7 +42,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("tabnsso", {
-      lang: "typescript",
+      lang: Lang.TS,
     });
     await localDebugTestContext.before();
   });

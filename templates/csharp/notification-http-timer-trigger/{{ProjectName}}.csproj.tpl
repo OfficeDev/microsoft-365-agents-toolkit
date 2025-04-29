@@ -24,7 +24,7 @@
 {{/isNewProjectTypeEnabled}}
   <ItemGroup>
     <None Include=".notification.local*.json" />
-    <None Include=".notification.testtool*.json" />
+    <None Include=".notification.playground*.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +33,9 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.171-alpha" />
-    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.171-alpha" />
-    <PackageReference Include="Microsoft.TeamsFx" Version="3.0.0-rc">
+    <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.2.*-*" />
+    <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.2.*-*" />
+    <PackageReference Include="Microsoft.TeamsFx" Version="3.0.*-*">
       <!-- Exclude TeamsFx wwwroot static files which are for frontend only. -->
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
@@ -65,7 +65,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
-    <None Update="appsettings.TestTool.json">
+    <None Update="appsettings.Playground.json">
       <DependentUpon>appsettings.json</DependentUpon>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>

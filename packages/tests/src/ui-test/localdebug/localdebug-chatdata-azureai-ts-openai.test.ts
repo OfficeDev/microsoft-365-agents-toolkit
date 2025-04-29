@@ -16,6 +16,7 @@ import {
   LocalDebugTaskLabel,
   DebugItemSelect,
   ValidationContent,
+  Lang,
 } from "../../utils/constants";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -31,7 +32,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("chatdata", {
-      lang: "typescript",
+      lang: Lang.TS,
       customCopilotRagType: "custom-copilot-rag-azureAISearch",
       llmServiceType: "llm-service-openai",
     });
@@ -68,7 +69,7 @@ describe("Local Debug Tests", function () {
       const testToolEnvPath = path.resolve(
         projectPath,
         "env",
-        ".env.testtool.user"
+        ".env.playground.user"
       );
       editDotEnvFile(testToolEnvPath, "SECRET_OPENAI_API_KEY", openAiKey);
       editDotEnvFile(testToolEnvPath, "SECRET_AZURE_SEARCH_KEY", searchKey);

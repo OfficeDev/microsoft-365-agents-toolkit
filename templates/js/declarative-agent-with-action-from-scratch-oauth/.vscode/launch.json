@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch App in Teams (Edge)",
+            "name": "Launch Agent in Teams (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${local:agent-hint}?auth=2&developerMode=Basic",
@@ -21,7 +21,7 @@
             ]
         },
         {
-            "name": "Launch App in Teams (Chrome)",
+            "name": "Launch Agent in Teams (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${local:agent-hint}?auth=2&developerMode=Basic",
@@ -86,10 +86,10 @@
         {
             "name": "Debug in Copilot (Edge)",
             "configurations": [
-                "Launch App in Teams (Edge)",
+                "Launch Agent in Teams (Edge)",
                 "Attach to Backend"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "all",
                 "order": 1
@@ -99,10 +99,10 @@
         {
             "name": "Debug in Copilot (Chrome)",
             "configurations": [
-                "Launch App in Teams (Chrome)",
+                "Launch Agent in Teams (Chrome)",
                 "Attach to Backend"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "all",
                 "order": 2

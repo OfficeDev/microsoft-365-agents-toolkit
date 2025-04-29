@@ -41,7 +41,7 @@ export async function getV3TeamsAppId(projectPath: string, env: string): Promise
 
 export async function getTeamsAppKeyName(env?: string): Promise<string | undefined> {
   const templatePath = pathUtils.getYmlFilePath(workspaceUri!.fsPath, env);
-  const maybeProjectModel = await metadataUtil.parse(templatePath, env);
+  const maybeProjectModel = await metadataUtil.parse(templatePath!);
   if (maybeProjectModel.isErr()) {
     return undefined;
   }

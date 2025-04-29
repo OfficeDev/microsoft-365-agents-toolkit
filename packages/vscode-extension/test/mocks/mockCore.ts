@@ -129,6 +129,15 @@ export class MockCore {
   async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
+  async shareApplication(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async removeSharedAccess(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
   async getProjectInfo(
     projectPath: string,
     env: string

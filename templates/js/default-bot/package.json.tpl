@@ -4,7 +4,7 @@
     "msteams": {
       "teamsAppId": null
     },
-    "description": "Microsoft Teams Toolkit hello world Bot sample",
+    "description": "Microsoft 365 Agents Toolkit echo bot sample",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -13,15 +13,15 @@
     "main": "index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --inspect=9239 --signal SIGINT ./index.js",
         "start": "node ./index.js",
         "watch": "nodemon ./index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "botbuilder": "^4.23.1",
+        "@microsoft/agents-hosting": "^0.1.49",
         "express": "^5.0.1"
     },
     "devDependencies": {

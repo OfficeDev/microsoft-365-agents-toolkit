@@ -1,1 +1,1 @@
-You are an AI bot that can chat with users.
+You are an AI agent that can chat with users.

@@ -21,6 +21,7 @@ import {
   DebugItemSelect,
   ValidationContent,
   LocalDebugTaskLabel2,
+  Lang,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -34,7 +35,7 @@ describe("Local Debug Tests", function () {
     // ensure workbench is ready
     this.timeout(Timeout.prepareTestCase);
     localDebugTestContext = new LocalDebugTestContext("aichat", {
-      lang: "python",
+      lang: Lang.PY,
       llmServiceType: "llm-service-openai",
     });
     await localDebugTestContext.before();

@@ -1,4 +1,4 @@
-# Welcome to Teams Toolkit!
+# Welcome to Microsoft 365 Agents Toolkit!
 
 This empty Teams app project template is ready for you to connect with your existing projects or use it as a starting point for new Teams apps.
 

@@ -12,8 +12,13 @@ export enum TemplateNames {
   DeclarativeAgentWithActionFromExistingApiSpec = "api-plugin-from-existing-api", // handled by DeclarativeAgentWithExistingApiSpecGenerator
   DeclarativeAgentWithExistingAction = "api-plugin-existing-api", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
 
   // custom engine agent
+  BasicCustomEngineAgent = "basic-custom-engine-agent",
+  WeatherAgent = "weather-agent",
+
+  // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",
   CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
@@ -22,7 +27,7 @@ export enum TemplateNames {
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
 
-  // graph connector
+  // copilot connector
   GraphConnector = "graph-connector", // vsc only
 
   // tab

@@ -1,12 +1,11 @@
 import { default as axios } from "axios";
 import * as querystring from "querystring";
+import { CardFactory, TurnContext } from "@microsoft/agents-hosting";
 import {
   TeamsActivityHandler,
-  CardFactory,
-  TurnContext,
   MessagingExtensionQuery,
   MessagingExtensionResponse,
-} from "botbuilder";
+} from "@microsoft/agents-hosting-teams";
 import * as ACData from "adaptivecards-templating";
 import helloWorldCard from "./adaptiveCards/helloWorldCard.json";
 

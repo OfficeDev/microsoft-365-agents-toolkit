@@ -38,6 +38,7 @@ describe("CreateDevChannelDriver", () => {
     const outputEnvVarNames = new Map([
       ["teamId", "TEAM_ID"],
       ["channelId", "CHANNEL_ID"],
+      ["channelWebUrl", "CHANNEL_WEB_URL"],
     ]);
 
     const restore = mockedEnv({
@@ -45,11 +46,12 @@ describe("CreateDevChannelDriver", () => {
       CHANNEL_ID: "exisitng-channel-id",
     });
 
+    sandbox.stub(GraphClient.prototype, "GetChannelDeeplinkAsync").resolves("fake-deeplink");
     const result = await driver.execute(args, mockContext, outputEnvVarNames);
 
     expect(result.result.isOk()).to.be.true;
     if (result.result.isOk()) {
-      expect(result.result.value.size).to.equal(0);
+      expect(result.result.value.size).to.equal(3);
     }
     restore();
   });
@@ -71,6 +73,7 @@ describe("CreateDevChannelDriver", () => {
     };
 
     sandbox.stub(GraphClient.prototype, "CreateTeamAndChannelAsync").resolves(mockGraphResponse);
+    sandbox.stub(GraphClient.prototype, "GetChannelDeeplinkAsync").resolves("fake-deeplink");
 
     const result = await driver.create(args, mockContext, outputEnvVarNames);
 

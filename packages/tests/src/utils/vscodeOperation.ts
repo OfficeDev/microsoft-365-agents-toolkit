@@ -25,6 +25,7 @@ import {
   Timeout,
   CreateProjectQuestion,
   AppType,
+  Lang,
 } from "./constants";
 import { RetryHandler } from "./retryHandler";
 import isWsl from "is-wsl";
@@ -544,7 +545,7 @@ export async function createNewProject(
   appType: AppType,
   appName: string,
   option?: {
-    lang?: "JavaScript" | "TypeScript" | "Python";
+    lang?: Lang;
     spfxFrameworkType?: "React" | "None" | "Minimal";
     aiType?: "Azure OpenAI" | "OpenAI";
     aiManagement?: "Build from Scratch" | "Build with Assistants API";
@@ -588,6 +589,8 @@ export async function createNewProject(
   // if exist click it
   switch (appType) {
     case "tabnsso": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
@@ -596,6 +599,8 @@ export async function createNewProject(
       break;
     }
     case "tab": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await input.selectQuickPick("React with Fluent UI");
       await driver.sleep(Timeout.input);
@@ -604,6 +609,8 @@ export async function createNewProject(
       break;
     }
     case "bot": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await input.selectQuickPick("Basic Bot");
       await driver.sleep(Timeout.input);
@@ -612,6 +619,9 @@ export async function createNewProject(
       break;
     }
     case "crbot": {
+      console.log("create new crbot project: ", appName);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("Chat Command");
@@ -623,6 +633,8 @@ export async function createNewProject(
       break;
     }
     case "funcnoti": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await input.selectQuickPick("Chat Notification Message");
       await driver.sleep(Timeout.input);
@@ -640,6 +652,8 @@ export async function createNewProject(
       break;
     }
     case "expressnoti": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await input.selectQuickPick("Chat Notification Message");
       await driver.sleep(Timeout.input);
@@ -652,6 +666,8 @@ export async function createNewProject(
       break;
     }
     case "msg": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Collect Form Input and Process Data");
       await driver.sleep(Timeout.input);
@@ -660,6 +676,8 @@ export async function createNewProject(
       break;
     }
     case "msgsa": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Custom Search Results");
       await input.selectQuickPick("Start with a Bot");
@@ -669,6 +687,8 @@ export async function createNewProject(
       break;
     }
     case "m365lp": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await input.selectQuickPick("React with Fluent UI");
       await driver.sleep(Timeout.input);
@@ -679,6 +699,8 @@ export async function createNewProject(
     case "spfx": {
       scaffoldingTime = scaffoldingSpfxTime;
       // Choose Tab(SPFx)
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("SPFx");
@@ -703,6 +725,8 @@ export async function createNewProject(
       break;
     }
     case "gspfx": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("SPFx");
@@ -727,6 +751,8 @@ export async function createNewProject(
       break;
     }
     case "importspfx": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("SPFx");
@@ -760,6 +786,8 @@ export async function createNewProject(
       // Choose Dashboard Tab
       // A/B test
       // await input.selectQuickPick('Embed a dashboard canvas in Teams');
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await input.selectQuickPick("Dashboard");
       await driver.sleep(Timeout.input);
@@ -768,6 +796,9 @@ export async function createNewProject(
       break;
     }
     case "workflow": {
+      console.log("create new workflow project: ", appName);
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       // await input.selectQuickPick("Sequential Workflow in Chat");
       await input.setText("Sequential Workflow in Chat");
@@ -778,6 +809,8 @@ export async function createNewProject(
       break;
     }
     case "timenoti": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await input.selectQuickPick("Chat Notification Message");
       await driver.sleep(Timeout.input);
@@ -790,6 +823,8 @@ export async function createNewProject(
       break;
     }
     case "functimernoti": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
       await input.selectQuickPick("Chat Notification Message");
       await driver.sleep(Timeout.input);
@@ -827,6 +862,8 @@ export async function createNewProject(
       break;
     }
     case "linkunfurl": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Link Unfurling");
       await driver.sleep(Timeout.input);
@@ -837,7 +874,7 @@ export async function createNewProject(
     case "aichat": {
       await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
       await driver.sleep(Timeout.input);
-      await input.selectQuickPick("Basic AI Chatbot");
+      await input.selectQuickPick(CreateProjectQuestion.BasicCustomEngineAgent);
       await driver.sleep(Timeout.input);
       // Choose ai type
       await input.setText(aiType);
@@ -870,10 +907,10 @@ export async function createNewProject(
       break;
     }
     case "aiagentassist": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
-      // await input.selectQuickPick("AI Agent");
-      await input.setText("AI Agent");
+      // await input.selectQuickPick("Agent with API");
+      await input.setText("Agent with API");
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(aiManagement);
@@ -891,10 +928,10 @@ export async function createNewProject(
       break;
     }
     case "aiagentnew": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
-      // await input.selectQuickPick("AI Agent");
-      await input.setText("AI Agent");
+      // await input.selectQuickPick("Agent with API");
+      await input.setText("Agent with API");
       await input.confirm();
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(aiManagement);
@@ -912,7 +949,7 @@ export async function createNewProject(
       break;
     }
     case "chatdata": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick("Chat With Your Data");
       await driver.sleep(Timeout.input);
@@ -932,7 +969,7 @@ export async function createNewProject(
     }
 
     case "cdcustomapi": {
-      await input.selectQuickPick(CreateProjectQuestion.CustomCopilot);
+      await input.selectQuickPick(CreateProjectQuestion.AgentForTeams);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick("Chat With Your Data");
       await driver.sleep(Timeout.input);
@@ -962,6 +999,8 @@ export async function createNewProject(
       break;
     }
     case "msgnewapi": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Custom Search Results");
       await input.selectQuickPick(CreateProjectQuestion.StartWithNewApi);
@@ -978,6 +1017,8 @@ export async function createNewProject(
       break;
     }
     case "msgapikey": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Custom Search Results");
       await input.selectQuickPick(CreateProjectQuestion.StartWithNewApi);
@@ -987,6 +1028,8 @@ export async function createNewProject(
       break;
     }
     case "msgmicroentra": {
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
       await input.selectQuickPick("Custom Search Results");
       await input.selectQuickPick(CreateProjectQuestion.StartWithNewApi);
@@ -1407,6 +1450,8 @@ export async function createNewProjectByApispec(
   driver: WebDriver,
   input: InputBox
 ): Promise<void> {
+  await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+  await driver.sleep(Timeout.input);
   await input.selectQuickPick(CreateProjectQuestion.MessageExtension);
   await input.selectQuickPick("Custom Search Results");
   await input.setText("Start with an OpenAPI Description Document");

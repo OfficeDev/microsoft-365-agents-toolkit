@@ -2,7 +2,17 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { M365TokenProvider, LogProvider } from "@microsoft/teamsfx-api";
+import {
+  M365TokenProvider,
+  LogProvider,
+  ok,
+  err,
+  FxError,
+  Result,
+  SystemError,
+  SensitivityLabel,
+  signedIn,
+} from "@microsoft/teamsfx-api";
 import { AxiosInstance } from "axios";
 import { ErrorContextMW } from "../common/globalVars";
 import { GetTeamsAppSettingsResponse } from "./interfaces/GetTeamsAppSettingsResponse";
@@ -13,15 +23,44 @@ import {
   GraphTeamsInstallAppScopes,
   GraphTeamsTeamCreateScopes,
   GraphTeamsTeamReadScopes,
+  ListSensitivityLabelScope,
 } from "../common/constants";
 import { GetJoinedTeamsResponse } from "./interfaces/GetJoinedTeamsResponse";
 import { GetChannelResponse } from "./interfaces/GetChannelResponse";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import { CreateChannelResponse } from "./interfaces/CreateChannelResponse";
 import { CreateTeamAndChannelResponse } from "./interfaces/CreateTeamAndChannelResponse";
+import { ListSensitivityCacheValue } from "./interfaces/ListSensitivityCacheValue";
 import { waitSeconds } from "../common/utils";
 import { getLocalizedString } from "../common/localizeUtils";
 import { GetAppInstallationResponse } from "./interfaces/GetAppInstallationResponse";
+import { globalStateGet, globalStateUpdate } from "../common/globalState";
+import { getDefaultString } from "../common/localizeUtils";
+
+const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
+const errorSourceName = "GraphAPI";
+const GeneralLabelDisplayName = "General";
+const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
+
+export class RetryHandler {
+  public static RETRIES = 3;
+  public static async Retry<T>(fn: () => Promise<T>): Promise<T | undefined> {
+    let retries = this.RETRIES;
+    let lastError: any;
+    while (retries > 0) {
+      retries--;
+      try {
+        return await fn();
+      } catch (e: any) {
+        lastError = e;
+        if (retries > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+      }
+    }
+    throw lastError;
+  }
+}
 
 export class GraphClient {
   private readonly baseUrl: string =
@@ -40,6 +79,113 @@ export class GraphClient {
     });
     instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     return instance;
+  }
+
+  @hooks([ErrorContextMW({ source: "Graph", component: "GraphAPIClient" })])
+  async listSensitivityLabels(
+    token: string,
+    useCache = false
+  ): Promise<Result<SensitivityLabel[], FxError>> {
+    try {
+      const userInfo = await this.getCurrentUserInfo();
+      const accountUniqueName = userInfo[0];
+      const tenantId = userInfo[1];
+
+      if (useCache && accountUniqueName && tenantId) {
+        // TTK supports switching tenant, so we need to add tenantId in the cache key.
+        const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+        const cacheValueRes = await globalStateGet(cacheKey);
+        if (cacheValueRes) {
+          const timeStamp = cacheValueRes.unixTimestamp;
+          // if cache data is within 1 day, use the cache.
+          if (Date.now() - timeStamp < 1000 * 60 * 60 * 24) {
+            return ok(cacheValueRes.labels);
+          }
+        }
+      }
+      const requester = WrappedAxiosClient.create({
+        baseURL: this.baseUrl,
+      });
+      requester.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      requester.defaults.headers.common["Content-Type"] = "application/json";
+
+      const response = await RetryHandler.Retry(() => requester.get(listSensitivityLabelAPIPath));
+
+      if (response && response.data && response.data.value) {
+        if (accountUniqueName && tenantId) {
+          // always update the cache if the user is signed in.
+          const cacheKey = this.buildCacheKey(accountUniqueName, tenantId);
+          // only retrieve the necessary properties from the response.data.value
+          const labels = response.data.value.map(
+            (label: any) =>
+              ({
+                id: label?.id,
+                name: label?.name,
+                description: label?.description,
+                displayName: label?.displayName,
+              } as SensitivityLabel)
+          );
+          const cacheValue: ListSensitivityCacheValue = {
+            labels: labels,
+            unixTimestamp: Date.now(),
+          };
+          await globalStateUpdate(cacheKey, cacheValue);
+        }
+        return ok(response.data.value);
+      } else {
+        return err(
+          new SystemError({
+            name: "listSensitivityLabelsError",
+            message: getDefaultString(
+              "error.graphAPI.apiFailed.message",
+              "listSensitivityLabels",
+              "empty data"
+            ),
+            source: errorSourceName,
+          })
+        );
+      }
+    } catch (error: any) {
+      return err(
+        new SystemError({
+          name: "listSensitivityLabelsError",
+          message: getDefaultString(
+            "error.graphAPI.apiFailed.message",
+            "listSensitivityLabels",
+            error.message
+          ),
+          source: errorSourceName,
+        })
+      );
+    }
+  }
+
+  async getGeneralSentivityLabel(token: string): Promise<Result<SensitivityLabel, FxError>> {
+    const result = await this.listSensitivityLabels(token);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+    const labels = result.value;
+    const generalLabel = labels.find((label) => label.displayName === GeneralLabelDisplayName);
+    if (generalLabel && generalLabel.id) {
+      return ok(generalLabel);
+    } else {
+      return err(
+        new SystemError({
+          name: "getGeneralSentivityLabelError",
+          message: getDefaultString(
+            "error.graphAPI.apiFailed.message",
+            "getGeneralSentivityLabelId",
+            "General label not found"
+          ),
+          source: errorSourceName,
+        })
+      );
+    }
+  }
+
+  private buildCacheKey(accountUniqueName: string, tenantId: string): string {
+    return `${listSensitivityLabelCacheKeyPrefix}:${tenantId}:${accountUniqueName}`;
   }
 
   /**
@@ -76,6 +222,12 @@ export class GraphClient {
     return <GetJoinedTeamsResponse>response.data.value;
   }
 
+  /**
+   * Get weburl of a channel.
+   * @param teamId
+   * @param channelId
+   * @returns
+   */
   @hooks([ErrorContextMW({ source: "Teams", component: "GraphClient" })])
   public async GetChannelDeeplinkAsync(teamId: string, channelId: string): Promise<string> {
     const tokenResponse = await this.tokenProvider.getAccessToken({
@@ -87,7 +239,7 @@ export class GraphClient {
     const requester = this.createRequesterWithToken(tokenResponse.value);
 
     const response = await requester.get(`/teams/${teamId}/channels/${channelId}`);
-    const data = <GetChannelResponse>response.data.value;
+    const data = <GetChannelResponse>response.data;
     return data.webUrl;
   }
 
@@ -258,5 +410,34 @@ export class GraphClient {
 
     const response = await requester.get(`/teams/${teamId}/channels`);
     return <GetChannelResponse[]>response.data.value;
+  }
+
+  /**
+   * Get current user info
+   * @returns unique name and tenant id in string array
+   */
+  public async getCurrentUserInfo(): Promise<string[]> {
+    // check if user has already logged in to the sensitivity label scope
+    const loginStatusRes = await this.tokenProvider.getStatus({
+      scopes: [ListSensitivityLabelScope],
+    });
+    if (
+      !loginStatusRes ||
+      loginStatusRes.isErr() ||
+      loginStatusRes.value.status != signedIn ||
+      !loginStatusRes.value.token
+    ) {
+      return ["", ""];
+    }
+    let accountUniqueName = "";
+    let tenantId = "";
+    const accountInfo = loginStatusRes.value.accountInfo;
+    if (typeof accountInfo?.["unique_name"] === "string") {
+      accountUniqueName = accountInfo?.["unique_name"];
+    }
+    if (typeof accountInfo?.["tid"] === "string") {
+      tenantId = accountInfo?.["tid"];
+    }
+    return [accountUniqueName, tenantId];
   }
 }

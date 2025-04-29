@@ -5,23 +5,32 @@ import { Inputs, IQTreeNode, OptionItem, Platform } from "@microsoft/teamsfx-api
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getAllTemplatesOnPlatform } from "../../../component/generator/templates/metadata";
-import { ProgrammingLanguage, QuestionNames } from "../../constants";
-import { appNameQuestion, folderQuestion } from "../../create";
+import { ProgrammingLanguage } from "../../constants";
+import {
+  appNameQuestion,
+  folderQuestion,
+  GCConnectionIdQuestion,
+  GCNameQuestion,
+} from "../../create";
+import { QuestionNames } from "../../questionNames";
+
 import {
   ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotCapabilityOptions,
+  CustomEngineAgentOptions,
   DACapabilityOptions,
   MeCapabilityOptions,
   OfficeAddinCapabilityOptions,
   TabCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
-import { customEngineAgentProjectTypeNode } from "./customAgentProjectTypeNode";
+import { agentForTeamsProjectTypeNode } from "./agentForTeamsNode";
+import { customEngineAgentNode } from "./customEngineAgentNode";
 import { daProjectTypeNode } from "./daProjectTypeNode";
-import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
-import { botProjectTypeNode, meProjectTypeNode, tabProjectTypeNode } from "./teamsProjectTypeNode";
 import { graphConnectorProjectTypeNode } from "./graphConnectorProjectTypeNode";
+import { officeAddinProjectTypeNode } from "./officeAddinProjectTypeNode";
+import { teamsAppProjectNode, TeamsProjectTypeOptions } from "./teamsProjectTypeNode";
 
 export const LanguageOptionMap = new Map<string, OptionItem>([
   [ProgrammingLanguage.JS, { id: ProgrammingLanguage.JS, label: "JavaScript" }],
@@ -109,12 +118,9 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           staticOptions: [
             ProjectTypeOptions.declarativeAgent(platform),
             ProjectTypeOptions.customEngineAgent(platform),
-            ...(featureFlagManager.getBooleanValue(FeatureFlags.GraphConnector)
-              ? [ProjectTypeOptions.graphConnector(platform)]
-              : []),
-            ProjectTypeOptions.bot(platform),
-            ProjectTypeOptions.tab(platform),
-            ProjectTypeOptions.me(platform),
+            ProjectTypeOptions.graphConnector(platform),
+            ProjectTypeOptions.agentForTeams(platform),
+            ProjectTypeOptions.teamsApp(platform),
             ProjectTypeOptions.officeAddin(platform),
             ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
               ? [ProjectTypeOptions.startWithGithubCopilot()]
@@ -123,11 +129,10 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
         },
         children: [
           daProjectTypeNode(),
-          customEngineAgentProjectTypeNode(),
+          customEngineAgentNode(),
+          agentForTeamsProjectTypeNode(),
+          teamsAppProjectNode(platform),
           graphConnectorProjectTypeNode(),
-          botProjectTypeNode(),
-          tabProjectTypeNode(),
-          meProjectTypeNode(),
           officeAddinProjectTypeNode(),
         ],
       },
@@ -144,6 +149,22 @@ export function scaffoldQuestionForVSCode(platform: Platform = Platform.VSCode):
           {
             data: appNameQuestion(),
           },
+          {
+            condition: (inputs: Inputs) => {
+              return inputs[QuestionNames.WithPlugin] === DACapabilityOptions.withGC().id;
+            },
+            data: {
+              type: "group",
+            },
+            children: [
+              {
+                data: GCNameQuestion(),
+              },
+              {
+                data: GCConnectionIdQuestion(),
+              },
+            ],
+          },
         ],
       },
     ],
@@ -159,6 +180,9 @@ export function getProjectTypeByCapability(capability: string): string {
   if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
     return ProjectTypeOptions.copilotAgentOptionId;
   }
+  if ([CustomEngineAgentOptions.basicCustomEngineAgent().id].includes(capability)) {
+    return ProjectTypeOptions.customEngineAgentOptionId;
+  }
   if (
     [
       CustomCopilotCapabilityOptions.basicChatbot().id,
@@ -166,7 +190,7 @@ export function getProjectTypeByCapability(capability: string): string {
       CustomCopilotCapabilityOptions.aiAgent().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.customCopilotOptionId;
+    return ProjectTypeOptions.agentForTeamsOptionId;
   }
   if (
     [
@@ -174,28 +198,16 @@ export function getProjectTypeByCapability(capability: string): string {
       BotCapabilityOptions.notificationBot().id,
       BotCapabilityOptions.commandBot().id,
       BotCapabilityOptions.workflowBot().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.botOptionId;
-  }
-  if (
-    [
       TabCapabilityOptions.nonSsoTab().id,
       TabCapabilityOptions.m365SsoLaunchPage().id,
       TabCapabilityOptions.dashboardTab().id,
       TabCapabilityOptions.SPFxTab().id,
-    ].includes(capability)
-  ) {
-    return ProjectTypeOptions.tabOptionId;
-  }
-  if (
-    [
       MeCapabilityOptions.m365SearchMe().id,
       MeCapabilityOptions.collectFormMe().id,
       MeCapabilityOptions.linkUnfurling().id,
     ].includes(capability)
   ) {
-    return ProjectTypeOptions.meOptionId;
+    return ProjectTypeOptions.teamsAppOptionId;
   }
   if (
     [
@@ -215,5 +227,36 @@ export function getProjectTypeByCapability(capability: string): string {
     return ProjectTypeOptions.outlookAddinOptionId;
   }
 
+  return "";
+}
+
+export function getTeamsProjectTypeByCapability(capability: string): string {
+  if (
+    [
+      BotCapabilityOptions.basicBot().id,
+      BotCapabilityOptions.notificationBot().id,
+      BotCapabilityOptions.commandBot().id,
+      BotCapabilityOptions.workflowBot().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.botOptionId;
+  } else if (
+    [
+      TabCapabilityOptions.nonSsoTab().id,
+      TabCapabilityOptions.m365SsoLaunchPage().id,
+      TabCapabilityOptions.dashboardTab().id,
+      TabCapabilityOptions.SPFxTab().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.tabOptionId;
+  } else if (
+    [
+      MeCapabilityOptions.m365SearchMe().id,
+      MeCapabilityOptions.collectFormMe().id,
+      MeCapabilityOptions.linkUnfurling().id,
+    ].includes(capability)
+  ) {
+    return TeamsProjectTypeOptions.meOptionId;
+  }
   return "";
 }

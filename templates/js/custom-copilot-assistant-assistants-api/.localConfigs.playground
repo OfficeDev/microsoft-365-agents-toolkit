@@ -1,0 +1,6 @@
+# A gitignored place holder file for local runtime configurations
+BOT_ID=
+BOT_PASSWORD=
+OPENAI_API_KEY=
+OPENAI_ASSISTANT_ID=
+TEAMSFX_NOTIFICATION_STORE_FILENAME=.notification.playgroundstore.json

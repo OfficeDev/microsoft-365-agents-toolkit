@@ -17,6 +17,8 @@ import {
   OneDriveAndSharePointCapability,
   WebSearchCapability,
   SharePointIDs,
+  DeclarativeAgentManifest,
+  DeclarativeAgentManifestConverter,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { EOL } from "os";
@@ -62,10 +64,29 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public async readDeclarativeAgentManifestFile(
+    path: string
+  ): Promise<Result<DeclarativeAgentManifest, FxError>> {
+    if (!(await fs.pathExists(path))) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+    // Be compatible with UTF8-BOM encoding
+    // Avoid Unexpected token error at JSON.parse()
+    let content = await fs.readFile(path, { encoding: "utf-8" });
+    content = stripBom(content);
+
+    try {
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(content);
+      return ok(manifest);
+    } catch (e) {
+      return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
+    }
+  }
+
   public readCopilotGptManifestFileSync(
     path: string
   ): Result<DeclarativeCopilotManifestSchema, FxError> {
-    if (!fs.existsSync(path)) {
+    if (!fs.pathExistsSync(path)) {
       return err(new FileNotFoundError("CopilotGptManifestUtils", path));
     }
     // Be compatible with UTF8-BOM encoding
@@ -79,6 +100,26 @@ export class CopilotGptManifestUtils {
       return err(new FileNotFoundError("CopilotGptManifestUtils", path));
     }
   }
+
+  public readDeclarativeAgentManifestFileSync(
+    path: string
+  ): Result<DeclarativeAgentManifest, FxError> {
+    if (!fs.pathExistsSync(path)) {
+      return err(new FileNotFoundError("CopilotGptManifestUtils", path));
+    }
+    // Be compatible with UTF8-BOM encoding
+    // Avoid Unexpected token error at JSON.parse()
+    let content = fs.readFileSync(path, { encoding: "utf-8" });
+    content = stripBom(content);
+
+    try {
+      const manifest = DeclarativeAgentManifestConverter.jsonToManifest(content);
+      return ok(manifest);
+    } catch (e) {
+      return err(new JSONSyntaxError(path, e, "CopilotGptManifestUtils"));
+    }
+  }
+
   /**
    * Get Declarative Copilot Manifest with env value filled.
    * @param path path of declaraitve Copilot
@@ -112,6 +153,19 @@ export class CopilotGptManifestUtils {
     path: string
   ): Promise<Result<undefined, FxError>> {
     const content = JSON.stringify(manifest, undefined, 4);
+    try {
+      await fs.writeFile(path, content);
+    } catch (e) {
+      return err(new WriteFileError(e, "copilotGptManifestUtils"));
+    }
+    return ok(undefined);
+  }
+
+  public async writeDeclarativeAgentManifestFile(
+    manifest: DeclarativeAgentManifest,
+    path: string
+  ): Promise<Result<undefined, FxError>> {
+    const content = DeclarativeAgentManifestConverter.manifestToJson(manifest);
     try {
       await fs.writeFile(path, content);
     } catch (e) {

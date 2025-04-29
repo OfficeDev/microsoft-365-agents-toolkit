@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "name.short": {
+      "type": "string",
+      "maxLength": 30
+    },
+    "name.full": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "description.short": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "description.full": {
+      "type": "string",
+      "maxLength": 4000
+    }
+  },
+  "patternProperties": {
+    "^staticTabs\\[([0-9]|1[0-5])\\]\\.name$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.title$": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[[0-9]\\]\\.description$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.title$": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.description$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.parameters\\[[0-4]\\]\\.title$": {
+      "type": "string",
+      "maxLength": 32
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.parameters\\[[0-4]\\]\\.description$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.parameters\\[[0-4]\\]\\.value$": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.parameters\\[[0-4]\\]\\.choices\\[[0-9]\\]\\.title$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.taskInfo\\.title$": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "^activities.activityTypes\\[\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b]\\.description$": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "^activities.activityTypes\\[\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b]\\.templateText$": {
+      "type": "string",
+      "maxLength": 128
+    }
+  }
+}

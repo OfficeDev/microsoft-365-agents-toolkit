@@ -2,6 +2,11 @@
 
 > Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 5.14.1 - Mar 28, 2025
+This patch version update of Teams Toolkit includes several incremental enhancements and bug fixes:
+- Updated manifest version for Declarative Agent to v1.3
+- Added a warning message for upcomong CLI breaking changes in the next version
+
 ## 5.14.0 - Mar 24, 2025
 This update represents a minor version increment of the Teams Toolkit, below is a comprehensive list of new features, enhancements, and bug fixes implemented since the last stable release.
 

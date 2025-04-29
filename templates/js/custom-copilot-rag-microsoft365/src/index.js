@@ -1,10 +1,10 @@
 // Import required packages
 const express = require("express");
 
-// This bot's adapter
+// This agent's adapter
 const adapter = require("./adapter");
 
-// This bot's main dialog.
+// This agent's main dialog.
 const app = require("./app/app");
 const path = require("path");
 const send = require("send");

@@ -2,7 +2,7 @@
 
 This template showcases an app that send a message to Teams with Adaptive Cards triggered by a HTTP post request or timer schedule. You can further extend the template to consume, transform and post events to individual, chat or channel in Teams.
 
-The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft Bot Framework to implement this scenario.
+The app template is built using the TeamsFx SDK, which provides a simple set of functions over the Microsoft 365 Agents SDK to implement this scenario.
 
 ## Get Started with the Notification bot
 
@@ -12,42 +12,26 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 > To run the notification bot template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
-{{^enableTestToolByDefault}}
 > - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
-{{/enableTestToolByDefault}}
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
 > **Note**
 >
 > Your app can be installed into a team, or a group chat, or as personal app. See [Installation and Uninstallation](https://aka.ms/teamsfx-notification-new#customize-installation).
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
-{{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
-4. If you select `Timer Trigger`, wait for 30 seconds. If you select `HTTP Trigger`, send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
 3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
 4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
 5. If you select `Timer Trigger`, wait for 30 seconds. If you select `HTTP Trigger`, send a POST request to `http://<endpoint>/api/notification` with your favorite tool (like `Postman`)
-{{/enableTestToolByDefault}}
 
    - When your project is running locally, replace `<endpoint>` with `localhost:3978`
    - When your project is deployed to Azure App Service, replace `<endpoint>` with the url from Azure App Service
 
-{{#enableTestToolByDefault}}
-The bot will send an Adaptive Card to Teams App Test Tool:
-
-![Notification Message in Test Tool](https://github.com/OfficeDev/TeamsFx/assets/9698542/43ee64f4-5554-4e0b-854f-f7e20672cb25)
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
 The bot will send an Adaptive Card to Teams:
 
 ![Notification Message in Teams](https://user-images.githubusercontent.com/7642967/223006044-5003574e-2aee-4a41-9b71-c103d0439012.png)
-{{/enableTestToolByDefault}}
 
 ## What's included in the template
 
@@ -55,10 +39,9 @@ The bot will send an Adaptive Card to Teams:
 | - | - |
 | `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
 | `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool |
 | `env/`| Name / value pairs are stored in environment files and used by `teamsapp.yml` to customize the provisioning and deployment rules |
 | `.vscode/` | VSCode files for debugging |
-| `bot/` | The source code for the notification Teams application |
+| `src/` | The source code for the notification Teams application |
 | `appPackage/` | Templates for the Teams application manifest |
 | `infra/` | Templates for provisioning Azure resources |
 
@@ -71,7 +54,7 @@ The following files can be customized and demonstrate an example implementation 
 | `src/teamsBot.js` | An empty teams activity handler for bot customization |
 | `src/adaptiveCards/notification-default.json` | A generated Adaptive Card that is sent to Teams |
 
-The following files implement the core notification on the Bot Framework. You generally will not need to customize these files.
+The following files implement the core notification on the Microsoft 365 Agents SDK. You generally will not need to customize these files.
 
 | File / Folder | Contents |
 | - | - |
@@ -86,7 +69,7 @@ The following files are project-related files. You generally will not need to cu
 | `.funcignore` | Azure Functions ignore file to exclude local files |
 | `.gitignore` | Git ignore file |
 | `host.json` | Azure Functions host file |
-| `local.settings.json` | Azure Functions settings for debugging |
+| `local.settings.json` | Azure Functions settings for local debugging |
 | `package.json` | NPM package file |
 
 ## Extend the notification bot template
@@ -154,7 +137,7 @@ Adaptive cards can be updated on user action to allow user progress through a se
 
 - [Manage multiple environments](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-multi-env)
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [TeamsFx SDK](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

@@ -69,7 +69,7 @@
             "name": "Launch Remote (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
                 "group": "3-remote",
                 "order": 3
@@ -84,14 +84,9 @@
                 "Launch App (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 1
             },
             "stopAll": true
@@ -102,14 +97,9 @@
                 "Launch App (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
-{{#enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
                 "order": 2
             },
             "stopAll": true
@@ -119,27 +109,10 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
-                "group": "2-local",
-                "order": 3
-            },
-            "stopAll": true
-        },
-        {
-            "name": "Debug in Test Tool",
-            "configurations": [
-                "Attach to Local Service"
-            ],
-            "preLaunchTask": "Start Teams App (Test Tool)",
-            "presentation": {
-{{#enableTestToolByDefault}}
                 "group": "1-local",
-{{/enableTestToolByDefault}}
-{{^enableTestToolByDefault}}
-                "group": "2-local",
-{{/enableTestToolByDefault}}
-                "order": 1
+                "order": 3
             },
             "stopAll": true
         }

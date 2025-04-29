@@ -33,7 +33,7 @@
       "title": "Add dependencies"
     },
     {
-      "file": "teamsapp.local.yml",
+      "file": "m365agents.local.yml",
       "selection": {
         "start": {
           "line": 9,

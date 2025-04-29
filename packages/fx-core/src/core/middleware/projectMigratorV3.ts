@@ -18,7 +18,13 @@ import {
   sendTelemetryErrorEvent,
   sendTelemetryEvent,
 } from "../../common/telemetry";
-import { MetadataV2, MetadataV3, VersionSource, VersionState } from "../../common/versionMetadata";
+import {
+  MetadataV2,
+  MetadataV3,
+  MetadataV4,
+  VersionSource,
+  VersionState,
+} from "../../common/versionMetadata";
 import { MANIFEST_TEMPLATE_CONSOLIDATE } from "../../component/driver/teamsApp/constants";
 import { manifestUtils } from "../../component/driver/teamsApp/utils/ManifestUtils";
 import {
@@ -294,13 +300,13 @@ export async function generateAppYml(context: MigrationContext): Promise<void> {
     context.projectPath
   );
   const appYmlString: string = await appYmlGenerator.generateAppYml();
-  await context.fsWriteFile(MetadataV3.configFile, appYmlString);
+  await context.fsWriteFile(MetadataV4.configFile, appYmlString);
   if (oldProjectSettings.programmingLanguage?.toLowerCase() === "csharp") {
     const placeholderMappings = await getPlaceholderMappings(context);
     const appLocalYmlString: string = await appYmlGenerator.generateAppLocalYml(
       placeholderMappings
     );
-    await context.fsWriteFile(MetadataV3.localConfigFile, appLocalYmlString);
+    await context.fsWriteFile(MetadataV4.localConfigFile, appLocalYmlString);
   }
 }
 

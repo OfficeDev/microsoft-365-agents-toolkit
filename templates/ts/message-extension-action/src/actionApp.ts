@@ -1,10 +1,9 @@
+import { CardFactory, TurnContext } from "@microsoft/agents-hosting";
 import {
   TeamsActivityHandler,
-  CardFactory,
-  TurnContext,
   MessagingExtensionAction,
   MessagingExtensionActionResponse,
-} from "botbuilder";
+} from "@microsoft/agents-hosting-teams";
 import * as ACData from "adaptivecards-templating";
 import helloWorldCard from "./adaptiveCards/helloWorldCard.json";
 

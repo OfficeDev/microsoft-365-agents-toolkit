@@ -25,7 +25,7 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 
   // Only send error message for user messages, not for other message types so the bot doesn't spam a channel or chat.
   if (context.activity.type === "message") {
-    // Send a trace activity, which will be displayed in Bot Framework Emulator
+    // Send a trace activity
     await context.sendTraceActivity(
       "OnTurnError Trace",
       `${error}`,
@@ -42,7 +42,7 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 // Set the onTurnError for the singleton CloudAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-// Create express application with rate limiting
+// Create express application
 const server = express();
 server.use(express.json());
 server.use(authorizeJWT(authConfig));

@@ -18,10 +18,10 @@ import {
 } from "../src/interfaces";
 import { ConstantString } from "../src/constants";
 import { Utils } from "../src/utils";
-import { PluginManifestSchema, ManifestUtil } from "@microsoft/teams-manifest";
+import { PluginManifestSchema, ManifestUtil, AppManifestUtils } from "@microsoft/app-manifest";
 describe("updateManifestWithAiPlugin", () => {
   beforeEach(() => {
-    sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(false);
+    sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(false);
   });
   afterEach(() => {
     sinon.restore();
@@ -300,7 +300,7 @@ describe("updateManifestWithAiPlugin", () => {
 
     it("should generate response semantics based on the response - 2", async () => {
       sinon.restore();
-      sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(true);
+      sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(true);
       const spec: any = {
         openapi: "3.0.2",
         info: {
@@ -468,7 +468,7 @@ describe("updateManifestWithAiPlugin", () => {
 
     it("should generate response semantics based on the response - 3", async () => {
       sinon.restore();
-      sinon.stub(ManifestUtil, "useCopilotExtensionsInSchema").resolves(true);
+      sinon.stub(ManifestUpdater, "useCopilotExtensionsInSchema").resolves(true);
       const spec: any = {
         openapi: "3.0.2",
         info: {
@@ -2446,142 +2446,6 @@ describe("updateManifestWithAiPlugin", () => {
     expect(manifest).to.deep.equal(expectedManifest);
     expect(apiPlugin).to.deep.equal(expectedPlugins);
     expect(warnings).to.deep.equal([]);
-  });
-
-  it("should update ai-plugin function correctly if description is undefined or description length > 100", async () => {
-    const spec: any = {
-      openapi: "3.0.2",
-      info: {
-        title: "My API",
-        description: "My API description",
-      },
-      servers: [
-        {
-          url: "/v3",
-        },
-      ],
-      paths: {
-        "/pets": {
-          get: {
-            operationId: "getPets",
-            summary: "Get all pets",
-            parameters: [
-              {
-                name: "limit",
-                description: "Maximum number of pets to return",
-                required: true,
-                schema: {
-                  type: "integer",
-                },
-              },
-            ],
-          },
-          post: {
-            operationId: "createPet",
-            summary: "Create a pet",
-            description:
-              "Create a new pet in the store with a long description that is over 100 characters, which should be truncated",
-            requestBody: {
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    required: ["name"],
-                    properties: {
-                      name: {
-                        type: "string",
-                        description: "Name of the pet",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    };
-    const manifestPath = "/path/to/your/manifest.json";
-    const outputSpecPath = "/path/to/your/spec/outputSpec.yaml";
-    const pluginFilePath = "/path/to/your/ai-plugin.json";
-
-    const originalManifest = {
-      name: { short: "Original Name", full: "Original Full Name" },
-      description: { short: "Original Short Description", full: "Original Full Description" },
-    };
-    const expectedManifest = {
-      name: { short: "Original Name", full: "Original Full Name" },
-      description: { short: "My API", full: "My API description" },
-      copilotAgents: {
-        plugins: [
-          {
-            file: "ai-plugin.json",
-            id: "plugin_1",
-          },
-        ],
-      },
-    };
-
-    const expectedPlugins: PluginManifestSchema = {
-      $schema: ConstantString.PluginManifestSchema,
-      schema_version: "v2.2",
-      name_for_human: "Original Name",
-      namespace: "originalname",
-      description_for_human: "My API description",
-      functions: [
-        {
-          name: "getPets",
-          description: "Get all pets",
-        },
-        {
-          name: "createPet",
-          description:
-            "Create a new pet in the store with a long description that is over 100 characters, which should be t",
-        },
-      ],
-      runtimes: [
-        {
-          type: "OpenApi",
-          auth: {
-            type: "None",
-          },
-          spec: {
-            url: "spec/outputSpec.yaml",
-          },
-          run_for_functions: ["getPets", "createPet"],
-        },
-      ],
-    };
-    sinon.stub(fs, "readJSON").resolves(originalManifest);
-    sinon
-      .stub(fs, "pathExists")
-      .withArgs(manifestPath)
-      .resolves(true)
-      .withArgs(pluginFilePath)
-      .resolves(false);
-
-    const options: ParseOptions = {
-      allowMethods: ["get", "post"],
-    };
-    const [manifest, apiPlugin, warnings] = await ManifestUpdater.updateManifestWithAiPlugin(
-      manifestPath,
-      outputSpecPath,
-      pluginFilePath,
-      spec,
-      options,
-      {}
-    );
-
-    expect(manifest).to.deep.equal(expectedManifest);
-    expect(apiPlugin).to.deep.equal(expectedPlugins);
-    expect(warnings).to.deep.equal([
-      {
-        content:
-          "The description of the function 'createPet' is too long. The current length is 108 characters, while the maximum allowed length is 100 characters.",
-        data: "createPet",
-        type: "function-description-too-long",
-      },
-    ]);
   });
 
   it("should use safe function name if operation id contains special characters", async () => {
@@ -5917,6 +5781,40 @@ describe("manifestUpdater", () => {
 
     expect(result).to.deep.equal(expectedManifest);
     expect(warnings).to.deep.equal([]);
+  });
+  describe("useCopilotExtensionsInSchema", async () => {
+    let fetchSchemaStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      fetchSchemaStub = sinon.stub(AppManifestUtils, "fetchSchema");
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should return true when copilotExtensions exist in schema definitions", async () => {
+      const mockSchema = {
+        properties: {
+          copilotExtensions: {},
+        },
+      };
+
+      fetchSchemaStub.resolves(mockSchema);
+
+      const result = await ManifestUpdater.useCopilotExtensionsInSchema({} as any);
+      expect(result).to.be.true;
+    });
+
+    it("should return false when copilotExtensions do not exist in schema definitions", async () => {
+      const mockSchema = {
+        properties: {},
+      };
+      fetchSchemaStub.resolves(mockSchema);
+
+      const result = await ManifestUpdater.useCopilotExtensionsInSchema({} as any);
+      expect(result).to.be.false;
+    });
   });
 });
 

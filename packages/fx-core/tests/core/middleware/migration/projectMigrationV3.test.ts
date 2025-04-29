@@ -66,6 +66,7 @@ import {
   readEnvFile,
   readEnvUserFile,
 } from "./utils";
+import { pathUtils } from "../../../../src";
 
 let mockedEnvRestore: () => void;
 const mockedId = "00000000-0000-0000-0000-000000000000";
@@ -1166,6 +1167,7 @@ describe("Migration utils", () => {
       .stub(settingsUtil, "readSettings")
       .resolves(ok({ trackingId: "mockId", version: "1.0.0" }));
     sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "readFile").resolves("version: 1.0.0" as any);
     const state = await checkVersionForMigration(migrationContext);
     assert.equal(state.state, VersionState.compatible);

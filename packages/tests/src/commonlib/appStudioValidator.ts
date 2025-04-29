@@ -4,7 +4,7 @@
 import axios, { AxiosInstance } from "axios";
 import * as chai from "chai";
 
-import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { M365TokenProvider } from "@microsoft/teamsfx-api";
 import { AppStudioScopes } from "@microsoft/teamsfx-core";
 import { IAppStudioObject } from "./interfaces/IAADDefinition";

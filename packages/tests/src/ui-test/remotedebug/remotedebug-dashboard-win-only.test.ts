@@ -65,7 +65,7 @@ describe("Remote debug Tests", function () {
       author: "v-ivanchen@microsoft.com",
     },
     async function () {
-      await createNewProject("dashboard", appName, { lang: "JavaScript" });
+      await createNewProject("dashboard", appName);
       await provisionProject(appName, projectPath);
       await deployProject(projectPath);
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(

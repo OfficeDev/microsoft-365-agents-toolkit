@@ -31,7 +31,7 @@ if (!azureOpenAIKey || !azureOpenAIDeploymentName || !azureOpenAIEndpoint) {
   const assistant = await preview.AssistantsPlanner.createAssistant(openAIKey, {
     name: "Assistant",
     instructions: [
-      "You are an intelligent bot that can",
+      "You are an intelligent agent that can",
       "- write and run code to answer math questions",
       "- use the provided functions to answer questions",
     ].join("\n"),
@@ -87,7 +87,7 @@ if (!azureOpenAIKey || !azureOpenAIDeploymentName || !azureOpenAIEndpoint) {
     {
       name: "Assistant",
       instructions: [
-        "You are an intelligent bot that can",
+        "You are an intelligent agent that can",
         "- write and run code to answer math questions",
         "- use the provided functions to answer questions",
       ].join("\n"),

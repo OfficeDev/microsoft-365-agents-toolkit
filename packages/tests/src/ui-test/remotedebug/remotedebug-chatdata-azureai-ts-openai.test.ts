@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout, ValidationContent } from "../../utils/constants";
+import { Timeout, ValidationContent, Lang } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   provisionProject,
@@ -72,7 +72,7 @@ describe("Remote debug Tests", function () {
     async function () {
       const driver = VSBrowser.instance.driver;
       await createNewProject("chatdata", appName, {
-        lang: "TypeScript",
+        lang: Lang.TS,
         aiType: "OpenAI",
         dataOption: "Azure AI Search",
       });
@@ -90,7 +90,7 @@ describe("Remote debug Tests", function () {
       const testToolEnvPath = path.resolve(
         projectPath,
         "env",
-        ".env.testtool.user"
+        ".env.playground.user"
       );
       editDotEnvFile(testToolEnvPath, "SECRET_OPENAI_API_KEY", openAiKey);
       editDotEnvFile(testToolEnvPath, "SECRET_AZURE_SEARCH_KEY", searchKey);

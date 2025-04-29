@@ -19,6 +19,7 @@ import { HttpClientError } from "../../../error/common";
 import { InvalidActionInputError, FileNotFoundError } from "../../../error/common";
 import { Constants } from "../teamsApp/constants";
 import { TelemetryProperty } from "../../../common/telemetry";
+import { InstallAppOutsideSandboxError } from "./errors";
 
 const actionName = "devChannel/installApp";
 
@@ -101,6 +102,17 @@ export class InstallAppToChannelDriver implements StepDriver {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         const message = JSON.stringify(error.response!.data);
+        // User trying to install app to a non-sandboxed team.
+        if (
+          error.response!.status === 404 &&
+          message.includes(
+            "Failed to execute TeamsGraphService backend request GetSandboxingConfigurationRequest"
+          )
+        ) {
+          context.logProvider.error(getLocalizedString("error.installApp.outsideSandbox"));
+          return err(new InstallAppOutsideSandboxError(actionName));
+        }
+
         context.logProvider.error(message);
         return err(new HttpClientError(error, actionName, message));
       } else {

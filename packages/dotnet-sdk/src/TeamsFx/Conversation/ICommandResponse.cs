@@ -3,7 +3,7 @@
 
 namespace Microsoft.TeamsFx.Conversation
 {
-    using Microsoft.Agents.BotBuilder;
+    using Microsoft.Agents.Builder;
 
     /// <summary>
     /// Defines a contract that represents a command response.

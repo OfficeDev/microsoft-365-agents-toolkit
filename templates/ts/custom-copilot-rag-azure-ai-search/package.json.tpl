@@ -4,7 +4,7 @@
     "msteams": {
         "teamsAppId": null
     },
-    "description": "Microsoft Teams Toolkit RAG Bot Sample with Azure AI Search and Teams AI Library",
+    "description": "Microsoft 365 Agents Toolkit RAG Bot Sample with Azure AI Search and Teams AI Library",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -13,15 +13,15 @@
     "main": "./lib/src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT -r ts-node/register ./src/index.ts",
         "build": "tsc --build && shx cp -r ./src/prompts ./lib/src",
         "start": "node ./lib/src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\"",
-        "indexer:create": "npm run build && shx cp -r ./src/indexers/data ./lib/src/indexers && env-cmd --silent -f env/.env.testtool.user node ./lib/src/indexers/setup.js",
-        "indexer:delete": "npm run build && env-cmd --silent -f env/.env.testtool.user node ./lib/src/indexers/delete.js"
+        "indexer:create": "npm run build && shx cp -r ./src/indexers/data ./lib/src/indexers && env-cmd --silent -f env/.env.playground.user node ./lib/src/indexers/setup.js",
+        "indexer:delete": "npm run build && env-cmd --silent -f env/.env.playground.user node ./lib/src/indexers/delete.js"
     },
     "repository": {
         "type": "git",

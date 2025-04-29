@@ -140,7 +140,7 @@
             "configurations": [
                 "Attach to Frontend in Teams (Edge)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 1
@@ -152,7 +152,7 @@
             "configurations": [
                 "Attach to Frontend in Teams (Chrome)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 2
@@ -164,7 +164,7 @@
             "configurations": [
                 "Attach to Frontend in Outlook (Edge)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 1
@@ -176,7 +176,7 @@
             "configurations": [
                 "Attach to Frontend in Outlook (Chrome)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 2
@@ -188,7 +188,7 @@
             "configurations": [
                 "Attach to Frontend in the Microsoft 365 app (Edge)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 3: the Microsoft 365 app",
                 "order": 1
@@ -200,7 +200,7 @@
             "configurations": [
                 "Attach to Frontend in the Microsoft 365 app (Chrome)"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 3: the Microsoft 365 app",
                 "order": 2

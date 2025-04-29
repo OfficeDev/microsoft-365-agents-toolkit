@@ -9,8 +9,10 @@ export class Extension {
   public static readonly activatedItemName: string = "DEVELOPMENT";
   public static readonly sidebarWelcomeSectionName: string =
     "Microsoft 365 Agents Toolkit";
-  public static readonly sidebarWelcomeContentName: string = "Create a New App";
-  public static readonly sidebarCommandContentName: string = "Create New App";
+  public static readonly sidebarWelcomeContentName: string =
+    "Create a New Agent/App";
+  public static readonly sidebarCommandContentName: string =
+    "Create New Agent/App";
   public static readonly sidebarCommandContentNameOfficeDev: string =
     "Preview Your Office Add-in (F5)";
   public static readonly settingsCategory: string = "Fx-extension";
@@ -254,8 +256,10 @@ export class Timeout {
   // mocha
   public static readonly prepareTestCase: number = 10 * 60 * 1000;
   public static readonly finishTestCase: number = 10 * 60 * 1000;
-  public static readonly testCase: number = 30 * 60 * 1000;
+  public static readonly testCase: number = 60 * 60 * 1000;
+  public static readonly localAndRemoteTestCase: number = 60 * 60 * 1000;
   public static readonly finishAzureTestCase: number = 15 * 60 * 1000;
+  public static readonly testAzureCaseTotal: number = 90 * 60 * 1000;
   public static readonly testAzureCase: number = 45 * 60 * 1000;
   public static readonly migrationTestCase: number = 40 * 60 * 1000;
 
@@ -333,11 +337,11 @@ export class CommandPaletteCommands {
   public static readonly SamplesCommand: string =
     "Microsoft 365 Agents: View Samples";
   public static readonly CreateProjectCommand: string =
-    "Microsoft 365 Agents: Create New App";
+    "Microsoft 365 Agents: Create New Agent/App";
   public static readonly ManifestValidateCommand: string =
     "Microsoft 365 Agents: Validate Application";
   public static readonly BuildTeamsPackageCommand: string =
-    "Microsoft 365 Agents: Zip Teams App Package";
+    "Microsoft 365 Agents: Zip App Package";
   public static readonly ProvisionCommand: string =
     "Microsoft 365 Agents: Provision";
   public static readonly DeployCommand: string = "Microsoft 365 Agents: Deploy";
@@ -353,6 +357,13 @@ export class CommandPaletteCommands {
     "Extensions: Install Specific Version of Extension";
   public static readonly AddSpfxWebPart: string =
     "Microsoft 365 Agents: Add SPFx web part";
+}
+
+export enum Lang {
+  JS = "JavaScript",
+  TS = "TypeScript",
+  PY = "Python",
+  CS = "C#",
 }
 
 export type AppType =
@@ -438,10 +449,12 @@ export class LocalDebugTaskResult {
   static readonly FunctionStarted = "Worker process started and initialized";
 }
 
-export enum LocalDebugTaskLabel2 {
-  StartBot2 = "Start Bot",
-  PythonDebugConsole = "Python Debug Console",
-  StartTestTool = "Start Test Tool",
+export class LocalDebugTaskLabel2 {
+  static readonly StartBot2 = "Start Bot";
+  static readonly PythonDebugConsole = "Python Debug Console";
+  static readonly StartAgentsPlayground =
+    "Start Microsoft 365 Agents Playground";
+  static readonly CompileTypescript = "Compile typescript";
 }
 
 export enum LocalDebugError {
@@ -457,11 +470,15 @@ export class LocalDebugTaskInfo {
   static readonly StartBotAppInfo = "App Started";
   static readonly StartBotInfo = "Bot Started";
   static readonly StartBotInfo2 = "Bot started";
+  static readonly AppListening = "app listening";
+  static readonly BackendStartedInfo = "Worker process started and initialized";
+  static readonly NoError = "Found 0 errors";
 }
 
 export class DebugItemSelect {
   static readonly DebugInTeamsUsingChrome = "Debug in Teams (Chrome)";
-  static readonly DebugInTestTool = "Debug in Test Tool";
+  static readonly DebugInAgentsPlayground =
+    "Debug in Microsoft 365 Agents Playground";
 }
 
 export class TestFilePath {
@@ -488,6 +505,8 @@ export class Notification {
 
 export class CreateProjectQuestion {
   static readonly CustomCopilot = "Custom Engine Agent";
+  static readonly TeamsApp = "Teams App";
+  static readonly AgentForTeams = "Agent for Teams";
   static readonly Bot = "Bot";
   static readonly Tab = "Tab";
   static readonly MessageExtension = "Message Extension";
@@ -502,20 +521,23 @@ export class CreateProjectQuestion {
   static readonly BuildNotificationBot = "Build a Notification Bot";
   static readonly BuildDeclarativeAgent = "Build a Declarative Agent";
   static readonly StartWithNewApi = "Start with a New API";
+  static readonly AgentWithApi = "Agent with API";
   static readonly DeclarativeAgent = "Declarative Agent";
+  static readonly BasicCustomEngineAgent = "Basic Custom Engine Agent";
+  static readonly BasicAgentForTeams = "Basic Agent for Teams";
 }
 
 export class ValidationContent {
   static readonly Tab = "Hello, World";
   static readonly Bot = "Your Hello World Bot is Running";
-  static readonly BotWelcomeInstruction =
-    "Hi there! I'm a Teams bot that will echo what you said to me";
+  static readonly BotWelcomeInstruction = "Hi there! I'm an echo bot";
   static readonly GraphBot = "Your Graph Connector Bot is Running";
   static readonly AiChatBotWelcomeInstruction = "How can I help you today?";
   static readonly AiAssistantBotWelcomeInstruction =
     "I'm an assistant bot. How can I help you today?";
   static readonly AiBotErrorMessage = "The bot encountered an error or bug";
   static readonly AiBotErrorMessage2 = "An AI request failed";
+  static readonly AiBotMeetingMessage = "Team Meeting";
 }
 
 export class CliVersion {

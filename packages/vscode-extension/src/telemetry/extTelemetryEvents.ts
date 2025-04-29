@@ -40,6 +40,9 @@ export enum TelemetryEvent {
   AddPluginStart = "add-plugin-start",
   AddPlugin = "add-plugin",
 
+  RegenerateActionStart = "regenerate-action-start",
+  RegenerateAction = "regenerate-action",
+
   AddKnowledgeStart = "add-knowledge-start",
   AddKnowledge = "add-knowledge",
 
@@ -83,6 +86,9 @@ export enum TelemetryEvent {
 
   ShareStart = "share-start",
   Share = "share",
+
+  ShareRemoveStart = "share-remove-start",
+  ShareRemove = "share-remove",
 
   PublishInDeveloperPortalStart = "publish-in-developer-portal-start",
   PublishInDeveloperPortal = "publish-in-developer-portal",
@@ -430,6 +436,7 @@ export enum TelemetryProperty {
   TeamsJSVersion = "version-teams-js",
   BotbuilderVersion = "version-botbuilder",
   KiotaInstalled = "kiota-installed",
+  KiotaNPMIntegrationEnabled = "kiota-npm-integration-enabled",
   ShowAddPluginTreeView = "show-add-plugin-tree-view",
   // Used with OpenTutorial
   TutorialName = "tutorial-name",

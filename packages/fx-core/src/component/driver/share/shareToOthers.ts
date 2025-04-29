@@ -5,7 +5,7 @@ import * as fs from "fs-extra";
 import { Service } from "typedi";
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { FxError, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { Colors, FxError, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
 
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { AppScope, PackageService } from "../../m365/packageService";
@@ -17,11 +17,11 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 
-interface ShareArgs {
+export interface ShareArgs {
   appPackagePath?: string; // The path of the app package
 }
 
-const actionName = "teamsApp/shareToOthers";
+export const actionName = "teamsApp/shareToOthers";
 
 const outputKeys = {
   titleId: "titleId",
@@ -97,6 +97,13 @@ export class ShareToOthersDriver implements StepDriver {
         appPackagePath,
         AppScope.Shared
       );
+
+      const shareSuccess = [
+        { content: "(√)Done: ", color: Colors.BRIGHT_GREEN },
+        { content: "Share Link: ", color: Colors.BRIGHT_WHITE },
+        { content: sideloadingRes[2], color: Colors.BRIGHT_MAGENTA },
+      ];
+      context.logProvider?.info(shareSuccess);
 
       return {
         output: new Map([

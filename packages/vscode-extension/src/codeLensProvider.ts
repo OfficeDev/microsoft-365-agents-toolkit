@@ -4,7 +4,7 @@
 import {
   AppPackageFolderName,
   ManifestTemplateFileName,
-  ManifestUtil,
+  SensitivityLabel,
   signedIn,
   TeamsAppManifest,
   TemplateFolderName,
@@ -17,7 +17,10 @@ import {
   featureFlagManager,
   getAllowedAppMaps,
   getPermissionMap,
-  listSensitivityLabelScope,
+  ListSensitivityLabelScope,
+  GraphClient,
+  copilotGptManifestUtils,
+  manifestUtils,
 } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as parser from "jsonc-parser";
@@ -30,7 +33,6 @@ import { TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import { localize } from "./utils/localizeUtils";
 import * as _ from "lodash";
 import path from "path";
-import { graphAPIClient } from "@microsoft/teamsfx-core/build/client/graphAPIClient";
 import * as util from "util";
 
 async function resolveEnvironmentVariablesCodeLens(lens: vscode.CodeLens, from: string) {
@@ -575,7 +577,7 @@ export class CopilotPluginCodeLensProvider implements vscode.CodeLensProvider {
     const codeLenses: vscode.CodeLens[] = [];
 
     const manifest: TeamsAppManifest = JSON.parse(document.getText());
-    const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+    const manifestProperties = manifestUtils.parseCommonProperties(manifest);
     if (!manifestProperties.isApiME) {
       return codeLenses;
     }
@@ -625,7 +627,7 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
       }
       const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
       const manifest = JSON.parse(manifestContent);
-      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      const manifestProperties = manifestUtils.parseCommonProperties(manifest);
       if (!manifestProperties.capabilities.includes("plugin")) {
         return [];
       }
@@ -659,7 +661,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    if (!fs.existsSync(manifestFilePath)) {
+    if (!fs.pathExistsSync(manifestFilePath)) {
       return [];
     }
     const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
@@ -677,11 +679,19 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     if (declarativeAgentFileAbsolutePath !== document.uri.fsPath) {
       return [];
     }
-    const Labelregex = /"sensitivity_label"\s*:\s*"(.*?)"/;
+    const Labelregex = /"sensitivity_label"\s*:/;
     const text = document.getText();
     const regex = new RegExp(Labelregex);
     const matches = regex.exec(text);
-    if (matches == null) {
+
+    const daManifest = await copilotGptManifestUtils.readDeclarativeAgentManifestFile(
+      document.uri.fsPath
+    );
+    let sensitivityLabel: SensitivityLabel | undefined;
+    if (daManifest.isOk()) {
+      sensitivityLabel = daManifest.value.sensitivity_label;
+    }
+    if (matches == null || daManifest.isErr() || !sensitivityLabel || !sensitivityLabel.id) {
       const startPosition = new vscode.Position(0, 0);
       const endPosition = document.positionAt(text.indexOf("\n"));
       const range = new vscode.Range(startPosition, endPosition);
@@ -694,14 +704,13 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       return [codeLens];
     }
     const line = document.lineAt(document.positionAt(matches.index).line);
-    const labelValue = matches[1];
     const startPosition = new vscode.Position(line.lineNumber, 0);
     const endPosition = new vscode.Position(line.lineNumber, 1);
     const range = new vscode.Range(startPosition, endPosition);
 
     // check if user has already logged in to the sensitivity label scope
     const loginStatusRes = await tools.tokenProvider?.m365TokenProvider?.getStatus({
-      scopes: [listSensitivityLabelScope],
+      scopes: [ListSensitivityLabelScope],
     });
     // not logged in
     if (
@@ -713,7 +722,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       const command = {
         title: localize("teamstoolkit.codeLens.setSensitivityLabelNotLoggedIn"),
         command: "fx-extension.m365PreAuth",
-        arguments: [{ scopes: [listSensitivityLabelScope] }],
+        arguments: [{ scopes: [ListSensitivityLabelScope] }],
       };
       const codeLens = new vscode.CodeLens(range, command);
       return [codeLens];
@@ -721,20 +730,11 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       let labelDisplayName: string | undefined;
       // query display name of the current label
       const token = loginStatusRes.value.token;
-      const accountInfo = loginStatusRes.value.accountInfo;
-      const accountUniqueName =
-        typeof accountInfo?.["unique_name"] === "string" ? accountInfo?.["unique_name"] : "";
-      const tenantId = typeof accountInfo?.["tid"] === "string" ? accountInfo?.["tid"] : "";
-
-      const result = await graphAPIClient.listSensitivityLabels(
-        token,
-        !!accountUniqueName && !!tenantId,
-        accountUniqueName,
-        tenantId
-      );
+      const graphClient = new GraphClient(tools.tokenProvider?.m365TokenProvider);
+      const result = await graphClient.listSensitivityLabels(token, true);
       if (result.isOk()) {
         for (const label of result.value) {
-          if (label.id === labelValue) {
+          if (label.id === sensitivityLabel.id) {
             labelDisplayName = label.displayName;
             break;
           }
@@ -881,7 +881,7 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
       }
       const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
       const manifest = JSON.parse(manifestContent);
-      const manifestProperties = ManifestUtil.parseCommonProperties(manifest);
+      const manifestProperties = manifestUtils.parseCommonProperties(manifest);
       if (!manifestProperties.capabilities.includes("copilotGpt")) {
         return [];
       }

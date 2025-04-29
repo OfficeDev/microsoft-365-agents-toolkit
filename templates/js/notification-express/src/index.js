@@ -1,7 +1,7 @@
 const notificationTemplate = require("./adaptiveCards/notification-default.json");
 const { notificationApp } = require("./internal/initialize");
 const ACData = require("adaptivecards-templating");
-const { TeamsBot } = require("./teamsBot");
+const { teamsBot } = require("./teamsBot");
 const express = require("express");
 
 // Create express application.
@@ -111,8 +111,7 @@ expressApp.post("/api/notification", async (req, res) => {
   res.json({});
 });
 
-// Bot Framework message handler.
-const teamsBot = new TeamsBot();
+// Microsoft 365 Agents SDK message handler.
 expressApp.post("/api/messages", async (req, res) => {
   await notificationApp.requestHandler(req, res, async (context) => {
     await teamsBot.run(context);

@@ -70,6 +70,8 @@ import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { shareCommand } from "../../src/commands/models/share";
 import { setCommand } from "../../src/commands/models/set";
 import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
+import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
+import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -564,6 +566,20 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await shareCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+  describe("shareRemoveCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "removeSharedAccess").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...shareRemoveCommand, fullName: "teamsfx" },
+        optionValues: { env: "dev" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await shareRemoveCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });
@@ -1220,6 +1236,30 @@ describe("CLI read-only commands", () => {
       sandbox.stub(AzureTokenProvider, "getJsonObject").resolves(undefined);
       const res = await accountUtils.outputAzureInfo("show");
       assert.isFalse(res);
+    });
+    it("outputAzureInfo show with sp login", async () => {
+      sandbox.stub(AzureSpCrypto, "checkAzureSPFile").resolves(true);
+      sandbox.stub(AzureTokenCIProvider, "load").resolves();
+      sandbox.stub(AzureTokenCIProvider, "init").resolves();
+      sandbox.stub(AzureTokenCIProvider, "switchTenant").resolves();
+      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ unique_name: "test" });
+      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
+      sandbox.stub(AzureTokenCIProvider, "getTenant").resolves("faked_tenant_id");
+      const getTokenFake = {
+        getToken: async (scope: string) => {
+          return Promise.resolve({ token: "faked_token" });
+        },
+      };
+      const getTokenSpy = sandbox.spy(getTokenFake, "getToken");
+      sandbox
+        .stub(AzureTokenCIProvider, "getIdentityCredentialAsync")
+        .resolves(getTokenFake as any);
+      sandbox
+        .stub(tools, "listAllTenants")
+        .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tid_2" }]);
+      const res = await accountUtils.outputAzureInfo("login", "faked_tenant_id", true);
+      assert.isTrue(res);
+      assert.isTrue(getTokenSpy.calledOnceWith("https://management.core.windows.net/.default"));
     });
   });
   describe("accountShowCommand", async () => {

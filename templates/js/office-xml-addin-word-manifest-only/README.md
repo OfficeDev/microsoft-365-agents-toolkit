@@ -1,4 +1,4 @@
-# Build Word add-ins using Teams Toolkit
+# Build Word add-ins using Microsoft 365 Agents Toolkit
 
 Word add-ins are integrations built by third parties into Word by using [Word JavaScript API](https://learn.microsoft.com/en-us/office/dev/add-ins/reference/overview/word-add-ins-reference-overview) and [Office Platform capabilities](https://learn.microsoft.com/en-us/office/dev/add-ins/overview/office-add-ins).
 
@@ -17,5 +17,5 @@ The add-in project that you've created contains sample code for a basic task pan
 
 You can check whether your manifest file is valid by either of the following ways:
 
-- From Visual Studio Code: open Teams Toolkit extension sidebar and click *`Validate Manifest`*.
+- From Visual Studio Code: open Microsoft 365 Agents Toolkit extension sidebar and click *`Validate Manifest`*.
 - From Terminal: run the command `npx --yes office-addin-manifest validate manifest.xml`

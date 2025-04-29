@@ -1,4 +1,4 @@
-﻿using Microsoft.Agents.BotBuilder;
+﻿using Microsoft.Agents.Builder;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,7 @@ namespace {{SafeProjectName}}.Controllers
     [Route("api/messages")]
     [ApiController]
     [Authorize]
-    public class BotController(IBotHttpAdapter adapter, IBot bot, ConversationBot conversation) : ControllerBase
+    public class BotController(IAgentHttpAdapter adapter, IAgent bot, ConversationBot conversation) : ControllerBase
     {
         [HttpPost]
         public Task PostAsync(CancellationToken cancellationToken)

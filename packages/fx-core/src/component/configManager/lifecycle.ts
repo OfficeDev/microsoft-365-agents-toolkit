@@ -57,7 +57,7 @@ function resolvePlaceHolders(
   return [resolvedVars, unresolvedVars];
 }
 
-function resolve(
+export function resolve(
   input: unknown,
   resolved: ResolvedPlaceholders,
   unresolved: UnresolvedPlaceholders

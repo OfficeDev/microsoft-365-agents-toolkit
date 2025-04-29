@@ -99,6 +99,10 @@ export async function runCommand(
         result = await core.shareApplication(inputs);
         break;
       }
+      case Stage.shareRemove: {
+        result = await core.removeSharedAccess(inputs);
+        break;
+      }
       case Stage.debug: {
         inputs.ignoreEnvInfo = false;
         inputs.checkerInfo = {
@@ -140,6 +144,10 @@ export async function runCommand(
         result = await core.addPlugin(inputs);
         break;
       }
+      case Stage.RegeneratePlugin: {
+        result = await core.regeneratePlugin(inputs);
+        break;
+      }
       case Stage.kiotaRegenerate: {
         result = await core.kiotaRegenerate(inputs);
         break;
@@ -154,6 +162,10 @@ export async function runCommand(
       }
       case Stage.setSensitivityLabel: {
         result = await core.setSensitivityLabel(inputs);
+        break;
+      }
+      case Stage.installApp: {
+        result = await core.installAppToChannel(inputs);
         break;
       }
       default:

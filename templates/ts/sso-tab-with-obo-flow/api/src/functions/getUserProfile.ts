@@ -1,18 +1,18 @@
-/* This code sample provides a starter kit to implement server side logic for your Teams App in TypeScript,
+/* This code sample provides a starter kit to implement server side logic for your App in TypeScript,
  * refer to https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference for complete Azure Functions
  * developer guide.
  */
 
 // Import polyfills for fetch required by msgraph-sdk-javascript.
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { Client } from "@microsoft/microsoft-graph-client";
+import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials";
 import {
   OnBehalfOfCredentialAuthConfig,
   OnBehalfOfUserCredential,
   UserInfo,
 } from "@microsoft/teamsfx";
 import config from "../config";
-import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials";
-import { Client } from "@microsoft/microsoft-graph-client";
 
 /**
  * This function handles requests from teamsapp client.

@@ -13,7 +13,7 @@ Excel add-ins are integrations built by third parties into Excel by using [Excel
   Alternatively, you can [sign up for a 1-month free trial](https://www.microsoft.com/microsoft-365/try?rtc=1)
   or [purchase a Microsoft 365 plan](https://www.microsoft.com/microsoft-365/buy/compare-all-microsoft-365-products).
 
-### Run the add-in using Teams Toolkit
+### Run the add-in using Microsoft 365 Agents Toolkit
 
 You can use [Teams Tookit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) to easily run and debug your Office add-in.
 <br><img src="./assets/ttk_preview.png" width="800"/>
@@ -48,7 +48,7 @@ This add-in project contains sample code for a basic Excel task pane add-in.
 
 To explore the components of the add-in project, review the key files listed below.
 
-- The `./manifest.xml` file in the root directory of the project defines the settings and capabilities of the add-in. <br>You can check whether your manifest file is valid by selecting `Validate Manifest File` in the `Teams Toolkit` extension tree view.
+- The `./manifest.xml` file in the root directory of the project defines the settings and capabilities of the add-in. <br>You can check whether your manifest file is valid by selecting `Validate Manifest File` in the `Microsoft 365 Agents Toolkit` extension tree view.
 - The `./src/taskpane/taskpane.html` file contains the HTML markup for the task pane.
 - The `./src/taskpane/taskpane.css` file contains the CSS that's applied to content in the task pane.
 - The `./src/taskpane/taskpane.js` file contains the Office JavaScript API code that facilitates interaction between the task pane and the Excel application.

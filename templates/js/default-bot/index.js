@@ -5,24 +5,14 @@ const express = require("express");
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const {
-  CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
-} = require("botbuilder");
-const { TeamsBot } = require("./teamsBot");
-const config = require("./config");
+const { authorizeJWT, CloudAdapter, loadAuthConfigFromEnv } = require("@microsoft/agents-hosting");
+const { agentApp } = require("./agent");
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
-const credentialsFactory = new ConfigurationServiceClientCredentialFactory(config);
+// Create authentication configuration
+const authConfig = loadAuthConfigFromEnv();
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  credentialsFactory
-);
-
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+// Create adapter
+const adapter = new CloudAdapter(authConfig);
 
 adapter.onTurnError = async (context, error) => {
   // This check writes out errors to console log .vs. app insights.
@@ -39,21 +29,22 @@ adapter.onTurnError = async (context, error) => {
   }
 };
 
-// Create the bot that will handle incoming messages.
-const bot = new TeamsBot();
-
 // Create express application.
 const expressApp = express();
 expressApp.use(express.json());
+expressApp.use(authorizeJWT(authConfig));
 
-const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
+const port = process.env.port || process.env.PORT || 3978;
+const server = expressApp.listen(port, () => {
+  console.log(
+    `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+  );
 });
 
 // Listen for incoming requests.
 expressApp.post("/api/messages", async (req, res) => {
   await adapter.process(req, res, async (context) => {
-    await bot.run(context);
+    await agentApp.run(context);
   });
 });
 

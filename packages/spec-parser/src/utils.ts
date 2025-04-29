@@ -15,7 +15,7 @@ import {
   ParseOptions,
   ProjectType,
 } from "./interfaces";
-import { IMessagingExtensionCommand, IParameter } from "@microsoft/teams-manifest";
+import { IMessagingExtensionCommand, IParameter } from "@microsoft/app-manifest";
 import { SpecParserError } from "./specParserError";
 
 export class Utils {

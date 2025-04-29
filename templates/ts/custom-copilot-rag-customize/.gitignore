@@ -2,9 +2,9 @@
 env/.env.*.user
 env/.env.local
 .localConfigs
-.localConfigs.testTool
+.localConfigs.playground
 .notification.localstore.json
-.notification.testtoolstore.json
+.notification.playgroundstore.json
 appPackage/build
 
 # dependencies
