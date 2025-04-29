@@ -542,4 +542,58 @@ describe("autoOpenHelper", () => {
     // Call the function
     await ShowScaffoldingWarningSummary(workspacePath, "");
   });
+
+  it("ShowScaffoldingWarningSummary() - declarative agent", async () => {
+    const workspacePath = "/path/to/workspace";
+
+    const manifest: TeamsAppManifest = {
+      manifestVersion: "version",
+      id: "mock-app-id",
+      name: { short: "short-name" },
+      description: { short: "", full: "" },
+      version: "version",
+      icons: { outline: "outline.png", color: "color.png" },
+      accentColor: "#ffffff",
+      developer: {
+        privacyUrl: "",
+        websiteUrl: "",
+        termsOfUseUrl: "",
+        name: "",
+      },
+      staticTabs: [
+        {
+          name: "name0",
+          entityId: "index0",
+          scopes: ["personal"],
+          contentUrl: "localhost/content",
+          websiteUrl: "localhost/website",
+        },
+      ],
+      copilotAgents: {
+        declarativeAgents: [
+          {
+            id: "declarativeAgent",
+            file: "declarativeAgent.json",
+          },
+        ],
+      },
+    };
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox
+      .stub(pluginManifestUtils, "getApiSpecFilePathFromTeamsManifest")
+      .resolves(ok(["/path/to/api/spec"]));
+    sandbox.stub(apiSpec, "generateScaffoldingSummary").resolves("fake summary");
+    sandbox.stub(VscodeLogInstance, "info").callsFake((message: string) => {
+      if (message !== "fake summary") {
+        throw new Error(`Unexpected message: ${message}`);
+      }
+    });
+    const fakeOutputChannel = {
+      show: sandbox.stub().resolves(),
+    };
+    sandbox.stub(VscodeLogInstance, "outputChannel").value(fakeOutputChannel);
+    sandbox.stub(ExtTelemetry, "sendTelemetryEvent").resolves();
+    // Call the function
+    await ShowScaffoldingWarningSummary(workspacePath, "");
+  });
 });
