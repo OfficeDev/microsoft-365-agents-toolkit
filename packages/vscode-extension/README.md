@@ -73,15 +73,15 @@ Verify you have the right prerequisites for building apps and install some recom
 <table>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_nodejs.png"></td>
-        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js v14.x, v16.x or v18.x is required. If you develop SPFx Tab app, please install v16.x.</td>
+        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js is required. If you develop SPFx Tab app, please install v18.x.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_m365.png"></td>
-        <td><h3>Microsoft 365</h3>The Microsoft 365 Agents Toolkit requires a Microsoft 365 organizational account where Teams is running and has been registered.</td>
+        <td><h3>Microsoft 365</h3> A Microsoft 365 work or organization account is required where your app is registered and deployed.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_azure.png"></td>
-        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to deploy the Azure resources for your project.</td>
+        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to create the Azure resources when there is need. </td>
     </tr>
 </table>
 
