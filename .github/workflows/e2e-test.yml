@@ -111,14 +111,12 @@ jobs:
       - name: E2E Test clean
         working-directory: packages/tests
         run: |
-          export M365_ACCOUNT_NAME=test14@xxbdw.onmicrosoft.com
-          npm run test:e2e:clean
-          export M365_ACCOUNT_NAME=test15@xxbdw.onmicrosoft.com
-          npm run test:e2e:clean
-          export M365_ACCOUNT_NAME=test16@xxbdw.onmicrosoft.com
-          npm run test:e2e:clean
-          export M365_ACCOUNT_NAME=test17@xxbdw.onmicrosoft.com
-          npm run test:e2e:clean
+          USERS=(test14 test15 test16 test17)
+
+          for user in "${USERS[@]}"; do
+            export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
+            npm run test:e2e:clean
+          done
 
       - name: Archive Test Plan
         if: ${{ github.event.inputs.target-testplan-name != '' }}
@@ -361,14 +359,12 @@ jobs:
       - name: E2E Test clean
         working-directory: packages/tests
         run: |
-          echo "M365_ACCOUNT_NAME=test14@xxbdw.onmicrosoft.com" >> $GITHUB_ENV 
-          npm run test:e2e:clean
-          echo "M365_ACCOUNT_NAME=test15@xxbdw.onmicrosoft.com" >> $GITHUB_ENV 
-          npm run test:e2e:clean
-          echo "M365_ACCOUNT_NAME=test16@xxbdw.onmicrosoft.com" >> $GITHUB_ENV 
-          npm run test:e2e:clean
-          echo "M365_ACCOUNT_NAME=test17@xxbdw.onmicrosoft.com" >> $GITHUB_ENV 
-          npm run test:e2e:clean
+          USERS=(test14 test15 test16 test17)
+
+          for user in "${USERS[@]}"; do
+            export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
+            npm run test:e2e:clean
+          done
 
   rerun:
     permissions:
