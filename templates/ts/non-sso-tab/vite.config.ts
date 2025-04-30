@@ -11,7 +11,7 @@ async function getConfig() {
       outDir: "lib/static",
       rollupOptions: {
         input: {
-          teamsapp: resolve(__dirname, "src/static/scripts/m365agents.ts"),
+          m365agents: resolve(__dirname, "src/static/scripts/m365agents.ts"),
         },
         output: {
           entryFileNames: "scripts/[name].js",
