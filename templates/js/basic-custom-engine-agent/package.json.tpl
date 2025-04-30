@@ -27,7 +27,7 @@
     "dependencies": {
         "@azure/identity": "^4.8.0",
         "@azure/openai": "^2.0.0",
-        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting": "^0.2.14",
         "express": "^5.0.1",
         "openai": "^4.94.0"
     },

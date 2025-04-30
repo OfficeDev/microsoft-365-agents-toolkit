@@ -1,5 +1,5 @@
-import { BotBuilderCloudAdapter } from "@microsoft/teamsfx";
-import ConversationBot = BotBuilderCloudAdapter.ConversationBot;
+import { AgentBuilderCloudAdapter } from "@microsoft/teamsfx";
+import ConversationBot = AgentBuilderCloudAdapter.ConversationBot;
 
 // Create bot.
 export const notificationApp = new ConversationBot({

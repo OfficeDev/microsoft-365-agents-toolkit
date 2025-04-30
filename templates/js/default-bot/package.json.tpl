@@ -21,7 +21,7 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "dependencies": {
-        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting": "^0.2.14",
         "express": "^5.0.1"
     },
     "devDependencies": {
