@@ -382,6 +382,14 @@ export async function validateOpenAPISpec(
       });
     }
 
+    // TODO: curently kiota will generate spec with version 3.0.4, if it changed in the future, we need to update this
+    if (apiInfo.specVersion === OpenApiSpecVersion.V3_1) {
+      result.warnings.push({
+        type: WarningType.OpenAPI31ConvertTo30,
+        content: ConstantString.OpenAPI31ConvertTo30,
+      });
+    }
+
     const serverUrl = apiInfo.APIs.find((api) => api.isValid)?.server;
     if (serverUrl) {
       const serverString = JSON.stringify(serverUrl);

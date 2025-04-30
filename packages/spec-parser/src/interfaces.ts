@@ -138,6 +138,7 @@ export enum WarningType {
   GenerateCardFailed = "generate-card-failed",
   OperationOnlyContainsOptionalParam = "operation-only-contains-optional-param",
   ConvertSwaggerToOpenAPI = "convert-swagger-to-openapi",
+  OpenAPI31ConvertTo30 = "openapi31-convert-to-30",
   OperationIdContainsSpecialCharacters = "operationid-contains-special-characters",
   UnsupportedAuthType = "unsupported-auth-type",
   GenerateJsonDataFailed = "generate-json-data-failed",

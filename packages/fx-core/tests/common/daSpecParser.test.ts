@@ -871,7 +871,7 @@ describe("daSpecParser", () => {
         security: [],
         securitySchemes: {},
         logs: [],
-        specVersion: OpenApiSpecVersion.V3_0,
+        specVersion: OpenApiSpecVersion.V3_1,
       };
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
@@ -886,6 +886,8 @@ describe("daSpecParser", () => {
 
       const result = await daSpecParser.validateOpenAPISpec("path/to/spec", Platform.VS);
       assert.equal(result.status, ValidationStatus.Valid);
+      assert.isTrue(result.warnings.length === 1);
+      assert.isTrue(result.warnings[0].type === WarningType.OpenAPI31ConvertTo30);
     });
   });
 

@@ -298,6 +298,7 @@
   "core.copilotPlugin.scaffold.summary.warning.operationId": "%s Mitigation: Not required, operationId has been automatically generated and added into \"%s\" file.",
   "core.copilotPlugin.scaffold.summary.warning.operationIdContainsSpecialCharacters": "Operation id '%s' in OpenAPI description document contained special characters and was renamed to '%s'.",
   "core.copilotPlugin.scaffold.summary.warning.swaggerVersion": "The OpenAPI description document is on Swagger version 2.0. Mitigation: Not required. The content has been converted to OpenAPI 3.0 and saved in \"%s\".",
+  "core.copilotPlugin.scaffold.summary.warning.spec31ConvertTo30": "The OpenAPI description document version is 3.1 and has been converted to OpenAPI 3.0 and saved in \"%s\".",
   "core.copilotPlugin.scaffold.summary.warning.teamsManifest.lengthExceeding": "\"%s\" must not have more than %s characters. ",
   "core.copilotPlugin.scaffold.summary.warning.teamsManifest.missingFullDescription": "Missing full description. ",
   "core.copilotPlugin.scaffold.summary.warning.teamsManifest.mitigation": "Mitigation: update \"%s\" field in \"%s\".",

@@ -837,6 +837,17 @@ function formatApiSpecValidationWarningMessage(
     );
   }
 
+  const spec31Warning = specWarnings.find((w) => w.type === WarningType.OpenAPI31ConvertTo30);
+  if (spec31Warning) {
+    resultWarnings.push(
+      `${SummaryConstant.Info} ` +
+        getLocalizedString(
+          "core.copilotPlugin.scaffold.summary.warning.spec31ConvertTo30",
+          apiSpecFileName
+        )
+    );
+  }
+
   const specialCharactersWarnings = specWarnings.filter(
     (w) => w.type === WarningType.OperationIdContainsSpecialCharacters
   );
