@@ -181,12 +181,16 @@ describe("generateScaffoldingSummary", async () => {
     assert.isTrue(res.includes("user_issue"));
   });
 
-  it("warnings about operationid contains special characters", async () => {
+  it("warnings about spec version", async () => {
     const res = await generateScaffoldingSummary(
       [
         {
           type: WarningType.ConvertSwaggerToOpenAPI,
           content: "Convert swagger to openapi 3.0",
+        },
+        {
+          type: WarningType.OpenAPI31ConvertTo30,
+          content: "Convert openapi 3.1 to openapi 3.0",
         },
       ],
       teamsManifest,
@@ -194,7 +198,7 @@ describe("generateScaffoldingSummary", async () => {
       undefined,
       ""
     );
-    assert.isTrue(res.includes("Swagger"));
+    assert.isTrue(res.includes("Swagger") && res.includes("3.1"));
   });
 
   it("warnings about adaptive card template in manifest", async () => {
