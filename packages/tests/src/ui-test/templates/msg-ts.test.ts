@@ -1,0 +1,82 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+/**
+ * @author Anne Fu <v-annefu@microsoft.com>
+ */
+import * as path from "path";
+import { startDebugging, waitForTerminal } from "../../utils/vscodeOperation";
+
+import { validateCreatedCard } from "../../utils/playwrightOperation";
+import {
+  Timeout,
+  LocalDebugTaskLabel,
+  LocalDebugTaskInfo,
+  ValidationContent,
+  DebugItemSelect,
+  Lang,
+} from "../../utils/constants";
+import { Env } from "../../utils/env";
+import { it } from "../../utils/it";
+import { validateFileExist } from "../../utils/commonUtils";
+import {
+  msgHappyPathTestForLocalDebug,
+  msgHappyPathTestForRemoteDebug,
+} from "./MsgHappyPath";
+import { Page } from "playwright";
+
+describe("Local Debug Tests", function () {
+  this.timeout(Timeout.localAndRemoteTestCase);
+  const successFlag = {
+    successFlagForLocal: false,
+    successFlagForRemote: false,
+  };
+  async function validationCreatedCard(
+    page: Page,
+    options: {
+      appName: string;
+    }
+  ) {
+    await validateCreatedCard(page, options.appName);
+  }
+  after(async function () {
+    this.timeout(Timeout.finishTestCase);
+    setTimeout(() => {
+      if (successFlag.successFlagForLocal && successFlag.successFlagForRemote)
+        process.exit(0);
+      else process.exit(1);
+    }, 30000);
+  });
+  /*
+   it(
+      "[Typescript] Local Debug for Message Extension project",
+      {
+        testPlanCaseId: 24739646,
+        author: "v-annefu@microsoft.com",
+      },
+      async function () {
+        await msgHappyPathTestForLocalDebug("msg", {
+          lang: Lang.TS,
+          successFlag: successFlag,
+          localDebugTaskLabel: LocalDebugTaskLabel.StartBotApp,
+          localDebugTaskInfo: LocalDebugTaskInfo.StartBotInfo,
+          validationFn: validationCreatedCard,
+        });
+      }
+    );*/
+
+  it(
+    "[auto] [TypeScript] Remote debug for Message Extension",
+    {
+      testPlanCaseId: 24739653,
+      author: "v-helzha@microsoft.com",
+    },
+    async function () {
+      await msgHappyPathTestForRemoteDebug("msg", {
+        lang: Lang.TS,
+        successFlag: successFlag,
+        validationFn: validationCreatedCard,
+      });
+    }
+  );
+});
