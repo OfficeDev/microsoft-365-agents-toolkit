@@ -169,7 +169,8 @@ async function main() {
             console.log(acquisition.titleDefinition.name);
             console.log(acquisition.titleId);
             const result = await m365TitleCleanService.unacquire(
-              acquisition.titleId
+              acquisition.titleId,
+              1
             );
             if (!retry && result) {
               retry = true;

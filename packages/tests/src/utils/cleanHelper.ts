@@ -36,7 +36,7 @@ class CleanHelper {
       });
 
       return result;
-    });
+    }, 1);
   }
 }
 
