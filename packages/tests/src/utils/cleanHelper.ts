@@ -470,9 +470,23 @@ export class M365TitleCleanHelper extends CleanHelper {
       {
         Filter: {
           SupportedElementTypes: [
+            "OfficeAddIns",
+            "ExchangeAddIns",
+            "FirstPartyPages",
+            "Dynamics",
+            "AAD",
+            "LineOfBusiness",
             "StaticTabs",
+            "ComposeExtensions",
             "Bots",
+            "GraphConnector",
+            "ConfigurableTabs",
+            "Activities",
             "MeetingExtensionDefinition",
+            "OpenAIPlugins",
+            "Gpts",
+            "DeclarativeCopilots",
+            "Plugins",
           ],
         },
       }
