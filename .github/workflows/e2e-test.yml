@@ -60,6 +60,7 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
@@ -111,13 +112,7 @@ jobs:
       - name: E2E Test clean
         working-directory: packages/tests
         run: |
-          USERS=(test14 test15 test16 test17)
-
-          for user in "${USERS[@]}"; do
-          export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
-          echo "$M365_ACCOUNT_NAME:0:6"
-            npm run test:e2e:clean
-          done
+          npm run test:e2e:clean
 
       - name: Archive Test Plan
         if: ${{ github.event.inputs.target-testplan-name != '' }}
@@ -348,6 +343,7 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       CI_ENABLED: "true"
       M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME_2 }}
     steps:
@@ -360,13 +356,7 @@ jobs:
       - name: E2E Test clean
         working-directory: packages/tests
         run: |
-          USERS=(test14 test15 test16 test17)
-
-          for user in "${USERS[@]}"; do
-            export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
-            echo "$M365_ACCOUNT_NAME:0:6"
-            npm run test:e2e:clean
-          done
+          npm run test:e2e:clean
 
   rerun:
     permissions:
