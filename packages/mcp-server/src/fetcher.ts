@@ -17,6 +17,7 @@ export type SchemaType = z.infer<typeof SchemaTypeEnum>;
  */
 interface SchemaRepository {
   baseUrl: string;
+  latestVersion: string;
 }
 
 /**
@@ -25,12 +26,15 @@ interface SchemaRepository {
 const schemaRepositories: Record<SchemaType, SchemaRepository> = {
   app_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/teams/{{version}}/MicrosoftTeams.schema.json`,
+    latestVersion: "v1.21",
   },
   declarative_agent_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/{{version}}/schema.json`,
+    latestVersion: "v1.3",
   },
   api_plugin_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/plugin/{{version}}/schema.json`,
+    latestVersion: "v2.2",
   },
 };
 
@@ -69,6 +73,10 @@ export async function fetchSchema(schemaName: SchemaType, schemaVersion: string)
   }
 
   try {
+    if (schemaVersion === "latest") {
+      schemaVersion = repository.latestVersion;
+    }
+
     const url = repository.baseUrl.replace("{{version}}", schemaVersion);
     const response = await fetch(url);
 

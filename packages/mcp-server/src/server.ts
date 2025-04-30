@@ -15,7 +15,11 @@ export function createServer(): McpServer {
     'Get the schema for "App manifest", "Declarative agent manifest", "API plugin manifest", use it everytime before understanding, modifying or creating any of these manifest files.',
     {
       schema_name: SchemaTypeEnum.describe("name of schema"),
-      schema_version: z.string().describe("version of schema"),
+      schema_version: z
+        .string()
+        .describe(
+          'version of schema in semantic versioning format vX.Y, where X is the major version and Y is the minor version (e.g. v1.0, v1.19, v2.1). Use "latest" if unsure.'
+        ),
     },
     async ({ schema_name, schema_version }) => {
       const schema = await fetchSchema(schema_name, schema_version);
