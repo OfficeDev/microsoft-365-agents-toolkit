@@ -180,7 +180,12 @@ export function getProjectTypeByCapability(capability: string): string {
   if ([DACapabilityOptions.declarativeAgent().id].includes(capability)) {
     return ProjectTypeOptions.copilotAgentOptionId;
   }
-  if ([CustomEngineAgentOptions.basicCustomEngineAgent().id].includes(capability)) {
+  if (
+    [
+      CustomEngineAgentOptions.basicCustomEngineAgent().id,
+      CustomEngineAgentOptions.weatherAgent().id,
+    ].includes(capability)
+  ) {
     return ProjectTypeOptions.customEngineAgentOptionId;
   }
   if (
