@@ -559,7 +559,6 @@ jobs:
   e2e-coverage:
     if: ${{github.event_name == 'workflow_dispatch' && github.event.inputs.get-coverage == 'true' }}
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -610,7 +609,6 @@ jobs:
           AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-          M365_ACCOUNT_NAME: ${{ needs.setup.outputs.M365_ACCOUNT_NAME }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
           M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
           CI_ENABLED: "true"
