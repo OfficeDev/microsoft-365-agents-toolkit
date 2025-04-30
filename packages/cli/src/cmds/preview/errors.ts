@@ -56,11 +56,7 @@ export function PreviewCommandFailed(fxErrors: FxError[]): UserError {
 }
 
 export function TeamsAppIdNotExists(): UserError {
-  return new UserError(
-    constants.cliSource,
-    "TeamsAppIdNotExists",
-    "Microsoft 365 App id does not exist."
-  );
+  return new UserError(constants.cliSource, "TeamsAppIdNotExists", "App id does not exist.");
 }
 
 export function PortsAlreadyInUse(portsInUse: number[]): UserError {

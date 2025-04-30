@@ -27,7 +27,7 @@
             "name": "Preview in Teams (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
                 "group": "remote",
                 "order": 3

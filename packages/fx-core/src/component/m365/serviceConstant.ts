@@ -71,4 +71,14 @@ export const MOS3ApiDefinitions: any = {
     method: "GET",
     path: /^\/catalog\/v1\/users\/uitypes$/,
   },
+  PutTitleOwners: {
+    key: "put_title_owners",
+    method: "PUT",
+    path: /^\/builder\/v1\/users\/titles\/[^\/]+\/owners/,
+  },
+  GetMarketplaceTitlePreview: {
+    key: "get_marketplace_title_preview",
+    method: "GET",
+    path: /^\/marketplace\/v1\/users\/titles\/[^\/]+\/preview/,
+  },
 };

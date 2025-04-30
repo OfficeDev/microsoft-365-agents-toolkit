@@ -64,7 +64,7 @@ app.ai.action(AI.SayCommandActionName, customSayCommand.sayCommand(true));
 
 app.authentication.get("graph").onUserSignInSuccess(async (context, state) => {
   // Successfully logged in
-  await context.sendActivity("You are successfully logged in. You can send a new message to talk to the bot.");
+  await context.sendActivity("You are successfully logged in. You can send a new message to talk to the agent.");
 });
 
 app.authentication.get("graph").onUserSignInFailure(async (context, state, error) => {

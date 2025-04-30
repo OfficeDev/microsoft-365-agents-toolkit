@@ -121,7 +121,7 @@
             "name": "Launch App in Teams (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start App in Desktop Client (Remote)",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 6
@@ -131,17 +131,17 @@
     ],
     "compounds": [
         {
-            "name": "Debug in Test Tool",
+            "name": "Debug in Microsoft 365 Agents Playground",
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App (Test Tool)",
+            "preLaunchTask": "Start App in Microsoft 365 Agents Playground",
             "presentation": {
 {{#enableMETestToolByDefault}}
-                "group": "group 0: Teams App Test Tool",
+                "group": "group 0: Microsoft 365 Agents Playground",
 {{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
-                "group": "group 3: Teams App Test Tool",
+                "group": "group 3: Microsoft 365 Agents Playground",
 {{/enableMETestToolByDefault}}
                 "order": 1
             },
@@ -153,7 +153,7 @@
                 "Launch App in Teams (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 1
@@ -166,7 +166,7 @@
                 "Launch App in Teams (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 2
@@ -178,7 +178,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
                 "group": "group 1: Teams",
                 "order": 3
@@ -191,7 +191,7 @@
                 "Launch App in Outlook (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 1
@@ -204,7 +204,7 @@
                 "Launch App in Outlook (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "group 2: Outlook",
                 "order": 2

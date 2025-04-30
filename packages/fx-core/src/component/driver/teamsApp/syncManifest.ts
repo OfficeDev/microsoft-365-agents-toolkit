@@ -173,8 +173,8 @@ export class SyncManifestDriver implements StepDriver {
     if (envRes.isErr()) {
       return err(envRes.error);
     }
-    const teamsappYamlPath = pathUtils.getYmlFilePath(args.projectPath, args.env);
-    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath, args.env);
+    const teamsappYamlPath = pathUtils.getYmlFilePath(args.projectPath, args.env) as string;
+    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath);
     if (yamlProjectModel.isErr()) {
       return err(yamlProjectModel.error);
     }

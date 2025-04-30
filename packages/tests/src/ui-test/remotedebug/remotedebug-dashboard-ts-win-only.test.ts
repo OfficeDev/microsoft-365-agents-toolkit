@@ -5,7 +5,7 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 import * as path from "path";
-import { Timeout } from "../../utils/constants";
+import { Lang, Timeout } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   provisionProject,
@@ -65,7 +65,7 @@ describe("Remote debug Tests", function () {
       author: "v-ivanchen@microsoft.com",
     },
     async function () {
-      await createNewProject("dashboard", appName, { lang: "TypeScript" });
+      await createNewProject("dashboard", appName, { lang: Lang.TS });
       await provisionProject(appName, projectPath);
       await deployProject(projectPath);
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(

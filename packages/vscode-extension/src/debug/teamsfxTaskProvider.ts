@@ -72,6 +72,13 @@ const customTasks = Object.freeze({
     presentationEcho: false,
     presentationshowReuseMessage: false,
   },
+  [TaskCommand.installApp]: {
+    createTerminal: (d: vscode.TaskDefinition) =>
+      Promise.resolve(new LifecycleTaskTerminal(d, Stage.installApp)),
+    presentationReveal: vscode.TaskRevealKind.Never,
+    presentationEcho: false,
+    presentationshowReuseMessage: false,
+  },
   [TaskCommand.launchDesktopClient]: {
     createTerminal: (d: vscode.TaskDefinition) =>
       Promise.resolve(new LaunchDesktopClientTerminal(d)),

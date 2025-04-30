@@ -33,7 +33,6 @@ import {
   issueChooseLink,
   issueLink,
   issueTemplate,
-  m365AppsPrerequisitesHelpLink,
 } from "./common/debugConstants";
 import { allRunningTeamsfxTasks } from "./common/globalVariables";
 import {
@@ -467,25 +466,6 @@ async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promis
       !debugConfig.postRestartTask
     ) {
       allRunningDebugSessions.add(event.id);
-
-      // show M365 tenant hint message for Outlook and Office
-      if (debugConfig.teamsfxHub === Hub.outlook || debugConfig.teamsfxHub === Hub.office) {
-        VS_CODE_UI.showMessage(
-          "info",
-          localize("teamstoolkit.localDebug.m365TenantHintMessage"),
-          false,
-          localize("teamstoolkit.localDebug.learnMore")
-        ).then(
-          async (result) => {
-            if (result.isOk() && result.value === localize("teamstoolkit.localDebug.learnMore")) {
-              await VS_CODE_UI.openUrl(m365AppsPrerequisitesHelpLink);
-            }
-          },
-          () => {
-            // Do nothing on reject
-          }
-        );
-      }
 
       // and not a restart one
       // send f5 event telemetry

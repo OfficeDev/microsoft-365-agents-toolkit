@@ -21,7 +21,7 @@
     },
     {
       "type": "Action.OpenUrl",
-      "title": "Teams Toolkit Docs",
+      "title": "Microsoft 365 Agents Toolkit Docs",
       "url": "https://aka.ms/teamsfx-docs"
     }
   ],

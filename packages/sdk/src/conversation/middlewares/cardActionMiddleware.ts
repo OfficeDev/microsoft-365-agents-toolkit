@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { ActivityTypes, Activity } from "@microsoft/agents-activity";
 import {
-  ActivityTypes,
   CardFactory,
+  TurnContext,
   InvokeResponse,
   MessageFactory,
   Middleware,
-  TurnContext,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
 import {
   AdaptiveCardResponse,
   InvokeResponseErrorCode,
@@ -30,7 +30,7 @@ export class CardActionMiddleware implements Middleware {
 
   async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
     if (context.activity.name === "adaptiveCard/action") {
-      const action = context.activity.value.action;
+      const action = (context.activity.value as any).action;
       const actionVerb = action.verb;
 
       for (const handler of this.actionHandlers) {
@@ -103,6 +103,6 @@ export class CardActionMiddleware implements Middleware {
     await context.sendActivity({
       type: ActivityTypes.InvokeResponse,
       value: response,
-    });
+    } as Activity);
   }
 }

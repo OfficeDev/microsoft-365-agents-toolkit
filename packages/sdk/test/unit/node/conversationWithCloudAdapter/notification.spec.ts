@@ -5,16 +5,17 @@
 import {
   CloudAdapter,
   CardFactory,
-  ChannelInfo,
-  ConversationReference,
+  TurnContext,
+  TurnContextStateCollection,
+  ConnectorClient,
+} from "@microsoft/agents-hosting";
+import {
   TeamDetails,
   TeamsChannelAccount,
   TeamsInfo,
-  TurnContext,
-  TurnContextStateCollection,
-} from "botbuilder";
-import { ConnectorClient } from "botframework-connector";
-import { Conversations } from "botframework-connector/lib/connectorApi/connectorClient";
+  ChannelInfo,
+} from "@microsoft/agents-hosting-teams";
+import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -95,11 +96,11 @@ describe("Notification Tests - Node", () => {
       });
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
-          [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
+          [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
-      ).callsFake(async (fakeBotAppId, ref, logic) => {
+      ).callsFake(async (ref, logic) => {
         await logic(stubContext);
       });
       const conversationRef = {
@@ -107,8 +108,29 @@ describe("Notification Tests - Node", () => {
           conversationType: "channel",
         },
       };
+      const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
+      stubConnectorClient.createConversationAsync.callsFake(() => {
+        return { id: "1" } as any;
+      });
+      const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
+      stubTurnState.get.returns(stubConnectorClient);
+      sandbox.stub(TurnContext.prototype, "turnState").get(() => stubTurnState);
+      sandbox.stub(TurnContext.prototype, "activity").get(() => {
+        return {
+          conversation: {
+            tenantId: "11",
+          },
+          recipient: {},
+          getConversationReference: () => {
+            return {
+              conversation: {
+                id: "1",
+              },
+            };
+          },
+        };
+      });
       botInstallation = new TeamsBotInstallation(stubAdapter, conversationRef as any, fakeBotAppId);
-      sandbox.stub(TurnContext, "getConversationReference").returns({ conversation: {} } as any);
     });
 
     afterEach(() => {
@@ -176,6 +198,7 @@ describe("Notification Tests - Node", () => {
             },
           },
         ],
+        type: "message",
       });
       assert.deepStrictEqual(res, { id: "message-x" });
       activityResponse = undefined;
@@ -231,12 +254,10 @@ describe("Notification Tests - Node", () => {
       activityResponse = {};
       turnError = undefined;
       const fakeBotAppId = "fakeBotAppId";
-      const stubConversations = sandbox.createStubInstance(Conversations);
-      stubConversations.createConversation.resolves({
-        id: "1",
-      } as any);
       const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
-      stubConnectorClient.conversations = stubConversations;
+      stubConnectorClient.createConversationAsync.callsFake(() => {
+        return { id: "1" } as any;
+      });
       const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
       stubTurnState.get.returns(stubConnectorClient);
       const stubContext = sandbox.createStubInstance(TurnContext);
@@ -256,15 +277,22 @@ describe("Notification Tests - Node", () => {
             tenantId: "11",
           },
           recipient: {},
+          getConversationReference: () => {
+            return {
+              conversation: {
+                id: "1",
+              },
+            };
+          },
         };
       });
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
-          [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
+          [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
-      ).callsFake(async (fakeBotAppId, ref, logic) => {
+      ).callsFake(async (ref, logic) => {
         await logic(stubContext);
       });
       const conversationRef = {
@@ -273,7 +301,9 @@ describe("Notification Tests - Node", () => {
         },
       };
       botInstallation = new TeamsBotInstallation(stubAdapter, conversationRef as any, fakeBotAppId);
-      sandbox.stub(TurnContext, "getConversationReference").returns({ conversation: {} } as any);
+      sandbox
+        .stub(ConnectorClient.prototype, "createConversationAsync")
+        .resolves({ id: "1" } as any);
     });
 
     afterEach(() => {
@@ -343,6 +373,7 @@ describe("Notification Tests - Node", () => {
             },
           },
         ],
+        type: "message",
       });
       assert.deepStrictEqual(res, { id: "message-y" });
       activityResponse = undefined;
@@ -400,11 +431,11 @@ describe("Notification Tests - Node", () => {
       turnError = undefined;
       const stubAdapter = sandbox.createStubInstance(CloudAdapter);
       (
-        stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
-          [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
+        stubAdapter.continueConversation as unknown as sinon.SinonStub<
+          [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
           Promise<void>
         >
-      ).callsFake(async (fakeBotAppId, ref, logic) => {
+      ).callsFake(async (ref, logic) => {
         await logic(context);
       });
       adapter = stubAdapter;
@@ -417,6 +448,28 @@ describe("Notification Tests - Node", () => {
           content = activityOrText;
           resolve(activityResponse);
         });
+      });
+      const stubConnectorClient = sandbox.createStubInstance(ConnectorClient);
+      stubConnectorClient.createConversationAsync.callsFake(() => {
+        return { id: "1" } as any;
+      });
+      const stubTurnState = sandbox.createStubInstance(TurnContextStateCollection);
+      stubTurnState.get.returns(stubConnectorClient);
+      sandbox.stub(TurnContext.prototype, "turnState").get(() => stubTurnState);
+      sandbox.stub(TurnContext.prototype, "activity").get(() => {
+        return {
+          conversation: {
+            tenantId: "11",
+          },
+          recipient: {},
+          getConversationReference: () => {
+            return {
+              conversation: {
+                id: "1",
+              },
+            };
+          },
+        };
       });
       context = stubContext;
     });
@@ -512,6 +565,7 @@ describe("Notification Tests - Node", () => {
             },
           },
         ],
+        type: "message",
       });
       assert.deepStrictEqual(res, { id: "message-a" });
       activityResponse = undefined;
@@ -691,11 +745,11 @@ describe("Notification Bot Tests - Node", () => {
       return stubAdapter;
     });
     (
-      stubAdapter.continueConversationAsync as unknown as sinon.SinonStub<
-        [string, Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
+      stubAdapter.continueConversation as unknown as sinon.SinonStub<
+        [Partial<ConversationReference>, (context: TurnContext) => Promise<void>],
         Promise<void>
       >
-    ).callsFake(async (fakeBotAppId, ref, logic) => {
+    ).callsFake(async (ref, logic) => {
       await logic(stubContext);
     });
     adapter = stubAdapter;

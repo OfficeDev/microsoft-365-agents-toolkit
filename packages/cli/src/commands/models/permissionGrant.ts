@@ -30,8 +30,7 @@ export const permissionGrantCommand: CLICommand = {
   examples: [
     {
       command: `${process.env.TEAMSFX_CLI_BIN_NAME} collaborator grant -i false --teams-manifest-file ./appPackage/manifest.json --env dev --email other@email.com`,
-      description:
-        "Grant permission for another Microsoft 365 account to collaborate on the Microsoft 365 App.",
+      description: "Grant permission for another Microsoft 365 account to collaborate on the app.",
     },
   ],
   handler: async (ctx) => {

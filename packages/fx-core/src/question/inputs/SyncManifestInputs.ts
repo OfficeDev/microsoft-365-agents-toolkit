@@ -15,6 +15,6 @@ export interface SyncManifestInputs extends Inputs {
   projectPath?: string;
   /** @description Target Microsoft 365 Agents Toolkit Environment */
   env?: string;
-  /** @description Teams App ID (optional) */
+  /** @description App ID (optional) */
   "teams-app-id"?: string;
 }

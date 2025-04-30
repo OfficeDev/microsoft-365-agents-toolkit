@@ -15,6 +15,10 @@ export enum TemplateNames {
   DeclarativeAgentSharePointEmbeddedCopilotApp = "sharepoint-embedded-copilot-app", // handled by DefaultGenerator
 
   // custom engine agent
+  BasicCustomEngineAgent = "basic-custom-engine-agent",
+  WeatherAgent = "weather-agent",
+
+  // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",
   CustomCopilotRagAzureAISearch = "custom-copilot-rag-azure-ai-search",
@@ -23,7 +27,7 @@ export enum TemplateNames {
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
 
-  // graph connector
+  // copilot connector
   GraphConnector = "graph-connector", // vsc only
 
   // tab

@@ -2,16 +2,14 @@
 // Licensed under the MIT license.
 
 import {
-  Activity,
-  Attachment,
-  CardAction,
   CardFactory,
   CardImage,
   HeroCard,
   O365ConnectorCard,
   ReceiptCard,
   ThumbnailCard,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
+import { Activity, Attachment, CardAction } from "@microsoft/agents-activity";
 import * as ACData from "adaptivecards-templating";
 
 /**

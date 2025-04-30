@@ -15,7 +15,7 @@ module.exports = {
     "\\.jsx?$": "babel-jest",
   },
   transformIgnorePatterns: [
-    "<rootDir>/../sdk/node_modules/(?!@azure/core-auth|@azure/core-http|botbuilder|botbuilder-core|botframework-connector)",
+    "<rootDir>/../sdk/node_modules/(?!@azure/core-auth|@azure/core-http|@microsoft/agents-activity|@microsoft/agents-hosting|@microsoft/agents-hosting-teams|@microsoft/agents-hosting-dialogs)",
   ],
   moduleNameMapper: {
     // Force module uuid to resolve with the CJS entry point, because Jest does not support package.json.exports. See https://github.com/uuidjs/uuid/issues/451

@@ -25,14 +25,13 @@ const [nodeRange, platform, arch] = target.split("-");
       "version-string": {
         CompanyName: "Microsoft",
         LegalCopyright: "\xA9 Microsoft Corporation. All rights reserved.",
-        ProductName: "Microsoft Teams Toolkit",
-        FileDescription: "Microsoft Teams Toolkit Server",
+        ProductName: "Microsoft 365 Agents Toolkit",
+        FileDescription: "Microsoft 365 Agents Toolkit Server",
         InternalFilename: "server",
         OriginalFilename: "server.exe",
       },
       "file-version": version,
       "product-version": version,
-      icon: "icons/Teams.ico",
       "requested-execution-level": "asInvoker",
       // "application-manifest": "",
     });

@@ -1,22 +1,22 @@
-import * as sinon from "sinon";
+import { Inputs, err, ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
+import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as globalVariables from "../../src/globalVariables";
 import * as launch from "../../src/debug/launch";
-import * as localizeUtils from "../../src/utils/localizeUtils";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as runIconHandler from "../../src/debug/runIconHandler";
-import * as sharedOpts from "../../src/handlers/sharedOpts";
+import * as globalVariables from "../../src/globalVariables";
 import {
   debugInTestToolHandler,
   selectAndDebugHandler,
   treeViewLocalDebugHandler,
   treeViewPreviewHandler,
 } from "../../src/handlers/debugHandlers";
+import * as sharedOpts from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { MockCore } from "../mocks/mockCore";
-import { Inputs, err, ok } from "@microsoft/teamsfx-api";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
+import * as localizeUtils from "../../src/utils/localizeUtils";
+import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
+import { MockCore } from "../mocks/mockCore";
 
 describe("DebugHandlers", () => {
   describe("DebugInTestTool", () => {
@@ -34,7 +34,10 @@ describe("DebugHandlers", () => {
       await debugInTestToolHandler("treeview")();
 
       chai.assert.isTrue(
-        executeCommandStub.calledOnceWith("workbench.action.quickOpen", "debug Debug in Test Tool")
+        executeCommandStub.calledOnceWith(
+          "workbench.action.quickOpen",
+          "debug Debug in Microsoft 365 Agents Playground"
+        )
       );
     });
 
@@ -46,7 +49,10 @@ describe("DebugHandlers", () => {
       await debugInTestToolHandler("message")();
 
       chai.assert.isTrue(
-        executeCommandStub.calledOnceWith("workbench.action.quickOpen", "debug Debug in Test Tool")
+        executeCommandStub.calledOnceWith(
+          "workbench.action.quickOpen",
+          "debug Debug in Microsoft 365 Agents Playground"
+        )
       );
     });
   });

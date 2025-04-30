@@ -2,8 +2,8 @@
   "profiles": {
 {{^isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -12,7 +12,7 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
@@ -31,8 +31,8 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool (browser)": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground (browser)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -41,7 +41,7 @@
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
@@ -61,14 +61,14 @@
 {{/isNewProjectTypeEnabled}}
 {{#isNewProjectTypeEnabled}}
 {{#enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"
@@ -85,14 +85,14 @@
       "hotReloadProfile": "aspnetcore"
     },
 {{^enableTestToolByDefault}}
-    // Debug project within Teams App Test Tool
-    "Teams App Test Tool": {
+    // Debug project within Microsoft 365 Agents Playground
+    "Microsoft 365 Agents Playground": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5130",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "TestTool",
-        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.testtoolstore.json",
+        "TEAMSFX_NOTIFICATION_STORE_FILENAME": ".notification.playgroundstore.json",
         "UPDATE_TEAMS_APP": "false"
       },
       "hotReloadProfile": "aspnetcore"

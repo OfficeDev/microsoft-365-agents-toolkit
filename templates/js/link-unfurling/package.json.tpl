@@ -1,7 +1,7 @@
 {
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
-    "description": "Microsoft Teams Toolkit link unfurling sample",
+    "description": "Microsoft 365 Agents Toolkit link unfurling sample",
     "engines": {
         "node": "18 || 20 || 22"
     },
@@ -10,8 +10,8 @@
     "main": "./src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
-        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.testTool npm run dev",
-        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.testtool teamsapptester start",
+        "dev:teamsfx:testtool": "env-cmd --silent -f .localConfigs.playground npm run dev",
+        "dev:teamsfx:launch-testtool": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --exec node --inspect=9239 --signal SIGINT ./src/index.js",
         "start": "node ./src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,7 +22,8 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "botbuilder": "^4.23.1",
+        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting-teams": "^0.1.49",
         "express": "^5.0.1"
     },
     "devDependencies": {

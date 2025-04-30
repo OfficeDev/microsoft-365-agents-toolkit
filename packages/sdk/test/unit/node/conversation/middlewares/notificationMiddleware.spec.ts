@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ConversationReference, TurnContext } from "botbuilder";
+import { ConversationReference, Activity } from "@microsoft/agents-activity";
 import { assert, use as chaiUse } from "chai";
 import * as chaiPromises from "chai-as-promised";
 import * as sinon from "sinon";
@@ -27,25 +27,20 @@ describe("Notification Middleware Tests - Node", () => {
     },
   };
   let middleware: NotificationMiddleware;
+  const mockedGetConversationReference = () => {
+    return {
+      channelId: "1",
+      conversation: {
+        id: "1",
+        tenantId: "a",
+      },
+    } as ConversationReference;
+  };
 
   beforeEach(() => {
     const conversationReferenceStore = new DefaultConversationReferenceStore(fileDir);
     middleware = new NotificationMiddleware({
       conversationReferenceStore,
-    });
-
-    sandbox.stub(TurnContext, "getConversationReference").callsFake((activity) => {
-      const reference = {
-        channelId: activity.channelId,
-        conversation: {
-          id: activity.conversation?.id,
-          tenantId: activity.conversation?.tenantId,
-        },
-      } as ConversationReference;
-      if (activity.conversation?.conversationType !== undefined) {
-        reference.conversation.conversationType = activity.conversation?.conversationType;
-      }
-      return reference;
     });
   });
 
@@ -69,6 +64,7 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -99,6 +95,7 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -123,6 +120,16 @@ describe("Notification Middleware Tests - Node", () => {
         },
         recipient: {
           id: "A",
+        },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "1",
+              tenantId: "a",
+              conversationType: "channel",
+            },
+          } as ConversationReference;
         },
       },
     };
@@ -170,6 +177,16 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "X",
+              tenantId: "a",
+              conversationType: "channel",
+            },
+          } as ConversationReference;
+        },
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -197,6 +214,16 @@ describe("Notification Middleware Tests - Node", () => {
         },
         recipient: {
           id: "A",
+        },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "X",
+              tenantId: "a",
+              conversationType: "channel",
+            },
+          } as ConversationReference;
         },
       },
     };
@@ -235,6 +262,7 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -256,6 +284,7 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -276,6 +305,16 @@ describe("Notification Middleware Tests - Node", () => {
         },
         recipient: {
           id: "A",
+        },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "1",
+              conversationType: "groupChat",
+              tenantId: "a",
+            },
+          };
         },
       },
     };
@@ -307,6 +346,16 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "A",
         },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "1",
+              conversationType: "groupChat",
+              tenantId: "a",
+            },
+          };
+        },
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -330,6 +379,16 @@ describe("Notification Middleware Tests - Node", () => {
         channelData: {
           eventType: "teamDeleted",
         },
+        getConversationReference: () => {
+          return {
+            channelId: "1",
+            conversation: {
+              id: "1",
+              conversationType: "groupChat",
+              tenantId: "a",
+            },
+          };
+        },
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -352,6 +411,7 @@ describe("Notification Middleware Tests - Node", () => {
         channelData: {
           eventType: "teamRestored",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});
@@ -374,6 +434,7 @@ describe("Notification Middleware Tests - Node", () => {
         recipient: {
           id: "B",
         },
+        getConversationReference: mockedGetConversationReference,
       },
     };
     await middleware.onTurn(testContext as any, async () => {});

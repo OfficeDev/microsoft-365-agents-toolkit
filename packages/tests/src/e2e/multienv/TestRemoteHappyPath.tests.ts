@@ -10,7 +10,7 @@ import * as chai from "chai";
 import fs from "fs-extra";
 import { describe } from "mocha";
 import path from "path";
-import M365Login from "@microsoft/teamsapp-cli/src/commonlib/m365Login";
+import M365Login from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365Login";
 import { AppStudioValidator, BotValidator } from "../../commonlib";
 import { CliHelper } from "../../commonlib/cliHelper";
 import {
@@ -43,7 +43,7 @@ describe("Multi Env Happy Path for Azure", function () {
       try {
         let result;
         result = await execAsync(
-          `teamsapp new --interactive false --app-name ${appName} --capability notification --bot-host-type-trigger http-functions --programming-language javascript`,
+          `atk new --interactive false --app-name ${appName} --capability notification --bot-host-type-trigger http-functions --programming-language javascript`,
           {
             cwd: testFolder,
             env: processEnv,
@@ -57,7 +57,7 @@ describe("Multi Env Happy Path for Azure", function () {
         await CliHelper.addEnv(env, projectPath, processEnv);
 
         // list env
-        result = await execAsync(`teamsapp env list`, {
+        result = await execAsync(`atk env list`, {
           cwd: projectPath,
           env: processEnv,
           timeout: 0,
@@ -106,7 +106,7 @@ describe("Multi Env Happy Path for Azure", function () {
         }
 
         // validate manifest
-        result = await execAsyncWithRetry(`teamsapp validate --env ${env}`, {
+        result = await execAsyncWithRetry(`atk validate --env ${env}`, {
           cwd: projectPath,
           env: processEnv,
           timeout: 0,
@@ -118,7 +118,7 @@ describe("Multi Env Happy Path for Azure", function () {
         }
 
         // update manifest
-        const updateManifestCmd = `teamsapp update --env ${env}`;
+        const updateManifestCmd = `atk update --env ${env}`;
         result = await execAsyncWithRetry(updateManifestCmd, {
           cwd: projectPath,
           env: processEnv,
@@ -131,7 +131,7 @@ describe("Multi Env Happy Path for Azure", function () {
         }
 
         // package
-        await execAsyncWithRetry(`teamsapp package --env ${env}`, {
+        await execAsyncWithRetry(`atk package --env ${env}`, {
           cwd: projectPath,
           env: processEnv,
           timeout: 0,
@@ -144,7 +144,7 @@ describe("Multi Env Happy Path for Azure", function () {
         }
 
         // publish
-        await execAsyncWithRetry(`teamsapp publish --env ${env}`, {
+        await execAsyncWithRetry(`atk publish --env ${env}`, {
           cwd: projectPath,
           env: processEnv,
           timeout: 0,

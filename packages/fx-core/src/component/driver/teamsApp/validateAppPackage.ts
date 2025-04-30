@@ -10,10 +10,9 @@ import {
   Colors,
   FxError,
   LogLevel,
-  ManifestUtil,
   Platform,
   Result,
-  TeamsAppManifest,
+  TeamsManifestConverter,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -38,6 +37,7 @@ import { AppStudioError } from "./errors";
 import { ValidateAppPackageArgs } from "./interfaces/ValidateAppPackageArgs";
 import { AppStudioResultFactory } from "./results";
 import { TelemetryPropertyKey } from "./utils/telemetry";
+import { manifestUtils } from "./utils/ManifestUtils";
 
 const actionName = "teamsApp/validateAppPackage";
 
@@ -83,11 +83,11 @@ export class ValidateAppPackageDriver implements StepDriver {
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (manifestFile) {
       const manifestContent = manifestFile.getData().toString();
-      const manifest = JSON.parse(manifestContent) as TeamsAppManifest;
+      const manifest = TeamsManifestConverter.jsonToManifest(manifestContent);
       metadataUtil.parseManifest(manifest);
 
       // Add common properties like isCopilotPlugin: boolean
-      const manifestTelemetries = ManifestUtil.parseCommonTelemetryProperties(manifest);
+      const manifestTelemetries = manifestUtils.parseCommonTelemetryProperties(manifest as any);
       merge(context.telemetryProperties, manifestTelemetries);
     }
 

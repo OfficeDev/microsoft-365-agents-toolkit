@@ -1,29 +1,20 @@
-// Import required packages
-import express from "express";
-
-// Import required bot services.
-// See https://aka.ms/bot-services to learn more about the different parts of a bot.
 import {
+  AuthConfiguration,
+  authorizeJWT,
   CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  ConfigurationBotFrameworkAuthentication,
+  loadAuthConfigFromEnv,
+  Request,
   TurnContext,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
+import express, { Response } from "express";
 
-// This bot's main dialog.
-import { TeamsBot } from "./teamsBot";
-import config from "./config";
+import { agentApp } from "./agent";
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
-const credentialsFactory = new ConfigurationServiceClientCredentialFactory(config);
+// Create authentication configuration
+const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
 
-const botFrameworkAuthentication = new ConfigurationBotFrameworkAuthentication(
-  {},
-  credentialsFactory
-);
-
-const adapter = new CloudAdapter(botFrameworkAuthentication);
+// Create adapter
+const adapter = new CloudAdapter(authConfig);
 
 // Catch-all for errors.
 const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
@@ -34,7 +25,7 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 
   // Only send error message for user messages, not for other message types so the bot doesn't spam a channel or chat.
   if (context.activity.type === "message") {
-    // Send a trace activity, which will be displayed in Bot Framework Emulator
+    // Send a trace activity
     await context.sendTraceActivity(
       "OnTurnError Trace",
       `${error}`,
@@ -51,20 +42,27 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 // Set the onTurnError for the singleton CloudAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-// Create the bot that will handle incoming messages.
-const bot = new TeamsBot();
-
-// Create express application.
-const expressApp = express();
-expressApp.use(express.json());
-
-const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
-});
+// Create express application
+const server = express();
+server.use(express.json());
+server.use(authorizeJWT(authConfig));
 
 // Listen for incoming requests.
-expressApp.post("/api/messages", async (req, res) => {
+server.post("/api/messages", async (req: Request, res: Response) => {
   await adapter.process(req, res, async (context) => {
-    await bot.run(context);
+    await agentApp.run(context);
   });
 });
+
+// Start the server
+const port = process.env.PORT || 3978;
+server
+  .listen(port, () => {
+    console.log(
+      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+    );
+  })
+  .on("error", (err) => {
+    console.error(err);
+    process.exit(1);
+  });

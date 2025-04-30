@@ -43,7 +43,7 @@ const InstallTimeout = 5 * 60 * 1000;
 
 export class TestToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
-  private readonly name = "Teams App Test Tool";
+  private readonly name = "Microsoft 365 Agents Playground";
   private readonly npmPackageName = "@microsoft/teams-app-test-tool";
   private readonly checkUpdateTimeout = 10 * 1000;
   private readonly npmCommandName = isWindows() ? "teamsapptester.cmd" : "teamsapptester";

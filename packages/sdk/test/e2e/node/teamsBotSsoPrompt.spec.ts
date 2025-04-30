@@ -2,21 +2,25 @@
 // Licensed under the MIT license.
 
 import {
+  CardFactory,
+  ConversationState,
+  MemoryStorage,
+  AgentStatePropertyAccessor,
+  StatusCodes,
+} from "@microsoft/agents-hosting";
+import {
+  TeamsChannelAccount,
+  tokenExchangeOperationName,
+  TeamsInfo,
+} from "@microsoft/agents-hosting-teams";
+import {
   ActionTypes,
   Activity,
   ActivityTypes,
-  CardFactory,
   Channels,
-  ConversationState,
   InputHints,
-  MemoryStorage,
-  StatePropertyAccessor,
-  StatusCodes,
-  TeamsChannelAccount,
-  TestAdapter,
-  tokenExchangeOperationName,
-} from "botbuilder-core";
-import { DialogSet, DialogState, DialogTurnStatus } from "botbuilder-dialogs";
+} from "@microsoft/agents-activity";
+import { DialogSet, DialogState, DialogTurnStatus } from "@microsoft/agents-hosting-dialogs";
 import {
   TeamsBotSsoPrompt,
   TeamsBotSsoPromptTokenResponse,
@@ -28,7 +32,7 @@ import * as chaiPromises from "chai-as-promised";
 import { extractIntegrationEnvVariables, getSsoTokenFromTeams } from "../helper";
 import { parseJwt } from "../../../src/util/utils";
 import * as sinon from "sinon";
-import { TeamsInfo } from "botbuilder";
+import { TestAdapter } from "../../unit/node/conversation/testUtils";
 
 chaiUse(chaiPromises);
 extractIntegrationEnvVariables();
@@ -83,9 +87,9 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
       .assertReply((activity) => {
         // User has not consent. Assert bot send out 412
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.PRECONDITION_FAILED);
+        assert.strictEqual((activity.value as any).status, StatusCodes.PRECONDITION_FAILED);
         assert.strictEqual(
-          activity.value.body.failureDetail,
+          (activity.value as any).body.failureDetail,
           "The bot is unable to exchange token. Ask for user consent."
         );
       });
@@ -108,7 +112,7 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal verifivation invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
       })
       .assertReply(SsoLogInResult.Success)
       .assertReply((activity) => {
@@ -141,8 +145,8 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
       .assertReply((activity) => {
         // Assert bot send out invoke response status 200 to Teams to signal token response request invoke has been received
         assert.strictEqual(activity.type, invokeResponseActivityType);
-        assert.strictEqual(activity.value.status, StatusCodes.OK);
-        assert.strictEqual(activity.value.body.id, id);
+        assert.strictEqual((activity.value as any).status, StatusCodes.OK);
+        assert.strictEqual((activity.value as any).body.id, id);
       })
       .assertReply(SsoLogInResult.Success)
       .assertReply((activity) => {
@@ -182,10 +186,16 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
     assert.strictEqual(activity.attachments![0].contentType, CardFactory.contentTypes.oauthCard);
     assert.strictEqual(activity.inputHint, InputHints.AcceptingInput);
 
-    assert.strictEqual(activity.attachments![0].content.buttons[0].type, ActionTypes.Signin);
-    assert.strictEqual(activity.attachments![0].content.buttons[0].title, "Teams SSO Sign In");
     assert.strictEqual(
-      activity.attachments![0].content.buttons[0].value,
+      (activity.attachments![0].content as any).buttons[0].type,
+      ActionTypes.Signin
+    );
+    assert.strictEqual(
+      (activity.attachments![0].content as any).buttons[0].title,
+      "Teams SSO Sign In"
+    );
+    assert.strictEqual(
+      (activity.attachments![0].content as any).buttons[0].value,
       `${initiateLoginEndpoint}?scope=${encodeURI(scopes.join(" "))}&clientId=${
         process.env.SDK_INTEGRATION_TEST_M365_AAD_CLIENT_ID
       }&tenantId=${process.env.SDK_INTEGRATION_TEST_AAD_TENANT_ID}&loginHint=${userPrincipalName}`
@@ -216,7 +226,7 @@ describe("TeamsBotSsoPrompt Tests with Auth Config - Node", () => {
     const convoState: ConversationState = new ConversationState(new MemoryStorage());
 
     // Create a DialogState property, DialogSet and TeamsBotSsoPrompt
-    const dialogState: StatePropertyAccessor<DialogState> =
+    const dialogState: AgentStatePropertyAccessor<DialogState> =
       convoState.createProperty("dialogState");
     const dialogs: DialogSet = new DialogSet(dialogState);
 

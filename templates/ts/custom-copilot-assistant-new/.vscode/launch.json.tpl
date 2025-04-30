@@ -34,7 +34,7 @@
             "internalConsoleOptions": "neverOpen"
         },
         {
-            "name": "Launch App (Edge)",
+            "name": "Launch Agent (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -49,7 +49,7 @@
             "perScriptSourcemaps": "yes"
         },
         {
-            "name": "Launch App (Chrome)",
+            "name": "Launch Agent (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
@@ -79,7 +79,7 @@
             "name": "Launch Remote in Teams (Desktop)",
             "type": "node",
             "request": "launch",
-            "preLaunchTask": "Start Teams App in Desktop Client (Remote)",
+            "preLaunchTask": "Start Agent in Desktop Client (Remote)",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -162,10 +162,10 @@
         {
             "name": "Debug in Teams (Edge)",
             "configurations": [
-                "Launch App (Edge)",
+                "Launch Agent (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -180,10 +180,10 @@
         {
             "name": "Debug in Teams (Chrome)",
             "configurations": [
-                "Launch App (Chrome)",
+                "Launch Agent (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -200,7 +200,7 @@
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start Agent in Desktop Client",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "2-Teams",
@@ -213,11 +213,11 @@
             "stopAll": true
         },
         {
-            "name": "Debug in Test Tool",
+            "name": "Debug in Microsoft 365 Agents Playground",
             "configurations": [
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App (Test Tool)",
+            "preLaunchTask": "Start Agent in Microsoft 365 Agents Playground",
             "presentation": {
 {{#enableTestToolByDefault}}
                 "group": "1-local",
@@ -236,7 +236,7 @@
                 "Launch in Copilot (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "3-M365",
                 "order": 1
@@ -249,7 +249,7 @@
                 "Launch in Copilot (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start Agent Locally",
             "presentation": {
                 "group": "3-M365",
                 "order": 2

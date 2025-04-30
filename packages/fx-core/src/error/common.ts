@@ -3,18 +3,18 @@
 
 import {
   FxError,
+  Stage,
   SystemError,
   SystemErrorOptions,
   UserError,
   UserErrorOptions,
 } from "@microsoft/teamsfx-api";
 import { camelCase } from "lodash";
-import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { globalVars } from "../common/globalVars";
-import { ErrorCategory } from "./types";
-import path from "path";
-import { MetadataV3 } from "../common/versionMetadata";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
+import { YamlFileNames } from "../common/versionMetadata";
 import { TelemetryProperty } from "../component/configManager/constant";
+import { ErrorCategory } from "./types";
 
 export class FileNotFoundError extends UserError {
   constructor(source: string, filePath: string, helpLink?: string) {
@@ -37,19 +37,24 @@ export class MissingEnvironmentVariablesError extends UserError {
     const envFilePath = globalVars.envFilePath || "";
     const secretEnvFilePath = globalVars.envFilePath ? `${globalVars.envFilePath}.user` : "";
     const key = "error.common.MissingEnvironmentVariablesError";
+    const deduplicatedVaribleNames = variableNames
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name, index, self) => self.indexOf(name) === index)
+      .join(", ");
     const errorOptions: UserErrorOptions = {
       source: camelCase(source),
       name: "MissingEnvironmentVariablesError",
       message: getDefaultString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
       ),
       displayMessage: getLocalizedString(
         key,
-        variableNames,
+        deduplicatedVaribleNames,
         templateFilePath,
         envFilePath,
         secretEnvFilePath
@@ -58,8 +63,9 @@ export class MissingEnvironmentVariablesError extends UserError {
       categories: [ErrorCategory.Internal],
       telemetryProperties: {
         [TelemetryProperty.UnresolvedPlaceholders]: variableNames
-          .replace("SECRET", "S")
-          .replace("PASSWORD", "P"),
+          .replace(/SECRET/g, "S")
+          .replace(/PASSWORD/g, "P")
+          .replace(/API_KEY/g, "AK"),
       },
     };
     super(errorOptions);
@@ -88,13 +94,12 @@ export class InvalidActionInputError extends UserError {
 
 export class InvalidProjectError extends UserError {
   constructor(projectPath: string) {
-    const ymlFilePath = path.join(projectPath, MetadataV3.configFile);
-    const localYmlPath = path.join(projectPath, MetadataV3.localConfigFile);
+    const yamlFileNames = YamlFileNames.join(", ");
     super({
       message: getDefaultString("error.common.InvalidProjectError"),
       displayMessage: getLocalizedString(
         "error.common.InvalidProjectError.display",
-        `'${ymlFilePath}' or '${localYmlPath}'`
+        `${yamlFileNames}`
       ),
       source: "coordinator",
       categories: [ErrorCategory.Internal],
@@ -154,6 +159,62 @@ export class InjectOAuthActionFailedError extends UserError {
       displayMessage: getLocalizedString("core.copilot.addAPI.InjectOAuthActionFailed"),
       source: "coordinator",
       categories: [ErrorCategory.Internal],
+    });
+  }
+}
+
+export class DeclarativeAgentPathNotFoundError extends UserError {
+  constructor(manifestPath: string) {
+    super({
+      message: getDefaultString(
+        "core.regenerateQuestion.declarativeAgentPathNotFound",
+        manifestPath
+      ),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.declarativeAgentPathNotFound",
+        manifestPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class ActionNotFoundError extends UserError {
+  constructor(declarativeAgentPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.actionNotFound", declarativeAgentPath),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.actionNotFound",
+        declarativeAgentPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class SpecNotFoundError extends UserError {
+  constructor(pluginPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.specNotFound", pluginPath),
+      displayMessage: getLocalizedString("core.regenerateQuestion.specNotFound", pluginPath),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
+    });
+  }
+}
+
+export class OriginalSpecNotFoundError extends UserError {
+  constructor(originalSpecPath: string) {
+    super({
+      message: getDefaultString("core.regenerateQuestion.originalSpecNotFound", originalSpecPath),
+      displayMessage: getLocalizedString(
+        "core.regenerateQuestion.originalSpecNotFound",
+        originalSpecPath
+      ),
+      source: Stage.RegeneratePlugin,
+      categories: [ErrorCategory.External],
     });
   }
 }
@@ -394,6 +455,18 @@ export class UserCancelError extends UserError {
       source: actionName ? camelCase(actionName) : "ui",
       name: "UserCancel",
       message: "User canceled",
+      categories: [ErrorCategory.Internal],
+    });
+  }
+}
+
+export class NeedRedoError extends UserError {
+  constructor(source: string) {
+    super({
+      source: source,
+      name: "NeedRedoError",
+      message: "Need re-execute the operation",
+      displayMessage: "Need re-execute the operation",
       categories: [ErrorCategory.Internal],
     });
   }

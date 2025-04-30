@@ -3,14 +3,13 @@
 
 import {
   ConversationState,
-  ConversationReference,
   UserState,
-  Activity,
   TurnContext,
   InvokeResponse,
   Storage,
-  SigninStateVerificationQuery,
-} from "botbuilder";
+} from "@microsoft/agents-hosting";
+import { Activity, ConversationReference } from "@microsoft/agents-activity";
+import { SigninStateVerificationQuery } from "@microsoft/agents-hosting-teams";
 import { TeamsBotSsoPromptTokenResponse } from "../bot/teamsBotSsoPromptTokenResponse";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 

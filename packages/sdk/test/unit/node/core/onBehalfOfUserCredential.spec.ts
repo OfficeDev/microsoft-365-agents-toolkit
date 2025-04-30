@@ -324,6 +324,25 @@ fakeCert
     );
   });
 
+  it("getToken should throw FailToAcquireTokenOnBehalfOfUser when access token is null", async function () {
+    sandbox.restore();
+    sandbox
+      .stub(ConfidentialClientApplication.prototype, "acquireTokenOnBehalfOf")
+      .callsFake((): Promise<AuthenticationResult | null> => {
+        return Promise.resolve(null);
+      });
+
+    const credential = new OnBehalfOfUserCredential(ssoToken, authConfig);
+    const err = await expect(credential.getToken(scope)).to.eventually.be.rejectedWith(
+      ErrorWithCode
+    );
+    assert.strictEqual(err.code, ErrorCode.InternalError);
+    assert.strictEqual(
+      err.message,
+      "Failed to acquire access token on behalf of user: Access token is null"
+    );
+  });
+
   it("getUserInfo should succeed", async function () {
     const oboCredential = new OnBehalfOfUserCredential(ssoToken, authConfig);
     const userinfo: UserInfo = oboCredential.getUserInfo();

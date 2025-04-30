@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.TeamsFx.Conversation;
-using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Builder;
 using Microsoft.Agents.Hosting.AspNetCore;
 
 namespace {{SafeProjectName}}
@@ -11,10 +11,10 @@ namespace {{SafeProjectName}}
     public sealed class MessageHandler
     {
         private readonly ConversationBot _conversation;
-        private readonly IBot _bot;
+        private readonly IAgent _bot;
         private readonly ILogger<MessageHandler> _log;
 
-        public MessageHandler(ConversationBot conversation, IBot bot, ILogger<MessageHandler> log)
+        public MessageHandler(ConversationBot conversation, IAgent bot, ILogger<MessageHandler> log)
         {
             _conversation = conversation;
             _bot = bot;

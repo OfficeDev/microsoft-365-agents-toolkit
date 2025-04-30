@@ -2,23 +2,25 @@
 // Licensed under the MIT license.
 
 import { Platform } from "@microsoft/teamsfx-api";
+import { agentForTeamsTemplates } from "./agentForTeams";
 import { basicBotTemplates } from "./bot";
-import { customEngineAgentTemplates } from "./cea";
+import { customEngineAgentTemplates } from "./customEngineAgent";
+import { graphConnectorTemplates } from "./graphConnector";
 import { Template } from "./interface";
 import { messagingExtensionTemplates } from "./me";
 import { specialTemplates } from "./special";
+import { sharePointEmbeddedTemplates } from "./sharepointembedded";
 import { tabTemplates } from "./tab";
 import { tdpTemplates } from "./tdp";
 import { vsOnlyTemplates } from "./vs";
 import { wxpTemplates } from "./wxp";
-import { graphConnectorTemplates } from "./graphConnector";
-import { sharePointEmbeddedTemplates } from "./sharepointembedded";
 
 const allTemplates: Template[] = [
   ...tabTemplates,
   ...basicBotTemplates,
   ...messagingExtensionTemplates,
   ...customEngineAgentTemplates,
+  ...agentForTeamsTemplates,
   ...tdpTemplates,
   ...specialTemplates,
   ...vsOnlyTemplates,
@@ -32,6 +34,7 @@ const defaultGeneratorTemplates: Template[] = [
   ...basicBotTemplates,
   ...messagingExtensionTemplates,
   ...customEngineAgentTemplates,
+  ...agentForTeamsTemplates,
   ...tdpTemplates,
   ...vsOnlyTemplates,
   ...graphConnectorTemplates,

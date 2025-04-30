@@ -332,7 +332,7 @@ describe("Tools Install Driver test", () => {
 
     it("Install test tool", async () => {
       const resolveStub = sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
-        name: "Teams App Test Tool",
+        name: "Microsoft 365 Agents Playground",
         type: DepsType.TestTool,
         isInstalled: true,
         command: "teamsapptester",
@@ -371,7 +371,7 @@ describe("Tools Install Driver test", () => {
 
     // it("Install test tool failed without error", async () => {
     //   sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
-    //     name: "Teams App Test Tool",
+    //     name: "Microsoft 365 Agents Playground",
     //     type: DepsType.TestTool,
     //     isInstalled: false,
     //     command: "teamsapptester",
@@ -390,7 +390,7 @@ describe("Tools Install Driver test", () => {
     // });
     // it("Install test tool failed with error", async () => {
     //   sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
-    //     name: "Teams App Test Tool",
+    //     name: "Microsoft 365 Agents Playground",
     //     type: DepsType.TestTool,
     //     isInstalled: false,
     //     command: "teamsapptester",
@@ -430,7 +430,7 @@ describe("Tools Install Driver test", () => {
     for (const c of cases) {
       it("Install test tool args check " + c.name, async () => {
         sandbox.stub(TestToolChecker.prototype, "resolve").resolves({
-          name: "Teams App Test Tool",
+          name: "Microsoft 365 Agents Playground",
           type: DepsType.TestTool,
           isInstalled: true,
           command: "teamsapptester",

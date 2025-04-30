@@ -28,7 +28,6 @@ import {
   MissingEnvironmentVariablesError,
   ReadFileError,
 } from "../../../../error/common";
-import { CapabilityOptions } from "../../../../question/constants";
 import { BotScenario } from "../../../constants";
 import { convertManifestTemplateToV2, convertManifestTemplateToV3 } from "../../../migrate";
 import { expandEnvironmentVariable, getEnvironmentVariables } from "../../../utils/common";
@@ -53,6 +52,43 @@ import {
 import { AppStudioError } from "../errors";
 import { AppStudioResultFactory } from "../results";
 import { getResolvedManifest } from "./utils";
+import {
+  BotCapabilityOptions,
+  TabCapabilityOptions,
+} from "../../../../question/scaffold/vsc/CapabilityOptions";
+
+export const SharePointAppId = "00000003-0000-0ff1-ce00-000000000000";
+
+export interface ManifestCommonProperties {
+  /**
+   * Capabilities, e.g. "staticTab" | "configurableTab" | "MessageExtension" | "WebApplicationInfo" | "plugin" | "copilotGpt"
+   */
+  capabilities: string[];
+  /**
+   * Teams app id
+   */
+  id: string;
+  /**
+   * Teams app version, e.g.1.0.0
+   */
+  version: string;
+  /**
+   * manifest version, e.g. 1.16
+   */
+  manifestVersion: string;
+  /**
+   * Whether it's an API ME
+   */
+  isApiME: boolean;
+  /**
+   * Whether it's SPFx Teams app
+   */
+  isSPFx: boolean;
+  /**
+   * Whether it's an API ME with AAD auth
+   */
+  isApiMeAAD: boolean;
+}
 
 export class ManifestUtils {
   async readAppManifest(projectPath: string): Promise<Result<TeamsAppManifest, FxError>> {
@@ -160,7 +196,7 @@ export class ManifestUtils {
               appManifest.staticTabs.push(template);
             } else {
               const tabManifest =
-                inputs.features === CapabilityOptions.dashboardTab().id
+                inputs.features === TabCapabilityOptions.dashboardTab().id
                   ? STATIC_TABS_TPL_V3[1]
                   : STATIC_TABS_TPL_V3[0];
               const template = cloneDeep(tabManifest);
@@ -202,14 +238,14 @@ export class ManifestUtils {
               if (inputs.features) {
                 const feature = inputs.features;
                 if (
-                  feature === CapabilityOptions.commandBot().id ||
-                  feature == CapabilityOptions.workflowBot().id
+                  feature === BotCapabilityOptions.commandBot().id ||
+                  feature == BotCapabilityOptions.workflowBot().id
                 ) {
                   // command and response bot or workflow bot
                   appManifest.bots = appManifest.bots.concat(
                     getBotsTplForCommandAndResponseBasedOnVersion(manifestVersion)
                   );
-                } else if (feature === CapabilityOptions.notificationBot().id) {
+                } else if (feature === BotCapabilityOptions.notificationBot().id) {
                   // notification
                   appManifest.bots = appManifest.bots.concat(
                     getBotsTplForNotificationBasedOnVersion(manifestVersion)
@@ -457,6 +493,116 @@ export class ManifestUtils {
     }
 
     return ok(resolvedLocFileString);
+  }
+
+  /**
+   * Parse the manifest and get properties
+   * @param manifest
+   */
+  parseCommonProperties(manifest: TeamsAppManifest): ManifestCommonProperties {
+    const capabilities: string[] = [];
+    if (manifest.staticTabs && manifest.staticTabs.length > 0) {
+      capabilities.push("staticTab");
+    }
+    if (manifest.configurableTabs && manifest.configurableTabs.length > 0) {
+      capabilities.push("configurableTab");
+    }
+    if (manifest.bots && manifest.bots.length > 0) {
+      capabilities.push("Bot");
+    }
+    if (manifest.composeExtensions && manifest.composeExtensions.length > 0) {
+      capabilities.push("MessageExtension");
+    }
+
+    const properties: ManifestCommonProperties = {
+      id: manifest.id,
+      version: manifest.version,
+      capabilities: capabilities,
+      manifestVersion: manifest.manifestVersion,
+      isApiME: false,
+      isSPFx: false,
+      isApiMeAAD: false,
+    };
+
+    // If it's copilot plugin app
+    if (
+      manifest.composeExtensions &&
+      manifest.composeExtensions.length > 0 &&
+      manifest.composeExtensions[0].composeExtensionType == "apiBased"
+    ) {
+      properties.isApiME = true;
+    }
+
+    // If it's SPFx app
+    if (
+      (manifest as any).webApplicationInfo &&
+      (manifest as any).webApplicationInfo.id &&
+      (manifest as any).webApplicationInfo.id == SharePointAppId
+    ) {
+      properties.isSPFx = true;
+    }
+
+    // If it's API ME with AAD auth
+    if (
+      manifest.composeExtensions &&
+      manifest.composeExtensions.length > 0 &&
+      manifest.composeExtensions[0].composeExtensionType == "apiBased" &&
+      manifest.composeExtensions[0].authorization?.authType == "microsoftEntra"
+    ) {
+      properties.isApiMeAAD = true;
+    }
+
+    if (manifest.copilotExtensions?.plugins) {
+      const apiPlugins = manifest.copilotExtensions?.plugins;
+      if (apiPlugins && apiPlugins.length > 0 && apiPlugins[0].file) capabilities.push("plugin");
+    }
+
+    if (manifest.copilotExtensions?.declarativeCopilots) {
+      const copilotGpts = manifest.copilotExtensions?.declarativeCopilots;
+      if (copilotGpts && copilotGpts.length > 0) capabilities.push("copilotGpt");
+    }
+
+    if (manifest.copilotAgents?.plugins) {
+      const apiPlugins = manifest.copilotAgents?.plugins;
+      if (
+        apiPlugins &&
+        apiPlugins.length > 0 &&
+        apiPlugins[0].file &&
+        !capabilities.includes("plugin")
+      )
+        capabilities.push("plugin");
+    }
+
+    if (manifest.copilotAgents?.declarativeAgents) {
+      const copilotGpts = manifest.copilotAgents?.declarativeAgents;
+      if (copilotGpts && copilotGpts.length > 0 && !capabilities.includes("copilotGpt"))
+        capabilities.push("copilotGpt");
+    }
+
+    return properties;
+  }
+
+  /**
+   * Parse the manifest and get telemetry propreties e.g. appId, capabilities etc.
+   * @param manifest
+   * @returns Telemetry properties
+   */
+  parseCommonTelemetryProperties(manifest: TeamsAppManifest): {
+    [p: string]: string;
+  } {
+    const properties = this.parseCommonProperties(manifest);
+
+    const telemetryProperties: { [p: string]: string } = {};
+    const propertiesMap = new Map<string, any>(Object.entries(properties));
+    propertiesMap.forEach((value, key) => {
+      if (Array.isArray(value)) {
+        telemetryProperties[key] = value.join(";");
+      } else {
+        telemetryProperties[key] = value;
+      }
+    });
+
+    return telemetryProperties;
   }
 }
 

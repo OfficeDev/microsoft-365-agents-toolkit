@@ -66,8 +66,8 @@
                             "description": "How can you help me?"
                         },
                         {
-                            "title": "How to develop TeamsToolkit app?",
-                            "description": "How can I develop apps with Teams Toolkit?"
+                            "title": "How to develop agent for Teams?",
+                            "description": "How can I develop apps with Microsoft 365 Agents Toolkit?"
                         }
                     ]
                 }

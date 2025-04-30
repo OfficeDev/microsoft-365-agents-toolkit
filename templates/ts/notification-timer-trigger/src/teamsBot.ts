@@ -1,24 +1,9 @@
-import { TeamsActivityHandler } from "botbuilder";
+import { AgentApplication, TurnContext } from "@microsoft/agents-hosting";
 
-// Teams activity handler.
-// You can add your customization code here to extend your bot logic if needed.
-export class TeamsBot extends TeamsActivityHandler {
-  constructor() {
-    super();
+export const teamsBot = new AgentApplication();
 
-    // Listen to MembersAdded event, view https://docs.microsoft.com/en-us/microsoftteams/platform/resources/bot-v3/bots-notifications for more events
-    this.onMembersAdded(async (context, next) => {
-      const membersAdded = context.activity.membersAdded;
-      for (let cnt = 0; cnt < membersAdded.length; cnt++) {
-        if (membersAdded[cnt].id) {
-          await context.sendActivity(
-            "Welcome to the Notification Bot! I am designed to send you updates and alerts using Adaptive Cards triggered by timer schedules. " +
-              "Please note that I am a notification-only bot and you can't interact with me. Follow the README in the project and stay tuned for notifications!"
-          );
-          break;
-        }
-      }
-      await next();
-    });
-  }
-}
+teamsBot.conversationUpdate("membersAdded", async (context: TurnContext) => {
+  await context.sendActivity(
+    "Welcome to the Notification Bot! I am designed to send you updates and alerts using Adaptive Cards triggered by timer schedules. Please note that I am a notification-only bot and you can't interact with me. Follow the README in the project and stay tuned for notifications!"
+  );
+});

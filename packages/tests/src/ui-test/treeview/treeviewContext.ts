@@ -179,7 +179,7 @@ export async function validateAppPackage(env = "dev") {
   const driver = VSBrowser.instance.driver;
   await driver.sleep(Timeout.input);
   const input = await InputBox.create();
-  await input.selectQuickPick("Validate Teams app manifest schema");
+  await input.selectQuickPick("Validate app manifest schema");
   await driver.sleep(Timeout.input);
   await input.selectQuickPick("manifest.json");
   await driver.sleep(Timeout.input);

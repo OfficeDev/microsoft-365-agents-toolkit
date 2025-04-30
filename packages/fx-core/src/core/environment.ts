@@ -42,22 +42,25 @@ class EnvironmentManager {
     return ok(remoteEnvs);
   }
 
-  private async hasTestToolEnv(projectPath: string): Promise<boolean> {
+  private async getTestToolEnv(projectPath: string): Promise<string[]> {
     if (!(await fs.pathExists(projectPath))) {
-      return false;
+      return [];
     }
     const allEnvsRes = await envUtil.listEnv(projectPath);
-    if (allEnvsRes.isErr()) return false;
-    return allEnvsRes.value.includes(environmentNameManager.getTestToolEnvName());
+    if (allEnvsRes.isErr()) return [];
+
+    if (allEnvsRes.value.includes(environmentNameManager.getPlaygroundEnvName())) {
+      return [environmentNameManager.getPlaygroundEnvName()];
+    }
+
+    if (allEnvsRes.value.includes(environmentNameManager.getTestToolEnvName())) {
+      return [environmentNameManager.getTestToolEnvName()];
+    }
+    return [];
   }
 
   public async getExistingNonRemoteEnvs(projectPath: string): Promise<string[]> {
-    return [
-      ...((await this.hasTestToolEnv(projectPath))
-        ? [environmentNameManager.getTestToolEnvName()]
-        : []),
-      environmentNameManager.getLocalEnvName(),
-    ];
+    return [...(await this.getTestToolEnv(projectPath)), environmentNameManager.getLocalEnvName()];
   }
 }
 

@@ -71,7 +71,7 @@
     "@azure/arm-sql": "^9.0.0",
     "@azure/identity": "^4.1.0",
     "@azure/msal-node": "2.6.6",
-    "@microsoft/teamsapp-cli": "workspace:*",
+    "@microsoft/m365agentstoolkit-cli": "workspace:*",
     "@microsoft/teamsfx-api": "workspace:*",
     "@types/semver": "^7.3.8",
     "adm-zip": "0.5.10",

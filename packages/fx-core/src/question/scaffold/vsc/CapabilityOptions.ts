@@ -5,12 +5,32 @@ import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
-import {
-  HostType,
-  HostTypeTriggerOptionItem,
-  NotificationTriggers,
-  QuestionNames,
-} from "../../constants";
+import { HostType, HostTypeTriggerOptionItem, NotificationTriggers } from "../../constants";
+import { QuestionNames } from "../../questionNames";
+
+export class CustomEngineAgentOptions {
+  static basicCustomEngineAgent(): OptionItem {
+    return {
+      id: "basic-custom-engine-agent",
+      label: getLocalizedString(
+        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail"
+      ),
+      data: TemplateNames.BasicCustomEngineAgent,
+    };
+  }
+
+  static weatherAgent(): OptionItem {
+    return {
+      id: "weather-agent",
+      label: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.weatherAgentOption.detail"),
+      data: TemplateNames.WeatherAgent,
+    };
+  }
+}
 
 export class TabCapabilityOptions {
   static nonSsoTab(): OptionItem {
@@ -484,6 +504,33 @@ export class DACapabilityOptions {
       data: TemplateNames.DeclarativeAgentSharePointEmbeddedCopilotApp,
     };
   }
+  static typeSpec(): OptionItem {
+    return {
+      id: "type-spec",
+      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
+      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
+      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
+      data: TemplateNames.DeclarativeAgentWithTypeSpec,
+    };
+  }
+  static withGC(): OptionItem {
+    return {
+      id: "gc",
+      label: getLocalizedString("core.createProjectQuestion.addGC.label"),
+      detail: getLocalizedString("core.createProjectQuestion.addGC.detail"),
+      data: TemplateNames.DeclarativeAgentWithGraphConnector,
+    };
+  }
+  static all(): OptionItem[] {
+    const items: OptionItem[] = [
+      DACapabilityOptions.noPlugin(),
+      DACapabilityOptions.withPlugin(),
+      DACapabilityOptions.withGC(),
+      DACapabilityOptions.typeSpec(),
+      DACapabilityOptions.createSharePointEmbeddedApp(),
+    ];
+    return items;
+  }
 }
 
 export class ActionStartOptions {
@@ -514,7 +561,7 @@ export class ActionStartOptions {
 
   static apiSpecWithSearch(): OptionItem {
     return {
-      id: "api-spec-with-search",
+      id: "api-spec",
       label: getLocalizedString(
         "core.createProjectQuestion.capability.copilotPluginApiSpecOption.label"
       ),
@@ -531,16 +578,6 @@ export class ActionStartOptions {
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
       data: TemplateNames.DeclarativeAgentWithExistingAction,
-    };
-  }
-
-  static typeSpec(): OptionItem {
-    return {
-      id: "type-spec",
-      label: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.label"),
-      detail: getLocalizedString("core.createProjectQuestion.apiPlugin.typeSpec.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
-      data: TemplateNames.DeclarativeAgentWithTypeSpec,
     };
   }
 }
@@ -592,5 +629,42 @@ export class ApiAuthOptions {
 export function setTemplateName(selected: string | OptionItem, inputs: Inputs): void {
   if ((selected as OptionItem).data) {
     inputs[QuestionNames.TemplateName] = (selected as OptionItem).data as string;
+  }
+}
+
+export class TdpCapabilityOptions {
+  static me(): OptionItem {
+    return {
+      id: "message-extension",
+      label: getLocalizedString("core.MessageExtensionOption.label"),
+      description: getLocalizedString("core.MessageExtensionOption.description"),
+      detail: getLocalizedString("core.MessageExtensionOption.detail"),
+      data: TemplateNames.MessageExtension,
+    };
+  }
+  static botAndMe(): OptionItem {
+    return {
+      id: "BotAndMessageExtension",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.BotAndMessageExtension,
+    };
+  }
+  static nonSsoTabAndBot(): OptionItem {
+    return {
+      id: "TabNonSsoAndBot",
+      label: "", // No need to set display name as this option won't be shown in UI
+      data: TemplateNames.TabAndDefaultBot,
+    };
+  }
+  static nonSsoTab(): OptionItem {
+    return {
+      id: "tab-non-sso",
+      label: `${getLocalizedString("core.TabNonSso.label")}`,
+      detail: getLocalizedString("core.TabNonSso.detail"),
+      description: getLocalizedString(
+        "core.createProjectQuestion.option.description.worksInOutlookM365"
+      ),
+      data: TemplateNames.Tab,
+    };
   }
 }

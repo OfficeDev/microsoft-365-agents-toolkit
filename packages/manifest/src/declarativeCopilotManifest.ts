@@ -46,7 +46,6 @@ export interface EmbeddedKnowledgeCapability {
 
 export interface DeclarativeCopilotManifestSchema {
   id?: string;
-  sensitivity_label?: string;
   name: string;
   description: string;
   instructions?: string;

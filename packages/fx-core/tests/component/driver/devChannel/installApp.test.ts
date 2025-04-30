@@ -160,6 +160,41 @@ describe("InstallAppToChannelDriver", () => {
     }
   });
 
+  it("should handle App installed outside sandbox error during app installation", async () => {
+    sandbox.stub(fs, "readFile").callsFake(async () => {
+      return archivedFile;
+    });
+    sandbox.stub(fs, "pathExists").resolves(true);
+
+    const axiosError = {
+      response: {
+        data: {
+          error:
+            "Failed to execute TeamsGraphService backend request GetSandboxingConfigurationRequest",
+        },
+        status: 404,
+      },
+      isAxiosError: true,
+    };
+    sandbox.stub(GraphClient.prototype, "InstallAppToChannelAsync").throws(axiosError);
+    sandbox.stub(GraphClient.prototype, "GetAppInstallationForTeam").resolves([]);
+    sandbox.stub(axios, "isAxiosError").returns(true);
+
+    const args: InstallAppArgs = {
+      appPackagePath: "fake/path/app.zip",
+      teamId: "fake-team-id",
+      channelId: "fake-channel-id",
+    };
+    const outputEnvVarNames = new Map<string, string>();
+
+    const result = await driver.install(args, mockContext, outputEnvVarNames);
+
+    expect(result.isErr()).to.be.true;
+    if (result.isErr()) {
+      expect(result.error.message).to.include("Unable to install app outside sandboxed Team");
+    }
+  });
+
   it("should handle general error during app installation", async () => {
     sandbox.stub(fs, "readFile").callsFake(async () => {
       return archivedFile;

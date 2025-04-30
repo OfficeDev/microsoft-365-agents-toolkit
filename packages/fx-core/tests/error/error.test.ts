@@ -21,6 +21,7 @@ import {
   InternalError,
   InvalidActionInputError,
   matchDnsError,
+  NeedRedoError,
   UnhandledError,
   UnhandledUserError,
   UserCancelError,
@@ -368,6 +369,13 @@ describe("DeveloperPortalAPIFailed error", function () {
         maskedError
       );
       assert.equal(err.message, message);
+    });
+  });
+
+  describe("NeedRedoError", function () {
+    it("happy", () => {
+      const err = new NeedRedoError("test");
+      assert.deepEqual(err.source, "test");
     });
   });
 });

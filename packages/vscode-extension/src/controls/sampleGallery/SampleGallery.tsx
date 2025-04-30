@@ -69,7 +69,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
           {this.props.shouldShowChat === "true" &&
           this.props.shouldHideTeamsAgentPreviewTag === "true" ? (
             <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Teams
+              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
               Toolkit. Need help choosing? Let{" "}
               <Link
                 onClick={() => {
@@ -78,13 +78,13 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               >
                 Github Copilot
               </Link>{" "}
-              assists you in selecting the right sample to create your Teams app.
+              assists you in selecting the right sample to create your app.
             </h3>
           ) : this.props.shouldShowChat === "true" &&
             this.props.shouldHideTeamsAgentPreviewTag === "false" ? (
             <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Teams
-              Toolkit. Need help choosing? Let{" "}
+              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
+              365 Agents Toolkit. Need help choosing? Let{" "}
               <Link
                 onClick={() => {
                   this.onInvokeTeamsAgent();
@@ -92,12 +92,12 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               >
                 Github Copilot (preview)
               </Link>{" "}
-              assists you in selecting the right sample to create your Teams app.
+              assists you in selecting the right sample to create your app.
             </h3>
           ) : (
             <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Teams
-              Toolkit.
+              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
+              365 Agents Toolkit.
             </h3>
           )}
         </div>

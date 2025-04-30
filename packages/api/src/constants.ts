@@ -49,6 +49,7 @@ export enum Stage {
   package = "package",
   publish = "publish",
   share = "share",
+  shareRemove = "shareRemove",
   createEnv = "createEnv",
   listEnv = "listEnv",
   removeEnv = "removeEnv",
@@ -78,10 +79,12 @@ export enum Stage {
   copilotPluginAddAPI = "copilotPluginAddAPI",
   syncManifest = "syncManifest",
   addPlugin = "addPlugin",
+  RegeneratePlugin = "regeneratePlugin",
   kiotaRegenerate = "kiotaRegenerate",
   addAuthAction = "addAuthAction",
   addKnowledge = "addKnowledge",
   setSensitivityLabel = "setSensitivityLabel",
+  installApp = "installApp",
 }
 
 export enum TelemetryEvent {

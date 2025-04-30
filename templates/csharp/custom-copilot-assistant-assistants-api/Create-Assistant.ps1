@@ -1,5 +1,5 @@
 # read json file
-$configPath = 'appsettings.TestTool.json'
+$configPath = 'appsettings.Playground.json'
 $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
 
 # load the config

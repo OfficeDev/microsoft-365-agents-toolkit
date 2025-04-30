@@ -97,6 +97,7 @@ export enum TelemetryProperty {
 
   SkipCreation = "skip-creation",
   DeleteInstalledApp = "delete-installed-app",
+  IsKiotaNPMIntegrationEnabled = "kiota-npm-integration-enabled",
 }
 
 export const TelemetryConstants = {

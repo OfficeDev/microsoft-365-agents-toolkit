@@ -4,7 +4,7 @@
 import { M365TokenProvider } from "@microsoft/teamsfx-api";
 import { AppStudioScopes } from "@microsoft/teamsfx-core";
 import axios, { AxiosInstance } from "axios";
-import MockM365TokenProvider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 
 function delay(ms: number) {
   // tslint:disable-next-line no-string-based-set-timeout

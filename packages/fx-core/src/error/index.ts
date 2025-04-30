@@ -12,3 +12,4 @@ export * from "./upgrade";
 export * from "./yml";
 export * from "./types";
 export * from "./depCheck";
+export * from "./kiota";

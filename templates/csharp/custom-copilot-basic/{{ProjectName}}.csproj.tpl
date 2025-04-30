@@ -41,8 +41,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>None</CopyToPublishDirectory>
     </Content>
-    <Content Remove="appsettings.TestTool.json" />
-    <Content Include="appsettings.TestTool.json">
+    <Content Remove="appsettings.Playground.json" />
+    <Content Include="appsettings.Playground.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>None</CopyToPublishDirectory>
     </Content>

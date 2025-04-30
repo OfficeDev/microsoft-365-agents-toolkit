@@ -13,4 +13,5 @@ packages:
   -  "packages/server"
   -  "packages/vscode-ui"
   -  "packages/spec-parser"
+  -  "packages/mcp-server"
   -  "templates"

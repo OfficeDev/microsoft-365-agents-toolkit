@@ -2,7 +2,7 @@ emit:
   - "@typespec/openapi3"
   - "@microsoft/typespec-copilot-skills"
 options:
-  # If you want to change the default output directory for the OpenAPI emitter, please make sure to update the outputDir in the typeSpec/compile action in teamsapp.yaml as well.
+  # If you want to change the default output directory for the OpenAPI emitter, please make sure to update the outputDir in the typeSpec/compile action in m365agents.yaml as well.
   # You need to set the emitter-output-dir to ${outputDir}/specs.
   "@typespec/openapi3":
     emitter-output-dir: "{project-root}/appPackage/.generated/specs"

@@ -20,15 +20,12 @@ import {
   CreateProjectResult,
   CryptoProvider,
   DefaultApiSpecFolderName,
-  Err,
-  File,
   Func,
   FxError,
   IGenerator,
   IQTreeNode,
   Inputs,
   InputsWithProjectPath,
-  ManifestUtil,
   Platform,
   PluginManifestSchema,
   ResponseTemplatesFolderName,
@@ -36,7 +33,6 @@ import {
   SharePointIDs,
   Site,
   Stage,
-  SystemError,
   TeamsAppInputs,
   Tools,
   UserError,
@@ -54,6 +50,7 @@ import { pathToFileURL } from "url";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import { AppStudioScopes, VSCodeExtensionCommand } from "../common/constants";
+import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
@@ -76,7 +73,7 @@ import {
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import { generateDriverContext } from "../common/utils";
-import { MetadataV3, VersionSource, VersionState } from "../common/versionMetadata";
+import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
 import {
   APIKeyAuthType,
   MicrosoftEntraAuthType,
@@ -100,7 +97,7 @@ import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
-import "../component/feature/sso";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
@@ -124,8 +121,14 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
+import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
+import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
+import {
+  ItemMetadata,
+  getODSPItemDetailById,
+} from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
 import {
   convertSpecParserErrorToFxError,
   generateAdaptiveCardInPluginManifestForKiota,
@@ -134,8 +137,6 @@ import {
   getParserOptions,
   injectAuthAction,
   listOperations,
-  listPluginExistingOperations,
-  parseAndUpdatePluginManifestForKiota,
 } from "../component/generator/openApiSpec/helper";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
@@ -156,6 +157,7 @@ import {
   InvalidProjectError,
   MissingRequiredInputError,
   MultipleServerError,
+  NeedRedoError,
   UnhandledError,
   UserCancelError,
   assembleError,
@@ -168,27 +170,32 @@ import {
   ActionStartOptions,
   AddAuthActionAuthTypeOptions,
   AppNamePattern,
-  DeclarativeAgentApiSpecOptionId,
   HubTypes,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
-  ProjectTypeOptions,
   QuestionNames,
   SPFxVersionOptionIds,
   ScratchOptions,
   TeamsAppValidationOptions,
 } from "../question/constants";
-import { createProjectCliHelpNode } from "../question/create";
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
+import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
-import { checkPermission, grantPermission, listCollaborator } from "./collaborator";
+import {
+  CollaborationUtil,
+  checkPermission,
+  grantPermission,
+  listCollaborator,
+} from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
+import { withFileLock } from "./middleware/fileLocker";
 import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
   getTrackingIdFromPath,
@@ -196,12 +203,7 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import {
-  getODSPItemDetailById,
-  ItemMetadata,
-} from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
-import { withFileLock } from "./middleware/fileLocker";
-import { listAPIInfo } from "../common/daSpecParser";
+import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -246,9 +248,7 @@ export class FxCore {
     // should never happen as we do same check on Developer Portal.
     if (inputs.teamsAppFromTdp) {
       if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
-        return err(
-          new InputValidationError("manifest.json", "Teams app contains unsupported features")
-        );
+        return err(new InputValidationError("manifest.json", "App contains unsupported features"));
       } else {
         context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
           [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
@@ -296,7 +296,7 @@ export class FxCore {
     const genRes = await generator.run(context, inputs, projectPath);
     if (genRes.isErr()) return err(genRes.error);
     //3. ensure unique projectId in teamsapp.yaml (optional)
-    const ymlPath = path.join(projectPath, MetadataV3.configFile);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     const result: CreateProjectResult = { projectPath: projectPath };
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await coordinator.ensureTrackingId(projectPath, inputs.projectId);
@@ -321,6 +321,20 @@ export class FxCore {
     inputs.projectPath = context.projectPath;
     return res;
   }
+
+  /**
+   * Wrapper of provisionResourcesOnce, which will retry if NeedRedoError is thrown.
+   */
+  async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const res = runWithRetry(
+      async () => {
+        return this.provisionResourcesOnce(inputs);
+      },
+      (result, attempt) => result.isErr() && result.error instanceof NeedRedoError
+    );
+    return res;
+  }
+
   /**
    * lifecycle commands: provision
    */
@@ -333,7 +347,7 @@ export class FxCore {
     ContextInjectorMW,
     EnvWriterMW,
   ])
-  async provisionResources(
+  async provisionResourcesOnce(
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
@@ -437,8 +451,8 @@ export class FxCore {
     if (!inputs.env) {
       return err(new MissingRequiredInputError("env", "FxCore"));
     }
-    const teamsappYamlPath = pathUtils.getYmlFilePath(inputs.projectPath!, inputs.env);
-    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath, inputs.env);
+    const teamsappYamlPath = pathUtils.getYmlFilePath(inputs.projectPath!, inputs.env) as string;
+    const yamlProjectModel = await metadataUtil.parse(teamsappYamlPath);
     if (yamlProjectModel.isErr()) {
       return err(yamlProjectModel.error);
     }
@@ -834,6 +848,88 @@ export class FxCore {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
+    QuestionMW("removeSharedAccess"),
+    ProjectMigratorMWV3,
+    EnvLoaderMW(false),
+    ConcurrentLockerMW,
+    ContextInjectorMW,
+  ])
+  async removeSharedAccess(
+    inputs: Inputs,
+    ctx?: CoreHookContext
+  ): Promise<Result<undefined, FxError>> {
+    const emails = inputs[QuestionNames.RemoveUsers] as string[];
+    if (!emails || emails.length === 0) {
+      return err(new MissingRequiredInputError("emails", "FxCore"));
+    }
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    if (parseRes.isErr()) {
+      return err(parseRes.error);
+    }
+    const teamsAppId = parseRes.value[0];
+    const sharedTitleId = parseRes.value[1];
+
+    const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+    const appStudioTokenRes = await tokenProvider.getAccessToken({
+      scopes: AppStudioScopes,
+    });
+    if (appStudioTokenRes.isErr()) {
+      return err(appStudioTokenRes.error);
+    }
+    const appStudioToken = appStudioTokenRes.value;
+    const mosTokenRes = await tokenProvider.getAccessToken({
+      scopes: [MosServiceScope],
+    });
+    if (mosTokenRes.isErr()) {
+      return err(mosTokenRes.error);
+    }
+    const mosToken = mosTokenRes.value;
+
+    // should never remove permission of the operator
+    const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(tokenProvider);
+    if (currentUserInfoRes.isErr()) {
+      return err(currentUserInfoRes.error);
+    }
+    const currentUserInfo = currentUserInfoRes.value;
+    for (const email of emails) {
+      const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+      if (!userInfo) {
+        return err(new InputValidationError("removeSharedAccess", `Invalid user: ${email}`));
+      }
+      if (userInfo.aadId === currentUserInfo.aadId) {
+        return err(
+          new InputValidationError(
+            "removeSharedAccess",
+            getLocalizedString("core.share.removeAccess.operator", email)
+          )
+        );
+      }
+
+      // 1. remove TDP permission
+      await teamsDevPortalClient.removePermission(appStudioToken, teamsAppId, userInfo);
+
+      // 2. remove mos permission
+      const res = await PackageService.GetSharedInstance().removePermission(
+        mosToken,
+        sharedTitleId,
+        userInfo
+      );
+      if (res.isErr()) {
+        return err(res.error);
+      }
+    }
+    const msg = getLocalizedString("core.common.removeShareAccess.success", emails);
+    TOOLS.ui?.showMessage("info", msg, false);
+    return ok(undefined);
+  }
+
+  /**
+   * lifecycle command: share
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
+    ErrorHandlerMW,
+    QuestionMW("share"),
     ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
@@ -844,19 +940,70 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled)) {
-      return err(new SystemError("FxCore", "", "share is not enabled"));
-    }
-    inputs.stage = Stage.share;
-    const context = createDriverContext(inputs);
-    const res = await coordinator.share(context, inputs as InputsWithProjectPath);
-    if (res.isOk()) {
-      ctx!.envVars = res.value;
+    const options = inputs[QuestionNames.ShareOption];
+    if (options === QuestionNames.ShareOptionShareApp) {
+      inputs.stage = Stage.share;
+      const context = createDriverContext(inputs);
+      const res = await coordinator.share(context, inputs as InputsWithProjectPath);
+      if (res.isOk()) {
+        ctx!.envVars = res.value;
+        return ok(undefined);
+      } else {
+        // for partial success scenario, output is set in inputs object
+        ctx!.envVars = inputs.envVars;
+        return err(res.error);
+      }
+    } else if (options === QuestionNames.ShareOptionShareToUser) {
+      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
+      if (!emails || emails.length === 0) {
+        return err(new MissingRequiredInputError("emails", "FxCore"));
+      }
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+      if (parseRes.isErr()) {
+        return err(parseRes.error);
+      }
+      const teamsAppId = parseRes.value[0];
+      const sharedTitleId = parseRes.value[1];
+
+      const tokenProvider = TOOLS.tokenProvider.m365TokenProvider;
+      const appStudioTokenRes = await tokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (appStudioTokenRes.isErr()) {
+        return err(appStudioTokenRes.error);
+      }
+      const appStudioToken = appStudioTokenRes.value;
+      const mosTokenRes = await tokenProvider.getAccessToken({
+        scopes: [MosServiceScope],
+      });
+      if (mosTokenRes.isErr()) {
+        return err(mosTokenRes.error);
+      }
+      const mosToken = mosTokenRes.value;
+      for (const email of emails) {
+        const userInfo = await CollaborationUtil.getUserInfo(tokenProvider, email);
+        if (!userInfo) {
+          return err(new InputValidationError("shareToUser", `Invalid user: ${email}`));
+        }
+
+        // 1. grant TDP permission
+        await teamsDevPortalClient.grantPermission(appStudioToken, teamsAppId, userInfo);
+
+        // 2. grant mos permission
+        const res = await PackageService.GetSharedInstance().grantPermission(
+          mosToken,
+          sharedTitleId,
+          userInfo
+        );
+        if (res.isErr()) {
+          return err(res.error);
+        }
+      }
+      const msg = getLocalizedString("core.common.shareToUser.success", emails);
+      TOOLS.ui?.showMessage("info", msg, false);
       return ok(undefined);
     } else {
-      // for partial success scenario, output is set in inputs object
-      ctx!.envVars = inputs.envVars;
-      return err(res.error);
+      return err(new InputValidationError("shareOption", "Invalid share option"));
     }
   }
   /**
@@ -1180,7 +1327,7 @@ export class FxCore {
     }
 
     const teamsAppId = manifestRes.value.id;
-    const properties = ManifestUtil.parseCommonProperties(manifestRes.value);
+    const properties = manifestUtils.parseCommonProperties(manifestRes.value);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
     const result = await launchHelper.getLaunchUrl(hub, teamsAppId, properties, true);
@@ -1190,9 +1337,6 @@ export class FxCore {
    * Warning: this API only works for CLI_HELP, it has no business with interactive run for CLI!
    */
   getQuestions(stage: Stage, inputs: Inputs): Result<IQTreeNode | undefined, FxError> {
-    if (stage === Stage.create) {
-      return ok(createProjectCliHelpNode());
-    }
     return ok(undefined);
   }
 
@@ -1266,8 +1410,8 @@ export class FxCore {
    */
   @hooks([ErrorContextMW({ component: "FxCore", stage: "getTeamsAppName", reset: true })])
   async getTeamsAppName(projectPath: string): Promise<Result<string, FxError>> {
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev");
-    const maybeProjectModel = await metadataUtil.parse(ymlPath, "dev");
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
+    const maybeProjectModel = await metadataUtil.parse(ymlPath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -1305,8 +1449,8 @@ export class FxCore {
       FxError
     >
   > {
-    const ymlPath = pathUtils.getYmlFilePath(projectPath, env);
-    const maybeProjectModel = await metadataUtil.parse(ymlPath, env);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, env) as string;
+    const maybeProjectModel = await metadataUtil.parse(ymlPath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -1796,7 +1940,8 @@ export class FxCore {
           destinationApiSpecFilePath: outputApiSpecPath,
           responseTemplateFolder: adaptiveCardFolder,
           pluginManifestFilePath: pluginPath,
-        }
+        },
+        url
       );
 
       if (generateResult.isErr()) {
@@ -2003,13 +2148,13 @@ export class FxCore {
           ? getLocalizedString(
               "core.addApi.confirm.localTeamsYaml",
               path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV3.localConfigFile,
-              MetadataV3.configFile
+              MetadataV4.localConfigFile,
+              MetadataV4.configFile
             )
           : getLocalizedString(
               "core.addApi.confirm.teamsYaml",
               path.relative(inputs.projectPath, appPackageFolder),
-              MetadataV3.configFile
+              MetadataV4.configFile
             );
       }
     }
@@ -2112,7 +2257,8 @@ export class FxCore {
           {
             destinationApiSpecFilePath: destinationApiSpecPath,
             pluginManifestFilePath: destinationPluginManifestPath,
-          }
+          },
+          inputs[QuestionNames.ApiSpecLocation].trim()
         );
         if (generateRes.isErr()) {
           return err(generateRes.error);
@@ -2183,6 +2329,164 @@ export class FxCore {
     } else {
       const successMessage = getLocalizedString(
         "core.addPlugin.success",
+        actionId,
+        destinationPluginManifestPath
+      );
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
+    return ok(undefined);
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.RegeneratePlugin }),
+    ErrorHandlerMW,
+    QuestionMW("regeneratePlugin"),
+    ConcurrentLockerMW,
+  ])
+  async regeneratePlugin(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    const projectPath = inputs.projectPath!;
+    const context = createContext();
+
+    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const gptManifestFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (gptManifestFilePathRes.isErr()) {
+      return err(gptManifestFilePathRes.error);
+    }
+
+    let confirmMessage = getLocalizedString(
+      "core.addApi.confirm",
+      path.relative(projectPath, appPackageFolder)
+    );
+
+    // Will be used if generating from API spec
+    let authNameAndSchemes: { authName: string; authScheme: AuthType }[] = [];
+
+    const specPath = inputs[QuestionNames.ApiSpecLocation].trim() as string;
+
+    const listResult = await listAPIInfo(specPath);
+
+    authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
+
+    if (authNameAndSchemes.length > 0) {
+      const doesLocalYamlPathExists = await fs.pathExists(
+        path.join(projectPath, MetadataV3.localConfigFile)
+      );
+      confirmMessage = doesLocalYamlPathExists
+        ? getLocalizedString(
+            "core.addApi.confirm.localTeamsYaml",
+            path.relative(projectPath, appPackageFolder),
+            MetadataV4.localConfigFile,
+            MetadataV4.configFile
+          )
+        : getLocalizedString(
+            "core.addApi.confirm.teamsYaml",
+            path.relative(projectPath, appPackageFolder),
+            MetadataV4.configFile
+          );
+    }
+
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.regenerateApi.continue")
+    );
+
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.regenerateApi.continue")) {
+      return err(new UserCancelError());
+    }
+
+    const destinationPluginManifestPath = inputs[QuestionNames.SelectPluginManifest];
+    const destinationApiSpecPath = inputs[QuestionNames.SelectOpenAPISpecFromPlugin];
+
+    const generateRes = await generateFromApiSpec(
+      undefined,
+      teamsManifestPath,
+      inputs,
+      context,
+      Stage.RegeneratePlugin,
+      ProjectType.Copilot,
+      {
+        destinationApiSpecFilePath: destinationApiSpecPath,
+        pluginManifestFilePath: destinationPluginManifestPath,
+      },
+      inputs[QuestionNames.ApiSpecLocation].trim(),
+      true
+    );
+    if (generateRes.isErr()) {
+      return err(generateRes.error);
+    }
+
+    const warnings = generateRes.value.warnings;
+    if (warnings && warnings.length > 0) {
+      const warnSummary = await generateScaffoldingSummary(
+        warnings,
+        manifestRes.value,
+        path.relative(projectPath, destinationApiSpecPath),
+        path.relative(projectPath, destinationPluginManifestPath),
+        projectPath
+      );
+      context.logProvider.info(warnSummary + "\n");
+    }
+
+    for (const authNameAndScheme of authNameAndSchemes) {
+      await this.updateAuthActionInYaml(
+        authNameAndScheme.authName,
+        authNameAndScheme.authScheme,
+        projectPath,
+        destinationApiSpecPath,
+        destinationPluginManifestPath,
+        false
+      );
+    }
+
+    const declarativeAgentManifestPath = gptManifestFilePathRes.value;
+
+    const declarativeAgentManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+      declarativeAgentManifestPath
+    );
+    if (declarativeAgentManifesRes.isErr()) {
+      return err(declarativeAgentManifesRes.error);
+    }
+
+    const declarativeAgentManifest = declarativeAgentManifesRes.value;
+    for (const action of declarativeAgentManifest.actions!) {
+      const actionPath = path.normalize(path.join(appPackageFolder, action.file));
+      await copilotGptManifestUtils.updateConversationStarters(
+        actionPath,
+        declarativeAgentManifest
+      );
+    }
+
+    const actionId = inputs[QuestionNames.SelectPluginId];
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.regeneratePlugin.success.vsc", actionId);
+      const viewPluginManifest = getLocalizedString(
+        "core.regeneratePlugin.success.viewPluginManifest"
+      );
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewPluginManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewPluginManifest) {
+            context.telemetryReporter.sendTelemetryEvent(
+              TelemetryEvent.ViewPluginManifestAfterAdded
+            );
+            void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString(
+        "core.regeneratePlugin.success",
         actionId,
         destinationPluginManifestPath
       );
@@ -2612,15 +2916,18 @@ export class FxCore {
         return err(new UserCancelError());
       }
       const selectedLabel = inputs[QuestionNames.SensitivityLabel] as string;
-      const declarativeAgentManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
-        declarativeAgentManifestPath
-      );
+      const declarativeAgentManifestRes =
+        await copilotGptManifestUtils.readDeclarativeAgentManifestFile(
+          declarativeAgentManifestPath
+        );
       if (declarativeAgentManifestRes.isErr()) {
         return err(declarativeAgentManifestRes.error);
       }
       const declarativeAgentManifest = declarativeAgentManifestRes.value;
-      declarativeAgentManifest.sensitivity_label = selectedLabel;
-      const writeRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      declarativeAgentManifest.sensitivity_label = {
+        id: selectedLabel,
+      };
+      const writeRes = await copilotGptManifestUtils.writeDeclarativeAgentManifestFile(
         declarativeAgentManifest,
         declarativeAgentManifestPath
       );
@@ -2629,6 +2936,36 @@ export class FxCore {
       }
       return ok(undefined);
     });
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
+    ErrorHandlerMW,
+    EnvLoaderMW(false),
+    ContextInjectorMW,
+  ])
+  async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    const installAppDriver = Container.get<InstallAppToChannelDriver>("devChannel/installApp");
+    const context: DriverContext = createDriverContext(inputs);
+    setErrorContext({ component: "devChannelInstallApp" });
+    const env: string = inputs.env;
+
+    const readEnvRes = await envUtil.readEnv(context.projectPath, env, false, false);
+    if (readEnvRes.isErr()) {
+      return err(readEnvRes.error);
+    }
+    const envObject = readEnvRes.value;
+
+    const inputArgs: InstallAppArgs = {
+      appPackagePath: inputs.appPackagePath,
+      teamId: envObject.TEAM_ID,
+      channelId: envObject.CHANNEL_ID,
+    };
+    const res = await installAppDriver.execute(inputArgs, context, new Map());
+    if (res.result.isErr()) {
+      return err(res.result.error);
+    }
+    return ok(undefined);
   }
 
   private async updateAuthActionInYaml(
@@ -2677,7 +3014,8 @@ export class FxCore {
         operation &&
         operation.auth &&
         (Utils.isBearerTokenAuth(operation.auth.authScheme) ||
-          Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme))
+          Utils.isOAuthWithAuthCodeFlow(operation.auth.authScheme) ||
+          Utils.isAPIKeyAuthButNotInCookie(operation.auth.authScheme))
       ) {
         if (result.find((value) => value.authName === operation.auth!.name)) {
           continue;

@@ -25,7 +25,7 @@ async def main():
     options = AssistantCreateParams(
         name="Assistant",
         instructions="\n".join([
-            "You are an intelligent bot that can",
+            "You are an intelligent agent that can",
             "- write and run code to answer math questions",
             "- use the provided functions to answer questions"
         ]),

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { InvokeResponse, StatusCodes } from "botbuilder";
+import { InvokeResponse, StatusCodes } from "@microsoft/agents-hosting";
 import { InvokeResponseErrorCode } from "./interface";
 
 /**

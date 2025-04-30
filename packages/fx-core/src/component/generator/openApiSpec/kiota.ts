@@ -19,11 +19,8 @@ import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { QuestionNames } from "../../../question";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { defaultDeclarativeAgentActionId, defaultDeclarativeAgentManifestFileName } from "./const";
-import {
-  copyKiotaFolder,
-  generateAdaptiveCardInPluginManifestForKiota,
-  parseAndUpdatePluginManifestForKiota,
-} from "./helper";
+import { copyKiotaFolder, generateAdaptiveCardInPluginManifestForKiota } from "./helper";
+import { parseAndUpdatePluginManifestForKiota } from "../../../common/daSpecParser";
 
 export function isKiotaIntegrated(inputs: Inputs): boolean {
   return (

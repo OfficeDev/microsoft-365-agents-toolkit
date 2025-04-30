@@ -9,6 +9,6 @@
         }
     ],
     "files.readonlyInclude": {
-        "appPackage/.generated/**/*": true     
+        "appPackage/.generated/**/*": true
     }
 }

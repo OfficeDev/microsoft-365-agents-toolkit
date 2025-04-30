@@ -11,3 +11,6 @@ node_modules/
 .env
 .deployment
 .DS_Store
+
+# generated files
+appPackage/.generated

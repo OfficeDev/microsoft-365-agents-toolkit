@@ -1080,6 +1080,225 @@ describe("TeamsDevPortalClient Test", () => {
     });
   });
 
+  describe("removePermission", () => {
+    it("Happy path", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      // Mock post response for removing permission
+      const postResponse = {
+        data: {
+          ...appDef,
+          userList: [],
+        },
+      };
+
+      const getStub = sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+      const postStub = sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
+
+      await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+
+      chai.assert.isTrue(getStub.calledOnce);
+      chai.assert.isTrue(postStub.calledOnce);
+      chai.assert.equal(
+        postStub.firstCall.args[0],
+        `/api/appdefinitions/${appDef.teamsAppId!}/owner`
+      );
+    });
+
+    it("User not exists", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "nonExistUserId",
+        displayName: "Non Exist User",
+        userPrincipalName: "nonexist@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response with empty user list
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+      const postStub = sandbox.stub(fakeAxiosInstance, "post");
+
+      // Should return directly without making post request
+      await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+
+      chai.assert.isTrue(postStub.notCalled);
+    });
+
+    it("API Failure", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+
+      const error = {
+        name: "Error",
+        message: "API call failed",
+        response: {
+          status: 500,
+          data: { error: "Internal server error" },
+        },
+      };
+      sandbox.stub(fakeAxiosInstance, "post").throws(error);
+
+      try {
+        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+        chai.assert.fail("Should throw error");
+      } catch (e) {
+        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+
+    it("Empty response data", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+
+      // Post response is empty
+      const postResponse = {};
+      sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
+
+      try {
+        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+        chai.assert.fail("Should throw error");
+      } catch (e) {
+        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+
+    it("undefined response", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+
+      // Post response is empty
+      const postResponse = undefined;
+      sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
+
+      try {
+        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+        chai.assert.fail("Should throw error");
+      } catch (e) {
+        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+
+    it("User not removed after API call", async () => {
+      const fakeAxiosInstance = axios.create();
+      sandbox.stub(axios, "create").returns(fakeAxiosInstance);
+
+      const userToRemove: AppUser = {
+        tenantId: "fakeTenantId",
+        aadId: "testUserId",
+        displayName: "Test User",
+        userPrincipalName: "test@test.com",
+        isAdministrator: false,
+      };
+
+      // Mock getApp response
+      const getAppResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      // Mock post response where user still exists
+      const postResponse = {
+        data: {
+          ...appDef,
+          userList: [userToRemove],
+        },
+      };
+
+      sandbox.stub(fakeAxiosInstance, "get").resolves(getAppResponse);
+      sandbox.stub(fakeAxiosInstance, "post").resolves(postResponse);
+
+      try {
+        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+        chai.assert.fail("Should throw error");
+      } catch (e) {
+        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+    });
+  });
+
   describe("getUserList", () => {
     it("happy path", async () => {
       sandbox.stub(teamsDevPortalClient, "getApp").resolves({

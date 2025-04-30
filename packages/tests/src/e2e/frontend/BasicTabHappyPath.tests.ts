@@ -27,7 +27,7 @@ import {
   getSiteNameFromResourceId,
   getWebappSettings,
 } from "../../commonlib/utilities";
-import MockAzureAccountProvider from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import axios from "axios";
 
 describe("Basic Tab", function () {

@@ -14,17 +14,17 @@ The app template is built using the TeamsFx SDK, which provides a simple set of 
 {{^enableTestToolByDefault}}
 > - An [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 {{/enableTestToolByDefault}}
-> - [Teams Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 >
 > **Note**
 >
 > Your app can be installed into a team, or a group chat, or as personal app. See [Installation and Uninstallation](https://aka.ms/teamsfx-command-response#customize-installation).
-> For local debugging using Teams Toolkit CLI, you need to do some extra steps described in [Set up your Teams Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
+> For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).
 
-1. First, select the Teams Toolkit icon on the left in the VS Code toolbar.
+1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 {{#enableTestToolByDefault}}
-2. Press F5 to start debugging which launches your app in Teams App Test Tool using a web browser. Select `Debug in Test Tool`.
-3. The browser will pop up to open Teams App Test Tool.
+2. Press F5 to start debugging which launches your app in Microsoft 365 Agents Playground using a web browser. Select `Debug in Microsoft 365 Agents Playground`.
+3. The browser will pop up to open Microsoft 365 Agents Playground.
 4. Type or select `helloWorld` in the chat to send it to your bot - this is the default command provided by the template.
 5. In the response from the bot, select the **DoStuff** button.
 {{/enableTestToolByDefault}}
@@ -41,11 +41,11 @@ The bot will respond by updating the existing Adaptive Card to show the workflow
 Here is a screen shot of the application running:
 
 {{#enableTestToolByDefault}}
-![Responds to command](https://github.com/OfficeDev/TeamsFx/assets/9698542/94173beb-2fff-44fa-87dc-f686677da631)
+![Responds to command](https://github.com/user-attachments/assets/b816fdc8-bf89-46aa-82e2-536d596e3aa2)
 
 When you click the `DoStuff` button, the above adaptive card will be updated to a new card as shown below:
 
-![Responds to card action](https://github.com/OfficeDev/TeamsFx/assets/9698542/521ff12d-726c-4087-825a-112547cad836)
+![Responds to card action](https://github.com/user-attachments/assets/d5864111-7f34-4e77-855c-dc506c3fa3fe)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 ![Responds to command](https://user-images.githubusercontent.com/10163840/192477792-dc447b3a-e304-4cd8-b4df-b1eb9d226292.png)
@@ -59,12 +59,12 @@ When you click the `DoStuff` button, the above adaptive card will be updated to 
 
 | Folder / File | Contents |
 | - | - |
-| `teamsapp.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
-| `teamsapp.local.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging |
-| `teamsapp.testtool.yml`| This overrides `teamsapp.yml` with actions that enable local execution and debugging in Teams App Test Tool |
-| `env/`| Name / value pairs are stored in environment files and used by `teamsapp.yml` to customize the provisioning and deployment rules |
+| `m365agents.yml` | Main project file describes your application configuration and defines the set of actions to run in each lifecycle stages |
+| `m365agents.local.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging |
+| `m365agents.playground.yml`| This overrides `m365agents.yml` with actions that enable local execution and debugging in Microsoft 365 Agents Playground |
+| `env/`| Name / value pairs are stored in environment files and used by `m365agents.yml` to customize the provisioning and deployment rules |
 | `.vscode/` | VSCode files for debugging |
-| `appPackage/` | Templates for the Teams application manifest |
+| `appPackage/` | Templates for the application manifest |
 | `infra/` | Templates for provisioning Azure resources |
 | `src/` | The source code for the application |
 
@@ -214,7 +214,7 @@ The command and response feature adds the ability for your application to "liste
 
 - [Manage multiple environments](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-multi-env)
 - [Collaborate with others](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
-- [Teams Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
-- [Teams Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
+- [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Teams AI SDK](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview)
-- [Teams Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+- [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)

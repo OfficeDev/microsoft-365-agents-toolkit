@@ -7,7 +7,9 @@
     "version": "v1.4",
     {{/EmbeddedKnowledgeEnabled}}
     {{#SensitivityLabelEnabled}}
-    "sensitivity_label": "",
+    "sensitivity_label": {
+        "id": ""
+    },
     {{/SensitivityLabelEnabled}}
     "name": "{{appName}}${{APP_NAME_SUFFIX}}",
     "description": "This declarative agent helps you with finding car repair records.",

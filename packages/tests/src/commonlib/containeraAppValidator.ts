@@ -4,7 +4,7 @@
 import { AzureScopes } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 
-import MockAzureAccountProvider from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import { EnvConstants } from "./constants";
 
 import { Env } from "../utils/env";

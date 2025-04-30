@@ -48,7 +48,7 @@ export async function happyPathTest(
     trigger === undefined
       ? ""
       : `--bot-host-type-trigger ${trigger.join(" ")} `;
-  const cmdBase = `teamsapp new --interactive false --app-name ${appName} --capability ${capabilities} ${triggerStr}`;
+  const cmdBase = `atk new --interactive false --app-name ${appName} --capability ${capabilities} ${triggerStr}`;
   const cmd =
     runtime === Runtime.Dotnet
       ? `${cmdBase} --runtime dotnet`
@@ -87,7 +87,7 @@ export async function happyPathTest(
   }
 
   // deploy
-  const cmdStr = "teamsapp deploy";
+  const cmdStr = "atk deploy";
   await execAsyncWithRetry(cmdStr, {
     cwd: projectPath,
     env: env,
@@ -107,14 +107,14 @@ export async function happyPathTest(
   }
 
   // test (validate)
-  await execAsyncWithRetry(`teamsapp validate --env ${envName}`, {
+  await execAsyncWithRetry(`atk validate --env ${envName}`, {
     cwd: projectPath,
     env: env,
     timeout: 0,
   });
 
   // package
-  await execAsyncWithRetry(`teamsapp package --env ${envName}`, {
+  await execAsyncWithRetry(`atk package --env ${envName}`, {
     cwd: projectPath,
     env: env,
     timeout: 0,

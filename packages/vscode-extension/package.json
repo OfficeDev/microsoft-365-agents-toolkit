@@ -57,6 +57,7 @@
     "onCommand:workbench.action.debug.start",
     "workspaceContains:/.fx/**/*",
     "workspaceContains:teamsapp.yml",
+    "workspaceContains:m365agents.yml",
     "onView:teamsfx-empty-project-with-chat",
     "onUri",
     "workspaceContains:/**/manifest.json",
@@ -114,10 +115,31 @@
         }
       },
       "teamsfx-graph-connector": {
-        "description": "Graph Connector icon in scaffold questions",
+        "description": "Copilot Connector icon in scaffold questions",
         "default": {
           "fontPath": "./media/font/teamstoolkit.woff",
           "fontCharacter": "\\E007"
+        }
+      },
+      "teamsfx-regenerate-feature": {
+        "description": "Regenerate action feature icon in command tree view",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E008"
+        }
+      },
+      "microsoft365-agents-toolkit-teams": {
+        "description": "Teams app icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E009"
+        }
+      },
+      "microsoft365-agents-office": {
+        "description": "Office Add-in icon in scaffold questions",
+        "default": {
+          "fontPath": "./media/font/teamstoolkit.woff",
+          "fontCharacter": "\\E00A"
         }
       }
     },
@@ -921,6 +943,12 @@
         "category": "Microsoft 365 Agents"
       },
       {
+        "command": "fx-extension.regeneratePlugin",
+        "title": "Regenerate Plugin",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isKiotaNPMIntegrationEnabled",
+        "category": "Microsoft 365 Agents"
+      },
+      {
         "command": "fx-extension.addKnowledge",
         "title": "%teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
@@ -967,7 +995,7 @@
       {
         "command": "fx-extension.setSensitivityLabel",
         "title": "%teamstoolkit.commandsTreeViewProvider.setSensitivityLabel%",
-        "category": "Teams",
+        "category": "Microsoft 365 Agents",
         "enablement": "fx-extension.isSensitivityLabelEnabled"
       },
       {
@@ -1004,6 +1032,12 @@
         "title": "%teamsagent.walkthrough.title%",
         "category": "Microsoft 365 Agents",
         "enablement": "fx-extension.isChatParticipantUIEntriesEnabled"
+      },
+      {
+        "command": "fx-extension.removeSharedAccess",
+        "title": "%teamstoolkit.commands.removeSharedAccess%",
+        "category": "Microsoft 365 Agents",
+        "enablement": "fx-extension.isSharedEnabled"
       }
     ],
     "taskDefinitions": [
@@ -1038,6 +1072,10 @@
               {
                 "const": "launch-desktop-client",
                 "description": "%teamstoolkit.taskDefinitions.command.launchDesktopClient.description%"
+              },
+              {
+                "const": "install-app",
+                "description": "%teamstoolkit.taskDefinitions.command.installApp.description%"
               }
             ]
           },
@@ -1223,6 +1261,24 @@
                   "url": {
                     "type": "string",
                     "description": "%teamstoolkit.taskDefinitions.args.url.title%"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "env",
+                  "appPackagePath"
+                ],
+                "properties": {
+                  "env": {
+                    "type": "string",
+                    "description": "%teamstoolkit.taskDefinitions.args.env.title%"
+                  },
+                  "appPackagePath": {
+                    "type": "string",
+                    "description": "%teamstoolkit.taskDefinitions.args.appPackagePath.title%"
                   }
                 },
                 "additionalProperties": false
@@ -1737,7 +1793,7 @@
             "title": "%teamsagent.walkthrough.install.title%",
             "description": "%teamsagent.walkthrough.install.description%",
             "media": {
-              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "svg": "media/walkthroughs/teams-agent/install-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.install.title%"
             }
           },
@@ -1746,7 +1802,7 @@
             "title": "%teamsagent.walkthrough.installConfirm.title%",
             "description": "%teamsagent.walkthrough.installConfirm.description%",
             "media": {
-              "image": "media/walkthroughs/teams-agent/install-teams-agent.png",
+              "svg": "media/walkthroughs/teams-agent/install-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.installConfirm.title%"
             },
             "completionEvents": [
@@ -1770,7 +1826,7 @@
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.use.title%"
             },
-            "when": "fx-extension.shouldhideTeamsAgentPreviewTag"
+            "when": "fx-extension.hideTeamsAgentPreviewTag"
           },
           {
             "id": "teamsAgentUseWithPreviewTag",
@@ -1780,7 +1836,7 @@
               "svg": "media/walkthroughs/teams-agent/use-teams-agent.svg",
               "altText": "%teamsagent.walkthrough.use.title%"
             },
-            "when": "!fx-extension.shouldhideTeamsAgentPreviewTag"
+            "when": "!fx-extension.hideTeamsAgentPreviewTag"
           }
         ],
         "when": "fx-extension.isChatParticipantUIEntriesEnabled"
@@ -1797,7 +1853,7 @@
             "Debug"
           ],
           "default": "Info",
-          "markdownDescription": "Set the log level of Microsoft 365 Agents Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Microsoft 365 Agents Toolkit to external services such as Azure, Microsoft 365, and Teams Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Microsoft 365 Agents Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Microsoft 365 Agents Toolkit command execution summaries.\n"
+          "markdownDescription": "Set the log level of Microsoft 365 Agents Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Microsoft 365 Agents Toolkit to external services such as Azure, Microsoft 365, and Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Microsoft 365 Agents Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Microsoft 365 Agents Toolkit command execution summaries.\n"
         },
         "M365AgentsToolkit.enableMicrosoftKiotaString": {
           "type": "string",

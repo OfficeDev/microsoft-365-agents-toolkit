@@ -24,16 +24,15 @@ import {
   featureFlagManager,
   FxCore,
   InputValidationError,
+  pathUtils,
   UserCancelError,
 } from "../../src";
-import { coordinator } from "../../src/component/coordinator";
 import { setTools } from "../../src/common/globalVars";
-import {
-  CapabilityOptions,
-  ProjectTypeOptions,
-  QuestionNames,
-  ScratchOptions,
-} from "../../src/question/constants";
+import { coordinator } from "../../src/component/coordinator";
+import { QuestionNames, ScratchOptions } from "../../src/question/constants";
+import { VSCapabilityOptions } from "../../src/question/scaffold/vs/createRootNode";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
+import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { MockTools, randomAppName } from "./utils";
 
 describe("FxCore.createProject", () => {
@@ -49,8 +48,8 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -67,7 +66,7 @@ describe("FxCore.createProject", () => {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
       [QuestionNames.ProjectType]: ProjectTypeOptions.startWithGithubCopilot().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.nonSsoTab().id,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -87,8 +86,8 @@ describe("FxCore.createProject", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsApp().id,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -146,8 +145,8 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -195,8 +194,8 @@ describe("createProjectFromTdp", () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       [QuestionNames.Scratch]: ScratchOptions.yes().id,
-      [QuestionNames.ProjectType]: ProjectTypeOptions.tab().id,
-      [QuestionNames.Capabilities]: CapabilityOptions.tab().id,
+      [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+      [QuestionNames.Capabilities]: VSCapabilityOptions.tab().id,
       [QuestionNames.ProgrammingLanguage]: "javascript",
       [QuestionNames.Folder]: os.tmpdir(),
       [QuestionNames.AppName]: randomAppName(),
@@ -234,6 +233,7 @@ describe("FxCore.createProjectByCustomizedGenerator", () => {
     const myGenerator = new MyGenerator();
     sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
     sandbox.stub(fs, "pathExists").resolves(ok("mock-id"));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     const inputs: CreateProjectInputs = {
       platform: Platform.VSCode,
       folder: ".",

@@ -64,7 +64,6 @@ jobs:
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
-      M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME_2 }}
       AUTO_TEST_PLAN_ID: ${{ github.event.inputs.target-testplan-id }}
     steps:
       - name: Checkout
@@ -131,7 +130,6 @@ jobs:
           path: |
             ./packages/tests/testplan.json
 
-
   execute-case:
     if: ${{ needs.setup.outputs.cases }}
     env:
@@ -140,7 +138,10 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+      M365_USERNAME: "test14@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
@@ -173,6 +174,15 @@ jobs:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+      
+      - name: Set m365 account
+        id: set-m365-account
+        run: |
+          users=("${{ env.M365_USERNAME }}" "${{ env.M365_USERNAME_2 }}" "${{ env.M365_USERNAME_3 }}" "${{ env.M365_USERNAME_4 }}")
+          count=${#users[@]}
+          index=$((RANDOM%$count))
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Setup node
         uses: actions/setup-node@v3
@@ -217,12 +227,12 @@ jobs:
       - name: install cli with specific version
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version != '' }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@${{ github.event.inputs.cli-version }}
+          npm install -g @microsoft/m365agentstoolkit-cli@${{ github.event.inputs.cli-version }}
 
       - name: install cli for schedule
         if: ${{  github.event_name == 'schedule' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@alpha
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
       
       - name: link cli for workflow_dispatch
         if: ${{  github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
@@ -232,7 +242,7 @@ jobs:
       - name: Update CLI and legacy-peer-deps for PR cases
         if: ${{  github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'teamsfx-bot/TeamsFx'  }}
         run: |
-          npm install -g @microsoft/teamsapp-cli@alpha
+          npm install -g @microsoft/m365agentstoolkit-cli@alpha
           npm config set legacy-peer-deps false
 
       - name: print system info
@@ -331,9 +341,9 @@ jobs:
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+      M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
       CI_ENABLED: "true"
       M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME_2 }}
     steps:
@@ -539,7 +549,7 @@ jobs:
         if: ${{ steps.list-jobs.outputs.has_mos_api_failure == 'true' }}
         uses: ./.github/actions/send-email-report
         env:
-          TO: "huajiezhang@microsoft.com;nliu@microsoft.com;huihuiwu@microsoft.com;Xiaofu.Huang@microsoft.com;zhaofengxu@microsoft.com;yukundong@microsoft.com;anchenyi@microsoft.com"
+          TO: "huajiezhang@microsoft.com;nliu@microsoft.com;huihuiwu@microsoft.com;zhaofengxu@microsoft.com;anchenyi@microsoft.com"
           BODY: '"${{ steps.list-jobs.outputs.mos_body }}"'
           SUBJECT: ${{ steps.list-jobs.outputs.mos_subject }}
           MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
@@ -599,11 +609,9 @@ jobs:
           AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
           AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
-          M365_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
-          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          M365_TENANT_ID: ${{ secrets.TEST_TENANT_ID_2 }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+          M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
           CI_ENABLED: "true"
-          M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME }}
           TEAMSFX_DEBUG_TEMPLATE: "true"
           NODE_ENV: "development"
           TEAMSFX_AAD_DEPLOY_ONLY: "true"

@@ -503,6 +503,7 @@ export type Question =
 export interface IQTreeNode {
   data: Question | Group;
   condition?: StringValidation | StringArrayValidation | ConditionFunc;
+  conditionResult?: boolean;
   children?: IQTreeNode[];
   /**
    * @description the question node will be ignored as CLI option in non-interactive mode

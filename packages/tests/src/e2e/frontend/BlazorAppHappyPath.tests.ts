@@ -6,7 +6,7 @@
  */
 
 import { it } from "@microsoft/extra-shot-mocha";
-import MockAzureAccountProvider from "@microsoft/teamsapp-cli/src/commonlib/azureLoginUserPassword";
+import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/azureLoginUserPassword";
 import { AzureScopes } from "@microsoft/teamsfx-core";
 import { environmentNameManager } from "@microsoft/teamsfx-core/build/core/environmentName";
 import axios from "axios";

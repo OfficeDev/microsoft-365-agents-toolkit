@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import m365Provider from "@microsoft/teamsapp-cli/src/commonlib/m365LoginUserPassword";
+import m365Provider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { AppStudioScopes, GraphScopes } from "@microsoft/teamsfx-core";
 import axios, { AxiosInstance } from "axios";
 

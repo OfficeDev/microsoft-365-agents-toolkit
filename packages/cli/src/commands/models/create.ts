@@ -4,19 +4,19 @@ import {
   CLICommand,
   CLICommandOption,
   CLIContext,
-  OptionItem,
-  Platform,
   err,
   ok,
+  OptionItem,
+  Platform,
 } from "@microsoft/teamsfx-api";
 import {
-  CapabilityOptions,
   CliQuestionName,
   CreateProjectInputs,
   CreateProjectOptions,
   featureFlagManager,
   FeatureFlags,
   getProjectTypeByCapability,
+  getTeamsProjectTypeByCapability,
   isTdpTemplate,
   MeArchitectureOptions,
   QuestionNames,
@@ -30,12 +30,13 @@ import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
+import { listAllCapabilities } from "./listTemplates";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = CapabilityOptions.all({ platform: Platform.CLI }).map((o) => o.id);
+      option.choices = listAllCapabilities().map((o) => o.id);
       break;
     }
   }
@@ -83,6 +84,8 @@ export function getCreateCommand(): CLICommand {
           const capability = inputs.capabilities as string;
           const projectType = getProjectTypeByCapability(capability);
           inputs["project-type"] = projectType as any;
+          const teamsAppType = getTeamsProjectTypeByCapability(capability);
+          inputs["teams-app-type"] = teamsAppType;
         }
       }
       const isTdp = isTdpTemplate(inputs);

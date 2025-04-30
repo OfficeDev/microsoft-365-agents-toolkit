@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.Agents.BotBuilder;
+using Microsoft.Agents.Builder;
 using Microsoft.Agents.Connector;
 using Microsoft.Agents.Core.Models;
 using Microsoft.Extensions.Logging;
@@ -40,7 +40,7 @@ namespace Microsoft.TeamsFx.Test
                 ChannelId = channelId,
                 ServiceUrl = "https://test.com",
                 User = new ChannelAccount("user1", "User1"),
-                Bot = new ChannelAccount("bot", "Bot"),
+                Agent = new ChannelAccount("bot", "Bot"),
                 Conversation = new ConversationAccount(false, "convo1", "Conversation1"),
                 Locale = this.Locale,
             };
@@ -67,7 +67,7 @@ namespace Microsoft.TeamsFx.Test
                     ChannelId = Channels.Test,
                     ServiceUrl = "https://test.com",
                     User = new ChannelAccount("user1", "User1"),
-                    Bot = new ChannelAccount("bot", "Bot"),
+                    Agent = new ChannelAccount("bot", "Bot"),
                     Conversation = new ConversationAccount(false, "convo1", "Conversation1"),
                     Locale = this.Locale,
                 };
@@ -121,7 +121,7 @@ namespace Microsoft.TeamsFx.Test
                 ServiceUrl = "https://test.com",
                 Conversation = new ConversationAccount(false, name, name),
                 User = new ChannelAccount(id: user.ToLowerInvariant(), name: user),
-                Bot = new ChannelAccount(id: bot.ToLowerInvariant(), name: bot),
+                Agent = new ChannelAccount(id: bot.ToLowerInvariant(), name: bot),
                 Locale = "en-us"
             };
         }
@@ -148,7 +148,7 @@ namespace Microsoft.TeamsFx.Test
         /// <param name="cancellationToken">A cancellation token that can be used by other objects
         /// or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the work queued to execute.</returns>
-        public async Task ProcessActivityAsync(IActivity activity, BotCallbackHandler callback, CancellationToken cancellationToken = default)
+        public async Task ProcessActivityAsync(IActivity activity, AgentCallbackHandler callback, CancellationToken cancellationToken = default)
         {
             lock (_conversationLock)
             {
@@ -163,12 +163,12 @@ namespace Microsoft.TeamsFx.Test
                     activity.ChannelId = Conversation.ChannelId;
                 }
 
-                if (activity.From == null || activity.From.Id == "unknown" || activity.From.Role == RoleTypes.Bot)
+                if (activity.From == null || activity.From.Id == "unknown" || activity.From.Role == RoleTypes.Agent)
                 {
                     activity.From = Conversation.User;
                 }
 
-                activity.Recipient = Conversation.Bot;
+                activity.Recipient = Conversation.Agent;
                 activity.Conversation = Conversation.Conversation;
                 activity.ServiceUrl = Conversation.ServiceUrl;
 
@@ -199,13 +199,13 @@ namespace Microsoft.TeamsFx.Test
         /// <param name="cancellationToken">A cancellation token that can be used by other objects
         /// or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the work queued to execute.</returns>
-        public override async Task<InvokeResponse> ProcessActivityAsync(ClaimsIdentity claimsIdentity, IActivity activity, BotCallbackHandler callback, CancellationToken cancellationToken)
+        public override async Task<InvokeResponse> ProcessActivityAsync(ClaimsIdentity claimsIdentity, IActivity activity, AgentCallbackHandler callback, CancellationToken cancellationToken)
         {
             await ProcessActivityAsync(activity, callback, cancellationToken).ConfigureAwait(false);
             return null;
         }
 
-        public override async Task ProcessProactiveAsync(ClaimsIdentity claimsIdentity, IActivity continuationActivity, IBot bot, CancellationToken cancellationToken, string audience = null)
+        public override async Task ProcessProactiveAsync(ClaimsIdentity claimsIdentity, IActivity continuationActivity, IAgent bot, CancellationToken cancellationToken, string audience = null)
         {
             await ProcessProactiveAsync(claimsIdentity, continuationActivity, audience, bot.OnTurnAsync, cancellationToken).ConfigureAwait(false);
         }
@@ -220,7 +220,7 @@ namespace Microsoft.TeamsFx.Test
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="async"></param>
         /// <returns>A task that represents the work queued to execute.</returns>
-        public override async Task ProcessProactiveAsync(ClaimsIdentity claimsIdentity, IActivity continuationActivity, string audience, BotCallbackHandler callback, CancellationToken cancellationToken)
+        public override async Task ProcessProactiveAsync(ClaimsIdentity claimsIdentity, IActivity continuationActivity, string audience, AgentCallbackHandler callback, CancellationToken cancellationToken)
         {
             var context = CreateTurnContext(continuationActivity);
             await RunPipelineAsync(context, callback, cancellationToken).ConfigureAwait(false);
@@ -384,7 +384,7 @@ namespace Microsoft.TeamsFx.Test
         /// or threads to receive notice of cancellation.</param>
         /// <returns>A task that represents the work queued to execute.</returns>
         /// <remarks>This resets the <see cref="ActiveQueue"/>, and does not maintain multiple conversation queues.</remarks>
-        public Task CreateConversationAsync(string channelId, BotCallbackHandler callback, CancellationToken cancellationToken)
+        public Task CreateConversationAsync(string channelId, AgentCallbackHandler callback, CancellationToken cancellationToken)
         {
             ActiveQueue.Clear();
             var update = Activity.CreateConversationUpdateActivity();
@@ -453,7 +453,7 @@ namespace Microsoft.TeamsFx.Test
                 Type = ActivityTypes.Message,
                 Locale = this.Locale ?? "en-us",
                 From = Conversation.User,
-                Recipient = Conversation.Bot,
+                Recipient = Conversation.Agent,
                 Conversation = Conversation.Conversation,
                 ServiceUrl = Conversation.ServiceUrl,
                 Id = (_nextId++).ToString(CultureInfo.InvariantCulture),
@@ -471,7 +471,7 @@ namespace Microsoft.TeamsFx.Test
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the work queued to execute.</returns>
         /// <seealso cref="TestFlow.Send(string)"/>
-        public virtual Task SendTextToBotAsync(string userSays, BotCallbackHandler callback, CancellationToken cancellationToken)
+        public virtual Task SendTextToBotAsync(string userSays, AgentCallbackHandler callback, CancellationToken cancellationToken)
         {
             return ProcessActivityAsync(MakeActivity(userSays), callback, cancellationToken);
         }

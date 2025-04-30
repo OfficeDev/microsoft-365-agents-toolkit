@@ -398,12 +398,13 @@ export interface IDeclarativeCopilot {
   id: string;
 }
 
-export type AppManifest = Record<string, any>;
+// export type AppManifest = Record<string, any>;
 
 /**
+ * @deprecated
  * manifest definition according to : https://developer.microsoft.com/en-us/json-schemas/teams/v1.13/MicrosoftTeams.schema.json
  */
-export class TeamsAppManifest implements AppManifest {
+export class TeamsAppManifest {
   $schema?: string =
     "https://developer.microsoft.com/en-us/json-schemas/teams/v1.15/MicrosoftTeams.schema.json";
   /**

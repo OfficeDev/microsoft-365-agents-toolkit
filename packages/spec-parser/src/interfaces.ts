@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { IParameter } from "@microsoft/teams-manifest";
+import { IParameter } from "@microsoft/app-manifest";
 import { OpenAPIV3 } from "openapi-types";
 
 /**
@@ -138,7 +138,7 @@ export enum WarningType {
   GenerateCardFailed = "generate-card-failed",
   OperationOnlyContainsOptionalParam = "operation-only-contains-optional-param",
   ConvertSwaggerToOpenAPI = "convert-swagger-to-openapi",
-  FuncDescriptionTooLong = "function-description-too-long",
+  OpenAPI31ConvertTo30 = "openapi31-convert-to-30",
   OperationIdContainsSpecialCharacters = "operationid-contains-special-characters",
   UnsupportedAuthType = "unsupported-auth-type",
   GenerateJsonDataFailed = "generate-json-data-failed",

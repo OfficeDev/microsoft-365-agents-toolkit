@@ -7,6 +7,7 @@ import { configMgr } from "../../src/config";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import * as lifecycleHandlers from "../../src/handlers/lifecycleHandlers";
+import { checkKiotaInstallation } from "../../src/extension";
 
 describe("configMgr", () => {
   const sanbox = sinon.createSandbox();
@@ -99,6 +100,9 @@ describe("configMgr", () => {
   });
 
   describe("checkKiotaInstallation", async () => {
+    const context = {
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext;
     afterEach(() => {
       sanbox.restore();
     });
@@ -114,7 +118,7 @@ describe("configMgr", () => {
           return;
         },
       } as any);
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
       chai.assert.isTrue(configStub.calledOnce);
     });
     it("should skip if kiota not installed", async () => {
@@ -133,7 +137,7 @@ describe("configMgr", () => {
           return;
         },
       } as any);
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
       chai.assert.isTrue(configStub.calledOnce);
     });
     it("should set enabled if previous value is true", async () => {
@@ -152,7 +156,7 @@ describe("configMgr", () => {
         },
       } as any);
       sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
     });
     it("should ask user and set enabled", async () => {
       sanbox.stub(vscode.workspace, "getConfiguration").returns({
@@ -171,7 +175,7 @@ describe("configMgr", () => {
       } as any);
       sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
       sanbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("Yes"));
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
     });
     it("should ask user and set disabled", async () => {
       sanbox.stub(vscode.workspace, "getConfiguration").returns({
@@ -190,7 +194,7 @@ describe("configMgr", () => {
       } as any);
       sanbox.stub(lifecycleHandlers, "validateKiotaInstallation").returns(true);
       sanbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("No"));
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
     });
     it("should ask user and set disabled if user cancel", async () => {
       sanbox.stub(vscode.workspace, "getConfiguration").returns({
@@ -211,7 +215,7 @@ describe("configMgr", () => {
       sanbox
         .stub(vsc_ui.VS_CODE_UI, "showMessage")
         .resolves(err(new UserError("source", "errorcode", "errormessage")));
-      await configMgr.checkKiotaInstallation();
+      await checkKiotaInstallation(context);
     });
   });
 });

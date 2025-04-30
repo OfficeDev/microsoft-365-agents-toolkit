@@ -30,7 +30,6 @@ import { ErrorContextMW, globalVars } from "../../common/globalVars";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { convertToAlphanumericOnly } from "../../common/stringUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
-import { MetadataV3 } from "../../common/versionMetadata";
 import { environmentNameManager } from "../../core/environmentName";
 import { ResourceGroupConflictError, SelectSubscriptionError } from "../../error/azure";
 import {
@@ -43,12 +42,16 @@ import { LifeCycleUndefinedError } from "../../error/yml";
 import {
   ActionStartOptions,
   AppNamePattern,
-  CapabilityOptions,
-  ProjectTypeOptions,
   QuestionNames,
   ScratchOptions,
 } from "../../question/constants";
-import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/interface";
+import { TeamsProjectTypeOptions } from "../../question/scaffold/vsc/teamsProjectTypeNode";
+import {
+  ExecutionError,
+  ExecutionOutput,
+  ILifecycle,
+  ProjectModel,
+} from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
 import { deployUtils } from "../deployUtils";
@@ -66,6 +69,8 @@ import { metadataUtil } from "../utils/metadataUtil";
 import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
 import { SummaryReporter } from "./summary";
+import { ProjectTypeOptions } from "../../question/scaffold/vsc/ProjectTypeOptions";
+import { DACapabilityOptions } from "../../question/scaffold/vsc/CapabilityOptions";
 
 const M365Actions = [
   "botAadApp/create",
@@ -101,13 +106,9 @@ class Coordinator {
       featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
       inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id &&
       !inputs[QuestionNames.ActionManifestPath] &&
-      (inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id ||
-        inputs[QuestionNames.Capabilities] === CapabilityOptions.declarativeAgent().id)
+      inputs[QuestionNames.Capabilities] === DACapabilityOptions.declarativeAgent().id
     ) {
-      const lastCommand =
-        inputs[QuestionNames.Capabilities] === CapabilityOptions.apiPlugin().id
-          ? KiotaLastCommands.createPluginWithManifest
-          : KiotaLastCommands.createDeclarativeCopilotWithManifest;
+      const lastCommand = KiotaLastCommands.createDeclarativeCopilotWithManifest;
       return ok({ projectPath: "", lastCommand: lastCommand });
     }
 
@@ -160,6 +161,7 @@ class Coordinator {
       globalVars.isVS = language === "csharp";
       const capability = inputs.capabilities as string;
       const projectType = inputs[QuestionNames.ProjectType];
+      const teamsAppType = inputs[QuestionNames.TeamsAppType];
       delete inputs.folder;
 
       merge(actionContext?.telemetryProps, {
@@ -167,8 +169,8 @@ class Coordinator {
         [TelemetryProperty.IsFromTdp]: (!!inputs.teamsAppFromTdp).toString(),
       });
       if (
-        projectType === ProjectTypeOptions.customCopilot().id ||
-        (projectType === ProjectTypeOptions.bot().id && inputs.platform === Platform.VS)
+        projectType === ProjectTypeOptions.customEngineAgentOptionId ||
+        (teamsAppType === TeamsProjectTypeOptions.botOptionId && inputs.platform === Platform.VS)
       ) {
         merge(actionContext?.telemetryProps, {
           [TelemetryProperty.CustomCopilotRAG]: inputs["custom-copilot-rag"] ?? "",
@@ -204,7 +206,7 @@ class Coordinator {
     }
 
     // generate unique projectId in teamsapp.yaml (optional)
-    const ymlPath = path.join(projectPath, MetadataV3.configFile);
+    const ymlPath = pathUtils.getYmlFilePath(projectPath, "dev") as string;
     if (await fs.pathExists(ymlPath)) {
       const ensureRes = await this.ensureTrackingId(projectPath, inputs.projectId);
       if (ensureRes.isErr()) return err(ensureRes.error);
@@ -294,7 +296,7 @@ class Coordinator {
     // 1. parse yml to cycles
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -342,7 +344,7 @@ class Coordinator {
   ): Promise<Result<undefined, FxError>> {
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -389,7 +391,7 @@ class Coordinator {
     // 1. parse yml
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -408,6 +410,7 @@ class Coordinator {
     // 2. M365 sign in and tenant check if needed.
     let containsM365 = false;
     let containsAzure = false;
+    let containsUpdateAad = false;
     const tenantSwitchCheckActions: string[] = [];
     cycles.forEach((cycle) => {
       cycle.driverDefs?.forEach((def) => {
@@ -415,6 +418,9 @@ class Coordinator {
           containsM365 = true;
         } else if (AzureActions.includes(def.uses)) {
           containsAzure = true;
+        }
+        if (def.uses === "aadApp/update") {
+          containsUpdateAad = true;
         }
 
         if (needTenantCheckActions.includes(def.uses)) {
@@ -617,6 +623,7 @@ class Coordinator {
             ctx.ui?.openUrl(url);
           }
         });
+        showAadResourceLink(ctx, containsUpdateAad, projectModel, process.env.AAD_APP_CLIENT_ID);
       } else {
         if (url && ctx.platform === Platform.CLI) {
           ctx.ui?.showMessage(
@@ -693,7 +700,7 @@ class Coordinator {
     const output: DotenvParseOutput = {};
     const templatePath =
       inputs["workflowFilePath"] || pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -702,6 +709,7 @@ class Coordinator {
       if (
         inputs.env !== environmentNameManager.getLocalEnvName() &&
         inputs.env !== environmentNameManager.getTestToolEnvName() &&
+        inputs.env !== environmentNameManager.getPlaygroundEnvName() &&
         inputs.env !== environmentNameManager.getSandboxEnvName()
       ) {
         const consent = await deployUtils.askForDeployConsentV3(ctx);
@@ -762,8 +770,8 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -823,8 +831,8 @@ class Coordinator {
     inputs: InputsWithProjectPath
   ): Promise<Result<DotenvParseOutput, FxError>> {
     const output: DotenvParseOutput = {};
-    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env);
-    const maybeProjectModel = await metadataUtil.parse(templatePath, inputs.env);
+    const templatePath = pathUtils.getYmlFilePath(ctx.projectPath, inputs.env) as string;
+    const maybeProjectModel = await metadataUtil.parse(templatePath);
     if (maybeProjectModel.isErr()) {
       return err(maybeProjectModel.error);
     }
@@ -903,6 +911,39 @@ class Coordinator {
 }
 
 export const coordinator = new Coordinator();
+
+export function showAadResourceLink(
+  ctx: DriverContext,
+  isAadUpdateAction: boolean,
+  projectModel: ProjectModel,
+  clientId?: string
+): void {
+  const gcPermission = "ExternalConnection.ReadWrite.OwnedBy";
+  if (
+    isAadUpdateAction &&
+    clientId &&
+    projectModel.aadPermission?.graphPermission.roles.includes(gcPermission)
+  ) {
+    const aadUrl = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${clientId}/isMSAApp~/false`;
+    const aadMsg =
+      "You need to grant tenant-wide admin consent to the application in Entra ID. Click the button to provide consent.";
+    const aadTitle = "View provisioned Entra ID";
+    ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
+      const userSelected = result.isOk() ? result.value : undefined;
+      if (userSelected === aadTitle) {
+        openUrl(ctx, aadUrl);
+      }
+    });
+    ctx.logProvider.info(
+      `You need to grant tenant-wide admin consent to the application in Entra ID. Use the link to provide the consent. ${aadUrl}`
+    );
+  }
+  return;
+}
+
+export function openUrl(ctx: DriverContext, url: string): void {
+  ctx.ui?.openUrl(url);
+}
 
 interface BotTroubleShootMessage {
   troubleShootLink: string;

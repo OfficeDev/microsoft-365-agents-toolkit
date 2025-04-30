@@ -12,19 +12,9 @@
           "properties": {
             "title": "$.title",
             "subtitle": "$.id"
-          }
-        }
-      }
-    },
-    {
-      "name": "postRepairs",
-      "description": "Update repairs with their details and images",
-      "capabilities": {
-        "response_semantics": {
-          "data_path": "$",
-          "properties": {
-            "title": "$.title",
-            "subtitle": "$.id"
+          },
+          "static_template": {
+            "file": "resources/adaptiveCards/listRepairs.json"
           }
         }
       }

@@ -21,7 +21,7 @@ import { isVSCodeInsiderVersion } from "../utils/versionUtil";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 
 const githubCopilotChatExtensionId = "github.copilot-chat";
-const teamsAgentLink = "https://aka.ms/install-teamsapp";
+const teamsAgentLink = "https://aka.ms/install-m365agents";
 
 enum errorNames {
   NoActiveTextEditor = "NoActiveTextEditor",
@@ -60,6 +60,11 @@ export async function openGithubCopilotChat(args?: any[]): Promise<Result<null, 
   };
   ExtTelemetry.sendTelemetryEvent(startEventName, triggerFrom);
   try {
+    try {
+      await vscode.commands.executeCommand("workbench.action.chat.toggleAgentMode", {
+        mode: "ask",
+      });
+    } catch {}
     await vscode.commands.executeCommand("workbench.panel.chat.view.copilot.focus");
     if (query) {
       const options = {
@@ -261,7 +266,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
     case TelemetryTriggerFrom.TreeView:
     case TelemetryTriggerFrom.CommandPalette:
       query =
-        "@m365agents Use this GitHub Copilot extension to ask questions about Teams app and agent development.";
+        "@m365agents Use this GitHub Copilot extension to ask questions about the development of apps and agents you build for Copilot and Microsoft 365 apps.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
       shouldSkipPreCheck = true;
@@ -269,12 +274,12 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
       shouldSkipPreCheck = true;
-      query = "@m365agents I want to create a ToDo Teams app.";
+      query = "@m365agents I want to create a ToDo app.";
       break;
     case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
       shouldSkipPreCheck = true;
       query =
-        "@m365agents My Teams app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
+        "@m365agents My app doesn't sideload when debugging with Microsoft 365 Agents Toolkit.";
       break;
     case TelemetryTriggerFrom.WalkThrough:
       shouldSkipPreCheck = true;
@@ -282,7 +287,7 @@ export async function invokeTeamsAgent(args?: any[]): Promise<Result<boolean, Fx
       break;
     default:
       query =
-        "@m365agents Write your own query message to find relevant templates or samples to build your Teams app and agent as per your description. E.g. @m365agents create an AI assistant bot that can complete common tasks.";
+        "@m365agents Write your own query message to find relevant templates or samples to build your app and agent as per your description. E.g. @m365agents create an intelligent agent that can respond to users' questions.";
   }
 
   const res = await invoke(query, triggerFromProperty, shouldSkipPreCheck);

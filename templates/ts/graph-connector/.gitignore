@@ -17,7 +17,7 @@ __queuestorage__
 __azurite_db*__.json
 _storage_emulator
 
-# Teams Toolkit
+# Microsoft 365 Agents Toolkit
 build
 appPackage/build
 

@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Activity, Middleware, TurnContext } from "botbuilder";
+import { Activity } from "@microsoft/agents-activity";
+import { TurnContext, Middleware } from "@microsoft/agents-hosting";
 import { cloneConversation, getKey } from "../utils";
 import { ConversationReferenceStore } from "../interface";
 
@@ -39,7 +40,7 @@ export class NotificationMiddleware implements Middleware {
     switch (type) {
       case ActivityType.CurrentBotInstalled:
       case ActivityType.TeamRestored: {
-        const reference = TurnContext.getConversationReference(context.activity);
+        const reference = context.activity.getConversationReference();
         await this.conversationReferenceStore.add(getKey(reference), reference, {
           overwrite: true,
         });
@@ -51,7 +52,7 @@ export class NotificationMiddleware implements Middleware {
       }
       case ActivityType.CurrentBotUninstalled:
       case ActivityType.TeamDeleted: {
-        const reference = TurnContext.getConversationReference(context.activity);
+        const reference = context.activity.getConversationReference();
         await this.conversationReferenceStore.remove(getKey(reference), reference);
         break;
       }
@@ -86,7 +87,7 @@ export class NotificationMiddleware implements Middleware {
   }
 
   private async tryAddMessagedReference(context: TurnContext): Promise<void> {
-    const reference = TurnContext.getConversationReference(context.activity);
+    const reference = context.activity.getConversationReference();
     const conversationType = reference?.conversation?.conversationType;
     if (conversationType === "personal" || conversationType === "groupChat") {
       await this.conversationReferenceStore.add(getKey(reference), reference, { overwrite: false });

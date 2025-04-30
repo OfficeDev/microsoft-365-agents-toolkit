@@ -11,8 +11,8 @@ export function Deploy(props: { docsUrl?: string }) {
     <div className="deploy page">
       <h2>Deploy to the Cloud</h2>
       <p>
-        Before publishing your app to Teams App Catalog, you may want to provision and deploy your
-        app's resources to the cloud to make sure your app will be running smoothly!
+        Before publishing your app to App Catalog, you may want to provision and deploy your app's
+        resources to the cloud to make sure your app will be running smoothly!
       </p>
       <p>
         To provision your resources, you can either use our CLI command "teamsapp provision" or

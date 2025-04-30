@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout, ValidationContent } from "../../utils/constants";
+import { Timeout, ValidationContent, Lang } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   deployProject,
@@ -69,7 +69,7 @@ describe("Remote debug Tests", function () {
     async function () {
       const driver = VSBrowser.instance.driver;
       await createNewProject("aichat", appName, {
-        lang: "TypeScript",
+        lang: Lang.TS,
         aiType: "Azure OpenAI",
       });
       validateFileExist(projectPath, "src/index.ts");

@@ -1,0 +1,670 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$comment": "This schema describes the constraints of a plugin manifest for third party developers to be deployed to Microsoft 365 Copilot",
+    "type": "object",
+    "title": "API Plugin manifest object",
+    "description": "The root of the plugin manifest document is a JSON object that contains members that describe the plugin.",
+    "properties": {
+        "schema_version": {
+            "type": "string",
+            "description": "The schema version. Previous versions are `v1` and `v2`, `v2.1`.",
+            "const": "v2.2"
+        },
+        "name_for_human": {
+            "type": "string",
+            "description": "A short, human-readable name for the plugin. It MUST contain at least one nonwhitespace character. Characters beyond 20 MAY be ignored. This property is localizable."
+        },
+        "namespace": {
+            "type": "string",
+            "description": "An identifier used to prevent name conflicts between function names from different plugins that are used within the same execution context. The value MUST match the regex ^[A-Za-z0-9_]+ as defined by [RFC9485]. This is a required member.",
+            "pattern": "^[A-Za-z0-9_]+$"
+        },
+        "description_for_model": {
+            "type": "string",
+            "description": "The description for the plugin that is provided to the model. This description should describe what the plugin is for, and in what circumstances its functions are relevant. Characters beyond 2048 MAY be ignored. This property is localizable."
+        },
+        "description_for_human": {
+            "type": "string",
+            "description": "A human-readable description of the plugin. Characters beyond 100 MAY be ignored. This property is localizable."
+        },
+        "logo_url": {
+            "format": "uri",
+            "description": "A URL used to fetch a logo that MAY be used by the orchestrator. Implementations MAY provide alternative methods to provide logos that meet their visual requirements. This property is localizable."
+        },
+        "contact_email": {
+            "type": "string",
+            "description": "An email address of a contact for safety/moderation, support, and deactivation."
+        },
+        "legal_info_url": {
+            "format": "uri",
+            "description": "An absolute URL that locates a document containing the terms of service for the plugin. This property is localizable."
+        },
+        "privacy_policy_url": {
+            "format": "uri",
+            "description": "An absolute URL that locates a document containing the privacy policy for the plugin. This property is localizable."
+        },
+        "functions": {
+            "type": "array",
+            "description": "A set of function objects describing the functions available to the plugin. Each function object name MUST be unique within the array. The order of the array isn't significant. If the `functions` property isn't present and there's an OpenAPI runtime, the functions are inferred from the OpenAPI operations.",
+            "items": {
+                "$ref": "#/$defs/function-object"
+            }
+        },
+        "runtimes": {
+            "type": "array",
+            "description": "A set of runtime objects describing the runtimes used by the plugin.",
+            "items": {
+                "$ref": "#/$defs/runtime-object-openapi"
+            }
+        },
+        "capabilities": {
+            "type": "object",
+            "title": "Plugin capabilities object",
+            "description": "Describes capabilities of the plugin.",
+            "properties": {
+                "conversation_starters": {
+                    "type": "array",
+                    "description": "Conversation starters that can be displayed to the user for suggestions on how to invoke the plugin.",
+                    "items": {
+                        "$ref": "#/$defs/conversation-starter"
+                    }
+                }
+            },
+            "propertyNames": {
+                "enum": [
+                    "conversation_starters"
+                ]
+            }
+        }
+    },
+    "required": [
+        "schema_version",
+        "name_for_human",
+        "namespace",
+        "description_for_human"
+    ],
+    "propertyNames": {
+        "enum": [
+            "$schema",
+            "schema_version",
+            "name_for_human",
+            "namespace",
+            "description_for_model",
+            "description_for_human",
+            "logo_url",
+            "contact_email",
+            "legal_info_url",
+            "privacy_policy_url",
+            "functions",
+            "runtimes",
+            "capabilities"
+        ]
+    },
+    "$defs": {
+        "function-object": {
+            "type": "object",
+            "title": "Function object",
+            "description": "Information related to how the model should interact with a function.",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "A string that uniquely identifies this function. Runtime objects MAY reference this identifier to bind the runtime to the function. When the function is bound to an OpenAPI runtime, the value must match an `operationId` value in the OpenAPI description.",
+                    "pattern": "^[A-Za-z0-9_]+$"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description better tailored to the model, such as token context length considerations or keyword usage for improved plugin prompting."
+                },
+                "parameters": {
+                    "$ref": "#/$defs/function-parameters",
+                    "description": "An object that contains members that describe the parameters of a function in a runtime agnostic way. It mirrors the shape of [json-schema][] but only supports a small subset of the JSON schema capabilities. If the `parameters` property isn't present, functions described by a runtime object of type `OpenApi` use the OpenAPI description to determine the parameters. Each member in the JSON object is a function parameter object that describes the semantics of the parameter."
+                },
+                "returns": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/$defs/function-return-type"
+                        },
+                        {
+                            "$ref": "#/$defs/function-rich-response-return-type"
+                        }
+                    ],
+                    "description": "Describes the semantics of the value returned from the function."
+                },
+                "states": {
+                    "type": "object",
+                    "title": "Function states object",
+                    "description": "Defines state objects for orchestrator states.",
+                    "properties": {
+                        "reasoning": {
+                            "$ref": "#/$defs/function-state-config",
+                            "description": "The state in which the model can call functions and do computations."
+                        },
+                        "responding": {
+                            "$ref": "#/$defs/function-state-config",
+                            "description": "The state in which the model can generate text that is shown to the user. The model can't invoke functions in the responding state."
+                        }
+
+                    },
+                    "propertyNames": {
+                        "enum": [
+                            "reasoning",
+                            "responding"
+                        ]
+                    }
+                },
+                "capabilities": {
+                    "type": "object",
+                    "title": "Function capabilities object",
+                    "description": "Contains a collection of data used to configure optional capabilities of the orchestrator while invoking the function.",
+                    "properties": {
+                        "confirmation": {
+                            "$ref": "#/$defs/confirmation-object",
+                            "description": "Describes a confirmation dialog that SHOULD be presented to the user before invoking the function."
+                        },
+                        "response_semantics": {
+                            "$ref": "#/$defs/response-semantics-object",
+                            "description": "Describes how the orchestrator can interpret the response payload and provide a visual rendering."
+                        },
+                        "security_info": {
+                          "$ref": "#/$defs/security-info-object",
+                          "description": "Describes the security information to be used to aid in determining the relative risk of invoking the function."
+                        }
+                    },
+                    "propertyNames": {
+                        "enum": [
+                            "confirmation",
+                            "response_semantics",
+                            "security_info"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "id",
+                    "name",
+                    "description",
+                    "parameters",
+                    "returns",
+                    "states",
+                    "capabilities"
+                ]
+            }
+        },
+        "response-semantics-object": {
+            "type": "object",
+            "title": "Response semantics object",
+            "description": "Contains information to identify semantics of response payload and enable rendering that information in a rich visual experience using [adaptive cards](https://adaptivecards.io/).",
+            "properties": {
+                "data_path": {
+                    "type": "string",
+                    "description": "A JSONPath [RFC9535][] query that identifies a set of elements from the function response to be rendered using the template specified in each item."
+                },
+                "properties": {
+                    "type": "object",
+                    "title": "Response semantics properties object",
+                    "description": "Allows mapping of JSONPath queries to well-known data elements. Each JSONPath query is relative to a result value.",
+                    "properties":{
+                        "title": {
+                            "type": "string",
+                            "description": "Title of a citation for the result."
+                        },
+                        "subtitle": {
+                            "type": "string",
+                            "description": "Subtitle of a citation for the result."
+                        },
+                        "url": {
+                            "type": "string",
+                            "description": "URL of a citation for the result."
+                        },
+                        "thumbnail_url": {
+                            "type": "string",
+                            "description": "URL of a thumbnail image for the result."
+                        },
+                        "information_protection_label": {
+                            "type": "string",
+                            "description": "Data sensitivity indicator of the result contents."
+                        },
+                        "template_selector": {
+                            "type": "string",
+                            "description": "A JSONPath query that returns an [Adaptive Card Template](https://learn.microsoft.com/adaptive-cards/templating/language) from the API response to be used for rendering the result."
+                        }
+                    },
+                    "propertyNames": {
+                        "enum": [
+                            "title",
+                            "subtitle",
+                            "url",
+                            "information_protection_label",
+                            "thumbnail_url",
+                            "template_selector"
+                        ]
+                    }
+                },
+                "static_template": {
+                    "type": "object",
+                    "description": "A JSON object that conforms with the [Adaptive Card Schema](https://adaptivecards.io/schemas/adaptive-card.json) and templating language. This Adaptive Card instance is used to render a result from the plugin response. This value is used if the `template_selector` isn't present or fails to resolve to an adaptive card."
+                },
+                "oauth_card_path": {
+                    "type": "string",
+                    "description": "A JSON string containing a JSONPath query that when applied to the response payload will return an [Adaptive Card Template](https://learn.microsoft.com/adaptive-cards/templating/language) that will be used to authenticate the user."
+                }
+            },
+            "required": [ "data_path" ],
+            "propertyNames": {
+                "enum": [
+                    "data_path",
+                    "properties",
+                    "static_template",
+                    "oauth_card_path"
+                ]
+            }
+
+        },
+        "conversation-starter": {
+            "type": "object",
+            "title": "Conversation starter object",
+            "description": "An example of a question that the plugin can answer.",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "The text of the conversation starter. This property is localizable."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title of the conversation starter. This property is localizable."
+                }
+            },
+            "required": [
+                "text"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "text",
+                    "title"
+                ]
+            }
+        },
+        "runtime-object-openapi": {
+            "type": "object",
+            "title": "OpenAPI runtime object",
+            "description": "Describes how the plugin invokes OpenAPI functions.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Identifies this runtime as an OpenAPI runtime.",
+                    "const": "OpenApi"
+                },
+                "auth": {
+                    "$ref": "#/$defs/auth-object",
+                    "description": "Authentication information required to invoke the runtime."
+                },
+                "run_for_functions": {
+                    "type": "array",
+                    "description": "The names of the functions that are available in this runtime. If this property is omitted, all functions described by the runtime are available. If a wildcard (\"*\") is specified as the only string, all functions are considered. More than one runtime MUST NOT declare support for the same function either implicitly or explicitly.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "spec": {
+                    "title": "OpenAPI specification object",
+                    "description": "Contains the OpenAPI information required to invoke the runtime.",
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "description": "The URL to fetch the OpenAPI specification, called with a GET request. This member is required unless `api_description` is present."
+                        },
+                        "api_description": {
+                            "type": ["string"],
+                            "description": "A string that contains an OpenAPI description. If this member is present, `url` isn't required and is ignored if present."
+                        },
+                        "progress_style": {
+                            "type": "string",
+                            "description": "The progress style that is used to display the progress of the function.",
+                            "enum": [
+                                "None",
+                                "ShowUsage",
+                                "ShowUsageWithInput",
+                                "ShowUsageWithInputAndOutput"
+                            ]
+                        }
+                    }
+                }
+            },
+            "required": [
+                "type",
+                "spec",
+                "auth"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "auth",
+                    "run_for_functions",
+                    "spec"
+                ]
+            }
+        },
+        "auth-object": {
+            "type": "object",
+            "title": "Runtime authentication object",
+            "description": "Contains information used by the plugin to authenticate to the runtime.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the type of authentication required to invoke a function.",
+                    "enum": [
+                        "None",
+                        "OAuthPluginVault",
+                        "ApiKeyPluginVault"
+                    ]
+                },
+                "Type": {
+                    "type": "string",
+                    "description": "Specifies the type of authentication required to invoke a function.",
+                    "enum": [
+                        "None",
+                        "OAuthPluginVault",
+                        "ApiKeyPluginVault"
+                    ]
+                },
+                "reference_id": {
+                    "type": "string",
+                    "description": "A value used when `type` is `OAuthPluginVault` or `ApiKeyPluginVault`. The `reference_id` value is acquired independently when providing the necessary authentication configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
+                }
+            },
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "Type",
+                    "reference_id"
+                ]
+            }
+        },
+        "function-parameters": {
+            "type": "object",
+            "title": "Function parameters object",
+            "description": "An object that is used to identify the set of parameters that can be passed to the function. This object is structured to mirror the shape of a JSON Schema object but it only supports a subset of JSON Schema keywords.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "The JSON Schema type.",
+                    "const": "object"
+                },
+                "properties": {
+                    "type": "object",
+                    "title": "Function parameters properties object",
+                    "description": "An object that maps parameter names to their definitions.",
+                    "patternProperties": {
+                        "^[A-Za-z0-9_]+$": {
+                            "$ref": "#/$defs/function-parameter",
+                            "description": "The parameter definition that corresponds to the parameter that matches the property name."
+                        }
+                    }
+                },
+                "required": {
+                    "type": "array",
+                    "description": "The names of properties that are required parameters. Unlike in JSON Schema, the values in this array MUST match the names listed in the `properties` property.",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "properties"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "properties",
+                    "required"
+                ]
+            }
+        },
+        "function-parameter": {
+            "type": "object",
+            "title": "Function parameter object",
+            "description": "An object that describes the semantics of a function parameter.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the parameter's type.",
+                    "enum": [
+                        "string",
+                        "array",
+                        "boolean",
+                        "integer",
+                        "number"
+                    ]
+                },
+                "items": {
+                    "$ref": "#/$defs/simple-function-parameter",
+                    "description": "A function parameter object that describes a single element in an array. MUST only be present when `type` is `array`."
+                },
+                "enum": {
+                    "type": "array",
+                    "description": "An array of valid values for this parameter. MUST only be present when `type` is `string`.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of the parameter."
+                },
+                "default": {
+                    "type": ["string","boolean","integer","number","array"],
+                    "description": "A value of the type specified by the `type` property that indicates the value the API uses when a value for an optional parameter isn't provided."
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "items",
+                    "enum",
+                    "description",
+                    "default"
+                ]
+            }
+        },
+        "simple-function-parameter": {
+            "type": "object",
+            "title": "Simple function parameter object",
+            "description": "An object that describes the semantics of a simple function parameter.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the parameter's type.",
+                    "enum": [
+                        "string",
+                        "boolean",
+                        "integer",
+                        "number"
+                    ]
+                },
+                "enum": {
+                    "type": "array",
+                    "description": "An array of valid values for this parameter. MUST only be present when `type` is `string`.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of the parameter."
+                },
+                "default": {
+                    "type": ["string","boolean","integer","number","array"],
+                    "description": "A value of the type specified by the `type` property that indicates the value the API uses when a value for an optional parameter isn't provided."
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "items",
+                    "enum",
+                    "description",
+                    "default"
+                ]
+            }
+        },
+        "function-return-type": {
+            "type": "object",
+            "title": "Return object",
+            "description": "Contains the semantics of the value returned from the function.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the type of the value returned by the API.",
+                    "enum": [
+                        "string"
+                    ]
+                },
+                "description": {
+                    "type": "string",
+                    "description": "A description of the value returned by the API."
+                }
+            },
+            "required": [
+                "type"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "description"
+                ]
+            }
+        },
+        "function-rich-response-return-type": {
+            "type": "object",
+            "title": "Rich return object",
+            "description": "Indicates that the function returns a response that is compatible with the Rich Responses protocol.",
+            "properties": {
+                "$ref": {
+                    "type": "string",
+                    "const": "https://copilot.microsoft.com/schemas/rich-response-v1.0.json"
+                }
+            },
+            "required": [
+                "$ref"
+            ],
+            "propertyNames": {
+                "enum": [
+                    "$ref"
+                ]
+            }
+        },
+        "instruction": {
+            "type": [
+                "string",
+                "array"
+            ],
+            "items": {
+                "type": "string"
+            }
+        },
+        "example": {
+            "type": [
+                "string",
+                "array"
+            ],
+            "items": {
+                "type": "string"
+            }
+        },
+        "function-state-config": {
+            "type": "object",
+            "title": "State object",
+            "description": "Contains specific instructions for when a function is invoked in a specific orchestrator state.",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "description": "Describes the purpose of a function when used in a specific orchestrator state."
+                },
+                "instructions": {
+                    "$ref": "#/$defs/instruction",
+                    "description": "A string or an array of strings that are used to provide instructions to the orchestrator on how to use this function while in a specific orchestrator state. Providing a single string indicates the intent to provide a complete set of instructions that would override any built-in function prompts. Providing an array of strings indicates the intent to augment the built-in function prompting mechanism."
+                },
+                "examples": {
+                    "$ref": "#/$defs/example",
+                    "description": "A string or an array of strings that are used to provide examples to the orchestrator on how this function can be invoked."
+                }
+            },
+            "propertyNames": {
+                "enum": [
+                    "description",
+                    "instructions",
+                    "examples"
+                ]
+            }
+        },
+        "confirmation-object": {
+            "type": "object",
+            "title": "Confirmation object",
+            "description": "Describes how the orchestrator asks the user to confirm before calling a function.",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the type of confirmation.",
+                    "enum": [
+                        "None",
+                        "AdaptiveCard"
+                    ]
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title of the confirmation dialog. This property is localizable."
+                },
+                "body": {
+                    "type": "string",
+                    "description": "The text of the confirmation dialog. This property is localizable."
+                }
+            },
+            "propertyNames": {
+                "enum": [
+                    "type",
+                    "title",
+                    "body"
+                ]
+            }
+        },
+        "security-info-object": {
+            "type": "object",
+            "title": "Security info object",
+            "description": "Describes the security information to be used to aid in determining the relative risk of invoking the function.",
+            "properties": {
+                "data_handling": {
+                    "type": "array",
+                    "description": "An array of strings that describe the data handling behavior of the plugin.",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "GetPublicData",
+                            "GetPrivateData",
+                            "DataTransform",
+                            "ResourceStateUpdate"
+                        ]
+                    }
+                }
+            },
+            "propertyNames": {
+                "enum": [
+                    "data_handling"
+                ]
+            }
+        }
+    }
+}

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { TurnContext } from "botbuilder";
+import { TurnContext } from "@microsoft/agents-hosting";
 import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
 import { MessageExtensionTokenResponse } from "./teamsMsgExtTokenResponse";
 import { ErrorWithCode, ErrorMessage, ErrorCode } from "../core/errors";

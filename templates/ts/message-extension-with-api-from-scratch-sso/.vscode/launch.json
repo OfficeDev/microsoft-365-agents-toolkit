@@ -84,7 +84,7 @@
                 "Launch App in Teams (Edge)",
                 "Attach to Backend"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "all",
                 "order": 1
@@ -97,7 +97,7 @@
                 "Launch App in Teams (Chrome)",
                 "Attach to Backend"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "all",
                 "order": 2
@@ -109,7 +109,7 @@
             "configurations": [
                 "Attach to Backend"
             ],
-            "preLaunchTask": "Start Teams App in Desktop Client",
+            "preLaunchTask": "Start App in Desktop Client",
             "presentation": {
                 "group": "all",
                 "order": 3

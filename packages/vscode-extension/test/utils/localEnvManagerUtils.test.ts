@@ -1,8 +1,8 @@
-import * as sinon from "sinon";
-import * as chai from "chai";
 import { LocalEnvManager } from "@microsoft/teamsfx-core";
-import { getNpmInstallLogInfo, getTestToolLogInfo } from "../../src/utils/localEnvManagerUtils";
+import * as chai from "chai";
+import * as sinon from "sinon";
 import * as globalVariables from "../../src/globalVariables";
+import { getNpmInstallLogInfo, getTestToolLogInfo } from "../../src/utils/localEnvManagerUtils";
 
 describe("LocalEnvUtils", () => {
   const sandbox = sinon.createSandbox();

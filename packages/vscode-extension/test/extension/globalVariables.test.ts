@@ -138,12 +138,12 @@ describe("Global Variables", () => {
         declarativeAgents: [{ id: "test-id", file: "test.txt" }],
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFileSync").returns(
         ok({
           name: "test-agent",
           description: "test description",
-          sensitivity_label: "test-label",
-        })
+          sensitivity_label: { id: "test-label" },
+        } as any)
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
@@ -174,7 +174,7 @@ describe("Global Variables", () => {
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
       sandbox
-        .stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync")
+        .stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFileSync")
         .returns(err(new SystemError("test", "test", "test", "test")));
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
@@ -187,11 +187,11 @@ describe("Global Variables", () => {
         declarativeAgents: [{ id: "test-id", file: "test.txt" }],
       };
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(teamsManifest));
-      sandbox.stub(copilotGptManifestUtils, "readCopilotGptManifestFileSync").returns(
+      sandbox.stub(copilotGptManifestUtils, "readDeclarativeAgentManifestFileSync").returns(
         ok({
           name: "test-agent",
           description: "test description",
-        })
+        } as any)
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);

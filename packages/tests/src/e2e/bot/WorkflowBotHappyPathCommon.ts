@@ -46,8 +46,8 @@ export function happyPathTest(runtime: Runtime): void {
     it("Provision Resource: workflow bot", async function () {
       const cmd =
         runtime === Runtime.Node
-          ? `teamsapp new --interactive false --app-name ${appName} --capability workflow-bot --programming-language typescript`
-          : `teamsapp new --interactive false --runtime ${runtime} --app-name ${appName} --capability workflow-bot`;
+          ? `atk new --interactive false --app-name ${appName} --capability workflow-bot --programming-language typescript`
+          : `atk new --interactive false --runtime ${runtime} --app-name ${appName} --capability workflow-bot`;
       await execAsync(cmd, {
         cwd: testFolder,
         env: env,
@@ -74,7 +74,7 @@ export function happyPathTest(runtime: Runtime): void {
       }
 
       // deploy
-      await execAsyncWithRetry(`teamsapp deploy`, {
+      await execAsyncWithRetry(`atk deploy`, {
         cwd: projectPath,
         env: env,
         timeout: 0,
@@ -93,14 +93,14 @@ export function happyPathTest(runtime: Runtime): void {
       }
 
       // test (validate)
-      await execAsyncWithRetry(`teamsapp validate --env ${envName}`, {
+      await execAsyncWithRetry(`atk validate --env ${envName}`, {
         cwd: projectPath,
         env: env,
         timeout: 0,
       });
 
       // package
-      await execAsyncWithRetry(`teamsapp package --env ${envName}`, {
+      await execAsyncWithRetry(`atk package --env ${envName}`, {
         cwd: projectPath,
         env: env,
         timeout: 0,

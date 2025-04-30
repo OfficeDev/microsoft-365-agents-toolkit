@@ -71,7 +71,7 @@
                 "Attach to Frontend (Edge)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "all",
                 "order": 1
@@ -84,7 +84,7 @@
                 "Attach to Frontend (Chrome)",
                 "Attach to Local Service"
             ],
-            "preLaunchTask": "Start Teams App Locally",
+            "preLaunchTask": "Start App Locally",
             "presentation": {
                 "group": "all",
                 "order": 2

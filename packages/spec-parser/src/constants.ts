@@ -28,6 +28,8 @@ export class ConstantString {
   static readonly ConvertSwaggerToOpenAPI =
     "The Swagger 2.0 file has been converted to OpenAPI 3.0.";
 
+  static readonly OpenAPI31ConvertTo30 = "OpenAPI 3.1 document has been converted to OpenAPI 3.0.";
+
   static readonly SwaggerNotSupported =
     "Swagger 2.0 is not supported. Please convert to OpenAPI 3.0 manually before proceeding.";
 

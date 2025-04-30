@@ -6,7 +6,7 @@
  */
 import * as path from "path";
 import { VSBrowser } from "vscode-extension-tester";
-import { Timeout, ValidationContent } from "../../utils/constants";
+import { Lang, Timeout, ValidationContent } from "../../utils/constants";
 import {
   RemoteDebugTestContext,
   setSkuNameToB1,
@@ -66,7 +66,7 @@ describe("Remote debug Tests", function () {
     async function () {
       //create tab project
       const driver = VSBrowser.instance.driver;
-      await createNewProject("tabnsso", appName, { lang: "TypeScript" });
+      await createNewProject("tabnsso", appName, { lang: Lang.TS });
       await setSkuNameToB1(projectPath);
       await driver.sleep(Timeout.shortTimeWait);
       await provisionProject(appName, projectPath);

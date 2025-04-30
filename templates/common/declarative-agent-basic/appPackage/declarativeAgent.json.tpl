@@ -7,9 +7,26 @@
     "version": "v1.4",
     {{/EmbeddedKnowledgeEnabled}}
     {{#SensitivityLabelEnabled}}
-    "sensitivity_label": "",
+    "sensitivity_label": {
+        "id": ""
+    },
     {{/SensitivityLabelEnabled}}
     "name": "{{appName}}",
-    "description": "Declarative agent created with Teams Toolkit",
+    "description": "Declarative agent created with Microsoft 365 Agents Toolkit",
+    {{^CopilotConnector}}
     "instructions": "$[file('instruction.txt')]"
+    {{/CopilotConnector}}
+    {{#CopilotConnector}}
+    "instructions": "$[file('instruction.txt')]",
+    "capabilities": [
+        {
+            "name": "GraphConnectors",
+            "connections": [
+                {
+                    "connection_id": "${{CONNECTOR_ID}}"
+                }
+            ]
+        }
+    ]
+    {{/CopilotConnector}}
 }

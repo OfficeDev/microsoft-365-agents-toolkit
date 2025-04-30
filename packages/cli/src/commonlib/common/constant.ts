@@ -8,6 +8,7 @@ export const env = {
   portalUrl: "https://portal.azure.com",
   publishingProfileUrl: "https://go.microsoft.com/fwlink/?LinkId=254432",
   managementEndpointUrl: "https://management.core.windows.net",
+  managementEndpointDefaultScope: "https://management.core.windows.net/.default",
   resourceManagerEndpointUrl: "https://management.azure.com/",
   sqlManagementEndpointUrl: "https://management.core.windows.net:8443/",
   sqlServerHostnameSuffix: ".database.windows.net",

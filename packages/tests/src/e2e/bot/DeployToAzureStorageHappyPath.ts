@@ -131,7 +131,7 @@ output TAB_DOMAIN string = storage.properties.primaryEndpoints.web`,
     console.log(`[Successfully] provision for ${projectPath}`);
 
     // deploy
-    const cmdStr = "teamsapp deploy";
+    const cmdStr = "atk deploy";
     await execAsyncWithRetry(cmdStr, {
       cwd: projectPath,
       env: env,

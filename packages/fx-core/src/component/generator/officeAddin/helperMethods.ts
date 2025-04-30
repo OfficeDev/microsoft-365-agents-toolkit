@@ -4,7 +4,7 @@
 /**
  * @author darrmill@microsoft.com, yefuwang@microsoft.com
  */
-import { FxError, ManifestUtil, Result, devPreview, err, ok } from "@microsoft/teamsfx-api";
+import { DevPreviewSchema, FxError, ManifestUtil, Result, err, ok } from "@microsoft/teamsfx-api";
 import fse from "fs-extra";
 import * as path from "path";
 import { AccessGithubError, ReadFileError, WriteFileError } from "../../../error/common";
@@ -21,18 +21,14 @@ export class HelperMethods {
 
   static async updateManifest(projectRoot: string, addinManifestPath: string): Promise<void> {
     // Read add-in manifest file
-    const addinManifest: devPreview.DevPreviewSchema = await ManifestUtil.loadFromPath(
-      addinManifestPath
-    );
+    const addinManifest = (await ManifestUtil.loadFromPath(addinManifestPath)) as DevPreviewSchema;
 
     // Open project manifest file
     const manifestTemplatePath = manifestUtils.getTeamsAppManifestPath(projectRoot);
     if (!(await fse.pathExists(manifestTemplatePath))) {
       return;
     }
-    const manifest: devPreview.DevPreviewSchema = await ManifestUtil.loadFromPath(
-      manifestTemplatePath
-    );
+    const manifest = (await ManifestUtil.loadFromPath(manifestTemplatePath)) as DevPreviewSchema;
 
     // Update project manifest
     manifest.extensions = addinManifest.extensions;
