@@ -114,7 +114,8 @@ jobs:
           USERS=(test14 test15 test16 test17)
 
           for user in "${USERS[@]}"; do
-            export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
+          export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
+          echo "$M365_ACCOUNT_NAME:0:6"
             npm run test:e2e:clean
           done
 
@@ -363,6 +364,7 @@ jobs:
 
           for user in "${USERS[@]}"; do
             export M365_ACCOUNT_NAME=${user}@xxbdw.onmicrosoft.com
+            echo "$M365_ACCOUNT_NAME:0:6"
             npm run test:e2e:clean
           done
 
