@@ -931,7 +931,7 @@ export function showAadResourceLink(
     ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
       const userSelected = result.isOk() ? result.value : undefined;
       if (userSelected === aadTitle) {
-        ctx.ui?.openUrl(aadUrl);
+        openUrl(ctx, aadUrl);
       }
     });
     ctx.logProvider.info(
@@ -939,6 +939,10 @@ export function showAadResourceLink(
     );
   }
   return;
+}
+
+export function openUrl(ctx: DriverContext, url: string): void {
+  ctx.ui?.openUrl(url);
 }
 
 interface BotTroubleShootMessage {

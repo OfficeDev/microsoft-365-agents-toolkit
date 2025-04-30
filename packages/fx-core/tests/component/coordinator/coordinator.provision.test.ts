@@ -39,7 +39,7 @@ import { UserCancelError } from "../../../src/error/common";
 import { MockTools, randomAppName } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
 import mockedEnv, { RestoreFn } from "mocked-env";
-import { showAadResourceLink } from "../../../src/component/coordinator";
+import { openUrl, showAadResourceLink } from "../../../src/component/coordinator";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -1741,12 +1741,19 @@ describe("coordinator provision", () => {
     } as ProjectModel;
     const ctx = tools as unknown as DriverContext;
     const stubShowMessage = sandbox.stub(tools.ui, "showMessage");
-
-    stubShowMessage.onFirstCall().resolves(ok("View provisioned Entra ID"));
+    stubShowMessage.onFirstCall().resolves(err("error" as any));
     stubShowMessage.onSecondCall().resolves(ok("false title"));
-    stubShowMessage.onThirdCall().resolves(err("error" as any));
+    stubShowMessage.onThirdCall().resolves(ok("View provisioned Entra ID"));
     showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
     showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
     showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+  });
+
+  it("provision openUrl", async () => {
+    const ctx = tools as unknown as DriverContext;
+    const ui = ctx.ui;
+    ctx.ui = undefined;
+    openUrl(ctx, "test-url");
+    ctx.ui = ui;
   });
 });
