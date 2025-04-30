@@ -926,7 +926,7 @@ export function showAadResourceLink(
   ) {
     const aadUrl = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${clientId}/isMSAApp~/false`;
     const aadMsg =
-      "You need to grant tenant-wide admin consent to the application in Entra ID. Click this link button to provide the consent.";
+      "You need to grant tenant-wide admin consent to the application in Entra ID. Click the button to provide consent.";
     const aadTitle = "View provisioned Entra ID";
     ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
       const userSelected = result.isOk() ? result.value : undefined;

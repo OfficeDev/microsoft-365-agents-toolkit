@@ -8,6 +8,7 @@ import * as sinon from "sinon";
 
 import {
   err,
+  FxError,
   Inputs,
   IProgressHandler,
   ok,
@@ -1721,6 +1722,31 @@ describe("coordinator provision", () => {
     mockProjectModel.aadPermission?.graphPermission.roles.push(
       "ExternalConnection.ReadWrite.OwnedBy"
     );
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    mockProjectModel.aadPermission = undefined;
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+  });
+
+  it("provision showAadResourceLink", async () => {
+    const mockProjectModel = {
+      aadPermission: {
+        graphPermission: {
+          hasGraphPermission: true,
+          hasRole: true,
+          hasAdminScope: true,
+          scopes: ["scope1", "scope2"],
+          roles: ["ExternalConnection.ReadWrite.OwnedBy"],
+        },
+      },
+    } as ProjectModel;
+    const ctx = tools as unknown as DriverContext;
+    const stubShowMessage = sandbox.stub(tools.ui, "showMessage");
+
+    stubShowMessage.onFirstCall().resolves(ok("View provisioned Entra ID"));
+    stubShowMessage.onSecondCall().resolves(ok("false title"));
+    stubShowMessage.onThirdCall().resolves(err("error" as any));
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
     showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
   });
 });
