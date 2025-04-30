@@ -34,10 +34,7 @@ async function main() {
   const teamsAppList = await cleanService.listTeamsApp(teamsUserId);
   if (teamsAppList) {
     for (const app of teamsAppList) {
-      if (
-        app?.teamsAppDefinition?.displayName?.startsWith(name) &&
-        !app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)
-      ) {
+      if (!app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)) {
         console.log(app?.teamsAppDefinition?.displayName);
         try {
           await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
