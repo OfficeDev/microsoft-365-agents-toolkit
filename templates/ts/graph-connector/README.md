@@ -92,14 +92,14 @@ If you want to index content from private GitHub repositories, or you want to be
   - Copy the token
 - Fill env file in `env` folder for local environment
   - Open the `.env.local.user` and add there your GitHub token as the `SECRET_CONNECTOR_ACCESS_TOKEN` value
-- Uncomment the `CONNECTOR_ACCESS_TOKEN` line in the `teamsapp.local.yml` file 
+- Uncomment the `CONNECTOR_ACCESS_TOKEN` line in the `m365agents.local.yml` file 
 
 ### Deployment in Azure
 
 To deploy the connector in Azure, you need to follow these steps:
 
 - Fill env file in `env` folder for dev environment
-  - Open the `.env.dev`. Update the `CONNECTOR_REPOS` value
+  - Open the `.env.dev`. Update the `CONNECTOR_REPOS` value and the `CONNECTOR_ID` value
 - Go to Agents Toolkit `Lifecycle` tab and select **Provision**. This will create the Azure resources needed for the connector
 - Go to Agents Toolkit `Lifecycle` tab and select **Deploy**. This will deploy the Azure Function application with the connector code
 
