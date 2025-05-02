@@ -285,10 +285,13 @@
       </Item>
       <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          <Val><![CDATA[Add a connection ID for Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Graph 커넥터에 대한 연결 ID 추가]]></Val>
+            <Val><![CDATA[Copilot 커넥터에 대한 연결 ID 추가]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -348,10 +351,13 @@
       </Item>
       <Item ItemId=";core.GCList.insufficientPermission" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To list graph connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
+          <Val><![CDATA[To list Copilot Connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 커넥터를 나열하려면 조직의 Microsoft 365 테넌트 관리자 권한이 필요합니다.]]></Val>
+            <Val><![CDATA[Copilot 커넥터를 나열하려면 조직의 Microsoft 365 테넌트 관리자 권한이 필요합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[To list graph connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -366,31 +372,37 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List all existing Graph Connectors]]></Val>
+          <Val><![CDATA[List all existing Copilot Connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[모든 기존 Graph 커넥터 나열]]></Val>
+            <Val><![CDATA[모든 기존 Copilot 커넥터 나열]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[List all existing Graph Connectors]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
+          <Val><![CDATA[Select one or more Copilot Connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[하나 이상의 Graph 커넥터를 기능 원본으로 선택]]></Val>
+            <Val><![CDATA[기능 원본으로 하나 이상의 Copilot 커넥터 선택]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select one or more Graph Connectors as knowledge source]]></Val>
+            <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCNameQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a name for Graph Connector]]></Val>
+          <Val><![CDATA[Create a name for Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 커넥터의 이름 만들기]]></Val>
+            <Val><![CDATA[Copilot 커넥터의 이름 만들기]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a name for Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -405,46 +417,61 @@
       </Item>
       <Item ItemId=";core.GCSelectOptions.inputOption.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a Graph Connector Connection ID manually]]></Val>
+          <Val><![CDATA[Enter a Copilot Connector Connection ID manually]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[수동으로 Graph 커넥터 연결 ID 입력]]></Val>
+            <Val><![CDATA[Copilot 커넥터 연결 ID를 수동으로 입력]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter a Graph Connector Connection ID manually]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.inputOption.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a Graph Connector Connection ID]]></Val>
+          <Val><![CDATA[Enter a Copilot Connector Connection ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Graph 커넥터 연결 ID 입력]]></Val>
+            <Val><![CDATA[Copilot 커넥터 연결 ID 입력]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter a Graph Connector Connection ID]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.listOption.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List all existing Graph Connectors]]></Val>
+          <Val><![CDATA[List all existing Copilot Connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[모든 기존 Graph 커넥터 나열]]></Val>
+            <Val><![CDATA[모든 기존 Copilot 커넥터 나열]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[List all existing Graph Connectors]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.listOption.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select existing Graph Connectors]]></Val>
+          <Val><![CDATA[Select existing Copilot Connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[기존 Graph 커넥터 선택]]></Val>
+            <Val><![CDATA[기존 Copilot 커넥터 선택]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select existing Graph Connectors]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Graph Connector Content]]></Val>
+          <Val><![CDATA[Copilot Connector Content]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 커넥터 콘텐츠]]></Val>
+            <Val><![CDATA[Copilot 커넥터 콘텐츠]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Graph Connector Content]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -598,27 +625,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.ProgrammingLanguageQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a programming language]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[프로그래밍 언어 선택]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select a programming language.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.ProgrammingLanguageQuestion.placeholder.spfx" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx is currently supporting TypeScript only.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[SPFx는 현재 TypeScript만 지원합니다.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.ProgrammingLanguageQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Programming Language]]></Val>
@@ -756,24 +762,6 @@
           <Val><![CDATA[Select an environment]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[환경 선택]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.RuntimeOptionDotNet.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Free. Cross-platform. Open Source.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[플랫폼 간 무료 오픈 소스]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.RuntimeOptionNodeJS.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[A fast JavaScript server runtime]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[빠른 JavaScript 서버 런타임]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2157,10 +2145,13 @@
       </Item>
       <Item ItemId=";core.common.removeShareAccess.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          <Val><![CDATA[Shared app access removed from the users: %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[사용자에 대한 공유 앱 액세스가 제거됨: %s.]]></Val>
+            <Val><![CDATA[사용자로부터 공유 앱 액세스가 제거됨: %s.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Shared app access removed for the users: %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2622,19 +2613,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Graph 커넥터를 사용하여 선언적 에이전트 만들기]]></Val>
+            <Val><![CDATA[Copilot 커넥터를 사용하여 선언적 에이전트 만들기]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add a Graph Connector]]></Val>
+          <Val><![CDATA[Add a Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 커넥터 추가]]></Val>
+            <Val><![CDATA[Copilot 커넥터 추가]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Add a Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2757,22 +2754,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
+          <Val><![CDATA[Create a declarative agent with or without an action using TypeSpec for Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 작업 템플릿을 사용하여 TypeSpec으로 작업을 생성하세요.]]></Val>
+            <Val><![CDATA[Microsoft 365 Copilot용 TypeSpec을 사용하여 동작이 있거나 없는 선언적 에이전트 만들기]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create your action with TypeSpec]]></Val>
+            <Val><![CDATA[Create your action with TypeSpec using an API Action template.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.apiPlugin.typeSpec.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Start with TypeSpec]]></Val>
+          <Val><![CDATA[Start with TypeSpec for Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[TypeSpec으로 시작]]></Val>
+            <Val><![CDATA[Microsoft 365 Copilot용 TypeSpec 시작]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Start with TypeSpec]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -2911,6 +2911,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 에이전트 SDK로 구축되고 LLM에 연결되는 지능형 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Basic Custom Engine Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기본 사용자 지정 엔진 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.botMessageExtension.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create a message extension using Bot Framework]]></Val>
@@ -3033,37 +3051,49 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build an AI agent in Teams that can make decisions and perform actions based on LLM reasoning]]></Val>
+          <Val><![CDATA[Agent for Teams that can make decisions and perform actions based on LLM reasoning]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams에서 LLM 추론에 따라 의사 결정을 내리고 작업을 수행할 수 있는 AI 에이전트를 빌드하세요.]]></Val>
+            <Val><![CDATA[LLM 추론에 따라 결정을 내리고 작업을 수행할 수 있는 Teams용 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build an AI agent in Teams that can make decisions and perform actions based on LLM reasoning]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotAssistantOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[AI Agent]]></Val>
+          <Val><![CDATA[Agent with API]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[AI 에이전트]]></Val>
+            <Val><![CDATA[API를 사용하는 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[AI Agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build a basic AI chatbot in Teams]]></Val>
+          <Val><![CDATA[Agent that chats with users in Teams built with Teams AI Library and connects to LLMs]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams에서 기본 AI 챗봇 빌드]]></Val>
+            <Val><![CDATA[Teams AI 라이브러리를 사용하여 구축된 Teams에서 사용자와 채팅하고 LLM에 연결하는 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build a basic AI chatbot in Teams]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotBasicOption.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Basic AI Chatbot]]></Val>
+          <Val><![CDATA[Basic Agent for Teams]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[기본 AI 챗봇]]></Val>
+            <Val><![CDATA[Teams용 기본 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Basic AI Chatbot]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3159,10 +3189,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.customCopilotRagOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Expand AI bot's knowledge with your content to get accurate answers to your questions]]></Val>
+          <Val><![CDATA[Agent that uses your content and knowledge to accurately answer domain-specific questions]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[콘텐츠로 AI 봇의 지식을 확장하여 질문에 대한 정확한 답변을 얻으세요.]]></Val>
+            <Val><![CDATA[콘텐츠 및 지식을 사용하여 도메인별 질문에 정확하게 답변하는 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Expand AI bot's knowledge with your content to get accurate answers to your questions]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3222,19 +3255,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.knowledgeGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Search selected Microsoft Graph connectors for grounding information.]]></Val>
+          <Val><![CDATA[Search selected Microsoft Copilot connectors for grounding information.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[선택한 Microsoft Graph 커넥터에서 접지 정보를 검색합니다.]]></Val>
+            <Val><![CDATA[선택한 Microsoft Copilot 커넥터에서 기초 정보를 검색합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Search selected Microsoft Graph connectors for grounding information.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.knowledgeGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Graph Connector]]></Val>
+          <Val><![CDATA[Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 연결선]]></Val>
+            <Val><![CDATA[Copilot 커넥터]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3337,6 +3376,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A weather forecast agent that is built with Microsoft 365 Agents SDK and LangChain]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 에이전트 SDK 및 LangChain을 사용하여 구축된 날씨 예측 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.weatherAgentOption.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Weather Agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[날씨 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.createApiPlugin.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create an Action]]></Val>
@@ -3351,19 +3408,25 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createGraphConnector.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
+          <Val><![CDATA[Embed your organization data to make it searchable in Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[데이터 원본에 연결하기 위한 그래프 커넥터 만들기]]></Val>
+            <Val><![CDATA[Microsoft 365 Copilot에서 검색 가능하도록 조직 데이터를 포함합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a Graph Connector to connect to your data source]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Graph Connector]]></Val>
+          <Val><![CDATA[Copilot Connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[그래프 커넥터]]></Val>
+            <Val><![CDATA[Copilot 커넥터]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Graph Connector]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3631,6 +3694,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build an agent for Microsoft Teams easily using Teams AI Library]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams AI 라이브러리를 사용하여 Microsoft Teams용 에이전트를 쉽게 구축하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent for Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams용 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.agentForTeams.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Agent for Teams Using Teams AI Library]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams AI 라이브러리를 사용하는 Teams용 에이전트]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.bot.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Create instant, engaging chat experiences that automate tasks seamlessly]]></Val>
@@ -3709,36 +3799,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotPlugin.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create a plugin to extend Microsoft 365 Copilot using your APIs]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API를 사용하여 Microsoft 365 Copilot를 확장하는 플러그 인을 만듭니다.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a plugin to extend Copilot using your APIs]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.createProjectQuestion.projectType.copilotPlugin.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[API Plugin]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 플러그 인]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Plugin for Copilot]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.createGroup.aiAgent" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[AI Agent]]></Val>
+          <Val><![CDATA[Agents for Microsoft 365 Copilot]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[AI 에이전트]]></Val>
+            <Val><![CDATA[Microsoft 365 Copilot용 에이전트]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[AI Agent]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3753,10 +3822,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
+          <Val><![CDATA[Build intelligent agent where you manage orchestration and provide your own LLM]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[오케스트레이션을 관리하고 고유한 LLM을 제공하는 Teams AI 라이브러리를 사용하여 지능형 챗봇을 빌드합니다.]]></Val>
+            <Val><![CDATA[오케스트레이션을 관리하고 고유의 LLM을 제공하는 지능형 에이전트 구축]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Build intelligent chatbot with Teams AI Library where you manage orchestration and provide your own LLM.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3780,10 +3852,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.projectType.customCopilot.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[App Features Using Teams AI Library]]></Val>
+          <Val><![CDATA[App Features Using Microsoft 365 Agents SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Teams AI 라이브러리를 사용하는 앱 기능]]></Val>
+            <Val><![CDATA[Microsoft 365 에이전트 SDK를 사용하는 앱 기능]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[App Features Using Teams AI Library]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3894,6 +3969,33 @@
           <Val><![CDATA[App Features Using a Tab]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[탭을 사용하는 앱 기능]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create your own web page, chat bot or message extension for Microsoft Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Teams용 나만의 웹 페이지, 채팅 봇 또는 메시지 확장을 만드세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Teams App]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams 앱]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.projectType.teamsApp.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[App Features Used in Microsoft Teams]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft Teams에서 사용되는 앱 기능]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4126,15 +4228,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.getCreateNewOrFromSampleQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select an option]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[옵션 선택]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.getQuestionNewTargetEnvironmentName.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[New environment name]]></Val>
@@ -4192,27 +4285,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[프로젝트 환경 %s이(가) 이미 있습니다.]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.getRuntimeQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select a runtime]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[런타임 선택]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.getRuntimeQuestion.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit: select runtime for your app]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 Agents Toolkit: 앱의 런타임 선택]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit: select runtime for your app]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4471,18 +4543,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[GitHub 가이드 열기]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.option.inProduct" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Open an in-product guide]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[제품 내 가이드 열기]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Open a in-product guide]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4774,6 +4834,105 @@
           <Prev Cat="Text">
             <Val><![CDATA[Workspace folder]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateApi.continue" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Regenerate]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[다시 생성]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regeneratePlugin.success" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Action "%s" updated successfully. View plugin manifest in "%s".]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[작업 "%s"이(가) 업데이트되었습니다. "%s"에서 플러그 인 매니페스트를 봅니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regeneratePlugin.success.viewPluginManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[View action manifest]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[작업 매니페스트 보기]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regeneratePlugin.success.vsc" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Action "%s" updated successfully.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[작업 "%s"이(가) 업데이트되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.actionNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find actions in declarative agent manifest file: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[선언적 에이전트 매니페스트 파일에서 작업을 찾을 수 없습니다. %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.declarativeAgentPathNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find declarative agent path in manifest file: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[매니페스트 파일에서 선언적 에이전트 경로를 찾을 수 없습니다. %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.originalSpecNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find original OpenAPI description document. You can manually copy original OpenAPI description here %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[원래 OpenAPI 설명 문서를 찾을 수 없습니다. 여기 %s에서 원래 OpenAPI 설명을 수동으로 복사할 수 있습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.selectApiOperationForRegenerateTitle" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select operation(s) Copilot can interact with.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Copilot가 상호 작용할 수 있는 작업을 선택합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.selectOpenAPISpecFromPluginTitle" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select OpenAPI description document file.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 문서 파일을 선택합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.selectPluginManifestTitle" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select plugin manifest file.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[플러그 인 매니페스트 파일을 선택합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.regenerateQuestion.specNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to find OpenAPI description document in action manifest file: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[작업 매니페스트 파일에서 OpenAPI 설명 문서를 찾을 수 없습니다. %s.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8953,6 +9112,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.daSpecParser.InvalidSpecError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI specification file is not valid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 사양 파일이 잘못되었습니다. %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.dep.CopilotDisabledError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
@@ -9343,6 +9511,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.installApp.outsideSandbox" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to install app outside sandboxed Team. Please update TEAM_ID and CHANNEL_ID.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[샌드박스 팀 외부에 앱을 설치할 수 없습니다. TEAM_ID 및 CHANNEL_ID를 업데이트하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.kiota.FailedToCreateAdaptiveCard" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to generate adaptive card in plugin manifest. Manually update the manifest file, if required.]]></Val>
@@ -9357,6 +9534,15 @@
           <Val><![CDATA[Unable to generate plugin manifest file using Kiota. Error: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Kiota를 사용하여 플러그 인 매니페스트 파일을 생성할 수 없습니다. 오류: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.kiotaClient.EmptyResult" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Get empty result when parser OpenAPI description file.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 설명 파일을 구문 분석할 때 빈 결과를 가져옵니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
