@@ -30,6 +30,13 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "OpenAPI description document used for your API plugin.",
   },
   {
+    name: "openapi-spec-type",
+    type: "string",
+    description: "The type of the API spec.",
+    required: true,
+    choices: ["enter-url-or-open-local-file", "search-api"],
+  },
+  {
     name: "openapi-spec-location",
     type: "string",
     shortName: "a",
@@ -39,7 +46,17 @@ export const AddPluginOptions: CLICommandOption[] = [
     name: "api-operation",
     type: "array",
     shortName: "o",
-    description: "Select operation(s) Copilot can interact with.",
+    description: "Select operation(s) Teams can interact with.",
+  },
+  {
+    name: "search-openapi-spec-query",
+    type: "string",
+    description: "Search OpenAPI Description Document",
+  },
+  {
+    name: "select-openapi-spec",
+    type: "string",
+    description: "Select OpenAPI Description Document",
   },
   {
     name: "teams-manifest-file",

@@ -1,11 +1,11 @@
 import "@typespec/http";
 import "@typespec/openapi";
-import "@microsoft/typespec-copilot-skills";
+import "@microsoft/typespec-m365-copilot";
 import "./actions.tsp";
 
 using TypeSpec.Http;
-using TypespecCopilotSkills;
-using TypespecCopilotSkills.Agents;
+using TypeSpec.M365.Copilot.Agents;
+using TypeSpec.M365.Copilot.Actions;
 
 @agent(
   "{{appName}}",

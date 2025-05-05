@@ -1,8 +1,8 @@
 import "@typespec/http";
-import "@microsoft/typespec-copilot-skills";
+import "@microsoft/typespec-m365-copilot";
 
 using TypeSpec.Http;
-using TypespecCopilotSkills;
+using TypeSpec.M365.Copilot.Actions;
 
 @service
 @server(GitHubAPI.SERVER_URL)
