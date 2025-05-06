@@ -49,6 +49,7 @@ export function listAllCapabilities(): OptionItem[] {
   return [
     DACapabilityOptions.declarativeAgent(),
     CustomEngineAgentOptions.basicCustomEngineAgent(),
+    CustomEngineAgentOptions.weatherAgent(),
     CustomCopilotCapabilityOptions.basicChatbot(),
     CustomCopilotCapabilityOptions.customCopilotRag(),
     CustomCopilotCapabilityOptions.aiAgent(),

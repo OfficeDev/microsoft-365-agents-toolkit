@@ -347,7 +347,7 @@
   "core.createProjectQuestion.projectType.declarativeAgent.detail": "Create your own agent by declaring instructions, actions, & knowledge to suit your needs.",
   "core.createProjectQuestion.title": "New Project",
   "core.createProjectQuestion.capability.botMessageExtension.label": "Start with a Bot",
-  "core.createProjectQuestion.capability.botMessageExtension.detail": "Create a message extension using Bot Framework",
+  "core.createProjectQuestion.capability.botMessageExtension.detail": "Create a message extension using Agents SDK",
   "core.createProjectQuestion.capability.copilotPluginNewApiOption.label": "Start with a New API",
   "core.createProjectQuestion.capability.copilotPluginNewApiOption.detail": "Create an action with a new API from Azure Functions",
   "core.createProjectQuestion.capability.messageExtensionNewApiOption.detail": "Create a message extension with a new API from Azure Functions",
