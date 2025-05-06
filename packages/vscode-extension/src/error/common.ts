@@ -8,6 +8,7 @@ import {
   featureFlagManager,
   isSandboxedEnabled,
   isUserCancelError,
+  isTestToolEnabledProject,
 } from "@microsoft/teamsfx-core";
 import { sleep } from "@microsoft/vscode-ui";
 import * as util from "util";
@@ -34,7 +35,6 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { anonymizeFilePaths } from "../utils/fileSystemUtils";
 import { localize } from "../utils/localizeUtils";
-import { isTestToolEnabledProject } from "../utils/projectChecker";
 import { ExtensionErrors, ExtensionSource } from "./error";
 
 export async function showError(e: UserError | SystemError) {
