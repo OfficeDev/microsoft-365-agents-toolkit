@@ -12,7 +12,7 @@ const expressApp = express();
 expressApp.use(express.json());
 
 const server = expressApp.listen(process.env.port || process.env.PORT || 3978, () => {
-  console.log(`\nBot Started, ${expressApp.name} listening to`, server.address());
+  console.log(`\nAgent started, ${expressApp.name} listening to`, server.address());
 });
 
 // Listen for incoming requests.

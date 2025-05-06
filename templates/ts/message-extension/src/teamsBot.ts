@@ -1,20 +1,20 @@
-import { default as axios } from "axios";
-import * as querystring from "querystring";
 import { CardFactory, TurnContext } from "@microsoft/agents-hosting";
 import {
-  TeamsActivityHandler,
+  AppBasedLinkQuery,
   MessagingExtensionAction,
+  MessagingExtensionActionResponse,
   MessagingExtensionQuery,
   MessagingExtensionResponse,
-  MessagingExtensionActionResponse,
-  AppBasedLinkQuery,
+  TeamsActivityHandler,
 } from "@microsoft/agents-hosting-teams";
 import * as ACData from "adaptivecards-templating";
-import searchResultCard from "./adaptiveCards/searchResultCard.json";
-import linkUnfurlingCard from "./adaptiveCards/linkUnfurlingCard.json";
+import { default as axios } from "axios";
+import * as querystring from "querystring";
 import actionCard from "./adaptiveCards/actionCard.json";
+import linkUnfurlingCard from "./adaptiveCards/linkUnfurlingCard.json";
+import searchResultCard from "./adaptiveCards/searchResultCard.json";
 
-export class AgentApp extends TeamsActivityHandler {
+export class TeamsBot extends TeamsActivityHandler {
   // Action.
   public async handleTeamsMessagingExtensionSubmitAction(
     context: TurnContext,

@@ -8,7 +8,7 @@ import {
 } from "@microsoft/agents-hosting";
 import express, { Response } from "express";
 
-import { agentApp } from "./agent";
+import { teamsBot } from "./teamsBot";
 
 // Create authentication configuration
 const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
@@ -50,7 +50,7 @@ server.use(authorizeJWT(authConfig));
 // Listen for incoming requests.
 server.post("/api/messages", async (req: Request, res: Response) => {
   await adapter.process(req, res, async (context) => {
-    await agentApp.run(context);
+    await teamsBot.run(context);
   });
 });
 
@@ -59,7 +59,7 @@ const port = process.env.PORT || 3978;
 server
   .listen(port, () => {
     console.log(
-      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+      `Bot Started, listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
     );
   })
   .on("error", (err) => {

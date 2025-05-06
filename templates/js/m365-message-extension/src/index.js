@@ -46,7 +46,7 @@ const port = process.env.PORT || 3978;
 server
   .listen(port, () => {
     console.log(
-      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+      `Bot Started, listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
     );
   })
   .on("error", (err) => {

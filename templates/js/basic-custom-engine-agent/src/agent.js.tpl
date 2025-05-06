@@ -17,7 +17,7 @@ const client = new AzureOpenAI({
   deployment: config.azureOpenAIDeploymentName,
 });
 {{/useAzureOpenAI}}
-const systemPrompt = "You are an AI bot that can chat with users.";
+const systemPrompt = "You are an AI agent that can chat with users.";
 
 // Define storage and application
 const storage = new MemoryStorage();

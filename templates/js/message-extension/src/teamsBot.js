@@ -7,7 +7,7 @@ const searchResultCard = require("./adaptiveCards/searchResultCard.json");
 const actionCard = require("./adaptiveCards/actionCard.json");
 const linkUnfurlingCard = require("./adaptiveCards/linkUnfurlingCard.json");
 
-class Agent extends TeamsActivityHandler {
+class TeamsBot extends TeamsActivityHandler {
   // Action.
   handleTeamsMessagingExtensionSubmitAction(context, action) {
     // The user has chosen to create a card by choosing the 'Create Card' context menu command.
@@ -101,4 +101,4 @@ class Agent extends TeamsActivityHandler {
   }
 }
 
-module.exports.Agent = Agent;
+module.exports.TeamsBot = TeamsBot;
