@@ -4,8 +4,7 @@
 
 The Microsoft 365 Agents Toolkit, previously known as Teams Toolkit, can now helps developers create and deploy agents or apps for multiple Microsoft 365 platforms including Microsoft 365 Copilot, Microsoft Teams and Microsoft 365. It can significantly ease your development life by providing integrated [Microsoft 365](https://docs.microsoft.com/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant) identity, cloud storage access, data from [Microsoft Graph](https://docs.microsoft.com/graph/teams-concept-overview), and other services in [Azure](https://docs.microsoft.com/microsoftteams/platform/build-your-first-app/build-bot) with a "zero-configuration" approach.
 
-[This image need refresh, WIP]
-![TTK GIF](https://github.com/OfficeDev/TeamsFx/assets/11220663/fa963c9b-0957-4366-ab39-9ab03130e406)
+![ATK animation](https://github.com/user-attachments/assets/96e34da7-06a5-4632-9243-db823e9edb51)
 
 ## Extensive Templates Spectrum
 
