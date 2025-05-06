@@ -900,7 +900,7 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
           },
         ],
       },
-      // Copilot Connector
+      // Copilot connector
       {
         data: GCItemQuestion(),
         condition: {

@@ -44,7 +44,7 @@
             ]
         },
         {
-            "name": "Preview DA with dev Copilot Connector (Edge)",
+            "name": "Preview DA with dev Copilot connector (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&developerMode=Basic",
@@ -56,7 +56,7 @@
             "runtimeArgs": ["--remote-debugging-port=9222", "--no-first-run"]
         },
         {
-            "name": "Preview DA with dev Copilot Connector (Chrome)",
+            "name": "Preview DA with dev Copilot connector (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&developerMode=Basic",
@@ -74,7 +74,7 @@
     ],
     "compounds": [
         {
-            "name": "Debug Copilot Connector",
+            "name": "Debug Copilot connector",
             "configurations": ["Attach to Node Functions"],
             "preLaunchTask": "TTK",
             "presentation": {
@@ -85,7 +85,7 @@
         },
         {{#DeclarativeCopilot}}
         {
-            "name": "Preview DA with local Copilot Connector (Edge)",
+            "name": "Preview DA with local Copilot connector (Edge)",
             "configurations": ["Preview in local (Edge)"],
             "preLaunchTask": "Prepare DA",
             "presentation": {
@@ -95,7 +95,7 @@
             "stopAll": true
         },
         {
-            "name": "Preview DA with local Copilot Connector (Chrome)",
+            "name": "Preview DA with local Copilot connector (Chrome)",
             "configurations": ["Preview in local (Chrome)"],
             "preLaunchTask": "Prepare DA",
             "presentation": {

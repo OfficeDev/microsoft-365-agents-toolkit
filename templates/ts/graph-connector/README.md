@@ -1,4 +1,4 @@
-# Copilot Connector Template
+# Copilot connector Template
 
 ## Summary
 
