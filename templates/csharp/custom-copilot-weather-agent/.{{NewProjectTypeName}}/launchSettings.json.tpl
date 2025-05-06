@@ -35,5 +35,16 @@
       "launchUrl": "http://localhost:56150",
     },
 {{/enableTestToolByDefault}}
+    // Launch project within M365 Copilot
+    "Microsoft 365 Copilot (browser)": {
+      "commandName": "Project",
+      "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
+    },
+    // Launch project within M365 Copilot without prepare app dependencies
+    "Microsoft 365 Copilot (browser) (skip update app)": {
+      "commandName": "Project",
+      "environmentVariables": { "UPDATE_TEAMS_APP": "false" },
+      "launchUrl": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${{AGENT_HINT}}?auth=2"
+    },
   }
 }
