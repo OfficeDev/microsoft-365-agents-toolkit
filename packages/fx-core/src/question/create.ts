@@ -595,6 +595,9 @@ export function apiSpecTypeSelectQuestion(): SingleSelectQuestion {
         ),
       },
     ],
+    onDidSelection(itemOrId, inputs) {
+      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
+    },
   };
 }
 

@@ -125,7 +125,6 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
   return {
     data: apiSpecTypeSelectQuestion(),
     condition: (inputs: Inputs) => {
-      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
       return featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration);
     },
     children: [
