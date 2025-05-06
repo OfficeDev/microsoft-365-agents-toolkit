@@ -83,7 +83,7 @@
             "sample-hello-world-tab-outlook",
             "sample-bot-sso",
             "sample-remotedebug-sso-tab-via-apim-proxy",
-            "sample-graph-connector-bot",
+            "sample-copilot-connector-bot",
             "sample-localdebug-food-catalog",
             "sample-remotedebug-food-catalog"
         ]
@@ -96,7 +96,7 @@
         },
         "cases": [
             "sample-adaptive-card",
-            "sample-graph-connector",
+            "sample-copilot-connector",
             "sample-todo-list-sql",
             "sample-large-scale-notification",
             "sample-bot-sso-docker",

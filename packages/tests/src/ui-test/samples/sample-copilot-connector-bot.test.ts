@@ -14,7 +14,7 @@ import {
 import { validateBot } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 
-class GraphConnectorBotTestCase extends CaseFactory {
+class CopilotConnectorBotTestCase extends CaseFactory {
   override async onValidate(page: Page): Promise<void> {
     return await validateBot(page, {
       botCommand: "welcome",
@@ -29,8 +29,8 @@ class GraphConnectorBotTestCase extends CaseFactory {
   }
 }
 
-new GraphConnectorBotTestCase(
-  TemplateProject.GraphConnectorBot,
+new CopilotConnectorBotTestCase(
+  TemplateProject.CopilotConnectorBot,
   "v-ivanchen@microsoft.com",
   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
   {

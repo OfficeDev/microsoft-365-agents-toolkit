@@ -8,10 +8,10 @@
 import { TemplateProjectFolder } from "../../utils/constants";
 import { CaseFactory } from "./sampleCaseFactory";
 
-class GraphConnectorTestCase extends CaseFactory {}
+class CopilotConnectorTestCase extends CaseFactory {}
 
-new GraphConnectorTestCase(
-  TemplateProjectFolder.GraphConnector,
+new CopilotConnectorTestCase(
+  TemplateProjectFolder.CopilotConnector,
   15277460,
   "junhan@microsoft.com",
   ["tab", "aad"]

@@ -26,7 +26,7 @@ export const debugInitMap: Record<TemplateProject, () => Promise<void>> = {
   [TemplateProject.Dashboard]: async () => {
     await startDebugging();
   },
-  [TemplateProject.GraphConnector]: async () => {
+  [TemplateProject.CopilotConnector]: async () => {
     await startDebugging();
   },
   [TemplateProject.OutlookTab]: async () => {
@@ -83,7 +83,7 @@ export const debugInitMap: Record<TemplateProject, () => Promise<void>> = {
   [TemplateProject.ChefBot]: async () => {
     await startDebugging("Debug (Chrome)");
   },
-  [TemplateProject.GraphConnectorBot]: async () => {
+  [TemplateProject.CopilotConnectorBot]: async () => {
     await startDebugging();
   },
   [TemplateProject.SpfxProductivity]: async () => {
@@ -2510,7 +2510,7 @@ export async function validateContact(
   }
 }
 
-export async function validateGraphConnector(
+export async function validateCopilotConnector(
   page: Page,
   options?: { displayName?: string }
 ) {

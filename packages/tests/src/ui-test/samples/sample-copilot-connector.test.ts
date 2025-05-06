@@ -7,18 +7,20 @@
 
 import { Page } from "playwright";
 import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { validateGraphConnector } from "../../utils/playwrightOperation";
+import { validateCopilotConnector } from "../../utils/playwrightOperation";
 import { CaseFactory } from "./sampleCaseFactory";
 import { Env } from "../../utils/env";
 
-class GraphConnectorTestCase extends CaseFactory {
+class CopilotConnectorTestCase extends CaseFactory {
   override async onValidate(page: Page): Promise<void> {
-    return await validateGraphConnector(page, { displayName: Env.displayName });
+    return await validateCopilotConnector(page, {
+      displayName: Env.displayName,
+    });
   }
 }
 
-new GraphConnectorTestCase(
-  TemplateProject.GraphConnector,
+new CopilotConnectorTestCase(
+  TemplateProject.CopilotConnector,
   "v-ivanchen@microsoft.com",
   [
     // [BUG] warning error message block the frontend validation
