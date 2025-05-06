@@ -350,11 +350,6 @@
               }
             }
           },
-          "allowBotMessageDeleteByUser": {
-            "type": "boolean",
-            "default": false,
-            "description": "Optional Boolean property that enables users to delete messages sent by bot when set to true. The default value is false, ensuring bot messages cannot be deleted by users unless explicitly opted in."
-          },
           "needsChannelSelector": {
             "type": "boolean",
             "description": "This value describes whether or not the bot utilizes a user hint to add the bot to a specific channel.",
