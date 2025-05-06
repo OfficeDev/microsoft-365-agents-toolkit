@@ -39,6 +39,10 @@ export class ConfigManager {
       ConfigurationKey.EnableCEA,
       false
     ).toString();
+    process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableDAMetaOS,
+      false
+    ).toString();
   }
   loadLogLevel() {
     const logLevel = this.getConfiguration(ConfigurationKey.LogLevel, "Info") as string;

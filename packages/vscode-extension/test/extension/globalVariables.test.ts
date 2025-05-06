@@ -144,8 +144,20 @@ describe("Global Variables", () => {
       chai.expect(res).equals(false);
     });
 
-    it("MetaOS Addin Project: manifest ok", () => {
+    it("MetaOS Addin Project: manifest is undefined", () => {
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(undefined as any));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest is not metaOS", () => {
       sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok({} as any));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest is ok", () => {
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok({ extensions: {} } as any));
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
       chai.expect(res).equals(true);
     });

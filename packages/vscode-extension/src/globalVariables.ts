@@ -98,8 +98,13 @@ export function checkIsMetaOSAddinProject(directory: string): boolean {
     return false;
   }
 
-  if (manifestUtils.readAppManifestSync(directory).isOk()) {
-    return true;
+  const manifestResult = manifestUtils.readAppManifestSync(directory);
+  if (manifestResult.isOk()) {
+    if ((manifestResult.value as any)?.extensions) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }

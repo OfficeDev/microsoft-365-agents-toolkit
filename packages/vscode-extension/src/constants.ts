@@ -7,6 +7,7 @@ export enum ConfigurationKey {
   EnableMicrosoftKiota = "enableMicrosoftKiota",
   EnableMicrosoftKiotaString = "enableMicrosoftKiotaString",
   EnableCEA = "enableCustomEngineAgent",
+  EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
 }
 
 export enum EnableMicrosoftKiota {
