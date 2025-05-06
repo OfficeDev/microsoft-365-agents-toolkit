@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import axios from "axios";
 import { hooks } from "@feathersjs/hooks";
-import { ErrorContextMW } from "./globalVars";
+import axios from "axios";
 import { AccessGithubError } from "../error/common";
 import { FeatureFlagName } from "./featureFlags";
+import { ErrorContextMW } from "./globalVars";
 import { sendRequestWithTimeout } from "./requestUtils";
 
 const packageJson = require("../../package.json");
@@ -13,7 +13,7 @@ const packageJson = require("../../package.json");
 const SampleConfigOwner = "OfficeDev";
 const SampleConfigRepo = "TeamsFx-Samples";
 const SampleConfigFile = ".config/samples-config-v3.json";
-export const SampleConfigTag = "v2.5.0";
+export const SampleConfigTag = "v3.0.0";
 // prerelease tag is always using a branch.
 export const SampleConfigBranchForPrerelease = "main";
 
