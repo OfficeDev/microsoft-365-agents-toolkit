@@ -29,7 +29,7 @@ export interface AddKnowledgeInputs extends Inputs {
   oneDriveSharePointContent?: string;
   /** @description Copilot connector Content */
   "graph-connector-content"?: "listConnections" | "inputConnectionId";
-  /** @description Select one or more copilot Connectors as capability source */
+  /** @description Select one or more Copilot connectors as capability source */
   "graph-connector-list"?: string[];
   /** @description Connection ID */
   "graph-connector-input"?: string;

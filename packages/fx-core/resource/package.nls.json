@@ -549,7 +549,7 @@
   "core.GCSelectOptions.listOption.description": "List all existing Copilot connectors",
   "core.GCSelectOptions.inputOption.title": "Enter a Copilot connector Connection ID",
   "core.GCSelectOptions.inputOption.description": "Enter a Copilot connector Connection ID manually",
-  "core.GCListQuestion.title": "Select one or more copilot Connectors as capability source",
+  "core.GCListQuestion.title": "Select one or more Copilot connectors as capability source",
   "core.GCListQuestion.placeholder": "List all existing Copilot connectors",
   "core.GCInputQuestion.title": "Connection ID",
   "core.GCListQuestion.invalidMessage": "%s API(s) selected. You need to select at least one APIs.",

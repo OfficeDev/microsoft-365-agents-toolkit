@@ -61,7 +61,7 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
   {
     name: "graph-connector-list",
     type: "array",
-    description: "Select one or more copilot Connectors as capability source",
+    description: "Select one or more Copilot connectors as capability source",
     default: [],
   },
   {
