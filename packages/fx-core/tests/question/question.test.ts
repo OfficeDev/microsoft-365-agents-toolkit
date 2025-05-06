@@ -1299,6 +1299,11 @@ describe("addPluginQuestionNode", async () => {
       const thirdChild = children![2];
       assert.isObject(thirdChild);
 
+      const inputs = {} as any;
+
+      (thirdChild.data as SingleSelectQuestion)!.onDidSelection!("", inputs);
+      assert.equal(inputs[QuestionNames.ActionType], ActionStartOptions.apiSpec().id);
+
       assert.equal(
         children![children!.length - 1].data.name,
         QuestionNames.TeamsAppManifestFilePath
