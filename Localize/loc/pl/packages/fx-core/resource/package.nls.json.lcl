@@ -2386,6 +2386,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.spec31ConvertTo30" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The OpenAPI description document version is 3.1 and has been converted to OpenAPI 3.0 and saved in "%s".]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Wersja dokumentu opisu interfejsu OpenAPI to 3.1 i została przekonwertowana na wersję interfejsu OpenAPI 3.0 i zapisana w „%s”.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.copilotPlugin.scaffold.summary.warning.swaggerVersion" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The OpenAPI description document is on Swagger version 2.0. Mitigation: Not required. The content has been converted to OpenAPI 3.0 and saved in "%s".]]></Val>
@@ -7977,10 +7986,13 @@
       </Item>
       <Item ItemId=";driver.typeSpec.compile.reprovision" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+          <Val><![CDATA[File %s is updated. Rerun the provision process to account for these changes]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Plik %s został zaktualizowany. Uruchom ponownie aprowizację.]]></Val>
+            <Val><![CDATA[Plik %s został zaktualizowany. Uruchom ponownie proces aprowizacji, aby uwzględnić te zmiany]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[File %s is updated. Please run provision again.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
