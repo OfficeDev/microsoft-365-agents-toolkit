@@ -431,6 +431,49 @@ describe("generatePlugin", async () => {
 
   it("should throw error if kiota throw error", async () => {
     const setKiotaConfigStub = sandbox.stub().resolves();
+    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: false,
+      logs: [
+        {
+          level: 4,
+          message: "Error parsing OpenAPI spec",
+        },
+      ],
+    });
+
+    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
+      "@microsoft/kiota": {
+        setKiotaConfig: setKiotaConfigStub,
+        generatePlugin: generatePluginStub,
+        "@noCallThru": true,
+        ConsumerOperation: {
+          Edit: "edit",
+        },
+      },
+    });
+
+    try {
+      const res = await kiotageneratePlugin(
+        "specPath",
+        "outputPath",
+        "pluginName",
+        "workingDirectory"
+      );
+    } catch (error) {
+      assert.equal(
+        error.message,
+        "Unable to generate plugin manifest file using Kiota. Error: Error parsing OpenAPI spec"
+      );
+      assert.equal(error.source, "kiota");
+    }
+
+    assert.isTrue(generatePluginStub.calledOnce);
+  });
+
+  it("should throw error if kiota throw error", async () => {
+    const setKiotaConfigStub = sandbox.stub().resolves();
     const generatePluginStub = sandbox
       .stub(kiota, "generatePlugin")
       .throws(new Error("mocked error"));
