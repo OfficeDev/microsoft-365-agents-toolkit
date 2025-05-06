@@ -115,7 +115,7 @@ export async function kiotageneratePlugin(
 
     if (!result.isSuccess) {
       const errorMessage = result.logs
-        .filter((log) => log.level >= 4)
+        .filter((log) => log.level >= ERROR_LOG_LEVEL)
         .map((log) => log.message)
         .join(";");
       throw new Error(errorMessage);
