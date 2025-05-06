@@ -34,6 +34,7 @@ import {
   TabCapabilityOptions,
 } from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 
 export function teamsAppProjectNode(platform: Platform): IQTreeNode {
   return {
@@ -125,7 +126,7 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
     data: apiSpecTypeSelectQuestion(),
     condition: (inputs: Inputs) => {
       inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
-      return true;
+      return featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration);
     },
     children: [
       {
@@ -136,7 +137,7 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
             condition: (inputs: Inputs) => {
               return !inputs[QuestionNames.ActionManifestPath];
             },
-            data: apiOperationQuestion(),
+            data: apiOperationQuestion(true, true),
           },
         ],
       },
@@ -151,7 +152,7 @@ export function inputOrSearchAPISpecNode(): IQTreeNode {
             condition: (inputs: Inputs) => {
               return !!inputs[QuestionNames.SelectOpenApiSpec];
             },
-            data: apiOperationQuestion(),
+            data: apiOperationQuestion(true, true),
           },
         ],
       },

@@ -822,28 +822,27 @@ export function addPluginQuestionNode(): IQTreeNode {
           equals: ActionStartOptions.existingPlugin().id,
         },
       },
-      ...(featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
-        ? [inputOrSearchAPISpecNode()]
-        : [
-            {
-              data: apiSpecLocationQuestion(),
-              condition: (inputs: Inputs) => {
-                return (
-                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-                );
-              },
-            },
-            {
-              data: apiOperationQuestion(true, true),
-              condition: (inputs: Inputs) => {
-                return (
-                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-                );
-              },
-            },
-          ]),
+      ...[inputOrSearchAPISpecNode()],
+      {
+        data: apiSpecLocationQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
+      {
+        data: apiOperationQuestion(true, true),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
       {
         data: selectTeamsAppManifestQuestion(),
       },

@@ -1412,6 +1412,8 @@ describe("addPluginQuestionNode", async () => {
       QuestionNames.ActionType,
       QuestionNames.PluginManifestFilePath,
       QuestionNames.PluginOpenApiSpecFilePath,
+      QuestionNames.ApiSpecLocation,
+      QuestionNames.ApiOperation,
       QuestionNames.TeamsAppManifestFilePath,
     ]);
   });
