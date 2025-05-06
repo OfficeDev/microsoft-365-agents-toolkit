@@ -28,8 +28,7 @@ Microsoft Teams platform provides [diverse extensible features](https://learn.mi
 
 ### Build for Office and Outlook.
 
-You can build your custom [Office Add-ins](https://learn.microsoft.com/en-us/office/dev/add-ins/overview/office-add-ins) that extend and interact with content in Excel, Word, PowerPoint, OneNote and Outlook. You only need to build one solution and it can run in Office arocsse all these apps.
-
+You can build your custom [Office Add-ins](https://learn.microsoft.com/en-us/office/dev/add-ins/overview/office-add-ins) that extend and interact with content in Excel, Word, PowerPoint, OneNote and Outlook. You only need to build one solution and it can run in Office across all these apps.
 ## Getting started
 
 Open Microsoft 365 Agents Toolkit to create a new agent/app and start coding!
