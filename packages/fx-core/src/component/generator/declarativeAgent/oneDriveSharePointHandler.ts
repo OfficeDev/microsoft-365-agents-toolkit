@@ -130,6 +130,10 @@ export async function getODSPItemDetailById(
   try {
     const url = itemId ? `/sites/${siteId}/items/${itemId}` : `/sites/${siteId}`;
     const itemRes = await graphClient.get(url);
+    if (!itemRes.data.name && itemRes.data.webUrl) {
+      const urlParts = itemRes.data.webUrl.split("/");
+      itemRes.data.name = decodeURIComponent(urlParts[urlParts.length - 1]);
+    }
     return ok([
       {
         id: itemRes.data.id,
