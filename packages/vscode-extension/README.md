@@ -2,7 +2,7 @@
 
 ## What is Microsoft 365 Agents Toolkit?
 
-The Microsoft 365 Agents Toolkit, an evolution of Teams Toolkit, is designed to help developers create and deploy agents or apps for multiple Microsoft 365 platforms including Microsoft 365 Copilot, Microsoft Teams and Microsoft 365. It can significantly ease your development life by providing integrated [Microsoft 365](https://docs.microsoft.com/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant) identity, cloud storage access, data from [Microsoft Graph](https://docs.microsoft.com/graph/teams-concept-overview), and other services in [Azure](https://docs.microsoft.com/microsoftteams/platform/build-your-first-app/build-bot) with a "zero-configuration" approach.
+The Microsoft 365 Agents Toolkit, [an evolution of Teams Toolkit](https://aka.ms/M365AgentsToolkit), is designed to help developers create and deploy agents or apps for multiple Microsoft 365 platforms including Microsoft 365 Copilot, Microsoft Teams and Microsoft 365. It can significantly ease your development life by providing integrated [Microsoft 365](https://docs.microsoft.com/microsoftteams/platform/concepts/build-and-test/prepare-your-o365-tenant) identity, cloud storage access, data from [Microsoft Graph](https://docs.microsoft.com/graph/teams-concept-overview), and other services in [Azure](https://docs.microsoft.com/microsoftteams/platform/build-your-first-app/build-bot) with a "zero-configuration" approach.
 
 ![ATK animation](https://github.com/user-attachments/assets/96e34da7-06a5-4632-9243-db823e9edb51)
 
@@ -21,7 +21,7 @@ You can bring your custom knowledge, skills, and process automation into Microso
 
 Microsoft Teams platform provides [diverse extensible features](https://learn.microsoft.com/en-us/microsoftteams/platform/overview-solution) for developers to customize for their own business scenarios. 
 
-[Teams Bot](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/overview) is a great feature that are extensively customized by a broad group of developers. You can create chat bots, notification bots, and various bots for different scenarios. And you can evolve Teams bots to [conversational agents for Teams](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/ai-ux) with the Teams AI library. Agents in Teams can understand and respond to user chat in natural language to handle QnA interactions or engage in commands/actions interacting with back-end services.
+[Teams Bot](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/overview) allows users to interact with your web service through text, interactive cards, and task modules. There are chat bots, notification bots, and various bots for different scenarios. And you can evolve Teams bots to [conversational agents for Teams](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/ai-ux) with the [Teams AI library](https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/teams-conversational-ai/teams-conversation-ai-overview?tabs=javascript%2Cjavascript1). Agents in Teams can understand and respond to user chat in natural language to handle QnA interactions or engage in commands/actions interacting with back-end services.
 [Teams Tabs](https://learn.microsoft.com/en-us/microsoftteams/platform/tabs/what-are-tabs?tabs=personal) are webpages embedded directly within Teams. They can be integrated as part of a channel inside a team, in group chats, or as personal apps designed for individual users. 
 
 [Teams Message extensions](https://learn.microsoft.com/en-us/microsoftteams/platform/messaging-extensions/what-are-messaging-extensions?tabs=desktop) allow users to interact with your web service directly from the Teams client. They support searching for information or triggering actions in external systems. The outcome can be delivered as a richly formatted card within the conversation.
@@ -77,7 +77,7 @@ Verify you have the right prerequisites for building apps and install some recom
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_azure.png"></td>
-        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to create the Azure resources when there is need. </td>
+        <td><h3>Azure</h3> The Microsoft 365 Agents Toolkit may require an Azure account and subscription to create the Azure resources. </td>
     </tr>
 </table>
 
