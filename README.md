@@ -16,7 +16,7 @@ Microsoft 365 Agents Toolkit provides support for the end-to-end development jou
 - Seamless integration with [Microsoft Agents SDK](https://learn.microsoft.com/en-us/microsoft-365/agents-sdk/agents-sdk-overview?tabs=csharp) to build self-hosted agents.
 - Seamless integration with [Teams AI Library](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/teams%20conversational%20ai/conversation-ai-quick-start?pivots=qs-javascript) to build intelligent chatbot in Microsoft Teams with ease.
 - Integrations with the tools, languages, and frameworks you know and love.
-- Scaffolds for getting started fast with the extensibility interfaces and common scenarios such as Copilot Agents, intelligent chat bot in multiple platforms.
+- Scaffolds for getting started fast with the extensibility interfaces and common scenarios such as Agents for Microsoft 365 Copilot, intelligent chat bot for multiple platforms.
 - Rapid iteration with full stack debugging, hot reload, secure tunneling and [Microsoft 365 Agents Playground](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/debug-your-teams-app-test-tool?tabs=vscode%2Cclijs).
 - Simplified SSO authentication.
 - Integrated support for hosting, data storage, and serverless functions.
