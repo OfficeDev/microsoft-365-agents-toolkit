@@ -42,13 +42,11 @@ provision:
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
       
-  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/CEAEnabled}}
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -68,7 +66,6 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  {{#CEAEnabled}}
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -78,7 +75,6 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-  {{/CEAEnabled}}
 
 # Triggered when 'teamsapp deploy' is executed
 deploy:
@@ -107,13 +103,11 @@ deploy:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/CEAEnabled}}
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:

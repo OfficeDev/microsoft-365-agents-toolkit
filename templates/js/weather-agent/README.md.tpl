@@ -88,8 +88,6 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
-{{#CEAEnabled}}
 
 ## Known issue
 - The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
-{{/CEAEnabled}}
