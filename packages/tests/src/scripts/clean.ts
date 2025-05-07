@@ -56,7 +56,13 @@ async function main() {
         !aad.displayName?.startsWith(excludePrefix)
       ) {
         console.log(aad.displayName);
-        await cleanService.deleteAad(aad.id!);
+        try {
+          await cleanService.deleteAad(aad.id!);
+        } catch (e: any) {
+          console.log(
+            `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
+          );
+        }
       }
     }
   }
