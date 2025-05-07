@@ -4,7 +4,6 @@ import * as vscode from "vscode";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
-import * as projectChecker from "../../src/utils/projectChecker";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import { notifyOutputTroubleshoot, showError } from "../../src/error/common";

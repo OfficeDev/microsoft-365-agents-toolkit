@@ -16,6 +16,7 @@ import {
   isWindows,
   openFolderInExplorer,
 } from "../../src/utils/commonUtils";
+import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 
 describe("CommonUtils", () => {
   afterEach(() => {
@@ -167,7 +168,8 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
       chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
@@ -175,7 +177,8 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(false);
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
@@ -183,7 +186,8 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in non-Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
@@ -191,7 +195,8 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in non-Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(false);
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
