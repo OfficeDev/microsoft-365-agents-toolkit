@@ -1,4 +1,4 @@
-# Overview of the Declarative Agent with TypeSpec template
+# Overview of the Declarative Agent with TypeSpec for Microsoft 365 template
 
 With the declarative agent, you can build a custom version of Copilot that can be used for specific scenarios, such as for specialized knowledge, implementing specific processes, or simply to save time by reusing a set of AI prompts. For example, a grocery shopping Copilot declarative agent can be used to create a grocery list based on a meal plan that you send to Copilot.
 
@@ -44,18 +44,19 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `m365agents.yml` | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 
-The following are TypeSpec template file. You need to customize this file to add your own agent.
+The following are TypeSpec template files. You need to customize these files to configure your agent.
 
-| File       | Contents                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| `main.tsp` | This is the root file of TSP files. Please manually update this file to add your own agent. |
+| File          | Contents                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| `main.tsp`    | This is the root file of TSP files. Please manually update this file to add your own agent. |
+| `actions.tsp` | This is the actions file containing API endpoints to extend your declarative agent.         |
 
 ## Extend the template
 
 - [Add conversation starters](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=3): Conversation starters are hints that are displayed to the user to demonstrate how they can get started using the declarative agent.
 - [Add web content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=4) for the ability to search web information.
 - [Add OneDrive and SharePoint content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=5) as grounding knowledge for the agent.
-- [Add Microsoft Copilot connectors content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=6) to ground agent with enterprise knowledge.
+- [Add Microsoft Copilot Connectors content](https://learn.microsoft.com/microsoft-365-copilot/extensibility/build-declarative-agents?tabs=ttk&tutorial-step=6) to ground agent with enterprise knowledge.
 
 ## Addition information and references
 
