@@ -15,7 +15,7 @@ import { getAppNamePrefix } from "../utils/nameUtil";
 import { delay } from "../utils/retryHandler";
 
 // const appStudioAppNamePrefixList: string[] = [Project.namePrefix, "vs"];
-const appNamePrefixList: string[] = [Project.namePrefix, "vs"];
+const appNamePrefixList: string[] = [Project.namePrefix, "vs", "fx"];
 // const aadNamePrefixList: string[] = [Project.namePrefix, "vs"];
 const rgNamePrefixList: string[] = [Project.namePrefix, "vs"];
 const adminMicrosoftEntraAppName = "delete-client";
