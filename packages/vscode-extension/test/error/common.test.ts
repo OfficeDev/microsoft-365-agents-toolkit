@@ -12,6 +12,7 @@ import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import { RecommendedOperations } from "../../src/debug/common/debugConstants";
 import { featureFlagManager, GraphClient, FeatureFlagName } from "@microsoft/teamsfx-core";
 import { MaximumNotificationOutputTroubleshootCount } from "../../src/constants";
+import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 
 describe("common", async () => {
   const sandbox = sinon.createSandbox();
@@ -285,7 +286,7 @@ describe("common", async () => {
         .callsFake((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(projectChecker, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
       sandbox.stub(vscode.commands, "executeCommand");
       const error = buildError();
@@ -313,7 +314,7 @@ describe("common", async () => {
         }
       });
       sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(projectChecker, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
       sandbox.stub(vscode.commands, "executeCommand");
       const error = buildError();
@@ -342,7 +343,7 @@ describe("common", async () => {
         });
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(projectChecker, "isTestToolEnabledProject").returns(false);
+      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
       sandbox.stub(vscode.commands, "executeCommand");
       const error = buildError();

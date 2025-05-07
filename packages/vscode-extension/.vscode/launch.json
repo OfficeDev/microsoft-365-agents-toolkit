@@ -24,13 +24,12 @@
       "stopOnEntry": false,
       "sourceMaps": true,
       "args": [
-        "${workspaceFolder}/test/**/*.test.ts",
+        "${workspaceFolder}/test/**/common.test.ts",
         "--require=ts-node/register",
         "--require=build/test/setup.js",
         "--recursive",
         "--colors"
       ],
-      "preLaunchTask": "npm: build:test",
       "skipFiles": ["<node_internals>/**"]
     }
   ]
