@@ -849,8 +849,8 @@ publish:
       const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
       const lens = new SharePointIdCodeLens(
         JSON.stringify({
-          site_id: "test-site-id",
-          // missing unique_id
+          // missing site_id
+          unique_id: "test-unique-id",
         }),
         range
       );
