@@ -42,14 +42,14 @@ describe("Debug Tests", function () {
   });
 
   it(
-    "[Typescript] Local Debug for Message Extension project",
+    "[Javascript] Local Debug for Message Extension project",
     {
-      testPlanCaseId: 24739646,
+      testPlanCaseId: 9729550,
       author: "v-annefu@microsoft.com",
     },
     async function () {
       await msgHappyPathTestForLocalDebug("msg", {
-        lang: Lang.TS,
+        lang: Lang.JS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
         localDebugTaskInfo: LocalDebugTaskInfo.AppListening,
@@ -59,14 +59,14 @@ describe("Debug Tests", function () {
   );
 
   it(
-    "[auto] [TypeScript] Remote debug for Message Extension",
+    "[auto] Remote debug for Message Extension project Tests",
     {
-      testPlanCaseId: 24739653,
+      testPlanCaseId: 24739650,
       author: "v-helzha@microsoft.com",
     },
     async function () {
       await msgHappyPathTestForRemoteDebug("msg", {
-        lang: Lang.TS,
+        lang: Lang.JS,
         successFlag: successFlag,
         validationFn: validationCreatedCard,
       });

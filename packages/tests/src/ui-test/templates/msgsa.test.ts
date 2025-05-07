@@ -4,7 +4,7 @@
 /**
  * @author Anne Fu <v-annefu@microsoft.com>
  */
-import { validateCreatedCard } from "../../utils/playwrightOperation";
+import { validateNpm } from "../../utils/playwrightOperation";
 import {
   Timeout,
   LocalDebugTaskLabel,
@@ -24,13 +24,16 @@ describe("Debug Tests", function () {
     successFlagForLocal: false,
     successFlagForRemote: false,
   };
-  async function validationCreatedCard(
+  async function validationNpm(
     page: Page,
     options: {
       appName: string;
     }
   ) {
-    await validateCreatedCard(page, options.appName);
+    await validateNpm(page, {
+      npmName: "axios",
+      appName: options.appName,
+    });
   }
   after(async function () {
     this.timeout(Timeout.finishTestCase);
@@ -42,33 +45,33 @@ describe("Debug Tests", function () {
   });
 
   it(
-    "[Typescript] Local Debug for Message Extension project",
+    "[Javascript] Local debug for Search-based message extension project",
     {
-      testPlanCaseId: 24739646,
-      author: "v-annefu@microsoft.com",
+      testPlanCaseId: 14483079,
+      author: "xiaofu.huang@microsoft.com",
     },
     async function () {
-      await msgHappyPathTestForLocalDebug("msg", {
-        lang: Lang.TS,
+      await msgHappyPathTestForLocalDebug("msgsa", {
+        lang: Lang.JS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
         localDebugTaskInfo: LocalDebugTaskInfo.AppListening,
-        validationFn: validationCreatedCard,
+        validationFn: validationNpm,
       });
     }
   );
 
   it(
-    "[auto] [TypeScript] Remote debug for Message Extension",
+    "[auto] Remote debug for Search-based message extension project Tests",
     {
-      testPlanCaseId: 24739653,
+      testPlanCaseId: 14907803,
       author: "v-helzha@microsoft.com",
     },
     async function () {
-      await msgHappyPathTestForRemoteDebug("msg", {
-        lang: Lang.TS,
+      await msgHappyPathTestForRemoteDebug("msgsa", {
+        lang: Lang.JS,
         successFlag: successFlag,
-        validationFn: validationCreatedCard,
+        validationFn: validationNpm,
       });
     }
   );

@@ -4,7 +4,7 @@
 /**
  * @author Anne Fu <v-annefu@microsoft.com>
  */
-import { validateCreatedCard } from "../../utils/playwrightOperation";
+import { validateUnfurlCard } from "../../utils/playwrightOperation";
 import {
   Timeout,
   LocalDebugTaskLabel,
@@ -24,13 +24,13 @@ describe("Debug Tests", function () {
     successFlagForLocal: false,
     successFlagForRemote: false,
   };
-  async function validationCreatedCard(
+  async function validationUnfurlCard(
     page: Page,
     options: {
       appName: string;
     }
   ) {
-    await validateCreatedCard(page, options.appName);
+    await validateUnfurlCard(page, options.appName);
   }
   after(async function () {
     this.timeout(Timeout.finishTestCase);
@@ -42,33 +42,33 @@ describe("Debug Tests", function () {
   });
 
   it(
-    "[Typescript] Local Debug for Message Extension project",
+    "[TS] Local Debug for Link Unfurling project",
     {
-      testPlanCaseId: 24739646,
+      testPlanCaseId: 24502241,
       author: "v-annefu@microsoft.com",
     },
     async function () {
-      await msgHappyPathTestForLocalDebug("msg", {
+      await msgHappyPathTestForLocalDebug("linkunfurl", {
         lang: Lang.TS,
         successFlag: successFlag,
         localDebugTaskLabel: LocalDebugTaskLabel.StartApplication,
         localDebugTaskInfo: LocalDebugTaskInfo.AppListening,
-        validationFn: validationCreatedCard,
+        validationFn: validationUnfurlCard,
       });
     }
   );
 
   it(
-    "[auto] [TypeScript] Remote debug for Message Extension",
+    "[TS] Remote for Link Unfurling project",
     {
-      testPlanCaseId: 24739653,
-      author: "v-helzha@microsoft.com",
+      testPlanCaseId: 24502296,
+      author: "v-annefu@microsoft.com",
     },
     async function () {
-      await msgHappyPathTestForRemoteDebug("msg", {
+      await msgHappyPathTestForRemoteDebug("linkunfurl", {
         lang: Lang.TS,
         successFlag: successFlag,
-        validationFn: validationCreatedCard,
+        validationFn: validationUnfurlCard,
       });
     }
   );
