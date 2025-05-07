@@ -1855,16 +1855,6 @@
           "default": "Info",
           "markdownDescription": "Set the log level of Microsoft 365 Agents Toolkit. The default value is `Info`. The available values are `Debug`, `Verbose`, `Info`. The definitions of the log levels are:\n\n`Debug`:\n\n- HTTP request and response details from Microsoft 365 Agents Toolkit to external services such as Azure, Microsoft 365, and Developer Portal.\n- Information related to Microsoft 365 and Azure accounts and access permissions.\n- Debugging information for each Microsoft 365 Agents Toolkit command execution, such as stack trace, ARM deployment information, etc.\n\n`Verbose`:\n\n- Progress information when executing lifecycle commands defined in the YAML file.\n- Execution details of each action that defined in the YAML file, including outcomes, result summaries, diagnostic information, etc.\n\n`Info`: Microsoft 365 Agents Toolkit command execution summaries.\n"
         },
-        "M365AgentsToolkit.enableMicrosoftKiotaString": {
-          "type": "string",
-          "enum": [
-            "Enabled",
-            "Undefined",
-            "Disabled"
-          ],
-          "default": "Undefined",
-          "markdownDescription": "Use Microsoft Kiota to generate an API Plugin from a local OpenAPI description or search for public APIs. If Microsoft Kiota isn't installed, install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-graph.kiota). After installing Kiota, reload this window to apply the changes."
-        },
         "M365AgentsToolkit.enableCustomEngineAgent": {
           "type": "boolean",
           "default": false,

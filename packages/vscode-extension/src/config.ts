@@ -29,12 +29,6 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
-    process.env[FeatureFlags.KiotaIntegration.name] = (
-      this.getConfiguration(
-        ConfigurationKey.EnableMicrosoftKiotaString,
-        EnableMicrosoftKiota.undefined
-      ).toString() === EnableMicrosoftKiota.enabled
-    ).toString();
     process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
       ConfigurationKey.EnableCEA,
       false
