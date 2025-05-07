@@ -51,7 +51,11 @@ import {
 import { DeclarativeAgentApiSpecOptionId, QuestionNames } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
-import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import {
+  featureFlagManager,
+  FeatureFlagName,
+  FeatureFlags,
+} from "../../../../src/common/featureFlags";
 import { pathUtils } from "../../../../src/component/utils/pathUtils";
 
 const tools = new MockTools();
@@ -705,6 +709,10 @@ describe("listPluginExistingOperations", () => {
     sandbox
       .stub(PluginManifestUtils.prototype, "getApiSpecFilePathFromTeamsManifest")
       .resolves(ok(["openapi.yaml"]));
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
 
     sandbox
       .stub(SpecParser.prototype, "validate")
@@ -1941,6 +1949,10 @@ describe("listOperations", async () => {
       errors: [],
       specHash: "xxx",
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -2223,6 +2235,10 @@ describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
         },
       ],
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
     const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
     await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);

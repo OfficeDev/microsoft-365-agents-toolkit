@@ -18,6 +18,7 @@ import {
 } from "../../../../src/component/driver/teamsApp/interfaces/ApiSecretRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -51,6 +52,10 @@ describe("UpdateApiKeyDriver", () => {
   });
 
   it("happy path: update all fields", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "updateApiKeyRegistration").resolves({
       description: "mockedDescription",
       targetUrlsShouldStartWith: ["https://test2"],
@@ -177,6 +182,10 @@ describe("UpdateApiKeyDriver", () => {
       applicableToApps: ApiSecretRegistrationAppType.AnyApp,
       targetAudience: ApiSecretRegistrationTargetAudience.AnyTenant,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -234,6 +243,10 @@ describe("UpdateApiKeyDriver", () => {
       applicableToApps: ApiSecretRegistrationAppType.AnyApp,
       targetAudience: ApiSecretRegistrationTargetAudience.AnyTenant,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "getApiKeyRegistrationById").resolves({
       id: "test",
       description: "test",
@@ -286,6 +299,10 @@ describe("UpdateApiKeyDriver", () => {
   });
 
   it("should throw error when user canel", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "getApiKeyRegistrationById").resolves({
       id: "mockedRegistrationId",
       description: "mockedDescription",

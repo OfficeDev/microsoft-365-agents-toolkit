@@ -40,6 +40,7 @@ import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/M
 import path from "path";
 import { SpecParser } from "@microsoft/m365-spec-parser";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../../../src/component/driver/teamsApp/constants";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
 
 describe("copilotGptManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -126,6 +127,10 @@ describe("copilotGptManifestUtils", () => {
 
     it("add plugin success - parse conversation_starters in open api spec file", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .withArgs(FeatureFlags.KiotaNPMIntegration)
+        .returns(false);
       sandbox.stub(fs, "readFile").resolves(JSON.stringify(gptManifest) as any);
       sandbox.stub(fs, "writeFile").resolves();
       sandbox.stub(fs, "readJson").resolves({
@@ -259,6 +264,10 @@ describe("copilotGptManifestUtils", () => {
           },
         ],
       } as any);
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .withArgs(FeatureFlags.KiotaNPMIntegration)
+        .returns(false);
 
       sandbox.stub(SpecParser.prototype, "list").resolves({
         APIs: [

@@ -19,6 +19,7 @@ import { UserCancelError } from "../../../../src/error";
 import * as visitor from "../../../../src/ui/visitor";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import { featureFlagManager, FeatureFlags } from "../../../../src/common/featureFlags";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -85,6 +86,10 @@ describe("CreateApiKeyDriver", () => {
       allAPICount: 1,
       validAPICount: 1,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
 
     const args: any = {
       name: "test",
@@ -177,6 +182,10 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: create registraionid, read domain from api spec, clientSecret and secondaryClientSecret from input", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
@@ -221,6 +230,10 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("happy path: create registraionid and read domain from env and secret from env", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "createApiKeyRegistration").resolves({
       id: "mockedRegistrationId",
       clientSecrets: [],
@@ -292,6 +305,10 @@ describe("CreateApiKeyDriver", () => {
 
   it("happy path: create registrationid, read applicableToApps and targetAudience from input", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(teamsDevPortalClient, "createApiKeyRegistration")
       .callsFake(async (token, apiKey) => {
         expect(apiKey.targetAudience).equals(ApiSecretRegistrationTargetAudience.HomeTenant);
@@ -349,6 +366,10 @@ describe("CreateApiKeyDriver", () => {
       targetUrlsShouldStartWith: [],
       applicableToApps: ApiSecretRegistrationAppType.SpecificApp,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -539,7 +560,10 @@ describe("CreateApiKeyDriver", () => {
       primaryClientSecret: "mockedSecret",
       apiSpecPath: "mockedPath",
     };
-
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -590,6 +614,10 @@ describe("CreateApiKeyDriver", () => {
       apiSpecPath: "mockedPath",
     };
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(SpecParser.prototype, "list")
       .resolves({ APIs: [], validAPICount: 0, allAPICount: 1 });
     const result = await createApiKeyDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -606,6 +634,10 @@ describe("CreateApiKeyDriver", () => {
       primaryClientSecret: "mockedSecret",
       apiSpecPath: "mockedPath",
     };
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -633,6 +665,10 @@ describe("CreateApiKeyDriver", () => {
       primaryClientSecret: "mockedSecret",
       apiSpecPath: "mockedPath",
     };
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -696,6 +732,10 @@ describe("CreateApiKeyDriver", () => {
       primaryClientSecret: "mockedSecret",
       apiSpecPath: "mockedPath",
     };
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -753,6 +793,10 @@ describe("CreateApiKeyDriver", () => {
   });
 
   it("should throw error if failed to create API key", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createApiKeyRegistration")
       .throws(new SystemError("source", "name", "message"));

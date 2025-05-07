@@ -98,7 +98,7 @@ export class FeatureFlags {
 
   static readonly KiotaNPMIntegration = {
     name: FeatureFlagName.KiotaNPMIntegration,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,

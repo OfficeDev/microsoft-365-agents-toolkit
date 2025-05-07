@@ -33,6 +33,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     name: "openapi-spec-type",
     type: "string",
     description: "The type of the API spec.",
+    required: true,
     choices: ["enter-url-or-open-local-file", "search-api"],
   },
   {

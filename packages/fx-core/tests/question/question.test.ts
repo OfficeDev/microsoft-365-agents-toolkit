@@ -1324,6 +1324,10 @@ describe("addPluginQuestionNode", async () => {
       manifestVersion: "",
       isApiMeAAD: false,
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1378,6 +1382,12 @@ describe("addPluginQuestionNode", async () => {
       manifestVersion: "",
       isApiMeAAD: false,
     });
+
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
