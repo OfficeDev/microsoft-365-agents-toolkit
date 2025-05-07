@@ -908,7 +908,7 @@ export class OneDriveSharePointCodeLensProvider implements vscode.CodeLensProvid
       const ids = SharePointIdCodeLens.extractSharePointIds(lens.ids);
 
       let title = `👉`;
-      if (ids.site_id && ids.unique_id) {
+      if (ids.site_id) {
         const details = await core.getODSPItemDetails(ids.site_id, ids.unique_id);
         if (details.isOk()) {
           title = `${title} ${details.value.name}`;

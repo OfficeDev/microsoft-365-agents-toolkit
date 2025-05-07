@@ -2600,7 +2600,10 @@ export class FxCore {
     ErrorContextMW({ component: "FxCore", stage: "getODSPItemDetails", reset: true }),
     ErrorHandlerMW,
   ])
-  async getODSPItemDetails(siteId: string, itemId: string): Promise<Result<ItemMetadata, FxError>> {
+  async getODSPItemDetails(
+    siteId: string,
+    itemId?: string
+  ): Promise<Result<ItemMetadata, FxError>> {
     const context = createContext();
     const res = await getODSPItemDetailById(context, siteId, itemId);
     if (res.isErr()) {
