@@ -55,5 +55,8 @@
   ],
   "single-sdk": [
     "packages/sdk"
+  ],
+  "mcp": [
+    "packages/mcp-server"
   ]
 }
