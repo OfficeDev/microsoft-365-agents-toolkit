@@ -12,7 +12,7 @@ No matter you are building custom extensions for Microsoft 365 Copilot, Microsof
 
 ### Build for Microsoft 365 Copilot
 
-You can bring your custom knowledge, skills, and process automation into Microsoft 365 Copilot for your specific needs. You can build your own agents for specific tasks, such as retrieving information, summarizing data, and taking actions like sending emails or updating records. There are two type of agents:
+You can bring your custom knowledge, skills, and process automation into Microsoft 365 Copilot for your specific needs. You can build your own agents for specific tasks, such as retrieving information, summarizing data, and taking actions like sending emails or updating records. There are two types of agents:
 
 [Declarative Agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-declarative-agent) are leveraging the models and AI services built in Copilot. You tailor Copilot by declaring instructions, actions and retrieving knowledge from specified APIs to meet your unique business needs.
 [Custom Engine Agents](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-custom-engine-agent) are specialized agent experiences built on any large language model (LLM) and tailored for a specific domain or workflows. You can build your custom orchestrators, foundation models, and you can customize your agent business logic.
