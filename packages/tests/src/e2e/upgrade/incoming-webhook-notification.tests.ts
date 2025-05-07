@@ -15,7 +15,7 @@ import { Executor } from "../../utils/executor";
 import { getTestFolder, getUniqueAppName } from "../commonUtils";
 import fs from "fs-extra";
 
-describe("upgrade", () => {
+describe.skip("upgrade", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);

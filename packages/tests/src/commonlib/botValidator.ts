@@ -46,7 +46,8 @@ enum BaseConfig {
   M365_CLIENT_ID = "M365_CLIENT_ID",
   M365_CLIENT_SECRET = "M365_CLIENT_SECRET",
   IDENTITY_ID = "IDENTITY_ID",
-  M365_TENANT_ID = "M365_TENANT_ID",
+  clientId = "clientId",
+  tenantId = "tenantId",
 }
 
 enum FunctionConfig {
@@ -133,11 +134,20 @@ export class BotValidator {
       token as string
     );
     chai.assert.exists(response);
-    chai.assert.equal(
-      response[BaseConfig.BOT_ID] ||
-        response["Connections__BotServiceConnection__Settings__ClientId"],
-      this.ctx[EnvConstants.BOT_ID] as string
-    );
+    if (response[BaseConfig.clientId]) {
+      chai.assert.equal(
+        response[BaseConfig.clientId] ||
+          response["Connections__BotServiceConnection__Settings__ClientId"],
+        this.ctx[EnvConstants.clientId] as string
+      );
+    } else {
+      chai.assert.equal(
+        response[BaseConfig.BOT_ID] ||
+          response["Connections__BotServiceConnection__Settings__ClientId"],
+        this.ctx[EnvConstants.BOT_ID] as string
+      );
+    }
+
     if (includeAAD) {
       // TODO
     }
