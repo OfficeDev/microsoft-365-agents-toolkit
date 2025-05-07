@@ -448,13 +448,14 @@ export class M365TitleCleanHelper extends CleanHelper {
       return Promise.resolve(true);
     }
     return new Promise<boolean>(async (resolve) => {
-      for (let i = 0; i < retryTimes; ++i) {
+      for (let i = 0; i < retryTimes; i++) {
         try {
           await this.axios!.delete(`/catalog/v1/users/acquisitions/${id}`);
           console.info(`[Success] delete the M365 Title id: ${id}`);
           return resolve(true);
         } catch {
-          await delay(2000);
+          console.log(`Retry to delete: ${id}`);
+          // await delay(2000);
         }
       }
       console.error(`[Failed] delete the M365 Title with id: ${id}`);
