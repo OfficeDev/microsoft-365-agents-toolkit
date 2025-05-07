@@ -138,7 +138,7 @@ export async function getODSPItemDetailById(
       {
         id: itemRes.data.id,
         name: itemRes.data.name,
-        url: itemRes.data.webUrl,
+        webUrl: itemRes.data.webUrl,
       },
     ]);
   } catch (error) {
