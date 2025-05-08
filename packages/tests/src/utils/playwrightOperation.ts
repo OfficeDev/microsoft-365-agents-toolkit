@@ -1727,7 +1727,11 @@ export async function validatePrompt(
     await copilotAgent?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
     console.log("start to verify prompt");
-    await page?.getByRole("combobox").fill(options?.prompt || "list repairs");
+    const contenteditableSpan = await page?.waitForSelector(
+      'span[aria-label="Message Copilot"]'
+    );
+    await contenteditableSpan?.click();
+    await contenteditableSpan.fill(options?.prompt || "list repairs");
     const sendButton = await page?.waitForSelector('button[aria-label="Send"]');
     await sendButton?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
