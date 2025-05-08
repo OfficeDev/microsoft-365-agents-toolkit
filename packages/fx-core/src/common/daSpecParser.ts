@@ -148,7 +148,7 @@ export async function generatePlugin(
       outputAPISpecPath = outputSpecWithoutExt + ".yaml";
     }
 
-    await fs.copyFile(apiSpecPath, outputAPISpecPath);
+    await fs.copy(apiSpecPath, outputAPISpecPath);
 
     const adaptiveCardsFolder = path.join(path.dirname(apiSpecPath), "adaptiveCards");
     const destAdaptiveCardsFolder = path.join(path.dirname(outputAIPluginPath), "adaptiveCards");
@@ -171,7 +171,7 @@ export async function generatePlugin(
       const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
 
       const outputOriginalSpecPath = outputAPISpecPath + ".original";
-      await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
+      await fs.copy(originalSpecFile, outputOriginalSpecPath);
       generatedPluginManifest.runtimes?.forEach((runtime) => {
         (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
       });
