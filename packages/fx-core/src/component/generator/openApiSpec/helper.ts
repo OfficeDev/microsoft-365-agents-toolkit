@@ -1672,7 +1672,7 @@ async function updatePromptSuggestions(specItems: SpecObject[], manifestPath: st
       {
         scopes: [
           "personal",
-          ...(featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled)
+          ...(featureFlagManager.getBooleanValue(FeatureFlags.LaunchAgentForTeamsEnabled)
             ? ["copilot" as const]
             : []),
         ],

@@ -105,7 +105,11 @@ export class Generator {
         : "",
       NewProjectTypeName: process.env.TEAMSFX_NEW_PROJECT_TYPE_NAME ?? "TeamsApp",
       NewProjectTypeExt: process.env.TEAMSFX_NEW_PROJECT_TYPE_EXTENSION ?? "ttkproj",
-      CEAEnabled: featureFlagManager.getBooleanValue(FeatureFlags.CEAEnabled) ? "true" : "",
+      LaunchAgentForTeamsEnabled: featureFlagManager.getBooleanValue(
+        FeatureFlags.LaunchAgentForTeamsEnabled
+      )
+        ? "true"
+        : "",
       EmbeddedKnowledgeEnabled: featureFlagManager.getBooleanValue(
         FeatureFlags.EmbeddedKnowledgeEnabled
       )

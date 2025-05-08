@@ -1236,24 +1236,24 @@ describe("render template", () => {
       );
     });
 
-    it("template variables when CEA enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "true" });
+    it("template variables when Launch Agent For Teams enabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "true" });
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.CEAEnabled, "true");
+      assert.equal(vars.LaunchAgentForTeamsEnabled, "true");
     });
 
-    it("template variables when CEA disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
+    it("template variables when Launch Agent For Teams disabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "false" });
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.CEAEnabled, "");
+      assert.equal(vars.LaunchAgentForTeamsEnabled, "");
     });
 
-    it("CEA works in M365 tag shows when CEA enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "true" });
+    it("LaunchAgentForTeams works in M365 tag shows when Launch Agent For Teams enabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "true" });
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
@@ -1265,8 +1265,8 @@ describe("render template", () => {
       assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
-    it("CEA works in M365 tag doesn't show when CEA disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_CEA_ENABLED: "false" });
+    it("LaunchAgentForTeams works in M365 tag doesn't show when Launch Agent For Teams disabled", async () => {
+      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "false" });
       assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
       assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
       assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);

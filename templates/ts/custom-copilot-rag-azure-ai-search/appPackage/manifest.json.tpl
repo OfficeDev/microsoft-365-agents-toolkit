@@ -1,14 +1,14 @@
 {
-    {{#CEAEnabled}} 
+    {{#LaunchAgentForTeamsEnabled}} 
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vdevPreview/MicrosoftTeams.schema.json",
     "manifestVersion": "devPreview",
     "version": "1.0.0",
-    {{/CEAEnabled}}
-    {{^CEAEnabled}} 
+    {{/LaunchAgentForTeamsEnabled}}
+    {{^LaunchAgentForTeamsEnabled}} 
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
     "manifestVersion": "1.19",
     "version": "1.0.0",
-    {{/CEAEnabled}}
+    {{/LaunchAgentForTeamsEnabled}}
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
         "name": "My App, Inc.",
@@ -29,7 +29,7 @@
         "full": "full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
-    {{#CEAEnabled}} 
+    {{#LaunchAgentForTeamsEnabled}} 
     "copilotAgents": {
         "customEngineAgents": [
             {
@@ -38,14 +38,14 @@
             }
         ]
     },
-    {{/CEAEnabled}}
+    {{/LaunchAgentForTeamsEnabled}}
     "bots": [
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                {{#CEAEnabled}} 
+                {{#LaunchAgentForTeamsEnabled}} 
                 "copilot",
-                {{/CEAEnabled}}
+                {{/LaunchAgentForTeamsEnabled}}
                 "personal",
                 "team",
                 "groupChat"
@@ -55,9 +55,9 @@
             "commandLists": [
                 {
                     "scopes": [
-                        {{#CEAEnabled}} 
+                        {{#LaunchAgentForTeamsEnabled}} 
                         "copilot",
-                        {{/CEAEnabled}}
+                        {{/LaunchAgentForTeamsEnabled}}
                         "personal"
                     ],
                     "commands": [

@@ -29,8 +29,8 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
-    process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
-      ConfigurationKey.EnableCEA,
+    process.env[FeatureFlags.LaunchAgentForTeamsEnabled.name] = this.getConfiguration(
+      ConfigurationKey.EnableLaunchAgentForTeams,
       false
     ).toString();
     process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(

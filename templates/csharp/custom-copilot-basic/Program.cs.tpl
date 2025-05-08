@@ -47,9 +47,9 @@ builder.Services.AddSingleton<OpenAIModel>(sp => new(
 {{/useAzureOpenAI}}
     {
         LogRequests = true,
-{{#CEAEnabled}}
+{{#LaunchAgentForTeamsEnabled}}
         Stream = true,
-{{/CEAEnabled}}
+{{/LaunchAgentForTeamsEnabled}}
     },
     sp.GetService<ILoggerFactory>()
 ));
@@ -79,9 +79,9 @@ builder.Services.AddTransient<IBot>(sp =>
         )
         { 
             LogRepairs = true,
-            {{#CEAEnabled}}
+            {{#LaunchAgentForTeamsEnabled}}
             StartStreamingMessage = "Loading stream results...",
-            {{/CEAEnabled}}
+            {{/LaunchAgentForTeamsEnabled}}
         },
         loggerFactory: loggerFactory
     );
