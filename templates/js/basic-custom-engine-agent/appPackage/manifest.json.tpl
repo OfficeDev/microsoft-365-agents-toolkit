@@ -1,14 +1,7 @@
 {
-    {{#LaunchAgentForTeamsInCopilotEnabled}} 
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vdevPreview/MicrosoftTeams.schema.json",
-    "manifestVersion": "devPreview",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.21",
     "version": "1.0.0",
-    {{/LaunchAgentForTeamsInCopilotEnabled}}
-    {{^LaunchAgentForTeamsInCopilotEnabled}} 
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.19",
-    "version": "1.0.0",
-    {{/LaunchAgentForTeamsInCopilotEnabled}}
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
         "name": "My App, Inc.",
@@ -29,7 +22,6 @@
         "full": "full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
-    {{#LaunchAgentForTeamsInCopilotEnabled}} 
     "copilotAgents": {
         "customEngineAgents": [
             {
@@ -38,26 +30,20 @@
             }
         ]
     },
-    {{/LaunchAgentForTeamsInCopilotEnabled}}
     "bots": [
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                {{#LaunchAgentForTeamsInCopilotEnabled}} 
                 "copilot",
-                {{/LaunchAgentForTeamsInCopilotEnabled}}
                 "personal",
-                "team",
-                "groupChat"
+                "team"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
             "commandLists": [
                 {
                     "scopes": [
-                        {{#LaunchAgentForTeamsInCopilotEnabled}} 
                         "copilot",
-                        {{/LaunchAgentForTeamsInCopilotEnabled}}
                         "personal"
                     ],
                     "commands": [
