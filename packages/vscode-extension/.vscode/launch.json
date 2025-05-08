@@ -13,8 +13,7 @@
       "env": {
         "NODE_ENV": "development",
         "TEAMSFX_SAMPLE_CONFIG_BRANCH": "dev"
-      },
-      "preLaunchTask": "watch"
+      }
     },
     {
       "name": "Extension Unit Tests",

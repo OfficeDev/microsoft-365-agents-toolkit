@@ -19,11 +19,11 @@ const model = new OpenAIModel({
 
   useSystemMessages: true,
   logRequests: true,
-  {{#LaunchAgentForTeamsEnabled}} 
+  {{#LaunchAgentForTeamsInCopilotEnabled}} 
   // The agent is currently not working in any Teams group chats or Teams channels
   // when the stream response is enabled.
   stream: true,
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
 });
 const prompts = new PromptManager({
   promptsFolder: path.join(__dirname, "../prompts"),
@@ -32,9 +32,9 @@ const planner = new ActionPlanner({
   model,
   prompts,
   defaultPrompt: "chat",
-  {{#LaunchAgentForTeamsEnabled}} 
+  {{#LaunchAgentForTeamsInCopilotEnabled}} 
   startStreamingMessage: 'Loading stream results...',
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
 });
 
 // Define storage and application

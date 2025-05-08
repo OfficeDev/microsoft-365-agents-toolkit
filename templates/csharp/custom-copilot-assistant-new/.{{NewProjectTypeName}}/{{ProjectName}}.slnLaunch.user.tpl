@@ -69,7 +69,7 @@
         "DebugTarget": "Start Project"
       }
     ]
-{{#LaunchAgentForTeamsEnabled}}
+{{#LaunchAgentForTeamsInCopilotEnabled}}
   },
   {
     "Name": "Microsoft 365 Copilot (browser)",
@@ -116,7 +116,7 @@
         "DebugTarget": "Start Project"
       }
     ]
-{{/LaunchAgentForTeamsEnabled}}
+{{/LaunchAgentForTeamsInCopilotEnabled}}
 {{#enableTestToolByDefault}}
   }
 {{/enableTestToolByDefault}}

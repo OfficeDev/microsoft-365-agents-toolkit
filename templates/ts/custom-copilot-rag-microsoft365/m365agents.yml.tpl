@@ -60,13 +60,13 @@ provision:
       manifestPath: ./aad.manifest.json # Relative path to teamsfx folder. Environment variables in manifest will be replaced before apply to AAD app
       outputFilePath: ./build/aad.manifest.${{TEAMSFX_ENV}}.json
 
-  {{^LaunchAgentForTeamsEnabled}}
+  {{^LaunchAgentForTeamsInCopilotEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -86,7 +86,7 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  {{#LaunchAgentForTeamsEnabled}}
+  {{#LaunchAgentForTeamsInCopilotEnabled}}
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -96,7 +96,7 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
 
 # Triggered when 'teamsapp deploy' is executed
 deploy:
@@ -125,13 +125,13 @@ deploy:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-  {{^LaunchAgentForTeamsEnabled}}
+  {{^LaunchAgentForTeamsInCopilotEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:

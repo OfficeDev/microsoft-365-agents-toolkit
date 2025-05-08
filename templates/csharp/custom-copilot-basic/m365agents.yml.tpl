@@ -41,13 +41,13 @@ provision:
       # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
-  {{^LaunchAgentForTeamsEnabled}}
+  {{^LaunchAgentForTeamsInCopilotEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/LaunchAgentForTeamsEnabled}}
+  {{/LaunchAgentForTeamsInCopilotEnabled}}
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
@@ -68,7 +68,7 @@ provision:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
-{{#LaunchAgentForTeamsEnabled}}
+{{#LaunchAgentForTeamsInCopilotEnabled}}
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -79,7 +79,7 @@ provision:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
       
-{{/LaunchAgentForTeamsEnabled}}
+{{/LaunchAgentForTeamsInCopilotEnabled}}
 # Triggered when 'teamsapp deploy' is executed
 deploy:
   - uses: cli/runDotnetCommand

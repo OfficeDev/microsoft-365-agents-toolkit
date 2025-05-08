@@ -908,7 +908,7 @@ describe("updateForCustomApi", async () => {
 
   it("happy path: ts with cea enabled", async () => {
     mockedEnvRestore = mockedEnv({
-      [FeatureFlagName.LaunchAgentForTeamsEnabled]: "true",
+      [FeatureFlagName.LaunchAgentForTeamsInCopilotEnabled]: "true",
     });
     sandbox.stub(fs, "ensureDir").resolves();
     sandbox.stub(fs, "writeFile").callsFake((file, data) => {

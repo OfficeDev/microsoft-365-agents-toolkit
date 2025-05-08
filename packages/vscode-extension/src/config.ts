@@ -29,8 +29,8 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
-    process.env[FeatureFlags.LaunchAgentForTeamsEnabled.name] = this.getConfiguration(
-      ConfigurationKey.EnableLaunchAgentForTeams,
+    process.env[FeatureFlags.LaunchAgentForTeamsInCopilotEnabled.name] = this.getConfiguration(
+      ConfigurationKey.EnableLaunchAgentForTeamsInCopilot,
       false
     ).toString();
     process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(

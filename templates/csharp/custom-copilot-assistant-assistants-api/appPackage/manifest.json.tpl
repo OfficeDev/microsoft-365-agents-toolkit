@@ -1,14 +1,14 @@
 {
-{{#LaunchAgentForTeamsEnabled}} 
+{{#LaunchAgentForTeamsInCopilotEnabled}} 
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vdevPreview/MicrosoftTeams.schema.json",
     "manifestVersion": "devPreview",
     "version": "1.0.0",
-{{/LaunchAgentForTeamsEnabled}}
-{{^LaunchAgentForTeamsEnabled}} 
+{{/LaunchAgentForTeamsInCopilotEnabled}}
+{{^LaunchAgentForTeamsInCopilotEnabled}} 
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
     "manifestVersion": "1.19",
     "version": "1.0.0",
-{{/LaunchAgentForTeamsEnabled}}
+{{/LaunchAgentForTeamsInCopilotEnabled}}
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
         "name": "Teams App, Inc.",
@@ -29,7 +29,7 @@
         "full": "Full description of {{appName}}"
     },
     "accentColor": "#FFFFFF",
-        {{#LaunchAgentForTeamsEnabled}} 
+        {{#LaunchAgentForTeamsInCopilotEnabled}} 
     "copilotAgents": {
         "customEngineAgents": [
             {
@@ -38,14 +38,14 @@
             }
         ]
     },
-    {{/LaunchAgentForTeamsEnabled}}
+    {{/LaunchAgentForTeamsInCopilotEnabled}}
     "bots": [
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                {{#LaunchAgentForTeamsEnabled}} 
+                {{#LaunchAgentForTeamsInCopilotEnabled}} 
                 "copilot",
-                {{/LaunchAgentForTeamsEnabled}}
+                {{/LaunchAgentForTeamsInCopilotEnabled}}
                 "personal",
                 "team",
                 "groupChat"
@@ -55,9 +55,9 @@
             "commandLists": [
                 {
                     "scopes": [
-                        {{#LaunchAgentForTeamsEnabled}} 
+                        {{#LaunchAgentForTeamsInCopilotEnabled}} 
                         "copilot",
-                        {{/LaunchAgentForTeamsEnabled}}
+                        {{/LaunchAgentForTeamsInCopilotEnabled}}
                         "personal"
                     ],
                     "commands": [

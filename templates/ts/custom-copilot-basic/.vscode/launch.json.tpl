@@ -90,7 +90,7 @@
                 "order": 6
             },
             "internalConsoleOptions": "neverOpen",
-        {{#LaunchAgentForTeamsEnabled}}
+        {{#LaunchAgentForTeamsInCopilotEnabled}}
         },
         {
             "name": "Launch Remote in Copilot (Edge)",
@@ -155,7 +155,7 @@
                 "--remote-debugging-port=9223",
                 "--no-first-run"
             ]
-        {{/LaunchAgentForTeamsEnabled}}
+        {{/LaunchAgentForTeamsInCopilotEnabled}}
 {{#SandBoxedTeam}}
         },
         {
@@ -260,7 +260,7 @@
                 "order": 1
             },
             "stopAll": true
-        {{#LaunchAgentForTeamsEnabled}}
+        {{#LaunchAgentForTeamsInCopilotEnabled}}
         },
         {
             "name": "Debug in Copilot (Edge)",
@@ -287,7 +287,7 @@
                 "order": 2
             },
             "stopAll": true
-        {{/LaunchAgentForTeamsEnabled}}
+        {{/LaunchAgentForTeamsInCopilotEnabled}}
         }
     ]
 }

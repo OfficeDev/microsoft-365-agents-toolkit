@@ -30,7 +30,8 @@ export class FeatureFlagName {
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
   static readonly KiotaIntegration = "TEAMSFX_KIOTA_INTEGRATION";
   static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
-  static readonly LaunchAgentForTeamsEnabled = "TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED";
+  static readonly LaunchAgentForTeamsInCopilotEnabled =
+    "TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_IN_COPILOT_ENABLED";
   static readonly BuilderAPIEnabled = "TEAMSFX_BUILDER_API";
   static readonly EmbeddedKnowledgeEnabled = "TEAMSFX_EMBEDDED_KNOWLEDGE";
   static readonly ShareEnabled = "TEAMSFX_SHARE";
@@ -101,8 +102,8 @@ export class FeatureFlags {
     name: FeatureFlagName.KiotaNPMIntegration,
     defaultValue: "true",
   };
-  static readonly LaunchAgentForTeamsEnabled = {
-    name: FeatureFlagName.LaunchAgentForTeamsEnabled,
+  static readonly LaunchAgentForTeamsInCopilotEnabled = {
+    name: FeatureFlagName.LaunchAgentForTeamsInCopilotEnabled,
     defaultValue: "false",
   };
   static readonly BuilderAPIEnabled = {

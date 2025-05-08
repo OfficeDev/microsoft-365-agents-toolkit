@@ -92,6 +92,6 @@ You can follow [Build a Basic AI Chatbot in Teams](https://aka.ms/teamsfx-basic-
 - If you use `Debug in Microsoft 365 Agents Playground` to local debug, you might get an error `InternalServiceError: connect ECONNREFUSED 127.0.0.1:3978` in Microsoft 365 Agents Playground console log or error message `Error: Cannot connect to your app,
 please make sure your app is running or restart your app` in log panel of Microsoft 365 Agents Playground web page. You can wait for Python launch console ready and then refresh the front end web page.
 - When you use `Launch Remote in Teams` to remote debug after deployment, you might loose interaction with your agent. This is because the remote service needs to restart. Please wait for several minutes to retry it.
-{{#LaunchAgentForTeamsEnabled}}
+{{#LaunchAgentForTeamsInCopilotEnabled}}
 - The agent is currently not working in any Teams group chats or Teams channels when the stream response is enabled.
-{{/LaunchAgentForTeamsEnabled}}
+{{/LaunchAgentForTeamsInCopilotEnabled}}

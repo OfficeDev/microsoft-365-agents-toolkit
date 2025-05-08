@@ -91,7 +91,9 @@ export class TabCapabilityOptions {
 export class CustomCopilotCapabilityOptions {
   // custom copilot
   static basicChatbot(): OptionItem {
-    const description = featureFlagManager.getBooleanValue(FeatureFlags.LaunchAgentForTeamsEnabled)
+    const description = featureFlagManager.getBooleanValue(
+      FeatureFlags.LaunchAgentForTeamsInCopilotEnabled
+    )
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
     return {
@@ -108,7 +110,9 @@ export class CustomCopilotCapabilityOptions {
   }
 
   static customCopilotRag(): OptionItem {
-    const description = featureFlagManager.getBooleanValue(FeatureFlags.LaunchAgentForTeamsEnabled)
+    const description = featureFlagManager.getBooleanValue(
+      FeatureFlags.LaunchAgentForTeamsInCopilotEnabled
+    )
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
     return {
@@ -124,7 +128,9 @@ export class CustomCopilotCapabilityOptions {
   }
 
   static aiAgent(): OptionItem {
-    const description = featureFlagManager.getBooleanValue(FeatureFlags.LaunchAgentForTeamsEnabled)
+    const description = featureFlagManager.getBooleanValue(
+      FeatureFlags.LaunchAgentForTeamsInCopilotEnabled
+    )
       ? getLocalizedString("core.createProjectQuestion.capability.customEngineAgent.description")
       : undefined;
     return {

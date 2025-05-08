@@ -26,11 +26,11 @@ model = OpenAIModel(
         api_key=config.AZURE_OPENAI_API_KEY,
         default_model=config.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME,
         endpoint=config.AZURE_OPENAI_ENDPOINT,
-        {{#LaunchAgentForTeamsEnabled}}
+        {{#LaunchAgentForTeamsInCopilotEnabled}}
         # The agent is currently not working in any Teams group chats or Teams channels
         # when the stream response is enabled.
         stream=True,
-        {{/LaunchAgentForTeamsEnabled}}
+        {{/LaunchAgentForTeamsInCopilotEnabled}}
     )
 )
 {{/useAzureOpenAI}}    
@@ -39,11 +39,11 @@ model = OpenAIModel(
     OpenAIModelOptions(
         api_key=config.OPENAI_API_KEY,
         default_model=config.OPENAI_MODEL_NAME,
-        {{#LaunchAgentForTeamsEnabled}}
+        {{#LaunchAgentForTeamsInCopilotEnabled}}
         # The agent is currently not working in any Teams group chats or Teams channels
         # when the stream response is enabled.
         stream=True,
-        {{/LaunchAgentForTeamsEnabled}}
+        {{/LaunchAgentForTeamsInCopilotEnabled}}
     )
 )
 {{/useOpenAI}}
@@ -56,9 +56,9 @@ planner = ActionPlanner(
         prompts=prompts,
         default_prompt="chat",
         enable_feedback_loop=True,
-        {{#LaunchAgentForTeamsEnabled}}
+        {{#LaunchAgentForTeamsInCopilotEnabled}}
         start_streaming_message='Loading stream results...'
-        {{/LaunchAgentForTeamsEnabled}}
+        {{/LaunchAgentForTeamsInCopilotEnabled}}
     )
 )
 

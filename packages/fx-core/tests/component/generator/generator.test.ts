@@ -1236,24 +1236,30 @@ describe("render template", () => {
       );
     });
 
-    it("template variables when Launch Agent For Teams enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "true" });
+    it("template variables when Launch Agent For Teams In Copilot enabled", async () => {
+      sandbox
+        .stub(process, "env")
+        .value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_IN_COPILOT_ENABLED: "true" });
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.LaunchAgentForTeamsEnabled, "true");
+      assert.equal(vars.LaunchAgentForTeamsInCopilotEnabled, "true");
     });
 
-    it("template variables when Launch Agent For Teams disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "false" });
+    it("template variables when Launch Agent For Teams In Copilot disabled", async () => {
+      sandbox
+        .stub(process, "env")
+        .value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_IN_COPILOT_ENABLED: "false" });
       const vars = newGeneratorFlag
         ? getTemplateReplaceMap(inputs)
         : Generator.getDefaultVariables("test");
-      assert.equal(vars.LaunchAgentForTeamsEnabled, "");
+      assert.equal(vars.LaunchAgentForTeamsInCopilotEnabled, "");
     });
 
-    it("LaunchAgentForTeams works in M365 tag shows when Launch Agent For Teams enabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "true" });
+    it("LaunchAgentForTeamsInCopilot works in M365 tag shows when Launch Agent For Teams In Copilot enabled", async () => {
+      sandbox
+        .stub(process, "env")
+        .value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_IN_COPILOT_ENABLED: "true" });
       const descriptionAnswer = getLocalizedString(
         "core.createProjectQuestion.capability.customEngineAgent.description"
       );
@@ -1265,8 +1271,10 @@ describe("render template", () => {
       assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, descriptionAnswer);
     });
 
-    it("LaunchAgentForTeams works in M365 tag doesn't show when Launch Agent For Teams disabled", async () => {
-      sandbox.stub(process, "env").value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_ENABLED: "false" });
+    it("LaunchAgentForTeamsInCopilot works in M365 tag doesn't show when Launch Agent For Teams In Copilot disabled", async () => {
+      sandbox
+        .stub(process, "env")
+        .value({ TEAMSFX_LAUNCH_AGENT_FOR_TEAMS_IN_COPILOT_ENABLED: "false" });
       assert.equal(CustomCopilotCapabilityOptions.basicChatbot().description, undefined);
       assert.equal(CustomCopilotCapabilityOptions.customCopilotRag().description, undefined);
       assert.equal(CustomCopilotCapabilityOptions.aiAgent().description, undefined);
