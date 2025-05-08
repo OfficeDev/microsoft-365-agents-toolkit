@@ -22,7 +22,8 @@ describe("wrap error", () => {
   });
 
   it("Increase UT - BotFrameworkForbiddenResultError", () => {
-    const e = new BotFrameworkForbiddenResultError();
+    const axiosError = new Error("Forbidden");
+    const e = new BotFrameworkForbiddenResultError(axiosError);
     assert.isTrue(e.name === ErrorNames.FORBIDDEN_RESULT_BOT_FRAMEWORK_ERROR);
   });
 

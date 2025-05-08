@@ -129,11 +129,11 @@ export class BotFrameworkNotAllowedToAcquireTokenError extends PluginError {
 }
 
 export class BotFrameworkForbiddenResultError extends PluginError {
-  constructor() {
+  constructor(error: any) {
     super(
       ErrorType.USER,
       ErrorNames.FORBIDDEN_RESULT_BOT_FRAMEWORK_ERROR,
-      Messages.BotProvisionReturnsForbiddenResult(),
+      Messages.BotProvisionReturnsForbiddenResult(error),
       [Messages.CheckOutputLogAndTryToFix, Messages.RetryTheCurrentStep]
     );
   }

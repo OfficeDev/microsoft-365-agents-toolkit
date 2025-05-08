@@ -41,8 +41,14 @@ export class Messages {
 
   public static readonly NotAllowedToAcquireBotFrameworkToken = (): [string, string] =>
     localString("error.appstudio.NotAllowedToAcquireBotFrameworkToken");
-  public static readonly BotProvisionReturnsForbiddenResult = (): [string, string] =>
-    localString("error.appstudio.BotProvisionReturnsForbiddenResult");
+  public static readonly BotProvisionReturnsForbiddenResult = (error: any): [string, string] => {
+    const logMessage = getDefaultString(
+      "error.appstudio.BotProvisionReturnsForbiddenResult",
+      JSON.stringify(error.response?.data)
+    );
+    const displayMessage = getLocalizedString("error.appstudio.BotProvisionReturnsForbiddenResult");
+    return [logMessage, displayMessage];
+  };
   public static readonly BotProvisionReturnsConflictResult = (): [string, string] =>
     localString("error.appstudio.BotProvisionReturnsConflictResult");
 }
