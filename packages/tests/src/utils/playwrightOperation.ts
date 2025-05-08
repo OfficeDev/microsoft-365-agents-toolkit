@@ -1744,9 +1744,12 @@ export async function validatePrompt(
     } catch {
       console.log("no allow button.");
     }
-    await page?.waitForSelector(`div:has-text("${options?.expected}")`);
-    console.log("verify prompt successfully!!!");
-    console.log(`${options?.expected}`);
+    try {
+      await page?.waitForSelector(`span:has-text("${options?.expected}")`);
+    } catch {
+      await page?.waitForSelector(`div:has-text("${options?.expected}")`);
+    }
+    console.log(`verify prompt successfully having ${options?.expected} !!!`);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
