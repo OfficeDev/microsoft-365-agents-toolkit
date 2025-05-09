@@ -387,22 +387,22 @@ export class SPFxGenerator {
       const manifestJson = JSON.parse(manifestString.replace(matchHashComment, "").trim());
       const componentId = manifestJson.id;
 
+      if (!context.templateVariables) {
+        context.templateVariables = Generator.getDefaultVariables(solutionName);
+      }
+      const SPFxVersion = await spGeneratorChecker.getSelectedSPFxVersion(yoEnv, 10, false);
+      context.templateVariables["useNewDevUrl"] = SPFxVersion
+        ? semver.gte(SPFxVersion, "1.21.0")
+          ? "true"
+          : "false"
+        : "true";
+
       if (!isAddSPFx) {
-        if (!context.templateVariables) {
-          context.templateVariables = Generator.getDefaultVariables(solutionName);
-        }
         context.templateVariables["componentId"] = componentId;
         context.templateVariables["webpartName"] = webpartName;
 
         const nodeVersion = await this.getNodeVersion(newPath, context);
         context.templateVariables["SpfxNodeVersion"] = nodeVersion;
-
-        const SPFxVersion = await spGeneratorChecker.getSelectedSPFxVersion(yoEnv, 10, false);
-        context.templateVariables["useNewDevUrl"] = SPFxVersion
-          ? semver.gte(SPFxVersion, "1.21.0")
-            ? "true"
-            : "false"
-          : "true";
       }
 
       // remove dataVersion() function, related issue: https://github.com/SharePoint/sp-dev-docs/issues/6469
