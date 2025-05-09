@@ -518,6 +518,11 @@ describe("UpdateApiKeyDriver", () => {
       allAPICount: 1,
       validAPICount: 1,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+
     const args: UpdateApiKeyArgs = {
       name: "test2",
       appId: "mockedAppId",

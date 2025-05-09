@@ -22,6 +22,7 @@ import { UpdateApiKeyArgs } from "./interface/updateApiKeyArgs";
 import { logMessageKeys } from "./utility/constants";
 import { getDomain, validateDomain, validateUrl } from "./utility/utility";
 import { WrapDriverContext } from "../util/wrapUtil";
+import { Utils } from "@microsoft/m365-spec-parser";
 
 const actionName = "apiKey/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/apiKey-update";
@@ -46,13 +47,17 @@ export class UpdateApiKeyDriver implements StepDriver {
       context.logProvider?.info(getLocalizedString(logMessageKeys.startExecuteDriver, actionName));
       this.validateArgs(args);
 
-      let domain: string[] = [];
+      let domains: string[] = [];
       if (args.baseUrl) {
-        domain = [args.baseUrl];
+        domains = [args.baseUrl];
       } else {
-        domain = await getDomain(args, context, actionName);
-        validateDomain(domain, actionName);
+        domains = await getDomain(args, context, actionName);
+        validateDomain(domains, actionName);
       }
+
+      domains = domains.map((domain) => {
+        return Utils.resolveEnv(domain);
+      });
 
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
@@ -66,7 +71,7 @@ export class UpdateApiKeyDriver implements StepDriver {
         appStudioToken,
         args.registrationId
       );
-      const diffMsgs = this.compareApiKeyRegistration(getApiKeyRes, args, domain);
+      const diffMsgs = this.compareApiKeyRegistration(getApiKeyRes, args, domains);
       // If there is no difference, skip the update
       if (!diffMsgs || diffMsgs.length === 0) {
         const summary = getLocalizedString(logMessageKeys.skipUpdateApiKey);
@@ -81,7 +86,7 @@ export class UpdateApiKeyDriver implements StepDriver {
 
       // If there is difference, ask user to confirm the update
       // Skip confirm if only targetUrlsShouldStartWith is different when the url contains devtunnel
-      if (!this.shouldSkipConfirm(diffMsgs, getApiKeyRes.targetUrlsShouldStartWith, domain)) {
+      if (!this.shouldSkipConfirm(diffMsgs, getApiKeyRes.targetUrlsShouldStartWith, domains)) {
         const userConfirm = await context.ui!.confirm!({
           name: "confirm-update-api-key",
           title: getLocalizedString("driver.apiKey.confirm.update", diffMsgs.join(",\n")),
@@ -92,7 +97,7 @@ export class UpdateApiKeyDriver implements StepDriver {
         }
       }
 
-      const apiKey = this.mapArgsToApiSecretRegistration(args, domain);
+      const apiKey = this.mapArgsToApiSecretRegistration(args, domains);
       await teamsDevPortalClient.updateApiKeyRegistration(
         appStudioToken,
         apiKey,

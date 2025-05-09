@@ -69,7 +69,7 @@ describe("CreateApiKeyDriver", () => {
       APIs: [
         {
           api: "api",
-          server: "https://test",
+          server: "${{OPENAPI_SERVER_URL}}",
           operationId: "get",
           auth: {
             name: "test",
@@ -86,6 +86,11 @@ describe("CreateApiKeyDriver", () => {
       allAPICount: 1,
       validAPICount: 1,
     });
+
+    envRestore = mockedEnv({
+      ["OPENAPI_SERVER_URL"]: "https://test",
+    });
+
     sinon
       .stub(featureFlagManager, "getBooleanValue")
       .withArgs(FeatureFlags.KiotaNPMIntegration)

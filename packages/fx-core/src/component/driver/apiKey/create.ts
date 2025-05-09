@@ -28,6 +28,7 @@ import { logMessageKeys, maxSecretLength, minSecretLength } from "./utility/cons
 import { getDomain, loadStateFromEnv, validateDomain, validateUrl } from "./utility/utility";
 import { apiKeyFromScratchClientSecretInvalid } from "./error/apiKeyFromScratchClientSecretInvalid";
 import { WrapDriverContext } from "../util/wrapUtil";
+import { Utils } from "@microsoft/m365-spec-parser";
 
 const actionName = "apiKey/register"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/apiKey-register";
@@ -107,6 +108,10 @@ export class CreateApiKeyDriver implements StepDriver {
           domains = await getDomain(args, context, actionName);
           validateDomain(domains, actionName);
         }
+
+        domains = domains.map((domain) => {
+          return Utils.resolveEnv(domain);
+        });
 
         const apiKey = await this.mapArgsToApiSecretRegistration(
           context.m365TokenProvider,
