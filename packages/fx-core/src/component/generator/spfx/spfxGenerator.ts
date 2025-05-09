@@ -433,7 +433,7 @@ export class SPFxGenerator {
     }
   }
 
-  private static async getSolutionVersion(yoInfoPath: string): Promise<string> {
+  public static async getSolutionVersion(yoInfoPath: string): Promise<string> {
     if (await fs.pathExists(yoInfoPath)) {
       const yoInfo = await fs.readJson(yoInfoPath);
       if (yoInfo["@microsoft/generator-sharepoint"]) {
@@ -984,10 +984,15 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
         context.templateVariables = Generator.getDefaultVariables(inputs[QuestionNames.AppName]);
       }
       const nodeVersion = await SPFxGenerator.getNodeVersion(destSpfxFolder, context);
+      const yoInfoPath = path.join(inputs[QuestionNames.SPFxFolder], Constants.YO_RC_FILE);
+      const SPFxVersion = await SPFxGenerator.getSolutionVersion(yoInfoPath);
       context.templateVariables["SpfxNodeVersion"] = nodeVersion;
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0")
+        ? "true"
+        : "false";
       this.importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
           inputs[QuestionNames.AppName] as string
