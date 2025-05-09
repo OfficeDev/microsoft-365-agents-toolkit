@@ -159,10 +159,15 @@ export class SPFxGenerator {
       }
 
       const nodeVersion = await this.getNodeVersion(destSpfxFolder, context);
+      const yoInfoPath = path.join(inputs[QuestionNames.SPFxFolder], Constants.YO_RC_FILE);
+      const SPFxVersion = await this.getSolutionVersion(yoInfoPath);
       context.templateVariables["SpfxNodeVersion"] = nodeVersion;
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0")
+        ? "true"
+        : "false";
 
       importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
@@ -391,6 +396,13 @@ export class SPFxGenerator {
 
         const nodeVersion = await this.getNodeVersion(newPath, context);
         context.templateVariables["SpfxNodeVersion"] = nodeVersion;
+
+        const SPFxVersion = await spGeneratorChecker.getSelectedSPFxVersion(yoEnv, 10, false);
+        context.templateVariables["useNewDevUrl"] = SPFxVersion
+          ? semver.gte(SPFxVersion, "1.21.0")
+            ? "true"
+            : "false"
+          : "true";
       }
 
       // remove dataVersion() function, related issue: https://github.com/SharePoint/sp-dev-docs/issues/6469
