@@ -6,7 +6,7 @@ export enum ConfigurationKey {
   LogLevel = "logLevel",
   EnableMicrosoftKiota = "enableMicrosoftKiota",
   EnableMicrosoftKiotaString = "enableMicrosoftKiotaString",
-  EnableCEA = "enableCustomEngineAgent",
+  EnableCEA = "enableLaunchAgentForTeamsInCopilot",
   EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
 }
 
