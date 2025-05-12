@@ -66,26 +66,21 @@ export class CDPClient {
     throw recentError;
   }
   async subscribeToWebSocketEvents(client: CDP.Client): Promise<void> {
-    if (this.url.includes("m365.cloud.microsoft/chat")) {
-      logger.debug(
-        "CDPClient.subscribeToWebSocketEvents() - is m365.cloud.microsoft/chat, start listening to sub target iframe"
-      );
-      // only m365.cloud.microsoft need listen to sub target iframe
-      this.enableRetry = true;
-      void this.connectToTargetIframeWithRetries(client);
-    } else {
-      logger.debug(
-        "CDPClient.subscribeToWebSocketEvents() - is not m365.cloud.microsoft/chat, start listening to target directly"
-      );
-      // Enable the necessary domains
-      await client.Network.enable();
-      await client.Page.enable();
-      client.Network.webSocketFrameReceived(this.webSocketFrameReceivedHandler.bind(this));
-      this.client = client;
-      logger.info(
-        `CDPClient.subscribeToWebSocketEvents() - Connected to copilot iframe target: ${this.name}, port: ${this.port}, url: ${this.url}`
-      );
-    }
+    // connect to the main iframe, for some accounts, connect to main iframe works
+    logger.debug("CDPClient.subscribeToWebSocketEvents() - start listening to main frame");
+    await client.Network.enable();
+    await client.Page.enable();
+    client.Network.webSocketFrameReceived(this.webSocketFrameReceivedHandler.bind(this));
+    this.client = client;
+    logger.info(
+      `CDPClient.subscribeToWebSocketEvents() - Connected to copilot iframe target: ${this.name}, port: ${this.port}, url: ${this.url}`
+    );
+
+    // try to filter on sub target iframe at the same time for compatibility issue,
+    // for some accounts, connect to main iframe does not work, connect to sub target iframe works
+    logger.debug("CDPClient.subscribeToWebSocketEvents() - start listening to sub target iframe");
+    this.enableRetry = true;
+    void this.connectToTargetIframeWithRetries(client);
   }
 
   async connectToTargetIframeWithRetries(
