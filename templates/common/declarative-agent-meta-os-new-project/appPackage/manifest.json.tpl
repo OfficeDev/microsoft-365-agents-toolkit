@@ -118,7 +118,7 @@
             },
             {
               "id": "fillcolor",
-              "type": "executeFunction"
+              "type": "executeDataFunction"
             }
           ]
         }

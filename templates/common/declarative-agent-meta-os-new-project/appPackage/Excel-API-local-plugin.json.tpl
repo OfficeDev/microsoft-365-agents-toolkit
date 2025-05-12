@@ -43,7 +43,7 @@
     {
       "type": "LocalPlugin",
       "spec": {
-        "local_endpoint": "ms-office-addin"
+        "local_endpoint": "Microsoft.Office.Addin"
       },
       "run_for_functions": ["fillcolor"]
     }
