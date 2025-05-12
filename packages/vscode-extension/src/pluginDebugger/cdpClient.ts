@@ -66,7 +66,7 @@ export class CDPClient {
     throw recentError;
   }
   async subscribeToWebSocketEvents(client: CDP.Client): Promise<void> {
-    // connect to the main frame first
+    // connect to the main iframe, for some accounts, connect to main iframe works
     logger.debug("CDPClient.subscribeToWebSocketEvents() - start listening to main frame");
     await client.Network.enable();
     await client.Page.enable();
@@ -76,7 +76,8 @@ export class CDPClient {
       `CDPClient.subscribeToWebSocketEvents() - Connected to copilot iframe target: ${this.name}, port: ${this.port}, url: ${this.url}`
     );
 
-    // try to filter on sub target iframe at the same time for compatibility issue
+    // try to filter on sub target iframe at the same time for compatibility issue,
+    // for some accounts, connect to main iframe does not works, but for some accounts, connect to sub target iframe works
     logger.debug("CDPClient.subscribeToWebSocketEvents() - start listening to sub target iframe");
     this.enableRetry = true;
     void this.connectToTargetIframeWithRetries(client);
