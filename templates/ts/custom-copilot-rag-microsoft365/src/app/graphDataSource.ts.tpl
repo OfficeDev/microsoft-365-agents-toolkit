@@ -50,7 +50,7 @@ export class GraphDataSource implements DataSource {
             graphQuery = "perksplus program";
         } else if (query.toLocaleLowerCase().includes("company") || query.toLocaleLowerCase().includes("history")) {
             graphQuery = "company history";
-        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health")) {
+        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health") || query.toLocaleLowerCase().includes("plan")) {
             graphQuery = "northwind health";
         }
 
