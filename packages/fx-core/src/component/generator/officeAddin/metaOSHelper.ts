@@ -12,6 +12,8 @@ import {
   ManifestTemplateFileName,
   TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
+import { dotenvUtil } from "../../utils/envUtil";
+import { getUuid } from "../../../common/stringUtils";
 
 const NOT_COPY_FILES = ["README.md", "teamsapp.yml", "m365agents.yml"];
 const NOT_COPY_FOLDERS = ["node_modules", "env"];
@@ -83,6 +85,25 @@ export class MetaOSHelper {
     return `${MetaOSHelper.getNameWithSuffix(filename, suffix)}${ext}`;
   }
 
+  static async unifyProjectID(projectFolder: string): Promise<void> {
+    const manifestPath = path.join(projectFolder, AppPackageFolderName, ManifestTemplateFileName);
+    const envFilePath = path.join(projectFolder, "env", ".env.dev");
+
+    const manifest = (await AppManifestUtils.readTeamsManifest(
+      manifestPath
+    )) as TeamsManifestVDevPreview;
+
+    // use dotenvUtil rather than envUtil to avoid touch to the process.env
+    const envVars = dotenvUtil.deserialize(await fse.readFile(envFilePath, { encoding: "utf8" }));
+
+    const newUUID = getUuid();
+    manifest.id = newUUID;
+    envVars.obj.TEAMS_APP_ID = newUUID;
+
+    await AppManifestUtils.writeTeamsManifest(manifestPath, manifest);
+    await fse.writeFile(envFilePath, dotenvUtil.serialize(envVars), { encoding: "utf8" });
+  }
+
   static async extendToDA(projectFolder: string, appName: string): Promise<void> {
     // Ensure schema files name
     const DAFilename = MetaOSHelper.ensureFileNameIsNotExist(
@@ -142,13 +163,13 @@ export class MetaOSHelper {
             );
             runtime.actions.push({
               id: commandName,
-              type: "executeFunction",
+              type: "executeDataFunction",
             });
           } else {
             runtime.actions = [
               {
                 id: commandName,
-                type: "executeFunction",
+                type: "executeDataFunction",
               },
             ];
           }
@@ -255,7 +276,7 @@ export class MetaOSHelper {
         {
           type: "LocalPlugin",
           spec: {
-            local_endpoint: "ms-office-addin",
+            local_endpoint: "Microsoft.Office.Addin",
           },
           run_for_functions: [`${commandName}`],
         },

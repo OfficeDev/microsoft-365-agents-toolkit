@@ -38,7 +38,7 @@ import {
 } from "../../../src/component/generator/officeAddin/generator";
 import { HelperMethods } from "../../../src/component/generator/officeAddin/helperMethods";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
-import { envUtil } from "../../../src/component/utils/envUtil";
+import { dotenvUtil, envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import { OfficeAddinCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
@@ -600,6 +600,7 @@ describe("OfficeAddinGeneratorNew", () => {
     it(`da: upgrade`, async () => {
       sandbox.stub(MetaOSHelper, "copyExistMetaOSProject").resolves();
       sandbox.stub(MetaOSHelper, "extendToDA").resolves();
+      sandbox.stub(MetaOSHelper, "unifyProjectID").resolves();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
@@ -621,6 +622,7 @@ describe("OfficeAddinGeneratorNew", () => {
       chai.assert.isTrue(res.isErr());
     });
     it(`da: create new`, async () => {
+      sandbox.stub(MetaOSHelper, "unifyProjectID").resolves();
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSNewProject,
@@ -707,6 +709,26 @@ describe("MetaOSHelper", () => {
     sandbox.stub(fse, "existsSync").onFirstCall().returns(true).onSecondCall().returns(false);
     const result = MetaOSHelper.ensureFileNameIsNotExist("path", "test", ".json");
     chai.assert.equal(result, "test1.json");
+  });
+
+  it("unifyProjectID", async () => {
+    const readManifestStub = sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves({
+      id: "test",
+    } as any);
+    const writeManifestStub = sandbox.stub(AppManifestUtils, "writeTeamsManifest").resolves();
+    const readFileStub = sandbox.stub(fse, "readFile").resolves(Buffer.from(`{"id": "test"}`));
+    const writeFileStub = sandbox.stub(fse, "writeFile").resolves();
+    const deserializeStub = sandbox.stub(dotenvUtil, "deserialize").returns({ obj: {} } as any);
+    const serializeStub = sandbox.stub(dotenvUtil, "serialize").returns("test");
+
+    await MetaOSHelper.unifyProjectID("projectFolder");
+
+    chai.assert.isTrue(readManifestStub.calledOnce);
+    chai.assert.isTrue(writeManifestStub.calledOnce);
+    chai.assert.isTrue(readFileStub.calledOnce);
+    chai.assert.isTrue(writeFileStub.calledOnce);
+    chai.assert.isTrue(deserializeStub.calledOnce);
+    chai.assert.isTrue(serializeStub.calledOnce);
   });
 
   it("extendToDA", async () => {
