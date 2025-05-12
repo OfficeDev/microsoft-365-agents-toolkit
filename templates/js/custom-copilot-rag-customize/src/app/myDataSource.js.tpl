@@ -45,7 +45,7 @@ class MyDataSource {
             return { output: this.formatDocument(`${this._data[0].content}\n Citation title:${this._data[0].citation}`), length: this._data[0].content.length, tooLong: false };
         } else if (query.toLocaleLowerCase().includes("company") || query.toLocaleLowerCase().includes("history")) {
             return { output: this.formatDocument(`${this._data[1].content}\n Citation title:${this._data[1].citation}`), length: this._data[1].content.length, tooLong: false };
-        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health")) {
+        } else if (query.toLocaleLowerCase().includes("northwind") || query.toLocaleLowerCase().includes("health") || query.toLocaleLowerCase().includes("plan")) {
             return { output: this.formatDocument(`${this._data[2].content}\n Citation title:${this._data[2].citation}`), length: this._data[2].content.length, tooLong: false };
         }
         return { output: "", length: 0, tooLong: false };

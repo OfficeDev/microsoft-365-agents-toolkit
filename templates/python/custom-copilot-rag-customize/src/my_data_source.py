@@ -50,7 +50,7 @@ class MyDataSource(DataSource):
             result += self._data[0]
         if 'perksplus' in query.lower() or 'program' in query.lower():
             result += self._data[1]
-        if 'northwind' in query.lower() or 'health' in query.lower():
+        if 'northwind' in query.lower() or 'health' in query.lower() or 'plan' in query.lower():
             result += self._data[2]
        
         return Result(self.formatDocument(result), len(result), False) if result!='' else Result('', 0, False)
