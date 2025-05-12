@@ -11,17 +11,17 @@ import MockAzureAccountProvider from "@microsoft/m365agentstoolkit-cli/src/commo
 import { EnvConstants, PluginId, StateConfigKey } from "./constants";
 
 import {
+  getExpectedBotClientSecret,
+  getExpectedM365ClientSecret,
+} from "./cliHelper";
+import {
+  getActivePluginsFromProjectSetting,
   getExpectedM365ApplicationIdUri,
   getResourceGroupNameFromResourceId,
   getSiteNameFromResourceId,
   getSubscriptionIdFromResourceId,
   getWebappSettings,
-  getActivePluginsFromProjectSetting,
 } from "./utilities";
-import {
-  getExpectedM365ClientSecret,
-  getExpectedBotClientSecret,
-} from "./cliHelper";
 
 const baseUrlListDeployments = (
   subscriptionId: string,
@@ -139,7 +139,7 @@ export class BotValidator {
       chai.assert.equal(
         response[BaseConfig.clientId] ||
           response["Connections__BotServiceConnection__Settings__ClientId"],
-        this.ctx[EnvConstants.clientId] as string
+        this.ctx[EnvConstants.BOT_ID] as string
       );
     } else {
       chai.assert.equal(
