@@ -165,9 +165,7 @@ export class SPFxGenerator {
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
-      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0")
-        ? "true"
-        : "false";
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
 
       importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
@@ -388,14 +386,16 @@ export class SPFxGenerator {
       const componentId = manifestJson.id;
 
       if (!context.templateVariables) {
-        context.templateVariables = Generator.getDefaultVariables(solutionName);
+        context.templateVariables = Generator.getDefaultVariables(solutionName ?? "");
       }
-      const SPFxVersion = await spGeneratorChecker.getSelectedSPFxVersion(yoEnv, 10, false);
-      context.templateVariables["useNewDevUrl"] = SPFxVersion
-        ? semver.gte(SPFxVersion, "1.21.0")
-          ? "true"
-          : "false"
-        : "true";
+
+      if (shouldInstallLocally) {
+        context.templateVariables["useNewDevUrl"] = "true";
+      } else {
+        const SPFxVersion = await spGeneratorChecker.findGloballyInstalledVersion(undefined, false);
+        context.templateVariables["useNewDevUrl"] =
+          SPFxVersion && semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
+      }
 
       if (!isAddSPFx) {
         context.templateVariables["componentId"] = componentId;
@@ -990,9 +990,7 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
-      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0")
-        ? "true"
-        : "false";
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
       this.importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
           inputs[QuestionNames.AppName] as string

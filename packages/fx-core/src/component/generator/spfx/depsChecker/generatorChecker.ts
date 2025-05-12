@@ -123,20 +123,6 @@ export class GeneratorChecker implements DependencyChecker {
     );
   }
 
-  public async getSelectedSPFxVersion(
-    env: NodeJS.ProcessEnv,
-    timeoutInSeconds?: number,
-    shouldThrowIfNotFound?: boolean
-  ): Promise<string | undefined> {
-    return await Utils.getSelectedSPFxVersion(
-      this._logger,
-      name,
-      env,
-      timeoutInSeconds ?? 0,
-      shouldThrowIfNotFound
-    );
-  }
-
   public async findLatestVersion(timeoutInSeconds?: number): Promise<string | undefined> {
     return await Utils.findLatestVersion(this._logger, name, timeoutInSeconds ?? 0);
   }

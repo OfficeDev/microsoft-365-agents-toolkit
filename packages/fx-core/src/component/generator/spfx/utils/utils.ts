@@ -176,35 +176,6 @@ export class Utils {
     }
   }
 
-  static async getSelectedSPFxVersion(
-    logger: LogProvider | undefined,
-    packageName: string,
-    env: NodeJS.ProcessEnv,
-    timeoutInSeconds: number,
-    shouldThrowIfNotFound = true
-  ): Promise<string | undefined> {
-    const timeout = timeoutInSeconds * 1000;
-    try {
-      const output = await cpUtils.executeCommand(
-        undefined,
-        logger,
-        { timeout: timeout, env: env, shell: getShellOptionValue() },
-        getExecCommand("npm"),
-        "ls",
-        `${packageName}`,
-        "-g",
-        "--depth=0"
-      );
-
-      return output.toString();
-    } catch (error) {
-      logger?.debug(`Failed to execute "npm ls ${packageName}"`);
-      if (shouldThrowIfNotFound) {
-        throw error;
-      }
-    }
-  }
-
   static async findLatestVersion(
     logger: LogProvider | undefined,
     packageName: string,
