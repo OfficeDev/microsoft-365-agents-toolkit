@@ -15,11 +15,23 @@ import {
 import { dotenvUtil } from "../../utils/envUtil";
 import { getUuid } from "../../../common/stringUtils";
 
-const NOT_COPY_FILES = ["README.md", "teamsapp.yml", "m365agents.yml"];
+const NOT_COPY_FILES = [
+  "README.md",
+  "teamsapp.yml",
+  "m365agents.yml",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+];
 const NOT_COPY_FOLDERS = ["node_modules", "env"];
 
 const DEFAULT_MANIFEST_ID = "${{TEAMS_APP_ID}}";
 const DEFAULT_DA_ID = "declarativeCopilotAlc";
+
+const ENV_FOLDER = "env";
+const ENV_FILE_NAME = ".env.dev";
+
+const PKG_JSON_FILE_NAME = "package.json";
 
 const DEFAULT_CMD_NAME = "fillcolor";
 const DEFAULT_CMD_FILE_NAME = "commands.js";
@@ -87,7 +99,7 @@ export class MetaOSHelper {
 
   static async unifyProjectID(projectFolder: string): Promise<void> {
     const manifestPath = path.join(projectFolder, AppPackageFolderName, ManifestTemplateFileName);
-    const envFilePath = path.join(projectFolder, "env", ".env.dev");
+    const envFilePath = path.join(projectFolder, ENV_FOLDER, ENV_FILE_NAME);
 
     const manifest = (await AppManifestUtils.readTeamsManifest(
       manifestPath
@@ -126,6 +138,9 @@ export class MetaOSHelper {
 
     // Add functions to command.ts
     await MetaOSHelper.addCodeToCommands(projectFolder, commandName);
+
+    // Upgrade office-addin-debugging
+    await MetaOSHelper.upgradeOfficeAddInDebugging(projectFolder);
   }
 
   static async modifyManifest(projectFolder: string, DAFilename: string): Promise<string> {
@@ -220,6 +235,17 @@ export class MetaOSHelper {
       path.join(projectFolder, AppPackageFolderName, DAFilename),
       fileJson
     );
+  }
+
+  static async upgradeOfficeAddInDebugging(projectFolder: string): Promise<void> {
+    const pkgJsonPath = path.join(projectFolder, PKG_JSON_FILE_NAME);
+    if (fse.existsSync(pkgJsonPath)) {
+      const pkgJson = await fse.readJSON(pkgJsonPath);
+      pkgJson["devDependencies"]["office-addin-debugging"] = "^6.0.4";
+      await fse.writeJSON(pkgJsonPath, pkgJson, { spaces: 2 });
+    } else {
+      throw new Error(`package.json file doesn't exist!`);
+    }
   }
 
   static async generateActionFile(

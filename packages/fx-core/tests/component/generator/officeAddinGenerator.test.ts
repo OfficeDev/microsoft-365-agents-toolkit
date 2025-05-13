@@ -737,11 +737,13 @@ describe("MetaOSHelper", () => {
     const generateDAFile = sandbox.stub(MetaOSHelper, "generateDAFile").resolves();
     const generateActionFile = sandbox.stub(MetaOSHelper, "generateActionFile").resolves();
     const addCodeToCommands = sandbox.stub(MetaOSHelper, "addCodeToCommands").resolves();
+    const upgradePkg = sandbox.stub(MetaOSHelper, "upgradeOfficeAddInDebugging").resolves();
 
     await MetaOSHelper.extendToDA("projectFolder", "appName");
     chai.assert.isTrue(generateDAFile.calledOnce);
     chai.assert.isTrue(generateActionFile.calledOnce);
     chai.assert.isTrue(addCodeToCommands.calledOnce);
+    chai.assert.isTrue(upgradePkg.calledOnce);
   });
 
   it("modifyManifest: condition 1", async () => {
@@ -862,5 +864,26 @@ describe("MetaOSHelper", () => {
     const writeFileFn = sandbox.stub(fse, "appendFile").resolves();
     await MetaOSHelper.addCodeToCommands("projectFolder", "commandName");
     chai.assert.isTrue(writeFileFn.calledOnce);
+  });
+
+  it("upgradeOfficeAddInDebugging: success", async () => {
+    sandbox.stub(path, "join").returns("test");
+    sandbox.stub(fse, "existsSync").resolves(true);
+    const readJsonStub = sandbox.stub(fse, "readJSON").resolves({});
+    const writeJsonStub = sandbox.stub(fse, "writeJSON").resolves();
+
+    await MetaOSHelper.upgradeOfficeAddInDebugging("projectFolder");
+    chai.assert.isTrue(readJsonStub.calledOnce);
+    chai.assert.isTrue(writeJsonStub.calledOnce);
+  });
+
+  it("upgradeOfficeAddInDebugging: failed", async () => {
+    sandbox.stub(fse, "existsSync").resolves(false);
+
+    try {
+      await MetaOSHelper.upgradeOfficeAddInDebugging("projectFolder");
+    } catch (e) {
+      chai.assert.isNotNull(e);
+    }
   });
 });
