@@ -56,13 +56,17 @@ export function createServer(): McpServer {
   );
 
   server.tool(
-    "get_samples",
-    "Access templates and code samples for Microsoft 365 and Microsoft 365 Copilot development. Use this tool when looking for implementation examples, starter templates, or reference architectures.",
+    "get_code_snippets",
+    "Access templates and code snippets for Microsoft 365 and Microsoft 365 Copilot development, focusing on SDKs such as **@microsoft/teams-ai**, **@microsoft/teams-js**, and **botbuilder**. Use this tool when looking for implementation examples, starter templates, or SDK usage patterns.",
     {
-      question: z.string().describe("Query to find relevant samples and templates"),
+      question: z
+        .string()
+        .describe(
+          "Query to find relevant code snippets related to Microsoft 365 app or agent SDKs"
+        ),
     },
     async ({ question }) => {
-      const result = await retrieveResource("samples", question);
+      const result = await retrieveResource("code", question);
 
       return {
         content: [
