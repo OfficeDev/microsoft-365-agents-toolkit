@@ -140,7 +140,11 @@ async function main() {
           !app.Title?.startsWith(excludePrefix)
         ) {
           console.log(app.Title);
-          await sharePointCleanService.deleteApp(app.ID!);
+          try {
+            await sharePointCleanService.deleteApp(app.ID!);
+          } catch {
+            console.log(`Failed to delete SharePoint app ${app.ID!}`);
+          }
         }
       }
     }

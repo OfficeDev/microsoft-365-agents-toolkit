@@ -14,6 +14,7 @@ import {
   DebugItemSelect,
   ValidationContent,
   Lang,
+  LocalDebugTaskResult,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -59,7 +60,10 @@ describe("Local Debug Tests", function () {
       await startDebugging(DebugItemSelect.DebugInTeamsUsingChrome);
 
       await waitForTerminal(LocalDebugTaskLabel.StartLocalTunnel);
-      await waitForTerminal(LocalDebugTaskLabel.StartBotApp, "Bot Started");
+      await waitForTerminal(
+        LocalDebugTaskLabel.StartBotApp,
+        LocalDebugTaskResult.AgentStartedSuccessfully
+      );
 
       const teamsAppId = await localDebugTestContext.getTeamsAppId();
       const page = await initPage(

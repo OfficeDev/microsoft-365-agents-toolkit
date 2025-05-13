@@ -439,6 +439,7 @@ export class LocalDebugTaskResult {
   static readonly CompiledSuccess = "Found 0 errors";
   static readonly BotAppSuccess = "Functions:";
   static readonly AppSuccess = "Bot Started";
+  static readonly AgentStartedSuccessfully = "Agent started";
   static readonly GulpServeSuccess = "Running server";
   static readonly Failed = "failed";
   static readonly Error = "error";
