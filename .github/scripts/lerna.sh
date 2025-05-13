@@ -3,7 +3,16 @@ VAR=$@
 echo ============= Inputs: $VAR ================
 stringarray=($VAR)
 if [ -z $stringarray ]; then
-    echo "for all the pkgs"
+    echo "for all the pkgs excpt mcp-server"
+    # Remove the package/mcp-server from the workspace
+    echo "packages:" > pnpm-workspace.yaml
+    for pkg in $(jq -r '.common[]' .github/scripts/lernaDeps.json)
+    do
+        if [ "$pkg" != "packages/mcp-server" ]; then
+            echo "- $pkg" >> pnpm-workspace.yaml
+        fi
+    done
+    cat pnpm-workspace.yaml
     exit 0
 else 
     git update-index --assume-unchanged "pnpm-workspace.yaml"
