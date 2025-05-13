@@ -1,6 +1,30 @@
 # Changelog
 
-> Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
+> Note: This changelog only includes the changes for the stable versions of the extension. For the changelog of pre-released versions, please refer to the [Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
+
+## 6.0.0 - May 19, 2025
+This major version update represents a significant milestone as we've rebranded from "Teams Toolkit" to "Microsoft 365 Agents Toolkit" with a new extension icon.
+
+### Extension Rebranding
+
+- **New Name**: The extension has been renamed from "Teams Toolkit" to "Microsoft 365 Agents Toolkit" to better reflect its expanded scope and capabilities in the Microsoft 365 ecosystem. [Evolution of Teams Toolkit](https://aka.ms/M365AgentsToolkit)
+- **New Icon**: The extension now has a new icon that aligns with the Microsoft 365 Agents branding.
+![Microsoft 365 Agents Toolkit icon]()
+- **New Templates**: Introducing powerful new templates utilizing the Microsoft Agents SDK to create intelligent agents.
+- **Project File Renaming**: Key project files have been renamed to align with the new toolkit identity:
+  - `teamsapp.yml` is now `m365agents.yml`
+- **Tool Renaming**: The "Teams App Test Tool" has been renamed to "Microsoft 365 Agents Playground" to maintain consistency with the new branding.
+
+### Why This Change?
+
+This rebranding reflects our expanded focus beyond Teams to the broader Microsoft 365 platform, particularly in developing intelligent agents and AI-powered solutions. The Microsoft 365 Agents Toolkit now supports:
+
+- Building and deploying agents across Microsoft 365 applications
+- Creating declarative and custom engine agents
+- Integrating with Microsoft Copilot and other AI capabilities
+- Supporting development scenarios across Teams, Outlook, and other Microsoft 365 applications
+
+All existing Teams Toolkit functionality remains available, and your existing projects will continue to work without any changes required.
 
 ## 5.14.1 - Mar 28, 2025
 This patch version update of Teams Toolkit includes several incremental enhancements and bug fixes:
