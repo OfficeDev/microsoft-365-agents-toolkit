@@ -1,8 +1,8 @@
 {
-  "schema_version": "v2.2",
+  "schema_version": "v2.3",
   "name_for_human": "Add-in Skill + Agent for {{appName}}",
   "description_for_human": "Get answer for user's question related to Microsoft 365 products",
-  "namespace": "addin_function",
+  "namespace": "addinfunction",
   "functions": [
     {
       "name": "addfooter",
