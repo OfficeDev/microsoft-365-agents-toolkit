@@ -733,7 +733,7 @@ describe("MetaOSHelper", () => {
 
   it("extendToDA", async () => {
     sandbox.stub(MetaOSHelper, "ensureFileNameIsNotExist").returns("test");
-    sandbox.stub(MetaOSHelper, "modifyManifest").resolves("test");
+    sandbox.stub(MetaOSHelper, "modifyManifest").resolves({ w: "w", x: "x", p: "p" });
     const generateDAFile = sandbox.stub(MetaOSHelper, "generateDAFile").resolves();
     const generateActionFile = sandbox.stub(MetaOSHelper, "generateActionFile").resolves();
     const addCodeToCommands = sandbox.stub(MetaOSHelper, "addCodeToCommands").resolves();
@@ -846,14 +846,18 @@ describe("MetaOSHelper", () => {
 
   it("generateActionFile", async () => {
     const writeFileFn = sandbox.stub(fse, "writeJSON").resolves();
-    await MetaOSHelper.generateActionFile("projectFolder", "filename", "test", "test");
+    await MetaOSHelper.generateActionFile("projectFolder", "filename", "test", {
+      w: "w",
+      x: "x",
+      p: "p",
+    });
     chai.assert.isTrue(writeFileFn.calledOnce);
   });
 
   it("addCodeToCommands: error", async () => {
     sandbox.stub(fse, "existsSync").resolves(false);
     try {
-      await MetaOSHelper.addCodeToCommands("projectFolder", "commandName");
+      await MetaOSHelper.addCodeToCommands("projectFolder", { w: "w", x: "x", p: "p" });
     } catch (e) {
       chai.assert.isNotNull(e);
     }
@@ -862,14 +866,16 @@ describe("MetaOSHelper", () => {
   it("addCodeToCommands", async () => {
     sandbox.stub(fse, "existsSync").resolves(true);
     const writeFileFn = sandbox.stub(fse, "appendFile").resolves();
-    await MetaOSHelper.addCodeToCommands("projectFolder", "commandName");
+    await MetaOSHelper.addCodeToCommands("projectFolder", { w: "w", x: "x", p: "p" });
     chai.assert.isTrue(writeFileFn.calledOnce);
   });
 
   it("upgradeOfficeAddInDebugging: success", async () => {
     sandbox.stub(path, "join").returns("test");
     sandbox.stub(fse, "existsSync").resolves(true);
-    const readJsonStub = sandbox.stub(fse, "readJSON").resolves({});
+    const readJsonStub = sandbox
+      .stub(fse, "readJSON")
+      .resolves({ devDependencies: { "office-addin-debugging": "1.0.0" } });
     const writeJsonStub = sandbox.stub(fse, "writeJSON").resolves();
 
     await MetaOSHelper.upgradeOfficeAddInDebugging("projectFolder");
