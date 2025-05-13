@@ -1303,6 +1303,7 @@ describe("SPFxGeneratorImport", () => {
         preconfiguredEntries: [{ title: { default: "defaultTitle" } }],
       });
       sandbox.stub(SPFxGenerator, "getNodeVersion").resolves("18.0");
+      sandbox.stub(SPFxGenerator, "getSolutionVersion").resolves("1.21.0");
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",
@@ -1311,6 +1312,7 @@ describe("SPFxGeneratorImport", () => {
         [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
         [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
         [QuestionNames.SPFxSolution]: "import",
+        [QuestionNames.SPFxFolder]: "c:\\test",
       };
       const res = await generator.getTemplateInfos(context, inputs, "");
       chai.expect(res.isOk()).to.be.true;
