@@ -39,7 +39,7 @@ const response = await axios.default.get(endpoint + "/api/" + functionName, {
 
 ### Add More Functions
 
-- From Visual Studio Code, open the command palette, select `Teams: View How-to Guides` and select `Integrate with Azure Functions`.
+- From Visual Studio Code, open the command palette, select `Microsoft 365 Agents: View How-to Guides` and select `Integrate with Azure Functions`.
 
 ## Change Node.js runtime version
 
@@ -56,7 +56,7 @@ Then following requests sent to the Azure Functions app will be handled by new n
 ## Debug
 
 - From Visual Studio Code: Start debugging the project by hitting the `F5` key in Visual Studio Code. Alternatively use the `Run and Debug Activity Panel` in Visual Studio Code and click the `Start Debugging` green arrow button.
-- From Microsoft 365 Agents Toolkit CLI: Start debugging the project by executing the command `teamsapp preview --local` in your project directory.
+- From Microsoft 365 Agents Toolkit CLI: Start debugging the project by executing the command `atk preview --local` in your project directory.
 
 ## Edit the manifest
 
@@ -72,7 +72,7 @@ Deploy your project to Azure by following these steps:
 
 | From Visual Studio Code                                                                                                                                                                                                                                                                                                                        | From Microsoft 365 Agents Toolkit CLI                                                                                                                          |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------- |
-| <ul><li>Open Microsoft 365 Agents Toolkit, and sign into Azure by clicking the `Sign in to Azure` under the `ACCOUNTS` section from sidebar.</li> <li>After you signed in, select a subscription under your account.</li><li>Open the command palette and select: `Teams: Provision`.</li><li>Open the command palette and select: `Teams: Deploy`.</li></ul> | <ul> <li>Run command `teamsapp auth login azure`.</li><li> Run command `teamsapp provision`.</li> <li>Run command `teamsapp deploy`. </li></ul> |
+| <ul><li>Open Microsoft 365 Agents Toolkit, and sign into Azure by clicking the `Sign in to Azure` under the `ACCOUNTS` section from sidebar.</li> <li>After you signed in, select a subscription under your account.</li><li>Open the command palette and select: `Microsoft 365 Agents: Provision`.</li><li>Open the command palette and select: `Microsoft 365 Agents: Deploy`.</li></ul> | <ul> <li>Run command `atk auth login azure`.</li><li> Run command `atk provision`.</li> <li>Run command `atk deploy`. </li></ul> |
 
 > Note: Provisioning and deployment may incur charges to your Azure Subscription.
 
@@ -86,23 +86,23 @@ Once the provisioning and deployment steps are finished, you can preview your ap
   1. Select `Launch Remote (Edge)` or `Launch Remote (Chrome)` from the launch configuration drop-down.
   1. Press the Play (green arrow) button to launch your app - now running remotely from Azure.
 
-- From Microsoft 365 Agents Toolkit CLI: execute `teamsapp preview --remote` in your project directory to launch your application.
+- From Microsoft 365 Agents Toolkit CLI: execute `atk preview --remote` in your project directory to launch your application.
 
 ## Validate manifest file
 
 To check that your manifest file is valid:
 
-- From Visual Studio Code: open the command palette and select: `Teams: Validate Application`.
-- From Microsoft 365 Agents Toolkit CLI: run command `teamsapp validate` in your project directory.
+- From Visual Studio Code: open the command palette and select: `Microsoft 365 Agents: Validate Application`.
+- From Microsoft 365 Agents Toolkit CLI: run command `atk validate` in your project directory.
 
 ## Package
 
-- From Visual Studio Code: open the command palette and select `Teams: Zip app package`.
-- Alternatively, from the command line run `teamsapp package` in the project directory.
+- From Visual Studio Code: open the command palette and select `Microsoft 365 Agents: Zip app package`.
+- Alternatively, from the command line run `atk package` in the project directory.
 
 ## Publish to Teams
 
 Once deployed, you may want to distribute your application to your organization's internal app store in Teams. Your app will be submitted for admin approval.
 
-- From Visual Studio Code: open the command palette and select: `Teams: Publish`.
-- From Microsoft 365 Agents Toolkit CLI: run command `teamsapp publish` in your project directory.
+- From Visual Studio Code: open the command palette and select: `Microsoft 365 Agents: Publish`.
+- From Microsoft 365 Agents Toolkit CLI: run command `atk publish` in your project directory.
