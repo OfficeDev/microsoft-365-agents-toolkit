@@ -776,6 +776,37 @@ describe("SPFxGenerator", function () {
       chai.expect(generatorInstaller.called).to.be.false;
     });
 
+    it("add web part with global package - SPFx higher than 1.21", async () => {
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: testFolder,
+        [QuestionNames.SPFxSolution]: "new",
+        [QuestionNames.SPFxFolder]: "folder",
+        [QuestionNames.SPFxWebpartName]: "hello",
+        stage: Stage.addWebpart,
+      };
+
+      sinon.stub(GeneratorChecker.prototype, "findGloballyInstalledVersion").resolves("1.21.0");
+      sinon.stub(GeneratorChecker.prototype, "findLocalInstalledVersion").resolves(undefined);
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(cpUtils, "executeCommand").resolves("succeed");
+      const yoInstaller = sinon.stub(YoChecker.prototype, "ensureDependency").resolves(ok(true));
+      const generatorInstaller = sinon
+        .stub(GeneratorChecker.prototype, "ensureDependency")
+        .resolves(ok(true));
+      sinon.stub(SPFxGenerator, "shouldAddWebPartWithLocalDependencies").resolves(false);
+
+      const result = await SPFxGenerator.doYeomanScaffold(context, inputs, testFolder);
+      if (result.isErr()) {
+        console.log(result.error);
+      }
+
+      chai.expect(result.isOk()).to.eq(true);
+
+      chai.expect(yoInstaller.called).to.be.false;
+      chai.expect(generatorInstaller.called).to.be.false;
+    });
+
     it("add web part with local package", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1304,6 +1335,28 @@ describe("SPFxGeneratorImport", () => {
       });
       sandbox.stub(SPFxGenerator, "getNodeVersion").resolves("18.0");
       sandbox.stub(SPFxGenerator, "getSolutionVersion").resolves("1.21.0");
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        projectPath: "./",
+        [QuestionNames.AppName]: "testspfx",
+        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.ProjectType]: ProjectTypeOptions.teamsAppOptionId,
+        [QuestionNames.TeamsAppType]: TeamsProjectTypeOptions.tabOptionId,
+        [QuestionNames.SPFxSolution]: "import",
+        [QuestionNames.SPFxFolder]: "c:\\test",
+      };
+      const res = await generator.getTemplateInfos(context, inputs, "");
+      chai.expect(res.isOk()).to.be.true;
+    });
+
+    it("happy path - SPFx lower than 1.21", async () => {
+      sandbox.stub(SPFxGenerator, "copySPFxSolution").resolves();
+      sandbox.stub(SPFxGenerator, "getWebpartManifest").resolves({
+        id: "test-id",
+        preconfiguredEntries: [{ title: { default: "defaultTitle" } }],
+      });
+      sandbox.stub(SPFxGenerator, "getNodeVersion").resolves("18.0");
+      sandbox.stub(SPFxGenerator, "getSolutionVersion").resolves("1.17.0");
       const inputs: Inputs = {
         platform: Platform.CLI,
         projectPath: "./",

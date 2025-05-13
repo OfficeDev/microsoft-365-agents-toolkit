@@ -515,7 +515,7 @@ export class SPFxGenerator {
   }
 
   // return shouldUseLocal
-  private static async shouldAddWebPartWithLocalDependencies(
+  public static async shouldAddWebPartWithLocalDependencies(
     solutionVersion: string,
     globalVersion: string | undefined,
     localVersion: string | undefined,
