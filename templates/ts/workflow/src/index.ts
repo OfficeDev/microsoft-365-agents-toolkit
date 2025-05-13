@@ -1,4 +1,4 @@
-import { TurnContext } from "botbuilder";
+import { TurnContext } from "@microsoft/agents-hosting";
 import express from "express";
 import { DoStuffActionHandler } from "./cardActions/doStuffActionHandler";
 import { GenericCommandHandler } from "./commands/genericCommandHandler";

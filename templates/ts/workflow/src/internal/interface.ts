@@ -1,4 +1,4 @@
-import { TurnState } from "@microsoft/teams-ai";
+import { TurnState } from "@microsoft/agents-hosting";
 
 export interface ConversationState {
   count: number;

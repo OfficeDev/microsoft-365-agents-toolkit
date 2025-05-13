@@ -1,6 +1,6 @@
-import { AdaptiveCard } from "@microsoft/teams-ai";
+import { AdaptiveCard } from "@microsoft/agents-hosting-teams";
 import * as ACData from "adaptivecards-templating";
-import { TurnContext } from "botbuilder";
+import { TurnContext } from "@microsoft/agents-hosting";
 import responseCard from "../adaptiveCards/doStuffActionResponse.json";
 
 /**

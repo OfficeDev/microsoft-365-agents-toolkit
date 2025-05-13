@@ -23,11 +23,12 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/teams-ai": "^1.7.0",
         "adaptivecards-templating": "^2.3.1",
         "adaptive-expressions": "^4.23.1",
-        "botbuilder": "^4.23.1",
-        "express": "^5.0.1"
+        "express": "^5.0.1",
+        "@microsoft/agents-activity": "^0.3.5",
+        "@microsoft/agents-hosting": "^0.3.5",
+        "@microsoft/agents-hosting-teams": "^0.3.5"
     },
     "devDependencies": {
         "@types/express": "^5.0.0",
