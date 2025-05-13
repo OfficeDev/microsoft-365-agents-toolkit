@@ -20,7 +20,7 @@ provision:
   - uses: cli/runNpmCommand
     name: install dependencies
     with:
-      args: install
+      args: install --prefer-offline --no-audit --progress=false
 
   # Compile typespec files and generate necessary files for agent.
   # If you want to update the outputDir, please make sure the following paths are also updated.
