@@ -52,13 +52,13 @@ describe("MCP Server", () => {
       expect(serverAny._registeredTools).toHaveProperty("get_schema");
     });
 
-    it("should register the get_knowledge, get_samples, and troubleshoot tools", () => {
+    it("should register the get_knowledge, get_code_snippets, and troubleshoot tools", () => {
       const server = createServer();
       const serverAny = server as any;
 
       // Check if _registeredTools has our new tools
       expect(serverAny._registeredTools).toHaveProperty("get_knowledge");
-      expect(serverAny._registeredTools).toHaveProperty("get_samples");
+      expect(serverAny._registeredTools).toHaveProperty("get_code_snippets");
       expect(serverAny._registeredTools).toHaveProperty("troubleshoot");
     });
   });
@@ -196,17 +196,17 @@ describe("MCP Server", () => {
       expect(retrieveResourceSpy).toHaveBeenCalledWith("documents", "How do I create a Teams app?");
     });
 
-    it("get_samples tool should call retrieveResource with correct parameters", async () => {
+    it("get_code_snippets tool should call retrieveResource with correct parameters", async () => {
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_samples"].callback;
+      const toolCallback = serverAny._registeredTools["get_code_snippets"].callback;
 
       // Call the tool callback with a query
       await toolCallback({ question: "Teams message extension sample" }, {});
 
       // Verify retrieveResource was called with the correct parameters
       expect(retrieveResourceSpy).toHaveBeenCalledTimes(1);
-      expect(retrieveResourceSpy).toHaveBeenCalledWith("samples", "Teams message extension sample");
+      expect(retrieveResourceSpy).toHaveBeenCalledWith("code", "Teams message extension sample");
     });
 
     it("troubleshoot tool should call retrieveResource with correct parameters", async () => {
@@ -246,7 +246,7 @@ describe("MCP Server", () => {
 
       const server = createServer();
       const serverAny = server as any;
-      const toolCallback = serverAny._registeredTools["get_samples"].callback;
+      const toolCallback = serverAny._registeredTools["get_code_snippets"].callback;
 
       // Call the tool callback
       const response = await toolCallback({ question: "Invalid query" }, {});
