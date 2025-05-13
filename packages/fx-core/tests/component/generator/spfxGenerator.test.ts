@@ -664,6 +664,57 @@ describe("SPFxGenerator", function () {
     chai.expect(writeAppManifestStub.calledTwice).to.eq(true);
   });
 
+  it("Teams manifest staticTabs is updated if imported SPFx solution has multiple web parts - SPFx higher than 1.21.0", async () => {
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: testFolder,
+      [QuestionNames.AppName]: "spfxTestApp",
+      [QuestionNames.SPFxSolution]: "import",
+      [QuestionNames.SPFxFolder]: "c:\\test",
+    };
+
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "readdir").callsFake((directory: any) => {
+      if (directory === path.join("c:\\test", "teams")) {
+        return ["1_color.png", "1_outline.png"] as any;
+      } else if (directory === path.join("c:\\test", "src", "webparts")) {
+        return ["helloworld", "second"] as any;
+      } else {
+        return ["HelloWorldWebPart.manifest.json"] as any;
+      }
+    });
+    sinon.stub(fs, "statSync").returns({
+      isDirectory: () => {
+        return true;
+      },
+    } as any);
+    const generateTemplateStub = sinon
+      .stub(Generator, "generateTemplate" as any)
+      .resolves(ok(undefined));
+    const fakedManifest = {
+      name: { short: "thisisaverylongappnametotestifitwillbetruncated" },
+      staticTabs: [{ name: "default" }],
+    };
+    const readAppManifestStub = sinon
+      .stub(ManifestUtils.prototype, "_readAppManifest")
+      .resolves(ok(fakedManifest as any));
+    const writeAppManifestStub = sinon
+      .stub(ManifestUtils.prototype, "_writeAppManifest")
+      .resolves();
+    const writeEnvStub = sinon.stub(envUtil, "writeEnv");
+    sinon.stub(fs, "copy").resolves();
+    sinon.stub(SPFxGenerator, "getSolutionVersion").resolves("1.21.0");
+
+    const result = await SPFxGenerator.generate(context, inputs, testFolder);
+
+    chai.expect(result.isOk()).to.eq(true);
+    chai.expect(fakedManifest.staticTabs.length).to.eq(3);
+    chai.expect(generateTemplateStub.calledOnce).to.eq(true);
+    chai.expect(writeEnvStub.calledOnce).to.eq(true);
+    chai.expect(readAppManifestStub.calledTwice).to.eq(true);
+    chai.expect(writeAppManifestStub.calledTwice).to.eq(true);
+  });
+
   describe("get node versions from SPFx package.json", async () => {
     it("found node version", async () => {
       sinon.stub(fs, "pathExists").resolves(true);
