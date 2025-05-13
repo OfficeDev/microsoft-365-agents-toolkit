@@ -119,6 +119,14 @@
             {
               "id": "fillcolor",
               "type": "executeDataFunction"
+            },
+            {
+              "id": "addfooter",
+              "type": "executeDataFunction"
+            },
+            {
+              "id": "addtexttoslide",
+              "type": "executeDataFunction"
             }
           ]
         }
