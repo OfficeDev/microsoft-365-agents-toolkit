@@ -9,7 +9,8 @@ This major version update represents a significant milestone as we've rebranded 
 
 - **New Name**: The extension has been renamed from "Teams Toolkit" to "Microsoft 365 Agents Toolkit" to better reflect its expanded scope and capabilities in the Microsoft 365 ecosystem. [Evolution of Teams Toolkit](https://aka.ms/M365AgentsToolkit)
 - **New Icon**: The extension now has a new icon that aligns with the Microsoft 365 Agents branding.
-![Microsoft 365 Agents Toolkit icon]()
+
+![Microsoft 365 Agents Toolkit icon](https://github.com/user-attachments/assets/19a54c84-69a6-45c5-805d-a8404a6b7352)
 - **New Templates**: Introducing powerful new templates utilizing the Microsoft Agents SDK to create intelligent agents.
 - **Project File Renaming**: Key project files have been renamed to align with the new toolkit identity:
   - `teamsapp.yml` is now `m365agents.yml`
