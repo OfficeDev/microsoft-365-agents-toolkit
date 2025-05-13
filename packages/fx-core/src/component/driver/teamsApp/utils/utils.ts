@@ -271,7 +271,7 @@ export async function getResolvedManifest(
 
   const notExpandedVars = getEnvironmentVariables(value);
   if (notExpandedVars.length > 0) {
-    return err(new MissingEnvironmentVariablesError("teamsApp", notExpandedVars.join(","), path));
+    return err(new MissingEnvironmentVariablesError("manifest", notExpandedVars.join(","), path));
   }
   return ok(value);
 }

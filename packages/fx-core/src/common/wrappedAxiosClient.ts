@@ -68,7 +68,7 @@ export class WrappedAxiosClient {
 
     const properties: { [key: string]: string } = {
       url: `<${apiName}-url>`,
-      method: method,
+      method: method.toLowerCase(),
       params: this.generateParameters(response.config.params),
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
       "status-code": response.status.toString(),
@@ -140,13 +140,7 @@ export class WrappedAxiosClient {
       }: ${innerError.message as string} `;
       properties[TelemetryProperty.ErrorMessage] = finalMessage;
       properties[TelemetryProperty.MOSTraceId] = tracingId;
-      const relativePath = (error.request.path || "") as string;
-      const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
-      if (mosApiDef) {
-        properties.url = `mos_${mosApiDef.key}`;
-      } else {
-        properties.url = `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
-      }
+      properties.url = apiName;
     }
 
     TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
@@ -156,7 +150,7 @@ export class WrappedAxiosClient {
   static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
     for (const key of Object.keys(MOS3ApiDefinitions)) {
       const api = MOS3ApiDefinitions[key];
-      if (api.method === method && url.match(api.path)) {
+      if (api.method === method.toUpperCase() && url.match(api.path)) {
         return api;
       }
     }
@@ -284,6 +278,15 @@ export class WrappedAxiosClient {
       }
       if (fullPath.match(new RegExp("/api/v1.0/oAuthConfigurations"))) {
         return APP_STUDIO_API_NAMES.CREATE_OAUTH;
+      }
+    } else if (fullPath.includes("titles.prod.mos.microsoft.com")) {
+      // MOS API
+      const relativePath = fullPath.split("titles.prod.mos.microsoft.com")[1];
+      const mosApiDef = this.convertMethodUrlToApiDefForMOS(method, relativePath);
+      if (mosApiDef) {
+        return `mos_${mosApiDef.key}`;
+      } else {
+        return `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
       }
     }
     if (
