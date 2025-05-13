@@ -596,7 +596,7 @@ jobs:
           jobs="[]"
           while :
           do
-            url=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs\?per_page\=100\&page\=$page
+            url=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs\?per_page\=50\&page\=$page
             resp=`curl -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url`
             new_jobs=`echo $resp | jq -cr '.jobs'`
             jobs=`jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs")`
