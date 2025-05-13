@@ -126,6 +126,7 @@ export enum TelemetryEvent {
   Doctor = "doctor",
 
   AddCopilotPlugin = "add-copilot-plugin",
+  RegneratePlugin = "regenerate-copilot-plugin",
   AddAuthAction = "add-auth-action",
 
   SetSensitivityLabel = "set-sensitivity-label",

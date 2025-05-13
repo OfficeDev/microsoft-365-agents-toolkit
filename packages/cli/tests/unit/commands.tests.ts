@@ -72,6 +72,8 @@ import { setCommand } from "../../src/commands/models/set";
 import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
 import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
 import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
+import { regenerateCommand } from "../../src/commands/models/regnereate";
+import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -281,6 +283,21 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await addPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("regeneratePlguinCommand", async () => {
+    it("success", async () => {
+      sandbox.stub(FxCore.prototype, "regeneratePlugin").resolves(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...regeneratePluginCommand, fullName: "regenerate plugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await regeneratePluginCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });

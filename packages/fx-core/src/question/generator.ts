@@ -459,6 +459,9 @@ async function batchGenerate() {
   await generateCliOptions(questionNodes.addPlugin(), "AddPlugin");
   await generateInputs(questionNodes.addPlugin(), "AddPlugin");
 
+  await generateCliOptions(questionNodes.regeneratePlugin(), "RegeneratePlugin");
+  await generateInputs(questionNodes.regeneratePlugin(), "RegeneratePlugin");
+
   await generateCliOptions(questionNodes.uninstall(), "Uninstall");
   await generateInputs(questionNodes.uninstall(), "Uninstall");
 

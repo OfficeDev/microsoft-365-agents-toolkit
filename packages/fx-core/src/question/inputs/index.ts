@@ -18,3 +18,4 @@ export * from "./AddKnowledgeInputs";
 export * from "./SetSensitivityLabelInputs";
 export * from "./ShareInputs";
 export * from "./removeSharedAccessInputs";
+export * from "./RegeneratePluginInputs";

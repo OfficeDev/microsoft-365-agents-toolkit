@@ -18,3 +18,4 @@ export * from "./AddKnowledgeOptions";
 export * from "./SetSensitivityLabelOptions";
 export * from "./ShareOptions";
 export * from "./removeSharedAccessOptions";
+export * from "./RegeneratePluginOptions";

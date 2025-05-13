@@ -29,6 +29,7 @@ import { commands } from "../../resource";
 import { shareCommand } from "./share";
 import { setCommand } from "./set";
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import { regenerateCommand } from "./regnereate";
 
 export const helpCommand: CLICommand = {
   name: "help",
@@ -49,6 +50,7 @@ export const rootCommand: CLICommand = {
     accountCommand,
     getCreateCommand(),
     addCommand(),
+    regenerateCommand(),
     provisionCommand,
     deployCommand,
     ...(featureFlagManager.getBooleanValue(FeatureFlags.ShareEnabled) ? [shareCommand] : []),
