@@ -19,7 +19,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": "true",
   "files": [
     "dist"
   ],
