@@ -2,11 +2,12 @@ const { HumanMessage, SystemMessage } = require("@langchain/core/messages");
 const { MemorySaver } = require("@langchain/langgraph");
 const { createReactAgent } = require("@langchain/langgraph/prebuilt");
 const { AzureChatOpenAI, ChatOpenAI } = require("@langchain/openai");
-const { ActivityTypes, ApplicationBuilder, MessageFactory, } = require("@microsoft/agents-hosting");
+const { ActivityTypes } = require("@microsoft/agents-activity");
+const { AgentApplicationBuilder, MessageFactory } = require("@microsoft/agents-hosting");
 const { dateTool } = require("./tools/dateTimeTool");
 const { getWeatherTool } = require("./tools/getWeatherTool");
 
-const weatherAgent = new ApplicationBuilder().build();
+const weatherAgent = new AgentApplicationBuilder().build();
 
 weatherAgent.conversationUpdate(
   "membersAdded",
