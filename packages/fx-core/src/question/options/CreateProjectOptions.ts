@@ -50,7 +50,7 @@ export const CreateProjectOptions: CLICommandOption[] = [
       "json-taskpane",
       "office-content-addin",
     ],
-    choiceListCommand: "teamsapp list templates",
+    choiceListCommand: "atk list templates",
   },
   {
     name: "bot-host-type-trigger",
