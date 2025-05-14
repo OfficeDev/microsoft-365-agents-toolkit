@@ -35,8 +35,7 @@
             "botId": "${{BOT_ID}}",
             "scopes": [
                 "copilot",
-                "personal",
-                "team"
+                "personal"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
