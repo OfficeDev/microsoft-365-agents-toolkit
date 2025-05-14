@@ -193,7 +193,7 @@ jobs:
         if: contains(matrix.cases, 'SPFx')
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 22
 
       - name: Setup Azure Functions Core Tools For Linux
         run: |
