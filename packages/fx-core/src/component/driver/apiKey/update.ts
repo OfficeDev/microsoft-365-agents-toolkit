@@ -55,10 +55,6 @@ export class UpdateApiKeyDriver implements StepDriver {
         validateDomain(domains, actionName);
       }
 
-      domains = domains.map((domain) => {
-        return Utils.resolveEnv(domain);
-      });
-
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes,
       });

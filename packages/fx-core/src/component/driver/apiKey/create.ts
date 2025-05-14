@@ -109,10 +109,6 @@ export class CreateApiKeyDriver implements StepDriver {
           validateDomain(domains, actionName);
         }
 
-        domains = domains.map((domain) => {
-          return Utils.resolveEnv(domain);
-        });
-
         const apiKey = await this.mapArgsToApiSecretRegistration(
           context.m365TokenProvider,
           args,
