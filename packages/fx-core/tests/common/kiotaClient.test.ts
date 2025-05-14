@@ -258,6 +258,51 @@ describe("kiotaClient", () => {
       }
     });
 
+    it("edge case: ListAPITreeInfo contains url encoded characters and environment variables", async () => {
+      const mockTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "${{operationId}}",
+          children: [],
+        },
+        servers: ["https://api.example.com/$%7B%7BTestEnv%7D%7D/"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
+      process.env.TestEnv = "test-env";
+      process.env.operationId = "test-operation-id";
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      const result = await listAPITreeInfo("path/to/spec");
+      assert(result.servers[0] === "https://api.example.com/test-env/");
+      assert(result.rootNode.operationId === "test-operation-id");
+      assert(getKiotaTreeStub.calledOnce);
+      assert(
+        getKiotaTreeStub.calledWith({
+          includeFilters: undefined,
+          descriptionPath: "path/to/spec",
+          excludeFilters: undefined,
+          clearCache: true,
+          includeKiotaValidationRules: true,
+        })
+      );
+    });
+
     it("edge case: listAPITreeInfo returns undefined", async () => {
       const getKiotaTreeStub = sinon.stub().resolves(undefined);
 

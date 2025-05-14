@@ -83,7 +83,7 @@ async function getandValidateOauthInfoFromSpec(
     throw new OauthAuthMissingInSpec(actionName, args.name);
   }
 
-  let domains = operations
+  const domains = operations
     .map((value) => {
       return value.server;
     })
@@ -91,10 +91,6 @@ async function getandValidateOauthInfoFromSpec(
       return self.indexOf(value) === index;
     });
   validateDomain(domains, actionName);
-
-  domains = domains.map((domain) => {
-    return Utils.resolveEnv(domain);
-  });
 
   // Need to separate the logic for different flows
   const flow = "flow" in args ? args.flow : "authorizationCode";
