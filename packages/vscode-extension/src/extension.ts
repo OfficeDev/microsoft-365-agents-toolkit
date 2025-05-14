@@ -43,8 +43,8 @@ import VsCodeLogInstance from "./commonlib/log";
 import M365TokenInstance from "./commonlib/m365Login";
 import { configMgr } from "./config";
 import {
-  CommandKey as CommandKeys,
   CONFIGURATION_PREFIX,
+  CommandKey as CommandKeys,
   ConfigurationKey,
   EnableMicrosoftKiota,
 } from "./constants";
@@ -63,7 +63,6 @@ import {
   diagnosticCollection,
   initializeGlobalVariables,
   isDeclarativeCopilotApp,
-  isExistingUser,
   isMetaOSAddinProject,
   isOfficeAddInProject,
   isOfficeManifestOnlyProject,
@@ -197,7 +196,7 @@ import {
   handleOfficeFeedback,
   officeChatRequestHandler,
 } from "./officeChat/handlers";
-import { initVSCodeUI, VS_CODE_UI } from "./qm/vsc_ui";
+import { VS_CODE_UI, initVSCodeUI } from "./qm/vsc_ui";
 import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
@@ -1434,11 +1433,6 @@ async function runBackgroundAsyncTasks(
   isTeamsFxProject: boolean
 ) {
   await exp.initialize(context);
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isNewUser",
-    isExistingUser === "no"
-  );
   TreatmentVariableValue.inProductDoc = await exp
     .getExpService()
     .getTreatmentVariableAsync(
