@@ -3,11 +3,11 @@
 > Note: This changelog only includes the changes for the stable versions of Teams Toolkit. For the changelog of pre-released versions, please refer to the [Teams Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 ## 6.0.0 - May 19, 2025
-This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development support for agents building and a brand new icon!
+This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development experience for agents building and a brand new icon!
 
 ### Introducing Microsoft 365 Agents Toolkit
 
-We’re excited to announce that our product — evolved from Teams Toolkit to `Microsoft 365 Agents Toolkit`. This reflects our broader vision and ongoing commitment to support a wide range of development scenarios across the Microsoft 365 ecosystem.
+We’re excited to announce that our product — `Microsoft 365 Agents Toolkit`(evolved from Teams Toolkit). This update reflects our broader vision and ongoing commitment to support a wide range of development scenarios across the Microsoft 365 ecosystem.
 
 As we evolve, we’re expanding beyond Microsoft Teams development to empower developers to build agents for Microsoft 365 Copilot and applications across platforms like Microsoft Teams, Microsoft 365 Copilot, Microsoft 365 apps. This broader scope enables us to deliver a more versatile and comprehensive set of tools, templates, and resources to help you create powerful, integrated solutions.
 
