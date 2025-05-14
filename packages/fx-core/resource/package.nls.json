@@ -1114,7 +1114,7 @@
   "action.devTool.nodeInstaller.SuccessExtract": "Successfully extract NodeJS package to path: %s, time: %s ms",
   "action.devTool.nodeInstaller.Summary.installInPath": "NodeJS is installed at: %s.",
   "action.devTool.nodeInstaller.Summary.installInSystem": "NodeJS is already installed in system environment.",
-  "driver.typeSpec.compile.reprovision": "File %s is updated. Rerun the provision process to account for these changes",
+  "driver.typeSpec.compile.reprovision": "File %s is updated. Another provision process has been triggered to account for these changes.",
   "error.kiota.KiotaGeneratePluginError": "Unable to generate plugin manifest file using Kiota. Error: %s",
   "error.daSpecParser.InvalidSpecError": "OpenAPI specification file is not valid: %s",
   "error.kiotaClient.EmptyResult": "Get empty result when parser OpenAPI description file."
