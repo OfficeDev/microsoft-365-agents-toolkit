@@ -2,16 +2,16 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { AzureChatOpenAI, ChatOpenAI } from "@langchain/openai";
+import { ActivityTypes } from "@microsoft/agents-activity";
 import {
-  ActivityTypes,
-  ApplicationBuilder,
+  AgentApplicationBuilder,
   MessageFactory,
   TurnContext,
 } from "@microsoft/agents-hosting";
 import { dateTool } from "./tools/dateTimeTool";
 import { getWeatherTool } from "./tools/getWeatherTool";
 
-export const weatherAgent = new ApplicationBuilder().build();
+export const weatherAgent = new AgentApplicationBuilder().build();
 
 weatherAgent.conversationUpdate(
   "membersAdded",

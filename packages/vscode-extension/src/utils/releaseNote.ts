@@ -40,12 +40,18 @@ export class ReleaseNote {
     } else {
       const currentStableVersion = this.context.globalState.get<string>(SyncedState.Version);
       await this.context.globalState.update(SyncedState.Version, teamsToolkitVersion);
-      if (
-        currentStableVersion !== undefined &&
-        versionUtil.compare(teamsToolkitVersion, currentStableVersion) === 1
-      ) {
-        // it is existinig user
+
+      let showChangeLog = false;
+      if (currentStableVersion === undefined) {
+        // it is new user
+        showChangeLog = true;
+      } else if (versionUtil.compare(teamsToolkitVersion, currentStableVersion) === 1) {
+        // user has upgraded from previous stable version
+        showChangeLog = true;
         await this.context.globalState.update(UserState.IsExisting, "yes");
+      }
+
+      if (showChangeLog) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowWhatIsNewNotification);
 
         const changelog = {
@@ -66,7 +72,6 @@ export class ReleaseNote {
               await selection.run();
             }
           });
-        await this.showChangelog("CHANGELOG.md");
       }
     }
   }
