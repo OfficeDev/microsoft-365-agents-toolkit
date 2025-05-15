@@ -984,7 +984,9 @@ export async function createNewProject(
       await inputFolderPath(driver, input, apiSpecFilePath);
       await input.confirm();
       await driver.sleep(Timeout.shortTimeWait);
-      const ckAll = await driver.findElement(By.css(".quick-input-check-all"));
+      const ckAll = await driver.findElement(
+        By.css(".quick-input-header .monaco-checkbox")
+      );
       await ckAll?.click();
       await input.confirm();
       // choose ai type
@@ -1470,7 +1472,9 @@ export async function createNewProjectByApispec(
   await inputFolderPath(driver, input, apispec);
   await input.confirm();
   await driver.sleep(Timeout.shortTimeWait);
-  const ckAll = await driver.findElement(By.css(".quick-input-check-all"));
+  const ckAll = await driver.findElement(
+    By.css(".quick-input-header .monaco-checkbox")
+  );
   await ckAll?.click();
   await driver.sleep(Timeout.input);
   await input.confirm();
