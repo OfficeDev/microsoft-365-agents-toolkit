@@ -28,7 +28,6 @@ import {
   Lang,
 } from "./constants";
 import { RetryHandler } from "./retryHandler";
-import isWsl from "is-wsl";
 import { Env } from "./env";
 import { execCommand } from "./execCommand";
 import { assert } from "chai";
@@ -1438,7 +1437,16 @@ export async function createEnvironmentWithPython() {
   await driver.sleep(Timeout.input);
   await input.selectQuickPick("Python 3.11");
   await driver.sleep(Timeout.input);
-  await driver.findElement(By.className("monaco-custom-toggle")).click();
+  console.log("select all");
+  await VSBrowser.instance.takeScreenshot(
+    getScreenshotName("select_all_before")
+  );
+  await driver
+    .findElement(By.css(".quick-input-header .monaco-custom-toggle"))
+    .click();
+  await VSBrowser.instance.takeScreenshot(
+    getScreenshotName("select_all_after")
+  );
   await input.confirm();
   await driver.sleep(Timeout.longTimeWait);
   await getNotification(
