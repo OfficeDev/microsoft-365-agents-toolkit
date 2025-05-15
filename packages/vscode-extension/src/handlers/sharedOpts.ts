@@ -153,10 +153,6 @@ export async function runCommand(
         result = await core.regeneratePlugin(inputs);
         break;
       }
-      case Stage.kiotaRegenerate: {
-        result = await core.kiotaRegenerate(inputs);
-        break;
-      }
       case Stage.addAuthAction: {
         result = await core.addAuthAction(inputs);
         break;

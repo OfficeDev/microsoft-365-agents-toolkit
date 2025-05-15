@@ -42,12 +42,7 @@ import azureAccountManager from "./commonlib/azureLogin";
 import VsCodeLogInstance from "./commonlib/log";
 import M365TokenInstance from "./commonlib/m365Login";
 import { configMgr } from "./config";
-import {
-  CONFIGURATION_PREFIX,
-  CommandKey as CommandKeys,
-  ConfigurationKey,
-  EnableMicrosoftKiota,
-} from "./constants";
+import { CONFIGURATION_PREFIX, CommandKey as CommandKeys, ConfigurationKey } from "./constants";
 import { openWelcomePageAfterExtensionInstallation } from "./controls/openWelcomePage";
 import { TeamsFxTaskType } from "./debug/common/debugConstants";
 import { getLocalDebugSessionId, startLocalDebugSession } from "./debug/common/localDebugSession";
@@ -105,7 +100,6 @@ import {
 } from "./handlers/controlHandlers";
 import * as copilotChatHandlers from "./handlers/copilotChatHandlers";
 import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
-import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
 import {
   debugInTestToolHandler,
   selectAndDebugHandler,
@@ -119,7 +113,6 @@ import {
   openConfigStateFile,
   refreshEnvironment,
 } from "./handlers/envHandlers";
-import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 import {
   addAuthActionHandler,
   addKnowledgeHandler,
@@ -137,7 +130,6 @@ import {
   setSensitivityLabelHandler,
   shareHandler,
   shareRemoveHandler,
-  validateKiotaInstallation,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -337,8 +329,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
   await vscode.commands.executeCommand("setContext", "fx-extension.initialized", true);
-
-  await checkKiotaInstallation(context);
 }
 
 // this method is called when your extension is deactivated
@@ -656,11 +646,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
     (...args) => Correlator.run(createDeclarativeAgentWithApiSpec, args)
   );
   context.subscriptions.push(createDeclarativeAgentWithApiSpecCommand);
-
-  // Register createPluginWithManifest command
-  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {
-    registerKiotaCommands(context);
-  }
 }
 
 /**
@@ -1536,56 +1521,5 @@ async function detectedTeamsFxProject(context: vscode.ExtensionContext) {
 async function recommendACPExtension(): Promise<void> {
   if (!acpInstalled() && (await hasAdaptiveCardInWorkspace())) {
     await installAdaptiveCardExt(TelemetryTriggerFrom.Auto);
-  }
-}
-
-function registerKiotaCommands(context: vscode.ExtensionContext) {
-  const createPluginWithManifestCommand = vscode.commands.registerCommand(
-    "fx-extension.createprojectfromkiota",
-    (args) => Correlator.run(createPluginWithManifest, args)
-  );
-  context.subscriptions.push(createPluginWithManifestCommand);
-
-  const kiotaRegenerateCommand = vscode.commands.registerCommand(
-    "fx-extension.kiotaregenerate",
-    (args) => Correlator.run(kiotaRegenerate, args)
-  );
-  context.subscriptions.push(kiotaRegenerateCommand);
-}
-
-export async function checkKiotaInstallation(context: vscode.ExtensionContext) {
-  const configuration: vscode.WorkspaceConfiguration =
-    vscode.workspace.getConfiguration(CONFIGURATION_PREFIX);
-  const currentConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiotaString);
-  if (currentConfig === EnableMicrosoftKiota.undefined && validateKiotaInstallation()) {
-    const previousConfig = configuration.get(ConfigurationKey.EnableMicrosoftKiota);
-    if (previousConfig) {
-      await configuration.update(
-        ConfigurationKey.EnableMicrosoftKiotaString,
-        EnableMicrosoftKiota.enabled,
-        true
-      );
-      registerKiotaCommands(context);
-    } else {
-      // pop up question to ask if user want to enable kiota
-      const res = await VS_CODE_UI.showMessage(
-        "warn",
-        localize("teamstoolkit.config.enableKiota"),
-        true,
-        localize("teamstoolkit.config.enableKiota.yes"),
-        localize("teamstoolkit.config.enableKiota.no")
-      );
-      await configuration.update(
-        ConfigurationKey.EnableMicrosoftKiotaString,
-        res.isOk() && res.value === "Yes"
-          ? EnableMicrosoftKiota.enabled
-          : EnableMicrosoftKiota.disabled,
-        true
-      );
-      if (res.isOk() && res.value === "Yes") {
-        registerKiotaCommands(context);
-      }
-    }
-    configMgr.loadFeatureFlags();
   }
 }
