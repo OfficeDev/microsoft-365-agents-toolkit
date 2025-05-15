@@ -70,7 +70,7 @@
   "set": {
     "description": "Set configurations for your app."
   },
-  "set.sensitivitylabel": {
+  "set.sensitivityLabel": {
     "description": "Set sensitivity label for the Declarative Agent app."
   },
   "create": {
