@@ -1440,15 +1440,9 @@ export async function createEnvironmentWithPython() {
   await input.selectQuickPick("Python 3.11");
   await driver.sleep(Timeout.input);
   console.log("select all");
-  await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("select_all_before")
-  );
   await driver
     .findElement(By.css(".quick-input-header .monaco-custom-toggle"))
     .click();
-  await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("select_all_after")
-  );
   await input.confirm();
   await driver.sleep(Timeout.longTimeWait);
   await getNotification(
