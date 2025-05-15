@@ -1,28 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import {
-  InputsWithProjectPath,
-  ok,
-  Platform,
-  TeamsAppManifest,
-  TeamsManifestV1D10Convert,
-} from "@microsoft/teamsfx-api";
+import { InputsWithProjectPath, ok, Platform, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
+import fs from "fs-extra";
 import "mocha";
 import "reflect-metadata";
 import sinon from "sinon";
 import * as uuid from "uuid";
-import {
-  manifestUtils,
-  SharePointAppId,
-} from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { JSONSyntaxError, MissingEnvironmentVariablesError } from "../../../../src/error/common";
-import { newEnvInfoV3 } from "../../../helpers";
-import fs from "fs-extra";
 import { createContext, setTools } from "../../../../src/common/globalVars";
-import { MockTools } from "../../../core/utils";
 import { generateDriverContext } from "../../../../src/common/utils";
-import { verify } from "crypto";
+import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import { JSONSyntaxError, MissingEnvironmentVariablesError } from "../../../../src/error/common";
+import { MockTools } from "../../../core/utils";
+import { newEnvInfoV3 } from "../../../helpers";
 
 describe("getManifest V3", () => {
   const sandbox = sinon.createSandbox();
