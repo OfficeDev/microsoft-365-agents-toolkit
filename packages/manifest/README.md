@@ -52,7 +52,7 @@ const json = "{ \"manifestVersion\": \"1.20\", \"id\": \"app-id\", ...}";
 const manifest = TeamsManifestConverter.jsonToManifest(json);
 if (manifest.manifestVersion === "1.20") {
   // TypeScript will infer the type as TeamsManifestV1D20
-  const manifestV1D20 = manifest as TeamsManifestV1D20;
+  const manifestV1D20 = manifest as TeamsManifestV1D20.TeamsManifestV1D20;
   // You can now access properties specific to TeamsManifestV1D20
 }
 ```
@@ -61,7 +61,7 @@ Convert JSON string to Teams manifest type by specifying the version at compile 
 
 ```typescript
 const json = "{ \"manifestVersion\": \"1.20\", \"id\": \"app-id\", ...}";
-const manifest = TeamsManifestConverter.jsonToManifest(json) as TeamsManifestV1D20;
+const manifest = TeamsManifestConverter.jsonToManifest(json) as TeamsManifestV1D20.TeamsManifestV1D20;
 // You can now access properties specific to TeamsManifestV1D20
 ```
 
