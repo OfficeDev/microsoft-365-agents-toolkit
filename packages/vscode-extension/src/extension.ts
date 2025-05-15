@@ -42,7 +42,7 @@ import azureAccountManager from "./commonlib/azureLogin";
 import VsCodeLogInstance from "./commonlib/log";
 import M365TokenInstance from "./commonlib/m365Login";
 import { configMgr } from "./config";
-import { CONFIGURATION_PREFIX, CommandKey as CommandKeys, ConfigurationKey } from "./constants";
+import { CommandKey as CommandKeys } from "./constants";
 import { openWelcomePageAfterExtensionInstallation } from "./controls/openWelcomePage";
 import { TeamsFxTaskType } from "./debug/common/debugConstants";
 import { getLocalDebugSessionId, startLocalDebugSession } from "./debug/common/localDebugSession";
