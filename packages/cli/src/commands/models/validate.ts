@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 import { CLICommand, Result, err, ok } from "@microsoft/teamsfx-api";
 import { ValidateTeamsAppInputs, ValidateTeamsAppOptions } from "@microsoft/teamsfx-core";
+import * as path from "path";
 import { getFxCore } from "../../activate";
 import { ArgumentConflictError, MissingRequiredOptionError } from "../../error";
+import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { EnvOption, ProjectFolderOption } from "../common";
-import * as path from "path";
-import { commands } from "../../resource";
 
 export const validateCommand: CLICommand = {
   name: "validate",
@@ -22,7 +22,7 @@ export const validateCommand: CLICommand = {
       description: "Validate the app package.",
     },
     {
-      command: `${process.env.TEAMSFX_CLI_BIN_NAME} validate --teams-manifest-file ./appPackage/manifest.json --env dev`,
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} validate --manifest-file ./appPackage/manifest.json --env dev`,
       description: "Validate the app manifest using its schema.",
     },
   ],
@@ -52,11 +52,7 @@ function validateInputs(
   ArgumentConflictError | MissingRequiredOptionError | MissingRequiredOptionError
 > {
   if (inputs["manifest-path"] && inputs["app-package-file-path"]) {
-    const error = new ArgumentConflictError(
-      fullName,
-      "teams-manifest-file",
-      "app-package-file-path"
-    );
+    const error = new ArgumentConflictError(fullName, "manifest-file", "app-package-file-path");
     return err(error);
   } else if (!inputs["manifest-path"] && !inputs["app-package-file-path"]) {
     inputs["manifest-path"] = path.join(
