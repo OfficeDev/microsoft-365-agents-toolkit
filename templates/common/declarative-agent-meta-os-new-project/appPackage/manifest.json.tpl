@@ -44,8 +44,8 @@
   "copilotAgents": {
     "declarativeAgents": [
       {
-        "id": "declarativeCopilotAlc",
-        "file": "declarativeCopilot.json"
+        "id": "declarativeAgentAlc",
+        "file": "declarativeAgent.json"
       }
     ]
   },

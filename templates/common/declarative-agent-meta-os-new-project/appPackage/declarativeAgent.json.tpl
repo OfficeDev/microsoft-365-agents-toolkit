@@ -1,4 +1,5 @@
 {
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json",
   "version": "v1.3",
   "name": "Add-in Skill + Agent for {{appName}}",
   "description": "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",

@@ -26,7 +26,7 @@ const NOT_COPY_FILES = [
 const NOT_COPY_FOLDERS = ["node_modules", "env"];
 
 const DEFAULT_MANIFEST_ID = "${{TEAMS_APP_ID}}";
-const DEFAULT_DA_ID = "declarativeCopilotAlc";
+const DEFAULT_DA_ID = "declarativeAgentAlc";
 
 const ENV_FOLDER = "env";
 const ENV_FILE_NAME = ".env.dev";
@@ -38,7 +38,7 @@ const DEFAULT_CMD_NAME_X = "fillcolor";
 const DEFAULT_CMD_NAME_P = "addtexttoslide";
 const DEFAULT_CMD_FILE_NAME = "commands.js";
 
-const DEFAULT_DA_FILENAME = "declarativeCopilot";
+const DEFAULT_DA_FILENAME = "declarativeAgent";
 const DEFAULT_ACTION_FILENAME = "alchemy-plugin";
 const FILE_EXTENSION = ".json";
 
@@ -248,6 +248,8 @@ export class MetaOSHelper {
     appName: string
   ): Promise<void> {
     const fileJson: DeclarativeAgentManifestV1D3 = {
+      $schema:
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json",
       version: "v1.3",
       name: `Add-in Skill + Agent for ${appName}`,
       description:
@@ -290,10 +292,10 @@ export class MetaOSHelper {
   ): Promise<void> {
     // TODO: as any for temporary, since the runtime type `localPlugin` is not type defined yet
     const fileJson: any = {
+      $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.3/schema.json",
       schema_version: "v2.3",
       name_for_human: `Add-in Skill + Agent for ${appName}`,
       description_for_human: "Get answer for user's question related to Microsoft 365 products",
-      namespace: "addinfunction",
       functions: [
         {
           name: `${commandName.w}`,
