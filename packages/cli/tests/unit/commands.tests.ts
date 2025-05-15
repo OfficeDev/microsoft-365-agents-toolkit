@@ -1,7 +1,6 @@
 import { CLIContext, SystemError, err, ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import {
   CollaborationStateResult,
-  FeatureFlags,
   FuncToolChecker,
   FxCore,
   ListCollaboratorResult,
@@ -9,11 +8,11 @@ import {
   LtsNodeChecker,
   PackageService,
   PermissionsResult,
-  QuestionNames,
   UserCancelError,
   envUtil,
   featureFlagManager,
 } from "@microsoft/teamsfx-core";
+import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { assert } from "chai";
 import "mocha";
@@ -50,30 +49,28 @@ import {
   upgradeCommand,
   validateCommand,
 } from "../../src/commands/models";
+import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
+import { addCapabilityCommand } from "../../src/commands/models/addCapability";
+import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
+import { envResetCommand } from "../../src/commands/models/envReset";
+import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
+import { setCommand } from "../../src/commands/models/set";
+import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
+import { shareCommand } from "../../src/commands/models/share";
+import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
 import { DoctorChecker, teamsappDoctorCommand } from "../../src/commands/models/teamsapp/doctor";
 import { teamsappPackageCommand } from "../../src/commands/models/teamsapp/package";
 import { teamsappPublishCommand } from "../../src/commands/models/teamsapp/publish";
 import { teamsappUpdateCommand } from "../../src/commands/models/teamsapp/update";
 import { teamsappValidateCommand } from "../../src/commands/models/teamsapp/validate";
 import AzureTokenProvider from "../../src/commonlib/azureLogin";
+import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
+import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
 import { logger } from "../../src/commonlib/logger";
 import M365TokenProvider from "../../src/commonlib/m365Login";
 import { MissingRequiredOptionError } from "../../src/error";
 import * as utils from "../../src/utils";
-import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
-import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
-import { envResetCommand } from "../../src/commands/models/envReset";
-import { addPluginCommand } from "../../src/commands/models/addPlugin";
-import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
-import { addCapabilityCommand } from "../../src/commands/models/addCapability";
-import { shareCommand } from "../../src/commands/models/share";
-import { setCommand } from "../../src/commands/models/set";
-import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
-import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
-import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
-import { regenerateCommand } from "../../src/commands/models/regnereate";
-import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
 
 describe("CLI commands", () => {
   const sandbox = sinon.createSandbox();
@@ -1465,6 +1462,20 @@ describe("CLI read-only commands", () => {
       };
       const res = await listTemplatesCommand.handler!(ctx);
       assert.isTrue(res.isOk());
+    });
+    it("should contain TDP templates in E2E test environment", async () => {
+      const mockedEnvRestore = mockedEnv({ TEAMSFX_TDP_TEMPLATE_CLI_TEST: "true" });
+      const ctx: CLIContext = {
+        command: { ...listTemplatesCommand, fullName: "..." },
+        optionValues: { format: "table", description: false },
+        globalOptionValues: {},
+        argumentValues: ["key", "value"],
+        telemetryProperties: {},
+      };
+      const res = await listTemplatesCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(messages.some((msg) => msg.includes("BotAndMessageExtension")));
+      mockedEnvRestore();
     });
   });
   describe("listSamplesCommand", async () => {
