@@ -91,7 +91,7 @@ export async function getHost(addinManifestPath: string): Promise<OfficeHost> {
   // Read add-in manifest file
   const addinManifest = (await ManifestUtil.loadFromPath(
     addinManifestPath
-  )) as TeamsManifestVDevPreview;
+  )) as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
   let host: OfficeHost = "Outlook";
   switch (addinManifest.extensions?.[0].requirements?.scopes?.[0]) {
     case "document":

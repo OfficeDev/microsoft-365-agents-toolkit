@@ -3,8 +3,6 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import path from "path";
-import fse from "fs-extra";
 import {
   AppManifestUtils,
   AppPackageFolderName,
@@ -12,6 +10,8 @@ import {
   ManifestTemplateFileName,
   TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
+import fse from "fs-extra";
+import path from "path";
 
 const NOT_COPY_FILES = ["README.md", "teamsapp.yml", "m365agents.yml"];
 const NOT_COPY_FOLDERS = ["node_modules", "env"];
@@ -113,7 +113,7 @@ export class MetaOSHelper {
     const manifestPath = path.join(projectFolder, AppPackageFolderName, ManifestTemplateFileName);
     const manifest = (await AppManifestUtils.readTeamsManifest(
       manifestPath
-    )) as TeamsManifestVDevPreview;
+    )) as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
     // Update manifest GUID
     manifest.id = DEFAULT_MANIFEST_ID;
@@ -175,7 +175,7 @@ export class MetaOSHelper {
     ActionFilename: string,
     appName: string
   ): Promise<void> {
-    const fileJson: DeclarativeAgentManifestV1D3 = {
+    const fileJson: DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3 = {
       version: "v1.3",
       name: `Excel Add-in + Agent for ${appName}`,
       description: "Agent for working with Excel cells.",
