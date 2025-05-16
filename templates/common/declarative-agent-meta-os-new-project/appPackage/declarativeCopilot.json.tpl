@@ -1,17 +1,26 @@
 {
-  "name": "Excel Add-in + Agent for {{appName}}",
-  "description": "Agent for working with Excel cells.",
-  "instructions": "You are an agent for working with an add-in. You can work with any cells, not just a well-formatted table.",
+  "version": "v1.3",
+  "name": "Add-in Skill + Agent for {{appName}}",
+  "description": "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
+  "instructions": "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
   "conversation_starters": [
     {
-      "title": "Change cell color",
-      "text": "I want to change the color of cell B2 to orange"
+      "title": "Change cell color (for excel)",
+      "text": "Change the cell below A2 to the color of grass. Tell me how long it took in seconds."
+    },
+    {
+      "title": "Add footer (for word)",
+      "text": "Add a footer with message 'Hello Agent!'. Tell me how long it took in seconds."
+    },
+    {
+      "title": "Add text to slide (for powerpoint)",
+      "text": "Please add text 'Hello PPT!' to the slide. Tell me how long it took in seconds."
     }
   ],
   "actions": [
     {
-      "id": "localExcelPlugin",
-      "file": "Excel-API-local-plugin.json"
+      "id": "alchemyPlugin",
+      "file": "alchemy-plugin.json"
     }
   ]
 }

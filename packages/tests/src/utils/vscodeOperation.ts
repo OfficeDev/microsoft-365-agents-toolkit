@@ -28,7 +28,6 @@ import {
   Lang,
 } from "./constants";
 import { RetryHandler } from "./retryHandler";
-import isWsl from "is-wsl";
 import { Env } from "./env";
 import { execCommand } from "./execCommand";
 import { assert } from "chai";
@@ -985,7 +984,9 @@ export async function createNewProject(
       await inputFolderPath(driver, input, apiSpecFilePath);
       await input.confirm();
       await driver.sleep(Timeout.shortTimeWait);
-      const ckAll = await driver.findElement(By.css(".quick-input-check-all"));
+      const ckAll = await driver.findElement(
+        By.css(".quick-input-header .monaco-checkbox")
+      );
       await ckAll?.click();
       await input.confirm();
       // choose ai type
@@ -1438,7 +1439,10 @@ export async function createEnvironmentWithPython() {
   await driver.sleep(Timeout.input);
   await input.selectQuickPick("Python 3.11");
   await driver.sleep(Timeout.input);
-  await driver.findElement(By.className("quick-input-check-all")).click();
+  console.log("select all");
+  await driver
+    .findElement(By.css(".quick-input-header .monaco-custom-toggle"))
+    .click();
   await input.confirm();
   await driver.sleep(Timeout.longTimeWait);
   await getNotification(
@@ -1462,7 +1466,9 @@ export async function createNewProjectByApispec(
   await inputFolderPath(driver, input, apispec);
   await input.confirm();
   await driver.sleep(Timeout.shortTimeWait);
-  const ckAll = await driver.findElement(By.css(".quick-input-check-all"));
+  const ckAll = await driver.findElement(
+    By.css(".quick-input-header .monaco-checkbox")
+  );
   await ckAll?.click();
   await driver.sleep(Timeout.input);
   await input.confirm();

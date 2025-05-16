@@ -459,7 +459,7 @@
   "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail": "Extend an add-in project to the declarative agent with add-in actions",
   "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.title": "The Existing Add-in Project Folder",
   "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder": "The existing MetaOS Add-in project root folder",
-  "core.createProjectQuestion.createGraphConnector.label": "Copilot connector",
+  "core.createProjectQuestion.createGraphConnector.label": "Copilot connectors",
   "core.createProjectQuestion.createGraphConnector.detail": "Embed your organization data to make it searchable in Microsoft 365 Copilot",
   "core.createProjectQuestion.addExistingPlugin.pluginManifest.title": "Import Manifest File",
   "core.createProjectQuestion.addExistingPlugin.apiSpec.title": "Import OpenAPI Description Document",

@@ -118,7 +118,15 @@
             },
             {
               "id": "fillcolor",
-              "type": "executeFunction"
+              "type": "executeDataFunction"
+            },
+            {
+              "id": "addfooter",
+              "type": "executeDataFunction"
+            },
+            {
+              "id": "addtexttoslide",
+              "type": "executeDataFunction"
             }
           ]
         }

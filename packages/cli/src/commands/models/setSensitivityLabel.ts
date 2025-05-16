@@ -8,7 +8,7 @@ import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 import { ProjectFolderOptionWithoutValidation } from "../common";
 
 export const setSensitivityLabelCommand: CLICommand = {
-  name: "sensitivityLabel",
+  name: "sensitivitylabel",
   description: commands["set.sensitivityLabel"].description,
   options: [...SetSensitivityLabelOptions, ProjectFolderOptionWithoutValidation],
   telemetry: {
