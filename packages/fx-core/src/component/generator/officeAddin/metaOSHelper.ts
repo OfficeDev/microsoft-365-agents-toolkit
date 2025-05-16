@@ -12,8 +12,8 @@ import {
 } from "@microsoft/teamsfx-api";
 import fse from "fs-extra";
 import path from "path";
-import { dotenvUtil } from "../../utils/envUtil";
 import { getUuid } from "../../../common/stringUtils";
+import { dotenvUtil } from "../../utils/envUtil";
 
 const NOT_COPY_FILES = [
   "README.md",
@@ -105,7 +105,7 @@ export class MetaOSHelper {
 
     const manifest = (await AppManifestUtils.readTeamsManifest(
       manifestPath
-    )) as TeamsManifestVDevPreview;
+    )) as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
     // use dotenvUtil rather than envUtil to avoid touch to the process.env
     const envVars = dotenvUtil.deserialize(await fse.readFile(envFilePath, { encoding: "utf8" }));
