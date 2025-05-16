@@ -48,7 +48,7 @@ We’re excited to introduce the [Microsoft 365 Agents Playground](https://www.n
 
 - **[Preview Feature] Use TypeSpec to build Declarative Agent**
 
-To enhance the developer experience for pro-code agent builders, we see strong value in introducing the option that leverages TypeSpec for Copilot. This approach would provide a type-safe development experience, reduce dependency on JSON files, and offer greater flexibility in generating artifacts for your agents.
+To enhance the developer experience for pro-code agent builders, we see strong value in introducing the option that leverages TypeSpec for Microsoft 365 Copilot. This approach provides a type-safe development experience, reduces dependency on JSON files, improves the developer's inner-loop and offer greater flexibility in generating artifacts for your agents and actions.
 
 ### Enhancement
 
