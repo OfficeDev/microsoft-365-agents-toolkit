@@ -52,6 +52,7 @@ export abstract class CaseFactory {
     skipValidate?: boolean;
     skipPackage?: boolean;
     skipValidateForProvision?: boolean;
+    skipValidateForCreate?: boolean;
   };
   public custimized?: Record<string, string>;
 
@@ -76,6 +77,7 @@ export abstract class CaseFactory {
       skipValidate?: boolean;
       skipPackage?: boolean;
       skipValidateForProvision?: boolean;
+      skipValidateForCreate?: boolean;
     } = {},
     custimized?: Record<string, string>
   ) {
@@ -159,7 +161,9 @@ export abstract class CaseFactory {
         );
         expect(fs.pathExistsSync(projectPath)).to.be.true;
 
-        await onAfterCreate(projectPath);
+        if (!options?.skipValidateForCreate) {
+          await onAfterCreate(projectPath);
+        }
 
         // provision
         {

@@ -20,6 +20,11 @@ new DeclarativeAgentWithTypeSpec(
   "bowsong@microsoft.com",
   [],
   ProgrammingLanguage.None,
-  { skipValidateForProvision: true, skipDeploy: true },
+  {
+    skipValidateForProvision: true,
+    skipDeploy: true,
+    skipPackage: true,
+    skipValidateForCreate: true,
+  },
   myRecord
 ).test();
