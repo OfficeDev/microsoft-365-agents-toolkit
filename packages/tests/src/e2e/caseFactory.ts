@@ -179,7 +179,11 @@ export abstract class CaseFactory {
           expect(result).to.be.true;
           process.env["AZURE_RESOURCE_GROUP_NAME"] = appName + "-rg";
 
-          const { success } = await Executor.provision(projectPath);
+          const { success, stderr, stdout } = await Executor.provision(
+            projectPath
+          );
+          console.log(stderr);
+          console.log(stdout);
           expect(success).to.be.true;
 
           if (!options?.skipValidateForProvision) {
