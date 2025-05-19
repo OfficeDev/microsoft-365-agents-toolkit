@@ -115,7 +115,7 @@ describe("Collaboration", function () {
         `Account used to check: ${creator?.split("@")[0]}`
       );
       expect(listCollaboratorResult.stdout).to.contains(
-        `Teams App Owner: ${collaborator?.split("@")[0]}`
+        `App Owner: ${collaborator?.split("@")[0]}`
       );
 
       console.log("[Successfully] list collaborator");
