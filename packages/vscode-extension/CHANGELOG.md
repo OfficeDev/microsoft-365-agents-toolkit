@@ -37,10 +37,9 @@ We’ve added [Kiota](https://aka.ms/kiota/docs) integration to streamline worki
 
 - **Build a Copilot connector**
   
-You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This File->New experience will help you get started by scafolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot! 
+You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scafolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot! 
 
-<img width="865" alt="image" src="https://github.com/user-attachments/assets/37882435-7891-4294-8812-e9582dd48d61"/>
-
+<img width="889" alt="image" src="https://github.com/user-attachments/assets/e7600b5a-0c38-4ee5-be35-15dcf7892289" />
 
 - **Build Custom Engine Agent using Microsoft 365 Agents SDK**
 
