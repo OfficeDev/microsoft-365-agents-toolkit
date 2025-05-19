@@ -35,6 +35,12 @@ We’ve added [Kiota](https://aka.ms/kiota/docs) integration to streamline worki
 
 <img width="865" alt="image" src="https://github.com/user-attachments/assets/906dc3a3-ec83-4cb0-a73d-d1a207876a19" />
 
+- **Build a Copilot connector**
+  
+You can now get started with building a [Copilot connector](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-graph-connector) to bring your enterprise data to Microsoft 365 Copilot and Agents. This create new agent/app experience will help you get started by scaffolding all the code you need (creates connection via the Graph API, registers schema & maps items) to start ingesting items into the Microsoft Graph with a sample REST API datasource (GitHub issues API). Then, you can customize it to your needs and specific data sources to get more value from your enterprise data in Microsoft 365 Copilot! 
+
+<img width="889" alt="image" src="https://github.com/user-attachments/assets/e7600b5a-0c38-4ee5-be35-15dcf7892289" />
+
 - **Build Custom Engine Agent using Microsoft 365 Agents SDK**
 
 We’ve introduced support for building Custom Engine Agents using the [Microsoft 365 Agents SDK](https://learn.microsoft.com/en-us/microsoft-365/agents-sdk/agents-sdk-overview?tabs=csharp). This SDK is a flexible framework that allows developers to build and deploy AI-powered agents across multiple channels — such as Microsoft 365 Copilot, Teams, and custom apps — using the AI services of their choice. It simplifies the creation of agentic patterns with built-in support for state, storage, and channel-specific behaviors.
