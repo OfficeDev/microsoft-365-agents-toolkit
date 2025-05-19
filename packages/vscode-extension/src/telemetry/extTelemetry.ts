@@ -84,6 +84,8 @@ export namespace ExtTelemetry {
         return TelemetryEvent.SyncManifest;
       case Stage.addPlugin:
         return TelemetryEvent.AddPlugin;
+      case Stage.RegeneratePlugin:
+        return TelemetryEvent.RegenerateAction;
       case Stage.metaOSExtendToDA:
         return TelemetryEvent.MetaOSExtendToDA;
       case Stage.addAuthAction:
