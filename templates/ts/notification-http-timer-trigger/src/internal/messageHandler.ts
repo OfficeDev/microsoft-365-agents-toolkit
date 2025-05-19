@@ -6,25 +6,27 @@ const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<any> {
+  let status = 200;
+  let return_body: unknown = null;
   const res = {
     status: (code: number) => {
+      status = code;
       context.res.status = code;
-      return res;
     },
-    send: (body: any) => {
-      context.res.body = body;
-      return res;
+    send: (body: unknown) => {
+      return_body = body;
     },
-    json: (body: any) => {
-      context.res.body = body;
-      return res;
-    },
-    body: context.res.body,
+    setHeader: () => {},
+    end: () => {},
   };
   await notificationApp.requestHandler(req, res, async (context) => {
     await teamsBot.run(context);
   });
-  return res.body;
+  context.res = {
+    status,
+    body: return_body,
+  };
+  return return_body;
 };
 
 export default httpTrigger;
