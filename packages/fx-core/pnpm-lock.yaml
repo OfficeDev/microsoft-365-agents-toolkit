@@ -42,8 +42,8 @@ dependencies:
     specifier: 1.1.9
     version: 1.1.9
   '@microsoft/kiota':
-    specifier: 1.26.0
-    version: 1.26.0
+    specifier: 1.26.1
+    version: 1.26.1
   '@microsoft/m365-spec-parser':
     specifier: workspace:^
     version: link:../spec-parser
@@ -1020,8 +1020,8 @@ packages:
       - supports-color
     dev: false
 
-  /@microsoft/kiota@1.26.0:
-    resolution: {integrity: sha512-EpvXbuddf4MhbC5HAtUck6ZpGxkAt7xgHI85EeV+Tu1HLjPwLMq3U22a4Pdda4YiYJ5v+2WcoPQHkZppfV11RQ==}
+  /@microsoft/kiota@1.26.1:
+    resolution: {integrity: sha512-0LBfqV0tP2SC4KbtqJf2fAa8okVFzN+PyLYre9/F8CY8jP9/WRwsX6bR61k5BItSbF8Ur7Oja1SHXlXdh95oMg==}
     dependencies:
       adm-zip: 0.5.16
       original-fs: 1.2.0
