@@ -182,8 +182,13 @@ export abstract class CaseFactory {
           const { success, stderr, stdout } = await Executor.provision(
             projectPath
           );
+          console.log("--------------------success--------------------");
+          console.log(success);
+          console.log("--------------------stderr--------------------");
           console.log(stderr);
+          console.log("--------------------stdout--------------------");
           console.log(stdout);
+          console.log("----------------------------------------");
           expect(success).to.be.true;
 
           if (!options?.skipValidateForProvision) {
