@@ -12,8 +12,8 @@ import {
 } from "@microsoft/teamsfx-api";
 import fse from "fs-extra";
 import path from "path";
-import { dotenvUtil } from "../../utils/envUtil";
 import { getUuid } from "../../../common/stringUtils";
+import { dotenvUtil } from "../../utils/envUtil";
 
 const NOT_COPY_FILES = [
   "README.md",
