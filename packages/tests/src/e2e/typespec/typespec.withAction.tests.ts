@@ -28,9 +28,6 @@ class DeclarativeAgentWithTypeSpec extends CaseFactory {
       .replace("  // Uncomment this part to add actions to the agent.", "")
       .replace(/\/\/ /g, "");
     await fs.writeFile(mainFilePath, updateContent, "utf-8");
-    console.log("--------------");
-    console.log(updateContent);
-    console.log("--------------");
     return Promise.resolve();
   }
 }
@@ -40,7 +37,7 @@ myRecord["with-plugin"] = "type-spec";
 
 new DeclarativeAgentWithTypeSpec(
   Capability.DeclarativeAgent,
-  32237977,
+  32772441,
   "bowsong@microsoft.com",
   [],
   ProgrammingLanguage.None,
