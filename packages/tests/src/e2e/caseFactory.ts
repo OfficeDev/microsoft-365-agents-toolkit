@@ -52,7 +52,7 @@ export abstract class CaseFactory {
     skipValidate?: boolean;
     skipPackage?: boolean;
     skipValidateForProvision?: boolean;
-    skipValidateForCreate?: boolean;
+    skipErrorMessage?: string;
   };
   public custimized?: Record<string, string>;
 
@@ -77,7 +77,7 @@ export abstract class CaseFactory {
       skipValidate?: boolean;
       skipPackage?: boolean;
       skipValidateForProvision?: boolean;
-      skipValidateForCreate?: boolean;
+      skipErrorMessage?: string;
     } = {},
     custimized?: Record<string, string>
   ) {
@@ -161,9 +161,7 @@ export abstract class CaseFactory {
         );
         expect(fs.pathExistsSync(projectPath)).to.be.true;
 
-        if (!options?.skipValidateForCreate) {
-          await onAfterCreate(projectPath);
-        }
+        await onAfterCreate(projectPath);
 
         // provision
         {
@@ -179,16 +177,12 @@ export abstract class CaseFactory {
           expect(result).to.be.true;
           process.env["AZURE_RESOURCE_GROUP_NAME"] = appName + "-rg";
 
-          const { success, stderr, stdout } = await Executor.provision(
-            projectPath
+          const { success } = await Executor.provision(
+            projectPath,
+            env,
+            true,
+            options?.skipErrorMessage
           );
-          console.log("--------------------success--------------------");
-          console.log(success);
-          console.log("--------------------stderr--------------------");
-          console.log(stderr);
-          console.log("--------------------stdout--------------------");
-          console.log(stdout);
-          console.log("----------------------------------------");
           expect(success).to.be.true;
 
           if (!options?.skipValidateForProvision) {
