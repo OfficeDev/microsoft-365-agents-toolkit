@@ -24,7 +24,7 @@
     },
     "dependencies": {
         "@microsoft/agents-hosting": "^0.2.14",
-        "@microsoft/teamsfx": "4.0.0-alpha.0",
+        "@microsoft/teamsfx": "^4.0.0",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards": "^3.0.5",
         "adaptivecards-templating": "^2.3.1",

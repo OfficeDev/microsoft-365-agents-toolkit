@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import * as vscode from "vscode";
-import { CONFIGURATION_PREFIX, ConfigurationKey, EnableMicrosoftKiota } from "./constants";
+import { CONFIGURATION_PREFIX, ConfigurationKey } from "./constants";
 import VsCodeLogInstance from "./commonlib/log";
 import { LogLevel } from "@microsoft/teamsfx-api";
 import { ExtTelemetry } from "./telemetry/extTelemetry";

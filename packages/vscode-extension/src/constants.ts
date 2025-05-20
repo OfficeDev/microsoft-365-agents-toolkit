@@ -4,16 +4,8 @@ export const CONFIGURATION_PREFIX = "M365AgentsToolkit";
 export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
   LogLevel = "logLevel",
-  EnableMicrosoftKiota = "enableMicrosoftKiota",
-  EnableMicrosoftKiotaString = "enableMicrosoftKiotaString",
   EnableCEA = "enableLaunchAgentForTeamsInCopilot",
   EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
-}
-
-export enum EnableMicrosoftKiota {
-  enabled = "Enabled",
-  disabled = "Disabled",
-  undefined = "Undefined",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";
@@ -82,8 +74,5 @@ export const DeveloperPortalHomeLink = "https://dev.teams.microsoft.com/home";
 export const TerminalName = "Microsoft 365 Agents Toolkit";
 
 export const InstallCopilotChatLink = "https://aka.ms/install-github-copilot-chat";
-
-export const KiotaExtensionId = "ms-graph.kiota";
-export const KiotaMinVersion = "1.18.100000002";
 
 export const MaximumNotificationOutputTroubleshootCount = 3;

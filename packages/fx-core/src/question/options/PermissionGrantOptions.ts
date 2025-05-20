@@ -12,12 +12,11 @@ import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
 
 export const PermissionGrantOptions: CLICommandOption[] = [
   {
-    name: "teams-manifest-file",
+    name: "manifest-file",
     questionName: "manifest-path",
     type: "string",
     shortName: "t",
-    description:
-      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    description: "Specifies the app manifest file path.",
     default: "./appPackage/manifest.json",
   },
   {

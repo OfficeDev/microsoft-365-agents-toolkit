@@ -30,6 +30,7 @@ namespace GitHubAPI {
    * @param per_page The number of results per page. Default is 5.
    */
   @route("/search/issues")
+  @card(#{ dataPath: "$.items", title: "$.title", url: "$.html_url", file: "adaptiveCards/searchIssues.json" })
   @get op searchIssues(
     @query q: string = "repo:OfficeDev/teams-toolkit is:issue is:open", 
     @query per_page: integer = 5

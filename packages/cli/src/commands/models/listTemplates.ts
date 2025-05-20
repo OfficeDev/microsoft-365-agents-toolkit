@@ -66,6 +66,13 @@ export function listAllCapabilities(): OptionItem[] {
     MeCapabilityOptions.linkUnfurling(),
     OfficeAddinCapabilityOptions.wxpTaskPane(),
     OfficeAddinCapabilityOptions.outlookTaskPane(),
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest)
+      ? [
+          TdpCapabilityOptions.nonSsoTab(),
+          TdpCapabilityOptions.botAndMe(),
+          TdpCapabilityOptions.nonSsoTabAndBot(),
+        ]
+      : []),
   ];
 }
 

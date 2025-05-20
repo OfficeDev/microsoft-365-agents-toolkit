@@ -149,7 +149,6 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
           {
             templateName: templateName,
             language: inputs[QuestionNames.ProgrammingLanguage] as ProgrammingLanguage,
-            // replaceMap: { manifestId: getUuid() },
           },
         ])
       );
@@ -183,6 +182,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
           destinationPath
         );
         await MetaOSHelper.extendToDA(destinationPath, inputs[QuestionNames.AppName]);
+        await MetaOSHelper.unifyProjectID(destinationPath);
         return ok({});
       } catch (e) {
         return err(e.message);
@@ -190,6 +190,7 @@ export class OfficeAddinGeneratorNew extends DefaultTemplateGenerator {
     } else if (
       TemplateNames.DeclarativeAgentMetaOSNewProject === inputs[QuestionNames.TemplateName]
     ) {
+      await MetaOSHelper.unifyProjectID(destinationPath);
       return ok({});
     }
 

@@ -185,10 +185,6 @@ export class MockCore {
     return ok(undefined);
   }
 
-  async kiotaRegenerate(inputs: Inputs): Promise<Result<any, FxError>> {
-    return ok(undefined);
-  }
-
   async addAuthAction(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }

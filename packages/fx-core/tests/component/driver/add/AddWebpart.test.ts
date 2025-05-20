@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import "mocha";
-import { err, ok, Platform } from "@microsoft/teamsfx-api";
+import { Context, err, Inputs, ok, Platform } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import fs from "fs-extra";
 import sinon from "sinon";
@@ -105,6 +105,41 @@ describe("Add web part driver", async () => {
     const doYeomanScaffoldStub = sinon
       .stub(SPFxGenerator, "doYeomanScaffold")
       .resolves(ok(componentId));
+    const addCapabilitiesStub = sinon
+      .stub(ManifestUtils.prototype, "addCapabilities")
+      .resolves(ok(undefined));
+
+    const res = await driver.run(args, mockedDriverContext);
+
+    chai.expect(res.isOk()).to.be.true;
+    chai.expect(doYeomanScaffoldStub.calledOnce).to.be.true;
+    chai.expect(addCapabilitiesStub.calledTwice).to.be.true;
+  });
+
+  it("Returns success when add web part for SPFx higher than 1.21", async () => {
+    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
+      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
+        return true;
+      }
+    });
+    const componentId = uuid.v4();
+    setTools({
+      logProvider: new MockedLogProvider(),
+      ui: new MockedUserInteraction(),
+      tokenProvider: {
+        m365TokenProvider: new MockedM365Provider(),
+        azureAccountProvider: new MockedAzureAccountProvider(),
+      },
+    });
+    const doYeomanScaffoldStub = sinon
+      .stub(SPFxGenerator, "doYeomanScaffold")
+      .callsFake(async (SPFxContext: Context, inputs: Inputs, projectPath: string) => {
+        if (!SPFxContext.templateVariables) {
+          SPFxContext.templateVariables = {};
+        }
+        SPFxContext.templateVariables!["useNewDevUrl"] = "true";
+        return Promise.resolve(ok(componentId));
+      });
     const addCapabilitiesStub = sinon
       .stub(ManifestUtils.prototype, "addCapabilities")
       .resolves(ok(undefined));

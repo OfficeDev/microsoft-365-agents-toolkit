@@ -646,12 +646,6 @@
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.title": "Resources",
   "teamstoolkit.walkthroughs.buildIntelligentApps.intelligentAppResources.description": "Explore these resources to build intelligent apps and enhance your development projects\n🗒️ [Generative AI for Beginners](https://github.com/microsoft/generative-ai-for-beginners/tree/main)\n✨ [Retrieval Augmented Generation (RAG)](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview)\n📚 [AI Learning and Community Hub](https://learn.microsoft.com/en-us/ai/)",
   "teamstoolkit.m365.needSignIn.message": "You need to sign in your Microsoft 365 account.",
-  "teamstoolkit.handler.createPluginWithManifest.error.missingParameter": "Invalid parameter in the createPluginWithManifest command. Usage: createPluginWithManifest(API_SPEC_PATH:string, PLUGIN_MANIFEST_PATH: string, { lastCommand: string }, OUTPUT_FOLDER?: string). Valid values for LAST_COMMAND: createPluginWithManifest, createDeclarativeCopilotWithManifest.",
-  "teamstoolkit.handler.createDeclarativeAgentWithApiSpec.error.invalidParameter": "Invalid parameter in the createDeclarativeAgentWithApiSpec command. Usage: createDeclarativeAgentWithApiSpec(API_SPEC_PATH: string).",
-  "teamstoolkit.error.KiotaNotInstalled": "You need to install Microsoft Kiota extension with minimum version %s to use this feature.",
   "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
-  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision",
-  "teamstoolkit.config.enableKiota": "Do you want to use Kiota extension to generate OpenAPI specification and plugin manifest? You can also update this setting from the settings page.",
-  "teamstoolkit.config.enableKiota.yes": "Yes",
-  "teamstoolkit.config.enableKiota.no": "No"
+  "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision"
 }

@@ -39,23 +39,23 @@ The SharePoint Framework (SPFx) is a page and web part model that provides full 
 1. Open the project with VSCode, click `Provision` in LIFECYCLE panel of Microsoft 365 Agents Toolkit extension.
 
    Or you can use Microsoft 365 Agents Toolkit CLI with running this cmd under your project path:
-   `teamsapp provision`
+   `atk provision`
 
    It will provision an app in App Studio. You may need to login with your Microsoft 365 tenant admin account.
 
 2. Build and Deploy your SharePoint Package.
 
-   - Click `Deploy` in LIFECYCLE panel of Microsoft 365 Agents Toolkit extension, or run `Teams: Deploy` from command palette. This will generate a SharePoint package (\*.sppkg) under sharepoint/solution folder.
+   - Click `Deploy` in LIFECYCLE panel of Microsoft 365 Agents Toolkit extension, or run `Microsoft 365 Agents: Deploy` from command palette. This will generate a SharePoint package (\*.sppkg) under sharepoint/solution folder.
 
    Or you can use Microsoft 365 Agents Toolkit CLI with running this cmd under your project path:
-   `teamsapp deploy`
+   `atk deploy`
 
    - After building the \*.sppkg, the Microsoft 365 Agents Toolkit extension will upload and deploy it to your tenant App Catalog. Only tenant App Catalog site admin has permission to do it. You can create your test tenant following [Setup your Microsoft 365 tenant](https://docs.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant).
 
-3. Go back to Microsoft 365 Agents Toolkit extension, click `Teams: Publish` in LIFECYCLE panel.
+3. Go back to Microsoft 365 Agents Toolkit extension, click `Publish to Organization` in LIFECYCLE panel.
 
    Or you can use Microsoft 365 Agents Toolkit CLI with running this cmd under your project path:
-   `teamsapp publish`
+   `atk publish`
 
    You will find your app in [Microsoft Teams admin center](https://admin.teams.microsoft.com/policies/manage-apps). Enter your app name in the search box. Click the item and select `Publish` in the Publishing status.
 

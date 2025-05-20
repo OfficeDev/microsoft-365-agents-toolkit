@@ -145,7 +145,7 @@ jobs:
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
       M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
       CI_ENABLED: "true"
-      M365_ACCOUNT_COLLABORATOR: ${{ secrets.TEST_COLLABORATOR_USER_NAME_2 }}
+      M365_ACCOUNT_COLLABORATOR: "haolong@xxbdw.onmicrosoft.com"
       TEAMSFX_DEBUG_TEMPLATE: "true"
       NODE_ENV: "development"
       TEAMSFX_AAD_DEPLOY_ONLY: "true"

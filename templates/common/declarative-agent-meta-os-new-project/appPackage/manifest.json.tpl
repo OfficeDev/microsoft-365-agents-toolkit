@@ -44,8 +44,8 @@
   "copilotAgents": {
     "declarativeAgents": [
       {
-        "id": "declarativeCopilotAlc",
-        "file": "declarativeCopilot.json"
+        "id": "declarativeAgentAlc",
+        "file": "declarativeAgent.json"
       }
     ]
   },
@@ -118,7 +118,15 @@
             },
             {
               "id": "fillcolor",
-              "type": "executeFunction"
+              "type": "executeDataFunction"
+            },
+            {
+              "id": "addfooter",
+              "type": "executeDataFunction"
+            },
+            {
+              "id": "addtexttoslide",
+              "type": "executeDataFunction"
             }
           ]
         }

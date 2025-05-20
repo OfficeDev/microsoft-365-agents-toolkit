@@ -12,18 +12,34 @@ import {
 } from "@microsoft/teamsfx-api";
 import fse from "fs-extra";
 import path from "path";
+import { dotenvUtil } from "../../utils/envUtil";
+import { getUuid } from "../../../common/stringUtils";
 
-const NOT_COPY_FILES = ["README.md", "teamsapp.yml", "m365agents.yml"];
+const NOT_COPY_FILES = [
+  "README.md",
+  "teamsapp.yml",
+  "m365agents.yml",
+  "package-lock.json",
+  "pnpm-lock.yaml",
+  "yarn.lock",
+];
 const NOT_COPY_FOLDERS = ["node_modules", "env"];
 
 const DEFAULT_MANIFEST_ID = "${{TEAMS_APP_ID}}";
-const DEFAULT_DA_ID = "declarativeCopilotAlc";
+const DEFAULT_DA_ID = "declarativeAgentAlc";
 
-const DEFAULT_CMD_NAME = "fillcolor";
+const ENV_FOLDER = "env";
+const ENV_FILE_NAME = ".env.dev";
+
+const PKG_JSON_FILE_NAME = "package.json";
+
+const DEFAULT_CMD_NAME_W = "addfooter";
+const DEFAULT_CMD_NAME_X = "fillcolor";
+const DEFAULT_CMD_NAME_P = "addtexttoslide";
 const DEFAULT_CMD_FILE_NAME = "commands.js";
 
-const DEFAULT_DA_FILENAME = "declarativeCopilot";
-const DEFAULT_ACTION_FILENAME = "Excel-API-local-plugin";
+const DEFAULT_DA_FILENAME = "declarativeAgent";
+const DEFAULT_ACTION_FILENAME = "alchemy-plugin";
 const FILE_EXTENSION = ".json";
 
 export class MetaOSHelper {
@@ -83,6 +99,25 @@ export class MetaOSHelper {
     return `${MetaOSHelper.getNameWithSuffix(filename, suffix)}${ext}`;
   }
 
+  static async unifyProjectID(projectFolder: string): Promise<void> {
+    const manifestPath = path.join(projectFolder, AppPackageFolderName, ManifestTemplateFileName);
+    const envFilePath = path.join(projectFolder, ENV_FOLDER, ENV_FILE_NAME);
+
+    const manifest = (await AppManifestUtils.readTeamsManifest(
+      manifestPath
+    )) as TeamsManifestVDevPreview.TeamsManifestVDevPreview;
+
+    // use dotenvUtil rather than envUtil to avoid touch to the process.env
+    const envVars = dotenvUtil.deserialize(await fse.readFile(envFilePath, { encoding: "utf8" }));
+
+    const newUUID = getUuid();
+    manifest.id = newUUID;
+    envVars.obj.TEAMS_APP_ID = newUUID;
+
+    await AppManifestUtils.writeTeamsManifest(manifestPath, manifest);
+    await fse.writeFile(envFilePath, dotenvUtil.serialize(envVars), { encoding: "utf8" });
+  }
+
   static async extendToDA(projectFolder: string, appName: string): Promise<void> {
     // Ensure schema files name
     const DAFilename = MetaOSHelper.ensureFileNameIsNotExist(
@@ -97,18 +132,26 @@ export class MetaOSHelper {
     );
 
     // Modify manifest.json
-    const commandName = await MetaOSHelper.modifyManifest(projectFolder, DAFilename);
+    const commandNames = await MetaOSHelper.modifyManifest(projectFolder, DAFilename);
 
     // generate DA files
     await MetaOSHelper.generateDAFile(projectFolder, DAFilename, ActionFilename, appName);
-    await MetaOSHelper.generateActionFile(projectFolder, ActionFilename, appName, commandName);
+    await MetaOSHelper.generateActionFile(projectFolder, ActionFilename, appName, commandNames);
 
     // Add functions to command.ts
-    await MetaOSHelper.addCodeToCommands(projectFolder, commandName);
+    await MetaOSHelper.addCodeToCommands(projectFolder, commandNames);
+
+    // Upgrade office-addin-debugging
+    await MetaOSHelper.upgradeOfficeAddInDebugging(projectFolder);
   }
 
-  static async modifyManifest(projectFolder: string, DAFilename: string): Promise<string> {
-    let commandName = DEFAULT_CMD_NAME;
+  static async modifyManifest(
+    projectFolder: string,
+    DAFilename: string
+  ): Promise<{ w: string; x: string; p: string }> {
+    let commandNameW = DEFAULT_CMD_NAME_W;
+    let commandNameX = DEFAULT_CMD_NAME_X;
+    let commandNameP = DEFAULT_CMD_NAME_P;
 
     const manifestPath = path.join(projectFolder, AppPackageFolderName, ManifestTemplateFileName);
     const manifest = (await AppManifestUtils.readTeamsManifest(
@@ -135,20 +178,49 @@ export class MetaOSHelper {
       for (const runtime of runtimes) {
         if (runtime?.code?.script?.includes(DEFAULT_CMD_FILE_NAME)) {
           if (runtime.actions) {
-            commandName = MetaOSHelper.ensureFunctionNameIsNotExist(
+            commandNameW = MetaOSHelper.ensureFunctionNameIsNotExist(
               runtime.actions,
               "id",
-              commandName
+              commandNameW
             );
-            runtime.actions.push({
-              id: commandName,
-              type: "executeFunction",
-            });
+            commandNameX = MetaOSHelper.ensureFunctionNameIsNotExist(
+              runtime.actions,
+              "id",
+              commandNameX
+            );
+            commandNameP = MetaOSHelper.ensureFunctionNameIsNotExist(
+              runtime.actions,
+              "id",
+              commandNameP
+            );
+
+            runtime.actions.push(
+              {
+                id: commandNameW,
+                type: "executeDataFunction",
+              },
+              {
+                id: commandNameX,
+                type: "executeDataFunction",
+              },
+              {
+                id: commandNameP,
+                type: "executeDataFunction",
+              }
+            );
           } else {
             runtime.actions = [
               {
-                id: commandName,
-                type: "executeFunction",
+                id: commandNameW,
+                type: "executeDataFunction",
+              },
+              {
+                id: commandNameX,
+                type: "executeDataFunction",
+              },
+              {
+                id: commandNameP,
+                type: "executeDataFunction",
               },
             ];
           }
@@ -166,7 +238,7 @@ export class MetaOSHelper {
     // save file and return
     await AppManifestUtils.writeTeamsManifest(manifestPath, manifest);
 
-    return commandName;
+    return { w: commandNameW, x: commandNameX, p: commandNameP };
   }
 
   static async generateDAFile(
@@ -176,20 +248,31 @@ export class MetaOSHelper {
     appName: string
   ): Promise<void> {
     const fileJson: DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3 = {
+      $schema:
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json",
       version: "v1.3",
-      name: `Excel Add-in + Agent for ${appName}`,
-      description: "Agent for working with Excel cells.",
+      name: `Add-in Skill + Agent for ${appName}`,
+      description:
+        "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
       instructions:
-        "You are an agent for working with an add-in. You can work with any cells, not just a well-formatted table.",
+        "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
       conversation_starters: [
         {
-          title: "Change cell color",
-          text: "I want to change the color of cell B2 to orange",
+          title: "Change cell color (for excel)",
+          text: "Change the cell below A2 to the color of grass. Tell me how long it took in seconds.",
+        },
+        {
+          title: "Add footer (for word)",
+          text: "Add a footer with message 'Hello Agent!'. Tell me how long it took in seconds.",
+        },
+        {
+          title: "Add text to slide (for powerpoint)",
+          text: "Please add text 'Hello PPT!' to the slide. Tell me how long it took in seconds.",
         },
       ],
       actions: [
         {
-          id: "localExcelPlugin",
+          id: "alchemyPlugin",
           file: ActionFilename,
         },
       ],
@@ -205,48 +288,63 @@ export class MetaOSHelper {
     projectFolder: string,
     ActionFilename: string,
     appName: string,
-    commandName: string
+    commandName: { w: string; x: string; p: string }
   ): Promise<void> {
     // TODO: as any for temporary, since the runtime type `localPlugin` is not type defined yet
     const fileJson: any = {
-      schema_version: "v2.2",
-      name_for_human: `Excel Add-in + Agent for ${appName}`,
-      description_for_human: `Add-in Actions in Agents for ${appName}`,
-      namespace: "addin_function",
+      $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.3/schema.json",
+      schema_version: "v2.3",
+      name_for_human: `Add-in Skill + Agent for ${appName}`,
+      description_for_human: "Get answer for user's question related to Microsoft 365 products",
       functions: [
         {
-          name: `${commandName}`,
-          description: `${commandName} changes a single cell location to a specific color.`,
-          parameters: {
-            type: "object",
-            properties: {
-              Cell: {
-                type: "string",
-                description: "A cell location in the format of A1, B2, etc.",
-                default: "B2",
-              },
-              Color: {
-                type: "string",
-                description: "A color in hex format, e.g. #30d5c8",
-                default: "#30d5c8",
-              },
-            },
-            required: ["Cell", "Color"],
-          },
-          returns: {
-            type: "string",
-            description: "A string indicating the result of the action.",
-          },
+          name: `${commandName.w}`,
+          description:
+            "Action addfooter: take in arg a JSON object, with a footer message in the field 'Footer'.",
           states: {
             reasoning: {
-              description: `\`${commandName}\` changes the color of a single cell based on the grid location and a color value.`,
+              description:
+                "\n# `addfooter(Footer: str = 'example message to be added to footer') -> str`  Action addfooter: take in arg a JSON object with a string field 'Footer', a footer message.",
               instructions:
-                "The user will pass ask for a color that isn't in the hex format needed in most cases, make sure to convert to the closest approximation in the right format.",
+                "\n- Decide whether to invoke `addfooter(Footer: str = 'example message to be added to footer')`:\n - Check the last user message in the `conversation_memory` and the tool invocation history in the `turn_memory`:\n    - Based on the `result` from `turn_memory`, do I need to return answers, Action addfooter: take in arg a JSON object, with a footer message in the field 'Footer'.",
             },
             responding: {
-              description: `\`${commandName}\` changes the color of a single cell based on the grid location and a color value.`,
+              description: "",
+              instructions: "reply",
+            },
+          },
+        },
+        {
+          name: `${commandName.x}`,
+          description:
+            "Action fillcolor: take in arg a JSON object, a cell location and a color in hex. Cell location is a single cell.",
+          states: {
+            reasoning: {
+              description:
+                "\n# `fillcolor(Cell: str = 'B7', Color: str = '#30d5c8') -> str`  Action fillcolor: take in arg a JSON object, a cell location and a color in hex. Cell location is a single cell.",
               instructions:
-                "If there is no error present, tell the user the cell location and color that was set.",
+                "\n- Decide whether to invoke `fillcolor(Cell: str = 'B7', Color: str = '#30d5c8')`:\n - Check the last user message in the `conversation_memory` and the tool invocation history in the `turn_memory`:\n    - Based on the `result` from `turn_memory`, do I need to return answers, Action fillcolor: take in arg a JSON object, a cell location and a color in hex. Cell location is a single cell.",
+            },
+            responding: {
+              description: "",
+              instructions: "reply",
+            },
+          },
+        },
+        {
+          name: `${commandName.p}`,
+          description:
+            "Action addtexttoslide: take in arg a JSON object, a text to be added to a slide.",
+          states: {
+            reasoning: {
+              description:
+                "\n# `addtexttoslide(Text: str = 'hello') -> str` Action addtexttoslide: take in arg a JSON object, a text to be added to a slide.",
+              instructions:
+                "\n- Decide whether to invoke `addtexttoslide(Text: str = 'hello')`:\n - Check the last user message in the `conversation_memory` and the tool invocation history in the `turn_memory`:\n    - Based on the `result` from `turn_memory`, do I need to return answers, Action addtexttoslide: take in arg a JSON object, a text to be added to a slide.",
+            },
+            responding: {
+              description: "",
+              instructions: "reply",
             },
           },
         },
@@ -255,9 +353,9 @@ export class MetaOSHelper {
         {
           type: "LocalPlugin",
           spec: {
-            local_endpoint: "ms-office-addin",
+            local_endpoint: "Microsoft.Office.Addin",
           },
-          run_for_functions: [`${commandName}`],
+          run_for_functions: [`${commandName.w}`, `${commandName.x}`, `${commandName.p}`],
         },
       ],
     };
@@ -267,34 +365,94 @@ export class MetaOSHelper {
     await fse.writeJSON(filePath, fileJson, { spaces: 2 });
   }
 
-  static async addCodeToCommands(projectFolder: string, commandName: string): Promise<void> {
+  static async addCodeToCommands(
+    projectFolder: string,
+    commandName: { w: string; x: string; p: string }
+  ): Promise<void> {
     if (!fse.existsSync(path.join(projectFolder, "src", "commands", "commands.ts"))) {
       throw new Error("command.ts file doesn't exist!");
     }
 
     const codeToAppend = `
-/* global Excel, performance, console */
+/* global Office */
+/* global Word, Excel, PowerPoint, performance, console */
 
-async function ${commandName}(cell, color) {
+async function addFooter(message) {
+  await Word.run(async (context) => {
+    context.document.sections
+      .getFirst()
+      .getFooter(Word.HeaderFooterType.primary)
+      .insertParagraph(\`From Agent: \${message}\`, "End");
+
+    await context.sync();
+  });
+}
+
+async function fillColor(cell, color) {
   await Excel.run(async (context) => {
     context.workbook.worksheets.getActiveWorksheet().getRange(cell).format.fill.color = color;
     await context.sync();
   });
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Office.onReady((info) => {
-  Office.actions.associate("${commandName}", async (message) => {
-    const start = performance.now();
-    const { Cell: cell, Color: color } = JSON.parse(message);
-    await ${commandName}(cell, color);
-    const duration = performance.now() - start;
-    const result = \`Demo add-in: Action completed! completed in \$\{duration.toFixed(0)\} ms.\`;
-    console.log(\`Returning result: "\$\{result\}"\`);
-    return result;
+
+async function addTextToSlide(text) {
+  await PowerPoint.run(async (context) => {
+    context.presentation.slides.getItemAt(0).shapes.addTextBox(text, {
+      left: Math.random() * 200,
+      top: Math.random() * 200,
+      height: 150,
+      width: 150,
+    });
+    await context.sync();
   });
+}
+
+Office.onReady((info) => {
+  if (info.host === Office.HostType.Word) {
+    Office.actions.associate("${commandName.w}", async (message) => {
+      const start = performance.now();
+      const { Footer: footer } = JSON.parse(message);
+      await addFooter(footer);
+      const duration = performance.now() - start;
+      const result = \`Demo add-in: Footer added! completed in \${duration.toFixed(0)} ms.\`;
+      console.log(\`Returning result: "\${result}"\`);
+      return result;
+    });
+  } else if (info.host === Office.HostType.Excel) {
+    Office.actions.associate("${commandName.x}", async (message) => {
+      const start = performance.now();
+      const { Cell: cell, Color: color } = JSON.parse(message);
+      await fillColor(cell, color);
+      const duration = performance.now() - start;
+      const result = \`Demo add-in: Action completed! completed in \${duration.toFixed(0)} ms.\`;
+      console.log(\`Returning result: "\${result}"\`);
+      return result;
+    });
+  } else if (info.host === Office.HostType.PowerPoint) {
+    Office.actions.associate("${commandName.p}", async (message) => {
+      const start = performance.now();
+      const { Text: text } = JSON.parse(message);
+      await addTextToSlide(text);
+      const duration = performance.now() - start;
+      const result = \`Demo add-in: text added to slide! completed in \${duration.toFixed(0)} ms.\`;
+      console.log(\`Returning result: "\${result}"\`);
+      return result;
+    });
+  }
 });
 `;
 
     await fse.appendFile(path.join(projectFolder, "src", "commands", "commands.ts"), codeToAppend);
+  }
+
+  static async upgradeOfficeAddInDebugging(projectFolder: string): Promise<void> {
+    const pkgJsonPath = path.join(projectFolder, PKG_JSON_FILE_NAME);
+    if (fse.existsSync(pkgJsonPath)) {
+      const pkgJson = await fse.readJSON(pkgJsonPath);
+      pkgJson["devDependencies"]["office-addin-debugging"] = "^6.0.4";
+      await fse.writeJSON(pkgJsonPath, pkgJson, { spaces: 2 });
+    } else {
+      throw new Error(`package.json file doesn't exist!`);
+    }
   }
 }

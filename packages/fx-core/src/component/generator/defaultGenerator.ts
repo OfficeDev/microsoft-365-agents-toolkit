@@ -15,7 +15,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
-import { MetadataV3 } from "../../common/versionMetadata";
+import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { ProgrammingLanguage, QuestionNames } from "../../question/constants";
 import { ProgressMessages, ProgressTitles } from "../messages";
 import { ActionContext, ActionExecutionMW } from "../middleware/actionExecutionMW";
@@ -110,6 +110,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       }
       const sandboxFileList = [
         `${MetadataV3.sandboxConfigFile}.tpl`,
+        `${MetadataV4.sandboxConfigFile}.tpl`,
         ".env.sandbox",
         ".env.sandbox.user.tpl",
       ];

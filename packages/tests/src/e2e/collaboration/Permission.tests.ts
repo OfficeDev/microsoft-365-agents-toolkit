@@ -46,7 +46,7 @@ describe("Collaboration", function () {
         }
       );
       console.log(`[Successfully] scaffold to ${projectPath}`);
-      const filePath = path.join(projectPath, "teamsapp.yml");
+      const filePath = path.join(projectPath, "m365agents.yml");
       removeTeamsAppExtendToM365(filePath);
 
       // provision
@@ -66,7 +66,7 @@ describe("Collaboration", function () {
 
       // Check Permission
       const checkPermissionResult = await execAsyncWithRetry(
-        `atk collaborator status --env dev --interactive false --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json`,
+        `atk collaborator status --env dev --interactive false --manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json`,
         {
           cwd: projectPath,
           env: process.env,
@@ -82,7 +82,7 @@ describe("Collaboration", function () {
 
       // Grant Permission
       const grantCollaboratorResult = await execAsyncWithRetry(
-        `atk collaborator grant --email ${collaborator} --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
+        `atk collaborator grant --email ${collaborator} --env dev --manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,
@@ -99,7 +99,7 @@ describe("Collaboration", function () {
       console.log("[Successfully] grant permission");
 
       const listCollaboratorResult = await execAsync(
-        `atk collaborator status --all --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
+        `atk collaborator status --all --env dev --manifest-file ${projectPath}/appPackage/manifest.json --entra-app-manifest-file ${projectPath}/aad.manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,
@@ -115,7 +115,7 @@ describe("Collaboration", function () {
         `Account used to check: ${creator?.split("@")[0]}`
       );
       expect(listCollaboratorResult.stdout).to.contains(
-        `Teams App Owner: ${collaborator?.split("@")[0]}`
+        `App Owner: ${collaborator?.split("@")[0]}`
       );
 
       console.log("[Successfully] list collaborator");

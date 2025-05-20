@@ -258,7 +258,7 @@ describe("kiotaClient", () => {
       }
     });
 
-    it("edge case: ListAPITreeInfo contains url encoded characters and environment variables", async () => {
+    it("edge case: ListAPITreeInfo contains environment variables", async () => {
       const mockTreeResult = {
         rootNode: {
           isOperation: true,
@@ -267,7 +267,7 @@ describe("kiotaClient", () => {
           operationId: "${{operationId}}",
           children: [],
         },
-        servers: ["https://api.example.com/$%7B%7BTestEnv%7D%7D/"],
+        servers: ["https://api.example.com/${{TestEnv}}/"],
         security: [],
         securitySchemes: {},
         logs: [],

@@ -10,13 +10,13 @@
     },
     "author": "Microsoft",
     "license": "MIT",
-    "main": "./lib/src/index.js",
+    "main": "./src/index.js",
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
         "dev:teamsfx:playground": "env-cmd --silent -f .localConfigs.playground npm run dev",
         "dev:teamsfx:launch-playground": "env-cmd --silent -f env/.env.playground teamsapptester start",
         "dev": "nodemon --inspect=9239 --signal SIGINT ./src/index.js",
-        "start": "node ./lib/src/index.js",
+        "start": "node ./src/index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon --exec \"npm run start\""
     },

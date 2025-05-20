@@ -159,10 +159,13 @@ export class SPFxGenerator {
       }
 
       const nodeVersion = await this.getNodeVersion(destSpfxFolder, context);
+      const yoInfoPath = path.join(inputs[QuestionNames.SPFxFolder], Constants.YO_RC_FILE);
+      const SPFxVersion = await this.getSolutionVersion(yoInfoPath);
       context.templateVariables["SpfxNodeVersion"] = nodeVersion;
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
 
       importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
@@ -382,10 +385,19 @@ export class SPFxGenerator {
       const manifestJson = JSON.parse(manifestString.replace(matchHashComment, "").trim());
       const componentId = manifestJson.id;
 
+      if (!context.templateVariables) {
+        context.templateVariables = Generator.getDefaultVariables(solutionName ?? "");
+      }
+
+      if (shouldInstallLocally) {
+        context.templateVariables["useNewDevUrl"] = "true";
+      } else {
+        const SPFxVersion = await spGeneratorChecker.findGloballyInstalledVersion(undefined, false);
+        context.templateVariables["useNewDevUrl"] =
+          SPFxVersion && semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
+      }
+
       if (!isAddSPFx) {
-        if (!context.templateVariables) {
-          context.templateVariables = Generator.getDefaultVariables(solutionName);
-        }
         context.templateVariables["componentId"] = componentId;
         context.templateVariables["webpartName"] = webpartName;
 
@@ -421,7 +433,7 @@ export class SPFxGenerator {
     }
   }
 
-  private static async getSolutionVersion(yoInfoPath: string): Promise<string> {
+  public static async getSolutionVersion(yoInfoPath: string): Promise<string> {
     if (await fs.pathExists(yoInfoPath)) {
       const yoInfo = await fs.readJson(yoInfoPath);
       if (yoInfo["@microsoft/generator-sharepoint"]) {
@@ -503,7 +515,7 @@ export class SPFxGenerator {
   }
 
   // return shouldUseLocal
-  private static async shouldAddWebPartWithLocalDependencies(
+  public static async shouldAddWebPartWithLocalDependencies(
     solutionVersion: string,
     globalVersion: string | undefined,
     localVersion: string | undefined,
@@ -972,10 +984,13 @@ export class SPFxGeneratorImport extends DefaultTemplateGenerator {
         context.templateVariables = Generator.getDefaultVariables(inputs[QuestionNames.AppName]);
       }
       const nodeVersion = await SPFxGenerator.getNodeVersion(destSpfxFolder, context);
+      const yoInfoPath = path.join(inputs[QuestionNames.SPFxFolder], Constants.YO_RC_FILE);
+      const SPFxVersion = await SPFxGenerator.getSolutionVersion(yoInfoPath);
       context.templateVariables["SpfxNodeVersion"] = nodeVersion;
       context.templateVariables["componentId"] = webpartManifest["id"];
       context.templateVariables["webpartName"] =
         webpartManifest["preconfiguredEntries"][0].title.default;
+      context.templateVariables["useNewDevUrl"] = semver.gte(SPFxVersion, "1.21.0") ? "true" : "";
       this.importDetails.push(
         `(.) Processing: Generating SPFx project templates with app name: ${
           inputs[QuestionNames.AppName] as string

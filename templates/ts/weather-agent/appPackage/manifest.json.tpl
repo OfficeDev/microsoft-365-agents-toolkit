@@ -48,8 +48,12 @@
                     ],
                     "commands": [
                         {
-                            "title": "How is the weather today?",
-                            "description": "Get weather information from agent"
+                            "title": "How can you help me?",
+                            "description": "How can you help me?"
+                        },
+                        {
+                            "title": "Forecast the weather tomorrow in San Francisco.",
+                            "description": "Can you forecast the tomorrow weather in San Francisco for me?"
                         }
                     ]
                 }
