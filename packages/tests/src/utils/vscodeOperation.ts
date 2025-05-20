@@ -635,9 +635,10 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
-      await input.selectQuickPick("Chat Notification Message");
       await driver.sleep(Timeout.input);
-
+      await input.setText("Chat Notification Message");
+      await input.confirm();
+      await driver.sleep(Timeout.input);
       // Select trigger
       // Unselect express http trigger
       // await selectQuickPickWithRegex(/(HTTP Trigger.*Express Server)|(Express Server.*HTTP Trigger)/);
@@ -654,7 +655,9 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
-      await input.selectQuickPick("Chat Notification Message");
+      await input.setText("Chat Notification Message");
+      await driver.sleep(Timeout.input);
+      await input.confirm();
       await driver.sleep(Timeout.input);
       // Select trigger
       // HTTP Trigger Azure Express, the default is Express http trigger, no action needed.
@@ -813,7 +816,9 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
-      await input.selectQuickPick("Chat Notification Message");
+      await input.setText("Chat Notification Message");
+      await driver.sleep(Timeout.input);
+      await input.confirm();
       await driver.sleep(Timeout.input);
       await selectQuickPickWithRegex(
         /(Timer Trigger.*Azure Functions)|(Azure Functions.*Timer Trigger)/
@@ -827,7 +832,9 @@ export async function createNewProject(
       await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Bot);
-      await input.selectQuickPick("Chat Notification Message");
+      await input.setText("Chat Notification Message");
+      await driver.sleep(Timeout.input);
+      await input.confirm();
       await driver.sleep(Timeout.input);
       await selectQuickPickWithRegex(
         /(HTTP and Timer Trigger.*Azure Functions)|(Azure Functions.*HTTP and Timer Trigger)/
@@ -1072,7 +1079,9 @@ export async function createNewProject(
 
   // Input folder path
   console.log("choose project path: ", testRootFolder);
-  await input.selectQuickPick("Browse...");
+  await input.setText("Browse...");
+  await driver.sleep(Timeout.input);
+  await input.confirm();
   await inputFolderPath(driver, input, testRootFolder);
   await driver.sleep(Timeout.input);
   if (os.type() === "Windows_NT") {
