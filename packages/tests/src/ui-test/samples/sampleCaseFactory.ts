@@ -38,7 +38,7 @@ const debugMap: Record<LocalDebugTaskLabel, () => Promise<void>> = {
   [LocalDebugTaskLabel.StartFrontend]: async () => {
     await waitForTerminal(
       LocalDebugTaskLabel.StartFrontend,
-      LocalDebugTaskResult.FrontendSuccess
+      LocalDebugTaskResult.FrontendReady
     );
   },
   [LocalDebugTaskLabel.StartBackend]: async () => {

@@ -21,9 +21,7 @@
             "remotedebug-chatdata-m365-js-openai",
             "remotedebug-chatdata-m365-ts-azureopenai",
             "remotedebug-chatdata-m365-ts-openai",
-            "sample-outlook-signature",
-            "sample-reddit-link",
-            "sample-chef-bot"
+            "sample-reddit-link"
         ]
     },
     {
@@ -78,14 +76,11 @@
             "sample-one-productivity-hub",
             "sample-stock-update",
             "sample-query-org",
-            "sample-proactive-message",
             "sample-assistant-dashboard",
             "sample-hello-world-tab-outlook",
             "sample-bot-sso",
             "sample-remotedebug-sso-tab-via-apim-proxy",
-            "sample-copilot-connector-bot",
-            "sample-localdebug-food-catalog",
-            "sample-remotedebug-food-catalog"
+            "sample-copilot-connector-bot"
         ]
     },
     {
