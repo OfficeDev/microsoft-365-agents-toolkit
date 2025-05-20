@@ -1,14 +1,7 @@
 {
-    {{#CEAEnabled}} 
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/vdevPreview/MicrosoftTeams.schema.json",
-    "manifestVersion": "devPreview",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.21",
     "version": "1.0.0",
-    {{/CEAEnabled}}
-    {{^CEAEnabled}} 
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.19",
-    "version": "1.0.0",
-    {{/CEAEnabled}}
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
         "name": "My App, Inc.",
@@ -43,8 +36,12 @@
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                {{#CEAEnabled}} 
+                {{#CEAEnabled}}
                 "copilot",
+                {{/CEAEnabled}}
+                {{^CEAEnabled}}
+                "team",
+                "groupChat",
                 {{/CEAEnabled}}
                 "personal"
             ],
