@@ -26,7 +26,7 @@ jobs:
         run: |
           links=`git grep -hEo "https://aka[a-zA-Z0-9./?=_%:-]*[a-zA-Z0-9]"  | sort -nr | uniq`
 
-          white_list="https://aka.ms/teamsfx-plugin-api;https://aka.ms/dotnet;https://aka.ms/teamsfx-migrate-v1"
+          white_list="https://aka.ms/dotnet;https://aka.ms/teamsfx-migrate-v1;https://aka.ms/officeversions"
 
           while IFS= read -r link;
           do
