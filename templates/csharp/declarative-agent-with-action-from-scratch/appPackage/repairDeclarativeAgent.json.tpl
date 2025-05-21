@@ -1,6 +1,6 @@
 {
-    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json",
-    "version": "v1.3",
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json",
+    "version": "v1.4",
     "name": "{{appName}}${{APP_NAME_SUFFIX}}",
     "description": "This GPT helps you with finding car repair records.",
     "instructions": "$[file('instruction.txt')]",

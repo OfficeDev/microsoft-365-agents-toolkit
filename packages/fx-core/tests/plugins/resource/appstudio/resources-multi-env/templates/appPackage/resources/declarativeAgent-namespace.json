@@ -1,6 +1,6 @@
 {
-    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.2/schema.json",
-    "version": "v1.2",
+    "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json",
+    "version": "v1.4",
     "name": "test-da",
     "description": "Declarative agent created with Microsoft 365 Agents Toolkit can assist user in calling APIs and retrieving responses",
     "instructions": "this is test instructions",
