@@ -79,15 +79,7 @@ export class CliHelper {
     if (v3) {
       const childProcess = spawnCommand(
         os.type() === "Windows_NT" ? "npx.cmd" : "npx",
-        [
-          "teamsapp",
-          "provision",
-          "--env",
-          env,
-          "--verbose",
-          "--telemetry",
-          "false",
-        ],
+        ["atk", "provision", "--env", env, "--verbose", "--telemetry", "false"],
         {
           cwd: projectPath,
           env: processEnv ? processEnv : process.env,
@@ -288,15 +280,7 @@ export class CliHelper {
     if (v3) {
       const childProcess = spawnCommand(
         os.type() === "Windows_NT" ? "npx.cmd" : "npx",
-        [
-          "teamsapp",
-          "deploy",
-          "--env",
-          env,
-          "--verbose",
-          "--telemetry",
-          "false",
-        ],
+        ["atk", "deploy", "--env", env, "--verbose", "--telemetry", "false"],
         {
           cwd: projectPath,
           env: processEnv ? processEnv : process.env,
@@ -571,10 +555,10 @@ export class CliHelper {
     const childProcess = spawnCommand(
       os.type() === "Windows_NT"
         ? v3
-          ? "teamsapp.cmd"
+          ? "atk.cmd"
           : "teamsfx.cmd"
         : v3
-        ? "teamsapp"
+        ? "atk"
         : "teamsfx",
       v3
         ? ["preview", "--env", env, "--telemetry", "false"]
