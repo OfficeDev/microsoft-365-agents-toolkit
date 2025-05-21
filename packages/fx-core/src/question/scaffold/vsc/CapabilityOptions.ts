@@ -340,6 +340,13 @@ export class OfficeAddinCapabilityOptions {
       data: TemplateNames.WXPTaskpane,
     };
   }
+  static DAMetaOS(): OptionItem {
+    return {
+      id: "office-da-meta-os",
+      label: getLocalizedString("core.createProjectQuestion.DAMetaOS.label"),
+      detail: getLocalizedString("core.createProjectQuestion.DAMetaOS.detail"),
+    };
+  }
 }
 
 export class BotCapabilityOptions {
@@ -562,12 +569,46 @@ export class ActionStartOptions {
     };
   }
 
+  static DAMetaOS(): OptionItem {
+    return {
+      id: "da-meta-os",
+      label: getLocalizedString("core.createProjectQuestion.capability.DAMetaOS.label"),
+      detail: getLocalizedString("core.createProjectQuestion.capability.DAMetaOS.detail"),
+      data: TemplateNames.DeclarativeAgentMetaOSNewProject,
+    };
+  }
+
   static existingPlugin(): OptionItem {
     return {
       id: "existing-plugin",
       label: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.label"),
       detail: getLocalizedString("core.createProjectQuestion.apiPlugin.importPlugin.detail"),
       data: TemplateNames.DeclarativeAgentWithExistingAction,
+    };
+  }
+}
+
+export class DAMetaOSCapabilityOptions {
+  static newDAMetaOSProject(): OptionItem {
+    return {
+      id: "da-meta-os-new-project",
+      label: getLocalizedString("core.createProjectQuestion.DAMetaOS.capability.newProject.label"),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.DAMetaOS.capability.newProject.detail"
+      ),
+      data: TemplateNames.DeclarativeAgentMetaOSNewProject,
+    };
+  }
+  static upgradeExistingProject(): OptionItem {
+    return {
+      id: "da-meta-os-upgrade-existing-project",
+      label: getLocalizedString(
+        "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label"
+      ),
+      detail: getLocalizedString(
+        "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail"
+      ),
+      data: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
     };
   }
 }

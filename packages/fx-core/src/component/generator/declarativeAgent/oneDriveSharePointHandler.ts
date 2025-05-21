@@ -119,7 +119,7 @@ export async function getDriveItemInfo(
 export async function getODSPItemDetailById(
   context: Context,
   siteId: string,
-  itemId: string
+  itemId?: string
 ): Promise<Result<ItemMetadata[], UserError>> {
   const graphClientResult = await createGraphClientWithToken(context);
   if (graphClientResult.isErr()) {
@@ -128,12 +128,17 @@ export async function getODSPItemDetailById(
   const graphClient = graphClientResult.value;
 
   try {
-    const itemRes = await graphClient.get(`/sites/${siteId}/drive/items/${itemId}`);
+    const url = itemId ? `/sites/${siteId}/items/${itemId}` : `/sites/${siteId}`;
+    const itemRes = await graphClient.get(url);
+    if (!itemRes.data.name && itemRes.data.webUrl) {
+      const urlParts = itemRes.data.webUrl.split("/");
+      itemRes.data.name = decodeURIComponent(urlParts[urlParts.length - 1]);
+    }
     return ok([
       {
         id: itemRes.data.id,
         name: itemRes.data.name,
-        url: itemRes.data.webUrl,
+        webUrl: itemRes.data.webUrl,
       },
     ]);
   } catch (error) {

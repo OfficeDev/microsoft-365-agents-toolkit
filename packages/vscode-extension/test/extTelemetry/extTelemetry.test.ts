@@ -97,6 +97,11 @@ describe("ExtTelemetry", () => {
       chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.SyncManifest);
     });
 
+    it("Stage.RegeneratePlugin", () => {
+      const stage = Stage.RegeneratePlugin;
+      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.RegenerateAction);
+    });
+
     it("unknown", () => {
       const stage = "unknown";
       chai.expect(ExtTelemetry.stageToEvent(stage as Stage)).equals(undefined);

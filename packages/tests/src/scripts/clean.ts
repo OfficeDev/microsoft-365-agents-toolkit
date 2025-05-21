@@ -14,10 +14,11 @@ import {
 import { getAppNamePrefix } from "../utils/nameUtil";
 import { delay } from "../utils/retryHandler";
 
-const appStudioAppNamePrefixList: string[] = [Project.namePrefix, "vs"];
-const appNamePrefixList: string[] = [Project.namePrefix, "vs"];
-const aadNamePrefixList: string[] = [Project.namePrefix, "vs"];
+// const appStudioAppNamePrefixList: string[] = [Project.namePrefix, "vs"];
+const appNamePrefixList: string[] = [Project.namePrefix, "vs", "fx"];
+// const aadNamePrefixList: string[] = [Project.namePrefix, "vs"];
 const rgNamePrefixList: string[] = [Project.namePrefix, "vs"];
+const adminMicrosoftEntraAppName = "delete-client";
 const excludePrefix: string = getAppNamePrefix();
 
 async function main() {
@@ -33,19 +34,14 @@ async function main() {
   const teamsAppList = await cleanService.listTeamsApp(teamsUserId);
   if (teamsAppList) {
     for (const app of teamsAppList) {
-      for (const name of appNamePrefixList) {
-        if (
-          app?.teamsAppDefinition?.displayName?.startsWith(name) &&
-          !app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)
-        ) {
-          console.log(app?.teamsAppDefinition?.displayName);
-          try {
-            await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
-          } catch {
-            console.log(
-              `Failed to uninstall Teams App ${app?.teamsAppDefinition?.displayName}`
-            );
-          }
+      if (!app?.teamsAppDefinition?.displayName?.startsWith(excludePrefix)) {
+        console.log(app?.teamsAppDefinition?.displayName);
+        try {
+          await cleanService.uninstallTeamsApp(teamsUserId, app?.id ?? "");
+        } catch {
+          console.log(
+            `Failed to uninstall Teams App ${app?.teamsAppDefinition?.displayName}`
+          );
         }
       }
     }
@@ -55,13 +51,17 @@ async function main() {
   const aadList = await cleanService.listAad();
   if (aadList) {
     for (const aad of aadList) {
-      for (const name of aadNamePrefixList) {
-        if (
-          aad.displayName?.startsWith(name) &&
-          !aad.displayName?.startsWith(excludePrefix)
-        ) {
-          console.log(aad.displayName);
+      if (
+        !aad.displayName?.startsWith(adminMicrosoftEntraAppName) &&
+        !aad.displayName?.startsWith(excludePrefix)
+      ) {
+        console.log(aad.displayName);
+        try {
           await cleanService.deleteAad(aad.id!);
+        } catch (e: any) {
+          console.log(
+            `Failed to delete AAD ${aad.displayName} with error: ${e.message}`
+          );
         }
       }
     }
@@ -77,21 +77,16 @@ async function main() {
   const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
   if (appStudioAppList) {
     for (const app of appStudioAppList) {
-      for (const name of appStudioAppNamePrefixList) {
-        if (
-          app?.displayName?.startsWith(name) &&
-          !app?.displayName?.startsWith(excludePrefix)
-        ) {
-          console.log(app?.displayName);
-          try {
-            await addStudioCleanService.deleteAppInAppStudio(
-              app?.appDefinitionId
-            );
-          } catch {
-            console.log(
-              `Failed to delete Teams App ${app?.displayName} in App Studio`
-            );
-          }
+      if (!app?.displayName?.startsWith(excludePrefix)) {
+        console.log(app?.displayName);
+        try {
+          await addStudioCleanService.deleteAppInAppStudio(
+            app?.appDefinitionId
+          );
+        } catch {
+          console.log(
+            `Failed to delete Teams App ${app?.displayName} in App Studio`
+          );
         }
       }
     }
@@ -145,7 +140,11 @@ async function main() {
           !app.Title?.startsWith(excludePrefix)
         ) {
           console.log(app.Title);
-          await sharePointCleanService.deleteApp(app.ID!);
+          try {
+            await sharePointCleanService.deleteApp(app.ID!);
+          } catch {
+            console.log(`Failed to delete SharePoint app ${app.ID!}`);
+          }
         }
       }
     }
@@ -176,16 +175,15 @@ async function main() {
       const acquisitions = await m365TitleCleanService.listAcquisitions();
       if (acquisitions) {
         for (const acquisition of acquisitions) {
-          for (const name of appNamePrefixList) {
-            if (!acquisition.titleDefinition.name.startsWith(excludePrefix)) {
-              console.log(acquisition.titleDefinition.name);
-              console.log(acquisition.titleId);
-              const result = await m365TitleCleanService.unacquire(
-                acquisition.titleId
-              );
-              if (!retry && result) {
-                retry = true;
-              }
+          if (!acquisition.titleDefinition.name.startsWith(excludePrefix)) {
+            console.log(acquisition.titleDefinition.name);
+            console.log(acquisition.titleId);
+            const result = await m365TitleCleanService.unacquire(
+              acquisition.titleId,
+              1
+            );
+            if (!retry && result) {
+              retry = true;
             }
           }
         }

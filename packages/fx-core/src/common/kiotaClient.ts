@@ -14,6 +14,7 @@ import {
 } from "@microsoft/kiota";
 import { KiotaGeneratePluginError } from "../error";
 import { getLocalizedString } from "./localizeUtils";
+import { Utils } from "@microsoft/m365-spec-parser";
 
 const ERROR_LOG_LEVEL = 4;
 
@@ -73,7 +74,9 @@ export async function listAPITreeInfo(
     throw new Error(errors.join("\n"));
   }
 
-  return treeInfo;
+  const treeInfoStr = JSON.stringify(treeInfo);
+  const resolvedTreeInfo = Utils.resolveEnv(treeInfoStr);
+  return JSON.parse(resolvedTreeInfo) as KiotaTreeResult;
 }
 
 export async function kiotageneratePlugin(
@@ -111,6 +114,14 @@ export async function kiotageneratePlugin(
     const result: GeneratePluginResult | undefined = await generatePlugin(config);
     if (!result) {
       throw new Error("Get empty result from kiota");
+    }
+
+    if (!result.isSuccess) {
+      const errorMessage = result.logs
+        .filter((log) => log.level >= ERROR_LOG_LEVEL)
+        .map((log) => log.message)
+        .join(";");
+      throw new Error(errorMessage);
     }
 
     return result;

@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 
-export const ResourceTypeEnum = z.enum(["documents", "samples", "issues"]);
+export const ResourceTypeEnum = z.enum(["documents", "samples", "issues", "code"]);
 export type ResourceType = z.infer<typeof ResourceTypeEnum>;
 
 /**

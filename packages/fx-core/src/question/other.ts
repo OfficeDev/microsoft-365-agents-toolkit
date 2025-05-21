@@ -22,11 +22,15 @@ import {
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
+import { GraphClient } from "../client/graphClient";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../common/constants";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
 import { Constants } from "../component/driver/add/utility/constants";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
+import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../core/collaborator";
 import { environmentNameManager } from "../core/environmentName";
@@ -35,12 +39,15 @@ import {
   AddAuthActionAuthTypeOptions,
   GCSelectOptions,
   HubOptions,
+  KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
   QuestionNames,
   TeamsAppValidationOptions,
-  KnowledgeSearchTypeOptions,
 } from "./constants";
 import {
+  GCInputQuestion,
+  GCItemQuestion,
+  GCListQuestion,
   SPFxFrameworkQuestion,
   SPFxImportFolderQuestion,
   SPFxWebpartNameQuestion,
@@ -48,24 +55,19 @@ import {
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
+  appNameQuestion,
+  folderQuestion,
+  oneDriveSharePointItemConfirmQuestion,
+  oneDriveSharePointItemQuestion,
   pluginApiSpecQuestion,
   pluginManifestQuestion,
-  oneDriveSharePointItemQuestion,
-  oneDriveSharePointItemConfirmQuestion,
-  GCItemQuestion,
-  GCListQuestion,
-  GCInputQuestion,
   searchTypeQuestion,
-  webContentQuestion,
+  selectApiOperationForRegenerateQuestion,
   selectExistingPluginManifestQuestion,
   selectOpenAPISpecFromPluginQuestion,
-  selectApiOperationForRegenerateQuestion,
+  webContentQuestion,
 } from "./create";
 import { UninstallInputs } from "./inputs";
-import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
-import { GraphClient } from "../client/graphClient";
 import { inputOrSearchAPISpecNode } from "./scaffold/vsc/teamsProjectTypeNode";
 
 export function listCollaboratorQuestionNode(): IQTreeNode {
@@ -321,10 +323,9 @@ export function addWebPartQuestionNode(): IQTreeNode {
 export function selectTeamsAppManifestQuestion(): SingleFileQuestion {
   return {
     name: QuestionNames.TeamsAppManifestFilePath,
-    cliName: "teams-manifest-file",
+    cliName: "manifest-file",
     cliShortName: "t",
-    cliDescription:
-      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    cliDescription: "Specifies the app manifest file path.",
     title: getLocalizedString("core.selectTeamsAppManifestQuestion.title"),
     type: "singleFile",
     default: (inputs: Inputs): string | undefined => {
@@ -822,30 +823,45 @@ export function addPluginQuestionNode(): IQTreeNode {
           equals: ActionStartOptions.existingPlugin().id,
         },
       },
-      ...(featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
-        ? [inputOrSearchAPISpecNode()]
-        : [
-            {
-              data: apiSpecLocationQuestion(),
-              condition: (inputs: Inputs) => {
-                return (
-                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-                );
-              },
-            },
-            {
-              data: apiOperationQuestion(true, true),
-              condition: (inputs: Inputs) => {
-                return (
-                  !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-                  inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
-                );
-              },
-            },
-          ]),
+      ...[inputOrSearchAPISpecNode()],
+      {
+        data: apiSpecLocationQuestion(),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
+      {
+        data: apiOperationQuestion(true, true),
+        condition: (inputs: Inputs) => {
+          return (
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration) &&
+            !featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
+            inputs[QuestionNames.ActionType] === ActionStartOptions.apiSpec().id
+          );
+        },
+      },
       {
         data: selectTeamsAppManifestQuestion(),
+      },
+    ],
+  };
+}
+
+export function metaOSExtendToDAQuestionNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: folderQuestion(),
+      },
+      {
+        data: appNameQuestion(),
       },
     ],
   };
@@ -900,7 +916,7 @@ export function addKnowledgeQuestionNode(): IQTreeNode {
           },
         ],
       },
-      // Copilot Connector
+      // Copilot connector
       {
         data: GCItemQuestion(),
         condition: {

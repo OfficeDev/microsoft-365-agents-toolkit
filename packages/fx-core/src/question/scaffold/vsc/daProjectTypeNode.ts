@@ -34,6 +34,7 @@ export function daProjectTypeNode(
     },
     children: [
       {
+        condition: { equals: DACapabilityOptions.declarativeAgent().id },
         data: {
           name: QuestionNames.WithPlugin,
           title: getLocalizedString("core.createProjectQuestion.declarativeCopilot.title"),
@@ -61,6 +62,9 @@ export function daProjectTypeNode(
                 featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)
                   ? ActionStartOptions.apiSpecWithSearch()
                   : ActionStartOptions.apiSpec(),
+                ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
+                  ? [ActionStartOptions.DAMetaOS()]
+                  : []),
                 ActionStartOptions.existingPlugin(),
               ],
               default: ActionStartOptions.newApi().id,

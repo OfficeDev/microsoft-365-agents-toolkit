@@ -26,7 +26,12 @@
         {
             "entityId": "{{componentId}}",
             "name": "{{webpartName}}",
+            {{#useNewDevUrl}}
+            "contentUrl": "https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/TeamsWorkBench.aspx%3Fteams%26personal%26componentId={{componentId}}%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js",
+            {{/useNewDevUrl}}
+            {{^useNewDevUrl}}
             "contentUrl": "https://{teamSiteDomain}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest=/_layouts/15/TeamsWorkBench.aspx%3Fteams%26personal%26componentId={{componentId}}%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fmanifests.js",
+            {{/useNewDevUrl}}
             "websiteUrl": "https://products.office.com/en-us/sharepoint/collaboration",
             "scopes": [
                 "personal"
@@ -35,7 +40,12 @@
     ],
     "configurableTabs": [
         {
+            {{#useNewDevUrl}}
+            "configurationUrl": "https://{teamSiteDomain}{teamSitePath}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest={teamSitePath}/_layouts/15/TeamsWorkBench.aspx%3FcomponentId={{componentId}}%26openPropertyPane=true%26teams%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fbuild%2Fmanifests.js",
+            {{/useNewDevUrl}}
+            {{^useNewDevUrl}}
             "configurationUrl": "https://{teamSiteDomain}{teamSitePath}/_layouts/15/TeamsLogon.aspx?SPFX=true&dest={teamSitePath}/_layouts/15/TeamsWorkBench.aspx%3FcomponentId={{componentId}}%26openPropertyPane=true%26teams%26forceLocale={locale}%26loadSPFX%3Dtrue%26debugManifestsFile%3Dhttps%3A%2F%2Flocalhost%3A4321%2Ftemp%2Fmanifests.js",
+            {{/useNewDevUrl}}
             "canUpdateConfiguration": true,
             "scopes": [
                 "team"

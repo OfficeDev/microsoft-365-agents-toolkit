@@ -90,10 +90,9 @@
                 "order": 6
             },
             "internalConsoleOptions": "neverOpen",
-        {{#CEAEnabled}}
         },
         {
-            "name": "Launch Remote in Copilot (Edge)",
+            "name": "(Preview) Launch Remote in Copilot (Edge)",
             "type": "msedge",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}&developerMode=Basic",
@@ -109,7 +108,7 @@
             ]
             },
             {
-            "name": "Launch Remote in Copilot (Chrome)",
+            "name": "(Preview) Launch Remote in Copilot (Chrome)",
             "type": "chrome",
             "request": "launch",
             "url": "https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${agent-hint}?auth=2&${account-hint}&developerMode=Basic",
@@ -155,7 +154,6 @@
                 "--remote-debugging-port=9223",
                 "--no-first-run"
             ]
-        {{/CEAEnabled}}
 {{#SandBoxedTeam}}
         },
         {
@@ -260,10 +258,9 @@
                 "order": 1
             },
             "stopAll": true
-        {{#CEAEnabled}}
         },
         {
-            "name": "Debug in Copilot (Edge)",
+            "name": "(Preview) Debug in Copilot (Edge)",
             "configurations": [
                 "Launch in Copilot (Edge)",
                 "Attach to Local Service"
@@ -276,7 +273,7 @@
             "stopAll": true
             },
             {
-            "name": "Debug in Copilot (Chrome)",
+            "name": "(Preview) Debug in Copilot (Chrome)",
             "configurations": [
                 "Launch in Copilot (Chrome)",
                 "Attach to Local Service"
@@ -287,7 +284,6 @@
                 "order": 2
             },
             "stopAll": true
-        {{/CEAEnabled}}
         }
     ]
 }

@@ -41,11 +41,11 @@ The bot will respond by updating the existing Adaptive Card to show the workflow
 Here is a screen shot of the application running:
 
 {{#enableTestToolByDefault}}
-![Responds to command](https://github.com/OfficeDev/TeamsFx/assets/9698542/94173beb-2fff-44fa-87dc-f686677da631)
+![Responds to command](https://github.com/user-attachments/assets/b816fdc8-bf89-46aa-82e2-536d596e3aa2)
 
 When you click the `DoStuff` button, the above adaptive card will be updated to a new card as shown below:
 
-![Responds to card action](https://github.com/OfficeDev/TeamsFx/assets/9698542/521ff12d-726c-4087-825a-112547cad836)
+![Responds to card action](https://github.com/user-attachments/assets/d5864111-7f34-4e77-855c-dc506c3fa3fe)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 ![Responds to command](https://user-images.githubusercontent.com/10163840/192477792-dc447b3a-e304-4cd8-b4df-b1eb9d226292.png)

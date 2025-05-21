@@ -28,7 +28,7 @@ export const previewCommand: CLICommand = {
   description: commands.preview.description,
   options: [
     ...PreviewTeamsAppOptions.map((option) => {
-      if (option.name === "teams-manifest-file") {
+      if (option.name === "manifest-file") {
         option.default = "./appPackage/manifest.json";
       }
       return option;
@@ -101,6 +101,16 @@ export const previewCommand: CLICommand = {
   telemetry: {
     event: TelemetryEvent.Preview,
   },
+  examples: [
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} preview --env --local`,
+      description: "Local Preview",
+    },
+    {
+      command: `${process.env.TEAMSFX_CLI_BIN_NAME} preview --env --remote`,
+      description: "Remote Preview",
+    },
+  ],
   defaultInteractiveOption: false,
   handler: async (ctx: CLIContext) => {
     const inputs = ctx.optionValues as PreviewTeamsAppInputs & InputsWithProjectPath;

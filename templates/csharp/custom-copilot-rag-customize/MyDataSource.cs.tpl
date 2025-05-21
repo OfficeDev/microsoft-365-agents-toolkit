@@ -37,12 +37,12 @@ namespace {{SafeProjectName}}
                 //Console.WriteLine("return rag data for query contains perksplus");
                 return new RenderedPromptSection<string>(formatDocument(_data[0]), _data[0].Length);
             }
-            else if (query.ToLower().Contains("company"))
+            else if (query.ToLower().Contains("company") || query.ToLower().Contains("history"))
             {
                 //Console.WriteLine("return rag data for query contains company");
                 return new RenderedPromptSection<string>(formatDocument(_data[1]), _data[1].Length);
             }
-            else if (query.ToLower().Contains("northwind"))
+            else if (query.ToLower().Contains("northwind") || query.ToLower().Contains("plan"))
             {
                 //Console.WriteLine("return rag data for query contains northwind");
                 return new RenderedPromptSection<string>(formatDocument(_data[2]), _data[2].Length);

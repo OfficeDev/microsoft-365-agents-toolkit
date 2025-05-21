@@ -29,7 +29,7 @@
         "@azure/openai": "^2.0.0",
         "@langchain/langgraph": "^0.2.66",
         "@langchain/openai": "^0.5.6",
-        "@microsoft/agents-hosting": "^0.1.49",
+        "@microsoft/agents-hosting": "^0.2.14",
         "express": "^5.0.1"
     },
     "devDependencies": {

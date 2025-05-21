@@ -337,11 +337,7 @@ export class TeamsManifestConverter {
     const converters =
       TeamsManifestConverterMap[manifestVersion as keyof typeof TeamsManifestConverterMap];
     if (!converters) {
-      throw new Error(
-        `Teams manifest version ${manifestVersion} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
-        ).join(", ")}`
-      );
+      return parsed as TeamsManifest;
     }
     return converters[0](json) as TeamsManifest;
   }
@@ -350,11 +346,7 @@ export class TeamsManifestConverter {
     const converters =
       TeamsManifestConverterMap[manifestVersion as keyof typeof TeamsManifestConverterMap];
     if (!converters) {
-      throw new Error(
-        `Teams manifest version ${manifestVersion} is not supported. Supported versions are: ${Object.keys(
-          TeamsManifestConverterMap
-        ).join(", ")}`
-      );
+      return JSON.stringify(manifest);
     }
     return converters[1](manifest as any);
   }
@@ -366,11 +358,7 @@ export class DeclarativeAgentManifestConverter {
     const version = parsed.version as string;
     const converters = daConverterMap[version as keyof typeof daConverterMap];
     if (!converters) {
-      throw new Error(
-        `Declarative agent manifest version ${version} is not supported. Supported versions are: ${Object.keys(
-          daConverterMap
-        ).join(", ")}`
-      );
+      return parsed as DeclarativeAgentManifest;
     }
     return converters[0](json);
   }
@@ -378,11 +366,7 @@ export class DeclarativeAgentManifestConverter {
     const version = manifest.version as string;
     const converters = daConverterMap[version as keyof typeof daConverterMap];
     if (!converters) {
-      throw new Error(
-        `Declarative agent manifest version ${version} is not supported. Supported versions are: ${Object.keys(
-          daConverterMap
-        ).join(", ")}`
-      );
+      return JSON.stringify(manifest);
     }
     return converters[1](manifest);
   }
@@ -394,11 +378,7 @@ export class ApiPluginManifestConverter {
     const schema_version = parsed.schema_version as string;
     const converters = ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
     if (!converters) {
-      throw new Error(
-        `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
-          ApiPluginConverterMap
-        ).join(", ")}`
-      );
+      return parsed as APIPluginManifest;
     }
     return converters[0](json);
   }
@@ -406,11 +386,7 @@ export class ApiPluginManifestConverter {
     const schema_version = manifest.schema_version as string;
     const converters = ApiPluginConverterMap[schema_version as keyof typeof ApiPluginConverterMap];
     if (!converters) {
-      throw new Error(
-        `API plugin manifest version ${schema_version} is not supported. Supported versions are: ${Object.keys(
-          ApiPluginConverterMap
-        ).join(", ")}`
-      );
+      return JSON.stringify(manifest);
     }
     return converters[1](manifest);
   }
@@ -418,7 +394,7 @@ export class ApiPluginManifestConverter {
 
 export class AppManifestUtils {
   /**
-   * Fecth the schema from the manifest object, load from local if the schema is in the package
+   * Fetch the schema from the manifest object, load from local if the schema is in the package
    * @param manifest
    * @returns manifest schema object
    */

@@ -49,6 +49,7 @@ export function listAllCapabilities(): OptionItem[] {
   return [
     DACapabilityOptions.declarativeAgent(),
     CustomEngineAgentOptions.basicCustomEngineAgent(),
+    CustomEngineAgentOptions.weatherAgent(),
     CustomCopilotCapabilityOptions.basicChatbot(),
     CustomCopilotCapabilityOptions.customCopilotRag(),
     CustomCopilotCapabilityOptions.aiAgent(),
@@ -65,6 +66,13 @@ export function listAllCapabilities(): OptionItem[] {
     MeCapabilityOptions.linkUnfurling(),
     OfficeAddinCapabilityOptions.wxpTaskPane(),
     OfficeAddinCapabilityOptions.outlookTaskPane(),
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.TdpTemplateCliTest)
+      ? [
+          TdpCapabilityOptions.nonSsoTab(),
+          TdpCapabilityOptions.botAndMe(),
+          TdpCapabilityOptions.nonSsoTabAndBot(),
+        ]
+      : []),
   ];
 }
 

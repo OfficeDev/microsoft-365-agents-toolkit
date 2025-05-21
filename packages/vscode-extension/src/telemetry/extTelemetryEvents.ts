@@ -40,6 +40,9 @@ export enum TelemetryEvent {
   AddPluginStart = "add-plugin-start",
   AddPlugin = "add-plugin",
 
+  MetaOSExtendToDAStart = "meta-os-extend-to-da-start",
+  MetaOSExtendToDA = "meta-os-extend-to-da",
+
   RegenerateActionStart = "regenerate-action-start",
   RegenerateAction = "regenerate-action",
 

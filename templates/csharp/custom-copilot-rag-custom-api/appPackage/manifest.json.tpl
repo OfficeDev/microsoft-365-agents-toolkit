@@ -5,8 +5,8 @@
     "version": "1.0.0",
     {{/CEAEnabled}}
     {{^CEAEnabled}} 
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.19",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.21",
     "version": "1.0.0",
     {{/CEAEnabled}}
     "id": "${{TEAMS_APP_ID}}",

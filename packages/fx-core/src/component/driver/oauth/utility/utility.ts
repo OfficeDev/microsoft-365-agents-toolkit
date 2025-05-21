@@ -13,6 +13,7 @@ import { OauthAuthInfoInvalid } from "../error/oauthAuthInfoInvalid";
 import { UpdateOauthArgs } from "../interface/updateOauthArgs";
 import { OauthAuthMissingInSpec } from "../error/oauthAuthMissingInSpec";
 import { listAPIInfo } from "../../../../common/daSpecParser";
+import { Utils } from "@microsoft/m365-spec-parser";
 
 export interface OauthInfo {
   domain?: string[];

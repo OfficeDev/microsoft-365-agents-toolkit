@@ -124,6 +124,45 @@ describe("Global Variables", () => {
     });
   });
 
+  describe("isMetaOSAddinProject", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("MetaOS Addin Project: no directory", () => {
+      const res = globalVariables.checkIsMetaOSAddinProject("");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest not ok", () => {
+      sandbox
+        .stub(manifestUtils, "readAppManifestSync")
+        .returns(err(new SystemError("error", "error", "error", "error")));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest is undefined", () => {
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok(undefined as any));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest is not metaOS", () => {
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok({} as any));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(false);
+    });
+
+    it("MetaOS Addin Project: manifest is ok", () => {
+      sandbox.stub(manifestUtils, "readAppManifestSync").returns(ok({ extensions: {} } as any));
+      const res = globalVariables.checkIsMetaOSAddinProject("abc");
+      chai.expect(res).equals(true);
+    });
+  });
+
   describe("checkIsSensitivityLabelSet", () => {
     const sandbox = sinon.createSandbox();
     const fakeDirectory = "fakeDir";

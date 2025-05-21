@@ -61,6 +61,7 @@ export {
   getSideloadingStatus,
   getSPFxTenant,
   isSandboxedEnabled,
+  isTestToolEnabledProject,
   listDevTunnels,
 } from "./common/tools";
 export { MetadataV3, VersionState } from "./common/versionMetadata";

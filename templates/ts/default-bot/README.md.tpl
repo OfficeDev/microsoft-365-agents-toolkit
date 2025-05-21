@@ -57,7 +57,7 @@ The following files can be customized and demonstrate an example implementation 
 
 | File                                 | Contents                                           |
 | - | - |
-|`agent.ts`| Handles business logics for the echo bot.|
+|`teamsBot.ts`| Handles business logics for the echo bot.|
 |`index.ts`|`index.ts` is used to setup and configure the echo bot.|
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.

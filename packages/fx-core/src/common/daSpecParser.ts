@@ -148,7 +148,7 @@ export async function generatePlugin(
       outputAPISpecPath = outputSpecWithoutExt + ".yaml";
     }
 
-    await fs.copyFile(apiSpecPath, outputAPISpecPath);
+    await fs.copy(apiSpecPath, outputAPISpecPath);
 
     const adaptiveCardsFolder = path.join(path.dirname(apiSpecPath), "adaptiveCards");
     const destAdaptiveCardsFolder = path.join(path.dirname(outputAIPluginPath), "adaptiveCards");
@@ -171,7 +171,7 @@ export async function generatePlugin(
       const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
 
       const outputOriginalSpecPath = outputAPISpecPath + ".original";
-      await fs.copyFile(originalSpecFile, outputOriginalSpecPath);
+      await fs.copy(originalSpecFile, outputOriginalSpecPath);
       generatedPluginManifest.runtimes?.forEach((runtime) => {
         (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
       });
@@ -379,6 +379,14 @@ export async function validateOpenAPISpec(
       result.warnings.push({
         type: WarningType.ConvertSwaggerToOpenAPI,
         content: ConstantString.ConvertSwaggerToOpenAPI,
+      });
+    }
+
+    // TODO: curently kiota will generate spec with version 3.0.4, if it changed in the future, we need to update this
+    if (apiInfo.specVersion === OpenApiSpecVersion.V3_1) {
+      result.warnings.push({
+        type: WarningType.OpenAPI31ConvertTo30,
+        content: ConstantString.OpenAPI31ConvertTo30,
       });
     }
 

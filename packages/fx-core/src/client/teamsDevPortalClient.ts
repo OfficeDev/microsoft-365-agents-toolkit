@@ -994,7 +994,7 @@ export class TeamsDevPortalClient {
     } else if (e.response?.status === HttpStatusCode.UNAUTHORIZED) {
       throw new BotFrameworkNotAllowedToAcquireTokenError();
     } else if (e.response?.status === HttpStatusCode.FORBIDDEN) {
-      throw new BotFrameworkForbiddenResultError();
+      throw new BotFrameworkForbiddenResultError(e);
     } else if (e.response?.status === HttpStatusCode.TOOMANYREQS) {
       throw new BotFrameworkConflictResultError();
     } else {

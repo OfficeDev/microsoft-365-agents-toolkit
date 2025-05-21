@@ -3,3 +3,5 @@ tab/csharp/non-sso/*
 **/*.css
 ts/office-addin-wxpo-taskpane/*
 ts/office-addin-outlook-taskpane/*
+common/declarative-agent-meta-os-new-project/*
+common/declarative-agent-meta-os-upgrade-project/*

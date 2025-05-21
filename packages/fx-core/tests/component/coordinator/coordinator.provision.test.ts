@@ -8,6 +8,7 @@ import * as sinon from "sinon";
 
 import {
   err,
+  FxError,
   Inputs,
   IProgressHandler,
   ok,
@@ -38,6 +39,7 @@ import { UserCancelError } from "../../../src/error/common";
 import { MockTools, randomAppName } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import { openUrl, showAadResourceLink } from "../../../src/component/coordinator";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -1079,6 +1081,10 @@ describe("coordinator provision", () => {
             with: undefined,
           },
           {
+            uses: "aadApp/update",
+            with: undefined,
+          },
+          {
             uses: "teamsApp/create",
             with: undefined,
           },
@@ -1695,5 +1701,59 @@ describe("coordinator provision", () => {
     const fxCore = new FxCore(tools);
     const res = await fxCore.provisionResources(inputs);
     assert.isTrue(res.isErr());
+  });
+
+  it("provision showAadResourceLink", async () => {
+    const mockProjectModel = {
+      aadPermission: {
+        graphPermission: {
+          hasGraphPermission: true,
+          hasRole: true,
+          hasAdminScope: true,
+          scopes: ["scope1", "scope2"],
+          roles: ["role1", "role2"],
+        },
+      },
+    } as ProjectModel;
+    const ctx = tools as unknown as DriverContext;
+    showAadResourceLink(ctx, false, mockProjectModel);
+    showAadResourceLink(ctx, true, mockProjectModel);
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    mockProjectModel.aadPermission?.graphPermission.roles.push(
+      "ExternalConnection.ReadWrite.OwnedBy"
+    );
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    mockProjectModel.aadPermission = undefined;
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+  });
+
+  it("provision showAadResourceLink", async () => {
+    const mockProjectModel = {
+      aadPermission: {
+        graphPermission: {
+          hasGraphPermission: true,
+          hasRole: true,
+          hasAdminScope: true,
+          scopes: ["scope1", "scope2"],
+          roles: ["ExternalConnection.ReadWrite.OwnedBy"],
+        },
+      },
+    } as ProjectModel;
+    const ctx = tools as unknown as DriverContext;
+    const stubShowMessage = sandbox.stub(tools.ui, "showMessage");
+    stubShowMessage.onFirstCall().resolves(err("error" as any));
+    stubShowMessage.onSecondCall().resolves(ok("false title"));
+    stubShowMessage.onThirdCall().resolves(ok("View provisioned Entra ID"));
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+    showAadResourceLink(ctx, true, mockProjectModel, "test-app-id");
+  });
+
+  it("provision openUrl", async () => {
+    const ctx = tools as unknown as DriverContext;
+    const ui = ctx.ui;
+    ctx.ui = undefined;
+    openUrl(ctx, "test-url");
+    ctx.ui = ui;
   });
 });

@@ -18,6 +18,7 @@ import {
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -56,6 +57,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: read clientSecret, refreshurl from input ", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -222,6 +227,10 @@ describe("CreateOauthDriver", () => {
 
   it("happy path: secret is not needed when PKCE enabled", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
@@ -291,6 +300,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: secret is not needed when identityProvider is MicrosoftEntra", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -364,6 +377,10 @@ describe("CreateOauthDriver", () => {
 
   it("happy path: secret is needed when identityProvider is Custom", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
@@ -431,6 +448,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: read clientSecret, refreshurl from input with invalid api", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -506,6 +527,10 @@ describe("CreateOauthDriver", () => {
 
   it("should throw error is identityProvider is Custom but the authorization url is not Microsoft Entra endpoint", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
@@ -570,6 +595,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: read refreshurl from input, client and clientSecret from env", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -644,6 +673,10 @@ describe("CreateOauthDriver", () => {
 
   it("happy path: read clientSecret from input and refreshurl from spec", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
         expect(oauthRegistration.clientId).to.equals("mockedClientId");
@@ -714,6 +747,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("happy path: read applicableToApps, tokenExchangeMethodType, targetAudience from input", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .callsFake(async (token, oauthRegistration) => {
@@ -1057,6 +1094,11 @@ describe("CreateOauthDriver", () => {
       refreshUrl: "mockedRefreshUrl",
     };
 
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -1117,6 +1159,10 @@ describe("CreateOauthDriver", () => {
 
   it("should throw error if list api is empty and domain = 0", async () => {
     sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+    sinon
       .stub(SpecParser.prototype, "list")
       .resolves({ APIs: [], validAPICount: 0, allAPICount: 1 });
     const args: any = {
@@ -1139,6 +1185,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("should throw error if list api contains no auth and domain = 0", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -1172,6 +1222,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("should throw error if list api contains auth but server info is null ", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -1242,6 +1296,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("should throw error if multiple auth schema", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -1312,6 +1370,10 @@ describe("CreateOauthDriver", () => {
   });
 
   it("should throw error if failed to create Oauth registration", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon
       .stub(teamsDevPortalClient, "createOauthRegistration")
       .throws(new SystemError("source", "name", "message"));

@@ -324,6 +324,10 @@ describe("customEngineAgentProjectTypeNode", () => {
 });
 
 describe("m365ProjectTypeNode", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
   it("apiSpecNode", () => {
     const node = apiSpecNode({ equals: "a" });
     const inputs: Inputs = {
@@ -349,6 +353,13 @@ describe("m365ProjectTypeNode", () => {
     const condition2 = node.children?.[0]?.children?.[1]?.children?.[1]?.condition as ConditionFunc;
     const res2 = condition2?.(inputs);
     assert.isTrue(res2);
+
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      if (flag === FeatureFlags.KiotaNPMIntegration) {
+        return true;
+      }
+      return false;
+    });
 
     const condition3 = node.children?.[0]?.condition as ConditionFunc;
     const res3 = condition3?.(inputs);

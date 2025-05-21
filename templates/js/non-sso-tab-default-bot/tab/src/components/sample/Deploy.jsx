@@ -16,7 +16,7 @@ export function Deploy(props) {
       </p>
       <p>
         To provision your resources, you can either use our CLI command "teamsapp provision" or
-        apply "Teams: Provision" in Command palette.
+        apply "Microsoft 365 Agents: Provision" in Command palette.
       </p>
       <p>
         To deploy your app, you can either use our CLI command "teamsapp deploy" or apply "Teams:

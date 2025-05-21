@@ -1464,12 +1464,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.createProject.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create New App]]></Val>
+          <Val><![CDATA[Create New Agent/App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crear nueva aplicación]]></Val>
+            <Val><![CDATA[Crear nuevo agente o aplicación]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a New App]]></Val>
+            <Val><![CDATA[Create New App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1668,12 +1668,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.migrateManifest.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade Teams Manifest]]></Val>
+          <Val><![CDATA[Upgrade App Manifest]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Actualizar manifiesto de Teams]]></Val>
+            <Val><![CDATA[Actualizar manifiesto de aplicación]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Upgrade Teams manifest]]></Val>
+            <Val><![CDATA[Upgrade Teams Manifest]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -1767,12 +1767,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.commands.removeSharedAccess" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Remove access for shared app]]></Val>
+          <Val><![CDATA[Remove access to the shared app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Quitar el acceso de la aplicación compartida]]></Val>
+            <Val><![CDATA[Eliminación del acceso a la aplicación compartida]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[remove access for shared app]]></Val>
+            <Val><![CDATA[Remove access for shared app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2148,36 +2148,36 @@
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.createProject.running" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Creating a new app...]]></Val>
+          <Val><![CDATA[Creating a new agent/app...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Creando una nueva aplicación...]]></Val>
+            <Val><![CDATA[Creando un nuevo agente o aplicación...]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Creating a new Teams app...]]></Val>
+            <Val><![CDATA[Creating a new app...]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.createProjectDescription" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a new app from scratch or begin with a sample app.]]></Val>
+          <Val><![CDATA[Create a new agent/app from scratch or begin with a sample app.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cree una nueva aplicación desde cero o comience con una aplicación de ejemplo.]]></Val>
+            <Val><![CDATA[Cree un agente o una aplicación desde cero o comience con una aplicación de ejemplo.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a new app from scratch or start from a sample app]]></Val>
+            <Val><![CDATA[Create a new app from scratch or begin with a sample app.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.commandsTreeViewProvider.createProjectTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create New App]]></Val>
+          <Val><![CDATA[Create New Agent/App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crear nueva aplicación]]></Val>
+            <Val><![CDATA[Crear nuevo agente o aplicación]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a New App]]></Val>
+            <Val><![CDATA[Create New App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2719,6 +2719,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[Publish to org]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.regenerateActionDescription" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Regenerate action in declarative agent]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Regeneración de la acción en el agente declarativo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";teamstoolkit.commandsTreeViewProvider.regenerateActionTitle" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Regenerate Action]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Regenerar acción]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3834,24 +3852,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.handlers.createProjectNotification" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a new app or open an existing one to open the README file.]]></Val>
+          <Val><![CDATA[Create a new agent/app or open an existing one to open the README file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Cree una nueva aplicación o abra una existente para abrir el archivo Léame.]]></Val>
+            <Val><![CDATA[Cree un nuevo agente o aplicación o abra uno existente para abrir el archivo LÉAME.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[You should create a new app or open an existing one to open the README file.]]></Val>
+            <Val><![CDATA[Create a new app or open an existing one to open the README file.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.handlers.createProjectTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create New App]]></Val>
+          <Val><![CDATA[Create New Agent/App]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crear nueva aplicación]]></Val>
+            <Val><![CDATA[Crear nuevo agente o aplicación]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a New App]]></Val>
+            <Val><![CDATA[Create New App]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5232,51 +5250,60 @@
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.progressTitle" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Upgrade Teams Manifest to extend in Outlook and the Microsoft 365 app]]></Val>
+          <Val><![CDATA[Upgrade App Manifest to extend in Outlook and the Microsoft 365 app]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Actualizar el manifiesto de Teams para ampliarlo en Outlook y la aplicación de Microsoft 365]]></Val>
+            <Val><![CDATA[Actualizar manifiesto de aplicación para ampliar en Outlook y la aplicación Microsoft 365]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Upgrade Teams Manifest to Extend in Outlook and the Microsoft 365 app]]></Val>
+            <Val><![CDATA[Upgrade Teams Manifest to extend in Outlook and the Microsoft 365 app]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.selectFileConfig.name" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams Manifest to Upgrade]]></Val>
+          <Val><![CDATA[Select App Manifest to Upgrade]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seleccionar manifiesto de Teams para actualizar]]></Val>
+            <Val><![CDATA[Seleccionar manifiesto de aplicación para actualizar]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select Teams Manifest to Upgrade]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.selectFileConfig.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select Teams Manifest to Upgrade]]></Val>
+          <Val><![CDATA[Select App Manifest to Upgrade]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Seleccionar manifiesto de Teams para actualizar]]></Val>
+            <Val><![CDATA[Seleccionar manifiesto de aplicación para actualizar]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Select Teams Manifest to Upgrade]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Successfully upgraded the Teams manifest %s.]]></Val>
+          <Val><![CDATA[Successfully upgraded the app manifest %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[El manifiesto de Teams %s se actualizó correctamente.]]></Val>
+            <Val><![CDATA[El manifiesto de aplicación %s se actualizó correctamente.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Successfully upgraded the Teams manifest %s.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.updateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Update Teams Manifest.]]></Val>
+          <Val><![CDATA[Update App Manifest.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Actualizar el manifiesto de Teams.]]></Val>
+            <Val><![CDATA[Actualizar manifiesto de aplicación.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Update Teams manifest.]]></Val>
+            <Val><![CDATA[Update Teams Manifest.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5292,12 +5319,12 @@
       </Item>
       <Item ItemId=";teamstoolkit.migrateTeamsManifest.warningMessage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
+          <Val><![CDATA[Microsoft 365 Agents Toolkit will update the selected app manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[El kit de herramientas de agentes de Microsoft 365 actualizará el archivo de manifiesto de Teams seleccionado para que funcione en Outlook y en la aplicación de Microsoft 365. Use Git para realizar un seguimiento de los cambios de archivo antes de actualizar.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit actualizará el archivo de manifiesto de la aplicación seleccionado para que funcione en Outlook y en la aplicación Microsoft 365. Use Git para realizar un seguimiento de los cambios de archivo antes de actualizar.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit will update the selected Teams manifest file to work in Outlook and the Microsoft 365 app. Use git to track file changes before upgrading.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -5725,6 +5752,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.taskDefinitions.args.appPackagePath.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to app package.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Ruta de acceso al paquete de la aplicación.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.taskDefinitions.args.env.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The environment name.]]></Val>
@@ -5911,6 +5947,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.taskDefinitions.command.installApp.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Sideload app into Teams channel. ]A; See https://aka.ms/teamsfx-tasks/install-app for details and how to customize the arguments.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Transferir localmente la aplicación en el canal de Teams. ]A; Consulte https://aka.ms/teamsfx-tasks/install-app para obtener más información y cómo personalizar los argumentos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.taskDefinitions.command.launchDesktopClient.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Launch Teams desktop client. ]A; See https://aka.ms/teamsfx-tasks/launch-desktop-client for details and how to customize the arguments.]]></Val>
@@ -5985,24 +6030,24 @@
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat-preview-tag.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Le damos la bienvenida al kit de herramientas de agentes de Microsoft 365.]A;Comience con un tutorial guiado]A;[Compilar un bot de notificaciones]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Compilar un agente declarativo]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; O vaya directamente al desarrollo de aplicaciones con plantillas o ejemplos]A;[Compilar una nueva aplicación]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Ver ejemplos]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Compile su nueva aplicación sin esfuerzo con GitHub Copilot. ]A;[Crear aplicación con GitHub Copilot (versión preliminar)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visite la documentación para compilar aplicaciones para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) o amplíe [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Le damos la bienvenida a Microsoft 365 Agents Toolkit.]A;Introducción a un tutorial guiado]A;[Compilar un agente declarativo]5D;(comando:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; O bien, vaya directamente al desarrollo de aplicaciones con plantillas o ejemplos de aplicaciones]A;[Crear un nuevo agente o aplicación]5D;(comando:fx-extension.create?%5B%22SideBar%22%5D)]A;[Ver ejemplos]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Cree su nueva aplicación sin esfuerzo con GitHub Copilot. ]A;[Crear aplicación con GitHub Copilot (versión preliminar)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visite nuestra documentación para compilar aplicaciones para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) o ampliar [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot. ]A;[Create App with GitHub Copilot (Preview)]5D;(command:fx-extension.invokeChatWithPreviewTag?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+          <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New Agent/App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Le damos la bienvenida al kit de herramientas de agentes de Microsoft 365.]A;Comience con un tutorial guiado]A;[Compilar un bot de notificaciones]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Compilar un agente declarativo]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; O vaya directamente al desarrollo de aplicaciones con plantillas o ejemplos]A;[Compilar una nueva aplicación]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[Ver ejemplos]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Compile su nueva aplicación sin esfuerzo con GitHub Copilot.]A;[Compilar aplicación con GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visite la documentación para compilar aplicaciones para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) o amplíe [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Le damos la bienvenida a Microsoft 365 Agents Toolkit.]A;Introducción a un tutorial guiado]A;[Compilar un agente declarativo]5D;(comando:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; O bien, vaya directamente al desarrollo de aplicaciones con plantillas o ejemplos de aplicaciones]A;[Crear un nuevo agente o aplicación]5D;(comando:fx-extension.create?%5B%22SideBar%22%5D)]A;[Ver ejemplos]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Cree su nueva aplicación sin esfuerzo con GitHub Copilot.]A;[Crear aplicación con GitHub Copilot]5D;(comando:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visite nuestra documentación para compilar aplicaciones para [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) o ampliar [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Welcome to Teams Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
+            <Val><![CDATA[Welcome to Microsoft 365 Agents Toolkit!]A;Get started with a guided tutorial]A;[Build a Notification Bot]5D;(command:fx-extension.openWelcome?%5B%22SideBar%22%5D)]A;[Build a Declarative Agent]5D;(command:fx-extension.buildIntelligentAppsWalkthrough?%5B%22SideBar%22%5D)]A; Or jump right into the app development with app templates or samples]A;[Create a New App]5D;(command:fx-extension.create?%5B%22SideBar%22%5D)]A;[View Samples]5D;(command:fx-extension.openSamples?%5B%22SideBar%22%5D)]A;Create your new app effortlessly with GitHub Copilot.]A;[Create App with GitHub Copilot]5D;(command:fx-extension.invokeChat?%5B%22SideBar%22%5D)]A;Visit our documentation to build apps for [Microsoft Teams]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-apps%22%5D) or extend [Microsoft 365 Copilot]5D;(command:fx-extension.openDocument?%5B%22documentName%22%2C%22build-agents%22%5D).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

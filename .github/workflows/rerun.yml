@@ -14,7 +14,7 @@ on:
         type: string
 
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "0 12 * * *"
 
 permissions:
   actions: read

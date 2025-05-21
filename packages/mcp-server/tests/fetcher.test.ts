@@ -55,6 +55,30 @@ describe("fetcher", () => {
       );
     });
 
+    it("should handle 'latest' version by using the repository's latest version", async () => {
+      // Test app_manifest with 'latest' version
+      await fetchSchema("app_manifest", "latest");
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json"
+      );
+
+      jest.clearAllMocks();
+
+      // Test declarative_agent_manifest with 'latest' version
+      await fetchSchema("declarative_agent_manifest", "latest");
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json"
+      );
+
+      jest.clearAllMocks();
+
+      // Test api_plugin_manifest with 'latest' version
+      await fetchSchema("api_plugin_manifest", "latest");
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json"
+      );
+    });
+
     it("should cache results for repeated requests", async () => {
       // First call should make a fetch request
       await fetchSchema("app_manifest", "v1.16");

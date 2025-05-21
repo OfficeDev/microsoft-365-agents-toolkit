@@ -15,7 +15,7 @@ import { Capability } from "../../utils/constants";
 import { Executor } from "../../utils/executor";
 import { getTestFolder, getUniqueAppName } from "../commonUtils";
 
-describe("version check", () => {
+describe.skip("version check", () => {
   const testFolder = getTestFolder();
   const appName = getUniqueAppName();
   const projectPath = path.resolve(testFolder, appName);

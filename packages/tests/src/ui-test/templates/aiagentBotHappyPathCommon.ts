@@ -30,6 +30,7 @@ import {
   ValidationContent,
   LocalDebugTaskLabel2,
   Lang,
+  LocalDebugTaskResult,
 } from "../../utils/constants";
 import { Env, OpenAiKey } from "../../utils/env";
 import { it } from "../../utils/it";
@@ -274,7 +275,10 @@ export function happyPathTest(options: {
             "Running on http://localhost:3978"
           );
         } else {
-          await waitForTerminal(LocalDebugTaskLabel.StartBotApp, "Bot Started");
+          await waitForTerminal(
+            LocalDebugTaskLabel.StartBotApp,
+            LocalDebugTaskResult.AgentStartedSuccessfully
+          );
         }
 
         const teamsAppId = await localDebugTestContext.getTeamsAppId();

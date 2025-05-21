@@ -23,14 +23,14 @@ async function callFunction(teamsUserCredential: TeamsUserCredential) {
       let funcErrorMsg = "";
 
       if (err?.response?.status === 404) {
-        funcErrorMsg = `There may be a problem with the deployment of Azure Functions App, please deploy Azure Functions (Run command palette "Teams: Deploy") first before running this App`;
+        funcErrorMsg = `There may be a problem with the deployment of Azure Functions App, please deploy Azure Functions (Run command palette "Microsoft 365 Agents: Deploy") first before running this App`;
       } else if (err.message === "Network Error") {
         funcErrorMsg =
           "Cannot call Azure Functions due to network error, please check your network connection status and ";
         if (err.config?.url && err.config.url.indexOf("localhost") >= 0) {
           funcErrorMsg += `make sure to start Azure Functions locally (Run "npm run start" command inside api folder from terminal) first before running this App`;
         } else {
-          funcErrorMsg += `make sure to provision and deploy Azure Functions (Run command palette "Teams: Provision" and "Teams: Deploy") first before running this App`;
+          funcErrorMsg += `make sure to provision and deploy Azure Functions (Run command palette "Microsoft 365 Agents: Provision" and "Microsoft 365 Agents: Deploy") first before running this App`;
         }
       } else {
         funcErrorMsg = err.message;

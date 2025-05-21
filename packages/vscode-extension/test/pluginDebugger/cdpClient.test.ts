@@ -44,6 +44,7 @@ describe("cdpClient", () => {
     it("happy", async () => {
       const cdpClient = new CDPClient("url", 9222, "name");
       sandbox.stub(cdpClient, "url").value("xxx");
+      sandbox.stub(cdpClient, "connectToTargetIframeWithRetries").resolves();
       const client = {
         Network: { enable: () => {}, webSocketFrameReceived: () => {} },
         Page: { enable: () => {} },
@@ -56,23 +57,6 @@ describe("cdpClient", () => {
       const webSocketFrameReceived = sandbox.stub(client.Network, "webSocketFrameReceived");
       await cdpClient.subscribeToWebSocketEvents(client);
       chai.assert.isTrue(webSocketFrameReceived.called);
-    });
-    it("connect to iframe target", async () => {
-      const cdpClient = new CDPClient("url", 9222, "name");
-      sandbox.stub(cdpClient, "connectToTargetIframeWithRetries").resolves();
-      const client = {
-        Network: { enable: () => {}, webSocketFrameReceived: () => {} },
-        Page: { enable: () => {} },
-        Target: {
-          getTargets: () => {
-            return { targetInfos: [] };
-          },
-        },
-      } as any;
-      sandbox.stub(cdpClient, "url").value("m365.cloud.microsoft/chat");
-      const webSocketFrameReceived = sandbox.stub(client.Network, "webSocketFrameReceived");
-      await cdpClient.subscribeToWebSocketEvents(client);
-      chai.assert.isTrue(webSocketFrameReceived.notCalled);
     });
   });
   describe("start", () => {

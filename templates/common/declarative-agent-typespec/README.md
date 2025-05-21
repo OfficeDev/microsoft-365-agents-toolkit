@@ -1,4 +1,4 @@
-# Overview of the Declarative Agent with TypeSpec template
+# Overview of the Declarative Agent with TypeSpec for Microsoft 365 template
 
 With the declarative agent, you can build a custom version of Copilot that can be used for specific scenarios, such as for specialized knowledge, implementing specific processes, or simply to save time by reusing a set of AI prompts. For example, a grocery shopping Copilot declarative agent can be used to create a grocery list based on a meal plan that you send to Copilot.
 
@@ -13,7 +13,7 @@ With the declarative agent, you can build a custom version of Copilot that can b
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 > - [Microsoft 365 Copilot license](https://learn.microsoft.com/microsoft-365-copilot/extensibility/prerequisites#prerequisites)
 
-![image](https://github.com/user-attachments/assets/e1c2a3b3-2e59-4e9b-8335-19315e92ba30)
+![image](./assets/image.png)
 
 1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
@@ -44,11 +44,12 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `m365agents.yml` | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
 
-The following are TypeSpec template file. You need to customize this file to add your own agent.
+The following are TypeSpec template files. You need to customize these files to configure your agent.
 
-| File       | Contents                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| `main.tsp` | This is the root file of TSP files. Please manually update this file to add your own agent. |
+| File          | Contents                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| `main.tsp`    | This is the root file of TSP files. Please manually update this file to add your own agent. |
+| `actions.tsp` | This is the actions file containing API endpoints to extend your declarative agent.         |
 
 ## Extend the template
 

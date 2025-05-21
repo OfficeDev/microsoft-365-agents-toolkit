@@ -1,6 +1,6 @@
 emit:
   - "@typespec/openapi3"
-  - "@microsoft/typespec-copilot-skills"
+  - "@microsoft/typespec-m365-copilot"
 options:
   # If you want to change the default output directory for the OpenAPI emitter, please make sure to update the outputDir in the typeSpec/compile action in m365agents.yaml as well.
   # You need to set the emitter-output-dir to ${outputDir}/specs.
@@ -9,7 +9,7 @@ options:
     file-type: json
   # You need to set the emitter-output-dir to the same as outputDir.
   # You also need to set the output-file to declarativeAgent.json.
-  "@microsoft/typespec-copilot-skills":
+  "@microsoft/typespec-m365-copilot":
     emitter-output-dir: "{project-root}/appPackage/.generated"
     output-file: declarativeAgent.json
     file-type: json

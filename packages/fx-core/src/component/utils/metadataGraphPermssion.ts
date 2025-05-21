@@ -55,6 +55,15 @@ class MetadataGraphPermissionUtil {
           : "false";
         props[TelemetryProperty.GraphPermissionScopes] = graphPermissionSummary.scopes.join(",");
         props[TelemetryProperty.GraphPermissionRoles] = graphPermissionSummary.roles.join(",");
+        model.aadPermission = {
+          graphPermission: {
+            hasGraphPermission: graphPermissionSummary.hasGraphPermission,
+            hasRole: graphPermissionSummary.hasRole,
+            hasAdminScope: graphPermissionSummary.hasAdminScope,
+            scopes: graphPermissionSummary.scopes,
+            roles: graphPermissionSummary.roles,
+          },
+        };
       }
     } catch (error) {
       return;

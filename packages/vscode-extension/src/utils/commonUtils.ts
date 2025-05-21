@@ -12,6 +12,7 @@ import { glob } from "glob";
 import { core, workspaceUri } from "../globalVariables";
 import { localize } from "./localizeUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
+import { isTestToolEnabledProject } from "@microsoft/teamsfx-core";
 
 export function isWindows() {
   return os.type() === "Windows_NT";
@@ -85,8 +86,8 @@ function isAdaptiveCard(content: string): boolean {
   return pattern.test(content);
 }
 
-export async function getLocalDebugMessageTemplate(isWindows: boolean): Promise<string> {
-  const enabledTestTool = await isTestToolEnabled();
+export function getLocalDebugMessageTemplate(isWindows: boolean): string {
+  const enabledTestTool = workspaceUri?.fsPath && isTestToolEnabledProject(workspaceUri.fsPath);
 
   if (isWindows) {
     return enabledTestTool
@@ -97,19 +98,6 @@ export async function getLocalDebugMessageTemplate(isWindows: boolean): Promise<
   return enabledTestTool
     ? localize("teamstoolkit.handlers.localDebugDescription.enabledTestTool.fallback")
     : localize("teamstoolkit.handlers.localDebugDescription.fallback");
-}
-
-// check if test tool is enabled in scaffolded project
-async function isTestToolEnabled(): Promise<boolean> {
-  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-    const workspaceFolder = vscode.workspace.workspaceFolders[0];
-    const workspacePath: string = workspaceFolder.uri.fsPath;
-
-    const testToolYamlPath = path.join(workspacePath, "teamsapp.testtool.yml");
-    return fs.pathExists(testToolYamlPath);
-  }
-
-  return false;
 }
 
 export function checkCoreNotEmpty(): Result<null, SystemError> {

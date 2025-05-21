@@ -37,6 +37,7 @@ export class FeatureFlagName {
   static readonly AddODSPKnowledge = "TEAMSFX_ADD_ODSP_KNOWLEDGE";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
+  static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
 }
 
 export interface FeatureFlag {
@@ -98,7 +99,7 @@ export class FeatureFlags {
 
   static readonly KiotaNPMIntegration = {
     name: FeatureFlagName.KiotaNPMIntegration,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly CEAEnabled = {
     name: FeatureFlagName.CEAEnabled,
@@ -118,7 +119,7 @@ export class FeatureFlags {
   };
   static readonly AddODSPKnowledge = {
     name: FeatureFlagName.AddODSPKnowledge,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly SandBoxedTeam = {
     name: FeatureFlagName.SandBoxedTeam,
@@ -126,6 +127,10 @@ export class FeatureFlags {
   };
   static readonly SensitivityLabelEnabled = {
     name: FeatureFlagName.SensitivityLabelEnabled,
+    defaultValue: "false",
+  };
+  static readonly DAMetaOS = {
+    name: FeatureFlagName.DAMetaOS,
     defaultValue: "false",
   };
 }

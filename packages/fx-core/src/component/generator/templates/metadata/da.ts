@@ -95,4 +95,16 @@ export const declarativeAgentTemplates: Template[] = [
     language: "typescript",
     description: "",
   },
+  {
+    id: "declarative-agent-meta-os-new-project",
+    name: TemplateNames.DeclarativeAgentMetaOSNewProject,
+    language: "common",
+    description: "",
+  },
+  {
+    id: "declarative-agent-meta-os-upgrade-project",
+    name: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
+    language: "common",
+    description: "",
+  },
 ];

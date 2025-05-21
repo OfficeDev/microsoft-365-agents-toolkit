@@ -26,7 +26,7 @@ export const debugInitMap: Record<TemplateProject, () => Promise<void>> = {
   [TemplateProject.Dashboard]: async () => {
     await startDebugging();
   },
-  [TemplateProject.GraphConnector]: async () => {
+  [TemplateProject.CopilotConnector]: async () => {
     await startDebugging();
   },
   [TemplateProject.OutlookTab]: async () => {
@@ -83,7 +83,7 @@ export const debugInitMap: Record<TemplateProject, () => Promise<void>> = {
   [TemplateProject.ChefBot]: async () => {
     await startDebugging("Debug (Chrome)");
   },
-  [TemplateProject.GraphConnectorBot]: async () => {
+  [TemplateProject.CopilotConnectorBot]: async () => {
     await startDebugging();
   },
   [TemplateProject.SpfxProductivity]: async () => {
@@ -391,11 +391,7 @@ export async function initCopilotPage(
     await page.waitForTimeout(Timeout.longTimeWait);
     console.log("check copilot agent loaded");
     try {
-      const frameElementHandle = await page.waitForSelector(
-        `iframe[title="Copilot"]`
-      );
-      const frame = await frameElementHandle?.contentFrame();
-      await frame?.waitForSelector(`span:has-text("Agents")`);
+      await page?.waitForSelector(`span:has-text("Agents")`);
       console.log("[success] copilot loaded");
     } catch {
       await page.screenshot({
@@ -1717,13 +1713,9 @@ export async function validatePrompt(
   }
 ) {
   try {
-    const frameElementHandle = await page.waitForSelector(
-      `iframe[title="Copilot"]`
-    );
-    const frame = await frameElementHandle?.contentFrame();
     try {
       console.log("Click See more button:");
-      const seeMore = await frame?.waitForSelector(
+      const seeMore = await page?.waitForSelector(
         `button:has-text("See more")`
       );
       await seeMore?.click();
@@ -1731,18 +1723,20 @@ export async function validatePrompt(
     } catch {
       console.log("No See more button:");
     }
-    const copilotAgent = frame?.getByLabel(`${copilotAgentName}`).first();
+    const copilotAgent = page?.getByLabel(`${copilotAgentName}`).first();
     await copilotAgent?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
     console.log("start to verify prompt");
-    await frame?.getByRole("textbox").fill(options?.prompt || "list repairs");
-    const sendButton = await frame?.waitForSelector(
-      'button[aria-label="Send"]'
+    const contenteditableSpan = await page?.waitForSelector(
+      'span[aria-label="Message Copilot"]'
     );
+    await contenteditableSpan?.click();
+    await contenteditableSpan.fill(options?.prompt || "list repairs");
+    const sendButton = await page?.waitForSelector('button[aria-label="Send"]');
     await sendButton?.click();
     await page.waitForTimeout(Timeout.shortTimeLoading);
     try {
-      const allowButton = await frame?.waitForSelector(
+      const allowButton = await page?.waitForSelector(
         `button:has-text("Always allow")`
       );
       await allowButton?.click();
@@ -1750,9 +1744,12 @@ export async function validatePrompt(
     } catch {
       console.log("no allow button.");
     }
-    await frame?.waitForSelector(`div:has-text("${options?.expected}")`);
-    console.log("verify prompt successfully!!!");
-    console.log(`${options?.expected}`);
+    try {
+      await page?.waitForSelector(`span:has-text("${options?.expected}")`);
+    } catch {
+      await page?.waitForSelector(`div:has-text("${options?.expected}")`);
+    }
+    console.log(`verify prompt successfully having ${options?.expected} !!!`);
   } catch (error) {
     await page.screenshot({
       path: getPlaywrightScreenshotPath("error"),
@@ -2510,7 +2507,7 @@ export async function validateContact(
   }
 }
 
-export async function validateGraphConnector(
+export async function validateCopilotConnector(
   page: Page,
   options?: { displayName?: string }
 ) {

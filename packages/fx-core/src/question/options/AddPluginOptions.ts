@@ -30,6 +30,13 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "OpenAPI description document used for your API plugin.",
   },
   {
+    name: "openapi-spec-type",
+    type: "string",
+    description: "The type of the API spec.",
+    required: true,
+    choices: ["enter-url-or-open-local-file", "search-api"],
+  },
+  {
     name: "openapi-spec-location",
     type: "string",
     shortName: "a",
@@ -42,12 +49,21 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "Select operation(s) Copilot can interact with.",
   },
   {
-    name: "teams-manifest-file",
+    name: "search-openapi-spec-query",
+    type: "string",
+    description: "Search OpenAPI Description Document",
+  },
+  {
+    name: "select-openapi-spec",
+    type: "string",
+    description: "Select OpenAPI Description Document",
+  },
+  {
+    name: "manifest-file",
     questionName: "manifest-path",
     type: "string",
     shortName: "t",
-    description:
-      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    description: "Specifies the app manifest file path.",
     required: true,
     default: "./appPackage/manifest.json",
   },

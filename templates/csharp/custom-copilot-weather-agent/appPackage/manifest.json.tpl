@@ -1,6 +1,6 @@
 {
-    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
-    "manifestVersion": "1.19",
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.21",
     "version": "1.0.0",
     "id": "${{TEAMS_APP_ID}}",
     "developer": {
@@ -22,19 +22,27 @@
         "full": "Full description of {{appName}}"
     },
     "accentColor": "#FFFFFF",
+    "copilotAgents": {
+        "customEngineAgents": [
+            {
+                "type": "bot",
+                "id": "${{BOT_ID}}"
+            }
+        ]
+    },
     "bots": [
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                "personal",
-                "team",
-                "groupChat"
+                "copilot",
+                "personal"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
             "commandLists": [
                 {
                     "scopes": [
+                        "copilot",
                         "personal"
                     ],
                     "commands": [
@@ -43,8 +51,8 @@
                             "description": "How can you help me?"
                         },
                         {
-                            "title": "Forecast the weather tomorrow.",
-                            "description": "Can you forecast the tomorrow weather for me?"
+                            "title": "Forecast the weather tomorrow in San Francisco.",
+                            "description": "Can you forecast the tomorrow weather in San Francisco for me?"
                         }
                     ]
                 }

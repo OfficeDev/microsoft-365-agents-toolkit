@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/metrics-ts",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Add metrics without intruding source code",
   "keywords": [
     "Metrics"

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import * as vscode from "vscode";
-import { CONFIGURATION_PREFIX, ConfigurationKey, EnableMicrosoftKiota } from "./constants";
+import { CONFIGURATION_PREFIX, ConfigurationKey } from "./constants";
 import VsCodeLogInstance from "./commonlib/log";
 import { LogLevel } from "@microsoft/teamsfx-api";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
@@ -29,14 +29,12 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
-    process.env[FeatureFlags.KiotaIntegration.name] = (
-      this.getConfiguration(
-        ConfigurationKey.EnableMicrosoftKiotaString,
-        EnableMicrosoftKiota.undefined
-      ).toString() === EnableMicrosoftKiota.enabled
-    ).toString();
     process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
       ConfigurationKey.EnableCEA,
+      false
+    ).toString();
+    process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableDAMetaOS,
       false
     ).toString();
   }

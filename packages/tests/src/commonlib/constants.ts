@@ -175,4 +175,8 @@ export class EnvConstants {
   // Tab
   static readonly BACKEND_APP_NAME = "BACKEND_APP_NAME";
   static readonly FRONTEND_APP_NAME = "FRONTEND_APP_NAME";
+
+  // Agent SDK
+  static readonly clientId = "clientId";
+  static readonly tenantId = "tenantId";
 }

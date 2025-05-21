@@ -33,7 +33,7 @@ This app template also demonstrates usage of techniques like:
     AZURE_OPENAI_DEPLOYMENT_NAME="<your-azure-openai-deployment-name>"
     ```
 {{/useAzureOpenAI}}
-1. Microsoft Graph Search API is available for searching SharePoint content, thus you just need to ensure your document in *src/data/\*.txt* is [uploaded to SharePoint / OneDrive](https://support.microsoft.com/office/upload-files-and-folders-to-a-library-da549fb1-1fcb-4167-87d0-4693e93cb7a0), no extra data ingestion required.
+1. Microsoft Graph Search API is available for searching SharePoint content, thus you just need to ensure your document in *data/\*.md* is [uploaded to SharePoint / OneDrive](https://support.microsoft.com/office/upload-files-and-folders-to-a-library-da549fb1-1fcb-4167-87d0-4693e93cb7a0), no extra data ingestion required.
 2. In the debug dropdown menu, select Dev Tunnels > Create A Tunnel (set authentication type to Public) or select an existing public dev tunnel.
 3. Right-click the '{{NewProjectTypeName}}' project in Solution Explorer and select **Microsoft 365 Agents Toolkit > Select Microsoft 365 Account**
 4. Sign in to Microsoft 365 Agents Toolkit with a **Microsoft 365 work or school account**

@@ -1,5 +1,4 @@
 // Import required packages
-import express from "express";
 import {
   AuthConfiguration,
   authorizeJWT,
@@ -7,6 +6,7 @@ import {
   loadAuthConfigFromEnv,
   TurnContext,
 } from "@microsoft/agents-hosting";
+import express from "express";
 import { SearchApp } from "./searchApp";
 
 // Create authentication configuration
@@ -58,7 +58,7 @@ const port = process.env.PORT || 3978;
 server
   .listen(port, () => {
     console.log(
-      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+      `Bot Started, listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
     );
   })
   .on("error", (err) => {

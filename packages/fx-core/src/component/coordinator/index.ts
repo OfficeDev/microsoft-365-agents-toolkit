@@ -46,7 +46,12 @@ import {
   ScratchOptions,
 } from "../../question/constants";
 import { TeamsProjectTypeOptions } from "../../question/scaffold/vsc/teamsProjectTypeNode";
-import { ExecutionError, ExecutionOutput, ILifecycle } from "../configManager/interface";
+import {
+  ExecutionError,
+  ExecutionOutput,
+  ILifecycle,
+  ProjectModel,
+} from "../configManager/interface";
 import { Lifecycle } from "../configManager/lifecycle";
 import { CoordinatorSource, KiotaLastCommands } from "../constants";
 import { deployUtils } from "../deployUtils";
@@ -405,6 +410,7 @@ class Coordinator {
     // 2. M365 sign in and tenant check if needed.
     let containsM365 = false;
     let containsAzure = false;
+    let containsUpdateAad = false;
     const tenantSwitchCheckActions: string[] = [];
     cycles.forEach((cycle) => {
       cycle.driverDefs?.forEach((def) => {
@@ -412,6 +418,9 @@ class Coordinator {
           containsM365 = true;
         } else if (AzureActions.includes(def.uses)) {
           containsAzure = true;
+        }
+        if (def.uses === "aadApp/update") {
+          containsUpdateAad = true;
         }
 
         if (needTenantCheckActions.includes(def.uses)) {
@@ -614,6 +623,7 @@ class Coordinator {
             ctx.ui?.openUrl(url);
           }
         });
+        showAadResourceLink(ctx, containsUpdateAad, projectModel, process.env.AAD_APP_CLIENT_ID);
       } else {
         if (url && ctx.platform === Platform.CLI) {
           ctx.ui?.showMessage(
@@ -901,6 +911,39 @@ class Coordinator {
 }
 
 export const coordinator = new Coordinator();
+
+export function showAadResourceLink(
+  ctx: DriverContext,
+  isAadUpdateAction: boolean,
+  projectModel: ProjectModel,
+  clientId?: string
+): void {
+  const gcPermission = "ExternalConnection.ReadWrite.OwnedBy";
+  if (
+    isAadUpdateAction &&
+    clientId &&
+    projectModel.aadPermission?.graphPermission.roles.includes(gcPermission)
+  ) {
+    const aadUrl = `https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/CallAnAPI/appId/${clientId}/isMSAApp~/false`;
+    const aadMsg =
+      "You need to grant tenant-wide admin consent to the application in Entra ID. Click the button to provide consent.";
+    const aadTitle = "View provisioned Entra ID";
+    ctx.ui?.showMessage("info", aadMsg, false, aadTitle).then((result: any) => {
+      const userSelected = result.isOk() ? result.value : undefined;
+      if (userSelected === aadTitle) {
+        openUrl(ctx, aadUrl);
+      }
+    });
+    ctx.logProvider.info(
+      `You need to grant tenant-wide admin consent to the application in Entra ID. Use the link to provide the consent. ${aadUrl}`
+    );
+  }
+  return;
+}
+
+export function openUrl(ctx: DriverContext, url: string): void {
+  ctx.ui?.openUrl(url);
+}
 
 interface BotTroubleShootMessage {
   troubleShootLink: string;

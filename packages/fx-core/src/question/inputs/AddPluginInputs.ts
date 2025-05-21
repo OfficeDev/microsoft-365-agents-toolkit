@@ -17,10 +17,16 @@ export interface AddPluginInputs extends Inputs {
   "plugin-manifest-path"?: string;
   /** @description Import OpenAPI Description Document */
   "plugin-opeanapi-spec-path"?: string;
+  /** @description OpenAPI Spec Document */
+  "openapi-spec-type"?: "enter-url-or-open-local-file" | "search-api";
   /** @description OpenAPI Description Document */
   "openapi-spec-location"?: string;
   /** @description Select Operation(s) Copilot Can Interact with */
   "api-operation"?: string[];
+  /** @description Search OpenAPI Description Document */
+  "search-openapi-spec-query"?: string;
+  /** @description Select OpenAPI Description Document */
+  "select-openapi-spec"?: string;
   /** @description Select Teams manifest.json File */
   "manifest-path"?: string;
 }

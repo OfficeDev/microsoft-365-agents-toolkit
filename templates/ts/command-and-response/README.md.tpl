@@ -37,7 +37,7 @@ The app template is built using the Teams AI SDK, which provides a simple set of
 The bot will respond to the `helloWorld` command with an Adaptive Card:
 
 {{#enableTestToolByDefault}}
-![Command and Response in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/9698542/2636fd91-ec7f-4740-a5ea-b272575b0b7c)
+![Command and Response in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/b6672639-33b6-4769-9b7c-e33297d3c432)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 ![Command and Response in Teams](https://user-images.githubusercontent.com/11220663/165891754-16916b68-c1b5-499d-b6a8-bdfb195f1fd0.png)

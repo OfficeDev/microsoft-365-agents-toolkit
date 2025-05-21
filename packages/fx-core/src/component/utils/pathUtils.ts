@@ -41,9 +41,9 @@ class PathUtils {
     }
     if (silent) return undefined;
     if (environmentNameManager.isRemoteEnvironment(envName)) {
-      throw new MissingRequiredFileError("core", "", ymlPathV3);
+      throw new MissingRequiredFileError("core", "", ymlPathV4);
     } else {
-      throw new MissingRequiredFileError("core", "Debug ", ymlPathV3);
+      throw new MissingRequiredFileError("core", "Debug ", ymlPathV4);
     }
   }
   async getEnvFolderPath(projectPath: string): Promise<Result<string | undefined, FxError>> {

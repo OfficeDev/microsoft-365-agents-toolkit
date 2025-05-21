@@ -2,11 +2,15 @@
 VAR=$@
 echo ============= Inputs: $VAR ================
 stringarray=($VAR)
+git update-index --assume-unchanged "pnpm-workspace.yaml"
 if [ -z $stringarray ]; then
-    echo "for all the pkgs"
+    echo "for all the pkgs excpt mcp-server"
+    # Remove the package/mcp-server from the workspace
+    echo "packages:" > pnpm-workspace.yaml
+    sed -i '/-  "packages\/mcp-server"/d' pnpm-workspace.yaml
+    cat pnpm-workspace.yaml
     exit 0
-else 
-    git update-index --assume-unchanged "pnpm-workspace.yaml"
+else
     content=$(jq ".common" .github/scripts/lernaDeps.json)
     for i in "${stringarray[@]}"
     do :

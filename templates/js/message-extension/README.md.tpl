@@ -30,9 +30,9 @@ This app template has a search command, an action command and a link unfurling.
    2. To trigger action commands, click the `+` in compose message area or `...` above a message and select `Action command`.
    3. To trigger link unfurling, click the `+` in compose message area and select `Link unfurling`.
 
-![Search app demo](https://github.com/OfficeDev/TeamsFx/assets/9698542/5275e5bc-492f-4365-b602-5803938a9780)
+![Search app demo](https://github.com/user-attachments/assets/b780de4e-d537-424f-9782-f48f06713283)
 
-![action-ME](https://github.com/OfficeDev/TeamsFx/assets/9698542/c0afbd89-7fbb-4e73-98a2-f018be4ca88c)
+![action-ME](https://github.com/user-attachments/assets/43e6b7bb-daa7-476d-a76d-ea43dfcb24ee)
 {{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.

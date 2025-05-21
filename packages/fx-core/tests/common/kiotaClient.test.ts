@@ -258,6 +258,51 @@ describe("kiotaClient", () => {
       }
     });
 
+    it("edge case: ListAPITreeInfo contains environment variables", async () => {
+      const mockTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/resource",
+          segment: "GET",
+          operationId: "${{operationId}}",
+          children: [],
+        },
+        servers: ["https://api.example.com/${{TestEnv}}/"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+      };
+
+      process.env.KIOTA_BINARY_PATH = "mock/path/to/kiota";
+      process.env.TestEnv = "test-env";
+      process.env.operationId = "test-operation-id";
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const getKiotaTreeStub = sinon.stub().resolves(mockTreeResult);
+
+      const { listAPITreeInfo } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          getKiotaTree: getKiotaTreeStub,
+          setKiotaConfig: setKiotaConfigStub,
+          "@noCallThru": true,
+        },
+      });
+
+      const result = await listAPITreeInfo("path/to/spec");
+      assert(result.servers[0] === "https://api.example.com/test-env/");
+      assert(result.rootNode.operationId === "test-operation-id");
+      assert(getKiotaTreeStub.calledOnce);
+      assert(
+        getKiotaTreeStub.calledWith({
+          includeFilters: undefined,
+          descriptionPath: "path/to/spec",
+          excludeFilters: undefined,
+          clearCache: true,
+          includeKiotaValidationRules: true,
+        })
+      );
+    });
+
     it("edge case: listAPITreeInfo returns undefined", async () => {
       const getKiotaTreeStub = sinon.stub().resolves(undefined);
 
@@ -422,6 +467,49 @@ describe("generatePlugin", async () => {
       assert.equal(
         error.message,
         "Unable to generate plugin manifest file using Kiota. Error: Get empty result from kiota"
+      );
+      assert.equal(error.source, "kiota");
+    }
+
+    assert.isTrue(generatePluginStub.calledOnce);
+  });
+
+  it("should throw error if kiota throw error", async () => {
+    const setKiotaConfigStub = sandbox.stub().resolves();
+    const generatePluginStub = sandbox.stub(kiota, "generatePlugin").resolves({
+      aiPlugin: "mocked-ai-plugin",
+      openAPISpec: "mocked-openapi-spec",
+      isSuccess: false,
+      logs: [
+        {
+          level: 4,
+          message: "Error parsing OpenAPI spec",
+        },
+      ],
+    });
+
+    const { kiotageneratePlugin } = proxyquire("../../src/common/kiotaClient", {
+      "@microsoft/kiota": {
+        setKiotaConfig: setKiotaConfigStub,
+        generatePlugin: generatePluginStub,
+        "@noCallThru": true,
+        ConsumerOperation: {
+          Edit: "edit",
+        },
+      },
+    });
+
+    try {
+      const res = await kiotageneratePlugin(
+        "specPath",
+        "outputPath",
+        "pluginName",
+        "workingDirectory"
+      );
+    } catch (error) {
+      assert.equal(
+        error.message,
+        "Unable to generate plugin manifest file using Kiota. Error: Error parsing OpenAPI spec"
       );
       assert.equal(error.source, "kiota");
     }

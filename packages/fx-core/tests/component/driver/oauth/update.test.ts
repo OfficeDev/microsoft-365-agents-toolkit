@@ -20,6 +20,7 @@ import {
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
 import * as utiltiy from "../../../../src/component/driver/oauth/utility/utility";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -145,6 +146,10 @@ describe("UpdateOauthDriver", () => {
       expect((config as ConfirmConfig).title.includes("tokenExchangeMethodType")).to.be.true;
       return ok({ type: "success", value: true });
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
 
     const args: UpdateOauthArgs = {
       name: "test2",
@@ -233,6 +238,10 @@ describe("UpdateOauthDriver", () => {
   });
 
   it("happy path: update all fields with apiSpecPath and baseUrl", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
       description: "mockedDescription",
       targetUrlsShouldStartWith: ["https://test2"],
@@ -463,6 +472,10 @@ describe("UpdateOauthDriver", () => {
   });
 
   it("happy path: update all fields for Entra SSO", async () => {
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "updateOauthRegistration").resolves({
       description: "mockedDescription",
       targetUrlsShouldStartWith: ["https://test2"],
@@ -576,6 +589,10 @@ describe("UpdateOauthDriver", () => {
       scopes: ["mockedScope"],
       isPKCEEnabled: true,
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -657,6 +674,10 @@ describe("UpdateOauthDriver", () => {
       tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
       scopes: ["mockedScopes"],
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -738,6 +759,10 @@ describe("UpdateOauthDriver", () => {
       tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
       scopes: ["mockedScope"],
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(teamsDevPortalClient, "getOauthRegistrationById").resolves({
       oAuthConfigId: "mockedRegistrationId",
       description: "test",
@@ -836,6 +861,10 @@ describe("UpdateOauthDriver", () => {
       tokenExchangeEndpoint: "mockedTokenExchangeEndpoint",
       scopes: ["mockedScope"],
     });
+    sinon
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sinon.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {

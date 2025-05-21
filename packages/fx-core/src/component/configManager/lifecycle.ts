@@ -83,6 +83,7 @@ export function resolve(
   }
 }
 
+export const allowedEmptyKeys = ["APP_NAME_SUFFIX"];
 export function resolveString(
   val: string,
   resolved: ResolvedPlaceholders,
@@ -94,7 +95,7 @@ export function resolveString(
   while (matches != null) {
     const envVar = matches[1];
     const envVal = process.env[envVar];
-    if (envVar === "APP_NAME_SUFFIX") {
+    if (allowedEmptyKeys.includes(envVar)) {
       if (envVal === undefined || envVal === null) {
         unresolved.push(envVar);
       } else {

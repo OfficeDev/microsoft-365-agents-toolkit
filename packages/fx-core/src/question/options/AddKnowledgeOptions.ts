@@ -33,12 +33,11 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
     description: "An absolute URL to a site to be searched for content.",
   },
   {
-    name: "teams-manifest-file",
+    name: "manifest-file",
     questionName: "manifest-path",
     type: "string",
     shortName: "t",
-    description:
-      "Specify the path for app manifest template. It can be either absolute path or relative path to the project root folder, with default at './appPackage/manifest.json'",
+    description: "Specifies the app manifest file path.",
     required: true,
     default: "./appPackage/manifest.json",
   },
@@ -55,19 +54,19 @@ export const AddKnowledgeOptions: CLICommandOption[] = [
   {
     name: "graph-connector-content",
     type: "string",
-    description: "Copilot Connector Content",
+    description: "Copilot connector Content",
     choices: ["listConnections", "inputConnectionId"],
   },
   {
     name: "graph-connector-list",
     type: "array",
-    description: "Select one or more Copilot Connectors as capability source",
+    description: "Select one or more Copilot connectors as capability source",
     default: [],
   },
   {
     name: "graph-connector-input",
     type: "string",
-    description: "a connection ID for Copilot Connector",
+    description: "a connection ID for Copilot connector",
   },
   {
     name: "embedded-knowledge-files",

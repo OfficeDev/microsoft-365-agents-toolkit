@@ -54,6 +54,20 @@ describe("TreeViewManager", () => {
     chai.assert.equal((developmentTreeview as any).commands.length, 5);
   });
 
+  it("Development Treeview when enable extend MetaOS to DA", () => {
+    sandbox.stub(globalVariables, "isMetaOSAddinProject").value(true);
+    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(false);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
+    chai.assert.isDefined(developmentTreeview);
+    chai.assert.equal((developmentTreeview as any).commands.length, 6);
+  });
+
   it("setRunningCommand", () => {
     treeViewManager.registerTreeViews({
       subscriptions: [],

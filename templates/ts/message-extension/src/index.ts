@@ -1,5 +1,4 @@
 // Import required packages
-import express from "express";
 import {
   AuthConfiguration,
   authorizeJWT,
@@ -7,7 +6,8 @@ import {
   loadAuthConfigFromEnv,
   TurnContext,
 } from "@microsoft/agents-hosting";
-import { AgentApp } from "./agent";
+import express from "express";
+import { TeamsBot } from "./teamsBot";
 
 // Create authentication configuration
 const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
@@ -38,8 +38,8 @@ const onTurnErrorHandler = async (context: TurnContext, error: Error) => {
 // Set the onTurnError for the singleton CloudAdapter.
 adapter.onTurnError = onTurnErrorHandler;
 
-// Create the agent that will handle incoming messages.
-const agentApp = new AgentApp();
+// Create the bot that will handle incoming messages.
+const teamsBot = new TeamsBot();
 
 // Create express application.
 const server = express();
@@ -49,7 +49,7 @@ server.use(authorizeJWT(authConfig));
 // Listen for incoming requests.
 server.post("/api/messages", async (req, res) => {
   await adapter.process(req, res, async (context) => {
-    await agentApp.run(context);
+    await teamsBot.run(context);
   });
 });
 
@@ -58,7 +58,7 @@ const port = process.env.PORT || 3978;
 server
   .listen(port, () => {
     console.log(
-      `\napp listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
+      `Bot Started, listening to port ${port} for appId ${authConfig.clientId} debug ${process.env.DEBUG}`
     );
   })
   .on("error", (err) => {

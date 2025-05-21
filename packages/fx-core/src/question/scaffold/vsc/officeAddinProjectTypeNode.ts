@@ -5,7 +5,11 @@ import { IQTreeNode } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../questionNames";
-import { OfficeAddinCapabilityOptions, setTemplateName } from "./CapabilityOptions";
+import {
+  DAMetaOSCapabilityOptions,
+  OfficeAddinCapabilityOptions,
+  setTemplateName,
+} from "./CapabilityOptions";
 import { ProjectTypeOptions } from "./ProjectTypeOptions";
 
 export function outlookAddinProjectTypeNode(): IQTreeNode {
@@ -63,6 +67,9 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
       type: "singleSelect",
       staticOptions: [
         OfficeAddinCapabilityOptions.wxpTaskPane(),
+        ...(featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
+          ? [OfficeAddinCapabilityOptions.DAMetaOS()]
+          : []),
         OfficeAddinCapabilityOptions.officeAddinImport(),
       ],
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
@@ -70,6 +77,7 @@ export function wxpAddinProjectTypeNode(): IQTreeNode {
       onDidSelection: setTemplateName,
     },
     children: [
+      officeDAMetaOSCapabilityNode(),
       {
         condition: {
           equals: OfficeAddinCapabilityOptions.officeAddinImport().id,
@@ -102,4 +110,36 @@ export function officeAddinProjectTypeNode(): IQTreeNode {
   } else {
     return outlookAddinProjectTypeNode();
   }
+}
+
+function officeDAMetaOSCapabilityNode(): IQTreeNode {
+  return {
+    condition: { equals: OfficeAddinCapabilityOptions.DAMetaOS().id },
+    data: {
+      name: QuestionNames.DAMetaOSCapability,
+      type: "singleSelect",
+      title: getLocalizedString("core.createProjectQuestion.DAMetaOS.capability.title"),
+      placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
+      staticOptions: [
+        DAMetaOSCapabilityOptions.newDAMetaOSProject(),
+        DAMetaOSCapabilityOptions.upgradeExistingProject(),
+      ],
+      onDidSelection: setTemplateName,
+    },
+    children: [
+      {
+        condition: { equals: DAMetaOSCapabilityOptions.upgradeExistingProject().id },
+        data: {
+          type: "folder",
+          name: QuestionNames.OfficeAddinFolder,
+          title: getLocalizedString(
+            "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.title"
+          ),
+          placeholder: getLocalizedString(
+            "core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder"
+          ),
+        },
+      },
+    ],
+  };
 }

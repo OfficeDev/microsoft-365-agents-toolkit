@@ -1299,6 +1299,11 @@ describe("addPluginQuestionNode", async () => {
       const thirdChild = children![2];
       assert.isObject(thirdChild);
 
+      const inputs = {} as any;
+
+      (thirdChild.data as SingleSelectQuestion)!.onDidSelection!("", inputs);
+      assert.equal(inputs[QuestionNames.ActionType], ActionStartOptions.apiSpec().id);
+
       assert.equal(
         children![children!.length - 1].data.name,
         QuestionNames.TeamsAppManifestFilePath
@@ -1319,6 +1324,10 @@ describe("addPluginQuestionNode", async () => {
       manifestVersion: "",
       isApiMeAAD: false,
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1373,6 +1382,12 @@ describe("addPluginQuestionNode", async () => {
       manifestVersion: "",
       isApiMeAAD: false,
     });
+
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
+
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1506,7 +1521,7 @@ describe("addKnowledgeQuestionNode", async () => {
     ]);
   });
 
-  it("success: can add a knowledge from Copilot Connector", async () => {
+  it("success: can add a knowledge from Copilot connector", async () => {
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: "./test",
@@ -1598,7 +1613,7 @@ describe("addKnowledgeQuestionNode", async () => {
   });
 });
 
-describe("scaffold Copilot Connector", async () => {
+describe("scaffold Copilot connector", async () => {
   const sandbox = sinon.createSandbox();
   const mockedEnvRestore: RestoreFn = () => {};
   afterEach(() => {

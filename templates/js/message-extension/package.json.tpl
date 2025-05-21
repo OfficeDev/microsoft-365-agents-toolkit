@@ -21,8 +21,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@microsoft/agents-hosting": "^0.1.49",
-    "@microsoft/agents-hosting-teams": "^0.1.49",
+    "@microsoft/agents-hosting": "^0.2.14",
+    "@microsoft/agents-hosting-teams": "^0.2.14",
     "adaptive-expressions": "^4.20.0",
     "adaptivecards-templating": "^2.3.1",
     "adaptivecards": "^3.0.1",

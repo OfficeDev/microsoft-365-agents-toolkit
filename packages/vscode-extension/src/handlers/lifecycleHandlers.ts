@@ -26,7 +26,6 @@ import * as stringUtil from "util";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
-import { KiotaExtensionId, KiotaMinVersion } from "../constants";
 import { ExtensionSource } from "../error/error";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
@@ -65,15 +64,6 @@ export async function createNewProjectHandler(...args: any[]): Promise<Result<an
   }
 
   const res = result.value as CreateProjectResult;
-
-  // For Kiota integration
-  if (
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    res.projectPath === "" &&
-    res.lastCommand
-  ) {
-    return handleTriggerKiotaCommand(args, res, TelemetryEvent.CreateProject);
-  }
 
   if (res.shouldInvokeTeamsAgent) {
     await invokeTeamsAgent([TelemetryTriggerFrom.CreateAppQuestionFlow]);
@@ -154,13 +144,23 @@ export async function addPluginHandler(...args: unknown[]) {
   if (result.isErr()) {
     return err(result.error);
   }
+  return result;
+}
 
-  const res = result.value;
-  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) && res.lastCommand) {
-    return handleTriggerKiotaCommand(args, res, TelemetryEvent.AddPlugin, res.projectPath);
-  } else {
-    return result;
+export async function metaOSExtendToDAHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.MetaOSExtendToDAStart,
+    getTriggerFromProperty(args)
+  );
+
+  const result = await runCommand(Stage.metaOSExtendToDA);
+  if (result.isErr()) {
+    return err(result.error);
   }
+
+  const projectPathUri = vscode.Uri.file(result.value.projectPath);
+  await openFolder(projectPathUri, true, result.value.warnings);
+  return result;
 }
 
 export async function addKnowledgeHandler(...args: unknown[]) {
@@ -344,76 +344,4 @@ export async function addAuthActionHandler(...args: unknown[]) {
       }
     });
   return result;
-}
-
-function handleTriggerKiotaCommand(
-  args: any[],
-  result: any,
-  event: string,
-  projectPath?: string
-): Result<any, FxError> {
-  if (!validateKiotaInstallation()) {
-    void vscode.window
-      .showInformationMessage(
-        stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion),
-        "Install Kiota",
-        "Cancel"
-      )
-      .then((selection) => {
-        if (selection === "Install Kiota") {
-          // Open market place to install kiota
-          ExtTelemetry.sendTelemetryEvent(TelemetryEvent.InstallKiota, {
-            ...getTriggerFromProperty(args),
-          });
-          void vscode.commands.executeCommand("extension.open", "ms-graph.kiota");
-        } else {
-          return err(
-            new UserError(
-              ExtensionSource,
-              "KiotaNotInstalled",
-              stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion)
-            )
-          );
-        }
-      });
-
-    ExtTelemetry.sendTelemetryEvent(event, {
-      [TelemetryProperty.KiotaInstalled]: "No",
-      ...getTriggerFromProperty(args),
-    });
-    VsCodeLogInstance.error(
-      stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion)
-    );
-    return ok({ projectPath: "" });
-  } else {
-    void vscode.commands.executeCommand("kiota.openApiExplorer.searchOrOpenApiDescription", {
-      kind: "Plugin",
-      type: "ApiPlugin",
-      source: "ttk",
-      ttkContext: {
-        lastCommand: result.lastCommand,
-        manifestPath: result.manifestPath,
-      },
-      projectPath: projectPath,
-    });
-    ExtTelemetry.sendTelemetryEvent(event, {
-      [TelemetryProperty.KiotaInstalled]: "Yes",
-      ...getTriggerFromProperty(args),
-    });
-    return ok(result);
-  }
-}
-
-export function validateKiotaInstallation(): boolean {
-  const installed = vscode.extensions.getExtension(KiotaExtensionId);
-  if (!installed) {
-    return false;
-  }
-
-  const kiotaVersion = installed.packageJSON.version;
-  if (!kiotaVersion) {
-    return false;
-  }
-
-  return versionUtil.compare(kiotaVersion, KiotaMinVersion) !== -1;
 }

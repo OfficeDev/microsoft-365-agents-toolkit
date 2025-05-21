@@ -70,8 +70,10 @@ export class AddWebPartDriver implements StepDriver {
     context.logProvider.debug(
       `SPFx web part name: ${webpartName}, SPFx folder: ${spfxFolder}, manifest path: ${manifestPath}, local manifest path: ${localManifestPath}`
     );
+
+    const SPFxContext = createContext();
     const yeomanRes = await SPFxGenerator.doYeomanScaffold(
-      createContext(),
+      SPFxContext,
       inputs,
       context.projectPath
     );
@@ -79,6 +81,10 @@ export class AddWebPartDriver implements StepDriver {
     context.logProvider.verbose(`Succeeded to add web part '${webpartName}'.`);
 
     const componentId = yeomanRes.value;
+    const useNewDevUrl =
+      SPFxContext &&
+      SPFxContext.templateVariables &&
+      SPFxContext.templateVariables["useNewDevUrl"] == "true";
     const remoteStaticSnippet: IStaticTab = {
       entityId: componentId,
       name: webpartName,
@@ -89,7 +95,10 @@ export class AddWebPartDriver implements StepDriver {
     const localStaticSnippet: IStaticTab = {
       entityId: componentId,
       name: webpartName,
-      contentUrl: util.format(Constants.LOCAL_CONTENT_URL, componentId),
+      contentUrl: util.format(
+        useNewDevUrl ? Constants.LOCAL_CONTENT_URL_NEW : Constants.LOCAL_CONTENT_URL,
+        componentId
+      ),
       websiteUrl: ManifestTemplate.WEBSITE_URL,
       scopes: ["personal"],
     };

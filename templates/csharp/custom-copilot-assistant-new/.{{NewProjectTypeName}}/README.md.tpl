@@ -42,7 +42,7 @@ The app template is built using the Teams AI library, which provides the capabil
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![AI Agent](https://github.com/OfficeDev/TeamsFx/assets/37978464/053218b7-cb17-4db4-9b8a-50ca04c1cb55)
+![AI Agent](https://github.com/user-attachments/assets/5c38d129-f033-4f17-8ecc-23f827d7c1fd)
 
 ### Debug agent in Teams Web Client
 

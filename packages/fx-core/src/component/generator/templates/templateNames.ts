@@ -14,6 +14,9 @@ export enum TemplateNames {
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
 
+  DeclarativeAgentMetaOSNewProject = "declarative-agent-meta-os-new-project", // handled by OfficeAddinGeneratorNew
+  DeclarativeAgentMetaOSUpgradeProject = "declarative-agent-meta-os-upgrade-project", // handled by OfficeAddinGeneratorNew
+
   // custom engine agent
   BasicCustomEngineAgent = "basic-custom-engine-agent",
   WeatherAgent = "weather-agent",
@@ -27,7 +30,7 @@ export enum TemplateNames {
   CustomCopilotAssistantNew = "custom-copilot-assistant-new",
   CustomCopilotAssistantAssistantsApi = "custom-copilot-assistant-assistants-api",
 
-  // copilot connector
+  // Copilot connector
   GraphConnector = "graph-connector", // vsc only
 
   // tab

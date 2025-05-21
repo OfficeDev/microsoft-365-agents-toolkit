@@ -433,12 +433,6 @@ export interface Bot {
     botId:          string;
     configuration?: Configuration;
     /**
-     * Optional Boolean property that enables users to delete messages sent by bot when set to
-     * true. The default value is false, ensuring bot messages cannot be deleted by users unless
-     * explicitly opted in.
-     */
-    allowBotMessageDeleteByUser?: boolean;
-    /**
      * This value describes whether or not the bot utilizes a user hint to add the bot to a
      * specific channel.
      */
@@ -2698,7 +2692,6 @@ const typeMap: any = {
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
         { json: "configuration", js: "configuration", typ: u(undefined, r("Configuration")) },
-        { json: "allowBotMessageDeleteByUser", js: "allowBotMessageDeleteByUser", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "requiresSecurityEnabledGroup", js: "requiresSecurityEnabledGroup", typ: u(undefined, true) },

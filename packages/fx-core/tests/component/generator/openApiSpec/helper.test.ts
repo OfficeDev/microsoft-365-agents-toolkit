@@ -51,7 +51,11 @@ import {
 import { DeclarativeAgentApiSpecOptionId, QuestionNames } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
 import { teamsManifest } from "./fakeData";
-import { FeatureFlagName } from "../../../../src/common/featureFlags";
+import {
+  featureFlagManager,
+  FeatureFlagName,
+  FeatureFlags,
+} from "../../../../src/common/featureFlags";
 import { pathUtils } from "../../../../src/component/utils/pathUtils";
 
 const tools = new MockTools();
@@ -181,12 +185,16 @@ describe("generateScaffoldingSummary", async () => {
     assert.isTrue(res.includes("user_issue"));
   });
 
-  it("warnings about operationid contains special characters", async () => {
+  it("warnings about spec version", async () => {
     const res = await generateScaffoldingSummary(
       [
         {
           type: WarningType.ConvertSwaggerToOpenAPI,
           content: "Convert swagger to openapi 3.0",
+        },
+        {
+          type: WarningType.OpenAPI31ConvertTo30,
+          content: "Convert openapi 3.1 to openapi 3.0",
         },
       ],
       teamsManifest,
@@ -194,7 +202,7 @@ describe("generateScaffoldingSummary", async () => {
       undefined,
       ""
     );
-    assert.isTrue(res.includes("Swagger"));
+    assert.isTrue(res.includes("Swagger") && res.includes("3.1"));
   });
 
   it("warnings about adaptive card template in manifest", async () => {
@@ -701,6 +709,10 @@ describe("listPluginExistingOperations", () => {
     sandbox
       .stub(PluginManifestUtils.prototype, "getApiSpecFilePathFromTeamsManifest")
       .resolves(ok(["openapi.yaml"]));
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
 
     sandbox
       .stub(SpecParser.prototype, "validate")
@@ -1937,6 +1949,10 @@ describe("listOperations", async () => {
       errors: [],
       specHash: "xxx",
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "list").resolves({
       APIs: [
         {
@@ -2219,6 +2235,10 @@ describe("generateAdaptiveCardInPluginManifestForKiota", async () => {
         },
       ],
     });
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .withArgs(FeatureFlags.KiotaNPMIntegration)
+      .returns(false);
     sandbox.stub(SpecParser.prototype, "generateAdaptiveCardInPlugin").resolves();
     const warningStub = sandbox.stub(tools.logProvider, "warning").resolves();
     await generateAdaptiveCardInPluginManifestForKiota("pluginManifestPath", "specPath", context);

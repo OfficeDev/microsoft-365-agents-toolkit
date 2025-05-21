@@ -849,8 +849,8 @@ publish:
       const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
       const lens = new SharePointIdCodeLens(
         JSON.stringify({
-          site_id: "test-site-id",
-          // missing unique_id
+          // missing site_id
+          unique_id: "test-unique-id",
         }),
         range
       );
@@ -864,6 +864,42 @@ publish:
       chai.assert.isDefined(resolvedLens.command);
       chai.assert.equal(resolvedLens.command?.command, "");
       chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
+    });
+
+    it("should handle missing unique ID when resolving codelens", async () => {
+      const range = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1));
+      const lens = new SharePointIdCodeLens(
+        JSON.stringify({
+          site_id: "test-site-id",
+        }),
+        range
+      );
+      const mockCore = {
+        getODSPItemDetails: sinon.stub(),
+      };
+      mockCore.getODSPItemDetails.resolves(
+        ok({
+          id: "test-id",
+          name: "Test Item",
+          webUrl: "https://test.sharepoint.com",
+          type: "file",
+          lastModifiedDateTime: new Date().toISOString(),
+          createdDateTime: new Date().toISOString(),
+          size: 0,
+        })
+      );
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const provider = new OneDriveSharePointCodeLensProvider();
+      const resolvedLens = await provider.resolveCodeLens(
+        lens,
+        new vscode.CancellationTokenSource().token
+      );
+
+      chai.assert.isDefined(resolvedLens.command);
+      chai.assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
+      chai.assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
+      chai.assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
     });
 
     it("should return unmodified lens when not a SharePointIdCodeLens", async () => {

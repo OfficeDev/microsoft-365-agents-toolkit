@@ -15,6 +15,7 @@ on:
         type: string
         required: false
         description: "Please enter the package names you want to publish, such as cli, vscode, ui, sdk, server and template. Please separate multiple entries with spaces"
+        default: ""
   schedule:
     - cron: "0 16 * * *"
 
@@ -53,11 +54,17 @@ jobs:
           echo It's not allowed to run schedule release except dev branch.
           exit 1
 
+      - id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.ref }}
 
       - uses: actions/setup-node@v3
@@ -79,19 +86,19 @@ jobs:
       - name: Setup npm registry
         run: |
           echo "${{ secrets.NPMRC }}" > ~/.npmrc
+      
+      - name: Setup git
+        run: |
+          git config --global user.name 'adashen'
+          git config --global user.email 'shenwe@microsoft.com'
 
       - name: manage pkgs to release
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.pkgs }}
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
 
       - name: Setup project
         run: |
           npm run setup
-
-      - name: Setup git
-        run: |
-          git config --global user.name 'adashen'
-          git config --global user.email 'shenwe@microsoft.com'
 
       - name: release alpha npm packages to npmjs.org
         if: ${{ github.ref == 'refs/heads/dev' }}
@@ -127,13 +134,13 @@ jobs:
         with:
           tag_name: "templates@0.0.0-rc"
         env:
-          GITHUB_TOKEN: ${{ secrets.CD_PAT }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: release templates' RC version to github
         if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           prerelease: true
           tag: "templates@0.0.0-rc"
           artifacts: ${{ github.workspace }}/templates/build/*.zip
@@ -146,7 +153,7 @@ jobs:
         with:
           artifacts: ${{ github.workspace }}/templates/build/*.zip
           name: "Release for ${{ steps.version-change.outputs.TEMPLATE_VERSION }}"
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.version-change.outputs.TEMPLATE_VERSION }}
           allowUpdates: true
 
@@ -161,7 +168,7 @@ jobs:
           artifacts: ${{ runner.temp }}/template-tags.txt
           name: "Template Tag List"
           body: "Release to maintain template tag list."
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           tag: "template-tag-list"
           allowUpdates: true
 
@@ -284,7 +291,7 @@ jobs:
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
-          token: ${{ secrets.CD_PAT }}
+          token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.version-change.outputs.EXTENSION_VERSION }}
           artifacts: ./packages/**/*.vsix
           artifactErrorsFailBuild: true

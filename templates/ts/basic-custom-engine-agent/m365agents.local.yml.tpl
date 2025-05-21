@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.7/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.8/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.7
+version: v1.8
 
 provision:
   # Creates an app
@@ -39,13 +39,11 @@ provision:
       channels:
         - name: msteams
 
-  {{^CEAEnabled}}
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
       # Path to manifest template
       manifestPath: ./appPackage/manifest.json
-  {{/CEAEnabled}}
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
@@ -68,7 +66,6 @@ provision:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
-{{#CEAEnabled}}
   - uses: teamsApp/extendToM365
     with:
       # Relative path to the build app package.
@@ -78,7 +75,6 @@ provision:
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
-{{/CEAEnabled}}
 
 deploy:
   # Run npm command

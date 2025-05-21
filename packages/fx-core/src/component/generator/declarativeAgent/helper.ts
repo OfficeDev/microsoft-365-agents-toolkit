@@ -340,7 +340,7 @@ export async function getGraphConnectors(): Promise<GCItem[]> {
       );
       throw err;
     } else {
-      const message = `Failed to get Copilot Connector item: ${
+      const message = `Failed to get Copilot connector item: ${
         error instanceof Error ? error.message : String(error)
       }`;
       const err = new UserError("copilotConnectors", "GraphApiError", message, message);

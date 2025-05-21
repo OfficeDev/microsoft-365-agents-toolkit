@@ -29,7 +29,7 @@ export async function updateYml(projectPath: string): Promise<void> {
           parameters: ./infra/azure.parameters.test.json
           deploymentName: test-json-format
     `;
-  const ymlPath = path.join(projectPath, "teamsapp.yml");
+  const ymlPath = path.join(projectPath, "m365agents.yml");
   let content = await fs.readFile(ymlPath, "utf-8");
   content = updateContent(content, key, replace);
   await fs.writeFileSync(ymlPath, content);

@@ -589,7 +589,7 @@ describe("scaffold question", () => {
       });
     });
 
-    describe("Copilot Connectors", () => {
+    describe("Copilot connectors", () => {
       it("happy path", async () => {
         const fakeAxiosInstance = axios.create();
         sandbox.stub(axios, "create").returns(fakeAxiosInstance);

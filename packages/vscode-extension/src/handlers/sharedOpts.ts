@@ -10,7 +10,7 @@ import { RecommendedOperations } from "../debug/common/debugConstants";
 import { isLoginFailureError, showError, wrapError } from "../error/common";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";
-import { core } from "../globalVariables";
+import { core, workspaceUri } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
   TelemetryEvent,
@@ -144,12 +144,13 @@ export async function runCommand(
         result = await core.addPlugin(inputs);
         break;
       }
-      case Stage.RegeneratePlugin: {
-        result = await core.regeneratePlugin(inputs);
+      case Stage.metaOSExtendToDA: {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        result = await core.metaOSExtendToDA(inputs, workspaceUri!.fsPath);
         break;
       }
-      case Stage.kiotaRegenerate: {
-        result = await core.kiotaRegenerate(inputs);
+      case Stage.RegeneratePlugin: {
+        result = await core.regeneratePlugin(inputs);
         break;
       }
       case Stage.addAuthAction: {

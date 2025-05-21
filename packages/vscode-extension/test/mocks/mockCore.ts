@@ -28,6 +28,14 @@ export class MockCore {
   async createSampleProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
+
+  async metaOSExtendToDA(
+    inputs: Inputs,
+    workDir: string
+  ): Promise<Result<undefined | any, FxError>> {
+    return ok(undefined);
+  }
+
   async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
@@ -174,10 +182,6 @@ export class MockCore {
   }
 
   async addPlugin(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    return ok(undefined);
-  }
-
-  async kiotaRegenerate(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }
 
