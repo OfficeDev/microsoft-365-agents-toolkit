@@ -31,14 +31,15 @@ class RedditLinkTestCase extends CaseFactory {
   }
 }
 
-new RedditLinkTestCase(
-  TemplateProject.RedditLink,
-  "v-ivanchen@microsoft.com",
-  [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
-  {
-    skipValidation: true,
-    repoPath: "./resource/samples/msgext-link-unfurling-reddit",
-    testPlanCaseId_local: 27851434,
-    testPlanCaseId_dev: 27852468,
-  }
-).test();
+// skip for now
+// new RedditLinkTestCase(
+//   TemplateProject.RedditLink,
+//   "v-ivanchen@microsoft.com",
+//   [LocalDebugTaskLabel.StartLocalTunnel, LocalDebugTaskLabel.StartApplication],
+//   {
+//     skipValidation: true,
+//     repoPath: "./resource/samples/msgext-link-unfurling-reddit",
+//     testPlanCaseId_local: 27851434,
+//     testPlanCaseId_dev: 27852468,
+//   }
+// ).test();

@@ -147,7 +147,7 @@ export class Executor {
   }
 
   static async upgrade(workspace: string, isV3 = true) {
-    const prefix = isV3 ? "teamsapp" : "teamsfx";
+    const prefix = isV3 ? "atk" : "teamsfx";
     const command = `${prefix} upgrade --force`;
     return this.execute(command, workspace);
   }
@@ -162,7 +162,7 @@ export class Executor {
     skipErrorMessage?: string
   ) {
     const npxCommand = npx ? "npx " : "";
-    const cliPrefix = isV3 ? "teamsapp" : "teamsfx";
+    const cliPrefix = isV3 ? "atk" : "teamsapp";
     const command = `${npxCommand} ${cliPrefix} ${cmd} --env ${env}`;
     return this.execute(
       command,
@@ -304,7 +304,7 @@ export class Executor {
     console.log(`[start] ${env} debug ... `);
     childProcess = Executor.spawnCommand(
       projectPath,
-      v3 ? "teamsapp" : "teamsfx",
+      v3 ? "atk" : "teamsapp",
       ["preview", v3 ? "--env" : "", v3 ? env : `--${env}`],
       onData,
       onError
