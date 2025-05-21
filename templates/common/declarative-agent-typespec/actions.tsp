@@ -26,13 +26,13 @@ namespace GitHubAPI {
 
   /**
    * Search open issues from GitHub repositories.
-   * @param q The search query. Default is `repo:OfficeDev/teams-toolkit is:open`.
+   * @param q The search query. Default is `repo:OfficeDev/microsoft-365-agents-toolkit is:open`.
    * @param per_page The number of results per page. Default is 5.
    */
   @route("/search/issues")
   @card(#{ dataPath: "$.items", title: "$.title", url: "$.html_url", file: "adaptiveCards/searchIssues.json" })
   @get op searchIssues(
-    @query q: string = "repo:OfficeDev/teams-toolkit is:issue is:open", 
+    @query q: string = "repo:OfficeDev/microsoft-365-agents-toolkit is:issue is:open", 
     @query per_page: integer = 5
   ): string;
 }
