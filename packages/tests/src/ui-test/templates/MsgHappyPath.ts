@@ -88,11 +88,45 @@ export async function msgHappyPathTestForLocalDebug(
         appName: localDebugTestContext.appName,
       });
     }
-
     // cli preview
-    const res = await Executor.cliPreview(projectPath, true);
-    devtunnelProcess = res.devtunnelProcess;
-    debugProcess = res.debugProcess;
+    console.log("======= debug with cli ========");
+    let tunnelName = "";
+    let devtunnelProcess: ChildProcessWithoutNullStreams | null = null;
+    let debugProcess: ChildProcess | null = null;
+    const tunnel = Executor.debugBotFunctionPreparation(projectPath);
+    tunnelName = tunnel.tunnelName;
+    devtunnelProcess = tunnel.devtunnelProcess;
+    await new Promise((resolve) => setTimeout(resolve, 60 * 1000));
+    {
+      const { success } = await Executor.provision(
+        projectPath,
+        "local",
+        true,
+        "DeprecationWarning"
+      );
+      expect(success).to.be.true;
+      console.log(`[Successfully] provision for ${projectPath}`);
+    }
+    {
+      const { success } = await Executor.deploy(projectPath, "local");
+      expect(success).to.be.true;
+      console.log(`[Successfully] deploy for ${projectPath}`);
+    }
+
+    debugProcess = Executor.debugProject(
+      projectPath,
+      "local",
+      true,
+      process.env,
+      (data) => {
+        if (data) {
+          console.log(data);
+        }
+      },
+      (error) => {
+        const errorMsg = error.toString();
+      }
+    );
     {
       const page = await reopenPage(
         localDebugTestContext.context!,
