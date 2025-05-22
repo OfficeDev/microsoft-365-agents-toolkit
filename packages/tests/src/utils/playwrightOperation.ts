@@ -1229,23 +1229,23 @@ export async function validateReactOutlookTab(
   displayName: string,
   includeFunction?: boolean
 ) {
-  // if need choose the account signed in
-  // try {
-  //   await Promise.all([page.goto(url), page.waitForNavigation()]);
-  //   await page.waitForTimeout(Timeout.shortTimeLoading);
-  //   const accountItemSignedin = await page.waitForSelector(
-  //     `div[role="button"][tabindex="0"]`
-  //   );
-  //   await accountItemSignedin.click();
-  //   console.log("Clicked the account signed in.");
-  //   await page.waitForTimeout(Timeout.shortTimeLoading);
-  // } catch {
-  //   await page.screenshot({
-  //     path: getPlaywrightScreenshotPath("account"),
-  //     fullPage: true,
-  //   });
-  //   console.log("no need to choose account.");
-  // }
+  // choose the account signed in
+  try {
+    await Promise.all([page.goto(url), page.waitForNavigation()]);
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    const accountItemSignedin = await page.waitForSelector(
+      `div[role="button"][tabindex="0"]`
+    );
+    await accountItemSignedin.click();
+    console.log("Clicked the account signed in.");
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+  } catch {
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("account"),
+      fullPage: true,
+    });
+    console.log("no need to choose account.");
+  }
 
   await RetryHandler.retry(async () => {
     try {
