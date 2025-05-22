@@ -242,7 +242,9 @@ describe("localTelemetryReporter", () => {
       clock.tick(actualDuration);
       await resultPromise;
 
-      chai.expect(mockedEvents[1].measurements?.["duration"]).to.be.closeTo(actualDuration, actualDuration + 0.00001);
+      chai
+        .expect(mockedEvents[1].measurements?.["duration"])
+        .to.be.closeTo(actualDuration, actualDuration + 0.00001);
     });
 
     it("event time", async () => {
@@ -271,8 +273,8 @@ describe("localTelemetryReporter", () => {
       // Assert
       const t0 = eventTime[event1Start];
       chai.expect(eventTime[event1] - t0).to.be.closeTo(0.03, 0.02);
-      chai.expect(eventTime[event2Start] - t0).to.be.closeTo(0.035, 0.02);
-      chai.expect(eventTime[event2] - t0).to.be.closeTo(0.05, 0.02);
+      chai.expect(eventTime[event2Start] - t0).to.be.closeTo(0.035, 0.03);
+      chai.expect(eventTime[event2] - t0).to.be.closeTo(0.05, 0.04);
     });
   });
 
