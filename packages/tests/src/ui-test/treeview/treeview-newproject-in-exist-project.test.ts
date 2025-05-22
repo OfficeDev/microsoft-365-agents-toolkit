@@ -76,7 +76,7 @@ describe("New project in existing project Tests", function () {
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick("JavaScript");
+      await input.selectQuickPick("TypeScript");
 
       // Input folder path
       await input.selectQuickPick("Browse...");
