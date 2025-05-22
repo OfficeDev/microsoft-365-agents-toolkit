@@ -282,7 +282,7 @@ export class Timeout {
 }
 
 export class TreeViewCommands {
-  public static readonly CreateProjectCommand: string = "Create New App";
+  public static readonly CreateProjectCommand: string = "Create New Agent/App";
   public static readonly SamplesCommand: string = "View Samples";
   public static readonly QuickStartCommand: string = "Get Started";
   public static readonly BuildTeamsPackageCommand: string =
