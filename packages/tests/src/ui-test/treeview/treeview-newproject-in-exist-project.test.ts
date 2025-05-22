@@ -83,9 +83,7 @@ describe("New project in existing project Tests", function () {
 
       // Input folder path
       console.log("choose Browse...");
-      await driver
-        .findElement(By.css("div[aria-label='folder  Browse...']"))
-        .click();
+      await driver.findElement(By.css("a:has-text(' Browse...')")).click();
       console.log("input folder path: ", testRootFolder);
       await inputFolderPath(driver, input, testRootFolder);
       await driver.sleep(Timeout.input);
