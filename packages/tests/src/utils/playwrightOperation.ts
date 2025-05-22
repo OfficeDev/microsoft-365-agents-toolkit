@@ -1229,10 +1229,36 @@ export async function validateReactOutlookTab(
   displayName: string,
   includeFunction?: boolean
 ) {
-  await RetryHandler.retry(async () => {
+  // choose the account signed in
+  try {
     await Promise.all([page.goto(url), page.waitForNavigation()]);
-    await page.waitForTimeout(Timeout.longTimeWait);
-    await page.waitForSelector('div[aria-label="hosted-app-tabs"]');
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+    const accountItemSignedin = await page.waitForSelector(
+      `div[role="button"][tabindex="0"]`
+    );
+    await accountItemSignedin.click();
+    console.log("Clicked the account signed in.");
+    await page.waitForTimeout(Timeout.shortTimeLoading);
+  } catch {
+    await page.screenshot({
+      path: getPlaywrightScreenshotPath("account"),
+      fullPage: true,
+    });
+    console.log("no need to choose account.");
+  }
+
+  await RetryHandler.retry(async () => {
+    try {
+      await Promise.all([page.goto(url), page.waitForNavigation()]);
+      await page.waitForTimeout(Timeout.longTimeWait);
+      await page.waitForSelector('div[aria-label="hosted-app-tabs"]');
+    } catch (error) {
+      await page.screenshot({
+        path: getPlaywrightScreenshotPath("showapp"),
+        fullPage: true,
+      });
+      throw error;
+    }
   }, 3);
 
   try {
@@ -1243,6 +1269,9 @@ export async function validateReactOutlookTab(
     if (includeFunction) {
       await RetryHandler.retry(async () => {
         console.log("Before popup");
+        const callFunctionBtn = await frame?.waitForSelector(
+          "button:has-text('Authorize and call Azure Functions')"
+        );
         const [popup] = await Promise.all([
           page
             .waitForEvent("popup")
@@ -1254,7 +1283,7 @@ export async function validateReactOutlookTab(
                 .catch(() => popup)
             )
             .catch(() => {}),
-          frame?.click('button:has-text("Call Azure Function")', {
+          callFunctionBtn?.click({
             timeout: Timeout.playwrightAddAppButton,
             force: true,
             noWaitAfter: true,

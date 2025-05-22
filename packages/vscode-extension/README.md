@@ -39,7 +39,7 @@ Follow the [Get Started](https://aka.ms/teamsfx-build-first-app) instructions to
 You can easily discover all available commands by activating Microsoft 365 Agents Toolkit in the sidebar:
 <img width="406" alt="image" src="https://github.com/user-attachments/assets/dcde0d16-5757-4e42-9aa5-e731d76ebb0e" />
 
-or search keyword " > microsoft 365 agents" in VS Code. (Invoke search pad with the shortcut `ctrl+shift+P`)
+or search keyword " > Microsoft 365 Agents" in VS Code. (Invoke search pad with the shortcut `ctrl+shift+P`)
 <img width="590" alt="image" src="https://github.com/user-attachments/assets/507a3ef4-a740-48b2-afbc-b3b0ee32ad1a" />
 
 
@@ -47,7 +47,7 @@ or search keyword " > microsoft 365 agents" in VS Code. (Invoke search pad with 
 
 [Microsoft 365 Agents Toolkit Documentation](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 
-[Microsoft 365 Agents Toolkit CLI](https://www.npmjs.com/package/@microsoft/teamsapp-cli) and [CLI documentation](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/teams-toolkit-cli?pivots=version-three)
+[Microsoft 365 Agents Toolkit CLI](https://www.npmjs.com/package/@microsoft/m365agentstoolkit-cli) and [CLI documentation](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/teams-toolkit-cli?pivots=version-three)
 
 [Create new Agent/App](https://docs.microsoft.com/microsoftteams/platform/toolkit/create-new-project)
 
@@ -93,7 +93,7 @@ Explore our [samples](https://github.com/OfficeDev/TeamsFx-Samples) to help you 
 There are many ways in which you can participate in the project, for example:
 
 - [Download our latest builds](https://github.com/OfficeDev/TeamsFx/releases).
-- [Submit bugs and feature requests](https://github.com/OfficeDev/TeamsFx/issues), and help us verify as they are checked in
+- [Submit bugs and feature requests](https://github.com/OfficeDev/TeamsFx/issues), and help us verify as they are checked in 
 - Review [source code changes](https://github.com/OfficeDev/TeamsFx/pulls)
 - Review the [documentation](CONTRIBUTING.md) and make pull requests for anything from typos to new content
 

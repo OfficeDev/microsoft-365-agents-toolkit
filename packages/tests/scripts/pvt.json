@@ -7,10 +7,6 @@
       "treeview-newproject-outlook-add-in",
       "treeview-newproject-tab",
       "treeview-collaboration-win-only",
-      "remotedebug-msg-ts-win-only",
-      "remotedebug-msg-win-only",
-      "remotedebug-msgsa-ts-win-only",
-      "remotedebug-msgsa-win-only",
       "remotedebug-tab-nosso-ts-win-only",
       "remotedebug-tab-nosso-win-only",
       "remotedebug-dashboard-ts-win-only",
@@ -20,8 +16,6 @@
       "remotedebug-tab-reprovision-win-only",
       "remotedebug-tab-regen-appid-win-only",
       "remotedebug-tab-aad-deploy-win-only",
-      "remotedebug-link-unfurling-win-only",
-      "remotedebug-link-unfurling-ts-win-only",
       "aiagent-assistapi-openai-bot",
       "aiagent-assistapi-openai-bot-ts",
       "aiagent-assistapi-openai-bot-py",
@@ -75,6 +69,7 @@
       "remotedebug-spfx-react"
     ],
     "node-22": [
+
       "obo-tab",
       "obo-tab-ts",
       "basic-bot",
@@ -98,7 +93,13 @@
       "remotedebug-chatdata-m365-js-azureopenai",
       "remotedebug-chatdata-m365-js-openai",
       "remotedebug-chatdata-m365-ts-azureopenai",
-      "remotedebug-chatdata-m365-ts-openai"
+      "remotedebug-chatdata-m365-ts-openai",
+      "msg",
+      "msg-ts",
+      "msgsa",
+      "msgsa-ts",
+      "linkunfurling",
+      "linkunfurling-ts"
     ]
   },
   "ubuntu-latest": {
@@ -110,17 +111,11 @@
       "treeview-samples",
       "treeview-newproject-in-exist-project",
       "telemetry@open-vscode",
-      "localdebug-msg-ts",
-      "localdebug-msg",
-      "localdebug-msgsa-ts",
-      "localdebug-msgsa",
       "localdebug-tab-nosso-ts",
       "localdebug-tab-nosso",
       "localdebug-dashboard-tab-ts",
       "localdebug-dashboard-tab",
       "localdebug-tab-aad-deploy",
-      "localdebug-link-unfurling",
-      "localdebug-link-unfurling-ts",
       "localdebug-msg-newapi",
       "localdebug-msg-newapi-ts",
       "localdebug-msg-newapi-apikey-ts",

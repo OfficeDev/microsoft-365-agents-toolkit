@@ -140,7 +140,6 @@ export class WrappedAxiosClient {
       }: ${innerError.message as string} `;
       properties[TelemetryProperty.ErrorMessage] = finalMessage;
       properties[TelemetryProperty.MOSTraceId] = tracingId;
-      properties.url = apiName;
     }
 
     TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);

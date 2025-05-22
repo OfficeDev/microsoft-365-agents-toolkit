@@ -13,6 +13,7 @@ import * as DeclarativeAgentManifestV1D3 from "./copilot/declarative-agent/Decla
 import * as DeclarativeAgentManifestV1D4 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
+import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
 import * as TeamsManifestV1D0 from "./teams/TeamsManifestV1D0";
 import * as TeamsManifestV1D1 from "./teams/TeamsManifestV1D1";
 import * as TeamsManifestV1D10 from "./teams/TeamsManifestV1D10";
@@ -41,6 +42,7 @@ export { DeclarativeAgentManifestV1D3 };
 export { DeclarativeAgentManifestV1D4 };
 export { APIPluginManifestV2D1 };
 export { APIPluginManifestV2D2 };
+export { APIPluginManifestV2D3 };
 export { TeamsManifestV1D0 };
 export { TeamsManifestV1D1 };
 export { TeamsManifestV1D10 };
@@ -105,8 +107,8 @@ export type DeclarativeAgentManifest =
 
 export type DeclarativeAgentManifestLatest = DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4;
 
-export type APIPluginManifest = APIPluginManifestV2D1.APIPluginManifestV2D1 | APIPluginManifestV2D2.APIPluginManifestV2D2;
-export type APIPluginManifestLatest = APIPluginManifestV2D2.APIPluginManifestV2D2;
+export type APIPluginManifest = APIPluginManifestV2D1.APIPluginManifestV2D1 | APIPluginManifestV2D2.APIPluginManifestV2D2 | APIPluginManifestV2D3.APIPluginManifestV2D3;
+export type APIPluginManifestLatest = APIPluginManifestV2D3.APIPluginManifestV2D3;
 
 export type AppManifest = TeamsManifest | DeclarativeAgentManifest | APIPluginManifest;
 
@@ -225,6 +227,10 @@ const ApiPluginConverterMap: Converters = {
   "v2.2": [
     APIPluginManifestV2D2.Convert.toAPIPluginManifestV2D2,
     APIPluginManifestV2D2.Convert.aPIPluginManifestV2D2ToJson,
+  ],
+  "v2.3": [
+    APIPluginManifestV2D3.Convert.toAPIPluginManifestV2D3,
+    APIPluginManifestV2D3.Convert.aPIPluginManifestV2D3ToJson,
   ],
 };
 

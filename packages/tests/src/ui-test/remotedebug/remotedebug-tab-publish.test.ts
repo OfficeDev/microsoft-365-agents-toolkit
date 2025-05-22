@@ -11,6 +11,7 @@ import {
   RemoteDebugTestContext,
   provisionProject,
   runPublish,
+  setSkuNameToStandard,
 } from "./remotedebugContext";
 import {
   execCommandIfExist,
@@ -65,6 +66,8 @@ describe("Remote debug Tests", function () {
       //create tab project
       const driver = VSBrowser.instance.driver;
       await createNewProject("tab", appName);
+      await setSkuNameToStandard(projectPath);
+      await driver.sleep(Timeout.shortTimeWait);
       await provisionProject(appName, projectPath);
       await runPublish();
       await runPublish(true);
