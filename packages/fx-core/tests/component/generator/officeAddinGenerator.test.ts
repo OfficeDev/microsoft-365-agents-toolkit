@@ -314,10 +314,10 @@ describe("HelperMethods", async () => {
       try {
         const destination = "/home/user/destination";
         HelperMethods.copyAddinFiles(projectRoot, destination);
-        chai.assert.equal(fs.existsSync(path.join(destination, "project", "file1")), true);
-        chai.assert.equal(fs.existsSync(path.join(destination, "project", "file2")), true);
-        chai.assert.equal(fs.existsSync(path.join(destination, ".gitignore")), true);
-        chai.assert.equal(fs.existsSync(path.join(destination, "node_modules")), false);
+        chai.assert.equal(await fse.pathExists(path.join(destination, "project", "file1")), true);
+        chai.assert.equal(await fse.pathExists(path.join(destination, "project", "file2")), true);
+        chai.assert.equal(await fse.pathExists(path.join(destination, ".gitignore")), true);
+        chai.assert.equal(await fse.pathExists(path.join(destination, "node_modules")), false);
       } catch (err) {
         chai.assert.fail(err);
       }
