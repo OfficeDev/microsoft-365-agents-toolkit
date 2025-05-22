@@ -136,6 +136,9 @@ export async function msgHappyPathTestForLocalDebug(
         { projectPath: projectPath, env: "local" }
       );
       await localDebugTestContext.validateLocalStateForBot();
+      await options.validationFn(page, {
+        appName: localDebugTestContext.appName,
+      });
       options.successFlag.successFlagForLocal = true;
       console.log(
         "successFlagForLocal: ",
