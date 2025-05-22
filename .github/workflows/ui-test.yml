@@ -110,12 +110,13 @@ jobs:
       
       - uses: pnpm/action-setup@v4
 
-      - name: create pvt file (random platform/node)
+      - name: add sample cases into pvt file
         if: ${{ github.event.schedule == '0 18 * * *' }} || ${{ github.event.inputs.test-case }} == ''
         working-directory: packages/tests
         run: |
+          curl -O https://raw.githubusercontent.com/OfficeDev/microsoft-365-agents-toolkit-samples/refs/heads/dev/.config/samples-config-v3.json
           pnpm --filter=@microsoft/teamsfx-test install
-          npx ts-node ./scripts/createRandomPVT.ts
+          npx ts-node ./scripts/sampleCaseCreate.ts
 
       - name: setup matrix
         id: setup-matrix
