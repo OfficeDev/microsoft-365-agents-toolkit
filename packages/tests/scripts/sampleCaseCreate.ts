@@ -89,8 +89,8 @@ const sampleRecord: any = {
 
 function main() {
   const pvtData = fs.readJSONSync(pvtFile);
-  console.log("pvtData", pvtData);
   const samplesOnGallery = samplesData.map((sample: any) => sample.id);
+  console.log("samplesOnGallery", samplesOnGallery);
   for (const sample of samplesOnGallery) {
     if (sampleRecord[sample]) {
       if (windows_22.includes(sampleRecord[sample])) {
