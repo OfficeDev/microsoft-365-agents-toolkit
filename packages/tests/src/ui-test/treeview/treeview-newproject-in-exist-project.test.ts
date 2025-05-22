@@ -47,7 +47,7 @@ describe("New project in existing project Tests", function () {
   });
 
   it(
-    "[auto] Create Tab typescript project and validation",
+    "[auto] New project in existing project Tests",
     {
       testPlanCaseId: 32080515,
       author: "v-ivanchen@microsoft.com",
@@ -76,7 +76,7 @@ describe("New project in existing project Tests", function () {
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
-      await input.selectQuickPick("TypeScript");
+      await input.selectQuickPick("JavaScript");
 
       // Input folder path
       await input.selectQuickPick("Browse...");
