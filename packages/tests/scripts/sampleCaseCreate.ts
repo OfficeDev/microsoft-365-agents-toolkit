@@ -9,8 +9,7 @@ const windows_22 = [
   "sample-outlook-signature",
   "sample-reddit-link",
   "sample-chef-bot",
-  "sample-localdebug-food-catalog",
-  "sample-remotedebug-food-catalog",
+  "sample-food-catalog",
   "sample-proactive-message",
   "sample-dashboard",
   "sample-contact-exporter",
@@ -23,7 +22,7 @@ const windows_22 = [
   "sample-assistant-dashboard",
   "sample-hello-world-tab-outlook",
   "sample-bot-sso",
-  "sample-remotedebug-sso-tab-via-apim-proxy",
+  "sample-sso-tab-via-apim-proxy",
   "sample-copilot-connector-bot",
   "sample-incoming-webhook",
 ];
@@ -69,8 +68,7 @@ const sampleRecord: any = {
   [TemplateProjectFolder.SpfxProductivity]:
     "sample-spfx-productivity-dashboard",
   [TemplateProjectFolder.RetailDashboard]: "sample-react-retail-dashboard",
-  [TemplateProjectFolder.TabSSOApimProxy]:
-    "sample-remotedebug-sso-tab-via-apim-proxy",
+  [TemplateProjectFolder.TabSSOApimProxy]: "sample-sso-tab-via-apim-proxy",
   [TemplateProjectFolder.LargeScaleBot]: "sample-large-scale-notification",
   [TemplateProjectFolder.CopilotConnectorBot]: "sample-copilot-connector-bot",
   [TemplateProjectFolder.IntelligentDataChart]: "sample-intelligent-data-chart",
@@ -80,7 +78,7 @@ const sampleRecord: any = {
   "reddit-link-unfurling": "sample-reddit-link",
   "teams-chef-bot": "sample-chef-bot",
   [TemplateProjectFolder.ProactiveMessaging]: "sample-proactive-message",
-  "gc-nodejs-typescript-food-catalog": "sample-localdebug-food-catalog",
+  "gc-nodejs-typescript-food-catalog": "sample-food-catalog",
   "bot-conversation-python": "",
   "msgext-search-python": "",
   "graph-rsc-helper": "",

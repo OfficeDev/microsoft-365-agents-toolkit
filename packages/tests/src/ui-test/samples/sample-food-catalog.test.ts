@@ -41,7 +41,6 @@ class FoodCatalogTestCase extends CaseFactory {
       fs.chmodSync(scriptPath, "755");
     }
   }
-
   override async onProvision(
     sampledebugContext: SampledebugContext
   ): Promise<void> {
@@ -72,7 +71,7 @@ new FoodCatalogTestCase(
     skipInit: true,
     repoPath: "./resource/samples",
     testRootFolder: path.resolve(os.homedir(), "resource"),
-    skipLocal: true,
+    testPlanCaseId_local: 27851421,
     testPlanCaseId_dev: 27851823,
   }
 ).test();
