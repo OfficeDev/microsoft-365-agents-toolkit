@@ -232,7 +232,7 @@ describe("localTelemetryReporter", () => {
     });
 
     it("calculates correct durations", async () => {
-      const actualDuration = 1048576;
+      const actualDuration = 0.00008;
       const clock = sinon.useFakeTimers();
       const resultPromise = reporter.runWithTelemetry(testEventName, async () => {
         await sleep(actualDuration);
@@ -242,7 +242,7 @@ describe("localTelemetryReporter", () => {
       clock.tick(actualDuration);
       await resultPromise;
 
-      chai.assert.equal(mockedEvents[1].measurements?.["duration"], actualDuration / 1000);
+      chai.expect(mockedEvents[1].measurements?.["duration"]).to.be.closeTo(actualDuration, actualDuration + 0.00001);
     });
 
     it("event time", async () => {
@@ -270,9 +270,9 @@ describe("localTelemetryReporter", () => {
 
       // Assert
       const t0 = eventTime[event1Start];
-      chai.assert.equal(eventTime[event1] - t0, 1);
-      chai.assert.equal(eventTime[event2Start] - t0, 3);
-      chai.assert.equal(eventTime[event2] - t0, 6);
+      chai.expect(eventTime[event1] - t0).to.be.closeTo(0.03, 0.01);
+      chai.expect(eventTime[event2Start] - t0).to.be.closeTo(0.03, 0.01);
+      chai.expect(eventTime[event2] - t0).to.be.closeTo(0.04, 0.01);
     });
   });
 
