@@ -22,7 +22,7 @@ import {
   openExistingProject,
   getNotification,
 } from "../../utils/vscodeOperation";
-import { InputBox, VSBrowser } from "vscode-extension-tester";
+import { InputBox, VSBrowser, By } from "vscode-extension-tester";
 import { it } from "../../utils/it";
 
 describe("New project in existing project Tests", function () {
@@ -82,8 +82,11 @@ describe("New project in existing project Tests", function () {
       await driver.sleep(Timeout.input);
 
       // Input folder path
-      console.log("choose project path: ", testRootFolder);
-      await input.selectQuickPick("Browse...");
+      console.log("choose Browse...");
+      await driver
+        .findElement(By.css("div[aria-label='folder  Browse...']"))
+        .click();
+      console.log("input folder path: ", testRootFolder);
       await inputFolderPath(driver, input, testRootFolder);
       await driver.sleep(Timeout.input);
       if (os.type() === "Windows_NT") {
