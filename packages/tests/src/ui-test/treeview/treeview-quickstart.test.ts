@@ -97,6 +97,9 @@ describe("Openning Quick Start Tests", function () {
       expect(type1Item2ButtonValue).has.string("Build Notification Bot");
       console.log('Found the button "Build Notification Bot"');
 
+      await new EditorView().closeAllEditors();
+      console.log("Closed all opened editor view.");
+
       // get started page for "Build a Declarative Agent"
       await execCommandIfExist(
         CommandPaletteCommands.QuickStartCommand,
