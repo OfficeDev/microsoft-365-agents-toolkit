@@ -22,7 +22,7 @@ import {
   openExistingProject,
   getNotification,
 } from "../../utils/vscodeOperation";
-import { InputBox, VSBrowser, By } from "vscode-extension-tester";
+import { InputBox, VSBrowser } from "vscode-extension-tester";
 import { it } from "../../utils/it";
 
 describe("New project in existing project Tests", function () {
@@ -73,18 +73,13 @@ describe("New project in existing project Tests", function () {
       await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
-      await driver.sleep(Timeout.input);
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
-
       // Choose programming language
-      await input.selectQuickPick("TypeScript");
-      await driver.sleep(Timeout.input);
+      await input.selectQuickPick("JavaScript");
 
       // Input folder path
-      console.log("choose Browse...");
-      await driver.findElement(By.css("a:has-text(' Browse...')")).click();
-      console.log("input folder path: ", testRootFolder);
+      await input.selectQuickPick("Browse...");
       await inputFolderPath(driver, input, testRootFolder);
       await driver.sleep(Timeout.input);
       if (os.type() === "Windows_NT") {
