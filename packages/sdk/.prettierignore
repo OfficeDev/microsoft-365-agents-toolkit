@@ -8,3 +8,4 @@ doc
 coverage/
 .nyc_output/
 .prettierignore
+rollup.config.mjs
