@@ -56,14 +56,19 @@ describe("New project Tests", function () {
       });
       const input = await InputBox.create();
       // if exist click it
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await input.selectQuickPick("Basic Tab");
       await driver.sleep(Timeout.input);
       // Choose programming language
       await input.selectQuickPick("JavaScript");
+      await driver.sleep(Timeout.input);
 
       // Input folder path
-      await input.selectQuickPick("Browse...");
+      await input.setText("Browse...");
+      await input.confirm();
+      await driver.sleep(Timeout.input);
       await inputFolderPath(driver, input, testRootFolder);
       await driver.sleep(Timeout.input);
       if (os.type() === "Windows_NT") {
@@ -101,6 +106,8 @@ describe("New project Tests", function () {
       );
       const input = await InputBox.create();
       // if exist click it
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
       // await input.selectQuickPick("SPFx");
