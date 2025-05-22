@@ -272,10 +272,6 @@ describe("localTelemetryReporter", () => {
 
       // Assert
       const t0 = eventTime[event1Start];
-      chai.assert.isNotEmpty(t0);
-      chai.assert.isNotEmpty(eventTime[event1]);
-      chai.assert.isNotEmpty(eventTime[event2Start]);
-      chai.assert.isNotEmpty(eventTime[event2]);
       chai.assert.isTrue(eventTime[event1] > t0);
       chai.assert.isTrue(eventTime[event2Start] > eventTime[event1]);
       chai.assert.isTrue(eventTime[event2] > eventTime[event2Start]);
