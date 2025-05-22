@@ -75,9 +75,7 @@ export async function listAPITreeInfo(
   }
 
   const treeInfoStr = JSON.stringify(treeInfo);
-  // kiota treeInfo may contains url encoded characters: $%7B%7BAAD_APP_TENANT_ID%7D%7D,
-  const decodedTreeInfoStr = decodeURIComponent(treeInfoStr);
-  const resolvedTreeInfo = Utils.resolveEnv(decodedTreeInfoStr);
+  const resolvedTreeInfo = Utils.resolveEnv(treeInfoStr);
   return JSON.parse(resolvedTreeInfo) as KiotaTreeResult;
 }
 
