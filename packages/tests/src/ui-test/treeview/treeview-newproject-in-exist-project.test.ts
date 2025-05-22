@@ -70,6 +70,8 @@ describe("New project in existing project Tests", function () {
       );
 
       const input = await InputBox.create();
+      await input.selectQuickPick(CreateProjectQuestion.TeamsApp);
+      await driver.sleep(Timeout.input);
       await input.selectQuickPick(CreateProjectQuestion.Tab);
       await driver.sleep(Timeout.input);
       await input.selectQuickPick("Basic Tab");
