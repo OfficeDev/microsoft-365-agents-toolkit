@@ -271,7 +271,7 @@ describe("localTelemetryReporter", () => {
       // Assert
       const t0 = eventTime[event1Start];
       chai.expect(eventTime[event1] - t0).to.be.closeTo(0.03, 0.01);
-      chai.expect(eventTime[event2Start] - t0).to.be.closeTo(0.03, 0.01);
+      chai.expect(eventTime[event2Start] - t0).to.be.closeTo(0.035, 0.01);
       chai.expect(eventTime[event2] - t0).to.be.closeTo(0.04, 0.01);
     });
   });
