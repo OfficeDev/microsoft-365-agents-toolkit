@@ -56,7 +56,7 @@ describe("SSO Tab with aad manifest enabled", () => {
           path.join(projectPath, "infra", "azure.parameters.json")
         )
       ).to.be.true;
-      expect(fs.pathExistsSync(path.join(projectPath, "teamsapp.yml"))).to.be
+      expect(fs.pathExistsSync(path.join(projectPath, "m365agents.yml"))).to.be
         .true;
       expect(fs.pathExistsSync(path.join(projectPath, "aad.manifest.json"))).to
         .be.true;
@@ -68,7 +68,12 @@ describe("SSO Tab with aad manifest enabled", () => {
         process.env["AZURE_RESOURCE_GROUP_NAME"] = appName + "-rg";
         // workaround free tier quota
         await setStaticWebAppSkuNameToStandardBicep(projectPath, "dev");
-        const { success } = await Executor.provision(projectPath);
+        const { success } = await Executor.provision(
+          projectPath,
+          "dev",
+          true,
+          "DeprecationWarning"
+        );
         expect(success).to.be.true;
         console.log(`[Successfully] provision for ${projectPath}`);
       }
@@ -85,7 +90,7 @@ describe("SSO Tab with aad manifest enabled", () => {
 
       {
         // Deploy all resources without aad manifest
-        const { success } = await Executor.provision(projectPath);
+        const { success } = await Executor.deploy(projectPath);
         expect(success).to.be.true;
       }
       await AadValidator.validate(aad);

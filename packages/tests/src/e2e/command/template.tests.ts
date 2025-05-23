@@ -29,7 +29,7 @@ describe("atk new sample", function () {
       });
 
       expect(fs.pathExistsSync(projectPath)).to.be.true;
-      expect(fs.pathExistsSync(path.resolve(projectPath, "teamsapp.yml"))).to.be
+      expect(fs.pathExistsSync(path.resolve(projectPath, "m365agents.yml"))).to
         .true;
     }
   );
