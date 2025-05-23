@@ -14,6 +14,8 @@ runs:
         node-version: 22
 
     - uses: pnpm/action-setup@v4
+      with:
+        version: 9
     
     - name: Setup project
       if: ${{ inputs.setup == 'true' }}
