@@ -13,7 +13,12 @@ describe("Provision message extension used for TDP integration", () => {
     "Provision Resource: message extension for TDP integration",
     { testPlanCaseId: 26547090, author: "yuqzho@microsoft.com" },
     async function () {
-      await happyPathTest(Runtime.Node, "message-extension", undefined, true);
+      await happyPathTest(
+        Runtime.Node,
+        "collect-form-message-extension",
+        undefined,
+        true
+      );
     }
   );
 });

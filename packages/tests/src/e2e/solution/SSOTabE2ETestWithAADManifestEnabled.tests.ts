@@ -56,7 +56,7 @@ describe("SSO Tab with aad manifest enabled", () => {
           path.join(projectPath, "infra", "azure.parameters.json")
         )
       ).to.be.true;
-      expect(fs.pathExistsSync(path.join(projectPath, "teamsapp.yml"))).to.be
+      expect(fs.pathExistsSync(path.join(projectPath, "m365agents.yml"))).to.be
         .true;
       expect(fs.pathExistsSync(path.join(projectPath, "aad.manifest.json"))).to
         .be.true;
