@@ -61,6 +61,12 @@
   "add.capability": {
     "description": "A capability to extend Copilot using your APIs."
   },
+  "regenerate": {
+    "description": "Regenerate existing resources for your app."
+  },
+  "regenerate.action": {
+    "description": "Regenerate existing action for Declarative Agent app."
+  },
   "set": {
     "description": "Set configurations for your app."
   },
