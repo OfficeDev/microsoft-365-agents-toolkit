@@ -43,6 +43,7 @@ export class Executor {
 
         if (result.stderr) {
           if (skipErrorMessage) {
+            console.log("find skip error message: ", skipErrorMessage);
             if (
               result.stderr.includes(skipErrorMessage) ||
               result.stderr.toLowerCase().includes(skipErrorMessage) ||
