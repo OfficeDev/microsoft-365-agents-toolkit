@@ -75,7 +75,7 @@ describe("Openning Quick Start Tests", function () {
       const type1Item1 = await getExpandedButton(
         webView,
         false,
-        "Get your environment ready"
+        "Set up your environment"
       );
       const type1Item1Button = await type1Item1?.findElement(
         By.css(".button-container .monaco-button")
@@ -96,6 +96,9 @@ describe("Openning Quick Start Tests", function () {
       const type1Item2ButtonValue = await type1Item2Button.getText();
       expect(type1Item2ButtonValue).has.string("Build Notification Bot");
       console.log('Found the button "Build Notification Bot"');
+
+      await new EditorView().closeAllEditors();
+      console.log("Closed all opened editor view.");
 
       // get started page for "Build a Declarative Agent"
       await execCommandIfExist(
@@ -119,7 +122,7 @@ describe("Openning Quick Start Tests", function () {
       const type2Item1 = await getExpandedButton(
         webView,
         false,
-        "Get your environment ready"
+        "Set up your environment"
       );
       const type2Item1Button = await type2Item1?.findElement(
         By.css(".button-container .monaco-button")
