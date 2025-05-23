@@ -212,6 +212,11 @@ export {
   APIPluginManifestV2D2,
   Convert as ApiPluginManifestV2D2Convert,
 } from "./copilot/plugin/ApiPluginManifestV2D2";
+export {
+  APIPluginManifestV2D3,
+  Convert as ApiPluginManifestV2D3Convert,
+} from "./copilot/plugin/ApiPluginManifestV2D3";
+
 export type APIPluginManifest = APIPluginManifestV2D1 | APIPluginManifestV2D2 | APIPluginManifestV2D3;
 export type APIPluginManifestLatest = APIPluginManifestV2D3;
 
