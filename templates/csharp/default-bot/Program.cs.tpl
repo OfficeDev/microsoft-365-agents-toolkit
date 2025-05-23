@@ -1,5 +1,4 @@
 using {{SafeProjectName}};
-using {{SafeProjectName}}.Bot;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
 using Microsoft.Agents.Builder;
@@ -25,7 +24,7 @@ builder.Services.AddSingleton<IStorage, MemoryStorage>();
 builder.AddAgentApplicationOptions();
 
 // Add the bot (which is transient)
-builder.AddAgent<EchoBot>();
+builder.AddAgent<{{SafeProjectName}}.Bot.EchoBot>();
 builder.Services.AddSingleton<IStorage, MemoryStorage>();
 
 var app = builder.Build();
