@@ -85,7 +85,12 @@ describe("SSO Tab with aad manifest enabled", () => {
 
       {
         // Deploy all resources without aad manifest
-        const { success } = await Executor.provision(projectPath);
+        const { success } = await Executor.provision(
+          projectPath,
+          "dev",
+          true,
+          "DeprecationWarning"
+        );
         expect(success).to.be.true;
       }
       await AadValidator.validate(aad);
