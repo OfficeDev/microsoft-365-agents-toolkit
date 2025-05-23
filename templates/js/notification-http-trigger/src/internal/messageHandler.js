@@ -2,23 +2,25 @@ const { teamsBot } = require("../teamsBot");
 const { notificationApp } = require("./initialize");
 
 module.exports = async function (context, req) {
+  let status = 200;
+  let return_body = null;
   const res = {
     status: (code) => {
+      status = code;
       context.res.status = code;
-      return res;
     },
     send: (body) => {
-      context.res.body = body;
-      return res;
+      return_body = body;
     },
-    json: (body) => {
-      context.res.body = body;
-      return res;
-    },
-    body: context.res.body,
+    setHeader: () => {},
+    end: () => {},
   };
   await notificationApp.requestHandler(req, res, async (context) => {
     await teamsBot.run(context);
   });
-  return res.body;
+  context.res = {
+    status,
+    body: return_body,
+  };
+  return return_body;
 };
