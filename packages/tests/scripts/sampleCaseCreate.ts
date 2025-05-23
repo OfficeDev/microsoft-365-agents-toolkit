@@ -36,7 +36,7 @@ const ubuntu_22 = [
   "sample-todo-list-with-m365",
   "sample-intelligent-data-chart",
   "sample-dice-roller",
-  "sample-share-now",
+  // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
 ];
 const ubuntu_18 = [
   "sample-todo-list-with-spfx",
