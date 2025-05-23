@@ -42,8 +42,8 @@ export class Executor {
         const result = await execAsync(command, options);
 
         if (result.stderr) {
+          console.log("find skip error message: ", skipErrorMessage);
           if (skipErrorMessage) {
-            console.log("find skip error message: ", skipErrorMessage);
             if (
               result.stderr.includes(skipErrorMessage) ||
               result.stderr.toLowerCase().includes(skipErrorMessage) ||
