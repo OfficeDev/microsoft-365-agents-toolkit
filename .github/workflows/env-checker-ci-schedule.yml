@@ -32,11 +32,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Use node 18 to setup project
+      # Use node 22 to setup project
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 18
+          node-version: 22
 
       - uses: pnpm/action-setup@v4
   
@@ -98,11 +98,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Use node 18 to setup project
+      # Use node 22 to setup project
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 18
+          node-version: 22
 
       - uses: pnpm/action-setup@v4
 
@@ -177,11 +177,11 @@ jobs:
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
 
-      # Use node 18 to setup project
+      # Use node 22 to setup project
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 18
+          node-version: 22
 
       - uses: pnpm/action-setup@v4
   

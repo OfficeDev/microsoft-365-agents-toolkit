@@ -50,7 +50,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 18
+          node-version: 22
 
       - uses: pnpm/action-setup@v4
 
