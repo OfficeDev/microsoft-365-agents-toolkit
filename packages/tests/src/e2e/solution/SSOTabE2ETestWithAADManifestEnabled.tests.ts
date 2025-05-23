@@ -68,7 +68,12 @@ describe("SSO Tab with aad manifest enabled", () => {
         process.env["AZURE_RESOURCE_GROUP_NAME"] = appName + "-rg";
         // workaround free tier quota
         await setStaticWebAppSkuNameToStandardBicep(projectPath, "dev");
-        const { success } = await Executor.provision(projectPath);
+        const { success } = await Executor.provision(
+          projectPath,
+          "dev",
+          true,
+          "DeprecationWarning"
+        );
         expect(success).to.be.true;
         console.log(`[Successfully] provision for ${projectPath}`);
       }
