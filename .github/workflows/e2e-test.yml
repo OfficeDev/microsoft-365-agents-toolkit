@@ -442,7 +442,11 @@ jobs:
 
             started_at=`echo $jobs | jq --arg case $case -r '.[] | select(.name == $case ) | .steps[] | select(.name == "run test") | .started_at'`
             completed_at=`echo $jobs | jq --arg case $case -r '.[] | select(.name == $case ) | .steps[] | select(.name == "run test") | .completed_at'`
-            duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
+            if [ ! -z "$started_at" && ! -z "$completed_at"]; then
+              duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
+            else
+              duration=0
+            fi
 
             email=""
             if grep -q "@author" $file; then
