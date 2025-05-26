@@ -141,8 +141,8 @@ export class Executor {
   ) {
     const command =
       `atk add spfx-web-part --spfx-webpart-name ${webpartName}` +
-      ` --spfx-folder ${spfxFolder} --teams-manifest-file ${manifestPath}` +
-      ` --local-teams-manifest-file ${localManifestPath} --interactive false `;
+      ` --spfx-folder ${spfxFolder} --manifest-file ${manifestPath}` +
+      ` --local-manifest-file ${localManifestPath} --interactive false `;
     return this.execute(command, workspace);
   }
 

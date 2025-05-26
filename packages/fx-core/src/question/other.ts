@@ -347,7 +347,7 @@ export function selectTeamsAppManifestQuestion(): SingleFileQuestion {
 export function selectLocalTeamsAppManifestQuestion(): SingleFileQuestion {
   return {
     name: QuestionNames.LocalTeamsAppManifestFilePath,
-    cliName: "local-teams-manifest-file",
+    cliName: "local-manifest-file",
     cliShortName: "l",
     cliDescription:
       "Specifies the app manifest template file path for local environment, it can be either absolute path or relative path to project root folder.",

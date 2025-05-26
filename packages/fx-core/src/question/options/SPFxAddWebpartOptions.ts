@@ -44,7 +44,7 @@ export const SPFxAddWebpartOptions: CLICommandOption[] = [
     default: "./appPackage/manifest.json",
   },
   {
-    name: "local-teams-manifest-file",
+    name: "local-manifest-file",
     questionName: "local-manifest-path",
     type: "string",
     shortName: "l",

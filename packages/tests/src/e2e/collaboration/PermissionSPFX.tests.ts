@@ -64,7 +64,7 @@ describe("Collaboration", function () {
       appId = solutionConfig["solution"]["id"];
 
       const checkPermissionResult = await execAsyncWithRetry(
-        `atk collaborator status --env dev --interactive false --teams-manifest-file ${projectPath}/appPackage/manifest.json`,
+        `atk collaborator status --env dev --interactive false --manifest-file ${projectPath}/appPackage/manifest.json`,
         {
           cwd: projectPath,
           env: process.env,
@@ -78,7 +78,7 @@ describe("Collaboration", function () {
       console.log("[Successfully] check permission");
 
       const grantCollaboratorResult = await execAsyncWithRetry(
-        `atk collaborator grant --email ${collaborator} --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --interactive false`,
+        `atk collaborator grant --email ${collaborator} --env dev --manifest-file ${projectPath}/appPackage/manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,
@@ -93,7 +93,7 @@ describe("Collaboration", function () {
       console.log("[Successfully] grant permission");
 
       const listCollaboratorResult = await execAsync(
-        `atk collaborator status --all --env dev --teams-manifest-file ${projectPath}/appPackage/manifest.json --interactive false`,
+        `atk collaborator status --all --env dev --manifest-file ${projectPath}/appPackage/manifest.json --interactive false`,
         {
           cwd: projectPath,
           env: process.env,
