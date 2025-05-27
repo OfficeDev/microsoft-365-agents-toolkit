@@ -2,6 +2,17 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.0.1 - Jun 03, 2025
+Hotfix version.
+
+- Updated the [app manifest version to v1.21](https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json).
+- Updated [Declarative Agents manifest version to v1.4](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.4).
+- Updated [Kiota version to 1.26.1](https://github.com/microsoft/kiota/releases/tag/v1.26.1).
+- Fixed an issue of telemetry events in Kiota integraion.
+- [Preview] Fixed the typespec projects failure in lifecycle stage Provision.
+- [Preview] Updated the typespec package version to latest. Note that the typespec package is rc version now and subject to changes.
+- [Preview] Fixed a repository reference issue in typespec projects.
+
 ## 6.0.0 - May 19, 2025
 This major version upgrade is a milestone as Teams Toolkit evolves to Microsoft 365 Agents Toolkit with a set of awesome new features to provide better development experience for agents building and a brand new icon!
 
