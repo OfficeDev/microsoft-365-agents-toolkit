@@ -12,7 +12,7 @@ provision:
   - uses: teamsApp/create
     with:
       # Teams app name
-      name: My Agent 3${{APP_NAME_SUFFIX}}
+      name: {{appName}}${{APP_NAME_SUFFIX}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
