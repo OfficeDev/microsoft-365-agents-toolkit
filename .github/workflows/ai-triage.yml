@@ -1,0 +1,41 @@
+name: AI Triage - Label and Comment on New Issues
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  label_and_comment:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Call Azure Function
+        id: call_azure_function
+        env:
+          PAYLOAD: >-
+            {
+              "authToken": "${{ secrets.GITHUB_TOKEN }}",
+              "repoId": "OfficeDev/microsoft-365-agents-toolkit",
+              "issueData": {
+                "id": ${{ github.event.issue.number }},
+                "user": ${{ toJson(github.event.issue.user.login) }},
+                "title": ${{ toJson(github.event.issue.title) }},
+                "body":  ${{ toJson(github.event.issue.body)  }},
+                "labels": ${{ toJson(github.event.issue.labels) }}
+              },
+              "mode": "DirectUpdate"
+            }
+
+        run: |
+          # Make the HTTP request
+          response=$(curl -s \
+              --header "Content-Type: application/json" \
+              --request POST \
+              --data "$PAYLOAD" \
+              ${{ secrets.AZURE_TRIAGE_FUNCTION_LINK }})
