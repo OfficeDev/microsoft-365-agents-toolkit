@@ -82,3 +82,7 @@ The following are Microsoft 365 Agents Toolkit specific project files. You can [
 - [Microsoft 365 Agents Toolkit Documentations](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals)
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
+
+## Known issue
+
+- This template doesn't work in Microsoft 365 Copilot currently.
