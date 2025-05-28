@@ -58,6 +58,10 @@ This app template also demonstrates usage of techniques like:
 - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 - [Microsoft 365 Agents Toolkit Samples](https://github.com/OfficeDev/TeamsFx-Samples)
 
+## Known issue
+
+- This template doesn't work in Microsoft 365 Copilot currently.
+
 ## Learn more
 
 New to app development or Microsoft 365 Agents Toolkit? Learn more about app manifests, deploying to the cloud, and more in the documentation 
