@@ -22,27 +22,12 @@
         "full": "full description for {{appName}}"
     },
     "accentColor": "#FFFFFF",
-    {{#CEAEnabled}} 
-    "copilotAgents": {
-        "customEngineAgents": [
-            {
-                "type": "bot",
-                "id": "${{BOT_ID}}"
-            }
-        ]
-    },
-    {{/CEAEnabled}}
     "bots": [
         {
             "botId": "${{BOT_ID}}",
             "scopes": [
-                {{#CEAEnabled}}
-                "copilot",
-                {{/CEAEnabled}}
-                {{^CEAEnabled}}
                 "team",
                 "groupChat",
-                {{/CEAEnabled}}
                 "personal"
             ],
             "supportsFiles": false,
@@ -50,9 +35,6 @@
             "commandLists": [
                 {
                     "scopes": [
-                        {{#CEAEnabled}} 
-                        "copilot",
-                        {{/CEAEnabled}}
                         "personal"
                     ],
                     "commands": [
