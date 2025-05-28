@@ -113,7 +113,6 @@ deploy:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
-
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
