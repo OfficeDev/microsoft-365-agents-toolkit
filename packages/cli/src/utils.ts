@@ -59,12 +59,10 @@ export function getColorizedString(message: Array<{ content: string; color: Colo
 /**
  * @returns the version of cli.
  */
-let version: string;
 export function getVersion(): string {
-  if (version) return version;
   const pkgPath = path.resolve(__dirname, "..", "package.json");
   const pkgContent = fs.readJsonSync(pkgPath);
-  version = pkgContent.version;
+  const version = pkgContent.version;
   return version;
 }
 

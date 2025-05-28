@@ -15,14 +15,16 @@ import {
   editDistance,
   getColorizedString,
   getSystemInputs,
-  getTemplates,
-  getVersion,
   toLocaleLowerCase,
 } from "../../src/utils";
 import { expect } from "./utils";
 
 describe("Utils Tests", function () {
   const sandbox = sinon.createSandbox();
+
+  beforeEach(() => {
+    sandbox.stub(fs, "readJsonSync").returns({ version: "2.0.0" });
+  });
 
   afterEach(() => {
     sandbox.restore();
@@ -53,7 +55,10 @@ describe("Utils Tests", function () {
   });
 
   it("getVersion", async () => {
-    getVersion();
+    const utils = require("../../src/utils");
+    utils.version = undefined;
+    const version = utils.getVersion();
+    expect(version).equals("2.0.0");
   });
 
   describe("toLocaleLowerCase", () => {
@@ -64,17 +69,12 @@ describe("Utils Tests", function () {
   });
 
   describe("getTemplates", async () => {
-    const sandbox = sinon.createSandbox();
-
-    before(() => {
-      sandbox.stub(fs, "readJsonSync").returns({ version: "2.0.0" });
-    });
-
-    this.afterEach(() => {
+    afterEach(() => {
       sandbox.restore();
     });
 
     it("filters samples have maximum cli verion", async () => {
+      const utils = require("../../src/utils");
       sandbox.stub(core.sampleProvider, "SampleCollection").value(
         Promise.resolve({
           filterOptions: {
@@ -125,11 +125,12 @@ describe("Utils Tests", function () {
           ],
         })
       );
-      const templates = await getTemplates();
-      expect(templates.length).equals(2);
+      const templates = await utils.getTemplates();
+      expect(templates.length).equals(1);
     });
 
     it("filters samples have minimum cli verion", async () => {
+      const utils = require("../../src/utils");
       sandbox.stub(core.sampleProvider, "SampleCollection").value(
         Promise.resolve({
           filterOptions: {
@@ -180,7 +181,7 @@ describe("Utils Tests", function () {
           ],
         })
       );
-      const templates = await getTemplates();
+      const templates = await utils.getTemplates();
       expect(templates.length).equals(1);
     });
   });
