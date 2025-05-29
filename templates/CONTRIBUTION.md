@@ -38,14 +38,24 @@ A typical ATK project includes:
 
 Add your project template to the `templates/<language>/<template-name>` directory. Templates should:
 - Be organized by programming language
-- Use placeholder variables for runtime replacement
+- Use placeholder variables for runtime replacement, file with placeholder should have `.tpl` suffix.
 - Support immediate local debugging without extra configurations
 
 ### 2. Update Template Metadata
 
-1. Add your template's metadata to files in `packages/fx-core/src/component/generator/templates/metadata/`:
+1. Add your template's metadata to files in `packages/fx-core/src/component/generator/templates/metadata/`. The id should be in pattern `${folderName}-${language}`.
    - For templates using the default generator: Add to the corresponding project type file (e.g., `bot.ts`)
    - For templates requiring custom generation: Add to `special.ts` or create a new file
+  
+Example:
+```
+  {
+    id: "default-bot-ts",
+    name: TemplateNames.DefaultBot,
+    language: "typescript",
+    description: "",
+  },
+```
 
 2. Include template ID, name, programming language, and description
 
