@@ -8,7 +8,7 @@ Hotfix version.
 - Updated the [app manifest version to v1.21](https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json).
 - Updated [Declarative Agents manifest version to v1.4](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/declarative-agent-manifest-1.4).
 - Updated [Kiota version to 1.26.1](https://github.com/microsoft/kiota/releases/tag/v1.26.1).
-- Fixed an issue of telemetry events in Kiota integraion.
+- Fixed an issue of telemetry events in Kiota integration.
 - Fixed the CLI command name reference is not correct in README and messages prompt of Office add-in projects.
 - [Preview] Fixed the typespec projects failure in lifecycle stage Provision.
 - [Preview] Updated the typespec package version to latest. Note that the typespec package is rc version now and subject to changes.
