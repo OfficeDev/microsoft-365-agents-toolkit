@@ -281,6 +281,8 @@
   "core.CommandAndResponseOption.detail": "Trigger work with custom chat commands in Teams chats",
   "core.WorkflowOption.label": "Sequential Workflow in Chat",
   "core.WorkflowOption.detail": "Interact with multi-step processes in Teams chats",
+  "core.ssoBotTeamsAIOption.label": "Bot with Teams AI v2 Library",
+  "core.ssoBotTeamsAIOption.detail": "Bot with Teams AI v2 Library",
   "core.TabSPFxOption.labelNew": "SPFx",
   "core.TabSPFxOption.detailNew": "Build UI with SharePoint Framework",
   "core.TabNonSso.label": "Basic Tab",

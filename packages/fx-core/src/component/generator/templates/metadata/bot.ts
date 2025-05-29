@@ -139,4 +139,10 @@ export const basicBotTemplates: Template[] = [
     language: "csharp",
     description: "",
   },
+  {
+    id: "sso-teams-ai-ts",
+    name: TemplateNames.BotSsoTeamsAI,
+    language: "typescript",
+    description: "With Teams AI v2 library",
+  },
 ];

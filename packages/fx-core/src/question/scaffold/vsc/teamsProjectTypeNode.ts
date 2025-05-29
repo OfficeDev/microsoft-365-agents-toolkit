@@ -198,6 +198,7 @@ export function botProjectTypeNode(): IQTreeNode {
         BotCapabilityOptions.notificationBot(),
         BotCapabilityOptions.commandBot(),
         BotCapabilityOptions.workflowBot(),
+        BotCapabilityOptions.ssoBotTeamsAI(),
       ],
       placeholder: getLocalizedString("core.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,

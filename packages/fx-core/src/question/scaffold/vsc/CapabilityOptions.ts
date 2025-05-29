@@ -354,6 +354,7 @@ export class BotCapabilityOptions {
   static readonly notificationBotId = "notification";
   static readonly commandBotId = "command-bot";
   static readonly workflowBotId = "workflow-bot";
+  static readonly ssoBotId = "sso-bot";
 
   static basicBot(): OptionItem {
     return {
@@ -409,6 +410,23 @@ export class BotCapabilityOptions {
       label: `${getLocalizedString("core.WorkflowOption.label")}`,
       detail: getLocalizedString("core.WorkflowOption.detail"),
       data: TemplateNames.Workflow,
+      buttons: [
+        {
+          iconPath: "file-symlink-file",
+          tooltip: getLocalizedString("core.option.github"),
+          command: "fx-extension.openTutorial",
+        },
+      ],
+    };
+    return item;
+  }
+
+  static ssoBotTeamsAI(): OptionItem {
+    const item: OptionItem = {
+      id: BotCapabilityOptions.ssoBotId,
+      label: `${getLocalizedString("core.ssoBotTeamsAIOption.label")}`,
+      detail: getLocalizedString("core.ssoBotTeamsAIOption.detail"),
+      data: TemplateNames.BotSsoTeamsAI,
       buttons: [
         {
           iconPath: "file-symlink-file",

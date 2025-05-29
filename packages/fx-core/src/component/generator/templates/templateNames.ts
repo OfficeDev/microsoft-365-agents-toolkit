@@ -50,6 +50,7 @@ export enum TemplateNames {
   NotificationHttpTimerTrigger = "notification-http-timer-trigger",
   CommandAndResponse = "command-and-response",
   Workflow = "workflow",
+  BotSsoTeamsAI = "sso-teams-ai", // Teams AI v2 library
 
   // messaging extension
   MessageExtensionWithNewApiFromScratch = "copilot-plugin-from-scratch",
