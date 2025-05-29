@@ -8,8 +8,6 @@ This guide outlines the process of adding a new template to Microsoft 365 Agents
 - [Overview](#overview)
 - [Project Structure](#project-structure)
 - [Step-by-Step Guide](#step-by-step-guide)
-- [Question Model](#question-model)
-- [Template Generator](#template-generator)
 
 ## Overview
 
@@ -67,3 +65,17 @@ The root tree comprises three children:
 2. **Programming language node**: Queries the template's programming language. Some templates support multiple languages (e.g., `basic-bot` offers TypeScript and JavaScript), while others may not specify a language, indicating they contain only essential configuration files for the tooling. Available options depend on the previously selected template.
 
 3. **Folder path and app name sub-tree**: A group node containing questions about the target folder path and app name, triggered based on specific conditions.
+
+### 4. Use a custom generator (optional)
+
+As previously discussed, if your project requires runtime processing, you'll need to develop a custom generator. TTK provides a default generator base class, `DefaultTemplateGenerator`, with three APIs for customization.
+
+Place your generator in a subdirectory of [packages/fx-core/src/component/generator/](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/). For example, [packages/fx-core/src/component/generator/officeAddin/generator.ts](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/officeAddin/generator.ts):
+
+Partner can customize the generator by the following APIs:
+
+- `activate()`: Determines whether the generator activates, typically based on supported template names.
+- `getTemplateNames()`: Performs preprocessing and maps user inputs to template names, returning a replacement map for resolving placeholders in template files.
+- `post()`: Executes post-processing steps.
+
+After defining a custom generator, register it in the global generator list (`packages/fx-core/src/component/generator/generatorProvider.ts`):
