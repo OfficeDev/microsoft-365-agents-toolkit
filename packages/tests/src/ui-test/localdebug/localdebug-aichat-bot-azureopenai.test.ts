@@ -91,9 +91,9 @@ describe("Local Debug Tests", function () {
         await validateWelcomeAndReplyBot(page, {
           hasWelcomeMessage: false,
           hasCommandReplyValidation: true,
-          botCommand: "500+500=?",
+          botCommand: "500+499=?",
           expectedWelcomeMessage: ValidationContent.AiChatBotWelcomeInstruction,
-          expectedReplyMessage: "1000",
+          expectedReplyMessage: "999",
           timeout: Timeout.longTimeWait,
         });
       } else {
