@@ -22,6 +22,7 @@ import { TelemetryProperty } from "../../../common/telemetry";
 import { InstallAppOutsideSandboxError } from "./errors";
 
 const actionName = "devChannel/installApp";
+const helpLink = "https://aka.ms/teamsfx-actions/devchannel-installapp";
 
 @Service(actionName)
 export class InstallAppToChannelDriver implements StepDriver {
@@ -57,7 +58,7 @@ export class InstallAppToChannelDriver implements StepDriver {
       appPackagePath = path.join(context.projectPath, appPackagePath);
     }
     if (!(await fs.pathExists(appPackagePath))) {
-      return err(new FileNotFoundError(actionName, appPackagePath));
+      return err(new FileNotFoundError(actionName, appPackagePath, helpLink));
     }
     const archivedFile = await fs.readFile(appPackagePath);
 
@@ -65,7 +66,7 @@ export class InstallAppToChannelDriver implements StepDriver {
     const zipEntries = new AdmZip(archivedFile).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (!manifestFile) {
-      return err(new FileNotFoundError(actionName, Constants.MANIFEST_FILE));
+      return err(new FileNotFoundError(actionName, Constants.MANIFEST_FILE, helpLink));
     }
     const manifestString = manifestFile.getData().toString();
     const manifest = JSON.parse(manifestString) as TeamsAppManifest;
@@ -110,11 +111,11 @@ export class InstallAppToChannelDriver implements StepDriver {
           )
         ) {
           context.logProvider.error(getLocalizedString("error.installApp.outsideSandbox"));
-          return err(new InstallAppOutsideSandboxError(actionName));
+          return err(new InstallAppOutsideSandboxError(actionName, helpLink));
         }
 
         context.logProvider.error(message);
-        return err(new HttpClientError(error, actionName, message));
+        return err(new HttpClientError(error, actionName, message, helpLink));
       } else {
         return err(error);
       }
@@ -135,7 +136,7 @@ export class InstallAppToChannelDriver implements StepDriver {
       invalidParams.push("appPackagePath");
     }
     if (invalidParams.length > 0) {
-      return err(new InvalidActionInputError(actionName, invalidParams));
+      return err(new InvalidActionInputError(actionName, invalidParams, helpLink));
     } else {
       return ok(undefined);
     }

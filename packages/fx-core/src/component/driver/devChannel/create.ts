@@ -18,6 +18,7 @@ import { TelemetryProperty } from "../../../common/telemetry";
 import { CreateDevChannelOutput } from "./interfaces/CreateDevChannelOutput";
 
 const actionName = "devChannel/create";
+const helpLink = "https://aka.ms/teamsfx-actions/devchannel-create";
 
 @Service(actionName)
 export class CreateDevChannelDriver implements StepDriver {
@@ -96,7 +97,7 @@ export class CreateDevChannelDriver implements StepDriver {
       if (axios.isAxiosError(error)) {
         const message = JSON.stringify(error.response!.data);
         context.logProvider.error(message);
-        return err(new HttpClientError(error, actionName, message));
+        return err(new HttpClientError(error, actionName, message, helpLink));
       } else {
         return err(error);
       }

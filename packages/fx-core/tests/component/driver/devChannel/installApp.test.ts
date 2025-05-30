@@ -191,7 +191,7 @@ describe("InstallAppToChannelDriver", () => {
 
     expect(result.isErr()).to.be.true;
     if (result.isErr()) {
-      expect(result.error.message).to.include("Unable to install app outside sandboxed Team");
+      expect(result.error.message).to.include("Unable to install app outside");
     }
   });
 

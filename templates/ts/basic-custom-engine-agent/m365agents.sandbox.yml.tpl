@@ -5,7 +5,7 @@ version: v1.8
 
 provision:
 {{#SandBoxedTeam}}
-  # Creates a Teams channel in the specified team.
+  # Creates a Developer Sandbox team for local testing.
   - uses: devChannel/create
     with:
       teamName: "App Development" # The name of the team in which to create the channel.
