@@ -1,0 +1,884 @@
+name: uitest-vscuse
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-vsix-run-id:
+        description: "target vsix github action run id(e.g. 14977003138)"
+        required: true
+        type: string
+
+      target-cli-version:
+        description: "target cli version or tag, like latest, beta or alpha"
+        required: true
+        type: string
+        default: latest
+
+      test-cases:
+        description: "Comma-separated list of test cases to run (e.g. case1,case2)"
+        required: false
+        type: string
+        default: ''
+
+      email-receiver:
+        description: "email notification receiver"
+        required: false
+        type: string
+
+  # schedule:
+  #   - cron: "0 18 * * *"
+
+permissions:
+  actions: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Init GitHub CLI
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+      - name: bvt (dispatch)
+        id: bvt
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "npm-tag=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "vsix-run-id=${{ github.event.inputs.target-vsix-run-id }}" >> $GITHUB_ENV
+          echo "target_cli_version=${{ github.event.inputs.target-cli-version }}" >> $GITHUB_ENV
+          echo "test-cases=${{ github.event.inputs.test-cases }}" >> $GITHUB_OUTPUT
+          echo "email-receiver=${{ github.event.inputs.email-receiver }}" >> $GITHUB_OUTPUT
+
+      - name: pvt (dev)
+        id: pvt
+        if: ${{ github.event.schedule == '0 8 * * *' }}
+        run: |
+          echo "npm-tag=alpha" >> $GITHUB_OUTPUT
+          echo "sample-ref=dev" >> $GITHUB_OUTPUT
+          echo "branch=dev" >> $GITHUB_OUTPUT
+          run_id=`gh run list --workflow cd --repo OfficeDev/TeamsFx --branch dev --json event --json databaseId --json conclusion --jq '[.[] | select(.event=="schedule") | select(.conclusion=="success")][0].databaseId'`
+          echo "vsix-run-id=$run_id" >> $GITHUB_ENV
+          echo "target_cli_version=alpha" >> $GITHUB_ENV
+          echo "email-receiver=vscuseengineer@microsoft.com" >> $GITHUB_OUTPUT
+
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install and upgrade npm
+        run: |
+          npm install -g npm
+          npm --version
+          
+      - uses: pnpm/action-setup@v4
+
+      - name: Download TTK
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token 
+          gh run download ${{ env.vsix-run-id }} --repo OfficeDev/TeamsFx --name release
+
+      - name: Export TTK version
+        id: ttk
+        run: |
+          package=`find . -type f -name "*.vsix" | sed 's|.*/\(.*\)|\1|'`
+          version=`echo $package | sed 's|ms-teams-vscode-extension-||' | sed 's|\.vsix||'`
+          echo "package=$package" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+      - name: Upload TTK to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ttk
+          path: |
+            ./${{ steps.ttk.outputs.package }}
+      # - name: clean devtunnel
+      #   run: |
+      #     wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
+      #     chmod 777 ./devtunnel
+      #     ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
+      #     ./devtunnel delete-all -f
+    outputs:
+      npm-tag: ${{ steps.bvt.outputs.npm-tag || steps.pvt.outputs.npm-tag }}
+      branch: ${{ steps.bvt.outputs.branch || steps.pvt.outputs.branch }}
+      vsix-run-id: ${{ env.vsix-run-id }}
+      ttk-package: ${{ steps.ttk.outputs.package }}
+      ttk-version: ${{ steps.ttk.outputs.version }}
+      target_cli_version: ${{ env.target_cli_version }}
+      test-cases: ${{ steps.bvt.outputs.test-cases || '' }}
+      email-receiver: ${{ steps.bvt.outputs.email-receiver || steps.pvt.outputs.email-receiver }}
+
+      
+  discover_test_cases:
+    runs-on: windows-latest
+    needs: setup
+    permissions:
+        #id-token: write
+        security-events: write
+    # environment: engineering
+    outputs:
+      matrix: ${{ steps.set_output.outputs.matrix }}
+    steps:
+
+      # Get the OS windows related info via this command: Get-ComputerInfo | Select WindowsProductName, WindowsVersion, OsArchitecture
+      - name: Get Windows OS info
+        shell: pwsh
+        run: |
+          $osInfo = Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsArchitecture
+          Write-Host "Windows Product Name: $($osInfo.WindowsProductName)"
+          Write-Host "Windows Version: $($osInfo.WindowsVersion)"
+          Write-Host "OS Architecture: $($osInfo.OsArchitecture)"
+      
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.branch }}
+
+      - name: Generate file list
+        shell: pwsh
+        run: |
+          # Handle test cases input
+          $testCasesInput = "${{ needs.setup.outputs.test-cases }}".Trim()
+        
+          if (![string]::IsNullOrWhiteSpace($testCasesInput)) {
+              # Use specified test cases
+              $testCases = $testCasesInput -split ',' | ForEach-Object { $_.Trim() }
+              $files = $testCases
+              Write-Host "Using specified test cases: $($testCases -join ', ')"
+          } else {
+              # Default behavior: find all test cases
+              $files = Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Filter *.txt -Recurse | ForEach-Object { $_.BaseName }
+              Write-Host "Using all test cases in directory: $($files -join ', ')"
+          }
+
+          # Create array of test case objects
+          $fileObjects = [System.Collections.ArrayList]@()
+          foreach ($file in $files) {
+              $null = $fileObjects.Add(
+                  [PSCustomObject]@{
+                      file = $file
+                      os = "windows-latest"
+                      node = 22
+                      branch = "${{ needs.setup.outputs.branch }}"
+                  }
+              )
+          }
+
+          # Export as JSON
+          ConvertTo-Json -InputObject @($fileObjects) -Compress | Out-File -Encoding utf8 files_list.json
+
+      
+      - name: Set output variable
+        id: set_output
+        shell: pwsh
+        run: |
+          # Read the JSON file and convert it to a PowerShell object
+          $jsonArray = Get-Content -Raw files_list.json | ConvertFrom-Json
+  
+          $matrix = @{
+              include = @($jsonArray) 
+          }
+  
+          $jsonText = $matrix | ConvertTo-Json -Compress
+  
+          "matrix=$jsonText" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          Write-Host "Validated matrix: $jsonText"
+          
+
+  main:
+    name: Case-${{ matrix.file }}|${{ matrix.os }}|${{ matrix.node }}|${{ matrix.branch }}
+    needs: discover_test_cases
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+    timeout-minutes: 50
+    environment: engineering
+    env:
+      GH_APP_ID: ${{ secrets.VSCUSEAPPID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.VSCUSEAPPSECRET }}
+      CI_ENABLED: true
+      TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
+
+      CLEAN_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+      CLEAN_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+
+      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+      M365_USERNAME: "test14@xxbdw.onmicrosoft.com"
+      M365_USERNAME_2: "test15@xxbdw.onmicrosoft.com"
+      M365_USERNAME_3: "test16@xxbdw.onmicrosoft.com"
+      M365_USERNAME_4: "test17@xxbdw.onmicrosoft.com"
+      
+      MODEL_NAME : "azure/gpt-4.1"  # support 'azure/gpt-4o-mini', "azure/gpt-4o"
+      AZURE_OPENAI_KEY : "${{ secrets.AZURE_OPENAI_KEY }}"
+      AZURE_OPENAI_ENDPOINT : "https://vscuseopenaieastus2.openai.azure.com/openai/deployments/gpt-4.1/chat/completions?api-version=2025-01-01-preview"
+      AZURE_VISION_ENDPOINT : "https://vscuseopenaivision.cognitiveservices.azure.com/"
+      AZURE_VISION_KEY : "${{ secrets.AZURE_VISION_KEY }}"
+      AZURE_COSMOS_ENDPOINT : "https://vscuse-cosmos.documents.azure.com:443/"
+      AZURE_COSMOS_DATABASE : "${{ secrets.AZURE_COSMOS_DATABASE }}"
+      AZURE_COSMOS_CONTAINER : "${{ secrets.AZURE_COSMOS_CONTAINER }}"
+      AZURE_COSMOS_KEY : "${{ secrets.AZURE_COSMOS_KEY }}"
+      
+      
+      TEAMSFX_DEV_TUNNEL_TEST: true
+      TEAMSFX_TELEMETRY_TEST: true
+    strategy:
+      fail-fast: false
+      max-parallel: 3 # Limit concurrent executions due to the OpenAI API rate limit
+      matrix: ${{ fromJson(needs.discover_test_cases.outputs.matrix) }}
+    steps:
+
+      # - name: Set Windows Resolution via QRes
+      #   run: |
+      #     Invoke-WebRequest -Uri "https://github.com/AlbertoMGV/ScreenResolutionChanger/raw/refs/heads/master/QRes.exe" -OutFile "QRes.exe"
+      #     .\QRes.exe /x:1920 /y:1080
+
+      # - name: Set Windows Resolution
+      #   shell: pwsh
+      #   run: |
+      #     dotnet tool install -g SetResolution
+      #     echo "$env:USERPROFILE\.dotnet\tools" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+      #     SetResolution CREATEPROFILE -p myr -w 1920 -h 1080 -f 60
+      #     SetResolution SET -p myr
+      #     SetResolution 1920x1080
+
+      - name: Setup Microsoft Edge and WebDriver
+        uses: browser-actions/setup-edge@v1
+        with:
+          edge-version: dev  # or beta, dev, canary
+
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.setup.outputs.branch }}
+
+      # Setup the environment
+      - name: Set Windows Environment Variables
+        run: |
+          [System.Environment]::SetEnvironmentVariable("MODEL_NAME", "${{ env.MODEL_NAME }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_KEY", "${{ env.AZURE_OPENAI_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", "${{ env.AZURE_OPENAI_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_ENDPOINT", "${{ env.AZURE_VISION_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_VISION_KEY", "${{ env.AZURE_VISION_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_COSMOS_ENDPOINT", "${{ env.AZURE_COSMOS_ENDPOINT }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_COSMOS_DATABASE", "${{ env.AZURE_COSMOS_DATABASE }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_COSMOS_CONTAINER", "${{ env.AZURE_COSMOS_CONTAINER }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("AZURE_COSMOS_KEY", "${{ env.AZURE_COSMOS_KEY }}", [System.EnvironmentVariableTarget]::Machine)
+          
+          $env:MODEL_NAME = "${{ env.MODEL_NAME }}"
+          $env:AZURE_OPENAI_KEY = "${{ env.AZURE_OPENAI_KEY }}"
+          $env:AZURE_OPENAI_ENDPOINT = "${{ env.AZURE_OPENAI_ENDPOINT }}"
+          $env:AZURE_VISION_ENDPOINT = "${{ env.AZURE_VISION_ENDPOINT }}"
+          $env:AZURE_VISION_KEY = "${{ env.AZURE_VISION_KEY }}"
+          $env:AZURE_COSMOS_ENDPOINT = "${{ env.AZURE_COSMOS_ENDPOINT }}"
+          $env:AZURE_COSMOS_DATABASE = "${{ env.AZURE_COSMOS_DATABASE }}"
+          $env:AZURE_COSMOS_CONTAINER = "${{ env.AZURE_COSMOS_CONTAINER }}"
+          $env:AZURE_COSMOS_KEY = "${{ env.AZURE_COSMOS_KEY }}"
+        shell: pwsh
+    
+      - name: Setup VscUse Environment
+        uses: ./.github/actions/setup-vscuse-environment
+        with:
+          version: latest
+          store-path: ${{ github.workspace }}/tests-ui/vscuse
+
+
+      # Download the latest version of VSCode User setup and install it
+      - name: Download VSCode User Installer and install
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://update.code.visualstudio.com/latest/win32-x64-user/stable" -OutFile VSCodeSetup.exe
+          Start-Process .\VSCodeSetup.exe -ArgumentList '/VERYSILENT', '/NORESTART', '/MERGETASKS=!runcode' -Wait
+
+      # Add the vscode user install bin path to the PATH (usually under user profile)
+      - name: Add the code.cmd to PATH (User install)
+        shell: pwsh
+        run: |
+          $vscodeBinPath = "$env:USERPROFILE\AppData\Local\Programs\Microsoft VS Code\bin"
+          if (Test-Path $vscodeBinPath) {
+            "$vscodeBinPath" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          } else {
+            Write-Error "VS Code User Bin Path not found: $vscodeBinPath"
+            exit 1
+          }
+
+      # Double confirm the PATH variable
+      - name: Show the new PATH
+        shell: pwsh
+        run: |
+          Write-Host "New PATH: $env:PATH"
+
+      # Check the code is installed.
+      - name: Check the code is installed.
+        run: |
+          where code
+          where code.cmd
+        shell: cmd
+
+      #Download the vsix from the previous step
+      - name: Download TTK
+        uses: actions/download-artifact@v4
+        with:
+          name: ttk
+          path: packages/tests
+
+      # Install the VSIX
+      - name: VSIX Installation
+        working-directory: packages/tests
+        run: |
+          # list all the vsix files
+          Get-ChildItem -Path . -Filter *.vsix | Format-Table -AutoSize
+      
+          # get the vsix file name
+          $vsix = Get-ChildItem -Path . -Filter *.vsix | Select-Object -ExpandProperty Name
+          Write-Host "Detected VSIX file: $vsix"
+      
+          if ($vsix) {
+            code --install-extension $vsix --force
+          } else {
+            Write-Host "No VSIX file found!"
+            exit 1
+          }
+        shell: pwsh
+
+      # Sign in
+      - name: Set m365 account (win)
+        run: |
+          $users=@("${{ env.M365_USERNAME }}","${{ env.M365_USERNAME_2 }}","${{ env.M365_USERNAME_3 }}","${{ env.M365_USERNAME_4 }}")
+          $index=Get-Random -min 0 -max $users.count
+          $user=$users[$index]
+          echo "account index: $index"
+          echo "M365_ACCOUNT_NAME=$user" >> $env:GITHUB_ENV
+
+      - name: Update npm packages for UI Test
+        working-directory: packages/tests
+        run: |
+          npm install @microsoft/teamsfx-core@latest @microsoft/teamsfx-api@latest @microsoft/m365agentstoolkit-cli@latest
+
+      - name: Install npm packages
+        working-directory: packages/tests
+        run: |
+          npm install
+
+      - name: M365 Login
+        working-directory: packages/tests
+        run: | # rm -r -f ~/.fx/account
+          npx ts-node src/scripts/m365Login.ts '${{ env.M365_ACCOUNT_NAME }}' '${{ env.M365_ACCOUNT_PASSWORD }}'
+
+      - name: Set the M365 account into system environment variable
+        shell: pwsh
+        run: |
+          [System.Environment]::SetEnvironmentVariable("M365_ACCOUNT_NAME", "${{ env.M365_USERNAME }}", [System.EnvironmentVariableTarget]::Machine)
+          [System.Environment]::SetEnvironmentVariable("M365_ACCOUNT_PASSWORD", "${{ env.M365_ACCOUNT_PASSWORD }}", [System.EnvironmentVariableTarget]::Machine)
+          
+      - name: Install dependencies
+        run: npm install @octokit/auth-app @octokit/request
+
+      - name: Run download script (Use the specified version of vscuse)
+        working-directory: packages/tests/vscuse/binary
+        run: node download-vscuse.js v0.1.14
+
+      # Close all web browsers before minimizing windows
+      - name: Close all web browsers
+        shell: powershell
+        run: |
+          # Close Microsoft Edge
+          Get-Process msedge -ErrorAction SilentlyContinue | Stop-Process -Force
+          # Close Chrome if running
+          Get-Process chrome -ErrorAction SilentlyContinue | Stop-Process -Force
+          # Close Firefox if running
+          Get-Process firefox -ErrorAction SilentlyContinue | Stop-Process -Force
+          Write-Host "All browsers have been closed"
+
+      - name: Minimize all windows
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName Microsoft.VisualBasic
+          [Microsoft.VisualBasic.Interaction]::AppActivate('Program Manager') | Out-Null
+          $shell = New-Object -ComObject "Shell.Application"
+          $shell.MinimizeAll()
+    
+
+      # Run vscuse.exe  (0.1.9 with Agent/ZEN model)
+      # vscuse.exe zen -f "../zen_cases/${{ matrix.file }}.txt" -v --no-cache | tee "${{ runner.temp }}\output.log"
+      - name: Run vscuse.exe (Agent model)
+        working-directory: packages/tests/vscuse/binary
+        run: |
+          vscuse.exe version
+          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s 50 -v --remote-cache | tee "${{ runner.temp }}\output.log"
+        shell: cmd
+        
+      - name: Check for HTML report and test result
+        id: check_report
+        run: |
+          $log_path = "${{ runner.temp }}\output.log"
+          $report_path = ""
+          $test_result = "failed"
+        
+          # Iterate through the log file to find "Report saved to:"
+          Get-Content $log_path | ForEach-Object {
+            if ($_ -match 'Report saved to: (.+\.html)') {
+              $report_path = $matches[1]
+            }
+            if ($_ -match 'Test Result: pass') {
+              $test_result = "passed"
+            }
+          }
+        
+          if ($report_path -ne "") {
+            # Extract SESSION_PATH by getting the parent directory of the report folder
+            $session_path = Split-Path -Parent (Split-Path -Parent $report_path)
+
+            $report_child_path = $report_path.Substring($session_path.Length + 1)
+            $report_child_path = $report_child_path.Replace('\', '/')
+      
+            "REPORT_PATH=$report_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            "SESSION_PATH=$session_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            "TEST_RESULT=$test_result" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            "REPORT_CHILD_PATH=$report_child_path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      
+            Write-Host "SESSION_PATH=$session_path"
+            Write-Host "TEST_RESULT=$test_result"
+            Write-Host "REPORT_CHILD_PATH=$report_child_path"
+          } else {
+            Write-Host "No report found in the output log."
+            exit 1
+          }
+        shell: pwsh
+      
+      - name: Generate timestamp
+        id: generate_time
+        shell: bash
+        run: |
+          timestamp=$(date +'%Y%m%d-%H%M%S')
+          echo "value=$timestamp" >> "$GITHUB_OUTPUT"
+
+      # Upload VSCUSE session files
+      - name: Upload VSCUSE session files
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscuse-session-log-Case-${{ matrix.file }}-${{ matrix.os }}-${{ matrix.node }}-${{ matrix.branch }}-${{ steps.generate_time.outputs.value }}
+          path: ${{ env.SESSION_PATH }}
+
+      - name: Generate UUID (Windows compatible)
+        id: guid
+        shell: pwsh
+        run: |
+          $guid = [guid]::NewGuid().ToString()
+          echo "guid=$guid" >> $env:GITHUB_OUTPUT
+      
+      # Upload files to Azure Blob Storage
+      - name : Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+      - name: Upload files to Azure Blob Storage
+        shell: pwsh
+        run: |
+          $guid = '${{ steps.guid.outputs.guid }}'
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $sourcePath = $env:SESSION_PATH
+          $destination = "`$web/$guid"
+          $storageUrl = "https://vscusedownload.z13.web.core.windows.net/$guid/$env:REPORT_CHILD_PATH"
+      
+          Write-Host "🌐Here is the report: $storageUrl"
+
+          echo "$storageUrl" > storage_url.txt
+      
+          az storage blob upload-batch `
+            --account-name $account `
+            --auth-mode login `
+            --destination $destination `
+            --source "$sourcePath" `
+            --overwrite
+        env:
+          AZURE_STORAGE_ACCOUNT: vscusedownload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storage-url-${{ matrix.file }}_${{ github.run_id }}
+          path: storage_url.txt
+
+
+      - name: Fail pipeline if test result is not passed
+        run: |
+          if ("${{ env.TEST_RESULT }}" -ne "passed") {
+            Write-Host "❌ Test did not pass. Failing pipeline..."
+            exit 1
+          } else {
+            Write-Host "✅ Test passed. Continuing pipeline..."
+          }
+        shell: pwsh
+
+  rerun:
+    permissions:
+      actions: write
+    needs: main
+    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && failure() && github.run_attempt < 2 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: trigger rerun workflow
+        run: |
+          curl \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/rerun.yml/dispatches \
+            -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"2"}}'
+
+  report:
+    if: ${{ (github.event_name == 'workflow_dispatch' && needs.setup.outputs.email-receiver) || (github.event_name == 'schedule' && (success() || (failure() && github.run_attempt >= 2))) }}
+    needs: [setup, discover_test_cases, main]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download storage URLs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: storage-url-*
+          path: /tmp/storage-urls
+
+      - name: Process storage URLs
+        shell: bash
+        run: |
+          if [ -d "/tmp/storage-urls" ]; then
+            echo "Found storage URLs folder. Processing contents..."
+            
+            # Find and extract all zip files to /tmp/storage-urls directory
+            find /tmp/storage-urls -name "*.zip" -exec unzip -o {} -d /tmp/storage-urls \;
+            
+            # Create a JSON object from all storage_url.txt files
+            echo "{" > /tmp/url_mapping.json
+            first_entry=true
+            
+            # Find all storage_url.txt files and process them
+            find /tmp/storage-urls -type f -name "storage_url.txt" | while read file; do
+              # Extract the job ID from the parent directory name (storage-url-CASENAME_RUNID)
+              dir_name=$(basename $(dirname "$file"))
+              case_run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              
+              # Read the content of the file
+              content=$(cat "$file" | tr -d '\n' | tr -d '\r')
+              
+              # Add comma for all entries except the first one
+              if [ "$first_entry" = true ]; then
+                first_entry=false
+              else
+                echo "," >> /tmp/url_mapping.json
+              fi
+              
+              # Add the entry to JSON (properly escaped)
+              echo "  \"$case_run_id\": \"$content\"" >> /tmp/url_mapping.json
+            done
+            
+            echo "}" >> /tmp/url_mapping.json
+            
+            echo "Generated JSON mapping:"
+            cat /tmp/url_mapping.json
+            
+            # Count total files processed
+            total_urls=$(find /tmp/storage-urls -type f -name "/tmp/storage_url.txt" | wc -l)
+            echo "Total storage URL files processed: $total_urls"
+          else
+            echo "No storage URL artifacts found"
+            echo "{}" > /tmp/url_mapping.json
+          fi
+
+      - name: Install Dateutils
+        run: |
+          sudo apt install dateutils
+
+      - name: list jobs
+        id: list-jobs
+        run: |
+          page=1
+          jobs="[]"
+          echo "Initial jobs: $jobs"
+          
+          case_title_file_path="vscuse/agent_cases/case_title.json"
+          report_map_json_file_path="/tmp/url_mapping.json"
+
+
+          while :
+          do
+            url="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs?per_page=100&page=$page"
+            echo "Fetching URL: $url"
+      
+            resp=$(curl -s -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url")
+            echo "Response from GitHub API: $resp"
+      
+            new_jobs=$(echo "$resp" | jq -cr '.jobs')
+            echo "New jobs extracted: $new_jobs"
+      
+            jobs=$(jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs"))
+            echo "Updated jobs list: $jobs"
+      
+            has_next=$(curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} "$url" | grep -Fi "link:" | grep "rel=\"last\"" || true)
+            echo "Has next page: $has_next"
+      
+            if [ -z "$has_next" ]; then
+              break
+            fi
+      
+            page=$((page+1))
+          done
+      
+          echo "Final job list: $jobs"
+      
+          cases=$(echo "$jobs" | jq -r '.[] | select(.name | contains("Case-")) | .name')
+          echo "Extracted case names: $cases"
+      
+          passed=0
+          failed=0
+          failedlimit=100
+          passedlimit=100
+          failedlist=""
+          passedlist=""
+          lists=""
+      
+          emails="${{ needs.setup.outputs.email-receiver }}"
+          echo "Initial email list: $emails"
+      
+          while IFS= read -r case;
+          do
+            if [ -z "$case" ]; then
+              continue
+            fi
+      
+            echo "Processing case: $case"
+            name=$(echo "$case" | awk -F '|' '{print $1}')
+            case_id=$(echo "$name" | awk -F '-' '{print $2}')
+            os=$(echo "$case" | awk -F '|' '{print $2}')
+            node=$(echo "$case" | awk -F '|' '{print $3}')
+            branch=$(echo "$case" | awk -F '|' '{print $4}')
+
+            title=$(jq -r --arg name "$name" '.[$name]' "$case_title_file_path")
+      
+            if [ -z "$title" ]; then
+              title="Unknown Test Case Title"
+            fi
+      
+            echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, case ID: $case_id"
+      
+            file=$(find src -name "$name.test.ts" 2>/dev/null)
+            echo "Test file found: $file"
+      
+            email=""
+            if [ -n "$file" ] && grep -q "@author" "$file"; then
+              email=$(grep '@author' "$file" | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}')
+            fi
+            echo "Extracted email: $email"
+      
+            status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
+            echo "Job status: $status"
+
+            run_id=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .run_id')
+            echo "Run Id: $run_id"
+
+            # Combine the case_id and run_id to create a lookup key
+            lookup_key="${case_id}_${run_id}"
+
+            echo "Lookup Key: $lookup_key"
+
+            # Get the report URL from the JSON file using the lookup_key
+            report_url=$(jq -r --arg key "$lookup_key" '.[$key]' "$report_map_json_file_path")
+            if [ -z "$report_url" ] || [ "$report_url" = "null" ]; then
+              report_url="N/A"
+            else
+              report_url="<a href=\\\"$report_url\\\">Report</a>"
+            fi
+            echo "Report URL: $report_url"
+
+            if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
+              emails="$emails;$email;"
+            fi
+            echo "Updated email list: $emails"
+      
+            started_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at')
+            completed_at=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at')
+            echo "Start time: $started_at, Completed time: $completed_at"
+      
+            duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
+            echo "Calculated duration: $duration"
+      
+            author="N/A"
+            if [ -n "$email" ]; then
+              author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
+            fi
+            echo "Author: $author"
+      
+            label=""
+            if [ "$status" == "success" ]; then
+              passed=$((passed+1))
+              label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
+            else
+              failed=$((failed+1))
+              label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
+            fi
+            echo "Job result label: $label"
+      
+            url=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url')
+            url="<a href=\\\"$url\\\">$name</a>"
+            echo "Job URL: $url"
+      
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            echo "Generated row: $row"
+      
+            if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
+              passedlist="$passedlist $row"
+            elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
+              failedlist="$failedlist $row"
+            fi
+      
+          done <<< "$cases"
+      
+          lists="$failedlist $passedlist"
+          echo "Final failed list: $failedlist"
+          echo "Final passed list: $passedlist"
+      
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> <th>Report URL</th> </tr> $lists </table> <br />"
+          echo "Generated email body: $body"
+      
+          total=$((passed+failed))
+          echo "Total jobs: $total, Passed: $passed, Failed: $failed"
+      
+          subject="Vsc Use UI Test Report ($passed/$total Passed)"
+          if [ $failed -gt 0 ]; then
+            subject="[FAILED] $subject"
+          else
+            subject="[PASSED] $subject"
+          fi
+          echo "Final subject: $subject"
+      
+          echo "body=$body" >> $GITHUB_OUTPUT
+          echo "to=$emails" >> $GITHUB_OUTPUT
+          echo "subject=$subject" >> $GITHUB_OUTPUT
+        
+        
+
+      # - name: list jobs
+      #   id: list-jobs
+      #   run: |
+      #     page=1
+      #     jobs="[]"
+      #     while :
+      #     do
+      #       url=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs\?per_page\=100\&page\=$page
+      #       resp=`curl -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url`
+      #       new_jobs=`echo $resp | jq -cr '.jobs'`
+      #       jobs=`jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs")`
+      #       has_next=`curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url | grep -Fi "link:" | grep "rel=\"last\"" || true`
+      #       if [ -z "$has_next" ]; then
+      #         break
+      #       fi
+      #       page=$((page+1))
+      #     done
+      #     cases=`echo $jobs| jq -r '.[] | select(.name | contains("|")) | .name'`
+
+      #     passed=0
+      #     failed=0
+      #     failedlimit=100
+      #     passedlimit=100
+      #     failedlist=""
+      #     passedlist=""
+      #     lists=""
+
+      #     emails="${{ needs.setup.outputs.email-receiver }}"
+
+      #     while IFS= read -r case;
+      #     do
+      #       if [ -z "$case" ]; then
+      #         continue
+      #       fi
+
+      #       name=`echo $case | awk -F '|' '{print $1}'`
+      #       os=`echo $case | awk -F '|' '{print $2}'`
+      #       node=`echo $case | awk -F '|' '{print $3}'`
+      #       branch=`echo $case | awk -F '|' '{print $4}'`
+
+      #       file=`find src -name "$name.test.ts"`
+
+      #       email=""
+      #       if grep -q "@author" $file; then
+      #         email=`grep '@author' $file | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}'`
+      #       fi
+
+      #       status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
+      #       if [[ ! -z "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
+      #         emails="$emails;$email;zhendr@microsoft.com;ccdevexperiencefc@microsoft.com"
+      #       fi
+
+      #       status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
+      #       started_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at'`
+      #       completed_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at'`
+      #       duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
+
+      #       author=""
+      #       if [ -z "$email" ]; then
+      #         author="N/A"
+      #       else
+      #         author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
+      #       fi
+
+      #       lable=""
+      #       if [ "$status" == "success" ]; then
+      #         passed=$((passed+1))
+      #         label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
+      #       else
+      #         failed=$((failed+1))
+      #         label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
+      #       fi
+
+      #       url=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url'`
+      #       url="<a href=\\\"$url\\\">$name</a>"
+
+      #       row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$duration</td> </tr>"
+
+      #       if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
+      #         passedlist="$passedlist $row"
+      #       elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
+      #         failedlist="$failedlist $row"
+      #       fi
+
+      #     done <<< $cases
+      #     lists="$failedlist $passedlist"
+      #     body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $lists </table> <br />"
+
+      #     total=$((passed+failed))
+
+      #     subject="Vsc Use UI Test Report ($passed/$total Passed)"
+      #     if [ $failed -gt 0 ]; then
+      #       subject="[FAILED] $subject"
+      #     else
+      #       subject="[PASSED] $subject"
+      #     fi    
+
+      #     echo "body=$body" >> $GITHUB_OUTPUT
+      #     echo "to=$emails" >> $GITHUB_OUTPUT
+      #     echo "subject=$subject" >> $GITHUB_OUTPUT
+
+      - name: Send E-mail(v2)
+        uses: ./.github/actions/send-email-report-2
+        env:
+          TO: ${{ steps.list-jobs.outputs.to }}
+          BODY: '"${{ steps.list-jobs.outputs.body }}"'
+          SUBJECT: ${{ steps.list-jobs.outputs.subject }}
+          MAIL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
+          MAIL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
+          MAIL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
