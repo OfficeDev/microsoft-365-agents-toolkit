@@ -5,14 +5,14 @@ version: v1.7
 
 environmentFolderPath: ./env
 
-# Triggered when 'teamsapp provision' is executed
+# Triggered when 'atk provision' is executed
 provision:
   
   # Creates a Teams app
   - uses: teamsApp/create
     with:
       # Teams app name
-      name: My Agent 3${{APP_NAME_SUFFIX}}
+      name: Declarative Agent ${{APP_NAME_SUFFIX}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
@@ -51,7 +51,7 @@ provision:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
 
-# Triggered when 'teamsapp publish' is executed
+# Triggered when 'atk publish' is executed
 publish:
 # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage
