@@ -36,25 +36,28 @@
     });
     // Parse hash parameters into key-value pairs
     function getHashParameters() {
-      let hashParams = Object.create(null);
-      location.hash
-        .substr(1)
-        .split("&")
-        .forEach(function (item) {
-          let s = item.split("="),
-            k = s[0],
-            v = s[1] && decodeURIComponent(s[1]);
-          // Additional safeguard: skip dangerous property names
-          if (
-            k === "__proto__" ||
-            k === "constructor" ||
-            k === "prototype"
-          ) {
-            return;
-          }
-          hashParams[k] = v;
-        });
-      return hashParams;
+      // Using ES6 Map instead of plain object to prevent prototype pollution
+      let hashParams = new Map();
+      
+      if (location.hash && location.hash.length > 1) {
+        location.hash
+          .substr(1)
+          .split("&")
+          .forEach(function (item) {
+            if (!item) return;
+            let s = item.split("="),
+              k = s[0],
+              v = s[1] && decodeURIComponent(s[1]);
+            
+            if (k) {
+              // Store parameters in the Map
+              hashParams.set(k, v);
+            }
+          });
+      }
+      
+      // Convert Map back to a plain object for compatibility with the rest of the code
+      return Object.fromEntries(hashParams);
     }
 
     // Show error information
