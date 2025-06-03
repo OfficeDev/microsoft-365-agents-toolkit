@@ -58,7 +58,7 @@ This app template also demonstrates usage of techniques like:
 ### Debug agent in Microsoft 365 Agents Playground
 1. Create your Azure AI Search document index as mentioned above.
 1. Set `Startup Item` as `Microsoft 365 Agents Playground (browser)`.
-![image](https://github.com/user-attachments/assets/41121a95-5c13-4bda-8f69-3b970a4e8f78)
+![image](https://raw.githubusercontent.com/OfficeDev/TeamsFx/dev/docs/images/visualstudio/debug/switch-to-test-tool.png)
 1. Press F5, or select the Debug > Start Debugging menu in Visual Studio.
 1. In Microsoft 365 Agents Playground from the launched browser, type and send anything to your agent to trigger a response.
 
