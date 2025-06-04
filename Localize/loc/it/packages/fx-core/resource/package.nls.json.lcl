@@ -285,12 +285,12 @@
       </Item>
       <Item ItemId=";core.GCConnectionIdQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add a connection ID for Copilot Connector]]></Val>
+          <Val><![CDATA[Add a connection ID for Copilot connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aggiungere un ID connessione per il connettore Copilot]]></Val>
+            <Val><![CDATA[Aggiungi un ID connessione per il connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add a connection ID for Graph Connector]]></Val>
+            <Val><![CDATA[Add a connection ID for Copilot Connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -351,12 +351,12 @@
       </Item>
       <Item ItemId=";core.GCList.insufficientPermission" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[To list Copilot Connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
+          <Val><![CDATA[To list Copilot connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Per elencare i connettori Copilot, sono necessarie le autorizzazioni di amministratore del tenant di Microsoft 365 dell'organizzazione.]]></Val>
+            <Val><![CDATA[Per elencare i connettori Copilot, sono necessarie le autorizzazioni di amministratore tenant di Microsoft 365 dell'organizzazione.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[To list graph connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
+            <Val><![CDATA[To list Copilot Connectors, you need org's Microsoft 365 tenant admin permissions.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -372,36 +372,36 @@
       </Item>
       <Item ItemId=";core.GCListQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List all existing Copilot Connectors]]></Val>
+          <Val><![CDATA[List all existing Copilot connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Elencare tutti i connettori Copilot esistenti]]></Val>
+            <Val><![CDATA[Elenca tutti i connettori Copilot esistenti]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[List all existing Graph Connectors]]></Val>
+            <Val><![CDATA[List all existing Copilot Connectors]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCListQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select one or more Copilot Connectors as capability source]]></Val>
+          <Val><![CDATA[Select one or more Copilot connectors as capability source]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare uno o più connettori Copilot come origine funzionalità]]></Val>
+            <Val><![CDATA[Seleziona uno o più connettori Copilot come origine funzionalità]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select one or more Graph Connectors as capability source]]></Val>
+            <Val><![CDATA[Select one or more Copilot Connectors as capability source]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCNameQuestion.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a name for Copilot Connector]]></Val>
+          <Val><![CDATA[Create a name for Copilot connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Creare un nome per il connettore Copilot]]></Val>
+            <Val><![CDATA[Crea un nome per il connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a name for Graph Connector]]></Val>
+            <Val><![CDATA[Create a name for Copilot Connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -417,60 +417,60 @@
       </Item>
       <Item ItemId=";core.GCSelectOptions.inputOption.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a Copilot Connector Connection ID manually]]></Val>
+          <Val><![CDATA[Enter a Copilot connector Connection ID manually]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Immettere manualmente un ID di connessione del connettore Copilot]]></Val>
+            <Val><![CDATA[Immetti manualmente un ID connessione del connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter a Graph Connector Connection ID manually]]></Val>
+            <Val><![CDATA[Enter a Copilot Connector Connection ID manually]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.inputOption.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a Copilot Connector Connection ID]]></Val>
+          <Val><![CDATA[Enter a Copilot connector Connection ID]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Immettere un ID di connessione del connettore Copilot]]></Val>
+            <Val><![CDATA[Immetti un ID connessione del connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Enter a Graph Connector Connection ID]]></Val>
+            <Val><![CDATA[Enter a Copilot Connector Connection ID]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.listOption.description" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[List all existing Copilot Connectors]]></Val>
+          <Val><![CDATA[List all existing Copilot connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Elencare tutti i connettori Copilot esistenti]]></Val>
+            <Val><![CDATA[Elenca tutti i connettori Copilot esistenti]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[List all existing Graph Connectors]]></Val>
+            <Val><![CDATA[List all existing Copilot Connectors]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectOptions.listOption.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select existing Copilot Connectors]]></Val>
+          <Val><![CDATA[Select existing Copilot connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selezionare i connettori Copilot esistenti]]></Val>
+            <Val><![CDATA[Seleziona i connettori Copilot esistenti]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Select existing Graph Connectors]]></Val>
+            <Val><![CDATA[Select existing Copilot Connectors]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.GCSelectQuestion.title" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copilot Connector Content]]></Val>
+          <Val><![CDATA[Copilot connector Content]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Contenuto del connettore Copilot]]></Val>
+            <Val><![CDATA[Contenuto connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Graph Connector Content]]></Val>
+            <Val><![CDATA[Copilot Connector Content]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2524,6 +2524,87 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Build a new Declarative Agent with Office add-in actions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crea un nuovo agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.newProject.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[New Declarative Agent with Office Add-in Actions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nuovo agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Declarative Agent in MetaOS Capabilities]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Agente dichiarativo nelle funzionalità MetaOS]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Extend an add-in project to the declarative agent with add-in actions]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Estendi un progetto di componente aggiuntivo all'agente dichiarativo con azioni del componente aggiuntivo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Extend an existing Office Add-in]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Estendi un componente aggiuntivo di Office esistente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The existing MetaOS Add-in project root folder]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La cartella radice del progetto del componente aggiuntivo MetaOS esistente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.capability.upgradeProject.projectFolder.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Existing Add-in Project Folder]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La cartella del progetto del componente aggiuntivo esistente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crea un agente dichiarativo con azione del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create Declarative Agent with Office Add-in Action]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crea un agente dichiarativo con azioni del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.OauthClientId" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter client id for OAuth registration in OpenAPI Description Document]]></Val>
@@ -2622,24 +2703,24 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.addGC.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
+          <Val><![CDATA[Create a declarative agent with a Copilot connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Crea un agente dichiarativo con un connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Create a declarative agent with a Graph Connector]]></Val>
+            <Val><![CDATA[Create a declarative agent with a Copilot Connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.createProjectQuestion.addGC.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Add a Copilot Connector]]></Val>
+          <Val><![CDATA[Add a Copilot connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Aggiungi un connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Add a Graph Connector]]></Val>
+            <Val><![CDATA[Add a Copilot Connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -2920,6 +3001,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a Declarative Agent with Office add-in action]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Crea un agente dichiarativo con azione del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.capability.DAMetaOS.label" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Start with an Office Add-in Action]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Inizia con un'azione del componente aggiuntivo di Office]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.capability.basicCustomEngineAgentOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Intelligent agent that is built with Microsoft 365 Agents SDK and connects to your LLM]]></Val>
@@ -2940,10 +3039,13 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.botMessageExtension.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Create a message extension using Bot Framework]]></Val>
+          <Val><![CDATA[Create a message extension using Agents SDK]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Crea un'estensione per i messaggi con Bot Framework]]></Val>
+            <Val><![CDATA[Crea un'estensione per i messaggi usando Agents SDK]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Create a message extension using Bot Framework]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3276,12 +3378,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.capability.knowledgeGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copilot Connector]]></Val>
+          <Val><![CDATA[Copilot connector]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Connettore Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Graph Connector]]></Val>
+            <Val><![CDATA[Copilot Connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -3429,12 +3531,12 @@
       </Item>
       <Item ItemId=";core.createProjectQuestion.createGraphConnector.label" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Copilot Connector]]></Val>
+          <Val><![CDATA[Copilot connectors]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Connettore Copilot]]></Val>
+            <Val><![CDATA[Connettori Copilot]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Graph Connector]]></Val>
+            <Val><![CDATA[Copilot connector]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -8385,12 +8487,12 @@
       </Item>
       <Item ItemId=";error.appstudio.buildError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to build Teams Package!]]></Val>
+          <Val><![CDATA[Unable to build app Package!]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Non è possibile creare il pacchetto di Teams.]]></Val>
+            <Val><![CDATA[Impossibile compilare il pacchetto dell'app.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Package built failed!]]></Val>
+            <Val><![CDATA[Unable to build Teams Package!]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9933,24 +10035,24 @@
       </Item>
       <Item ItemId=";plugins.appstudio.buildSucceedNotice" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams package successfully built at [local address]5D;(%s).]]></Val>
+          <Val><![CDATA[App package successfully built at [local address]5D;(%s).]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Il pacchetto di Teams è stato compilato in [indirizzo locale]5D;(%s).]]></Val>
+            <Val><![CDATA[Il pacchetto dell'app è stato compilato in [indirizzo locale]5D;(%s).]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams package is successfully built at [local address]5D;(%s).]]></Val>
+            <Val><![CDATA[Teams package successfully built at [local address]5D;(%s).]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";plugins.appstudio.buildSucceedNotice.fallback" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Teams package successfully built at %s.]]></Val>
+          <Val><![CDATA[App package successfully built at %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Il pacchetto di Teams è stato compilato in %s.]]></Val>
+            <Val><![CDATA[Il pacchetto dell'app è stato compilato in %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams package is successfully built at %s.]]></Val>
+            <Val><![CDATA[Teams package successfully built at %s.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
