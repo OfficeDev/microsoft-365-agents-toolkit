@@ -452,7 +452,7 @@ function traverseTreeNodeForOperations(
     const resourcePath = normalizedPath.substring(0, lastHashIndex);
 
     let auth: AuthInfo | undefined;
-    if (security) {
+    if (security && Object.keys(securitySchemes).length > 0) {
       const firstRequirementObject = security[0];
       if (firstRequirementObject) {
         const securitySchemeNames = Object.keys(firstRequirementObject);

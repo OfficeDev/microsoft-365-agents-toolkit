@@ -395,6 +395,32 @@ describe("daSpecParser", () => {
       });
     });
 
+    it("should handle securitySchemes is undefined", async () => {
+      const mockTreeInfo: KiotaTreeResult = {
+        rootNode: {
+          isOperation: true,
+          path: "api/secure",
+          segment: "GET",
+          operationId: "getSecureResource",
+          summary: "Get secure resource",
+          description: "Get a secure resource",
+          selected: true,
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [{ api_key: [] }],
+        securitySchemes: undefined,
+        logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
+      };
+
+      listAPITreeInfoStub.resolves(mockTreeInfo);
+
+      const result = await daSpecParser.listAPIInfo("path/to/spec");
+
+      assert.equal(result.APIs[0].auth, undefined);
+    });
+
     it("should handle missing summary and description", async () => {
       const mockTreeInfo: KiotaTreeResult = {
         rootNode: {
