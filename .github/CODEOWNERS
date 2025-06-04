@@ -305,9 +305,68 @@
 
 /schemas/* @yuqizhou77 @huimiu
 
-/templates/* @adashen @wenytang-ms
+/templates/* @hund030 @eriolchan @huimiu
+/templates/**/ai-assistant-bot @kimizhu @swatDong @kuojianlu
+/templates/**/ai-bot @kimizhu @swatDong @kuojianlu
+/templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi
+/templates/**/declarative-agent-with-action-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-bearer @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-with-action-from-scratch-oauth @eriolchan @huimiu @Yimin-Jin
+/templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin
+/templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin
+/templates/**/command-and-response @kimizhu @dooriya @swatDong
+/templates/**/message-extension-with-existing-api @yuqizhou77 @Alive-Fish @jayzhang
+/templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang
+/templates/**/message-extension-with-api-from-scratch @eriolchan @huimiu @Yimin-Jin
+/templates/**/message-extension-with-api-from-scratch-api-key @eriolchan @huimiu @Yimin-Jin
+/templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang
+/templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang
+/templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang
+/templates/**/custom-copilot-rag-azure-ai-search @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
+/templates/**/custom-copilot-rag-customize @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
+/templates/**/custom-copilot-rag-microsoft365 @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124
+/templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin
+/templates/**/default-bot @JerryYangKai @eriolchan @Siglud @Yukun-dong
+/templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong
+/templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong
+/templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong
+/templates/**/m365-message-extension @kimizhu @swatDong @kuojianlu
+/templates/**/message-extension @yuqizhou77 @Yukun-dong
+/templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong
+/templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin
+/templates/**/message-extension-search @JerryYangKai @eriolchan @Siglud @Yukun-dong
+/templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin
+/templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77
+/templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030
+/templates/**/notification-http-timer-trigger @kimizhu @dooriya @swatDong
+/templates/**/notification-http-trigger @kimizhu @dooriya @swatDong
+/templates/**/notification-express @kimizhu @dooriya @swatDong
+/templates/**/notification-timer-trigger @kimizhu @dooriya @swatDong
+/templates/**/notification-webapi @kimizhu @dooriya @swatDong
+/templates/**/office-addin @jayzhang @tecton
+/templates/**/office-json-addin @jayzhang @tecton
+/templates/**/office-xml-addin-excel-cf @jayzhang @tecton
+/templates/**/office-xml-addin-excel-react @jayzhang @tecton
+/templates/**/office-xml-addin-excel-sso @jayzhang @tecton
+/templates/**/office-xml-addin-excel-taskpane @jayzhang @tecton
+/templates/**/office-xml-addin-powerpoint-react @jayzhang @tecton
+/templates/**/office-xml-addin-powerpoint-sso @jayzhang @tecton
+/templates/**/office-xml-addin-powerpoint-taskpane @jayzhang @tecton
+/templates/**/office-xml-addin-word-react @jayzhang @tecton
+/templates/**/office-xml-addin-word-sso @jayzhang @tecton
+/templates/**/office-xml-addin-word-taskpane @jayzhang @tecton
+/templates/**/spfx-tab @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
+/templates/**/spfx-tab-import @HuihuiWu-Microsoft @yuqizhou77 @nliu-ms @jayzhang
+/templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin
+/templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030
+/templates/**/sso-tab-with-obo-flow @Yimin-Jin @hund030 @huimiu @eriolchan
+/templates/**/workflow @kimizhu @dooriya @swatDong
+/templates/constraints/yml/actions @hund030 @eriolchan @huimiu
 
 /templates/vsc/python @adashen @blackchoey @frankqianms
-/templates/scripts @wenytang-ms @adashen
+/templates/scripts @hund030 @eriolchan @huimiu
 /templates/vs/csharp/custom-copilot-* @adashen @blackchoey @frankqianms @xzf0587 
 /templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @adashen
+/templates/vsc/* @adashen @wenytang-ms
+/templates/vs/* @adashen @wenytang-ms
