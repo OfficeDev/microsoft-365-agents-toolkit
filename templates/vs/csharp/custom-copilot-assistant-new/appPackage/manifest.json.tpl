@@ -39,9 +39,11 @@
                 {{#CEAEnabled}} 
                 "copilot",
                 {{/CEAEnabled}}
-                "personal",
+                {{^CEAEnabled}}
                 "team",
-                "groupChat"
+                "groupChat",
+                {{/CEAEnabled}}
+                "personal"
             ],
             "supportsFiles": false,
             "isNotificationOnly": false,
