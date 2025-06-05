@@ -106,7 +106,7 @@ Before running or debugging your agent, please follow these steps to setup your 
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![AI Agent in Microsoft 365 Agents Playground](https://github.com/OfficeDev/TeamsFx/assets/37978464/e3b458f3-5e74-460d-9df2-bf77ed8d9c54)
+![AI Agent in Microsoft 365 Agents Playground](https://github.com/user-attachments/assets/79841a5c-58fb-44c0-ac60-5dbd1d7bb2cc)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.

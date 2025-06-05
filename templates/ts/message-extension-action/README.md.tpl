@@ -25,7 +25,7 @@ This app template implements action command that allows you to present your user
 
 **Congratulations**! You are running an application that can share information in rich format by creating an Adaptive Card in Microsoft 365 Agents Playground.
 
-![action-ME](https://github.com/OfficeDev/TeamsFx/assets/9698542/c0afbd89-7fbb-4e73-98a2-f018be4ca88c)
+![action-ME](https://github.com/user-attachments/assets/43e6b7bb-daa7-476d-a76d-ea43dfcb24ee)
 {{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.

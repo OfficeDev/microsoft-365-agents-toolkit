@@ -36,7 +36,7 @@ It showcases how to build an AI agent in Teams capable of chatting with users an
 
 **Congratulations**! You are running an application that can now interact with users in Microsoft 365 Agents Playground:
 
-![AI Agent](https://github.com/OfficeDev/TeamsFx/assets/37978464/053218b7-cb17-4db4-9b8a-50ca04c1cb55)
+![AI Agent](https://github.com/user-attachments/assets/5c38d129-f033-4f17-8ecc-23f827d7c1fd)
 {{/enableTestToolByDefault}}
 {{^enableTestToolByDefault}}
 1. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't yet.

@@ -24,7 +24,7 @@ This app template is a search-based [message extension](https://docs.microsoft.c
 
 **Congratulations**! You are running an application that can now search npm registries in Microsoft 365 Agents Playground.
 
-![Search app demo](https://github.com/OfficeDev/TeamsFx/assets/9698542/5275e5bc-492f-4365-b602-5803938a9780)
+![Search app demo](https://github.com/user-attachments/assets/b780de4e-d537-424f-9782-f48f06713283)
 {{/enableMETestToolByDefault}}
 {{^enableMETestToolByDefault}}
 2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
