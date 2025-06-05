@@ -10,9 +10,6 @@ builder.Services.AddControllers();
 builder.Services.AddHttpClient("WebClient", client => client.Timeout = TimeSpan.FromSeconds(600));
 builder.Services.AddHttpContextAccessor();
 
-// Add AspNet token validation
-builder.Services.AddBotAspNetAuthentication(builder.Configuration);
-
 builder.Services.AddCloudAdapter();
 // Add AspNet token validation
 builder.Services.AddBotAspNetAuthentication(builder.Configuration);
