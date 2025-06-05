@@ -63,7 +63,7 @@ new OutlookTabTestCase(
   {
     testPlanCaseId_local: 17451443,
     testPlanCaseId_dev: 24121457,
-    testRootFolder: path.resolve(homedir(), "resourse"), // fix npm build error
+    testRootFolder: path.resolve(homedir(), "resource"), // fix npm build error
   }
   //{ debug: "cli" }
 ).test();
