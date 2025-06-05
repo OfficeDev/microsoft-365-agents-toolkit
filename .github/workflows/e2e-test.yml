@@ -442,7 +442,7 @@ jobs:
 
             started_at=`echo $jobs | jq --arg case $case -r '.[] | select(.name == $case ) | .steps[] | select(.name == "run test") | .started_at'`
             completed_at=`echo $jobs | jq --arg case $case -r '.[] | select(.name == $case ) | .steps[] | select(.name == "run test") | .completed_at'`
-            if [ ! -z "$started_at" && ! -z "$completed_at"]; then
+            if [ ! -z "$started_at" ] && [ ! -z "$completed_at" ]; then
               duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
             else
               duration=0
