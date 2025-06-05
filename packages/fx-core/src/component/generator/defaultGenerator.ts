@@ -66,7 +66,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       const templatePath = templateInfo.subFolder
         ? path.join(destinationPath, templateInfo.subFolder)
         : destinationPath;
-      await this.scaffolding(context, templateInfo, templatePath, actionContext);
+      await this.scaffolding(context, templateInfo, templatePath, actionContext, inputs);
     }
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);
@@ -99,7 +99,8 @@ export class DefaultTemplateGenerator implements IGenerator {
     context: Context,
     templateInfo: TemplateInfo,
     destinationPath: string,
-    actionContext?: ActionContext
+    actionContext?: ActionContext,
+    inputs?: Inputs
   ): Promise<void> {
     const name = templateInfo.templateName;
     const language = convertToLangKey(templateInfo.language) ?? commonTemplateName;
@@ -137,6 +138,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       language: language,
       destination: destinationPath,
       logProvider: context.logProvider,
+      platform: inputs!.platform,
       fileNameReplaceFn: (fileName, fileData) =>
         renderTemplateFileName(fileName, fileData, replaceMap)
           .replace(/\\/g, "/")

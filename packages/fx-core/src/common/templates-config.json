@@ -2,10 +2,11 @@
     "version": "~6.0",
     "localVersion": "6.0.0",
     "tagPrefix": "templates@",
+    "tagPrefix-vs": "templates-vs@18.0.0",
     "tagListURL": "https://github.com/OfficeDev/TeamsFx/releases/download/template-tag-list/template-tags.txt",
     "templateDownloadBaseURL": "https://github.com/OfficeDev/TeamsFx/releases/download",
     "templateReleaseURL": "https://github.com/OfficeDev/TeamsFx/releases/expanded_assets",
     "templateDownloadBasePath": "/OfficeDev/TeamsFx/releases/download",
     "templateExt": ".zip",
-    "useLocalTemplate": true
+    "useLocalTemplate": false
 }

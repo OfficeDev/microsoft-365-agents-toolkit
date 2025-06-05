@@ -22,7 +22,7 @@ import {
   sampleDefaultRetryLimits,
   templateFileExt,
 } from "./constant";
-import { Context as FxContext, signedIn } from "@microsoft/teamsfx-api";
+import { Context as FxContext, signedIn, Platform } from "@microsoft/teamsfx-api";
 import { getDefaultString } from "../../common/localizeUtils";
 import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ListSensitivityLabelScope } from "../../common/constants";
@@ -30,16 +30,21 @@ import { GraphClient } from "../../client/graphClient";
 
 export async function getTemplateUrl(
   name: string,
-  getLatestVersion: () => Promise<string>
+  getLatestVersion: () => Promise<string>,
+  platform?: Platform
 ): Promise<string | undefined> {
   if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
-    return getTemplateZipUrlByVersion(name, `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`);
+    return getTemplateZipUrlByVersion(
+      platform!,
+      name,
+      `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`
+    );
   }
   if (!templateConfig.useLocalTemplate) {
     const latestVersion = await getLatestVersion();
     if (semver.gt(latestVersion, templateConfig.localVersion)) {
       // Upstream latest version is higher than the local version, return upstream templates url for downloading.
-      return getTemplateZipUrlByVersion(name, latestVersion);
+      return getTemplateZipUrlByVersion(platform!, name, latestVersion);
     }
   }
 }
@@ -82,8 +87,16 @@ export async function getTemplateLatestVersion(
   return selectedVersion;
 }
 
-export function getTemplateZipUrlByVersion(name: string, version: string): string {
-  return `${templateConfig.templateDownloadBaseURL}/${templateConfig.tagPrefix}${version}/${name}${templateConfig.templateExt}`;
+export function getTemplateZipUrlByVersion(
+  platform: Platform,
+  name: string,
+  version: string
+): string {
+  const tagPrefix =
+    platform === Platform.VS
+      ? templateConfig["tagPrefix-vs"]
+      : templateConfig["tagPrefix"] + version;
+  return `${templateConfig.templateDownloadBaseURL}/${tagPrefix}/${name}${templateConfig.templateExt}`;
 }
 
 export async function fetchZipFromUrl(
