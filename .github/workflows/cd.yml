@@ -6,7 +6,7 @@ on:
       preid:
         description: "preid name(alpha, preview, rc, stable)"
         required: true
-        default: "preview"
+        default: "alpha"
       series:
         description: "release sprint series name"
         required: false
@@ -16,6 +16,10 @@ on:
         required: false
         description: "Please enter the package names you want to publish, such as cli, vscode, ui, sdk, server and template. Please separate multiple entries with spaces"
         default: ""
+      vsrelease:
+        type: boolean
+        default: false
+        description: "Whether to release vs product"
   schedule:
     - cron: "0 16 * * *"
 
@@ -29,6 +33,7 @@ jobs:
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
+      VSC: ${{ github.event.inputs.vsrelease }}
     steps:
       - name: Validate CD branch
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
@@ -172,6 +177,24 @@ jobs:
           tag: "template-tag-list"
           allowUpdates: true
 
+      - name: Get VS Templates version
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
+        id: vs-template-tag
+        run: |
+          VS_VERSION=$(node -p "require('templates/package.json').vsversion")
+          echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_ENV
+
+      - uses: mini-bomba/create-github-release@v1.1.3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
+          name: ${{ steps.vs-template-tag.outputs.VSTAG }}
+          body: "VS Templates release for ${{ steps.vs-template-tag.outputs.VSTAG }}"
+          target_commitish: ${{ github.ref }}
+          files: |
+            ${{ github.workspace }}/templates/build/csharp.zip
+
       - name: enable prerelease only features
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |
@@ -256,7 +279,7 @@ jobs:
           npx lerna publish from-package --yes
 
       - name: pack server bits
-        if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') || (github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' ) }}
         uses: nick-invision/retry@v2
         with:
           timeout_minutes: 10
