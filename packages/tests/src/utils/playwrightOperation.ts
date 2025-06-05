@@ -2875,6 +2875,19 @@ export async function messageExtensionClean(page: Page, appName: string) {
   console.log("verify app removed successfully");
 }
 
+export async function messageExtensionChatWindow(
+  page: Page,
+  accountName: string
+) {
+  console.log(`Start chat window with an account ${accountName}`);
+  const input = await page.waitForSelector("input#ms-searchux-input");
+  await input.fill(accountName);
+  await page.press("#ms-searchux-input", "Enter");
+  const account = await page.waitForSelector(`p:has-text('${accountName}')`);
+  await account.click();
+  await page.waitForTimeout(Timeout.shortTimeLoading);
+}
+
 export async function messageExtensionActivate(page: Page, appName: string) {
   console.log("start to activate message extension");
   const extButton = await page.waitForSelector(
