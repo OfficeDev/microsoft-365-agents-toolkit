@@ -33,19 +33,37 @@ export async function getTemplateUrl(
   getLatestVersion: () => Promise<string>,
   platform?: Platform
 ): Promise<string | undefined> {
+  return platform === Platform.VS
+    ? getTemplateVSUrl(name)
+    : await getTemplateVSCUrl(name, getLatestVersion);
+}
+
+async function getTemplateVSCUrl(
+  name: string,
+  getLatestVersion: () => Promise<string>
+): Promise<string | undefined> {
   if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
     return getTemplateZipUrlByVersion(
-      platform!,
       name,
-      `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`
+      `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`,
+      templateConfig.tagPrefix
     );
   }
   if (!templateConfig.useLocalTemplate) {
     const latestVersion = await getLatestVersion();
     if (semver.gt(latestVersion, templateConfig.localVersion)) {
       // Upstream latest version is higher than the local version, return upstream templates url for downloading.
-      return getTemplateZipUrlByVersion(platform!, name, latestVersion);
+      return getTemplateZipUrlByVersion(name, latestVersion, templateConfig.tagPrefix);
     }
+  }
+}
+
+function getTemplateVSUrl(name: string): string | undefined {
+  if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
+    return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
+  }
+  if (!templateConfig.useLocalTemplate) {
+    return getTemplateZipUrlByVersion(name, templateConfig.vsversion, templateConfig.vstagPrefix);
   }
 }
 
@@ -87,16 +105,8 @@ export async function getTemplateLatestVersion(
   return selectedVersion;
 }
 
-export function getTemplateZipUrlByVersion(
-  platform: Platform,
-  name: string,
-  version: string
-): string {
-  const tagPrefix =
-    platform === Platform.VS
-      ? templateConfig["tagPrefix-vs"]
-      : templateConfig["tagPrefix"] + version;
-  return `${templateConfig.templateDownloadBaseURL}/${tagPrefix}/${name}${templateConfig.templateExt}`;
+export function getTemplateZipUrlByVersion(name: string, version: string, prefex: string): string {
+  return `${templateConfig.templateDownloadBaseURL}/${templateConfig.tagPrefix}${version}/${name}${templateConfig.templateExt}`;
 }
 
 export async function fetchZipFromUrl(
