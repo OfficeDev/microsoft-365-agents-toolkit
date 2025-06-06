@@ -196,7 +196,7 @@ jobs:
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
           name: ${{ steps.vs-template-tag.outputs.VSTAG }}
           body: "VS Templates release for ${{ steps.vs-template-tag.outputs.VSTAG }}"
-          target_commit: ${{ github.ref }}
+          target_commit: ${{ github.sha }}
           clear_attachments: true
           files: |
             ${{ github.workspace }}/templates/build/csharp.zip
