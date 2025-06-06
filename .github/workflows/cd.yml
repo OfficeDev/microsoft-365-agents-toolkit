@@ -24,8 +24,8 @@ on:
     - cron: "0 16 * * *"
 
 permissions:
-  actions: read
-  contents: read
+  actions: write
+  contents: write
 
 jobs:
   cd:
