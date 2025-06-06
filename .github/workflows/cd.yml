@@ -186,7 +186,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
         id: vs-template-tag
         run: |
-          VS_VERSION=$(node -p "require('templates/package.json').vsversion")
+          VS_VERSION=$(node -p "require('./templates/package.json').vsversion")
           echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_ENV
 
       - uses: mini-bomba/create-github-release@v1.1.3
