@@ -362,6 +362,8 @@
 /templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030
 /templates/**/sso-tab-with-obo-flow @Yimin-Jin @hund030 @huimiu @eriolchan
 /templates/**/workflow @kimizhu @dooriya @swatDong
+/templates/**/basic-custom-engine-agent @adashen @frankqianms
+/templates/**/weather-agent @adashen @frankqianms
 /templates/constraints/yml/actions @hund030 @eriolchan @huimiu
 
 /templates/vsc/python @adashen @blackchoey @frankqianms
