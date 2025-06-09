@@ -5,6 +5,7 @@ import { getTemplateZipUrlByVersion, getTemplateUrl } from "../../../src/compone
 import { Platform } from "@microsoft/teamsfx-api";
 import mockedEnv from "mocked-env";
 import proxyquire from "proxyquire";
+import sinon from "sinon";
 describe("utils unit test cases", () => {
   it("should return the correct URL for a given version", () => {
     const version = "6.0.0";
@@ -42,11 +43,11 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    proxyquire("../../../src/component/generator/utils", {
+    const dUtils = proxyquire("../../../src/component/generator/utils", {
       "../../common/templates-config.json": mockSettings,
     });
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
-    const result = await getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/ts.zip";
     assert.strictEqual(result, expectedUrl);
@@ -70,11 +71,11 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    proxyquire("../../../src/component/generator/utils", {
+    const dUtils = proxyquire("../../../src/component/generator/utils", {
       "../../common/templates-config.json": mockSettings,
     });
     const getLatestVersion = () => Promise.resolve("18.0.0");
-    const result = await getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.0.0/ts.zip";
     assert.strictEqual(result, expectedUrl);
