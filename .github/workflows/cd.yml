@@ -20,6 +20,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release vs product"
+      vstemplate:
+        type: boolean
+        default: false
+        description: "Whether to release vs template"
   schedule:
     - cron: "0 16 * * *"
 
@@ -33,7 +37,7 @@ jobs:
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
-      VSC: ${{ github.event.inputs.vsrelease }}
+      VS_RELEASE: ${{ github.event.inputs.vsrelease }}
     steps:
       - name: Validate CD branch
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
@@ -178,7 +182,7 @@ jobs:
           allowUpdates: true
 
       - name: Release RC VS templates to GitHub
-        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/release/vs') }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
         uses: mini-bomba/create-github-release@v1.1.3
         with:
           token: ${{ steps.generate-token.outputs.token }}
@@ -192,7 +196,7 @@ jobs:
             ${{ github.workspace }}/templates/build/csharp.zip
       
       - name: Get VS Templates version
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && contains(github.events.inputs.pkgs, "templates") }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         id: vs-template-tag
         run: |
           VS_VERSION=$(node -p "require('./templates/package.json').vsversion")
@@ -200,7 +204,7 @@ jobs:
 
       - name: Release stable VS Templates to GitHub
         uses: mini-bomba/create-github-release@v1.1.3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && contains(github.events.inputs.pkgs, "templates") }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
