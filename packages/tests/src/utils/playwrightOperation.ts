@@ -1815,7 +1815,7 @@ export async function validateNpm(
     await input?.fill(searchPack);
     try {
       const targetItem = await page?.waitForSelector(
-        `span:has-text("${searchPack}")`
+        `button:has-text("${searchPack}")`
       );
       await targetItem?.click();
       await page.waitForTimeout(Timeout.shortTimeWait);
