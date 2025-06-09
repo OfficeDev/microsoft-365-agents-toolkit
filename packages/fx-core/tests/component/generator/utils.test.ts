@@ -93,8 +93,12 @@ describe("utils unit test cases", () => {
   });
 
   it("should return undefined for use local template for getTemplateVSCUrl", async () => {
+    const restore = mockedEnv({
+      TEAMSFX_TEMPLATE_PRERELEASE: "",
+    });
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
     const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
     assert.isUndefined(result);
+    restore();
   });
 });
