@@ -59,12 +59,16 @@ async function getTemplateVSCUrl(
 }
 
 function getTemplateVSUrl(name: string): string | undefined {
-  if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
+  //Never download the daily version of VS template
+  if (templateConfig.useLocalTemplate) {
+    return;
+  }
+  // If the template is a prerelease version, use the "0.0.0-rc" version.
+  if (process.env.TEAMSFX_TEMPLATE_PRERELEASE === Platform.VS) {
     return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
   }
-  if (!templateConfig.useLocalTemplate) {
-    return getTemplateZipUrlByVersion(name, templateConfig.vsversion, templateConfig.vstagPrefix);
-  }
+  // If the template is stable version, use the latest stable version.
+  return getTemplateZipUrlByVersion(name, templateConfig.vsversion, templateConfig.vstagPrefix);
 }
 
 async function selectTemplateVersion(
