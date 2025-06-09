@@ -59,9 +59,7 @@ async function getTemplateVSCUrl(
 }
 
 function getTemplateVSUrl(name: string): string | undefined {
-  console.dir(templateConfig, { depth: null });
-  // If the template is a local version, use the local version.
-  //Never download the daily version of VS template
+  // If the template is a daily version, return undefined to use local template.
   if (templateConfig.useLocalTemplate) {
     return;
   }

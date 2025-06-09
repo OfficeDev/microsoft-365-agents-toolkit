@@ -49,7 +49,7 @@ describe("utils unit test cases", () => {
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
     const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
-      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/ts.zip";
+      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
     assert.strictEqual(result, expectedUrl);
     restore();
   });
@@ -77,7 +77,7 @@ describe("utils unit test cases", () => {
     const getLatestVersion = () => Promise.resolve("18.0.0");
     const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
-      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.0.0/ts.zip";
+      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.0.0/csharp.zip";
     assert.strictEqual(result, expectedUrl);
   });
 
