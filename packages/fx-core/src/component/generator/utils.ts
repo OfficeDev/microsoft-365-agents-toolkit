@@ -106,7 +106,7 @@ export async function getTemplateLatestVersion(
 }
 
 export function getTemplateZipUrlByVersion(name: string, version: string, prefex: string): string {
-  return `${templateConfig.templateDownloadBaseURL}/${templateConfig.tagPrefix}${version}/${name}${templateConfig.templateExt}`;
+  return `${templateConfig.templateDownloadBaseURL}/${prefex}${version}/${name}${templateConfig.templateExt}`;
 }
 
 export async function fetchZipFromUrl(
