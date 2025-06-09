@@ -1794,6 +1794,7 @@ export async function validateNpm(
 ) {
   try {
     const searchPack = options?.npmName || "axios";
+    await messageExtensionChatWindow(page, Env.collaborator);
     console.log("start to verify npm search");
     await page.waitForTimeout(Timeout.shortTimeLoading);
     const frame = await page.waitForSelector("div#app");
@@ -2924,6 +2925,7 @@ export async function messageExtensionActivate(page: Page, appName: string) {
 
 export async function validateCreatedCard(page: Page, appName: string) {
   try {
+    await messageExtensionChatWindow(page, Env.collaborator);
     const frame = await page.waitForSelector("div#app");
     console.log("start to created card");
     await messageExtensionActivate(page, appName);
