@@ -53,7 +53,7 @@ function syncTemplateVersion(templateVersion, templateConfigs) {
 }
 
 function updateUseLocalFlag(templateVersion, templateConfigs) {
-  if (!semver.prerelease(templateVersion) || templateVersion.includes("rc")) {
+  if (!semver.prerelease(templateVersion) || templateVersion.includes("rc") || process.env.VS_RELEASE === "true") {
     templateConfigs.useLocalTemplate = false;
   } else {
     templateConfigs.useLocalTemplate = true;
