@@ -177,15 +177,30 @@ jobs:
           tag: "template-tag-list"
           allowUpdates: true
 
+      - name: Release RC VS templates to GitHub
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && contains(github.events.inputs.pkgs, "server") }}
+        uses: mini-bomba/create-github-release@v1.1.3
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          tag: "templates-vs@0.0.0-rc"
+          name: "templates-vs@0.0.0-rc"
+          body: "VS Templates RC release for templates-vs@0.0.0-rc"
+          target_commit: ${{ github.sha }}
+          prerelease: true
+          clear_attachments: true
+          files: |
+            ${{ github.workspace }}/templates/build/csharp.zip
+      
       - name: Get VS Templates version
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && contains(github.events.inputs.pkgs, "templates") }}
         id: vs-template-tag
         run: |
           VS_VERSION=$(node -p "require('./templates/package.json').vsversion")
           echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_OUTPUT
 
-      - uses: mini-bomba/create-github-release@v1.1.3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
+      - name: Release stable VS Templates to GitHub
+        uses: mini-bomba/create-github-release@v1.1.3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && contains(github.events.inputs.pkgs, "templates") }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
