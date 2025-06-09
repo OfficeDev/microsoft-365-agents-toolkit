@@ -1825,6 +1825,7 @@ export async function validateNpm(
       console.log("verify npm search successfully!!!");
       await page.waitForTimeout(Timeout.shortTimeLoading);
     } catch (error) {
+      console.log(error);
       await page?.waitForSelector(
         'div.ui-box span:has-text("Unable to reach app. Please try again.")'
       );
