@@ -511,6 +511,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   async selectSubscription(): Promise<void> {
     const subscriptionList = await this.listSubscriptions();
     if (!subscriptionList || subscriptionList.length == 0) {
+      VsCodeLogInstance.error(
+        "Failed to find a subscription in current tenant, switch to a tenant that has subscription linked by hovering Azure account and clicking 'Switch' button."
+      );
       throw new UserError(
         getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
         getDefaultString("teamstoolkit.azureLogin.noSubscriptionFound"),
