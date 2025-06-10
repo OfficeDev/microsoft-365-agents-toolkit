@@ -36,12 +36,10 @@ const ubuntu_22 = [
   "sample-todo-list-with-m365",
   "sample-intelligent-data-chart",
   "sample-dice-roller",
-  // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
-];
-const ubuntu_18 = [
   "sample-todo-list-with-spfx",
   "sample-spfx-productivity-dashboard",
   "sample-react-retail-dashboard",
+  // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
 ];
 
 const sampleRecord: any = {
@@ -94,20 +92,23 @@ function main() {
   for (const sample of samplesOnGallery) {
     if (sampleRecord[sample]) {
       if (windows_22.includes(sampleRecord[sample])) {
-        pvtData["windows-latest"]["node-22"].push(sampleRecord[sample]);
-        console.log(
-          `add sample ${sampleRecord[sample]} to windows-latest node-22`
-        );
+        try {
+          pvtData["windows-latest"]["node-22"].push(sampleRecord[sample]);
+          console.log(
+            `add sample ${sampleRecord[sample]} to windows-latest node-22`
+          );
+        } catch (error) {
+          console.log("there is no windows-latest node-22 in pvt.json", error);
+        }
       } else if (ubuntu_22.includes(sampleRecord[sample])) {
-        pvtData["ubuntu-latest"]["node-22"].push(sampleRecord[sample]);
-        console.log(
-          `add sample ${sampleRecord[sample]} to ubuntu-latest node-22`
-        );
-      } else if (ubuntu_18.includes(sampleRecord[sample])) {
-        pvtData["ubuntu-latest"]["node-18"].push(sampleRecord[sample]);
-        console.log(
-          `add sample ${sampleRecord[sample]} to ubuntu-latest node-18`
-        );
+        try {
+          pvtData["ubuntu-latest"]["node-22"].push(sampleRecord[sample]);
+          console.log(
+            `add sample ${sampleRecord[sample]} to ubuntu-latest node-22`
+          );
+        } catch (error) {
+          console.log("there is no ubuntu-latest node-22 in pvt.json", error);
+        }
       }
     }
   }
