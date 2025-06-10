@@ -1794,6 +1794,7 @@ export async function validateNpm(
 ) {
   try {
     const searchPack = options?.npmName || "axios";
+    await messageExtensionChatWindow(page, Env.collaborator);
     console.log("start to verify npm search");
     await page.waitForTimeout(Timeout.shortTimeLoading);
     const frame = await page.waitForSelector("div#app");
@@ -1814,7 +1815,7 @@ export async function validateNpm(
     await input?.fill(searchPack);
     try {
       const targetItem = await page?.waitForSelector(
-        `span:has-text("${searchPack}")`
+        `button:has-text("${searchPack}")`
       );
       await targetItem?.click();
       await page.waitForTimeout(Timeout.shortTimeWait);
@@ -1824,6 +1825,7 @@ export async function validateNpm(
       console.log("verify npm search successfully!!!");
       await page.waitForTimeout(Timeout.shortTimeLoading);
     } catch (error) {
+      console.log(error);
       await page?.waitForSelector(
         'div.ui-box span:has-text("Unable to reach app. Please try again.")'
       );
@@ -2924,6 +2926,7 @@ export async function messageExtensionActivate(page: Page, appName: string) {
 
 export async function validateCreatedCard(page: Page, appName: string) {
   try {
+    await messageExtensionChatWindow(page, Env.collaborator);
     const frame = await page.waitForSelector("div#app");
     console.log("start to created card");
     await messageExtensionActivate(page, appName);
