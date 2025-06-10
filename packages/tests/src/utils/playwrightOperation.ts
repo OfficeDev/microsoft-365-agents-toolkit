@@ -3184,7 +3184,8 @@ export async function validateMultiParamsApiMeResult(
       "div.ac-input-container span.fui-Input input[type='text']"
     );
     await testInput?.fill("5");
-    await page.click("button[type='submit']");
+    await page.waitForTimeout(Timeout.shortTimeWait);
+    await page.click("button:has-text('Search')");
     await page.waitForTimeout(Timeout.shortTimeWait);
     try {
       await page?.waitForSelector('ul[datatid="app-picker-list"]');
