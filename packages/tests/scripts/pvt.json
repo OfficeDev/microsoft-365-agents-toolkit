@@ -57,17 +57,6 @@
       "remotedebug-chatdata-customapi-py-openai-win-only",
       "remotedebug-da-action-none-ts"
     ],
-    "node-18": [
-      "treeview-newproject-spfx",
-      "treeview-collaboration-spfx",
-      "remotedebug-spfxreact-globalpkg",
-      "remotedebug-spfxnone-globalpkg-addwebpart",
-      "remotedebug-spfxreact-addwebpart",
-      "remotedebug-spfxreact-import-single",
-      "remotedebug-spfxreact-import-multiple",
-      "remotedebug-spfx-minimal",
-      "remotedebug-spfx-react"
-    ],
     "node-22": [
       "obo-tab",
       "obo-tab-ts",
@@ -98,7 +87,16 @@
       "msgsa",
       "msgsa-ts",
       "linkunfurling",
-      "linkunfurling-ts"
+      "linkunfurling-ts",
+      "treeview-newproject-spfx",
+      "treeview-collaboration-spfx",
+      "remotedebug-spfxreact-globalpkg",
+      "remotedebug-spfxnone-globalpkg-addwebpart",
+      "remotedebug-spfxreact-addwebpart",
+      "remotedebug-spfxreact-import-single",
+      "remotedebug-spfxreact-import-multiple",
+      "remotedebug-spfx-minimal",
+      "remotedebug-spfx-react"
     ]
   },
   "ubuntu-latest": {
@@ -145,14 +143,6 @@
     ],
     "node-20": [
       "obo-tab-ts"
-    ],
-    "node-18": [
-      "remotedebug-spfx-publish",
-      "treeview-spfx-manifest",
-      "localdebug-spfx-minimal",
-      "localdebug-spfx",
-      "localdebug-spfx-import-multiple",
-      "spfx-none"
     ]
   },
   "macos-latest": {
@@ -170,10 +160,13 @@
       "localdebug-chatdata-azureai-ts-openai",
       "remotedebug-chatdata-azureai-js-openai",
       "remotedebug-chatdata-azureai-py-openai",
-      "remotedebug-chatdata-azureai-ts-openai"
-    ],
-    "node-18": [
-      "treeview-collaboration-spfx"
+      "remotedebug-chatdata-azureai-ts-openai",
+      "remotedebug-spfx-publish",
+      "treeview-spfx-manifest",
+      "localdebug-spfx-minimal",
+      "localdebug-spfx",
+      "localdebug-spfx-import-multiple",
+      "spfx-none"
     ]
   }
 }
