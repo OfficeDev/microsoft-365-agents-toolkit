@@ -18,7 +18,7 @@ import { useTeams } from "./sample/lib/useTeams";
  * of the app.
  */
 export default function App() {
-  const { loading, theme, themeString } = useTeams();
+  const { loading, themeString } = useTeams();
   return (
     <FluentProvider
       theme={
