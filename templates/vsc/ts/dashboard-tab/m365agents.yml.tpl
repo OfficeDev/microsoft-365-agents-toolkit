@@ -42,14 +42,6 @@ provision:
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
 
-  # Get the deployment token from Azure Static Web Apps
-  - uses: azureStaticWebApps/getDeploymentToken
-    with:
-      resourceId: ${{AZURE_STATIC_WEB_APPS_RESOURCE_ID}}
-    # Save deployment token to the environment file for the deployment action
-    writeToEnvironmentFile:
-      deploymentToken: SECRET_TAB_SWA_DEPLOYMENT_TOKEN
-
   # Validate using manifest schema
   - uses: teamsApp/validateManifest
     with:
@@ -96,6 +88,10 @@ deploy:
     name: build app
     with:
       args: run build --if-present
+  # Get the deployment token from Azure Static Web Apps
+  - uses: azureStaticWebApps/getDeploymentToken
+    with:
+      resourceId: ${{AZURE_STATIC_WEB_APPS_RESOURCE_ID}}
   # Deploy bits to Azure Static Web Apps
   - uses: cli/runNpxCommand
     name: deploy to Azure Static Web Apps

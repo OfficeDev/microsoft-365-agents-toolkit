@@ -68,14 +68,6 @@ provision:
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
 
-  # Get the deployment token from Azure Static Web Apps
-  - uses: azureStaticWebApps/getDeploymentToken
-    with:
-      resourceId: ${{AZURE_STATIC_WEB_APPS_RESOURCE_ID}}
-    # Save deployment token to the environment file for the deployment action
-    writeToEnvironmentFile:
-      deploymentToken: SECRET_TAB_SWA_DEPLOYMENT_TOKEN
-
   # Apply the Microsoft Entra manifest to an existing Microsoft Entra app. Will use the object id in
   # manifest file to determine which Microsoft Entra app to update.
   - uses: aadApp/update
@@ -136,6 +128,10 @@ deploy:
       VITE_START_LOGIN_PAGE_URL: ${{TAB_ENDPOINT}}/auth-start.html
       VITE_FUNC_NAME: getUserProfile
       VITE_FUNC_ENDPOINT: ${{API_FUNCTION_ENDPOINT}}
+  # Get the deployment token from Azure Static Web Apps
+  - uses: azureStaticWebApps/getDeploymentToken
+    with:
+      resourceId: ${{AZURE_STATIC_WEB_APPS_RESOURCE_ID}}
   # Deploy bits to Azure Static Web Apps
   - uses: cli/runNpxCommand
     name: deploy to Azure Static Web Apps
