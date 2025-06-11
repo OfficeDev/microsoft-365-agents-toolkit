@@ -1,0 +1,29 @@
+import * as azdev from "azure-devops-node-api";
+import { AzureCliCredential } from "@azure/identity";
+
+async function run() {
+  const orgUrl = process.env.AZURE_DEVOPS_ORG_URL!;
+  const project = process.env.AZURE_DEVOPS_PROJECT!;
+  const planId = parseInt(process.env.AZURE_DEVOPS_TEST_PLAN_ID!);
+  const suiteId = parseInt(process.env.AZURE_DEVOPS_TEST_SUITE_ID!);
+
+  // Get Azure AD token using Azure CLI credential
+  const credential = new AzureCliCredential();
+  const token = await credential.getToken("https://app.vssps.visualstudio.com/.default");
+
+  // Create auth handler using the Azure AD token
+  const authHandler = azdev.getBearerHandler(token.token);
+  const connection = new azdev.WebApi(orgUrl, authHandler);
+  const testApi = await connection.getTestApi();
+
+  const testCases = await testApi.getTestCases(project, planId, suiteId);
+  console.log(`Found ${testCases.length} test cases in plan ${planId}, suite ${suiteId}`);
+  for (const tc of testCases) {
+    console.log(`- ${tc.testCase.id}: ${tc.testCase.name}`);
+  }
+}
+
+run().catch((err) => {
+  console.error("Error:", err);
+  process.exit(1);
+});
