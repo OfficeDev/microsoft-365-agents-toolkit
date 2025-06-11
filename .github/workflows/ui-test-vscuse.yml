@@ -25,7 +25,7 @@ on:
         required: false
         type: string
 
-  pull_request:
+  # pull_request:
   # schedule:
   #   - cron: "0 18 * * *"
 
