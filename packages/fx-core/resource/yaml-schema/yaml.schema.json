@@ -1706,7 +1706,7 @@
       "type": "object",
       "additionalProperties": false,
       "description": "Get deployment key from Azure Static Web App.",
-      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "required": ["uses", "with"],
       "properties": {
         "uses": {
           "type": "string",

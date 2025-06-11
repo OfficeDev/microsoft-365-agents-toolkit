@@ -25,6 +25,7 @@ on:
         required: false
         type: string
 
+  pull_request:
   # schedule:
   #   - cron: "0 18 * * *"
 
@@ -140,6 +141,17 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
+      - name: Ensure agent_cases folder exists
+        shell: pwsh
+        run: |
+          $folderPath = "packages/tests/vscuse/agent_cases"
+          if (-not (Test-Path -Path $folderPath)) {
+            New-Item -ItemType Directory -Path $folderPath | Out-Null
+            Write-Host "Created folder: $folderPath"
+          } else {
+            Write-Host "Folder already exists: $folderPath"
+          }
+
       - name: Install dependencies for TypeScript
         run: |
           npm install typescript ts-node @types/node
@@ -162,6 +174,7 @@ jobs:
           AZURE_DEVOPS_TEST_PLAN_ID: "24569079"
           AZURE_DEVOPS_TEST_SUITE_ID: "24569087"
         run: npx ts-node src/scripts/fetch-test-cases.ts
+
 
       - name: Generate file list
         shell: pwsh
@@ -430,7 +443,6 @@ jobs:
     
 
       # Run vscuse.exe  (0.1.9 with Agent/ZEN model)
-      # vscuse.exe zen -f "../zen_cases/${{ matrix.file }}.txt" -v --no-cache | tee "${{ runner.temp }}\output.log"
       - name: Run vscuse.exe (Agent model)
         working-directory: packages/tests/vscuse/binary
         run: |
@@ -794,110 +806,8 @@ jobs:
           echo "subject=$subject" >> $GITHUB_OUTPUT
         
         
-
-      # - name: list jobs
-      #   id: list-jobs
-      #   run: |
-      #     page=1
-      #     jobs="[]"
-      #     while :
-      #     do
-      #       url=https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}/jobs\?per_page\=100\&page\=$page
-      #       resp=`curl -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url`
-      #       new_jobs=`echo $resp | jq -cr '.jobs'`
-      #       jobs=`jq -cr --slurp 'add' <(echo "$jobs") <(echo "$new_jobs")`
-      #       has_next=`curl -I -H "Accept: application/vnd.github.v3+json" -u:${{ secrets.GITHUB_TOKEN }} $url | grep -Fi "link:" | grep "rel=\"last\"" || true`
-      #       if [ -z "$has_next" ]; then
-      #         break
-      #       fi
-      #       page=$((page+1))
-      #     done
-      #     cases=`echo $jobs| jq -r '.[] | select(.name | contains("|")) | .name'`
-
-      #     passed=0
-      #     failed=0
-      #     failedlimit=100
-      #     passedlimit=100
-      #     failedlist=""
-      #     passedlist=""
-      #     lists=""
-
-      #     emails="${{ needs.setup.outputs.email-receiver }}"
-
-      #     while IFS= read -r case;
-      #     do
-      #       if [ -z "$case" ]; then
-      #         continue
-      #       fi
-
-      #       name=`echo $case | awk -F '|' '{print $1}'`
-      #       os=`echo $case | awk -F '|' '{print $2}'`
-      #       node=`echo $case | awk -F '|' '{print $3}'`
-      #       branch=`echo $case | awk -F '|' '{print $4}'`
-
-      #       file=`find src -name "$name.test.ts"`
-
-      #       email=""
-      #       if grep -q "@author" $file; then
-      #         email=`grep '@author' $file | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}'`
-      #       fi
-
-      #       status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
-      #       if [[ ! -z "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
-      #         emails="$emails;$email;zhendr@microsoft.com;ccdevexperiencefc@microsoft.com"
-      #       fi
-
-      #       status=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion'`
-      #       started_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .started_at'`
-      #       completed_at=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .completed_at'`
-      #       duration=`dateutils.ddiff $started_at $completed_at -f "%Mm %Ss"`
-
-      #       author=""
-      #       if [ -z "$email" ]; then
-      #         author="N/A"
-      #       else
-      #         author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
-      #       fi
-
-      #       lable=""
-      #       if [ "$status" == "success" ]; then
-      #         passed=$((passed+1))
-      #         label="<span style=\\\"background-color:#2aa198;color:white;font-weight:bold;\\\">PASSED</span>"
-      #       else
-      #         failed=$((failed+1))
-      #         label="<span style=\\\"background-color: #dc322f;color:white;font-weight:bold;\\\">FAILED</span>"
-      #       fi
-
-      #       url=`echo $jobs | jq --arg case "$case" -r '.[] | select(.name == $case ) | .html_url'`
-      #       url="<a href=\\\"$url\\\">$name</a>"
-
-      #       row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$duration</td> </tr>"
-
-      #       if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
-      #         passedlist="$passedlist $row"
-      #       elif [[ "$status" != "success" && $failed -lt $failedlimit ]]; then
-      #         failedlist="$failedlist $row"
-      #       fi
-
-      #     done <<< $cases
-      #     lists="$failedlist $passedlist"
-      #     body="Dashboard App: <a href=\\\"https:\/\/teams.microsoft.com\/l\/entity\/c439ae8d-3ab3-4efd-9223-87366d8c170c\/_djb2_msteams_prefix_1252604900?context=%7B%22channelId%22%3A%2219%3A79488ced607f4fbf8d8433e931cad176%40thread.tacv2%22%7D&tenantId=72f988bf-86f1-41af-91ab-2d7cd011db47\\\">Click Here to Open Dashboard App</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> </tr> $lists </table> <br />"
-
-      #     total=$((passed+failed))
-
-      #     subject="Vsc Use UI Test Report ($passed/$total Passed)"
-      #     if [ $failed -gt 0 ]; then
-      #       subject="[FAILED] $subject"
-      #     else
-      #       subject="[PASSED] $subject"
-      #     fi    
-
-      #     echo "body=$body" >> $GITHUB_OUTPUT
-      #     echo "to=$emails" >> $GITHUB_OUTPUT
-      #     echo "subject=$subject" >> $GITHUB_OUTPUT
-
       - name: Send E-mail(v2)
-        uses: ./.github/actions/send-email-report-2
+        uses: ./.github/actions/send-email-report
         env:
           TO: ${{ steps.list-jobs.outputs.to }}
           BODY: '"${{ steps.list-jobs.outputs.body }}"'

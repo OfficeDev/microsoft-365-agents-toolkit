@@ -144,7 +144,7 @@ describe("Generator utils", () => {
     sandbox.replace(templateConfig, "tagPrefix", "templates@");
     const templateName = "templateName";
     const selectedTag = await generatorUtils.getTemplateLatestVersion();
-    const url = generatorUtils.getTemplateZipUrlByVersion(templateName, selectedTag);
+    const url = generatorUtils.getTemplateZipUrlByVersion(templateName, selectedTag, "templates@");
     assert.isTrue(url.includes(tag));
   });
 

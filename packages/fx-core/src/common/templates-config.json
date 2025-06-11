@@ -2,10 +2,12 @@
     "version": "~6.0",
     "localVersion": "6.0.0",
     "tagPrefix": "templates@",
-    "tagListURL": "https://github.com/OfficeDev/TeamsFx/releases/download/template-tag-list/template-tags.txt",
-    "templateDownloadBaseURL": "https://github.com/OfficeDev/TeamsFx/releases/download",
-    "templateReleaseURL": "https://github.com/OfficeDev/TeamsFx/releases/expanded_assets",
-    "templateDownloadBasePath": "/OfficeDev/TeamsFx/releases/download",
+    "vstagPrefix": "templates-vs@",
+    "vsversion": "18.0.0",
+    "tagListURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
+    "templateDownloadBaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
+    "templateReleaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",
+    "templateDownloadBasePath": "/OfficeDev/microsoft-365-agents-toolkit/releases/download",
     "templateExt": ".zip",
     "useLocalTemplate": true
 }

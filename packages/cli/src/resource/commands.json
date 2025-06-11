@@ -138,7 +138,7 @@
     }
   },
   "install": {
-    "description": "Sideload a given application package across Microsoft 365.",
+    "description": "Upload a given application package across Microsoft 365.",
     "options": {
       "file-path": "Path to the App manifest zip package.",
       "xml-path": "Path to the XML manifest xml file.",

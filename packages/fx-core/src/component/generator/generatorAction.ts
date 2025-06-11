@@ -5,7 +5,7 @@ import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import path from "path";
 
-import { LogProvider } from "@microsoft/teamsfx-api";
+import { LogProvider, Platform } from "@microsoft/teamsfx-api";
 
 import { getTemplatesFolder } from "../../folder";
 import { MissKeyError, SampleNotFoundError, TemplateNotFoundError } from "./error";
@@ -22,6 +22,7 @@ import { SampleUrlInfo } from "../../common/samples";
 export interface GeneratorContext {
   name: string;
   language?: string;
+  platform?: Platform;
   destination: string;
   logProvider: LogProvider;
   tryLimits?: number;
@@ -62,7 +63,11 @@ export const ScaffoldRemoteTemplateAction: GeneratorAction = {
       throw new MissKeyError("language");
     }
 
-    const templateUrl = await getTemplateUrl(context.language, getTemplateLatestVersion);
+    const templateUrl = await getTemplateUrl(
+      context.language,
+      getTemplateLatestVersion,
+      context.platform
+    );
     if (!templateUrl) {
       return;
     }

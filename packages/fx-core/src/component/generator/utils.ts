@@ -22,7 +22,7 @@ import {
   sampleDefaultRetryLimits,
   templateFileExt,
 } from "./constant";
-import { Context as FxContext, signedIn } from "@microsoft/teamsfx-api";
+import { Context as FxContext, signedIn, Platform } from "@microsoft/teamsfx-api";
 import { getDefaultString } from "../../common/localizeUtils";
 import { copilotGptManifestUtils } from "../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ListSensitivityLabelScope } from "../../common/constants";
@@ -30,18 +30,45 @@ import { GraphClient } from "../../client/graphClient";
 
 export async function getTemplateUrl(
   name: string,
+  getLatestVersion: () => Promise<string>,
+  platform?: Platform
+): Promise<string | undefined> {
+  return platform === Platform.VS
+    ? getTemplateVSUrl(name)
+    : await getTemplateVSCUrl(name, getLatestVersion);
+}
+
+async function getTemplateVSCUrl(
+  name: string,
   getLatestVersion: () => Promise<string>
 ): Promise<string | undefined> {
   if (process.env.TEAMSFX_TEMPLATE_PRERELEASE) {
-    return getTemplateZipUrlByVersion(name, `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`);
+    return getTemplateZipUrlByVersion(
+      name,
+      `0.0.0-${process.env.TEAMSFX_TEMPLATE_PRERELEASE}`,
+      templateConfig.tagPrefix
+    );
   }
   if (!templateConfig.useLocalTemplate) {
     const latestVersion = await getLatestVersion();
     if (semver.gt(latestVersion, templateConfig.localVersion)) {
       // Upstream latest version is higher than the local version, return upstream templates url for downloading.
-      return getTemplateZipUrlByVersion(name, latestVersion);
+      return getTemplateZipUrlByVersion(name, latestVersion, templateConfig.tagPrefix);
     }
   }
+}
+
+function getTemplateVSUrl(name: string): string | undefined {
+  // If the template is a daily version, return undefined to use local template.
+  if (templateConfig.useLocalTemplate) {
+    return;
+  }
+  // If the template is a prerelease version, use the "0.0.0-rc" version.
+  if (process.env.TEAMSFX_TEMPLATE_PRERELEASE === Platform.VS) {
+    return getTemplateZipUrlByVersion(name, "0.0.0-rc", templateConfig.vstagPrefix);
+  }
+  // If the template is stable version, use the latest stable version.
+  return getTemplateZipUrlByVersion(name, templateConfig.vsversion, templateConfig.vstagPrefix);
 }
 
 async function selectTemplateVersion(
@@ -82,8 +109,8 @@ export async function getTemplateLatestVersion(
   return selectedVersion;
 }
 
-export function getTemplateZipUrlByVersion(name: string, version: string): string {
-  return `${templateConfig.templateDownloadBaseURL}/${templateConfig.tagPrefix}${version}/${name}${templateConfig.templateExt}`;
+export function getTemplateZipUrlByVersion(name: string, version: string, prefex: string): string {
+  return `${templateConfig.templateDownloadBaseURL}/${prefex}${version}/${name}${templateConfig.templateExt}`;
 }
 
 export async function fetchZipFromUrl(

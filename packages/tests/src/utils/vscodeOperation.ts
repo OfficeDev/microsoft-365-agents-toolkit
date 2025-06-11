@@ -1155,11 +1155,15 @@ export async function runDeployAadAppManifest(env = "dev"): Promise<void> {
     Timeout.webView
   );
   const driver = VSBrowser.instance.driver;
-  await driver.sleep(Timeout.longTimeWait);
+  await driver.sleep(Timeout.shortTimeWait);
   const input = await InputBox.create();
   await input.selectQuickPick("aad.manifest.json");
   await driver.sleep(Timeout.input);
-  await input.selectQuickPick(env);
+  try {
+    await input.selectQuickPick(env);
+  } catch {
+    console.log("No need to select env, use the default env.");
+  }
   await driver.sleep(Timeout.shortTimeWait);
 }
 
