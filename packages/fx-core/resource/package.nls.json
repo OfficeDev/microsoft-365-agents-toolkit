@@ -748,7 +748,7 @@
   "plugins.bot.AppStudioBotRegistration": "Developer Portal bot registration",
   "plugins.function.getTemplateFromLocal": "Unable to get latest template from GitHub, trying to use the local template.",
   "depChecker.needInstallNpm": "You must have NPM installed to debug your local functions.",
-  "depChecker.failToValidateFuncCoreTool": "Unable to validate Azure Functions Core Tools after installation.",
+  "depChecker.failToValidateFuncCoreTool": "Unable to validate Azure Functions Core Tools after installation. %s",
   "depChecker.symlinkDirAlreadyExist": "Symlink (%s) destination already exists, remove it and try again.",
   "depChecker.portableFuncNodeNotMatched": "Your Node.js (@NodeVersion) is not compatible with Microsoft 365 Agents Toolkit Azure Functions Core Tools (@FuncVersion).",
   "depChecker.invalidFuncVersion": "Version %s format is invalid.",
