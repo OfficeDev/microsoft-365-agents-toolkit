@@ -34,7 +34,11 @@ async function run() {
   console.error("Test cases fetched successfully");
   console.error(`Found ${testCases.length} test cases in plan ${planId}, suite ${suiteId}`);
   for (const tc of testCases) {
-    console.error(`- ${tc.testCase.id}: ${tc.testCase.name}`);
+    if (tc.testCase) {
+      console.error(`- ${tc.testCase.id}: ${tc.testCase.name}`);
+    } else {
+      console.error(`- Warning: Test case is undefined or missing details.`);
+    }
   }
 }
 
