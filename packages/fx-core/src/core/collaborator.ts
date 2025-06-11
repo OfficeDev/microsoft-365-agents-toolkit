@@ -59,6 +59,7 @@ export class CollaborationUtil {
     m365TokenProvider?: M365TokenProvider
   ): Promise<Result<AppUser, FxError>> {
     const user = await CollaborationUtil.getUserInfo(m365TokenProvider);
+    console.log("");
 
     if (!user) {
       return err(
