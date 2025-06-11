@@ -173,7 +173,7 @@ jobs:
           AZURE_DEVOPS_PROJECT: "Microsoft Teams Extensibility"
           AZURE_DEVOPS_TEST_PLAN_ID: "24569079"
           AZURE_DEVOPS_TEST_SUITE_ID: "24569087"
-        run: npx ts-node src/scripts/fetch-test-cases.ts
+        run: npx ts-node src/scripts/fetch-test-plan-test-cases.ts
 
 
       - name: Generate file list
