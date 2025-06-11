@@ -36,6 +36,7 @@ export enum TemplateNames {
   // tab
   Tab = "non-sso-tab",
   SsoTabObo = "sso-tab-with-obo-flow",
+  SsoTabNaa = "sso-tab-naa",
   DashboardTab = "dashboard-tab",
   TabSSR = "non-sso-tab-ssr", // handled by SsrTabGenerator
   SsoTabSSR = "sso-tab-ssr", // handled by SsrTabGenerator

@@ -18,14 +18,14 @@ export const tabTemplates: Template[] = [
     description: "Simple Teams Tab App",
   },
   {
-    id: "sso-tab-with-obo-flow-ts",
-    name: TemplateNames.SsoTabObo,
+    id: "sso-tab-naa-ts",
+    name: TemplateNames.SsoTabNaa,
     language: "typescript",
     description: "Simple Teams Tab App with OBO Flow",
   },
   {
-    id: "sso-tab-with-obo-flow-js",
-    name: TemplateNames.SsoTabObo,
+    id: "sso-tab-naa-js",
+    name: TemplateNames.SsoTabNaa,
     language: "javascript",
     description: "Simple Teams Tab App with OBO Flow",
   },

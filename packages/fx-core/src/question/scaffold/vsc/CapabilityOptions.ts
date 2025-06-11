@@ -52,7 +52,7 @@ export class TabCapabilityOptions {
       description: getLocalizedString(
         "core.createProjectQuestion.option.description.worksInOutlookM365"
       ),
-      data: TemplateNames.SsoTabObo,
+      data: TemplateNames.SsoTabNaa,
     };
   }
 

@@ -36,7 +36,8 @@
         "vsc/ts/notification-express",
         "vsc/ts/notification-timer-trigger",
         "vsc/ts/workflow",
-        "vsc/ts/sso-tab-with-obo-flow"
+        "vsc/ts/sso-tab-with-obo-flow",
+        "vsc/ts/sso-tab-naa"
     ],
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^4.19.0",
