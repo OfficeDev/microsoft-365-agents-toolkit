@@ -7,10 +7,8 @@ const samplesData = fs.readJSONSync(sampleFile).samples;
 
 const windows_22 = [
   "sample-outlook-signature",
-  "sample-reddit-link",
   "sample-chef-bot",
   "sample-food-catalog",
-  "sample-proactive-message",
   "sample-dashboard",
   "sample-contact-exporter",
   "sample-hello-world-tab-with-backend",
@@ -39,6 +37,8 @@ const ubuntu_22 = [
   "sample-todo-list-with-spfx",
   "sample-spfx-productivity-dashboard",
   "sample-react-retail-dashboard",
+  "sample-reddit-link",
+  "sample-proactive-message",
   // "sample-share-now", //share now sql resource will casue security issue temporarily disabled
 ];
 
