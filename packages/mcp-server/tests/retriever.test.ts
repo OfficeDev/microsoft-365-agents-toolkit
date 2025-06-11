@@ -28,7 +28,6 @@ describe("Retriever", () => {
   describe("retrieveResource", () => {
     it("should retrieve resources from the API service with the correct parameters", async () => {
       // Set environment variables
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
       process.env.RETRIEVER_API_ENDPOINT = "https://example.com/api/retriever";
 
       // Call the function with test parameters
@@ -43,7 +42,6 @@ describe("Retriever", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer mock-token",
         },
         body: JSON.stringify({
           resource_type: "documents",
@@ -55,42 +53,72 @@ describe("Retriever", () => {
       expect(result).toBe("Mocked resource content");
     });
 
-    it("should return an error if no API endpoint is provided", async () => {
-      // Set only the token, no endpoint
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
+    it("should use default API endpoint when RETRIEVER_API_ENDPOINT is empty", async () => {
+      // Set endpoint to empty string (will use default base64 endpoint)
       process.env.RETRIEVER_API_ENDPOINT = "";
 
       // Call the function
       const result = await retrieveResource("samples" as ResourceType, "Sample query");
 
-      // Verify that fetch was not called
-      expect(global.fetch).not.toHaveBeenCalled();
+      // Verify that fetch was called with the default endpoint
+      expect(global.fetch).toHaveBeenCalledTimes(1);
 
-      // Verify the error message
-      expect(result).toBe(
-        "RETRIEVER_API_ENDPOINT is not set, set it in your MCP server configuration to use this tool."
-      );
+      // The default endpoint is decoded from base64
+      const defaultEndpoint = Buffer.from(
+        // eslint-disable-next-line no-secrets/no-secrets
+        "aHR0cHM6Ly9hZmQtd20zZGg1amM2NzU1cy1wcm9kLWhrZndnYmJqYjVhN2hyYnUuYjAxLmF6dXJlZmQubmV0L3JldHJpZXZlcg==",
+        "base64"
+      ).toString("utf-8");
+
+      expect(global.fetch).toHaveBeenCalledWith(defaultEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_type: "samples",
+          question: "Sample query",
+        }),
+      });
+
+      // Verify the result
+      expect(result).toBe("Mocked resource content");
     });
 
-    it("should return an error message if no token is provided", async () => {
-      // Ensure GITHUB_PERSONAL_ACCESS_TOKEN is not set
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "";
+    it("should use default API endpoint when RETRIEVER_API_ENDPOINT is not set", async () => {
+      // Ensure RETRIEVER_API_ENDPOINT is not set (will use default base64 endpoint)
+      delete process.env.RETRIEVER_API_ENDPOINT;
 
       // Call the function
-      const result = await retrieveResource("issues" as ResourceType, "Error query");
+      const result = await retrieveResource("issues" as ResourceType, "Test query");
 
-      // Verify no fetch call was made
-      expect(global.fetch).not.toHaveBeenCalled();
+      // Verify fetch was called with the default endpoint
+      expect(global.fetch).toHaveBeenCalledTimes(1);
 
-      // Verify error message
-      expect(result).toBe(
-        "GITHUB_PERSONAL_ACCESS_TOKEN is not set, set it in your MCP server configuration to use this tool."
-      );
+      // The default endpoint is decoded from base64
+      const defaultEndpoint = Buffer.from(
+        // eslint-disable-next-line no-secrets/no-secrets
+        "aHR0cHM6Ly9hZmQtd20zZGg1amM2NzU1cy1wcm9kLWhrZndnYmJqYjVhN2hyYnUuYjAxLmF6dXJlZmQubmV0L3JldHJpZXZlcg==",
+        "base64"
+      ).toString("utf-8");
+
+      expect(global.fetch).toHaveBeenCalledWith(defaultEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resource_type: "issues",
+          question: "Test query",
+        }),
+      });
+
+      // Verify the result
+      expect(result).toBe("Mocked resource content");
     });
 
     it("should handle HTTP errors from the API service", async () => {
       // Set environment variables
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
       process.env.RETRIEVER_API_ENDPOINT = "https://example.com/api/retriever";
 
       // Mock fetch to return an error
@@ -112,7 +140,6 @@ describe("Retriever", () => {
 
     it("should handle network or other errors during fetch", async () => {
       // Set environment variables
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
       process.env.RETRIEVER_API_ENDPOINT = "https://example.com/api/retriever";
 
       // Mock fetch to throw an error
@@ -131,7 +158,6 @@ describe("Retriever", () => {
 
     it("should handle non-Error objects thrown during fetch", async () => {
       // Set environment variables
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
       process.env.RETRIEVER_API_ENDPOINT = "https://example.com/api/retriever";
 
       // Mock fetch to throw a non-Error object
@@ -149,11 +175,10 @@ describe("Retriever", () => {
 
     it("should properly handle all resource types", async () => {
       // Set environment variables
-      process.env.GITHUB_PERSONAL_ACCESS_TOKEN = "mock-token";
       process.env.RETRIEVER_API_ENDPOINT = "https://example.com/api/retriever";
 
       // Test each resource type
-      const resourceTypes: ResourceType[] = ["documents", "samples", "issues"];
+      const resourceTypes: ResourceType[] = ["documents", "samples", "issues", "code"];
 
       for (const resourceType of resourceTypes) {
         // Clear previous calls before testing each resource type

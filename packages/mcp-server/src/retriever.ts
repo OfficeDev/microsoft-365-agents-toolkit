@@ -25,10 +25,6 @@ export async function retrieveResource(
         "base64"
       ).toString("utf-8");
 
-    if (!apiEndpoint) {
-      return "RETRIEVER_API_ENDPOINT is not set, set it in your MCP server configuration to use this tool.";
-    }
-
     const response = await fetch(apiEndpoint, {
       method: "POST",
       headers: {
