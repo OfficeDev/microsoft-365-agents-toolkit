@@ -10,7 +10,7 @@ import semver from "semver";
 import maxSatisfying from "semver/ranges/max-satisfying";
 import * as url from "url";
 import * as uuid from "uuid";
-import { getLocalizedString } from "../../../common/localizeUtils";
+import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, NodejsNotFoundError } from "../../../error";
 import { v3DefaultHelpLink } from "../constant/helpLink";
 import { Messages } from "../constant/message";
@@ -472,7 +472,10 @@ export class TestToolChecker implements DepsChecker {
         ?.split(pkg)
         ?.join(pkg);
       throw new DepsCheckerError(
-        getLocalizedString("error.common.InstallSoftwareError", this.name),
+        {
+          default: getDefaultString("error.common.InstallSoftwareError", this.name),
+          localized: getLocalizedString("error.common.InstallSoftwareError", this.name),
+        },
         v3DefaultHelpLink
       );
     }
@@ -510,7 +513,10 @@ export class TestToolChecker implements DepsChecker {
     );
     if (targetVersion === null) {
       throw new DepsCheckerError(
-        getLocalizedString("error.common.VersionError", versionRange),
+        {
+          default: getDefaultString("error.common.VersionError", versionRange),
+          localized: getLocalizedString("error.common.VersionError", versionRange),
+        },
         v3DefaultHelpLink
       );
     }
