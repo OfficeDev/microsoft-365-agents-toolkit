@@ -79,6 +79,7 @@
 /packages/fx-core/resource/package.nls.*.json @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/resource/yaml-schema @tecton @wenytang-ms @wh-alice
 /packages/fx-core/src/common/localizeUtils.ts @HuihuiWu-Microsoft @tecton @wh-alice
+/packages/fx-core/src/common/permissionInterface.ts @SLdragon @KennethBWSong
 /packages/fx-core/src/common/samples.ts @tecton @wenytang-ms @wh-alice
 /packages/fx-core/src/common/versionMetadata.ts @xzf0587 @blackchoey
 /packages/fx-core/src/component/debugHandler @qinzhouxu @tecton @llhmm001 @wh-alice
@@ -151,7 +152,7 @@
 /packages/sdk/src/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya @SLdragon
 /packages/sdk/test/unit/node/conversation @kimizhu @swatDong @a1exwang @XiaofuHuang @dooriya
 
-/packages/server @HuihuiWu-Microsoft @Alive-Fish @jayzhang @wh-alice
+/packages/server @HuihuiWu-Microsoft @Alive-Fish @wh-alice
 
 /packages/simpleauth @blackchoey @wenytang-ms
 
