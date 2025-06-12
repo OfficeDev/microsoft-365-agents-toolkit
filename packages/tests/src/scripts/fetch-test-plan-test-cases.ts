@@ -1,6 +1,17 @@
 import * as azdev from "azure-devops-node-api";
 import { AzureCliCredential } from "@azure/identity";
-import fetch from "node-fetch"; // Add this import at the top
+import fetch from "node-fetch";
+import * as fs from "fs";
+import * as path from "path";
+
+const outputDir = process.argv[2];
+if (!outputDir) {
+  console.error("Please provide an output directory as the first argument.");
+  process.exit(1);
+}
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
 
 async function run() {
   // Print environment variables for debugging
@@ -59,40 +70,39 @@ async function run() {
             };
           };
           const workItem = (await response.json()) as WorkItem;
-          const tags = workItem.fields?.["System.Tags"];
-          if (tags && tags.includes("VSCUSE")) {
-            const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
-            if (typeof steps === "string") {
-              console.log(`TestCase ${tc.testCase.id} Steps:`);
-              console.log(steps);
-              const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/gi) || [];
-              console.log(`Found ${stepBlocks.length} step blocks.`);
-              stepBlocks.forEach((stepBlock, idx) => {
-                const paramMatch = stepBlock.match(/<parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i);
-                if (paramMatch && paramMatch[1]) {
-                  const html = paramMatch[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                  const pMatch = html.match(/<p>([\s\S]*?)<\/p>/i) || html.match(/<P>([\s\S]*?)<\/P>/i);
-                  if (pMatch && pMatch[1]) {
-                    const text = pMatch[1].replace(/<[^>]+>/g, "").trim();
-                    console.log(`Step ${idx + 1}: ${text}`);
-                  } else {
-                    console.log(`Step ${idx + 1}: [No <p> found in parameterizedString]`);
-                  }
-                } else {
-                  const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i) || stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
-                  if (match && match[1]) {
-                    const text = match[1].replace(/<[^>]+>/g, "").trim();
-                    console.log(`Step ${idx + 1}: ${text}`);
-                  } else {
-                    console.log(`Step ${idx + 1}: [No parameterizedString or <p> found]`);
-                  }
+          // const tags = workItem.fields?.["System.Tags"];
+          //if (tags && tags.includes("VSCUSE")) {
+          const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
+          if (typeof steps === "string") {
+            const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/gi) || [];
+            let outputLines: string[] = [];
+            stepBlocks.forEach((stepBlock, idx) => {
+              const paramMatch = stepBlock.match(/<parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i);
+              let text = "";
+              if (paramMatch && paramMatch[1]) {
+                const html = paramMatch[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                const pMatch = html.match(/<p>([\s\S]*?)<\/p>/i) || html.match(/<P>([\s\S]*?)<\/P>/i);
+                if (pMatch && pMatch[1]) {
+                  text = pMatch[1].replace(/<[^>]+>/g, "").trim();
                 }
-              });
-            }
-            else {
-              console.log(`The type is: ${typeof steps}`);
-            }
+              }
+              if (!text) {
+                const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i) || stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
+                if (match && match[1]) {
+                  text = match[1].replace(/<[^>]+>/g, "").trim();
+                }
+              }
+              if (text) {
+                outputLines.push(text);
+              }
+            });
+            const filePath = path.join(outputDir, `${tc.testCase.id}.txt`);
+            fs.writeFileSync(filePath, outputLines.join("\n"), { encoding: "utf8" });
+            console.log(`Wrote steps for test case ${tc.testCase.id} to ${filePath}`);
+          } else {
+            console.log(`The type is: ${typeof steps}`);
           }
+          //}
         } catch (err) {
           console.error(`Error fetching work item for test case ${tc.testCase.id}:`, err);
         }
