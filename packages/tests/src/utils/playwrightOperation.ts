@@ -334,16 +334,12 @@ export async function initCopilotPage(
   }
 ): Promise<Page> {
   let page = await context.newPage();
+  const copilotUrl = "https://m365.cloud.microsoft/chat";
   page.setDefaultTimeout(Timeout.playwrightDefaultTimeout);
 
   // open teams app page
   // https://github.com/puppeteer/puppeteer/issues/3338
-  await Promise.all([
-    page.goto(
-      `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
-    ),
-    page.waitForNavigation(),
-  ]);
+  await Promise.all([page.goto(copilotUrl), page.waitForNavigation()]);
 
   // input username
   await RetryHandler.retry(async () => {
@@ -382,12 +378,7 @@ export async function initCopilotPage(
     await page.close();
     console.log(`open Copilot page`);
     page = await context.newPage();
-    await Promise.all([
-      page.goto(
-        `https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429?auth=2`
-      ),
-      page.waitForNavigation(),
-    ]);
+    await Promise.all([page.goto(copilotUrl), page.waitForNavigation()]);
     await page.waitForTimeout(Timeout.longTimeWait);
     console.log("check copilot agent loaded");
     try {
