@@ -360,6 +360,7 @@ export function happyPathTest(options: {
             }
           }
         }
+        await page.waitForTimeout(Timeout.shortTimeLoading);
       }
     );
 
