@@ -77,7 +77,7 @@ export class AzureStaticWebAppGetDeploymentTokenDriver implements StepDriver {
     // only set the output if the output key is not empty
     const result: Result<Map<string, string>, FxError> = allowOutput
       ? ok(new Map([[outputKey, deploymentKey]]))
-      : ok({} as Map<string, string>);
+      : ok(new Map());
     // always set the deployment token to the environment variable
     process.env[outputKey] = deploymentKey;
     return {

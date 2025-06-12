@@ -63,7 +63,7 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
 
     expect(result.result.isOk()).to.be.true;
     expect(result.result.unwrapOr(new Map()).get("SECRET_TAB_SWA_DEPLOYMENT_TOKEN")).to.equal(
-      "testKey"
+      undefined
     );
   });
 
