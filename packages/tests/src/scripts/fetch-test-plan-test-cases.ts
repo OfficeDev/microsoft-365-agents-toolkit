@@ -68,19 +68,23 @@ async function run() {
               const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/gi) || [];
               console.log(`Found ${stepBlocks.length} step blocks.`);
               stepBlocks.forEach((stepBlock, idx) => {
-                const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i) || stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
-                if (match && match[1]) {
-                  const text = match[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                  console.log(`Step ${idx + 1}: ${text.trim()}`);
+                const paramMatch = stepBlock.match(/<parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i);
+                if (paramMatch && paramMatch[1]) {
+                  const html = paramMatch[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                  const pMatch = html.match(/<p>([\s\S]*?)<\/p>/i) || html.match(/<P>([\s\S]*?)<\/P>/i);
+                  if (pMatch && pMatch[1]) {
+                    const text = pMatch[1].replace(/<[^>]+>/g, "").trim();
+                    console.log(`Step ${idx + 1}: ${text}`);
+                  } else {
+                    console.log(`Step ${idx + 1}: [No <p> found in parameterizedString]`);
+                  }
                 } else {
-                  const paramMatch = stepBlock.match(/parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i);
-                  if (paramMatch && paramMatch[1]) {
-
-                    const pMatch = paramMatch[1].match(/<p>([\s\S]*?)<\/p>/i) || paramMatch[1].match(/<P>([\s\S]*?)<\/P>/i);
-                    if (pMatch && pMatch[1]) {
-                      const text = pMatch[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-                      console.log(`Step ${idx + 1}: ${text.trim()}`);
-                    }
+                  const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i) || stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
+                  if (match && match[1]) {
+                    const text = match[1].replace(/<[^>]+>/g, "").trim();
+                    console.log(`Step ${idx + 1}: ${text}`);
+                  } else {
+                    console.log(`Step ${idx + 1}: [No parameterizedString or <p> found]`);
                   }
                 }
               });
