@@ -103,7 +103,7 @@
 /packages/fx-core/src/component/generator/copilotExtension @yuqizhou77 @huimiu @jayzhang @anchenyi
 /packages/fx-core/src/component/generator/declarativeAgent @HuihuiWu-Microsoft @yuqizhou77 @tecton
 /packages/fx-core/src/component/generator/officeAddin @llhmm01 @tecton @wh-alice
-/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @@HuihuiWu-Microsoft @jayzhang @SLdragon @KennethBWSong
+/packages/fx-core/src/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @HuihuiWu-Microsoft @jayzhang @SLdragon @KennethBWSong
 /packages/fx-core/src/component/generator/other/ssrTabGenerator.ts @Yimin-Jin @hund030 @jayzhang
 /packages/fx-core/src/component/generator/other/tdpGenerator.ts @HuihuiWu-Microsoft @tecton @wh-alice
 /packages/fx-core/src/component/generator/spfx @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
@@ -131,7 +131,7 @@
 /packages/fx-core/tests/component/generator/declarativeAgentGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @huimiu @jayzhang
 /packages/fx-core/tests/component/generator/generator.test.ts @Yukun-dong @hund030 @JerryYangKai @eriolchan
 /packages/fx-core/tests/component/generator/officeAddinGenerator.test.ts @llhmm01 @tecton @wh-alice
-/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @@HuihuiWu-Microsoft
+/packages/fx-core/tests/component/generator/openApiSpec @yuqizhou77 @nliu-ms @Alive-Fish @jayzhang @HuihuiWu-Microsoft
 /packages/fx-core/tests/component/generator/spfxGenerator.test.ts @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /packages/fx-core/tests/component/util/azureAccountMock.ts @HuihuiWu-Microsoft @sherylueen @wh-alice
 /packages/fx-core/tests/core/collaborator.test.ts @KennethBWSong @SLdragon
