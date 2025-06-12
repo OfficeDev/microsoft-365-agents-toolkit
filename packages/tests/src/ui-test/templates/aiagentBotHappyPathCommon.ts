@@ -303,14 +303,14 @@ export function happyPathTest(options: {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: "current tasks",
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: ValidationContent.AiBotMeetingMessage,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             }
           } else {
@@ -321,7 +321,7 @@ export function happyPathTest(options: {
               expectedWelcomeMessage:
                 ValidationContent.AiAssistantBotWelcomeInstruction,
               expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-              timeout: Timeout.longTimeWait,
+              timeout: Timeout.playwrightDefaultTimeout,
             });
           }
         } else {
@@ -334,7 +334,7 @@ export function happyPathTest(options: {
               expectedWelcomeMessage:
                 ValidationContent.AiAssistantBotWelcomeInstruction,
               expectedReplyMessage: "x = 1",
-              timeout: Timeout.longTimeWait,
+              timeout: Timeout.playwrightDefaultTimeout,
             });
           } else {
             try {
@@ -345,7 +345,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
@@ -355,7 +355,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             }
           }
@@ -572,7 +572,7 @@ export function happyPathTest(options: {
           Env.password,
           { projectPath: projectPath, env: "dev" }
         );
-        await driver.sleep(Timeout.longTimeWait);
+        await driver.sleep(Timeout.playwrightDefaultTimeout);
 
         if (options.agent === "custom-copilot-agent-new") {
           if (isRealKey) {
@@ -587,14 +587,14 @@ export function happyPathTest(options: {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: "current tasks",
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: ValidationContent.AiBotMeetingMessage,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             }
           } else {
@@ -606,7 +606,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
@@ -616,7 +616,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             }
           }
@@ -630,7 +630,7 @@ export function happyPathTest(options: {
               expectedWelcomeMessage:
                 ValidationContent.AiAssistantBotWelcomeInstruction,
               expectedReplyMessage: "x = 1",
-              timeout: Timeout.longTimeWait,
+              timeout: Timeout.playwrightDefaultTimeout,
             });
           } else {
             try {
@@ -641,7 +641,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
@@ -651,7 +651,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.longTimeWait,
+                timeout: Timeout.playwrightDefaultTimeout,
               });
             }
           }
