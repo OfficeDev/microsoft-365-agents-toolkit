@@ -237,8 +237,8 @@ jobs:
     timeout-minutes: 50
     environment: engineering
     env:
-      GH_APP_ID: ${{ secrets.VSCUSEAPPID }}
-      GH_APP_PRIVATE_KEY: ${{ secrets.VSCUSEAPPSECRET }}
+      GH_APP_ID: ${{ secrets.GH_APP_ID }}
+      GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
       CI_ENABLED: true
       TARGET_CLI_VERSION: ${{ needs.setup.outputs.target_cli_version }}
 
