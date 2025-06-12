@@ -62,19 +62,19 @@ async function run() {
           const tags = workItem.fields?.["System.Tags"];
           if (tags && tags.includes("VSCUSE")) {
             const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
-            console.log(`TestCase ${tc.testCase.id} Steps:`);
-
             if (typeof steps === "string") {
+              console.log(`TestCase ${tc.testCase.id} Steps:`);
               const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/g) || [];
               stepBlocks.forEach((stepBlock, idx) => {
-                
                 const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i);
                 if (match && match[1]) {
-                
                   const text = match[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
                   console.log(`Step ${idx + 1}: ${text.trim()}`);
                 }
               });
+            }
+            else {
+              console.log(`The type is: ${typeof steps}`);
             }
           }
         } catch (err) {
