@@ -42,7 +42,7 @@ class ChefBotTestCase extends CaseFactory {
     return await validateWelcomeAndReplyBot(page, {
       hasCommandReplyValidation: true,
       botCommand: "helloWorld",
-      expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+      expectedReplyMessage: ValidationContent.AiBotErrorMessage3,
     });
   }
   public override async onCliValidate(page: Page): Promise<void> {
@@ -50,7 +50,7 @@ class ChefBotTestCase extends CaseFactory {
     return await validateWelcomeAndReplyBot(page, {
       hasCommandReplyValidation: true,
       botCommand: "helloWorld",
-      expectedReplyMessage: ValidationContent.AiBotErrorMessage,
+      expectedReplyMessage: ValidationContent.AiBotErrorMessage3,
     });
   }
 }
