@@ -702,23 +702,40 @@ jobs:
             node=$(echo "$case" | awk -F '|' '{print $3}')
             branch=$(echo "$case" | awk -F '|' '{print $4}')
 
-            title=$(jq -r --arg name "$name" '.[$name]' "$case_title_file_path")
-      
-            if [ -z "$title" ]; then
-              title="Unknown Test Case Title"
+            title="Unknown Test Case Title"
+            author="N/A"
+            work_item_url="N/A"
+
+            # Extract the title and author, and url from the corresponding agent_cases file
+            case_file="vscuse/agent_cases/${case_id}.txt"
+            if [ -f "$case_file" ]; then
+              # Get title
+              title=$(grep -m1 '^#Title:' "$case_file" | sed 's/^#Title:[[:space:]]*//')
+
+              # Get author
+              author_line=$(grep -m1 '^#Author:' "$case_file" | sed 's/^#Author:[[:space:]]*//')
+              if [ -n "$author_line" ]; then
+              author="<a href=\\\"mailto:$author_line\\\"><span>$author_line</span></a>"
+              fi
+
+              # Get work item URL
+              url_line=$(grep -m1 '^#URL:' "$case_file" | sed 's/^#URL:[[:space:]]*//')
+              if [ -n "$url_line" ]; then
+                work_item_url="<a href=\\\"$url_line\\\">Work Item</a>"
+              fi
             fi
+
+            
+            if [ -f "$case_file" ]; then
+              
+            fi
+            echo "Author: $author"
       
             echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, case ID: $case_id"
       
             file=$(find src -name "$name.test.ts" 2>/dev/null)
             echo "Test file found: $file"
-      
-            email=""
-            if [ -n "$file" ] && grep -q "@author" "$file"; then
-              email=$(grep '@author' "$file" | grep -i -o '[A-Z0-9._%+-]\+@[A-Z0-9.-]\+\.[A-Z]\{2,4\}')
-            fi
-            echo "Extracted email: $email"
-      
+           
             status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
             echo "Job status: $status"
 
@@ -751,11 +768,7 @@ jobs:
             duration=$(dateutils.ddiff "$started_at" "$completed_at" -f "%Mm %Ss" 2>/dev/null)
             echo "Calculated duration: $duration"
       
-            author="N/A"
-            if [ -n "$email" ]; then
-              author="<a href=\\\"mailto:$email\\\"><span>$email</span></a>"
-            fi
-            echo "Author: $author"
+            
       
             label=""
             if [ "$status" == "success" ]; then
@@ -771,7 +784,7 @@ jobs:
             url="<a href=\\\"$url\\\">$name</a>"
             echo "Job URL: $url"
       
-            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
+            row="<tr> <td style=\\\"text-align: left;\\\">$url</td> <td style=\\\"text-align: left;\\\">$title</td> <td style=\\\"text-align: left;\\\">$os</td> <td style=\\\"text-align: left;\\\">$node</td> <td style=\\\"text-align: center;\\\">$label</td> <td style=\\\"text-align: center;\\\">$author</td> <td style=\\\"text-align: center;\\\">$work_item_url</td> <td style=\\\"text-align: center;\\\">$duration</td>  <td style=\\\"text-align: center;\\\">$report_url</td> </tr>"
             echo "Generated row: $row"
       
             if [[ "$status" == "success" && $passed -lt $passedlimit ]]; then
@@ -786,7 +799,7 @@ jobs:
           echo "Final failed list: $failedlist"
           echo "Final passed list: $passedlist"
       
-          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th> <th>DURATION</th> <th>Report URL</th> </tr> $lists </table> <br />"
+          body="<a href=\\\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\\\">Test report link.</a>  <br/> Release: ${{ needs.setup.outputs.ttk-package }}. <br/> <table class=\\\"w3-table w3-striped w3-bordered\\\"> <tr> <th>CASE</th> <th>TITLE</th> <th>OS</th> <th>NODE</th> <th>STATUS</th> <th>AUTHOR</th><th>WORK ITEM</th> <th>DURATION</th> <th>Report URL</th> </tr> $lists </table> <br />"
           echo "Generated email body: $body"
       
           total=$((passed+failed))
