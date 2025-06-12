@@ -136,12 +136,12 @@ export class VxTestAppValidationError extends UserError {
 }
 
 export class DepsCheckerError extends UserError {
-  constructor(message: string, helpLink: string, source?: string) {
+  constructor(message: { default: string; localized: string }, helpLink: string, source?: string) {
     const errorOptions: UserErrorOptions = {
       source: source || "core",
       name: "DepsCheckerError",
-      message: message,
-      displayMessage: message,
+      message: message.default,
+      displayMessage: message.localized,
       categories: [ErrorCategory.External],
       helpLink: NodejsNotRecommendedHelpLink,
     };

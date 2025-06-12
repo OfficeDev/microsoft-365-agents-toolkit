@@ -10,7 +10,7 @@ import * as os from "os";
 import * as path from "path";
 import semver from "semver";
 import * as uuid from "uuid";
-import { getLocalizedString } from "../../../common/localizeUtils";
+import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, InstallSoftwareError, NodejsNotFoundError } from "../../../error";
 import { v3DefaultHelpLink } from "../constant/helpLink";
 import { Messages } from "../constant/message";
@@ -314,7 +314,7 @@ export class FuncToolChecker implements DepsChecker {
       await this.cleanup(tmpVersion);
       this.telemetryProperties[TelemetryProperties.InstallFuncError] = funcVersionRes.error.message;
       throw new DepsCheckerError(
-        Messages.failToValidateFuncCoreTool() + " " + funcVersionRes.error.message,
+        Messages.failToValidateFuncCoreTool(funcVersionRes.error.message),
         v3DefaultHelpLink
       );
     }
@@ -412,7 +412,10 @@ export class FuncToolChecker implements DepsChecker {
         ?.split(`${funcPackageName}@${expectedFuncVersion}`)
         ?.join(`${funcPackageName}{at}${expectedFuncVersion}`);
       throw new DepsCheckerError(
-        getLocalizedString("error.common.InstallSoftwareError", funcToolName),
+        {
+          default: getDefaultString("error.common.InstallSoftwareError", funcToolName),
+          localized: getLocalizedString("error.common.InstallSoftwareError", funcToolName),
+        },
         v3DefaultHelpLink
       );
     }

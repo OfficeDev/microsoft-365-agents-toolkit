@@ -166,7 +166,10 @@ describe("Tools Install Driver test", () => {
           installVersion: "4.0.0",
           binFolders: undefined,
         },
-        error: new DepsCheckerError("test message", "test link"),
+        error: new DepsCheckerError(
+          { default: "test message", localized: "test message" },
+          "test link"
+        ),
       });
       const res = await toolsInstallDriver.run(
         { func: { version: 4, symlinkDir: "./devTools/func" } },
@@ -190,7 +193,10 @@ describe("Tools Install Driver test", () => {
         telemetryProperties: {
           "global-func-version": "3.0.0",
         },
-        error: new DepsCheckerError("warning message", "test link"),
+        error: new DepsCheckerError(
+          { default: "warning message", localized: "warning message" },
+          "test link"
+        ),
       });
       const res = await toolsInstallDriver.run(
         { func: { version: "4", symlinkDir: "./devTools/func1" } },
@@ -310,7 +316,10 @@ describe("Tools Install Driver test", () => {
           supportedVersions: ["3.1", "5.0", "6.0"],
           binFolders: ["~/.fx/dotnet/dotnet.exe"],
         },
-        error: new DepsCheckerError("test message", "test link"),
+        error: new DepsCheckerError(
+          { default: "test message", localized: "test message" },
+          "test link"
+        ),
       });
       const res = await toolsInstallDriver.run({ dotnet: true }, mockedDriverContext);
       chai.assert.isTrue(res.isErr());
@@ -683,7 +692,10 @@ describe("Tools Install Driver test", () => {
           installVersion: "4.0.0",
           binFolders: undefined,
         },
-        error: new DepsCheckerError("test message", "test link"),
+        error: new DepsCheckerError(
+          { default: "test message", localized: "test message" },
+          "test link"
+        ),
       });
       const outputEnvVarNames = new Map([["funcPath", "MY_FUNC_PATH"]]);
       const res = await toolsInstallDriver.execute(
@@ -707,7 +719,10 @@ describe("Tools Install Driver test", () => {
           installVersion: "4.0.0",
           binFolders: ["./devTools/func"],
         },
-        error: new DepsCheckerError("warning message", "test link"),
+        error: new DepsCheckerError(
+          { default: "warning message", localized: "warning message" },
+          "test link"
+        ),
       });
       const outputEnvVarNames = new Map([["funcPath", "MY_FUNC_PATH"]]);
       const res = await toolsInstallDriver.execute(
@@ -904,7 +919,10 @@ describe("Tools Install Driver test", () => {
           supportedVersions: ["3.1", "5.0", "6.0"],
           binFolders: ["~/.fx/dotnet/dotnet.exe"],
         },
-        error: new DepsCheckerError("test message", "test link"),
+        error: new DepsCheckerError(
+          { default: "test message", localized: "test message" },
+          "test link"
+        ),
       });
       const outputEnvVarNames = new Map([["dotnetPath", "MY_DOTNET_PATH"]]);
       const res = await toolsInstallDriver.execute(

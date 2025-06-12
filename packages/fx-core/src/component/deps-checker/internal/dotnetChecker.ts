@@ -8,7 +8,7 @@ import * as os from "os";
 import * as path from "path";
 import { performance } from "perf_hooks";
 import * as util from "util";
-import { getLocalizedString } from "../../../common/localizeUtils";
+import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, InstallSoftwareError } from "../../../error";
 import { getResourceFolder } from "../../../folder";
 import { dotnetExplanationHelpLink, dotnetFailToInstallHelpLink } from "../constant/helpLink";
@@ -150,7 +150,13 @@ export class DotnetChecker implements DepsChecker {
     if (!(await this.validate())) {
       this._telemetry.sendEvent(DepsCheckerEvent.dotnetInstallError);
       throw new DepsCheckerError(
-        getLocalizedString("error.common.InstallSoftwareError", installedNameWithVersion),
+        {
+          default: getDefaultString("error.common.InstallSoftwareError", installedNameWithVersion),
+          localized: getLocalizedString(
+            "error.common.InstallSoftwareError",
+            installedNameWithVersion
+          ),
+        },
         dotnetFailToInstallHelpLink
       );
     }
