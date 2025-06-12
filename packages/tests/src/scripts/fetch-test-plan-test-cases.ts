@@ -65,14 +65,23 @@ async function run() {
             if (typeof steps === "string") {
               console.log(`TestCase ${tc.testCase.id} Steps:`);
               console.log(steps);
-              const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/g) || [];
+              const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/gi) || [];
               console.log(`Found ${stepBlocks.length} step blocks.`);
               stepBlocks.forEach((stepBlock, idx) => {
-                const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i);
-                console.log(`Step ${idx + 1}: ${stepBlock}`);
+                const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i) || stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
                 if (match && match[1]) {
                   const text = match[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
                   console.log(`Step ${idx + 1}: ${text.trim()}`);
+                } else {
+                  const paramMatch = stepBlock.match(/parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i);
+                  if (paramMatch && paramMatch[1]) {
+
+                    const pMatch = paramMatch[1].match(/<p>([\s\S]*?)<\/p>/i) || paramMatch[1].match(/<P>([\s\S]*?)<\/P>/i);
+                    if (pMatch && pMatch[1]) {
+                      const text = pMatch[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+                      console.log(`Step ${idx + 1}: ${text.trim()}`);
+                    }
+                  }
                 }
               });
             }
