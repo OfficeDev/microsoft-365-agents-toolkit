@@ -1,5 +1,6 @@
 import * as azdev from "azure-devops-node-api";
 import { AzureCliCredential } from "@azure/identity";
+import fetch from "node-fetch"; // Add this import at the top
 
 async function run() {
   // Print environment variables for debugging
@@ -35,7 +36,33 @@ async function run() {
   console.log(`Found ${testCases.length} test cases in plan ${planId}, suite ${suiteId}`);
   for (const tc of testCases) {
     if (tc.testCase) {
-      console.log(`- ${tc.testCase.id} + ${JSON.stringify(tc.testCase, null)}`);
+      console.log(`- ${tc.testCase.id}`);
+
+      // Fetch the work item JSON from the url
+      if (tc.testCase.url) {
+        try {
+          // Use the Azure AD token for authentication
+          const response = await fetch(tc.testCase.url, {
+            headers: {
+              Authorization: `Bearer ${token.token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          if (!response.ok) {
+            console.error(`Failed to fetch work item: ${tc.testCase.url}, status: ${response.status}`);
+            continue;
+          }
+          const workItem = await response.json();
+          const tags = workItem.fields?.["System.Tags"];
+          if (tags && tags.includes("VSCUSE")) {
+            const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
+            console.log(`TestCase ${tc.testCase.id} Steps:`);
+            console.log(steps);
+          }
+        } catch (err) {
+          console.error(`Error fetching work item for test case ${tc.testCase.id}:`, err);
+        }
+      }
     } else {
       console.error(`- Warning: Test case is undefined or missing details.`);
     }
