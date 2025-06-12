@@ -52,7 +52,13 @@ async function run() {
             console.error(`Failed to fetch work item: ${tc.testCase.url}, status: ${response.status}`);
             continue;
           }
-          const workItem = await response.json();
+          // Define a minimal type for workItem
+          type WorkItem = {
+            fields?: {
+              [key: string]: any;
+            };
+          };
+          const workItem = (await response.json()) as WorkItem;
           const tags = workItem.fields?.["System.Tags"];
           if (tags && tags.includes("VSCUSE")) {
             const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
