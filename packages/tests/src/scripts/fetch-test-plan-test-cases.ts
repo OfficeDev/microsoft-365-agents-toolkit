@@ -64,9 +64,12 @@ async function run() {
             const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
             if (typeof steps === "string") {
               console.log(`TestCase ${tc.testCase.id} Steps:`);
+              console.log(steps);
               const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/g) || [];
+              console.log(`Found ${stepBlocks.length} step blocks.`);
               stepBlocks.forEach((stepBlock, idx) => {
                 const match = stepBlock.match(/<p>([\s\S]*?)<\/p>/i);
+                console.log(`Step ${idx + 1}: ${stepBlock}`);
                 if (match && match[1]) {
                   const text = match[1].replace(/<[^>]+>/g, "").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
                   console.log(`Step ${idx + 1}: ${text.trim()}`);
