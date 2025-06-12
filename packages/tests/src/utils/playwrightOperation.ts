@@ -1594,7 +1594,7 @@ export async function validateWelcomeAndReplyBot(
         await sendButton?.click();
         await frame?.waitForSelector(
           `p:has-text("${options?.expectedReplyMessage}")`,
-          { timeout: timeout }
+          { timeout: Timeout.playwrightDefaultTimeout }
         );
         console.log(
           `verify bot successfully with content ${options?.expectedReplyMessage}!!!`
