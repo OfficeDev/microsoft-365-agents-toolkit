@@ -23,6 +23,8 @@ if (process.platform === 'win32') {
     storePath = path.resolve(storePath);
 }
 
+console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? process.env.GH_APP_PRIVATE_KEY.length : 0);
+
 (async () => {
   try {
     console.log("Input store path:", process.argv[3]);
@@ -107,3 +109,5 @@ if (process.platform === 'win32') {
     process.exit(1);
   }
 })();
+
+
