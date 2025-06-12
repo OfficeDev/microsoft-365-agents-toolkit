@@ -70,6 +70,7 @@ export function happyPathTest(options: {
 
       // ensure workbench is ready
       this.timeout(Timeout.prepareTestCase);
+      await VSBrowser.instance.driver.sleep(Timeout.shortTimeLoading);
       if (debugContent === "local") {
         localDebugTestContext = new LocalDebugTestContext("aiagent", {
           lang: options.lang,
@@ -89,6 +90,7 @@ export function happyPathTest(options: {
 
     afterEach(async function () {
       this.timeout(Timeout.finishTestCase);
+      await VSBrowser.instance.driver.sleep(Timeout.shortTimeLoading);
       if (debugContent === "local") {
         await localDebugTestContext.after(false, true);
       } else {
@@ -360,7 +362,6 @@ export function happyPathTest(options: {
             }
           }
         }
-        await page.waitForTimeout(Timeout.shortTimeLoading);
       }
     );
 
@@ -560,8 +561,7 @@ export function happyPathTest(options: {
 
         await provisionProject(appName, projectPath);
         await deployProject(projectPath, Timeout.botDeploy);
-        // [known issue] python remote need deploy twice
-        await deployProject(projectPath, Timeout.botDeploy);
+        await driver.sleep(Timeout.spfxDeploy);
         const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
           projectPath
         );
@@ -573,7 +573,6 @@ export function happyPathTest(options: {
           Env.password,
           { projectPath: projectPath, env: "dev" }
         );
-        await driver.sleep(Timeout.spfxDeploy);
 
         if (options.agent === "custom-copilot-agent-new") {
           if (isRealKey) {
