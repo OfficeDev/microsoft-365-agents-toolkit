@@ -154,8 +154,7 @@ jobs:
 
       - name: Install dependencies for TypeScript
         run: |
-          npm install typescript ts-node @types/node
-          npm install azure-devops-node-api
+          npm install typescript ts-node @types/node node-fetch
           npm install @azure/identity azure-devops-node-api
 
       - name : Login to Azure
