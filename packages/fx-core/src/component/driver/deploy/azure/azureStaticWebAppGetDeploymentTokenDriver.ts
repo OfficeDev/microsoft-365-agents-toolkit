@@ -16,7 +16,6 @@ import {
 import { WebSiteManagementClient } from "@azure/arm-appservice";
 import { FxError, ok, Result } from "@microsoft/teamsfx-api";
 import { getLocalizedString } from "../../../../common/localizeUtils";
-import { OutputEnvironmentVariableUndefinedError } from "../../error/outputEnvironmentVariableUndefinedError";
 
 const ACTION_NAME = "azureStaticWebApps/getDeploymentToken";
 
@@ -53,15 +52,9 @@ export class AzureStaticWebAppGetDeploymentTokenDriver implements StepDriver {
       args,
       AzureStaticWebAppGetDeploymentTokenDriver.HELP_LINK
     );
-    let outputKey: string;
-    if (!outputEnvVarNames || !outputEnvVarNames.has("deploymentToken")) {
-      throw new OutputEnvironmentVariableUndefinedError(ACTION_NAME);
-    } else {
-      outputKey =
-        outputEnvVarNames.get("deploymentToken") === ""
-          ? "SECRET_TAB_SWA_DEPLOYMENT_TOKEN"
-          : outputEnvVarNames.get("deploymentToken")!;
-    }
+    const outputKey = !outputEnvVarNames?.get("deploymentToken")
+      ? "SECRET_TAB_SWA_DEPLOYMENT_TOKEN"
+      : outputEnvVarNames.get("deploymentToken")!;
     const resourceInfo = parseAzureResourceId(
       input.resourceId,
       AzureStaticWebAppGetDeploymentTokenDriver.RESOURCE_PATTERN
@@ -81,6 +74,8 @@ export class AzureStaticWebAppGetDeploymentTokenDriver implements StepDriver {
     );
     const deploymentKey = secrets?.properties?.apiKey ?? "";
     const result: Result<Map<string, string>, FxError> = ok(new Map([[outputKey, deploymentKey]]));
+    // always set the deployment token to the output environment variable
+    process.env[outputKey] = deploymentKey;
     return {
       result: result,
       summaries: [getLocalizedString("driver.deploy.getSWADeploymentTokenSummary")],
