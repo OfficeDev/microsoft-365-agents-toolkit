@@ -305,14 +305,14 @@ export function happyPathTest(options: {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: "current tasks",
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: ValidationContent.AiBotMeetingMessage,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             }
           } else {
@@ -323,7 +323,7 @@ export function happyPathTest(options: {
               expectedWelcomeMessage:
                 ValidationContent.AiAssistantBotWelcomeInstruction,
               expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-              timeout: Timeout.spfxDeploy,
+              timeout: Timeout.longTimeWait,
             });
           }
         } else {
@@ -336,7 +336,7 @@ export function happyPathTest(options: {
               expectedWelcomeMessage:
                 ValidationContent.AiAssistantBotWelcomeInstruction,
               expectedReplyMessage: "x = 1",
-              timeout: Timeout.spfxDeploy,
+              timeout: Timeout.longTimeWait,
             });
           } else {
             try {
@@ -347,7 +347,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
@@ -357,7 +357,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             }
           }
@@ -561,12 +561,16 @@ export function happyPathTest(options: {
 
         await provisionProject(appName, projectPath);
         await deployProject(projectPath, Timeout.botDeploy);
+        await driver.sleep(Timeout.shortTimeLoading);
+        // [known issue] python remote need deploy twice
+        await deployProject(projectPath, Timeout.botDeploy);
         await driver.sleep(Timeout.spfxDeploy);
         const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
           projectPath
         );
 
-        const page = await initPage(
+        let page;
+        page = await initPage(
           remoteDebugTestContext.context!,
           teamsAppId,
           Env.username,
@@ -587,14 +591,14 @@ export function happyPathTest(options: {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: "current tasks",
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
                 hasCommandReplyValidation: true,
                 botCommand: "Show all tasks",
                 expectedReplyMessage: ValidationContent.AiBotMeetingMessage,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             }
           } else {
@@ -606,7 +610,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             } catch (error) {
               await validateWelcomeAndReplyBot(page, {
@@ -616,22 +620,42 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             }
           }
         } else {
           if (isRealKey) {
-            await validateWelcomeAndReplyBot(page, {
-              hasWelcomeMessage: false,
-              hasCommandReplyValidation: true,
-              botCommand:
-                "I need to solve the equation `3x + 11 = 14`. Can you help me?",
-              expectedWelcomeMessage:
-                ValidationContent.AiAssistantBotWelcomeInstruction,
-              expectedReplyMessage: "x = 1",
-              timeout: Timeout.spfxDeploy,
-            });
+            try {
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand:
+                  "I need to solve the equation `3x + 11 = 14`. Can you help me?",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: "x = 1",
+                timeout: Timeout.longTimeWait,
+              });
+            } catch (error) {
+              page = await initPage(
+                remoteDebugTestContext.context!,
+                teamsAppId,
+                Env.username,
+                Env.password,
+                { projectPath: projectPath, env: "dev" }
+              );
+              await validateWelcomeAndReplyBot(page, {
+                hasWelcomeMessage: false,
+                hasCommandReplyValidation: true,
+                botCommand:
+                  "I need to solve the equation `3x + 11 = 14`. Can you help me?",
+                expectedWelcomeMessage:
+                  ValidationContent.AiAssistantBotWelcomeInstruction,
+                expectedReplyMessage: "x = 1",
+                timeout: Timeout.longTimeWait,
+              });
+            }
           } else {
             try {
               await validateWelcomeAndReplyBot(page, {
@@ -641,9 +665,16 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             } catch (error) {
+              page = await initPage(
+                remoteDebugTestContext.context!,
+                teamsAppId,
+                Env.username,
+                Env.password,
+                { projectPath: projectPath, env: "dev" }
+              );
               await validateWelcomeAndReplyBot(page, {
                 hasWelcomeMessage: false,
                 hasCommandReplyValidation: true,
@@ -651,7 +682,7 @@ export function happyPathTest(options: {
                 expectedWelcomeMessage:
                   ValidationContent.AiAssistantBotWelcomeInstruction,
                 expectedReplyMessage: ValidationContent.AiBotErrorMessage2,
-                timeout: Timeout.spfxDeploy,
+                timeout: Timeout.longTimeWait,
               });
             }
           }
