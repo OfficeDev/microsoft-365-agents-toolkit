@@ -465,10 +465,6 @@ jobs:
       - name: Install dependencies
         run: npm install @octokit/auth-app @octokit/request
 
-      - name: Run download script (Use the specified version of vscuse)
-        working-directory: packages/tests/vscuse/binary
-        run: node download-vscuse.js v0.1.14
-
       # Close all web browsers before minimizing windows
       - name: Close all web browsers
         shell: powershell
