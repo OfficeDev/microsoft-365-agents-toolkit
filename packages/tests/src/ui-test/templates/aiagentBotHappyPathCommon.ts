@@ -70,7 +70,6 @@ export function happyPathTest(options: {
 
       // ensure workbench is ready
       this.timeout(Timeout.prepareTestCase);
-      await VSBrowser.instance.driver.sleep(Timeout.spfxDeploy);
       if (debugContent === "local") {
         localDebugTestContext = new LocalDebugTestContext("aiagent", {
           lang: options.lang,
@@ -90,7 +89,6 @@ export function happyPathTest(options: {
 
     afterEach(async function () {
       this.timeout(Timeout.finishTestCase);
-      await VSBrowser.instance.driver.sleep(Timeout.spfxDeploy);
       if (debugContent === "local") {
         await localDebugTestContext.after(false, true);
       } else {
