@@ -63,9 +63,9 @@ export function happyPathTest(options: {
 
     beforeEach(async function () {
       if (debugContent === undefined) {
-        debugContent = "local";
-      } else {
         debugContent = "remote";
+      } else {
+        debugContent = "local";
       }
 
       // ensure workbench is ready
