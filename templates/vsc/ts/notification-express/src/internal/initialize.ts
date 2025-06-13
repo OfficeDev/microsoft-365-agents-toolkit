@@ -1,10 +1,15 @@
-import { AgentBuilderCloudAdapter } from "@microsoft/teamsfx";
-import ConversationBot = AgentBuilderCloudAdapter.ConversationBot;
+import { NotificationBot } from "../notification/notification";
+import { AuthConfiguration, loadAuthConfigFromEnv, CloudAdapter } from "@microsoft/agents-hosting";
+import { LocalConversationReferenceStore } from "../notification/storage";
+import * as path from "path";
+
+const authConfig: AuthConfiguration = loadAuthConfigFromEnv();
+// Create adapter
+export const adapter = new CloudAdapter(authConfig);
+
+export const localStorage = new LocalConversationReferenceStore(
+  path.resolve(process.env.RUNNING_ON_AZURE === "1" ? process.env.TEMP ?? "./" : "./")
+);
 
 // Create bot.
-export const notificationApp = new ConversationBot({
-  // Enable notification
-  notification: {
-    enabled: true,
-  },
-});
+export const notificationApp = new NotificationBot(adapter, localStorage, authConfig.clientId);

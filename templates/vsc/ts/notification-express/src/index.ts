@@ -1,7 +1,7 @@
 import * as ACData from "adaptivecards-templating";
 import express from "express";
 import notificationTemplate from "./adaptiveCards/notification-default.json";
-import { notificationApp } from "./internal/initialize";
+import { notificationApp, adapter } from "./internal/initialize";
 import { teamsBot } from "./teamsBot";
 
 // Create express application.
@@ -29,10 +29,7 @@ expressApp.post("/api/notification", async (req, res) => {
   const pageSize = 100;
   let continuationToken: string | undefined = undefined;
   do {
-    const pagedData = await notificationApp.notification.getPagedInstallations(
-      pageSize,
-      continuationToken
-    );
+    const pagedData = await notificationApp.getPagedInstallations(pageSize, continuationToken);
     const installations = pagedData.data;
     continuationToken = pagedData.continuationToken;
 
@@ -50,9 +47,9 @@ expressApp.post("/api/notification", async (req, res) => {
 
       // Note - you can filter the installations if you don't want to send the event to every installation.
 
-      /** For example, if the current target is a "Group" this means that the notification application is
+      /** For example, if the current target is a "groupChat" this means that the notification application is
          *  installed in a Group Chat.
-        if (target.type === NotificationTargetType.Group) {
+        if (target.type === "groupChat") {
           // You can send the Adaptive Card to the Group Chat
           await target.sendAdaptiveCard(...);
   
@@ -72,9 +69,9 @@ expressApp.post("/api/notification", async (req, res) => {
         }
         **/
 
-      /** If the current target is "Channel" this means that the notification application is installed
+      /** If the current target is "channel" this means that the notification application is installed
          *  in a Team.
-        if (target.type === NotificationTargetType.Channel) {
+        if (target.type === "channel") {
           // If you send an Adaptive Card to the Team (the target), it sends it to the `General` channel of the Team
           await target.sendAdaptiveCard(...);
   
@@ -100,9 +97,9 @@ expressApp.post("/api/notification", async (req, res) => {
         }
         **/
 
-      /** If the current target is "Person" this means that the notification application is installed in a
+      /** If the current target is "personal" this means that the notification application is installed in a
          *  personal chat.
-        if (target.type === NotificationTargetType.Person) {
+        if (target.type === "personal") {
           // Directly notify the individual person
           await target.sendAdaptiveCard(...);
         }
@@ -136,7 +133,7 @@ expressApp.post("/api/notification", async (req, res) => {
 // bot endpoint. If you customize this route, update the Bot registration
 // in `/templates/provision/bot.bicep`.
 expressApp.post("/api/messages", async (req, res) => {
-  await notificationApp.requestHandler(req, res, async (context) => {
+  await adapter.process(req, res, async (context) => {
     await teamsBot.run(context);
   });
 });
