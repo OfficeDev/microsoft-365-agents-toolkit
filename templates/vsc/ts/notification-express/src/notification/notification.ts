@@ -14,7 +14,7 @@ import {
   ConversationParameters,
   ConversationReference,
 } from "@microsoft/agents-activity";
-import { LocalConversationReferenceStore } from "./storage";
+import { LocalConversationReferenceStore, PagedData } from "./storage";
 import { NotificationMiddleware, getKey } from "./middleware";
 
 export function getTeamsBotInstallationId(context: TurnContext): string | undefined {
@@ -30,24 +30,6 @@ export function getTeamsBotInstallationId(context: TurnContext): string | undefi
   }
 
   return undefined;
-}
-
-/**
- * Represents a page of data.
- */
-export interface PagedData<T> {
-  /**
-   * Page of data.
-   */
-  data: T[];
-
-  /**
-   * The Continuation Token to pass to get the next page of results.
-   *
-   * @remarks
-   * Undefined or empty token means the page reaches the end.
-   */
-  continuationToken?: string;
 }
 
 export interface NotificationTarget {

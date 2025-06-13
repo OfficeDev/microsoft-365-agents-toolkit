@@ -108,14 +108,14 @@ expressApp.post("/api/notification", async (req, res) => {
   } while (continuationToken);
 
   /** You can also find someone and notify the individual person
-    const member = await notificationApp.notification.findMember(
+    const member = await notificationApp.findMember(
       async (m) => m.account.email === "someone@contoso.com"
     );
     await member?.sendAdaptiveCard(...);
     **/
 
   /** Or find multiple people and notify them
-    const members = await notificationApp.notification.findAllMembers(
+    const members = await notificationApp.findAllMembers(
       async (m) => m.account.email?.startsWith("test")
     );
     for (const member of members) {
