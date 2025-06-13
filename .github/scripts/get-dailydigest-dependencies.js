@@ -29,7 +29,7 @@ const codeOwnerMap = new Map([
   ["copilot-plugin-from-scratch-api-key", "huimiao@microsoft.com"],
   ["spfx-tab", "yuqzho@microsoft.com"],
   ["spfx-tab-import", "yuqzho@microsoft.com"],
-  ["sso-tab-with-obo-flow", "bowen.song@microsoft.com"],
+  ["sso-tab-naa", "bowen.song@microsoft.com"],
   ["command-and-response", "qidon@microsoft.com"],
   ["notification-http-timer-trigger", "qidon@microsoft.com"],
   ["notification-http-trigger", "qidon@microsoft.com"],
