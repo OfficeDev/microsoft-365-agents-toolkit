@@ -1,0 +1,21 @@
+name: Send Email Report
+description: Send Email Report
+runs:
+  using: "composite"
+  steps:
+    - run: |
+          response=$(curl \
+            --request POST \
+            --header "Content-Type: application/x-www-form-urlencoded" \
+            --data "grant_type=client_credentials&client_id=${{ env.MAIL_CLIENT_ID }}&client_secret=${{ env.MAIL_CLIENT_SECRET }}&resource=https://management.core.windows.net" \
+            "https://login.microsoftonline.com/${{ env.MAIL_TENANT_ID }}/oauth2/token")
+
+          access_token=`echo $response | jq -r '. | select(.access_token) | .access_token'`
+
+          curl \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "Authorization: Bearer $access_token" \
+            --data '{"to": "${{ env.TO }}", "body": ${{ env.BODY }}, "subject": "${{ env.SUBJECT }}"}' \
+            'https://prod-17.eastus2.logic.azure.com:443/workflows/fdaf252f3b754ff6a22b424cd20c40dc/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0'
+      shell: bash
