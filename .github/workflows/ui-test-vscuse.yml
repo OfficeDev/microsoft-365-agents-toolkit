@@ -690,7 +690,6 @@ jobs:
           jobs="[]"
           echo "Initial jobs: $jobs"
           
-          case_title_file_path="vscuse/agent_cases/case_title.json"
           report_map_json_file_path="/tmp/url_mapping.json"
 
 
@@ -752,7 +751,7 @@ jobs:
             work_item_url="N/A"
 
             # Extract the title and author, and url from the corresponding agent_cases file
-            case_file="vscuse/agent_cases/${case_id}.txt"
+            case_file="packages/tests/vscuse/agent_cases/${case_id}.txt"
             echo "Looking for case file: $case_file"
             if [ -f "$case_file" ]; then
               echo "Found case file: $case_file"
