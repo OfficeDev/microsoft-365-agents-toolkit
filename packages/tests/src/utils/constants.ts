@@ -462,6 +462,7 @@ export enum LocalDebugError {
   ElementNotInteractableError = "ElementNotInteractableError",
   TimeoutError = "TimeoutError",
   WarningError = "Warning",
+  WarningError2 = "npm warn",
   WarningCapError = "WARNING",
   DeprecatedError = "npm warn deprecated",
   CompiledWithWarningError = "Compiled with warnings",
