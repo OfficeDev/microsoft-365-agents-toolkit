@@ -19,7 +19,7 @@ M365 Agents Toolkit MCP Server is designed to help you:
     - Declarative Agent Manifest
     - API Plugin Manifest
 - Microsoft 365 and Microsoft 365 Copilot Knowledge Retriever
-- Apps and Agents Samples and Templates Retriever
+- Apps and Agents Samples and Templates Code Snippets Retriever
 - Troubleshooting Retriever
 
 ## Getting Started
@@ -36,14 +36,6 @@ The Microsoft 365 Agents Toolkit MCP Server requires Node.js to install and run 
 
 ### Setup
 
-#### Personal Access Token
-
-[Create a GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with appropriate permissions:
-   - Go to [Personal access tokens](https://github.com/settings/tokens) (in GitHub Settings > Developer settings)
-   - Select which repositories you'd like this token to have access to (Public, All, or Select)
-   - Generate token
-   - Copy the generated token
-
 #### Manual Install
 
 For a step-by-step guide to install the Microsoft 365 Agents Toolkit MCP Server, follow these instructions:
@@ -57,10 +49,7 @@ For a step-by-step guide to install the Microsoft 365 Agents Toolkit MCP Server,
                 "args": [
                     "-y",
                     "@microsoft/m365agentstoolkit-mcp"
-                ],
-                "env": {
-                    "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
-                }
+                ]
             }
         }
     }
