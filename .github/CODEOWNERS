@@ -244,3 +244,4 @@
 /templates/vsc/* @adashen @wenytang-ms
 /templates/vsc/common/declarative-agent-typespec @KennethBWSong @SLdragon @adashen
 /templates/vsc/python @adashen @blackchoey @frankqianms
+/templates/vsc/**/sso-tab-naa @KennethBWSong @SLdragon @adashen
