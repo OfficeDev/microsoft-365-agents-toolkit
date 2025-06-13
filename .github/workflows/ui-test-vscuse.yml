@@ -753,21 +753,29 @@ jobs:
 
             # Extract the title and author, and url from the corresponding agent_cases file
             case_file="vscuse/agent_cases/${case_id}.txt"
+            echo "Looking for case file: $case_file"
             if [ -f "$case_file" ]; then
+              echo "Found case file: $case_file"
+              echo "whole file content:"
+              cat "$case_file"
               # Get title
               title=$(grep -m1 '^#Title:' "$case_file" | sed 's/^#Title:[[:space:]]*//')
+              echo "Extracted title: $title"
+
 
               # Get author
               author_line=$(grep -m1 '^#Author:' "$case_file" | sed 's/^#Author:[[:space:]]*//')
               if [ -n "$author_line" ]; then
               author="<a href=\\\"mailto:$author_line\\\"><span>$author_line</span></a>"
               fi
+              echo "Extracted author: $author"
 
               # Get work item URL
               url_line=$(grep -m1 '^#URL:' "$case_file" | sed 's/^#URL:[[:space:]]*//')
               if [ -n "$url_line" ]; then
                 work_item_url="<a href=\\\"$url_line\\\">Work Item</a>"
               fi
+              echo "Extracted work item URL: $work_item_url"
             fi
       
             echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
