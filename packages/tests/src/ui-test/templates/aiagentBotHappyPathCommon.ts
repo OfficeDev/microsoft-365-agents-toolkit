@@ -316,8 +316,7 @@ export function happyPathTest(options: {
           projectPath
         );
 
-        let page;
-        page = await initPage(
+        const page = await initPage(
           remoteDebugTestContext.context!,
           teamsAppId,
           Env.username,
@@ -385,13 +384,6 @@ export function happyPathTest(options: {
                 timeout: Timeout.longTimeWait,
               });
             } catch (error) {
-              page = await initPage(
-                remoteDebugTestContext.context!,
-                teamsAppId,
-                Env.username,
-                Env.password,
-                { projectPath: projectPath, env: "dev" }
-              );
               await validateWelcomeAndReplyBot(page, {
                 hasWelcomeMessage: false,
                 hasCommandReplyValidation: true,
@@ -415,13 +407,6 @@ export function happyPathTest(options: {
                 timeout: Timeout.longTimeWait,
               });
             } catch (error) {
-              page = await initPage(
-                remoteDebugTestContext.context!,
-                teamsAppId,
-                Env.username,
-                Env.password,
-                { projectPath: projectPath, env: "dev" }
-              );
               await validateWelcomeAndReplyBot(page, {
                 hasWelcomeMessage: false,
                 hasCommandReplyValidation: true,
