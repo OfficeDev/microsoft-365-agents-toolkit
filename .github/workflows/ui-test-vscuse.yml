@@ -141,15 +141,23 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
-      - name: Ensure agent_cases folder exists
+      - name: Ensure vscuse-related folder exists
         shell: pwsh
         run: |
-          $folderPath = "packages/tests/vscuse/agent_cases"
-          if (-not (Test-Path -Path $folderPath)) {
-            New-Item -ItemType Directory -Path $folderPath | Out-Null
-            Write-Host "Created folder: $folderPath"
+          $casesFolderPath = "packages/tests/vscuse/agent_cases"
+          if (-not (Test-Path -Path $casesFolderPath)) {
+            New-Item -ItemType Directory -Path $casesFolderPath | Out-Null
+            Write-Host "Created folder: $casesFolderPath"
           } else {
-            Write-Host "Folder already exists: $folderPath"
+            Write-Host "Folder already exists: $casesFolderPath"
+          }
+          
+          $binFolderPath = "packages/tests/vscuse/binary"
+          if (-not (Test-Path -Path $binFolderPath)) {
+            New-Item -ItemType Directory -Path $binFolderPath | Out-Null
+            Write-Host "Created folder: $binFolderPath"
+          } else {
+            Write-Host "Folder already exists: $binFolderPath"
           }
 
       - name: Install dependencies for TypeScript
