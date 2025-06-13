@@ -152,13 +152,6 @@ jobs:
             Write-Host "Folder already exists: $casesFolderPath"
           }
           
-          $binFolderPath = "packages/tests/vscuse/binary"
-          if (-not (Test-Path -Path $binFolderPath)) {
-            New-Item -ItemType Directory -Path $binFolderPath | Out-Null
-            Write-Host "Created folder: $binFolderPath"
-          } else {
-            Write-Host "Folder already exists: $binFolderPath"
-          }
 
       - name: Install dependencies for TypeScript
         run: |
@@ -180,7 +173,7 @@ jobs:
           AZURE_DEVOPS_PROJECT: "Microsoft Teams Extensibility"
           AZURE_DEVOPS_TEST_PLAN_ID: "33256964"
           AZURE_DEVOPS_TEST_SUITE_ID: "33256965"
-        run: npx ts-node src/scripts/fetch-test-plan-test-cases.ts vscuse/agent_cases
+        run: npx ts-node src/scripts/fetch-test-plan-test-cases.ts packages/tests/vscuse/agent_cases
 
 
       - name: Generate file list
@@ -232,6 +225,13 @@ jobs:
   
           "matrix=$jsonText" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
           Write-Host "Validated matrix: $jsonText"
+
+
+      - name: Upload test case files to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscuse-agent-cases
+          path: packages/tests/vscuse/agent_cases/*.txt
           
 
   main:
@@ -302,6 +302,47 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.branch }}
 
+      - name: Ensure vscuse-related folder exists
+        shell: pwsh
+        run: |
+          $casesFolderPath = "packages/tests/vscuse/agent_cases"
+          if (-not (Test-Path -Path $casesFolderPath)) {
+            New-Item -ItemType Directory -Path $casesFolderPath | Out-Null
+            Write-Host "Created folder: $casesFolderPath"
+          } else {
+            Write-Host "Folder already exists: $casesFolderPath"
+          }
+          
+          $binFolderPath = "packages/tests/vscuse/binary"
+          if (-not (Test-Path -Path $binFolderPath)) {
+            New-Item -ItemType Directory -Path $binFolderPath | Out-Null
+            Write-Host "Created folder: $binFolderPath"
+          } else {
+            Write-Host "Folder already exists: $binFolderPath"
+          }
+
+
+      # Download test case files artifact and unzip to agent_cases
+      - name: Download vscuse-agent-cases artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vscuse-agent-cases
+          path: packages/tests/vscuse/agent_cases
+
+      - name: Unzip test case files if zipped
+        shell: pwsh
+        run: |
+          $zipFiles = Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Filter *.zip
+          if ($zipFiles.Count -eq 0) {
+            Write-Host "No zip files found in agent_cases directory."
+          }
+          foreach ($zip in $zipFiles) {
+            Write-Host "Unzipping $($zip.FullName)..."
+            Expand-Archive -Path $zip.FullName -DestinationPath "packages/tests/vscuse/agent_cases" -Force
+            Remove-Item $zip.FullName
+          }
+          Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Recurse | ForEach-Object { Write-Host $_.FullName }
+              
       # Setup the environment
       - name: Set Windows Environment Variables
         run: |
