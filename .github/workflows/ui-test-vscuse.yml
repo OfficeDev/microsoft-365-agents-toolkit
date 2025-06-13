@@ -543,7 +543,7 @@ jobs:
       - name: Upload VSCUSE session files
         uses: actions/upload-artifact@v4
         with:
-          name: vscuse-session-log-Case-${{ matrix.file }}-${{ matrix.os }}-${{ matrix.node }}-${{ matrix.branch }}-${{ steps.generate_time.outputs.value }}
+          name: vscuse-session-log-Case-${{ matrix.file }}-${{ matrix.os }}-${{ matrix.node }}-${{ steps.generate_time.outputs.value }}
           path: ${{ env.SESSION_PATH }}
 
       - name: Generate UUID (Windows compatible)
