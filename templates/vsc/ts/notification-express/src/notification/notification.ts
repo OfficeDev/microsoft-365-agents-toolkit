@@ -634,7 +634,7 @@ export class NotificationBot {
         valid = await this.validateInstallation(reference);
       }
 
-      if (!validationEnabled || (validationEnabled && valid)) {
+      if (!validationEnabled || valid) {
         targets.push(new TeamsBotInstallation(this.adapter, reference, this.botAppId));
       } else {
         await this.conversationReferenceStore.remove(getKey(reference), reference);
