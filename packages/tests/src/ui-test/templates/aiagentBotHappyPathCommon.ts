@@ -309,7 +309,7 @@ export function happyPathTest(options: {
         await driver.sleep(Timeout.shortTimeLoading);
         // [known issue] python remote need deploy twice
         await deployProject(projectPath, Timeout.botDeploy);
-        await driver.sleep(Timeout.spfxDeploy);
+        await driver.sleep(Timeout.tabDeploy);
         const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
           projectPath
         );
