@@ -371,7 +371,7 @@ jobs:
         uses: ./.github/actions/setup-vscuse-environment
         with:
           version: latest
-          store-path: ${{ github.workspace }}/tests-ui/vscuse
+          store-path: ${{ github.workspace }}/packages/tests/vscuse/binary
 
 
       # Download the latest version of VSCode User setup and install it
