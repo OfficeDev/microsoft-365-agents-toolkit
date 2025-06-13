@@ -769,14 +769,8 @@ jobs:
                 work_item_url="<a href=\\\"$url_line\\\">Work Item</a>"
               fi
             fi
-
-            
-            if [ -f "$case_file" ]; then
-              
-            fi
-            echo "Author: $author"
       
-            echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, case ID: $case_id"
+            echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
       
             file=$(find src -name "$name.test.ts" 2>/dev/null)
             echo "Test file found: $file"
