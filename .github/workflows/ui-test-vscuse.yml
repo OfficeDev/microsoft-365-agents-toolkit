@@ -627,6 +627,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+
+      - name: Ensure vscuse-related folder exists
+        shell: pwsh
+        run: |
+          $casesFolderPath = "packages/tests/vscuse/agent_cases"
+          if (-not (Test-Path -Path $casesFolderPath)) {
+            New-Item -ItemType Directory -Path $casesFolderPath | Out-Null
+            Write-Host "Created folder: $casesFolderPath"
+          } else {
+            Write-Host "Folder already exists: $casesFolderPath"
+          }
+
       # Download test case files artifact and unzip to agent_cases
       - name: Download vscuse-agent-cases artifact
         uses: actions/download-artifact@v4
