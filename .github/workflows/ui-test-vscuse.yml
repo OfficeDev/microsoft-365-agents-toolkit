@@ -810,8 +810,8 @@ jobs:
       
             echo "Extracted info - Name: $name, OS: $os, Node: $node, Branch: $branch, Case ID: $case_id, Title: $title, Author: $author, Work Item URL: $work_item_url"
       
-            file=$(find src -name "$name.test.ts" 2>/dev/null)
-            echo "Test file found: $file"
+            # file=$(find src -name "$name.test.ts" 2>/dev/null)
+            # echo "Test file found: $file"
            
             status=$(echo "$jobs" | jq --arg case "$case" -r '.[] | select(.name == $case ) | .conclusion')
             echo "Job status: $status"
