@@ -59,7 +59,9 @@
     "source-map-support": "^0.5.19",
     "ts-node": "^9.1.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "azure-devops-node-api": "^15.1.0",
+    "node-fetch": "^2.7.0"
   },
   "dependencies": {
     "@azure/core-auth": "^1.4.0",
