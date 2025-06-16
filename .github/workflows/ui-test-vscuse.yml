@@ -627,6 +627,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # Download test case files artifact and unzip to agent_cases
+      - name: Download vscuse-agent-cases artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vscuse-agent-cases
+          path: packages/tests/vscuse/agent_cases
+
+      - name: Unzip test case files if zipped
+        shell: pwsh
+        run: |
+          $zipFiles = Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Filter *.zip
+          if ($zipFiles.Count -eq 0) {
+            Write-Host "No zip files found in agent_cases directory."
+          }
+          foreach ($zip in $zipFiles) {
+            Write-Host "Unzipping $($zip.FullName)..."
+            Expand-Archive -Path $zip.FullName -DestinationPath "packages/tests/vscuse/agent_cases" -Force
+            Remove-Item $zip.FullName
+          }
+          Get-ChildItem -Path "packages/tests/vscuse/agent_cases" -Recurse | ForEach-Object { Write-Host $_.FullName }
+
       - name: Download storage URLs
         uses: actions/download-artifact@v4
         with:
