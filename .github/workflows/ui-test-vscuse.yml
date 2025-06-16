@@ -587,8 +587,6 @@ jobs:
         with:
           name: storage-url-${{ matrix.file }}_${{ github.run_id }}
           path: storage_url.txt
-
-
       - name: Fail pipeline if test result is not passed
         run: |
           if ("${{ env.TEST_RESULT }}" -ne "passed") {
@@ -718,13 +716,13 @@ jobs:
 
       - name: list jobs
         id: list-jobs
+        working-directory: packages/tests/vscuse
         run: |
           page=1
           jobs="[]"
           echo "Initial jobs: $jobs"
           
           report_map_json_file_path="/tmp/url_mapping.json"
-
 
           while :
           do
@@ -784,7 +782,7 @@ jobs:
             work_item_url="N/A"
 
             # Extract the title and author, and url from the corresponding agent_cases file
-            case_file="packages/tests/vscuse/agent_cases/${case_id}.txt"
+            case_file="./agent_cases/${case_id}.txt"
             echo "Looking for case file: $case_file"
             if [ -f "$case_file" ]; then
               echo "Found case file: $case_file"
