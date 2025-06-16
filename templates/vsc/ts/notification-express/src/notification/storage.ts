@@ -2,28 +2,11 @@
 // Licensed under the MIT license.
 
 import { ConversationReference } from "@microsoft/agents-activity";
+import { IStorage, PagedData } from "./interface";
 import * as fs from "fs";
 import * as path from "path";
 
-/**
- * Represents a page of data.
- */
-export interface PagedData<T> {
-  /**
-   * Page of data.
-   */
-  data: T[];
-
-  /**
-   * The Continuation Token to pass to get the next page of results.
-   *
-   * @remarks
-   * Undefined or empty token means the page reaches the end.
-   */
-  continuationToken?: string;
-}
-
-export class LocalConversationReferenceStore {
+export class LocalConversationReferenceStore implements IStorage {
   private readonly localFileName =
     process.env.TEAMSFX_NOTIFICATION_STORE_FILENAME ?? ".notification.localstore.json";
   private readonly filePath: string;
@@ -32,37 +15,42 @@ export class LocalConversationReferenceStore {
     this.filePath = path.resolve(fileDir, this.localFileName);
   }
 
-  public async add(
-    key: string,
-    reference: Partial<ConversationReference>,
-    overwrite = false
-  ): Promise<boolean> {
-    if (overwrite || !(await this.storeFileExists())) {
-      if (!(await this.storeFileExists())) {
-        await this.writeToFile({ [key]: reference });
-      } else {
-        const data = await this.readFromFile();
-        await this.writeToFile(Object.assign(data, { [key]: reference }));
-      }
-      return true;
+  public async write(changes: { [key: string]: Partial<ConversationReference> }): Promise<void> {
+    if (!(await this.storeFileExists())) {
+      await this.writeToFile(changes);
+    } else {
+      const data = await this.readFromFile();
+      await this.writeToFile(Object.assign(data, changes));
     }
-
-    return false;
   }
 
-  public async remove(key: string, reference: Partial<ConversationReference>): Promise<boolean> {
+  public async read(keys: string[]): Promise<{ [key: string]: Partial<ConversationReference> }> {
     if (!(await this.storeFileExists())) {
-      return false;
+      return {};
     }
 
-    if (await this.storeFileExists()) {
-      const data = await this.readFromFile();
+    const data = await this.readFromFile();
+    const result: { [key: string]: Partial<ConversationReference> } = {};
+    for (const key of keys) {
       if (data[key] !== undefined) {
-        delete data[key];
-        await this.writeToFile(data);
+        result[key] = data[key];
       }
     }
-    return true;
+    return result;
+  }
+
+  public async delete(keys: string[]): Promise<void> {
+    if (!(await this.storeFileExists())) {
+      return;
+    }
+
+    const data = await this.readFromFile();
+    for (const key of keys) {
+      if (data[key] !== undefined) {
+        delete data[key];
+      }
+    }
+    await this.writeToFile(data);
   }
 
   public async list(

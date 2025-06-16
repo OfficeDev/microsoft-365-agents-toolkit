@@ -3,7 +3,7 @@
 
 import { Activity, ConversationReference } from "@microsoft/agents-activity";
 import { TurnContext, Middleware } from "@microsoft/agents-hosting";
-import { LocalConversationReferenceStore } from "./storage";
+import { IStorage } from "./interface";
 
 /**
  * @internal
@@ -23,9 +23,9 @@ export function getKey(reference: Partial<ConversationReference>): string {
 }
 
 export class NotificationMiddleware implements Middleware {
-  private readonly conversationReferenceStore: LocalConversationReferenceStore;
+  private readonly conversationReferenceStore: IStorage;
 
-  constructor(storage: LocalConversationReferenceStore) {
+  constructor(storage: IStorage) {
     this.conversationReferenceStore = storage;
   }
 
@@ -35,7 +35,9 @@ export class NotificationMiddleware implements Middleware {
       case ActivityType.CurrentBotInstalled:
       case ActivityType.TeamRestored: {
         const reference = context.activity.getConversationReference();
-        await this.conversationReferenceStore.add(getKey(reference), reference, true);
+        await this.conversationReferenceStore.write({
+          [getKey(reference)]: reference,
+        });
         break;
       }
       case ActivityType.CurrentBotMessaged: {
@@ -45,7 +47,7 @@ export class NotificationMiddleware implements Middleware {
       case ActivityType.CurrentBotUninstalled:
       case ActivityType.TeamDeleted: {
         const reference = context.activity.getConversationReference();
-        await this.conversationReferenceStore.remove(getKey(reference), reference);
+        await this.conversationReferenceStore.delete([getKey(reference)]);
         break;
       }
       default:
@@ -82,7 +84,7 @@ export class NotificationMiddleware implements Middleware {
     const reference = context.activity.getConversationReference();
     const conversationType = reference?.conversation?.conversationType;
     if (conversationType === "personal" || conversationType === "groupChat") {
-      await this.conversationReferenceStore.add(getKey(reference), reference, false);
+      await this.conversationReferenceStore.write({ [getKey(reference)]: reference });
     } else if (conversationType === "channel") {
       const teamId = context.activity?.channelData?.team?.id;
       const channelId = context.activity.channelData?.channel?.id;
@@ -90,7 +92,7 @@ export class NotificationMiddleware implements Middleware {
       if (teamId !== undefined && (channelId === undefined || teamId === channelId)) {
         const teamReference = JSON.parse(JSON.stringify(reference));
         teamReference.conversation.id = teamId;
-        await this.conversationReferenceStore.add(getKey(teamReference), teamReference, false);
+        await this.conversationReferenceStore.write({ [getKey(teamReference)]: teamReference });
       }
     }
   }

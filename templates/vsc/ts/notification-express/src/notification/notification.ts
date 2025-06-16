@@ -14,7 +14,7 @@ import {
   ConversationParameters,
   ConversationReference,
 } from "@microsoft/agents-activity";
-import { LocalConversationReferenceStore, PagedData } from "./storage";
+import { PagedData, IStorage } from "./interface";
 import { NotificationMiddleware, getKey } from "./middleware";
 
 export function getTeamsBotInstallationId(context: TurnContext): string | undefined {
@@ -538,7 +538,7 @@ export class TeamsBotInstallation implements NotificationTarget {
  * Provide utilities to send notification to varies targets (e.g., member, group, channel).
  */
 export class NotificationBot {
-  private readonly conversationReferenceStore: LocalConversationReferenceStore;
+  private readonly conversationReferenceStore: IStorage;
   private readonly adapter: CloudAdapter;
   private readonly botAppId: string;
 
@@ -551,11 +551,7 @@ export class NotificationBot {
    * @param adapter - The bound `CloudAdapter`
    * @param options - The initialize options
    */
-  public constructor(
-    adapter: CloudAdapter,
-    store: LocalConversationReferenceStore,
-    botAppId: string
-  ) {
+  public constructor(adapter: CloudAdapter, store: IStorage, botAppId: string) {
     this.conversationReferenceStore = store;
 
     this.adapter = adapter.use(new NotificationMiddleware(this.conversationReferenceStore));
@@ -637,7 +633,7 @@ export class NotificationBot {
       if (!validationEnabled || valid) {
         targets.push(new TeamsBotInstallation(this.adapter, reference, this.botAppId));
       } else {
-        await this.conversationReferenceStore.remove(getKey(reference), reference);
+        await this.conversationReferenceStore.delete([getKey(reference)]);
       }
     }
 
