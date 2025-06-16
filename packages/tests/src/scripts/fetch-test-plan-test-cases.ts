@@ -29,8 +29,7 @@ async function run() {
   // Get Azure AD token using Azure CLI credential
   const credential = new AzureCliCredential();
   const token = await credential.getToken("https://app.vssps.visualstudio.com/.default");
-  // Log the token for debugging (optional, be cautious with sensitive data)
-  console.log("Azure AD Token GOT success, its length is:", token.token.length);
+
   // Initialize Azure DevOps API client
 
   // Create auth handler using the Azure AD token
@@ -90,9 +89,7 @@ async function run() {
           if (uniqueName) {
             outputLines.push(`#Author: ${uniqueName}`);
           }
-
-          // Get the setps from the work item
-          // const tags = workItem.fields?.["System.Tags"];
+          
           //if (tags && tags.includes("VSCUSE")) {
           const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
           if (typeof steps === "string") {
