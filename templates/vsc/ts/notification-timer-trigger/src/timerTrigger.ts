@@ -18,10 +18,7 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
   const pageSize = 100;
   let continuationToken: string | undefined = undefined;
   do {
-    const pagedData = await notificationApp.notification.getPagedInstallations(
-      pageSize,
-      continuationToken
-    );
+    const pagedData = await notificationApp.getPagedInstallations(pageSize, continuationToken);
     const installations = pagedData.data;
     continuationToken = pagedData.continuationToken;
 
@@ -39,9 +36,9 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
 
       // Note - you can filter the installations if you don't want to send the event to every installation.
 
-      /** For example, if the current target is a "Group" this means that the notification application is
+      /** For example, if the current target is a "groupChat" this means that the notification application is
        *  installed in a Group Chat.
-      if (target.type === NotificationTargetType.Group) {
+      if (target.type === "groupChat") {
         // You can send the Adaptive Card to the Group Chat
         await target.sendAdaptiveCard(...);
   
@@ -63,7 +60,7 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
 
       /** If the current target is "Channel" this means that the notification application is installed
        *  in a Team.
-      if (target.type === NotificationTargetType.Channel) {
+      if (target.type === "channel") {
         // If you send an Adaptive Card to the Team (the target), it sends it to the `General` channel of the Team
         await target.sendAdaptiveCard(...);
   
@@ -91,7 +88,7 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
 
       /** If the current target is "Person" this means that the notification application is installed in a
        *  personal chat.
-      if (target.type === NotificationTargetType.Person) {
+      if (target.type === "personal") {
         // Directly notify the individual person
         await target.sendAdaptiveCard(...);
       }
@@ -100,14 +97,14 @@ const timerTrigger: AzureFunction = async function (context: Context, myTimer: a
   } while (continuationToken);
 
   /** You can also find someone and notify the individual person
-  const member = await notificationApp.notification.findMember(
+  const member = await notificationApp.findMember(
     async (m) => m.account.email === "someone@contoso.com"
   );
   await member?.sendAdaptiveCard(...);
   **/
 
   /** Or find multiple people and notify them
-  const members = await notificationApp.notification.findAllMembers(
+  const members = await notificationApp.findAllMembers(
     async (m) => m.account.email?.startsWith("test")
   );
   for (const member of members) {
