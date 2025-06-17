@@ -5,17 +5,17 @@ on:
     inputs:
       target-vsix-run-id:
         description: "target vsix github action run id(e.g. 14977003138)"
-        required: true
+        required: false
         type: string
 
       target-cli-version:
         description: "target cli version or tag, like latest, beta or alpha"
-        required: true
+        required: false
         type: string
         default: latest
 
       test-cases:
-        description: "Comma-separated list of test cases to run (e.g. case1,case2)"
+        description: "Comma-separated list of test cases to run, input test case id (e.g. 33258708, 33258728)"
         required: false
         type: string
         default: ''
@@ -485,13 +485,29 @@ jobs:
           $shell = New-Object -ComObject "Shell.Application"
           $shell.MinimizeAll()
     
+      - name: calc steps from txt lines
+        id: calc_lines
+        shell: powershell
+        run: |
+          $filePath = "packages/tests/vscuse/agent_cases/${{ matrix.file }}.txt"
+          if (Test-Path $filePath) {
+            $lineCount = (Get-Content $filePath).Count
+            Write-Host "Line count in $filePath: $lineCount"
+            echo "line_count=$lineCount" >> $GITHUB_OUTPUT
+            $steps = [math]::Ceiling($lineCount * 1.5)
+            Write-Host "Calculated steps (1.8 x line count): $steps"
+            echo "steps=$steps" >> $GITHUB_OUTPUT
+          } else {
+            Write-Host "File not found: $filePath"
+            exit 1
+          }
 
       # Run vscuse.exe  (0.1.9 with Agent/ZEN model)
       - name: Run vscuse.exe (Agent model)
         working-directory: packages/tests/vscuse/binary
         run: |
           vscuse.exe version
-          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s 50 -v --remote-cache | tee "${{ runner.temp }}\output.log"
+          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s ${{ steps.calc_lines.outputs.steps }} -v --remote-cache | tee "${{ runner.temp }}\output.log"
         shell: cmd
         
       - name: Check for HTML report and test result
