@@ -13,18 +13,6 @@ export const vsOnlyTemplates: Template[] = [
     description: "",
   },
   {
-    id: "ai-bot-csharp",
-    name: TemplateNames.AIBot,
-    language: "csharp",
-    description: "",
-  },
-  {
-    id: "ai-assistant-bot-csharp",
-    name: TemplateNames.AIAssistantBot,
-    language: "csharp",
-    description: "",
-  },
-  {
     id: "message-extension-search-csharp",
     name: TemplateNames.MessageExtensionSearch,
     language: "csharp",

@@ -54,15 +54,6 @@ export class VSCapabilityOptions {
       data: TemplateNames.SsoTabSSR,
     };
   }
-  static aiAssistantBot(): OptionItem {
-    return {
-      id: "ai-assistant-bot",
-      label: getLocalizedString("core.aiAssistantBotOption.label"),
-      detail: getLocalizedString("core.aiAssistantBotOption.detail"),
-      description: getLocalizedString("core.createProjectQuestion.option.description.preview"),
-      data: TemplateNames.AIAssistantBot,
-    };
-  }
   static SearchMeVS(): OptionItem {
     return {
       id: "search-message-extension",
@@ -107,8 +98,6 @@ export function scaffoldQuestionForVS(): IQTreeNode {
             CustomCopilotCapabilityOptions.aiAgent(),
             VSCapabilityOptions.weatherAgentBot(),
             BotCapabilityOptions.basicBot(),
-            BotCapabilityOptions.aiBot(),
-            VSCapabilityOptions.aiAssistantBot(),
             BotCapabilityOptions.notificationBot(),
             BotCapabilityOptions.commandBot(),
             BotCapabilityOptions.workflowBot(),
