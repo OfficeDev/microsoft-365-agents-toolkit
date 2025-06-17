@@ -23,3 +23,9 @@ runs:
         max_attempts: 5
         command: |
           npm run setup
+
+    - name: restore lerna
+      uses: actions/cache@v4
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}

@@ -76,12 +76,6 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           ref: ${{ github.ref }}
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      - uses: pnpm/action-setup@v4
-
       - name: Install wine64
         run: |
           sudo dpkg --add-architecture i386
@@ -105,9 +99,8 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
 
-      - name: Setup project
-        run: |
-          npm run setup
+      - name: setup project
+        uses: ./.github/actions/setup-project
 
       - name: release alpha npm packages to npmjs.org
         if: ${{ github.ref == 'refs/heads/dev' }}
