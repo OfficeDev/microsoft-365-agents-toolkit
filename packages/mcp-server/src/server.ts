@@ -12,7 +12,7 @@ export function createServer(): McpServer {
   });
   server.tool(
     "get_schema",
-    'Get the schema for "App manifest", "Declarative agent manifest", "API plugin manifest", use it everytime before understanding, modifying or creating any of these manifest files.',
+    'Get the schema for "App manifest", "Declarative agent manifest", "API plugin manifest", "M365 agents yaml", use it everytime before understanding, modifying or creating any of these manifest files.',
     {
       schema_name: SchemaTypeEnum.describe("name of schema"),
       schema_version: z

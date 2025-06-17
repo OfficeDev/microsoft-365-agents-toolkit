@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/m365agentstoolkit-mcp",
-  "version": "0.1.0-alpha",
+  "version": "0.1.1-alpha",
   "bin": {
     "m365agentstoolkit-mcp": "./dist/index.js"
   },

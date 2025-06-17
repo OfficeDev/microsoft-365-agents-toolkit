@@ -9,6 +9,7 @@ export const SchemaTypeEnum = z.enum([
   "app_manifest",
   "declarative_agent_manifest",
   "api_plugin_manifest",
+  "m365_agents_yaml",
 ]);
 export type SchemaType = z.infer<typeof SchemaTypeEnum>;
 
@@ -35,6 +36,10 @@ const schemaRepositories: Record<SchemaType, SchemaRepository> = {
   api_plugin_manifest: {
     baseUrl: `https://developer.microsoft.com/json-schemas/copilot/plugin/{{version}}/schema.json`,
     latestVersion: "v2.2",
+  },
+  m365_agents_yaml: {
+    baseUrl: `https://aka.ms/teams-toolkit/{{version}}/yaml.schema.json`,
+    latestVersion: "v1.8",
   },
 };
 
