@@ -26,8 +26,8 @@ on:
         type: string
 
   # pull_request:
-  # schedule:
-  #   - cron: "0 18 * * *"
+  schedule:
+    - cron: "0 17 * * *"
 
 permissions:
   actions: read
