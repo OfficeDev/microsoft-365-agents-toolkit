@@ -67,7 +67,7 @@ describe("fetcher", () => {
       // Test app_manifest with 'latest' version
       await fetchSchema("app_manifest", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/teams/v1.21/MicrosoftTeams.schema.json"
+        "https://developer.microsoft.com/json-schemas/teams/v1.22/MicrosoftTeams.schema.json"
       );
 
       jest.clearAllMocks();
@@ -75,7 +75,7 @@ describe("fetcher", () => {
       // Test declarative_agent_manifest with 'latest' version
       await fetchSchema("declarative_agent_manifest", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json"
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json"
       );
 
       jest.clearAllMocks();
@@ -83,7 +83,7 @@ describe("fetcher", () => {
       // Test api_plugin_manifest with 'latest' version
       await fetchSchema("api_plugin_manifest", "latest");
       expect(global.fetch).toHaveBeenCalledWith(
-        "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.2/schema.json"
+        "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.3/schema.json"
       );
 
       jest.clearAllMocks();
