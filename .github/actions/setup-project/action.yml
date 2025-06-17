@@ -14,6 +14,14 @@ runs:
         node-version: 22
 
     - uses: pnpm/action-setup@v4
+
+    - name: Restore pnpm cache (if any)
+      id: pnpm_cache
+      uses: cache/restore@v4
+      with:
+        path: |
+          '**/node_modules'
+        key: ${{ runner.os }}-dependencies-${{ hashFiles('**/pnpm-lock.yaml') }}
     
     - name: Setup project
       if: ${{ inputs.setup == 'true' }}
@@ -24,8 +32,10 @@ runs:
         command: |
           npm run setup
 
-    - name: restore lerna
-      uses: actions/cache@v4
+    - name: Save pnpm cache (if changed)
+      uses: cache/save@v4
+      if: steps.pnpm_cache.outputs.cache-hit != 'true'
       with:
-        path: '**/node_modules'
-        key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+        path: |
+          '**/node_modules'
+        key: ${{ steps.pnpm_cache.outputs.cache-primary-key }}
