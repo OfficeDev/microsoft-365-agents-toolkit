@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { teamsBot } from "../teamsBot";
-import { notificationApp } from "./initialize";
+import { adapter } from "./initialize";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -19,7 +19,7 @@ const httpTrigger: AzureFunction = async function (
     setHeader: () => {},
     end: () => {},
   };
-  await notificationApp.requestHandler(req, res, async (context) => {
+  await adapter.process(req, res as any, async (context) => {
     await teamsBot.run(context);
   });
   context.res = {
