@@ -32,8 +32,6 @@ export function listAllCapabilities(): OptionItem[] {
       CustomCopilotCapabilityOptions.aiAgent(),
       VSCapabilityOptions.weatherAgentBot(),
       BotCapabilityOptions.basicBot(),
-      BotCapabilityOptions.aiBot(),
-      VSCapabilityOptions.aiAssistantBot(),
       BotCapabilityOptions.notificationBot(),
       BotCapabilityOptions.commandBot(),
       BotCapabilityOptions.workflowBot(),
