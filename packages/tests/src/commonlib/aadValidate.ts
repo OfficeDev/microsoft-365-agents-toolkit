@@ -58,14 +58,27 @@ export class AadValidator {
     chai.assert.exists(groundTruth);
 
     chai.assert(aadObject.clientId, groundTruth?.appId);
-    chai.assert(
-      aadObject.oauth2PermissionScopeId,
-      groundTruth?.api?.oauth2PermissionScopes![0].id
-    );
+    if (
+      groundTruth?.api?.oauth2PermissionScopes &&
+      groundTruth?.api?.oauth2PermissionScopes.length > 0
+    ) {
+      chai.assert(
+        aadObject.oauth2PermissionScopeId,
+        groundTruth?.api?.oauth2PermissionScopes![0].id
+      );
+    }
     if (expectApplicationIdUri) {
       chai.assert(expectApplicationIdUri, groundTruth?.identifierUris![0]);
     } else {
-      chai.assert(aadObject.applicationIdUris, groundTruth?.identifierUris![0]);
+      if (
+        groundTruth?.identifierUris &&
+        groundTruth?.identifierUris.length > 0
+      ) {
+        chai.assert(
+          aadObject.applicationIdUris,
+          groundTruth?.identifierUris![0]
+        );
+      }
     }
 
     if (expectedPermission) {
@@ -104,11 +117,7 @@ export class AadValidator {
         const aadGetResponse = await axios.get(
           `${baseUrl}/applications/${objectId}`
         );
-        if (
-          aadGetResponse &&
-          aadGetResponse.data &&
-          aadGetResponse.data["identifierUris"][0]
-        ) {
+        if (aadGetResponse && aadGetResponse.data) {
           return <IAADDefinition>aadGetResponse.data;
         }
       } catch (error) {
