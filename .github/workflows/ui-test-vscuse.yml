@@ -487,16 +487,16 @@ jobs:
     
       - name: calc steps from txt lines
         id: calc_lines
-        shell: powershell
+        shell: pwsh
         run: |
           $filePath = "packages/tests/vscuse/agent_cases/${{ matrix.file }}.txt"
           if (Test-Path $filePath) {
             $lineCount = (Get-Content $filePath).Count
             Write-Host "Line count in ${filePath}: ${lineCount}"
-            echo "line_count=${lineCount}" >> $GITHUB_OUTPUT
+            echo "line_count=$lineCount" >> $env:GITHUB_OUTPUT
             $steps = [math]::Ceiling($lineCount * 1.5)
             Write-Host "Calculated steps (1.8 x line count) - ${steps}"
-            echo "steps=${steps}" >> $GITHUB_OUTPUT
+            echo "steps=$steps" >> $env:GITHUB_OUTPUT
           } else {
             Write-Host "File not found: $filePath"
             exit 1
