@@ -493,10 +493,10 @@ jobs:
           if (Test-Path $filePath) {
             $lineCount = (Get-Content $filePath).Count
             Write-Host "Line count in ${filePath}: ${lineCount}"
-            echo "line_count=$lineCount" >> $GITHUB_OUTPUT
+            echo "line_count=${lineCount}" >> $GITHUB_OUTPUT
             $steps = [math]::Ceiling($lineCount * 1.5)
             Write-Host "Calculated steps (1.8 x line count) - ${steps}"
-            echo "steps=$steps" >> $GITHUB_OUTPUT
+            echo "steps=${steps}" >> $GITHUB_OUTPUT
           } else {
             Write-Host "File not found: $filePath"
             exit 1
