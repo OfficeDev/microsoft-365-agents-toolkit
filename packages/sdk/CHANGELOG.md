@@ -1,3 +1,8 @@
+# 4.0.0
+- Update denpendencies from Bot Framework SDK to [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents-for-js)
+- `BotBuilderCloudAdapter` has been renamed to `AgentBuilderCloudAdapter`
+- Update dependency `axios` version to `^1.8.3`
+
 # 3.0.0
 - Remove deprecated classes and APIs: `TeamsFx`, `CommandBot`, `CardActionBot`, `CommandBot`, Microsoft Graph Client, etc.
 - Update dependencies to support Node.js v20.

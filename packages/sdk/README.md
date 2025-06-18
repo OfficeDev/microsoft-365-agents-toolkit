@@ -16,15 +16,15 @@ Use the library to:
 
 > Important: Please be advised that access tokens are stored in sessionStorage for you by default. This can make it possible for malicious code in your app (or code pasted into a console on your page) to access APIs at the same privilege level as your client application. Please ensure you only request the minimum necessary scopes from your client application, and perform any sensitive operations from server side code that your client has to authenticate with.
 
-TeamsFx SDK is pre-configured in scaffolded project using Teams Toolkit extension for Visual Studio and vscode, or the `teamsfx` cli from the `teamsfx-cli` npm package.
+TeamsFx SDK is pre-configured in scaffolded project using Microsoft 365 Agents Toolkit extension for Visual Studio and vscode, or the `teamsapp` cli from the `teamsfx-cli` npm package.
 Please check the [README](https://github.com/OfficeDev/TeamsFx/blob/main/packages/vscode-extension/README.md) to see how to create a Teams App project.
 
 ### Prerequisites
 
 - Node.js version 18 or higher
 - PNPM version 8 or higher
-- A project created by the Teams Toolkit VS Code extension or `teamsfx` CLI tool.
-- If your project has installed `botbuilder` related [packages](https://github.com/Microsoft/botbuilder-js#packages) as dependencies, ensure they are of the same version and the version `>= 4.18.0`. ([Issue - all of the BOTBUILDER packages should be the same version](https://github.com/BotBuilderCommunity/botbuilder-community-js/issues/57#issuecomment-508538548))
+- A project created by the Microsoft 365 Agents Toolkit VS Code extension or `teamsapp` CLI tool.
+- If your project has installed `@microsoft/agents-hosting` related [packages](https://github.com/microsoft/Agents-for-js) as dependencies, ensure they are of the same version.
 
 ### Install the `@microsoft/teamsfx` package
 
@@ -437,13 +437,13 @@ const token = appCredential.getToken();
 Add `TeamsBotSsoPrompt` to dialog set.
 
 ```ts
-const { ConversationState, MemoryStorage } = require("botbuilder");
-const { DialogSet, WaterfallDialog } = require("botbuilder-dialogs");
-const {
+import { ConversationState, MemoryStorage } from "@microsoft/agents-hosting";
+import { DialogSet, WaterfallDialog } from "@microsoft/agents-hosting-dialogs";
+import {
   TeamsBotSsoPrompt,
   OnBehalfOfCredentialAuthConfig,
   TeamsBotSsoPromptSettings,
-} = require("@microsoft/teamsfx");
+} from "@microsoft/teamsfx";
 
 const convoState = new ConversationState(new MemoryStorage());
 const dialogState = convoState.createProperty("dialogState");
@@ -596,13 +596,13 @@ Also see [Credential](#Credential) for furthur description.
 
 ## How to use SDK implemented with `CloudAdapter`
 
-From `botbuilder@4.16.0`, `BotFrameworkAdapter` is deprecated, and `CloudAdapter` is recommended to be used instead. You can import `ConversationBot` from `BotBuilderCloudAdapter` to use the latest SDK implemented with `CloudAdapter`.
+From `@microsoft/teamsfx@4.0.0`, `BotBuilderCloudAdapter` has been renamed to `AgentBuilderCloudAdapter`. You can import `ConversationBot` from `AgentBuilderCloudAdapter` to use the latest SDK implemented with `CloudAdapter`.
 
-1. Install `@microsoft/teamsfx @^2.2.0`, `botbuilder @^4.18.0`, (and `@types/node @^18.0.0` for TS projects) via `npm install` as follows.
+1. Install `@microsoft/teamsfx @^4.0.0`, `@microsoft/agents-hosting @^0.2.14`, (and `@types/node @^18.0.0` for TS projects) via `npm install` as follows.
 
    ```sh
    npm install @microsoft/teamsfx
-   npm install botbuilder
+   npm install @microsoft/agents-hosting@^0.2.14
 
    // For TS projects only
    npm install --save-dev @types/node
@@ -612,17 +612,17 @@ From `botbuilder@4.16.0`, `BotFrameworkAdapter` is deprecated, and `CloudAdapter
 
    ```ts
    import { HelloWorldCommandHandler } from "../helloworldCommandHandler";
-   import { BotBuilderCloudAdapter } from "@microsoft/teamsfx";
-   import ConversationBot = BotBuilderCloudAdapter.ConversationBot;
+   import { AgentBuilderCloudAdapter } from "@microsoft/teamsfx";
+   import ConversationBot = AgentBuilderCloudAdapter.ConversationBot;
    import config from "./config";
 
    export const commandBot = new ConversationBot({
      // The bot id and password to create CloudAdapter.
      // See https://aka.ms/about-bot-adapter to learn more about adapters.
      adapterConfig: {
-       MicrosoftAppId: config.botId,
-       MicrosoftAppPassword: config.botPassword,
-       MicrosoftAppType: "MultiTenant",
+       clientId: config.MicrosoftAppId,
+       clientSecret: config.MicrosoftAppPassword,
+       issuers: [],
      },
      command: {
        enabled: true,
@@ -665,50 +665,13 @@ From `botbuilder@4.16.0`, `BotFrameworkAdapter` is deprecated, and `CloudAdapter
    });
    ```
 
-5. If the project has `responseWrapper.ts`, please update the class `responseWrapper` to the class below.
-
-   ```ts
-   import { Response } from "botbuilder";
-
-   // A wrapper to convert Azure Functions Response to Bot Builder's Response.
-   export class ResponseWrapper implements Response {
-     socket: any;
-     originalResponse?: any;
-     headers?: any;
-     body?: any;
-
-     constructor(functionResponse?: { [key: string]: any }) {
-       this.socket = undefined;
-       this.originalResponse = functionResponse;
-     }
-
-     end(...args: any[]) {
-       // do nothing since res.end() is deprecated in Azure Functions.
-     }
-
-     header(name: string, value: any) {
-       this.headers[name] = value;
-     }
-
-     send(body: any) {
-       // record the body to be returned later.
-       this.body = body;
-       this.originalResponse.body = body;
-     }
-     status(status: number) {
-       // call Azure Functions' res.status().
-       return this.originalResponse?.status(status);
-     }
-   }
-   ```
-
 ## Next steps
 
 Please take a look at the [Samples](https://github.com/OfficeDev/TeamsFx-Samples) project for detailed examples on how to use this library.
 
 ## Related projects
 
-- [Microsoft Teams Toolkit for Visual Studio Code](https://github.com/OfficeDev/TeamsFx/tree/main/packages/vscode-extension)
+- [Microsoft Microsoft 365 Agents Toolkit for Visual Studio Code](https://github.com/OfficeDev/TeamsFx/tree/main/packages/vscode-extension)
 - [TeamsFx Cli](https://github.com/OfficeDev/TeamsFx/tree/main/packages/cli)
 
 ## Data Collection.
