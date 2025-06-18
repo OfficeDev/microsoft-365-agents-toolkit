@@ -1,5 +1,5 @@
 const { teamsBot } = require("../teamsBot");
-const { notificationApp } = require("./initialize");
+const { adapter } = require("./initialize");
 
 module.exports = async function (context, req) {
   let status = 200;
@@ -15,7 +15,7 @@ module.exports = async function (context, req) {
     setHeader: () => {},
     end: () => {},
   };
-  await notificationApp.requestHandler(req, res, async (context) => {
+  await adapter.process(req, res, async (context) => {
     await teamsBot.run(context);
   });
   context.res = {

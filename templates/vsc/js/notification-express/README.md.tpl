@@ -110,6 +110,35 @@ The command and response feature adds the ability for your application to "liste
 
 Adaptive cards can be updated on user action to allow user progress through a series of cards that require user input. Developers can define actions and use a bot to return an Adaptive Cards in response to user action. This can be chained into sequential workflows. Follow the [steps here](https://aka.ms/teamsfx-workflow-new#add-more-card-actions) to add workflow feature to your command bot. Refer [the workflow document](https://aka.ms/teamsfx-workflow-new) for more information.
 
+## Extend notification bot with persistent storage
+This template provides a LocalConversationReferenceStore class to store bot installations into a local file, which is not persistent. The default .notification.localstore.json file will be removed when Azure web app restarted.
+
+You can implement your own storage to persist installation data. E.g.
+
+```ts
+import { IStorage, PagedData } from "./interface";
+import { StoreItems } from "@microsoft/agents-hosting";
+import { ConversationReference } from "@microsoft/agents-activity";
+
+export class AzureTableStorage implements IStorage {
+   public async write(changes: { [key: string]: Partial<ConversationReference> }): Promise<void> {
+        // To be implemented
+   }
+   public async list(pageSize?: number, continuationToken?: string): Promise<PagedData<StoreItems>> {
+        // To be implemented
+   }
+
+   public async read(keys: string[]): Promise<{ [key: string]: Partial<ConversationReference> }> {
+        // To be implemented
+   }
+
+   public async delete(keys: string[]): Promise<void> {
+        // To be implemented
+   }
+}
+```
+You can reference to [Large Scale Notification Bot sample](https://github.com/OfficeDev/microsoft-365-agents-toolkit-samples/tree/dev/large-scale-notification), which persists data into Azure Table Storage.
+
 ## Additional information and references
 
 - [Manage multiple environments](https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-multi-env)

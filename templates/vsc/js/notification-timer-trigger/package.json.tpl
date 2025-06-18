@@ -21,8 +21,9 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@microsoft/agents-hosting": "^0.2.14",
-        "@microsoft/teamsfx": "^4.0.0",
+        "@microsoft/agents-hosting": "^0.4.3",
+        "@microsoft/agents-hosting-teams": "^0.4.3",
+        "@microsoft/agents-activity": "^0.4.3",
         "adaptive-expressions": "^4.23.1",
         "adaptivecards": "^3.0.5",
         "adaptivecards-templating": "^2.3.1"

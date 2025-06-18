@@ -8,10 +8,7 @@ module.exports = async function (context, myTimer) {
   const pageSize = 100;
   let continuationToken = undefined;
   do {
-    const pagedData = await notificationApp.notification.getPagedInstallations(
-      pageSize,
-      continuationToken
-    );
+    const pagedData = await notificationApp.getPagedInstallations(pageSize, continuationToken);
     const installations = pagedData.data;
     continuationToken = pagedData.continuationToken;
 
@@ -29,7 +26,7 @@ module.exports = async function (context, myTimer) {
 
       /****** To distinguish different target types ******/
       /** "Channel" means this bot is installed to a Team (default to notify General channel)
-      if (target.type === NotificationTargetType.Channel) {
+      if (target.type === "channel") {
         // Directly notify the Team (to the default General channel)
         await target.sendAdaptiveCard(...);
         // List all channels in the Team then notify each channel
@@ -53,7 +50,7 @@ module.exports = async function (context, myTimer) {
       **/
 
       /** "Group" means this bot is installed to a Group Chat
-      if (target.type === NotificationTargetType.Group) {
+      if (target.type === "groupChat") {
         // Directly notify the Group Chat
         await target.sendAdaptiveCard(...);
         // List all members in the Group Chat then notify each member
@@ -72,7 +69,7 @@ module.exports = async function (context, myTimer) {
       **/
 
       /** "Person" means this bot is installed as a Personal app
-      if (target.type === NotificationTargetType.Person) {
+      if (target.type === "personal") {
         // Directly notify the individual person
         await target.sendAdaptiveCard(...);
       }
@@ -81,14 +78,14 @@ module.exports = async function (context, myTimer) {
   } while (continuationToken);
 
   /** You can also find someone and notify the individual person
-  const member = await notificationApp.notification.findMember(
+  const member = await notificationApp.findMember(
     async (m) => m.account.email === "someone@contoso.com"
   );
   await member?.sendAdaptiveCard(...);
   **/
 
   /** Or find multiple people and notify them
-  const members = await notificationApp.notification.findAllMembers(
+  const members = await notificationApp.findAllMembers(
     async (m) => m.account.email?.startsWith("test")
   );
   for (const member of members) {
