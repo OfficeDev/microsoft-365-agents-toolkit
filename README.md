@@ -28,7 +28,7 @@ Pick your preferred tool to get started:
 
 - For JavaScript and TypeScript developers, install [Microsoft 365 Agents Toolkit for Visual Studio Code](https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals#install-teams-toolkit-for-visual-studio-code).
 - For .NET developers, install [Microsoft 365 Agents Toolkit for Visual Studio](https://docs.microsoft.com/microsoftteams/platform/toolkit/visual-studio-overview#install-teams-toolkit-for-visual-studio).
-- For command line users, install [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli#get-started): `npm install -g @microsoft/teamsapp-cli`
+- For command line users, install [Microsoft 365 Agents Toolkit CLI](https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/microsoft-365-agents-toolkit-cli#get-started): `npm install -g @microsoft/m365agentstoolkit-cli`
 
 Visit [Microsoft 365 Agents Toolkit documentation](https://aka.ms/teamsfx-docs) to get started with building agents and apps.
 

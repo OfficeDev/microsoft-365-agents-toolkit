@@ -16,14 +16,14 @@ Use the library to:
 
 > Important: Please be advised that access tokens are stored in sessionStorage for you by default. This can make it possible for malicious code in your app (or code pasted into a console on your page) to access APIs at the same privilege level as your client application. Please ensure you only request the minimum necessary scopes from your client application, and perform any sensitive operations from server side code that your client has to authenticate with.
 
-TeamsFx SDK is pre-configured in scaffolded project using Microsoft 365 Agents Toolkit extension for Visual Studio and vscode, or the `teamsapp` cli from the `teamsfx-cli` npm package.
+TeamsFx SDK is pre-configured in scaffolded project using Microsoft 365 Agents Toolkit extension for Visual Studio and vscode, or the `atk` cli from the `@microsoft/m365agentstoolkit-cli` npm package.
 Please check the [README](https://github.com/OfficeDev/TeamsFx/blob/main/packages/vscode-extension/README.md) to see how to create a Teams App project.
 
 ### Prerequisites
 
 - Node.js version 18 or higher
 - PNPM version 8 or higher
-- A project created by the Microsoft 365 Agents Toolkit VS Code extension or `teamsapp` CLI tool.
+- A project created by the Microsoft 365 Agents Toolkit VS Code extension or `atk` CLI tool.
 - If your project has installed `@microsoft/agents-hosting` related [packages](https://github.com/microsoft/Agents-for-js) as dependencies, ensure they are of the same version.
 
 ### Install the `@microsoft/teamsfx` package
