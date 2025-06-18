@@ -72,7 +72,5 @@ export enum TemplateNames {
 
   // VS only
   Empty = "empty",
-  AIBot = "ai-bot",
-  AIAssistantBot = "ai-assistant-bot",
   MessageExtensionSearch = "message-extension-search",
 }
