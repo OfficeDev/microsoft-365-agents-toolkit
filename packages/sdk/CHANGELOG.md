@@ -1,5 +1,5 @@
 # 4.0.0
-- Update denpendencies from Bot Framework SDK to [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents-for-js)
+- Update dependencies from Bot Framework SDK to [Microsoft 365 Agents SDK](https://github.com/microsoft/Agents-for-js)
 - `BotBuilderCloudAdapter` has been renamed to `AgentBuilderCloudAdapter`
 - Update dependency `axios` version to `^1.8.3`
 
