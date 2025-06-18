@@ -492,10 +492,10 @@ jobs:
           $filePath = "packages/tests/vscuse/agent_cases/${{ matrix.file }}.txt"
           if (Test-Path $filePath) {
             $lineCount = (Get-Content $filePath).Count
-            Write-Host "Line count in $filePath: $lineCount"
+            Write-Host "Line count in ${filePath}: ${lineCount}"
             echo "line_count=$lineCount" >> $GITHUB_OUTPUT
             $steps = [math]::Ceiling($lineCount * 1.5)
-            Write-Host "Calculated steps (1.8 x line count): $steps"
+            Write-Host "Calculated steps (1.8 x line count) - ${steps}"
             echo "steps=$steps" >> $GITHUB_OUTPUT
           } else {
             Write-Host "File not found: $filePath"
