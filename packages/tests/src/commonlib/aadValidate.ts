@@ -104,11 +104,7 @@ export class AadValidator {
         const aadGetResponse = await axios.get(
           `${baseUrl}/applications/${objectId}`
         );
-        if (
-          aadGetResponse &&
-          aadGetResponse.data &&
-          aadGetResponse.data["identifierUris"][0]
-        ) {
+        if (aadGetResponse && aadGetResponse.data) {
           return <IAADDefinition>aadGetResponse.data;
         }
       } catch (error) {
