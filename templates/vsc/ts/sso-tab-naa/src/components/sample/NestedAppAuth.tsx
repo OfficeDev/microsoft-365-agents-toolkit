@@ -65,14 +65,11 @@ export function NestedAppAuth() {
 
   return (
     <div>
-      <h2>Call your Azure Functions</h2>
-      <p>
-        An Azure Functions app is running. Authorize this app and click below to call it for a
-        response:
-      </p>
+      <h2>Click to authorize</h2>
+      <p>Authorize this app and click below to perform Single Sign On:</p>
       {!loading && (
         <Button appearance="primary" disabled={loading} onClick={reload}>
-          Authorize and call Azure Functions
+          Authorize
         </Button>
       )}
       {loading && (

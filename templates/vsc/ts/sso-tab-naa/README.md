@@ -8,7 +8,7 @@ This app has adopted [Nested App Auth](https://learn.microsoft.com/en-us/microso
 
 > **Prerequisites**
 >
-> To run the command bot template in your local dev machine, you will need:
+> To run the React with Fluent UI template in your local dev machine, you will need:
 >
 > - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
@@ -33,7 +33,6 @@ This app has adopted [Nested App Auth](https://learn.microsoft.com/en-us/microso
 | `env`        | Environment files                                                                                                      |
 | `infra`      | Templates for provisioning Azure resources                                                                             |
 | `src`        | The source code for the frontend of the Tab application. Implemented with Fluent UI Framework.                         |
-| `api`        | The source code for the backend of the Tab application. Implemented single-sign-on with OBO flow using Azure Functions. |
 
 The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
 
