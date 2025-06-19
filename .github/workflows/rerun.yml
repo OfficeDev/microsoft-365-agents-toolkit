@@ -12,6 +12,14 @@ on:
         required: false
         default: "3"
         type: string
+      clean_up:
+        description: "if true, clean up resources"
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
   schedule:
     - cron: "0 12 * * *"
@@ -86,7 +94,7 @@ jobs:
   clean:
     name: Clean resource
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.clean_up == 'true') }}
     defaults:
       run:
         working-directory: packages/tests
