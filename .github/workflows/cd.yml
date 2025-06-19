@@ -24,6 +24,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release vs template"
+      goproduct:
+        type: boolean
+        default: false
+        description: "Whether to release TTK as publish product"
   schedule:
     - cron: "0 16 * * *"
 
@@ -38,6 +42,7 @@ jobs:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
       VS_RELEASE: ${{ github.event.inputs.vsrelease }}
+      PRODUCTION: ${{ github.event.inputs.goproduct }}
     steps:
       - name: Validate CD branch
         if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && !startsWith(github.ref, 'refs/heads/release/') }}
