@@ -54,7 +54,7 @@ jobs:
 
       - name: pvt (dev)
         id: pvt
-        if: ${{ github.event.schedule == '0 8 * * *' }}
+        if: ${{ github.event.schedule == '0 17 * * *' }}
         run: |
           echo "npm-tag=alpha" >> $GITHUB_OUTPUT
           echo "sample-ref=dev" >> $GITHUB_OUTPUT
