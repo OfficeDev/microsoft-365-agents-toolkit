@@ -8,6 +8,10 @@ echo '-----------------' $VERSION
 # get minor version
 MINOR_VER=$(echo $VERSION | awk -F. '{print $2}')
 DATE_WITH_TIME=`date "+%Y%m%d%H"`
+# Remove first 2 digits from DATE_WITH_TIME when PRODUCTION is false
+if [ "$PRODUCTION" == "false" ]; then
+    DATE_WITH_TIME=${DATE_WITH_TIME:2}
+fi
 # prerelease version should set minor version to odd number, and set patch version as timestamp.
 if [ "$PREID" == "preview" ]; then
     if [ $((MINOR_VER%2)) -eq 0 ]; then
