@@ -198,6 +198,7 @@ import { TreeViewCommand } from "./treeview/treeViewCommand";
 import TreeViewManagerInstance from "./treeview/treeViewManager";
 import { UriHandler, setUriEventHandler } from "./uriHandler";
 import { signOutAzure, signOutM365 } from "./utils/accountUtils";
+import { setupMCPServer } from "./utils/mcpUtils";
 import { acpInstalled, delay, hasAdaptiveCardInWorkspace } from "./utils/commonUtils";
 import { updateAutoOpenGlobalKey } from "./utils/globalStateUtils";
 import { loadLocalizedStrings, localize } from "./utils/localizeUtils";
@@ -1446,6 +1447,8 @@ async function runBackgroundAsyncTasks(
   survey.activate();
 
   await recommendACPExtension();
+
+  await setupMCPServer();
 
   await checkProjectTypeAndSendTelemetry();
 }

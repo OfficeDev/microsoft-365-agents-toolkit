@@ -38,7 +38,8 @@
   "aiKey": "1c56be97-bb74-42cf-b04b-8f1aabf04592",
   "featureFlag": "true",
   "files": [
-    "out/**/*"
+    "out/**/*",
+    "resource/**/*"
   ],
   "activationEvents": [
     "onCommand:fx-extension.create",
