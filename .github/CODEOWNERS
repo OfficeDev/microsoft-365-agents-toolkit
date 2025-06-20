@@ -191,19 +191,18 @@
 /packages/vscode-extension/test/pluginDebugger @qinzhouxu @llhmm01 @wh-alice
 
 /templates/* @hund030 @eriolchan @huimiu @adashen
-/templates/**/ai-assistant-bot @kimizhu @swatDong @kuojianlu @adashen
-/templates/**/ai-bot @kimizhu @swatDong @kuojianlu @adashen
 /templates/**/basic-custom-engine-agent @adashen @frankqianms
-/templates/**/command-and-response @kimizhu @dooriya @swatDong @adashen
+/templates/**/command-and-response @kimizhu @dooriya @swatDong @adashen  @nliu-ms
 /templates/**/copilot-gpt-existing-api @eriolchan @huimiu @Yimin-Jin @adashen
 /templates/**/copilot-gpt-from-scratch-plugin @eriolchan @huimiu @Yimin-Jin @adashen
 /templates/**/copilot-plugin-existing-api-api-key @yuqizhou77 @Alive-Fish @jayzhang @adashen
-/templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen
-/templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen
-/templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen
-/templates/**/custom-copilot-rag-azure-ai-search @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen
-/templates/**/custom-copilot-rag-customize @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen
-/templates/**/custom-copilot-rag-microsoft365 @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen
+/templates/**/custom-copilot-assistant-assistants-api @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen @nliu-ms
+/templates/**/custom-copilot-assistant-new @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen @nliu-ms
+/templates/**/custom-copilot-basic @kimizhu @swatDong @kuojianlu @XiaofuHuang @adashen @nliu-ms
+/templates/**/custom-copilot-rag-azure-ai-search @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen @nliu-ms
+/templates/**/custom-copilot-rag-customize-api @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen @nliu-ms
+/templates/**/custom-copilot-rag-customize @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen @nliu-ms
+/templates/**/custom-copilot-rag-microsoft365 @kimizhu @swatDong @kuojianlu @XiaofuHuang @xiaolang124 @adashen @nliu-ms
 /templates/**/dashboard-tab @eriolchan @huimiu @Yimin-Jin @adashen
 /templates/**/declarative-agent-basic @eriolchan @huimiu @Yimin-Jin @adashen
 /templates/**/declarative-agent-with-action-from-existing-api @yuqizhou77 @Alive-Fish @jayzhang @anchenyi @adashen
@@ -214,7 +213,7 @@
 /templates/**/default-bot-message-extension @yuqizhou77 @Yukun-dong @adashen
 /templates/**/empty @Alive-Fish @HuihuiWu-Microsoft @chagong @adashen
 /templates/**/link-unfurling @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
-/templates/**/m365-message-extension @kimizhu @swatDong @kuojianlu @adashen
+/templates/**/m365-message-extension @kimizhu @swatDong @kuojianlu @adashen  @nliu-ms
 /templates/**/message-extension @yuqizhou77 @Yukun-dong @adashen
 /templates/**/message-extension-action @JerryYangKai @eriolchan @Siglud @Yukun-dong @adashen
 /templates/**/message-extension-copilot @eriolchan @huimiu @Yimin-Jin @adashen
@@ -225,17 +224,17 @@
 /templates/**/non-sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
 /templates/**/non-sso-tab-default-bot @hund030 @yuqizhou77 @adashen
 /templates/**/non-sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
-/templates/**/notification-express @kimizhu @dooriya @swatDong @adashen
-/templates/**/notification-http-timer-trigger @kimizhu @dooriya @swatDong @adashen
-/templates/**/notification-http-trigger @kimizhu @dooriya @swatDong @adashen
-/templates/**/notification-timer-trigger @kimizhu @dooriya @swatDong @adashen
+/templates/**/notification-express @kimizhu @dooriya @swatDong @adashen  @nliu-ms
+/templates/**/notification-http-timer-trigger @kimizhu @dooriya @swatDong @adashen  @nliu-ms
+/templates/**/notification-http-trigger @kimizhu @dooriya @swatDong @adashen  @nliu-ms
+/templates/**/notification-timer-trigger @kimizhu @dooriya @swatDong @adashen  @nliu-ms
 /templates/**/notification-webapi @kimizhu @dooriya @swatDong @adashen
 /templates/**/office-* @llhmm01 @tecton @wh-alice
 /templates/**/spfx-* @HuihuiWu-Microsoft @yuqizhou77 @wh-alice
 /templates/**/sso-tab @hund030 @eriolchan @Yimin-Jin @adashen
 /templates/**/sso-tab-ssr @Yimin-Jin @eriolchan @hund030 @adashen
 /templates/**/weather-agent @adashen @frankqianms
-/templates/**/workflow @kimizhu @dooriya @swatDong @adashen
+/templates/**/workflow @kimizhu @dooriya @swatDong @adashen  @nliu-ms
 /templates/constraints/yml/actions @hund030 @eriolchan @huimiu @adashen
 /templates/scripts @hund030 @eriolchan @huimiu @adashen
 /templates/vs/* @adashen @wenytang-ms
