@@ -515,7 +515,7 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install -g vscode-extension-tester
-          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
+          npm extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
 
       # Run vscuse.exe  (0.1.9 with Agent/ZEN model)
       - name: Run vscuse.exe (Agent model)
