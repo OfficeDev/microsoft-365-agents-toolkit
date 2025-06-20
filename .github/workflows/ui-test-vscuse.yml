@@ -441,6 +441,11 @@ jobs:
         run: |
           pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
 
+      - name: Install python extension
+        working-directory: packages/tests
+        run: |
+          code --install-extension ms-python.python
+
       # Sign in
       - name: Set m365 account (win)
         run: |
@@ -510,12 +515,6 @@ jobs:
             Write-Host "File not found: $filePath"
             exit 1
           }
-
-      - name: Install python extension
-        working-directory: packages/tests
-        run: |
-          npm install -g vscode-extension-tester
-          npm extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
 
       # Run vscuse.exe  (0.1.9 with Agent/ZEN model)
       - name: Run vscuse.exe (Agent model)
