@@ -432,6 +432,16 @@ jobs:
           }
         shell: pwsh
 
+      - name: Install Python environment
+        if: contains(matrix.test-case,  'py')
+        run: |
+          pip install python-dotenv aiohttp azure-search azure-search-documents teams-ai~=1.6.0
+          
+      - name: Install python extension
+        working-directory: packages/tests
+        run: |
+          npx extest install-from-marketplace --storage .test-resources --extensions_dir .test-resources --type stable ms-python.python
+
       # Sign in
       - name: Set m365 account (win)
         run: |
