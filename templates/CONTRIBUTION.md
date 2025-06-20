@@ -68,7 +68,7 @@ The root tree comprises three children:
 
 ### 4. Use a custom generator (optional)
 
-As previously discussed, if your project requires runtime processing, you'll need to develop a custom generator. TTK provides a default generator base class, `DefaultTemplateGenerator`, with three APIs for customization.
+As previously discussed, if your project requires runtime processing, you'll need to develop a custom generator. ATK provides a default generator base class, `DefaultTemplateGenerator`, with three APIs for customization.
 
 Place your generator in a subdirectory of [packages/fx-core/src/component/generator/](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/). For example, [packages/fx-core/src/component/generator/officeAddin/generator.ts](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/officeAddin/generator.ts):
 
