@@ -1,6 +1,8 @@
 # Contributing Guide: Adding a New Template
 
 This guide outlines the process of adding a new template to Microsoft 365 Agents Toolkit (ATK).
+
+During scaffolding, ATK prompts users with a series of interconnected questions, structured in a tree format known as the question model. This model dictates the sequence and scope of inquiries. Notably, ATK decouples the question logic from its UI implementation to simplify maintenance.
 ![image](https://github.com/user-attachments/assets/acf13492-151c-46a7-9f41-b4efcf1d587a)
 
 
@@ -36,14 +38,24 @@ A typical ATK project includes:
 
 Add your project template to the `templates/<language>/<template-name>` directory. Templates should:
 - Be organized by programming language
-- Use placeholder variables for runtime replacement
+- Use placeholder variables for runtime replacement, file with placeholder should have `.tpl` suffix.
 - Support immediate local debugging without extra configurations
 
 ### 2. Update Template Metadata
 
-1. Add your template's metadata to files in `packages/fx-core/src/component/generator/templates/metadata/`:
+1. Add your template's metadata to files in `packages/fx-core/src/component/generator/templates/metadata/`. The id should be in pattern `${folderName}-${language}`.
    - For templates using the default generator: Add to the corresponding project type file (e.g., `bot.ts`)
    - For templates requiring custom generation: Add to `special.ts` or create a new file
+  
+Example:
+```
+  {
+    id: "default-bot-ts",
+    name: TemplateNames.DefaultBot,
+    language: "typescript",
+    description: "",
+  },
+```
 
 2. Include template ID, name, programming language, and description
 
@@ -72,6 +84,8 @@ As previously discussed, if your project requires runtime processing, you'll nee
 
 Place your generator in a subdirectory of [packages/fx-core/src/component/generator/](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/). For example, [packages/fx-core/src/component/generator/officeAddin/generator.ts](https://github.com/OfficeDev/microsoft-365-agents-toolkit/blob/dev/packages/fx-core/src/component/generator/officeAddin/generator.ts):
 
+![image](https://github.com/user-attachments/assets/ec1732e8-5a56-4949-b020-c583ecc0f5a3)
+
 Partner can customize the generator by the following APIs:
 
 - `activate()`: Determines whether the generator activates, typically based on supported template names.
@@ -79,3 +93,5 @@ Partner can customize the generator by the following APIs:
 - `post()`: Executes post-processing steps.
 
 After defining a custom generator, register it in the global generator list (`packages/fx-core/src/component/generator/generatorProvider.ts`):
+
+![image](https://github.com/user-attachments/assets/f1fcbc66-8350-4891-b1f1-cbde54d8f796)
