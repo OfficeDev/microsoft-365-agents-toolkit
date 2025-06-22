@@ -269,6 +269,9 @@ jobs:
       AZURE_COSMOS_CONTAINER : "${{ secrets.AZURE_COSMOS_CONTAINER }}"
       AZURE_COSMOS_KEY : "${{ secrets.AZURE_COSMOS_KEY }}"
       
+      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
+      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      
       
       TEAMSFX_DEV_TUNNEL_TEST: true
       TEAMSFX_TELEMETRY_TEST: true
