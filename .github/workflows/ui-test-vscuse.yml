@@ -172,7 +172,6 @@ jobs:
           AZURE_DEVOPS_ORG_URL: "https://dev.azure.com/msazure/"
           AZURE_DEVOPS_PROJECT: "Microsoft Teams Extensibility"
           AZURE_DEVOPS_TEST_PLAN_ID: "33256964"
-          AZURE_DEVOPS_TEST_SUITE_ID: "33256965"
         run: npx ts-node ./scripts/fetch-test-plan-test-cases.ts vscuse/agent_cases
 
 
