@@ -9,7 +9,7 @@ import {
   teamsDarkTheme,
   teamsHighContrastTheme,
 } from "@fluentui/react-components";
-import { useTeams } from "@microsoft/teamsfx-react";
+import { useTeams } from "./internal/useTeams";
 
 import SampleDashboard from "./dashboards/SampleDashboard";
 import { TeamsFxContext } from "./internal/context";

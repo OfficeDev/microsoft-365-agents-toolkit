@@ -7,7 +7,7 @@ import {
   DataPie24Regular,
   MoreHorizontal32Regular,
 } from "@fluentui/react-icons";
-import { BaseWidget } from "@microsoft/teamsfx-react";
+import { BaseWidget } from "./BaseWidget";
 
 import { getChart1Points, getChart2Points, getTimeRange } from "../services/chartService";
 

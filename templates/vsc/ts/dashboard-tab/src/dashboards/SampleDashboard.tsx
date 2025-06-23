@@ -1,4 +1,4 @@
-import { BaseDashboard } from "@microsoft/teamsfx-react";
+import { BaseDashboard } from "./BaseDashboard";
 
 import ChartWidget from "../widgets/ChartWidget";
 import ListWidget from "../widgets/ListWidget";

@@ -91,7 +91,7 @@ export const getSampleData = () => {
 
 ### Step 2: Create a widget file
 
-Create a widget file in the `src/widgets` folder. Inherit the `BaseWidget` class from `@microsoft/teamsfx-react`. The following table lists the methods that you can override to customize your widget.
+Create a widget file in the `src/widgets` folder. Inherit the `BaseWidget` class. The following table lists the methods that you can override to customize your widget.
 
 | Methods     | Function                                                                                                                                      |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -108,7 +108,7 @@ Here's a sample widget implementation:
 ```javascript
 //SampleWidget.jsx
 import { Button, Text } from "@fluentui/react-components";
-import { BaseWidget } from "@microsoft/teamsfx-react";
+import { BaseWidget } from "./BaseWidget";
 import { getSampleData } from "../services/sampleService";
 
 export class SampleWidget extends BaseWidget {
