@@ -126,6 +126,11 @@ import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
+import * as CommonTools from "../../src/common/tools";
+import Container from "typedi";
+import { sum } from "lodash";
+import { NpmBuildDriver } from "../../src/component/driver/script/npmBuildDriver";
+import { TypeSpecCompileDriver } from "../../src/component/driver/typeSpec/compile";
 
 const tools = new MockTools();
 
@@ -2281,6 +2286,43 @@ describe("Teams app APIs", async () => {
     await core.createAppPackage(inputs);
     sinon.assert.calledOnce(runStub);
     sinon.assert.calledOnce(showMessageStub);
+  });
+
+  it("create app package with TypeSpec project", async () => {
+    setTools(tools);
+    const appName = await mockV3Project();
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: ".\\appPackage\\manifest.json",
+      projectPath: path.join(os.tmpdir(), appName),
+      [QuestionNames.OutputZipPathParamName]: ".\\build\\appPackage\\appPackage.dev.zip",
+    };
+    const isTypeSpecProjectStub = sinon.stub(CommonTools, "isTypeSpecProject").returns(true);
+    const getTypeSpecArgsStub = sinon.stub(CommonTools, "getTypeSpecArgs").returns({
+      path: "./main.tsp",
+      manifestPath: "./appPackage/manifest.json",
+      outputDir: "./appPackage/.generated",
+      typeSpecConfigPath: "./tspconfig.yaml",
+    });
+    const npmInstallStub = sinon
+      .stub(NpmBuildDriver.prototype, "execute")
+      .resolves({ result: ok(new Map()), summaries: [] });
+    const typeSpecCompileStub = sinon
+      .stub(TypeSpecCompileDriver.prototype, "execute")
+      .resolves({ result: ok(new Map()), summaries: [] });
+    sinon.stub(process, "platform").value("win32");
+    const runStub = sinon
+      .stub(CreateAppPackageDriver.prototype, "execute")
+      .resolves({ result: ok(new Map()), summaries: [] });
+    const showMessageStub = sinon.stub(tools.ui, "showMessage");
+    await core.createAppPackage(inputs);
+    sinon.assert.calledOnce(runStub);
+    sinon.assert.calledOnce(showMessageStub);
+    sinon.assert.calledOnce(isTypeSpecProjectStub);
+    sinon.assert.calledOnce(getTypeSpecArgsStub);
+    sinon.assert.calledOnce(npmInstallStub);
+    sinon.assert.calledOnce(typeSpecCompileStub);
   });
 
   it("publish application", async () => {

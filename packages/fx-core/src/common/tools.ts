@@ -13,6 +13,9 @@ import { GraphReadUserScopes, SPFxScopes } from "./constants";
 import fs from "fs-extra";
 import path from "path";
 import { MetadataV3, MetadataV4 } from "./versionMetadata";
+import { pathUtils } from "../component/utils/pathUtils";
+import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";
+import { parseDocument } from "yaml";
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
@@ -113,4 +116,49 @@ export function isTestToolEnabledProject(projectPath: string): boolean {
     return true;
   }
   return false;
+}
+
+export function isTypeSpecProject(projectPath: string): boolean {
+  const yamlFilePath = pathUtils.getYmlFilePath(projectPath);
+  if (!yamlFilePath) {
+    return false;
+  }
+
+  const yamlContent = fs.readFileSync(yamlFilePath, "utf8");
+  return yamlContent.includes("typeSpec/compile");
+}
+
+export function getTypeSpecArgs(projectPath: string): TypeSpecCompileArgs {
+  const defaultArgs = {
+    path: "./main.tsp",
+    manifestPath: "./appPackage/manifest.json",
+    outputDir: "./appPackage/.generated",
+    typeSpecConfigPath: "./tspconfig.yaml",
+  };
+  const yamlFilePath = pathUtils.getYmlFilePath(projectPath);
+  if (!yamlFilePath) {
+    return defaultArgs;
+  }
+
+  const yamlContent = fs.readFileSync(yamlFilePath, "utf8");
+  const document = parseDocument(yamlContent);
+  const provisionNode = document.get("provision") as any;
+  if (!provisionNode) {
+    return defaultArgs;
+  }
+
+  const tspCompileAction = provisionNode.items.find(
+    (item: any) => item.get("uses") === "typeSpec/compile"
+  );
+  if (!tspCompileAction) {
+    return defaultArgs;
+  }
+
+  const args = tspCompileAction.get("with");
+  return {
+    path: args.get("path") ?? defaultArgs.path,
+    manifestPath: args.get("manifestPath") ?? defaultArgs.manifestPath,
+    outputDir: args.get("outputDir") ?? defaultArgs.outputDir,
+    typeSpecConfigPath: args.get("typeSpecConfigPath") ?? defaultArgs.typeSpecConfigPath,
+  };
 }

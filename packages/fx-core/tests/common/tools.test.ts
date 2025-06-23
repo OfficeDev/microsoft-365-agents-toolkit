@@ -19,6 +19,8 @@ import {
   listDevTunnels,
   isTestToolEnabledProject,
   isSandboxedEnabled,
+  isTypeSpecProject,
+  getTypeSpecArgs,
 } from "../../src/common/tools";
 import { PackageService } from "../../src/component/m365/packageService";
 import { isVideoFilterProject } from "../../src/core/middleware/videoFilterAppBlocker";
@@ -26,6 +28,7 @@ import { isUserCancelError } from "../../src/error/common";
 import { MockedM365Provider, MockTools } from "../core/utils";
 import { GraphClient } from "../../src/client/graphClient";
 import { setTools } from "../../src/common/globalVars";
+import { pathUtils } from "../../src";
 
 chai.use(chaiAsPromised);
 
@@ -444,6 +447,107 @@ projectId: 00000000-0000-0000-0000-000000000000`;
       sandbox.stub(fs, "pathExistsSync").returns(false);
       const result = isTestToolEnabledProject("test-project-path");
       chai.expect(result).to.be.false;
+    });
+  });
+
+  describe("isTypeSpecProject", () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return true if TypeSpec project", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("provision: typeSpec/compile with: []");
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.true;
+    });
+
+    it("should return false if no yaml file", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.false;
+    });
+
+    it("should return false if not TypeSpec project", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("provision: aadApp/create with: []");
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.false;
+    });
+  });
+
+  describe("getTypeSpecArgs", () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return default args if no yaml file", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
+      const result = getTypeSpecArgs("test-project-path");
+      chai.expect(result).to.deep.equal({
+        path: "./main.tsp",
+        manifestPath: "./appPackage/manifest.json",
+        outputDir: "./appPackage/.generated",
+        typeSpecConfigPath: "./tspconfig.yaml",
+      });
+    });
+
+    it("should return default args if no provision node", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("version: 1.0.0");
+      const result = getTypeSpecArgs("test-project-path");
+      chai.expect(result).to.deep.equal({
+        path: "./main.tsp",
+        manifestPath: "./appPackage/manifest.json",
+        outputDir: "./appPackage/.generated",
+        typeSpecConfigPath: "./tspconfig.yaml",
+      });
+    });
+
+    it("should return default args if no tspCompileAction", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("provision: []");
+      const result = getTypeSpecArgs("test-project-path");
+      chai.expect(result).to.deep.equal({
+        path: "./main.tsp",
+        manifestPath: "./appPackage/manifest.json",
+        outputDir: "./appPackage/.generated",
+        typeSpecConfigPath: "./tspconfig.yaml",
+      });
+    });
+
+    it("should return args from tspCompileAction", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox
+        .stub(fs, "readFileSync")
+        .returns(
+          "provision:\n  - uses: typeSpec/compile\n    with:\n      path: ./custom.tsp\n      manifestPath: ./customManifest.json\n      outputDir: ./customOutputDir\n      typeSpecConfigPath: ./customTspconfig.yaml"
+        );
+      const result = getTypeSpecArgs("test-project-path");
+      chai.expect(result).to.deep.equal({
+        path: "./custom.tsp",
+        manifestPath: "./customManifest.json",
+        outputDir: "./customOutputDir",
+        typeSpecConfigPath: "./customTspconfig.yaml",
+      });
+    });
+
+    it("should return args from default if missing parameter", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox
+        .stub(fs, "readFileSync")
+        .returns(
+          "provision:\n  - uses: typeSpec/compile\n    with:\n      path2: ./custom.tsp\n      manifestPath2: ./customManifest.json\n      outputDir2: ./customOutputDir\n      typeSpecConfigPath2: ./customTspconfig.yaml"
+        );
+      const result = getTypeSpecArgs("test-project-path");
+      chai.expect(result).to.deep.equal({
+        path: "./main.tsp",
+        manifestPath: "./appPackage/manifest.json",
+        outputDir: "./appPackage/.generated",
+        typeSpecConfigPath: "./tspconfig.yaml",
+      });
     });
   });
 });
