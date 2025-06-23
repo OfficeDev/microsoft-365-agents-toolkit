@@ -186,6 +186,7 @@ async function getTestSuitesForPlan(
     return suites;
   } catch (err) {
     console.error("Error retrieving test suites:", err);
+    return undefined;
   }
 }
 
