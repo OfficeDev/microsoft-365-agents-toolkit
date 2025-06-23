@@ -38,7 +38,7 @@ steps:
 - task: APIScan@2
   displayName: 'Run APIScan on Microsoft.TeamsFx'
   inputs:
-    softwareFolder: packages/dotnet-sdk/src/TeamsFx/bin/Release/net6.0
+    softwareFolder: packages/dotnet-sdk/src/TeamsFx/bin/Release/net8.0
     softwareName: TeamsFx
     softwareVersionNum: '$(Build.BuildId)'
     isLargeApp: false
