@@ -118,16 +118,6 @@ export function isTestToolEnabledProject(projectPath: string): boolean {
   return false;
 }
 
-export function isTypeSpecProject(projectPath: string): boolean {
-  const yamlFilePath = pathUtils.getYmlFilePath(projectPath);
-  if (!yamlFilePath) {
-    return false;
-  }
-
-  const yamlContent = fs.readFileSync(yamlFilePath, "utf8");
-  return yamlContent.includes("typeSpec/compile");
-}
-
 export function getTypeSpecArgs(projectPath: string): TypeSpecCompileArgs {
   const defaultArgs = {
     path: "./main.tsp",

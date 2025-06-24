@@ -19,7 +19,6 @@ import {
   listDevTunnels,
   isTestToolEnabledProject,
   isSandboxedEnabled,
-  isTypeSpecProject,
   getTypeSpecArgs,
 } from "../../src/common/tools";
 import { PackageService } from "../../src/component/m365/packageService";
@@ -446,33 +445,6 @@ projectId: 00000000-0000-0000-0000-000000000000`;
     it("should return false if test tool YAML file does not exist", () => {
       sandbox.stub(fs, "pathExistsSync").returns(false);
       const result = isTestToolEnabledProject("test-project-path");
-      chai.expect(result).to.be.false;
-    });
-  });
-
-  describe("isTypeSpecProject", () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    it("should return true if TypeSpec project", () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "readFileSync").returns("provision: typeSpec/compile with: []");
-      const result = isTypeSpecProject("test-project-path");
-      chai.expect(result).to.be.true;
-    });
-
-    it("should return false if no yaml file", () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
-      const result = isTypeSpecProject("test-project-path");
-      chai.expect(result).to.be.false;
-    });
-
-    it("should return false if not TypeSpec project", () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "readFileSync").returns("provision: aadApp/create with: []");
-      const result = isTypeSpecProject("test-project-path");
       chai.expect(result).to.be.false;
     });
   });

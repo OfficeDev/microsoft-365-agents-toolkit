@@ -69,6 +69,7 @@ import {
 import {
   IsDeclarativeAgentManifest,
   ProjectTypeResult,
+  isTypeSpecProject,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
@@ -205,7 +206,7 @@ import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { getTypeSpecArgs, isTypeSpecProject } from "../common/tools";
+import { getTypeSpecArgs } from "../common/tools";
 import { NpmBuildDriver } from "../component/driver/script/npmBuildDriver";
 import { TypeSpecCompileDriver } from "../component/driver/typeSpec/compile";
 import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";

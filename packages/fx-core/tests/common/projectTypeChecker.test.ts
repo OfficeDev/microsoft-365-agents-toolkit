@@ -11,10 +11,13 @@ import {
   SPFxKey,
   TeamsfxVersionState,
   getCapabilities,
+  isTypeSpecProject,
   projectTypeChecker,
 } from "../../src/common/projectTypeChecker";
 import { MetadataV2, MetadataV3 } from "../../src/common/versionMetadata";
 import { IsDeclarativeAgentManifest } from "../../build/common/projectTypeChecker";
+import { pathUtils } from "../../src/component/utils/pathUtils";
+import * as chai from "chai";
 
 describe("ProjectTypeChecker", () => {
   const sandbox = sinon.createSandbox();
@@ -545,6 +548,33 @@ describe("ProjectTypeChecker", () => {
       };
       isDeclarativeAgent = IsDeclarativeAgentManifest(manifest3);
       assert.isFalse(isDeclarativeAgent);
+    });
+  });
+
+  describe("isTypeSpecProject", () => {
+    const sandbox = sinon.createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should return true if TypeSpec project", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("provision: typeSpec/compile with: []");
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.true;
+    });
+
+    it("should return false if no yaml file", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.false;
+    });
+
+    it("should return false if not TypeSpec project", () => {
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+      sandbox.stub(fs, "readFileSync").returns("provision: aadApp/create with: []");
+      const result = isTypeSpecProject("test-project-path");
+      chai.expect(result).to.be.false;
     });
   });
 });

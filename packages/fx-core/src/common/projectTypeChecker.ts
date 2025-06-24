@@ -13,6 +13,7 @@ import {
   MetadataV3,
   MetadataV4,
 } from "./versionMetadata";
+import { pathUtils } from "../component/utils/pathUtils";
 
 export const TeamsJsModule = "@microsoft/teams-js";
 
@@ -304,4 +305,15 @@ export function IsDeclarativeAgentManifest(manifest: any): boolean {
     manifest.copilotAgents?.declarativeAgents && manifest.copilotAgents.declarativeAgents.length > 0
   );
 }
+
+export function isTypeSpecProject(projectPath: string): boolean {
+  const yamlFilePath = pathUtils.getYmlFilePath(projectPath);
+  if (!yamlFilePath) {
+    return false;
+  }
+
+  const yamlContent = fs.readFileSync(yamlFilePath, "utf8");
+  return yamlContent.includes("typeSpec/compile");
+}
+
 export const projectTypeChecker = new ProjectTypeChecker();

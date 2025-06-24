@@ -127,8 +127,7 @@ import { MockTools, MockUserInteraction, randomAppName } from "./utils";
 import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 import * as CommonTools from "../../src/common/tools";
-import Container from "typedi";
-import { sum } from "lodash";
+import * as ProjecTypeChecker from "../../src/common/projectTypeChecker";
 import { NpmBuildDriver } from "../../src/component/driver/script/npmBuildDriver";
 import { TypeSpecCompileDriver } from "../../src/component/driver/typeSpec/compile";
 
@@ -2298,7 +2297,7 @@ describe("Teams app APIs", async () => {
       projectPath: path.join(os.tmpdir(), appName),
       [QuestionNames.OutputZipPathParamName]: ".\\build\\appPackage\\appPackage.dev.zip",
     };
-    const isTypeSpecProjectStub = sinon.stub(CommonTools, "isTypeSpecProject").returns(true);
+    const isTypeSpecProjectStub = sinon.stub(ProjecTypeChecker, "isTypeSpecProject").returns(true);
     const getTypeSpecArgsStub = sinon.stub(CommonTools, "getTypeSpecArgs").returns({
       path: "./main.tsp",
       manifestPath: "./appPackage/manifest.json",
