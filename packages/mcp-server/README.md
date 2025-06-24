@@ -69,7 +69,7 @@ Manual configuration required, please follow: [Visual Studio MCP Official Guide]
 We're building this in the open. Your feedback is much appreciated, and will help us shape the future of the Microsoft 365 Agents Toolkit MCP Server.
 
 - [Open an issue in the public repository](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/new/choose).
-- Send an email to tcsupport@microsoft.com to chat with the product team.
+- Send an email to [tcsupport@microsoft.com](mailto:tcsupport@microsoft.com) to chat with the product team.
 
 ## Code of Conduct
 
