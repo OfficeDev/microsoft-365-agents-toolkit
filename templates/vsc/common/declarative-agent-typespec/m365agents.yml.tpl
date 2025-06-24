@@ -66,6 +66,23 @@ provision:
 
 # Triggered when 'teamsapp publish' is executed
 publish:
+  - uses: cli/runNpmCommand
+    name: install dependencies
+    with:
+      args: install --no-audit --progress=false
+
+  # Compile typespec files and generate necessary files for agent.
+  # If you want to update the outputDir, please make sure the following paths are also updated.
+  # 1. File paths in tspconfig.yaml.
+  # 2. manifestPath in this action. Please make sure there is manifest.json under root folder of your outputDir and set the value to the path of this manifest.json.
+  # 3. manifestPath in teamsApp/zipAppPackage action. Please set the value to the same as manifestPath in this action.
+  - uses: typeSpec/compile
+    with:
+      path: ./main.tsp
+      manifestPath: ./appPackage/manifest.json
+      outputDir: ./appPackage/.generated
+      typeSpecConfigPath: ./tspconfig.yaml
+
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
     with:
