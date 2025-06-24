@@ -64,5 +64,18 @@ For a step-by-step guide to install the Microsoft 365 Agents Toolkit MCP Server,
 
 Manual configuration required, please follow: [Visual Studio MCP Official Guide](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=vs-2022)
 
+## Feedback
+
+We're building this in the open. Your feedback is much appreciated, and will help us shape the future of the Microsoft 365 Agents Toolkit MCP Server.
+
+- [Open an issue in the public repository](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/new/choose).
+- Send an email to tcsupport@microsoft.com to chat with the product team.
+
+## Code of Conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
 ## License
-This project is licensed under the [MIT License](LICENSE).
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+Licensed under the [MIT](LICENSE) license.

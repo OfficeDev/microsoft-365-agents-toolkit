@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/m365agentstoolkit-mcp",
-  "version": "0.1.1-alpha",
+  "version": "0.2.0",
   "bin": {
     "m365agentstoolkit-mcp": "./dist/index.js"
   },
@@ -23,11 +23,14 @@
     "dist"
   ],
   "keywords": [
-    "mcp"
+    "mcp",
+    "model-context-protocol",
+    "m365agents",
+    "m365agentstoolkit-mcp"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OfficeDev/teams-toolkit.git"
+    "url": "git+https://github.com/OfficeDev/microsoft-365-agents-toolkit.git"
   },
   "author": "Microsoft Corporation",
   "license": "MIT",
