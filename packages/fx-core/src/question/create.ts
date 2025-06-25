@@ -1017,6 +1017,41 @@ export function azureOpenAIDeploymentNameQuestion(): TextInputQuestion {
   };
 }
 
+export function openAIAssistantIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.OpenAIAssistantID,
+    title: getLocalizedString("core.createProjectQuestion.llmService.openAIAssistantID.title"),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.llmService.openAIAssistantID.placeholder"
+    ),
+  };
+}
+
+export function azureOpenAIAssistantIdQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.AzureOpenAIAssistantId,
+    title: getLocalizedString("core.createProjectQuestion.llmService.azureOpenAIAssistantID.title"),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.llmService.azureOpenAIAssistantID.placeholder"
+    ),
+  };
+}
+
+export function azureOpenAIEmbeddingDeploymentNameQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.AzureOpenAIEmbeddingDeploymentName,
+    title: getLocalizedString(
+      "core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.title"
+    ),
+    placeholder: getLocalizedString(
+      "core.createProjectQuestion.llmService.azureOpenAIEmbeddingDeploymentName.placeholder"
+    ),
+  };
+}
+
 export function apiPluginStartQuestion(doesProjectExists?: boolean): SingleSelectQuestion {
   return {
     type: "singleSelect",

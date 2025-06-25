@@ -315,7 +315,11 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
           AZURE_OPENAI_API_KEY: "fakeApiKey",
           AZURE_OPENAI_ENDPOINT: "https://fakeEndpoint",
           AZURE_OPENAI_DEPLOYMENT_NAME: "fakeDeploymentName",
+          AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: "fakeModelDeploymentName",
           OPENAI_API_KEY: "fakeOpenAIKey",
+          OPENAI_ASSISTANT_ID: "fakeAssistantId",
+          AZURE_OPENAI_ASSISTANT_ID: "fakeAzureAssistantId",
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "fakeEmbeddingDeploymentName",
         },
       };
 
@@ -390,6 +394,30 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
       chai.assert.equal(args.envs["AZURE_OPENAI_DEPLOYMENT_NAME"], "fakeDeploymentName");
     });
 
+    it("should prompt for AZURE_OPENAI_MODEL_DEPLOYMENT_NAME and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_MODEL_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon
+        .stub(mockedDriverContext.ui!, "inputText")
+        .resolves(ok({ result: "fakeModelDeploymentName" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(
+        envOutput.get("AZURE_OPENAI_MODEL_DEPLOYMENT_NAME"),
+        "fakeModelDeploymentName"
+      );
+      chai.assert.equal(args.envs["AZURE_OPENAI_MODEL_DEPLOYMENT_NAME"], "fakeModelDeploymentName");
+    });
+
     it("should prompt for OPENAI_API_KEY and update envOutput", async () => {
       const args = {
         envs: {
@@ -407,6 +435,73 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
       chai.assert(result.isOk());
       chai.assert.equal(envOutput.get("OPENAI_API_KEY"), "fakeOpenAIKey");
       chai.assert.equal(args.envs["OPENAI_API_KEY"], "fakeOpenAIKey");
+    });
+
+    it("should prompt for OPENAI_ASSISTANT_ID and update envOutput", async () => {
+      const args = {
+        envs: {
+          OPENAI_ASSISTANT_ID: "${{ OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(ok({ result: "fakeAssistantId" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("OPENAI_ASSISTANT_ID"), "fakeAssistantId");
+      chai.assert.equal(args.envs["OPENAI_ASSISTANT_ID"], "fakeAssistantId");
+    });
+
+    it("should prompt for AZURE_OPENAI_ASSISTANT_ID and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ASSISTANT_ID: "${{ AZURE_OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon
+        .stub(mockedDriverContext.ui!, "inputText")
+        .resolves(ok({ result: "fakeAzureAssistantId" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(envOutput.get("AZURE_OPENAI_ASSISTANT_ID"), "fakeAzureAssistantId");
+      chai.assert.equal(args.envs["AZURE_OPENAI_ASSISTANT_ID"], "fakeAzureAssistantId");
+    });
+
+    it("should prompt for AZURE_OPENAI_EMBEDDING_DEPLOYMENT and update envOutput", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "${{ AZURE_OPENAI_EMBEDDING_DEPLOYMENT }}",
+        },
+      };
+      sinon
+        .stub(mockedDriverContext.ui!, "inputText")
+        .resolves(ok({ result: "fakeEmbeddingDeploymentName" }));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+      chai.assert.equal(
+        envOutput.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT"),
+        "fakeEmbeddingDeploymentName"
+      );
+      chai.assert.equal(
+        args.envs["AZURE_OPENAI_EMBEDDING_DEPLOYMENT"],
+        "fakeEmbeddingDeploymentName"
+      );
     });
 
     it("should return error if AZURE_OPENAI_API_KEY inputText fails", async () => {
@@ -468,10 +563,78 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
       chai.assert(result.isErr());
     });
 
+    it("should return error if AZURE_OPENAI_MODEL_DEPLOYMENT_NAME inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_MODEL_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
     it("should return error if OPENAI_API_KEY inputText fails", async () => {
       const args = {
         envs: {
           OPENAI_API_KEY: "${{ OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should return error if OPENAI_ASSISTANT_ID inputText fails", async () => {
+      const args = {
+        envs: {
+          OPENAI_ASSISTANT_ID: "${{ OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should return error if AZURE_OPENAI_ASSISTANT_ID inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ASSISTANT_ID: "${{ AZURE_OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isErr());
+    });
+
+    it("should return error if AZURE_OPENAI_EMBEDDING_DEPLOYMENT inputText fails", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "${{ AZURE_OPENAI_EMBEDDING_DEPLOYMENT }}",
         },
       };
       sinon.stub(mockedDriverContext.ui!, "inputText").resolves(err(new UserCancelError()));
@@ -571,6 +734,110 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
           validationResult,
           getLocalizedString(
             "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentName.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_MODEL_DEPLOYMENT_NAME input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_MODEL_DEPLOYMENT_NAME: "${{ AZURE_OPENAI_MODEL_DEPLOYMENT_NAME }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentName.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate OPENAI_ASSISTANT_ID input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          OPENAI_ASSISTANT_ID: "${{ OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_ASSISTANT_ID input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ASSISTANT_ID: "${{ AZURE_OPENAI_ASSISTANT_ID }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation"
+          )
+        );
+        return ok({ result: "" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
+
+    it("should validate AZURE_OPENAI_EMBEDDING_DEPLOYMENT input and return error if input is empty", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "${{ AZURE_OPENAI_EMBEDDING_DEPLOYMENT }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!(""); // Simulate empty input
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIEmbeddingDeploymentName.validation"
           )
         );
         return ok({ result: "" });
