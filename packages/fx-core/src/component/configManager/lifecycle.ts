@@ -106,7 +106,11 @@ export function resolveString(
       envVar === OpenAIEnvironmentVariables.SECRET_AZURE_OPENAI_API_KEY ||
       envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_ENDPOINT ||
       envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_DEPLOYMENT_NAME ||
-      envVar === OpenAIEnvironmentVariables.SECRET_OPENAI_API_KEY
+      envVar === OpenAIEnvironmentVariables.SECRET_OPENAI_API_KEY ||
+      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME ||
+      envVar === OpenAIEnvironmentVariables.OPENAI_ASSISTANT_ID ||
+      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_ASSISTANT_ID ||
+      envVar === OpenAIEnvironmentVariables.AZURE_OPENAI_EMBEDDING_DEPLOYMENT
     ) {
       if (envVal) {
         resolved.push(envVar);

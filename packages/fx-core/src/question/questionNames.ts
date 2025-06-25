@@ -52,10 +52,12 @@ export enum QuestionNames {
   LLMService = "llm-service",
   OpenAIKey = "openai-key",
   OpenAIEmbeddingModel = "openai-embedding-model",
+  OpenAIAssistantID = "openai-assistant-id",
   AzureOpenAIKey = "azure-openai-key",
   AzureOpenAIEndpoint = "azure-openai-endpoint",
   AzureOpenAIDeploymentName = "azure-openai-deployment-name",
   AzureOpenAIEmbeddingDeploymentName = "azure-openai-embedding-deployment-name",
+  AzureOpenAIAssistantId = "azure-openai-assistant-id",
   AzureAISearchApiKey = "azure-ai-search-api-key",
   AzureAISearchEndpoint = "azure-ai-search-endpoint",
 

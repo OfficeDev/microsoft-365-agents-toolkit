@@ -11,9 +11,12 @@ import { Service } from "typedi";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { InvalidActionInputError, assembleError } from "../../../error/common";
 import {
+  azureOpenAIAssistantIdQuestion,
   azureOpenAIDeploymentNameQuestion,
+  azureOpenAIEmbeddingDeploymentNameQuestion,
   azureOpenAIEndpointQuestion,
   azureOpenAIKeyQuestion,
+  openAIAssistantIdQuestion,
   openAIKeyQuestion,
 } from "../../../question";
 import { OpenAIEnvironmentVariables } from "../../constants";
@@ -206,6 +209,32 @@ export class CreateOrUpdateEnvironmentFileDriver implements StepDriver {
       }
     }
 
+    if (args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME]) {
+      const matches = placeHolderReg.exec(
+        args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME]
+      );
+      if (matches != null && matches.length > 1) {
+        const result = await ctx.ui!.inputText({
+          name: azureOpenAIDeploymentNameQuestion().name,
+          title: azureOpenAIDeploymentNameQuestion().title as string,
+          validation: (input: string): string | undefined => {
+            if (input.length < 1) {
+              return getLocalizedString(
+                "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentName.validation"
+              );
+            }
+          },
+        });
+        if (result.isErr()) {
+          return result;
+        } else {
+          envOutput.set(matches[1], result.value.result!);
+          args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_MODEL_DEPLOYMENT_NAME] =
+            result.value.result!;
+        }
+      }
+    }
+
     if (args.envs[OpenAIEnvironmentVariables.OPENAI_API_KEY]) {
       const matches = placeHolderReg.exec(args.envs[OpenAIEnvironmentVariables.OPENAI_API_KEY]);
       if (matches != null && matches.length > 1) {
@@ -226,6 +255,82 @@ export class CreateOrUpdateEnvironmentFileDriver implements StepDriver {
         } else {
           envOutput.set(matches[1], result.value.result!);
           args.envs[OpenAIEnvironmentVariables.OPENAI_API_KEY] = result.value.result!;
+        }
+      }
+    }
+
+    if (args.envs[OpenAIEnvironmentVariables.OPENAI_ASSISTANT_ID]) {
+      const matches = placeHolderReg.exec(
+        args.envs[OpenAIEnvironmentVariables.OPENAI_ASSISTANT_ID]
+      );
+      if (matches != null && matches.length > 1) {
+        const result = await ctx.ui!.inputText({
+          name: openAIAssistantIdQuestion().name,
+          title: openAIAssistantIdQuestion().title as string,
+          validation: (input: string): string | undefined => {
+            if (input.length < 1) {
+              return getLocalizedString(
+                "driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation"
+              );
+            }
+          },
+        });
+        if (result.isErr()) {
+          return result;
+        } else {
+          envOutput.set(matches[1], result.value.result!);
+          args.envs[OpenAIEnvironmentVariables.OPENAI_ASSISTANT_ID] = result.value.result!;
+        }
+      }
+    }
+
+    if (args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_ASSISTANT_ID]) {
+      const matches = placeHolderReg.exec(
+        args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_ASSISTANT_ID]
+      );
+      if (matches != null && matches.length > 1) {
+        const result = await ctx.ui!.inputText({
+          name: azureOpenAIAssistantIdQuestion().name,
+          title: azureOpenAIAssistantIdQuestion().title as string,
+          validation: (input: string): string | undefined => {
+            if (input.length < 1) {
+              return getLocalizedString(
+                "driver.file.createOrUpdateEnvironmentFile.OpenAIAssistantID.validation"
+              );
+            }
+          },
+        });
+        if (result.isErr()) {
+          return result;
+        } else {
+          envOutput.set(matches[1], result.value.result!);
+          args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_ASSISTANT_ID] = result.value.result!;
+        }
+      }
+    }
+
+    if (args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_EMBEDDING_DEPLOYMENT]) {
+      const matches = placeHolderReg.exec(
+        args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_EMBEDDING_DEPLOYMENT]
+      );
+      if (matches != null && matches.length > 1) {
+        const result = await ctx.ui!.inputText({
+          name: azureOpenAIEmbeddingDeploymentNameQuestion().name,
+          title: azureOpenAIEmbeddingDeploymentNameQuestion().title as string,
+          validation: (input: string): string | undefined => {
+            if (input.length < 1) {
+              return getLocalizedString(
+                "driver.file.createOrUpdateEnvironmentFile.OpenAIEmbeddingDeploymentName.validation"
+              );
+            }
+          },
+        });
+        if (result.isErr()) {
+          return result;
+        } else {
+          envOutput.set(matches[1], result.value.result!);
+          args.envs[OpenAIEnvironmentVariables.AZURE_OPENAI_EMBEDDING_DEPLOYMENT] =
+            result.value.result!;
         }
       }
     }
