@@ -2,6 +2,15 @@
 
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+## 6.0.2 - Jun 26, 2025
+Hotfix version.
+
+- **Enhanced Agent project generation**
+
+Previously, users could create an Agents project without entering an OpenAI key during the initial question flow. Instead, a prompt to input the key would appear just before debugging. While this provided a smoother experience, it was not generally and consistently applied across agents templates.
+
+This issue has now been resolved. The improved flow is now supported across all templates that requires a Key, ensuring a seamless and consistent project setup experience.
+
 ## 6.0.1 - Jun 03, 2025
 Hotfix version.
 
