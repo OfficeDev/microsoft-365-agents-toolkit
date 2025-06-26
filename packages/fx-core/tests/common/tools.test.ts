@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ok } from "@microsoft/teamsfx-api";
+import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import axios, { AxiosResponse } from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -583,12 +583,15 @@ projectId: 00000000-0000-0000-0000-000000000000`;
       const typeSpecCompileStub = sandbox
         .stub(TypeSpecCompileDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });
-      const npmInstallStub = sandbox
-        .stub(NpmBuildDriver.prototype, "execute")
-        .rejects(new Error("NPM install failed"));
-      await chai
-        .expect(runForTypeSpecProject(mockProjectPath, mockContext))
-        .to.be.rejectedWith("NPM install failed");
+      const npmInstallStub = sandbox.stub(NpmBuildDriver.prototype, "execute").resolves({
+        result: err(new UserError("source", "NpmInstallError", "NPM install failed")),
+        summaries: [],
+      });
+      try {
+        await runForTypeSpecProject(mockProjectPath, mockContext);
+      } catch (error) {
+        chai.expect(error.error.name).to.equal("NpmInstallError");
+      }
     });
 
     it("should throw error if typespec compile fails", async () => {
@@ -602,13 +605,18 @@ projectId: 00000000-0000-0000-0000-000000000000`;
         );
       const typeSpecCompileStub = sandbox
         .stub(TypeSpecCompileDriver.prototype, "execute")
-        .rejects(new Error("TSP compile failed"));
+        .resolves({
+          result: err(new UserError("source", "TypeSpecCompileError", "TypeSpec compile failed")),
+          summaries: [],
+        });
       const npmInstallStub = sandbox
         .stub(NpmBuildDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });
-      await chai
-        .expect(runForTypeSpecProject(mockProjectPath, mockContext))
-        .to.be.rejectedWith("TSP compile failed");
+      try {
+        await runForTypeSpecProject(mockProjectPath, mockContext);
+      } catch (error) {
+        chai.expect(error.error.name).to.equal("TypeSpecCompileError");
+      }
     });
   });
 });
