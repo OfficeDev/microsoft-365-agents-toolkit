@@ -42,6 +42,7 @@ import { manifestUtils } from "./utils/ManifestUtils";
 import { ValidateManifestDriver } from "./validate";
 import { ValidateAppPackageDriver } from "./validateAppPackage";
 import { ValidateWithTestCasesDriver } from "./validateTestCases";
+import { runForTypeSpecProject } from "../../../common/tools";
 
 class TeamsAppMgr {
   async ensureAppPackageFile(inputs: TeamsAppInputs): Promise<Result<undefined, FxError>> {
@@ -169,6 +170,8 @@ class TeamsAppMgr {
     const buildDriver: CreateAppPackageDriver = Container.get(createAppPackageActionName);
     const driverContext: DriverContext = createDriverContext(inputs);
 
+    // For TSP projects
+    await runForTypeSpecProject(inputs.projectPath, driverContext);
     const res = (await buildDriver.execute(packageArgs, driverContext)).result;
     if (res.isErr()) {
       return err(res.error);

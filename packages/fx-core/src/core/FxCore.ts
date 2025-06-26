@@ -69,7 +69,6 @@ import {
 import {
   IsDeclarativeAgentManifest,
   ProjectTypeResult,
-  isTypeSpecProject,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
@@ -206,10 +205,7 @@ import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { getTypeSpecArgs } from "../common/tools";
-import { NpmBuildDriver } from "../component/driver/script/npmBuildDriver";
-import { TypeSpecCompileDriver } from "../component/driver/typeSpec/compile";
-import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";
+import { runForTypeSpecProject } from "../common/tools";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -1265,28 +1261,7 @@ export class FxCore {
     const context: DriverContext = createDriverContext(inputs);
 
     // For TSP projects
-    const isTspProject = isTypeSpecProject(inputs.projectPath!);
-    if (isTspProject) {
-      // Call npm/install
-      const npmInstallDriver: NpmBuildDriver = Container.get("cli/runNpmCommand");
-      const npmInstallArgs = {
-        args: "install --no-audit --progress=false",
-      };
-      const npmInstallResult = (await npmInstallDriver.execute(npmInstallArgs, context)).result;
-      if (npmInstallResult.isErr()) {
-        throw err(npmInstallResult.error);
-      }
-
-      // call typespec/compile
-      const typeSpecCompileDriver: TypeSpecCompileDriver = Container.get("typeSpec/compile");
-      const typeSpecCompileArgs: TypeSpecCompileArgs = getTypeSpecArgs(inputs.projectPath!);
-      const typeSpecCompileResult = (
-        await typeSpecCompileDriver.execute(typeSpecCompileArgs, context)
-      ).result;
-      if (typeSpecCompileResult.isErr()) {
-        throw err(typeSpecCompileResult.error);
-      }
-    }
+    await runForTypeSpecProject(inputs.projectPath, context);
 
     const teamsAppManifestFilePath = inputs?.[QuestionNames.TeamsAppManifestFilePath] as string;
 

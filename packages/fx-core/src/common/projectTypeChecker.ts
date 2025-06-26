@@ -306,7 +306,10 @@ export function IsDeclarativeAgentManifest(manifest: any): boolean {
   );
 }
 
-export function isTypeSpecProject(projectPath: string): boolean {
+export function isTypeSpecProject(projectPath: string | undefined): boolean {
+  if (!projectPath) {
+    return false;
+  }
   const yamlFilePath = pathUtils.getYmlFilePath(projectPath);
   if (!yamlFilePath) {
     return false;

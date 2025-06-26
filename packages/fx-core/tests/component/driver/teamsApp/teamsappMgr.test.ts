@@ -21,6 +21,7 @@ import { ValidateManifestDriver } from "../../../../src/component/driver/teamsAp
 import { ValidateAppPackageDriver } from "../../../../src/component/driver/teamsApp/validateAppPackage";
 import { ConfigureTeamsAppDriver } from "../../../../src/component/driver/teamsApp/configure";
 import { PublishAppPackageDriver } from "../../../../src/component/driver/teamsApp/publishAppPackage";
+import * as CommonTools from "../../../../src/common/tools";
 
 describe("TeamsAppMgr", async () => {
   const sandbox = sinon.createSandbox();
@@ -241,6 +242,7 @@ describe("TeamsAppMgr", async () => {
     it("driver fail", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(teamsappMgr, "checkAndTryToLoadEnv").resolves(ok("dev"));
+      sandbox.stub(CommonTools, "runForTypeSpecProject").resolves();
       sandbox
         .stub(CreateAppPackageDriver.prototype, "execute")
         .resolves({ result: err(new UserCancelError()), summaries: [] });
@@ -254,6 +256,7 @@ describe("TeamsAppMgr", async () => {
     it("driver success", async () => {
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(teamsappMgr, "checkAndTryToLoadEnv").resolves(ok(undefined));
+      sandbox.stub(CommonTools, "runForTypeSpecProject").resolves();
       sandbox
         .stub(CreateAppPackageDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });

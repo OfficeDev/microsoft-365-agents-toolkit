@@ -564,6 +564,11 @@ describe("ProjectTypeChecker", () => {
       chai.expect(result).to.be.true;
     });
 
+    it("should return false if no project path", () => {
+      const result = isTypeSpecProject(undefined);
+      chai.expect(result).to.be.false;
+    });
+
     it("should return false if no yaml file", () => {
       sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
       const result = isTypeSpecProject("test-project-path");

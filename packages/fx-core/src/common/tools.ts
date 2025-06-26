@@ -16,6 +16,11 @@ import { MetadataV3, MetadataV4 } from "./versionMetadata";
 import { pathUtils } from "../component/utils/pathUtils";
 import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";
 import { parseDocument } from "yaml";
+import { TypeSpecCompileDriver } from "../component/driver/typeSpec/compile";
+import { NpmBuildDriver } from "../component/driver/script/npmBuildDriver";
+import { DriverContext } from "../component/driver/interface/commonArgs";
+import { isTypeSpecProject } from "./projectTypeChecker";
+import Container from "typedi";
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
   return teamsDevPortalClient.getSideloadingStatus(token);
@@ -151,4 +156,32 @@ export function getTypeSpecArgs(projectPath: string): TypeSpecCompileArgs {
     outputDir: args.get("outputDir") ?? defaultArgs.outputDir,
     typeSpecConfigPath: args.get("typeSpecConfigPath") ?? defaultArgs.typeSpecConfigPath,
   };
+}
+
+export async function runForTypeSpecProject(
+  projectPath: string | undefined,
+  context: DriverContext
+): Promise<void> {
+  const isTspProject = isTypeSpecProject(projectPath);
+  if (isTspProject) {
+    // Call npm/install
+    const npmInstallDriver: NpmBuildDriver = Container.get("cli/runNpmCommand");
+    const npmInstallArgs = {
+      args: "install --no-audit --progress=false",
+    };
+    const npmInstallResult = (await npmInstallDriver.execute(npmInstallArgs, context)).result;
+    if (npmInstallResult.isErr()) {
+      throw err(npmInstallResult.error);
+    }
+
+    // call typespec/compile
+    const typeSpecCompileDriver: TypeSpecCompileDriver = Container.get("typeSpec/compile");
+    const typeSpecCompileArgs: TypeSpecCompileArgs = getTypeSpecArgs(projectPath!);
+    const typeSpecCompileResult = (
+      await typeSpecCompileDriver.execute(typeSpecCompileArgs, context)
+    ).result;
+    if (typeSpecCompileResult.isErr()) {
+      throw err(typeSpecCompileResult.error);
+    }
+  }
 }
