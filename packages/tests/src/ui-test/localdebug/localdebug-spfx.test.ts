@@ -56,7 +56,12 @@ describe("SPFx local debug", function () {
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          env: "local",
+          teamsAppName: localDebugTestContext.appName,
+          searchApp: true,
+        }
       );
       await validateTeamsWorkbench(page, localDebugTestContext.appName);
     }

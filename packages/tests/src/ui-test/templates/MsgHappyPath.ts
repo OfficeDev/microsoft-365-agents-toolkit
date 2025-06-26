@@ -81,7 +81,7 @@ export async function msgHappyPathTestForLocalDebug(
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        { projectPath: projectPath, env: "local", noAddApp: true }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(page, {
@@ -208,7 +208,7 @@ export async function msgHappyPathTestForRemoteDebug(
       teamsAppId,
       Env.username,
       Env.password,
-      { projectPath: projectPath, env: "dev" }
+      { projectPath: projectPath, env: "dev", noAddApp: true }
     );
     await driver.sleep(Timeout.longTimeWait);
     await options.validationFn(page, {

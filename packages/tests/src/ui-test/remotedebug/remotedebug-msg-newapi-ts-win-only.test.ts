@@ -76,7 +76,7 @@ describe("Remote debug Tests", function () {
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "dev" }
+        { projectPath: projectPath, env: "dev", noAddApp: true }
       );
       await validateApiMeResult(page, remoteDebugTestContext.appName);
     }

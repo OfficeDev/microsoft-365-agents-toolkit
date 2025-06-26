@@ -9,6 +9,7 @@ import * as fs from "fs-extra";
 import { startDebugging, waitForTerminal } from "../../utils/vscodeOperation";
 import {
   initNoAddappPage,
+  initPage,
   validateApiMeResult,
 } from "../../utils/playwrightOperation";
 import { LocalDebugTestContext } from "./localdebugContext";
@@ -52,11 +53,12 @@ describe("Local Debug Tests", function () {
         "Worker process started and initialized"
       );
       const teamsAppId = await localDebugTestContext.getTeamsAppId();
-      const page = await initNoAddappPage(
+      const page = await initPage(
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "local", noAddApp: true }
       );
       await validateApiMeResult(page, localDebugTestContext.appName);
     }

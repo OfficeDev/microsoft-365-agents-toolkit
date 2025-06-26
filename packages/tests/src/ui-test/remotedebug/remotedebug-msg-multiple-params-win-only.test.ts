@@ -82,7 +82,7 @@ describe("Remote debug Tests", function () {
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "dev" }
+        { projectPath: projectPath, env: "dev", noAddApp: true }
       );
       await validateMultiParamsApiMeResult(
         page,

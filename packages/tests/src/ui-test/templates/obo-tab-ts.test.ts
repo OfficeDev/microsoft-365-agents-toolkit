@@ -101,7 +101,12 @@ describe("Local Debug M365 Tests", function () {
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          env: "local",
+          teamsAppName: localDebugTestContext.appName,
+          searchApp: true,
+        }
       );
       await localDebugTestContext.validateLocalStateForTab();
       await validateReactTab(page, Env.displayName, true);
@@ -159,7 +164,12 @@ describe("Local Debug M365 Tests", function () {
           teamsAppId,
           Env.username,
           Env.password,
-          { projectPath: projectPath, env: "dev" }
+          {
+            projectPath: projectPath,
+            env: "dev",
+            teamsAppName: appName,
+            searchApp: true,
+          }
         );
         await validateReactTab(page, Env.displayName, true);
         successFlagForRemote = true;

@@ -87,7 +87,12 @@ describe("Local Debug Tests", function () {
             teamsAppId,
             Env.username,
             Env.password,
-            { projectPath: projectPath, env: "local" }
+            {
+              projectPath: projectPath,
+              env: "local",
+              teamsAppName: localDebugTestContext.appName,
+              searchApp: true,
+            }
           );
           await validateBasicTab(page, ValidationContent.Tab);
         }
@@ -96,12 +101,18 @@ describe("Local Debug Tests", function () {
         const res = await Executor.cliPreview(projectPath, false);
         debugProcess = res.debugProcess;
         {
-          const page = await reopenPage(
+          const page = await initPage(
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
             Env.password,
-            { projectPath: projectPath, env: "local" }
+            {
+              projectPath: projectPath,
+              env: "local",
+              teamsAppName: localDebugTestContext.appName,
+              searchApp: true,
+              loggedIn: true,
+            }
           );
           await validateBasicTab(page, ValidationContent.Tab);
         }

@@ -129,6 +129,9 @@ export async function initPage(
     env?: string;
     teamsAppName?: string;
     dashboardFlag?: boolean;
+    noAddApp?: boolean;
+    searchApp?: boolean;
+    loggedIn?: boolean;
   }
 ): Promise<Page> {
   let page = await context.newPage();
@@ -137,142 +140,181 @@ export async function initPage(
   const teamsUrl = `https://teams.microsoft.com`;
   // open teams app page
   // https://github.com/puppeteer/puppeteer/issues/3338
-  await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
+  console.log(`open teams app page`);
+  await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
 
-  // input username
-  await RetryHandler.retry(async () => {
-    await page.fill("input.input[type='email']", username);
-    console.log(`fill in username ${username}`);
+  if (!options?.loggedIn) {
+    // input username
+    await RetryHandler.retry(async () => {
+      await page.fill("input.input[type='email']", username);
+      console.log(`fill in username ${username}`);
 
-    // next
-    await Promise.all([
-      page.click("input.button[type='submit']"),
-      page.waitForNavigation(),
-    ]);
-    // input password
-    console.log(`fill in password`);
-    await page.fill("input.input[type='password'][name='passwd']", password);
+      // next
+      await Promise.all([
+        page.click("input.button[type='submit']"),
+        page.waitForNavigation(),
+      ]);
+      // input password
+      console.log(`fill in password`);
+      await page.fill("input.input[type='password'][name='passwd']", password);
 
-    // sign in
-    await Promise.all([
-      page.click("input.button[type='submit']"),
-      page.waitForNavigation(),
-    ]);
+      // sign in
+      await Promise.all([
+        page.click("input.button[type='submit']"),
+        page.waitForNavigation(),
+      ]);
 
-    // stay signed in confirm page
-    console.log(`stay signed confirm`);
-    await Promise.all([
-      page.click("input.button[type='submit'][value='Yes']"),
-      page.waitForNavigation(),
-    ]);
-    await page.waitForTimeout(Timeout.shortTimeLoading);
-  });
-
-  // add app
-  await RetryHandler.retry(async (retries: number) => {
-    if (retries > 0) {
-      console.log(`Retried to run adding app for ${retries} times.`);
-    }
-    await page.close();
-    console.log(`open teams page`);
-    try {
-      //try upload app package file
-      page = await context.newPage();
-
-      await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
-      await page.waitForTimeout(Timeout.longTimeWait);
-
-      // Upload app package file
-      await uploadPackage(page, options?.projectPath, options?.env);
+      // stay signed in confirm page
+      console.log(`stay signed confirm`);
+      await Promise.all([
+        page.click("input.button[type='submit'][value='Yes']"),
+        page.waitForNavigation(),
+      ]);
       await page.waitForTimeout(Timeout.shortTimeLoading);
-    } catch {
-      await page.screenshot({
-        path: getPlaywrightScreenshotPath("upload_page"),
-        fullPage: true,
-      });
-      // then try add app url
-      await page.close();
-      page = await context.newPage();
+    });
+  }
 
-      await Promise.all([page.goto(installAppUrl), page.waitForNavigation()]);
-      await page.waitForTimeout(Timeout.longTimeWait);
-    }
-
-    // Click add button
-    console.log("click add button");
-    let addBtn;
-    try {
-      addBtn = await page?.waitForSelector(
-        "button[id='install-app-btn']:has-text('Add')"
-      );
-    } catch {
+  if (!options?.noAddApp) {
+    if (options?.searchApp) {
       try {
-        addBtn = await page?.waitForSelector(
-          "button[id='install-app-btn']:has-text('Open')"
-        );
+        await RetryHandler.retry(async (retries: number) => {
+          console.log(`try view more apps`);
+          const viewMoreAppsButton = await page.waitForSelector(
+            'button[aria-label="View more apps"]'
+          );
+          await viewMoreAppsButton.click();
+          await page.waitForTimeout(Timeout.shortTimeLoading);
+          console.log(`try input app`);
+          const appSearchInput = await page.waitForSelector(
+            'input[id="flyout-search-box"]'
+          );
+          const appName = `${options?.teamsAppName ?? ""}${options?.env ?? ""}`;
+          await appSearchInput.fill(appName);
+          console.log(`has app`);
+          const appButton = await page.waitForSelector(
+            `Button:has-text("${appName}")`
+          );
+          await appButton.click();
+        });
       } catch {
         await page.screenshot({
-          path: getPlaywrightScreenshotPath("add_page"),
+          path: getPlaywrightScreenshotPath("noapp"),
           fullPage: true,
         });
-        throw "error to add app";
+        console.log(`no app found`);
+        throw new Error(`App ${options?.teamsAppName} not found in Teams.`);
       }
-    }
+    } else {
+      // add app
+      await RetryHandler.retry(async (retries: number) => {
+        if (retries > 0) {
+          console.log(`Retried to run adding app for ${retries} times.`);
+        }
+        await page.close();
+        console.log(`open teams page`);
+        try {
+          //try upload app package file
+          page = await context.newPage();
 
-    await addBtn?.click();
-    await page.waitForTimeout(Timeout.longTimeWait);
-    // verify add page is closed
-    try {
-      await page?.waitForSelector(
-        "button[id='install-app-btn']:has-text('Add')",
-        {
-          state: "detached",
-        }
-      );
-    } catch {
-      await page?.waitForSelector(
-        "button[id='install-app-btn']:has-text('Open')",
-        {
-          state: "detached",
-        }
-      );
-    }
-    await page.waitForTimeout(Timeout.shortTimeLoading);
-    // click Open button to add to Team, Chat or Meeting
-    try {
-      const openApp = await page?.waitForSelector(
-        "button[data-testid='open-app'][data-tid='open-app']"
-      );
-      console.log("clicked open app");
-      await openApp.click();
-    } catch {
-      console.log("No Open App button");
-    }
+          await Promise.all([page.goto(teamsUrl), page.waitForNavigation()]);
+          await page.waitForTimeout(Timeout.longTimeWait);
 
-    // Check if having Open button, if yes, try again to click it
-    try {
-      await page?.waitForSelector(
-        "button[data-testid='open-app'][data-tid='open-app']",
-        {
-          state: "detached",
-        }
-      );
-    } catch {
-      const openApp = await page?.waitForSelector(
-        "button[data-testid='open-app'][data-tid='open-app']"
-      );
-      console.log("clicked open app");
-      await openApp.click();
-      await page?.waitForSelector(
-        "button[data-testid='open-app'][data-tid='open-app']",
-        {
-          state: "detached",
-        }
-      );
-    }
+          // Upload app package file
+          await uploadPackage(page, options?.projectPath, options?.env);
+          await page.waitForTimeout(Timeout.shortTimeLoading);
+        } catch {
+          await page.screenshot({
+            path: getPlaywrightScreenshotPath("upload_page"),
+            fullPage: true,
+          });
+          // then try add app url
+          await page.close();
+          page = await context.newPage();
 
-    console.log("[success] app loaded");
-  });
+          await Promise.all([
+            page.goto(installAppUrl),
+            page.waitForNavigation(),
+          ]);
+          await page.waitForTimeout(Timeout.longTimeWait);
+        }
+
+        // Click add button
+        console.log("click add button");
+        let addBtn;
+        try {
+          addBtn = await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Add')"
+          );
+        } catch {
+          try {
+            addBtn = await page?.waitForSelector(
+              "button[id='install-app-btn']:has-text('Open')"
+            );
+          } catch {
+            await page.screenshot({
+              path: getPlaywrightScreenshotPath("add_page"),
+              fullPage: true,
+            });
+            throw "error to add app";
+          }
+        }
+
+        await addBtn?.click();
+        await page.waitForTimeout(Timeout.longTimeWait);
+        // verify add page is closed
+        try {
+          await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Add')",
+            {
+              state: "detached",
+            }
+          );
+        } catch {
+          await page?.waitForSelector(
+            "button[id='install-app-btn']:has-text('Open')",
+            {
+              state: "detached",
+            }
+          );
+        }
+        await page.waitForTimeout(Timeout.shortTimeLoading);
+        // click Open button to add to Team, Chat or Meeting
+        try {
+          const openApp = await page?.waitForSelector(
+            "button[data-testid='open-app'][data-tid='open-app']"
+          );
+          console.log("clicked open app");
+          await openApp.click();
+        } catch {
+          console.log("No Open App button");
+        }
+
+        // Check if having Open button, if yes, try again to click it
+        try {
+          await page?.waitForSelector(
+            "button[data-testid='open-app'][data-tid='open-app']",
+            {
+              state: "detached",
+            }
+          );
+        } catch {
+          const openApp = await page?.waitForSelector(
+            "button[data-testid='open-app'][data-tid='open-app']"
+          );
+          console.log("clicked open app");
+          await openApp.click();
+          await page?.waitForSelector(
+            "button[data-testid='open-app'][data-tid='open-app']",
+            {
+              state: "detached",
+            }
+          );
+        }
+
+        console.log("[success] app loaded");
+      });
+    }
+  }
 
   return page;
 }

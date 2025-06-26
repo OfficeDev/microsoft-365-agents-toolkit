@@ -19,6 +19,7 @@ import {
 import { it } from "../../utils/it";
 import {
   initNoAddappPage,
+  initPage,
   validateApiMeResult,
 } from "../../utils/playwrightOperation";
 import { Env } from "../../utils/env";
@@ -74,11 +75,12 @@ describe("Remote debug Tests", function () {
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
         projectPath
       );
-      const page = await initNoAddappPage(
+      const page = await initPage(
         remoteDebugTestContext.context!,
         teamsAppId,
         Env.username,
-        Env.password
+        Env.password,
+        { projectPath: projectPath, env: "dev", noAddApp: true }
       );
       await validateApiMeResult(page, remoteDebugTestContext.appName);
     }
