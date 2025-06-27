@@ -6,7 +6,7 @@
 import {
   AppManifestUtils,
   AppPackageFolderName,
-  DeclarativeAgentManifestV1D3,
+  DeclarativeAgentManifestV1D4,
   ManifestTemplateFileName,
   TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
@@ -247,10 +247,10 @@ export class MetaOSHelper {
     ActionFilename: string,
     appName: string
   ): Promise<void> {
-    const fileJson: DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3 = {
+    const fileJson: DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4 = {
       $schema:
-        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.3/schema.json",
-      version: "v1.3",
+        "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json",
+      version: "v1.4",
       name: `Add-in Skill + Agent for ${appName}`,
       description:
         "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
@@ -296,11 +296,23 @@ export class MetaOSHelper {
       schema_version: "v2.3",
       name_for_human: `Add-in Skill + Agent for ${appName}`,
       description_for_human: "Get answer for user's question related to Microsoft 365 products",
+      namespace: "AddInFunctions",
       functions: [
         {
           name: `${commandName.w}`,
           description:
             "Action addfooter: take in arg a JSON object, with a footer message in the field 'Footer'.",
+          parameters: {
+            type: "object",
+            properties: {
+              Footer: {
+                type: "string",
+                description: "example message to be added to footer",
+                default: "Declarative Agent Footer",
+              },
+            },
+            required: ["Footer"],
+          },
           states: {
             reasoning: {
               description:
@@ -318,6 +330,22 @@ export class MetaOSHelper {
           name: `${commandName.x}`,
           description:
             "Action fillcolor: take in arg a JSON object, a cell location and a color in hex. Cell location is a single cell.",
+          parameters: {
+            type: "object",
+            properties: {
+              Cell: {
+                type: "string",
+                description: "example cell location",
+                default: "B7",
+              },
+              Color: {
+                type: "string",
+                description: "example color in hex",
+                default: "#30d5c8",
+              },
+            },
+            required: ["Cell", "Color"],
+          },
           states: {
             reasoning: {
               description:
@@ -335,6 +363,17 @@ export class MetaOSHelper {
           name: `${commandName.p}`,
           description:
             "Action addtexttoslide: take in arg a JSON object, a text to be added to a slide.",
+          parameters: {
+            type: "object",
+            properties: {
+              Text: {
+                type: "string",
+                description: "example text to be added to a slide",
+                default: "hello declarative agent",
+              },
+            },
+            required: ["Text"],
+          },
           states: {
             reasoning: {
               description:
