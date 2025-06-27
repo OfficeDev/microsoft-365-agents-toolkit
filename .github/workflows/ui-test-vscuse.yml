@@ -166,14 +166,23 @@ jobs:
           subscription-id: ${{secrets.DEVOPS_SUB_ID}}
           enable-AzPSSession: true
 
+      - name: Fetch test cases from Azure DevOps for scheduled runs
+        if: ${{ github.event.schedule == '0 17 * * *' }}
+        working-directory: packages/tests
+        env:
+          AZURE_DEVOPS_ORG_URL: "https://dev.azure.com/msazure/"
+          AZURE_DEVOPS_PROJECT: "Microsoft Teams Extensibility"
+          AZURE_DEVOPS_TEST_PLAN_ID: "33256964"
+        run: npx ts-node ./scripts/fetch-test-plan-test-cases.ts vscuse/agent_cases true
+
       - name: Fetch test cases from Azure DevOps
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         working-directory: packages/tests
         env:
           AZURE_DEVOPS_ORG_URL: "https://dev.azure.com/msazure/"
           AZURE_DEVOPS_PROJECT: "Microsoft Teams Extensibility"
           AZURE_DEVOPS_TEST_PLAN_ID: "33256964"
         run: npx ts-node ./scripts/fetch-test-plan-test-cases.ts vscuse/agent_cases
-
 
       - name: Generate file list
         shell: pwsh

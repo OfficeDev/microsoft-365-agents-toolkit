@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const outputDir = process.argv[2];
+const onlyTestAutomatedCases = process.argv[3];
 if (!outputDir) {
   console.error("Please provide an output directory as the first argument.");
   process.exit(1);
@@ -82,6 +83,19 @@ async function run() {
                 };
               };
               const workItem = (await response.json()) as WorkItem;
+
+              // Get the automation status of the work item
+              // If onlyTestAutomatedCases is true, skip test cases that are not automated
+              const automationStatus =
+                workItem.fields?.["Microsoft.VSTS.TCM.AutomationStatus"];
+              if (onlyTestAutomatedCases && onlyTestAutomatedCases === "true") {
+                if (automationStatus !== "Planned") {
+                  console.log(
+                    `Skipping test case ${tc.testCase.id} as it is not automated.`
+                  );
+                  continue; // Skip non-automated test cases
+                }
+              }
 
               // The content fianlly to write into the file
               const outputLines: string[] = [];
