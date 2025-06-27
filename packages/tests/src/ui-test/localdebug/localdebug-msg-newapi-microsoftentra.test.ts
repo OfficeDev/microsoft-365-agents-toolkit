@@ -7,11 +7,7 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import { startDebugging, waitForTerminal } from "../../utils/vscodeOperation";
-import {
-  initNoAddappPage,
-  initPage,
-  validateApiMeResult,
-} from "../../utils/playwrightOperation";
+import { initPage, validateApiMeResult } from "../../utils/playwrightOperation";
 import { LocalDebugTestContext } from "./localdebugContext";
 import { Timeout, LocalDebugTaskLabel } from "../../utils/constants";
 import { Env } from "../../utils/env";

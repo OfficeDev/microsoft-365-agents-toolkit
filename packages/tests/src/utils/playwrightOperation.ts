@@ -192,7 +192,7 @@ export async function initPage(
           await appSearchInput.fill(appName);
           console.log(`has app`);
           const appButton = await page.waitForSelector(
-            `Button:has-text("${appName}")`
+            `button:has-text("${appName}")`
           );
           await appButton.click();
         });
