@@ -182,12 +182,17 @@ export class TokenValidator {
     }
 
     if (Array.isArray(options.issuer)) {
-      options.issuer = options.issuer.map((issuer) => {
+      const mappedIssuer = options.issuer.map((issuer) => {
         if (issuer.toLowerCase().indexOf("{tenantid}") > -1) {
           return issuer.replace(/{tenantid}/i, (jwt.payload as JwtPayload).tid);
         }
         return issuer;
       });
+      if (mappedIssuer.length > 0) {
+        options.issuer = mappedIssuer as [string, ...string[]];
+      } else {
+        throw new Error("issuer must contain at least one valid issuer");
+      }
       return;
     }
   }
