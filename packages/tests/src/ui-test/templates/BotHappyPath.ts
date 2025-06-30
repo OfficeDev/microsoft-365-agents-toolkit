@@ -21,7 +21,7 @@ import {
   Lang,
 } from "../../utils/constants";
 import { expect } from "chai";
-import { initPage, reopenPage } from "../../utils/playwrightOperation";
+import { initPage } from "../../utils/playwrightOperation";
 import { Env } from "../../utils/env";
 import { Executor } from "../../utils/executor";
 import { ModalDialog, VSBrowser } from "vscode-extension-tester";
@@ -86,7 +86,12 @@ export async function botHappyPathTestForLocalDebug(
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
+          env: "local",
+          searchApp: true,
+        }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(page, {
@@ -100,12 +105,18 @@ export async function botHappyPathTestForLocalDebug(
     devtunnelProcess = res.devtunnelProcess;
     debugProcess = res.debugProcess;
     {
-      const page = await reopenPage(
+      const page = await initPage(
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
+          env: "local",
+          searchApp: true,
+          loggedIn: true, // to avoid re-login
+        }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(page, {
@@ -186,7 +197,12 @@ export async function botHappyPathTestForRemoteDebug(
       teamsAppId,
       Env.username,
       Env.password,
-      { projectPath: projectPath, env: "dev" }
+      {
+        projectPath: projectPath,
+        env: "dev",
+        teamsAppName: appName,
+        searchApp: true,
+      }
     );
     await driver.sleep(Timeout.longTimeWait);
     await options.validationFn(page, {

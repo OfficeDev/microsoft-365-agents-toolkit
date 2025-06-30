@@ -21,7 +21,7 @@ import {
   Lang,
 } from "../../utils/constants";
 import { expect } from "chai";
-import { initPage, reopenPage } from "../../utils/playwrightOperation";
+import { initPage } from "../../utils/playwrightOperation";
 import { Env } from "../../utils/env";
 import { Executor } from "../../utils/executor";
 import { ModalDialog, VSBrowser } from "vscode-extension-tester";
@@ -128,12 +128,18 @@ export async function msgHappyPathTestForLocalDebug(
       }
     );
     {
-      const page = await reopenPage(
+      const page = await initPage(
         localDebugTestContext.context!,
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
+          env: "local",
+          searchApp: true,
+          loggedIn: true, // to avoid re-login
+        }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(page, {

@@ -319,7 +319,12 @@ export function happyPathTest(options: {
           teamsAppId,
           Env.username,
           Env.password,
-          { projectPath: projectPath, env: "dev" }
+          {
+            projectPath: projectPath,
+            env: "dev",
+            teamsAppName: appName,
+            searchApp: true,
+          }
         );
 
         if (options.agent === "custom-copilot-agent-new") {
@@ -597,7 +602,12 @@ export function happyPathTest(options: {
           teamsAppId,
           Env.username,
           Env.password,
-          { projectPath: projectPath, env: "local" }
+          {
+            projectPath: projectPath,
+            teamsAppName: localDebugTestContext.appName,
+            env: "local",
+            searchApp: true,
+          }
         );
         await localDebugTestContext.validateLocalStateForBot();
         if (options.agent === "custom-copilot-agent-new") {

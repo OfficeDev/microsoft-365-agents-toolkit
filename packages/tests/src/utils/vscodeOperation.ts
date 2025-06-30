@@ -3,6 +3,7 @@
 import * as os from "os";
 import * as path from "path";
 import * as fs from "fs-extra";
+import yaml from "js-yaml";
 import {
   ActivityBar,
   BottomBarPanel,
@@ -1116,8 +1117,57 @@ export async function createNewProject(
   const filterFunc = (src: string) =>
     src.indexOf("node_modules") > -1 ? false : true;
   await fs.copy(projectPath, projectCopyPath, { filter: filterFunc });
+  console.log("Update yaml file for m365 agents");
+  await extendM365Yaml(projectCopyPath, "dev");
   console.log("open project path");
   await openExistingProject(projectCopyPath);
+}
+
+interface M365Yaml {
+  provision: Record<string, any>[];
+}
+
+export async function extendM365Yaml(
+  projectPath: string,
+  env: string
+): Promise<void> {
+  const yamlFile = env === "dev" ? `m365agents.yml` : `m365agents.${env}.yml`;
+  const m365YamlPath = path.resolve(projectPath, yamlFile);
+  if (await fs.pathExists(m365YamlPath)) {
+    const m365Yaml = await fs.readFile(m365YamlPath, "utf8");
+    const m365YamlObj = yaml.load(m365Yaml) as M365Yaml;
+    // Step to add
+    const newStep = {
+      uses: "teamsApp/extendToM365",
+      with: {
+        appPackagePath: "./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip",
+      },
+      writeToEnvironmentFile: {
+        titleId: "M365_TITLE_ID",
+        appId: "M365_APP_ID",
+      },
+    };
+
+    // Check if step already exists
+    const alreadyExists = m365YamlObj.provision.some(
+      (step: any) => step?.uses === newStep.uses
+    );
+
+    // Append only if not exists
+    if (!alreadyExists) {
+      m365YamlObj.provision.push(newStep);
+      console.log("Step appended to provision.");
+    } else {
+      console.log("Step already exists. No changes made.");
+    }
+
+    // Save updated YAML
+    await fs.writeFile(
+      m365YamlPath,
+      yaml.dump(m365YamlObj, { noRefs: true }),
+      "utf8"
+    );
+  }
 }
 
 export async function setExtensionSetting(

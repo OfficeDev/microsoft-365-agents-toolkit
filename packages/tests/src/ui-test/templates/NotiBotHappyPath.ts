@@ -95,7 +95,12 @@ export async function notiBotHappyPathTestForLocalDebug(
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "local" }
+        {
+          projectPath: projectPath,
+          teamsAppName: localDebugTestContext.appName,
+          env: "local",
+          searchApp: true,
+        }
       );
       await localDebugTestContext.validateLocalStateForBot();
       await options.validationFn(
@@ -174,7 +179,12 @@ export async function notiBotHappyPathTestForRemoteDebug(
       teamsAppId,
       Env.username,
       Env.password,
-      { projectPath: projectPath, env: "dev" }
+      {
+        projectPath: projectPath,
+        env: "dev",
+        teamsAppName: appName,
+        searchApp: true,
+      }
     );
     await driver.sleep(Timeout.longTimeWait);
 

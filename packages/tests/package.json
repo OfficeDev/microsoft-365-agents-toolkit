@@ -74,6 +74,7 @@
     "@azure/msal-node": "2.6.6",
     "@microsoft/m365agentstoolkit-cli": "workspace:*",
     "@microsoft/teamsfx-api": "workspace:*",
+    "@types/js-yaml": "^4.0.0",
     "@types/semver": "^7.3.8",
     "adm-zip": "0.5.10",
     "axios": "^1.6.8",
@@ -85,7 +86,8 @@
     "querystring": "^0.2.1",
     "semver": "^7.5.2",
     "strip-bom": "4",
-    "yaml": "^2.2.2"
+    "yaml": "^2.2.2",
+    "js-yaml": "^4.1.0"
   },
   "optionalDependencies": {
     "keytar": "^7.7.0"

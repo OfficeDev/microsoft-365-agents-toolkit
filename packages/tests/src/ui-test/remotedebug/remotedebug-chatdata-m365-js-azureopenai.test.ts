@@ -99,7 +99,12 @@ describe("Remote debug Tests", function () {
         teamsAppId,
         Env.username,
         Env.password,
-        { projectPath: projectPath, env: "dev" }
+        {
+          projectPath: projectPath,
+          env: "dev",
+          teamsAppName: appName,
+          searchApp: true,
+        }
       );
       await driver.sleep(Timeout.longTimeWait);
       console.log("consent login");

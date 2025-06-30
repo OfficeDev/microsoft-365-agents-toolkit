@@ -6,11 +6,7 @@
  */
 import * as path from "path";
 import { startDebugging, waitForTerminal } from "../../utils/vscodeOperation";
-import {
-  initPage,
-  reopenPage,
-  validateEchoBot,
-} from "../../utils/playwrightOperation";
+import { initPage, validateEchoBot } from "../../utils/playwrightOperation";
 import { LocalDebugTestContext } from "../localdebug/localdebugContext";
 import {
   Timeout,
@@ -37,6 +33,7 @@ import {
   execCommandIfExist,
   createNewProject,
 } from "../../utils/vscodeOperation";
+import { log } from "console";
 
 describe("Local Debug Tests", function () {
   this.timeout(Timeout.localAndRemoteTestCase);
@@ -89,7 +86,12 @@ describe("Local Debug Tests", function () {
             teamsAppId,
             Env.username,
             Env.password,
-            { projectPath: projectPath, env: "local" }
+            {
+              projectPath: projectPath,
+              teamsAppName: localDebugTestContext.appName,
+              env: "local",
+              searchApp: true,
+            }
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateEchoBot(page);
@@ -100,12 +102,18 @@ describe("Local Debug Tests", function () {
         devtunnelProcess = res.devtunnelProcess;
         debugProcess = res.debugProcess;
         {
-          const page = await reopenPage(
+          const page = await initPage(
             localDebugTestContext.context!,
             teamsAppId,
             Env.username,
             Env.password,
-            { projectPath: projectPath, env: "local" }
+            {
+              projectPath: projectPath,
+              teamsAppName: localDebugTestContext.appName,
+              env: "local",
+              searchApp: true,
+              loggedIn: true,
+            }
           );
           await localDebugTestContext.validateLocalStateForBot();
           await validateEchoBot(page);
@@ -171,7 +179,12 @@ describe("Local Debug Tests", function () {
           teamsAppId,
           Env.username,
           Env.password,
-          { projectPath: projectPath, env: "dev" }
+          {
+            projectPath: projectPath,
+            env: "dev",
+            teamsAppName: appName,
+            searchApp: true,
+          }
         );
         await driver.sleep(Timeout.longTimeWait);
         await validateEchoBot(page);
