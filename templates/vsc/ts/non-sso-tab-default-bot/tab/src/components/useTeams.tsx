@@ -100,7 +100,7 @@ export function useTeams(options?: {
         setLoading(false);
         setInTeams(false);
       });
-  }, []);
+  }, [initialTheme, overrideThemeHandler]);
 
   return [
     { inTeams, fullScreen, theme, context, themeString, loading },
