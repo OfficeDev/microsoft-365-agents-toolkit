@@ -1124,5 +1124,15 @@
   "driver.typeSpec.compile.reprovision": "File %s is updated. A new provision process has started to apply the changes.",
   "error.kiota.KiotaGeneratePluginError": "Unable to generate plugin manifest file using Kiota. Error: %s",
   "error.daSpecParser.InvalidSpecError": "OpenAPI specification file is not valid: %s",
-  "error.kiotaClient.EmptyResult": "Get empty result when parser OpenAPI description file."
+  "error.kiotaClient.EmptyResult": "Get empty result when parser OpenAPI description file.",
+  "core.createProjectQuestion.mcpForDa.label": "Start with an MCP server",
+  "core.createProjectQuestion.mcpForDa.detail": "Create actions from your existing MCP server",
+  "core.createProjectQuestion.mcpForDa.ServerUrl.title": "MCP Server URL",
+  "core.createProjectQuestion.mcpForDa.ServerUrl.placeholder": "Enter your MCP server URL(e.g. https://example-mcp.com)",
+  "core.createProjectQuestion.mcpForDa.Tool.title": "Tools Discovery Preference",
+  "core.createProjectQuestion.mcpForDa.Tool.preFetch.label": "Pre-fetch tools",
+  "core.createProjectQuestion.mcpForDa.Tool.preFetch.detail": "Tools are discovered and cached during agent setup",
+  "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label": "Dynamic tool discovery",
+  "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail": "Tools are discovered at runtime when needed by the agent",
+  "core.createProjectQuestion.mcpForDa.PreFetchTools.title": "Select Operation(s) Copilot can interact with"
 }

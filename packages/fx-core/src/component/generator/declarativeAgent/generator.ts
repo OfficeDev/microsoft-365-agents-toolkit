@@ -8,6 +8,7 @@
 import {
   AppPackageFolderName,
   Context,
+  DefaultPluginManifestFileName,
   err,
   FxError,
   GeneratorResult,
@@ -33,7 +34,7 @@ import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
-import { addExistingPlugin } from "./helper";
+import { addExistingPlugin, generateForMCPForDA } from "./helper";
 import { getDefaultString } from "../../../common/localizeUtils";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
 import fs from "fs-extra";
@@ -65,6 +66,7 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
       TemplateNames.DeclarativeAgentWithExistingAction,
       TemplateNames.DeclarativeAgentWithTypeSpec,
+      TemplateNames.DeclarativeAgentWithActionFromMCP,
     ].includes(inputs[QuestionNames.TemplateName]);
   }
 
@@ -138,6 +140,14 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
     if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
       // best-effort
       await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+    }
+
+    if (
+      featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+      TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
+    ) {
+      const result = await generateForMCPForDA(destinationPath, inputs);
+      return result;
     }
 
     if (

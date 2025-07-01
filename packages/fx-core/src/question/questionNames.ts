@@ -143,4 +143,8 @@ export enum QuestionNames {
   SelectPluginId = "select-plugin-id",
 
   DAMetaOSCapability = "da-meta-os-capability",
+  MCPForDAServerUrl = "mcp-da-server-url",
+  MCPForDATool = "mcp-da-tool",
+  MCPForDAPreFetchTools = "mcp-da-pre-fetch-tools",
+  MCPForDAPreFetchToolsDetail = "mcp-da-pre-fetch-tools-detail",
 }

@@ -109,6 +109,7 @@
     "@microsoft/kiota": "1.26.1",
     "@microsoft/m365-spec-parser": "workspace:^",
     "@microsoft/teamsfx-api": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.1",
     "adm-zip": "^0.5.10",
     "ajv": "^8.5.0",
     "axios": "^1.8.3",

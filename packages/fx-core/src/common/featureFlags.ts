@@ -38,6 +38,7 @@ export class FeatureFlagName {
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
+  static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
 }
 
 export interface FeatureFlag {
@@ -131,6 +132,10 @@ export class FeatureFlags {
   };
   static readonly DAMetaOS = {
     name: FeatureFlagName.DAMetaOS,
+    defaultValue: "false",
+  };
+  static readonly MCPForDA = {
+    name: FeatureFlagName.MCPForDA,
     defaultValue: "false",
   };
 }

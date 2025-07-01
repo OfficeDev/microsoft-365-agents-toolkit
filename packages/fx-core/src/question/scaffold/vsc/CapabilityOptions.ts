@@ -578,6 +578,14 @@ export class ActionStartOptions {
       data: TemplateNames.DeclarativeAgentWithExistingAction,
     };
   }
+
+  static mcp(): OptionItem {
+    return {
+      id: "mcp",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.label"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.detail"),
+    };
+  }
 }
 
 export class DAMetaOSCapabilityOptions {
