@@ -532,7 +532,7 @@ jobs:
         working-directory: packages/tests/vscuse/binary
         run: |
           vscuse.exe version
-          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s ${{ steps.calc_lines.outputs.steps }} -v --remote-cache | tee "${{ runner.temp }}\output.log"
+          vscuse.exe agent -f "../agent_cases/${{ matrix.file }}.txt" -s ${{ steps.calc_lines.outputs.steps }} -v --remote-cache --telemetry-id atk_vsc | tee "${{ runner.temp }}\output.log"
         shell: cmd
         
       - name: Check for HTML report and test result
