@@ -361,6 +361,9 @@ export enum TelemetryEvent {
 
   m365PreAuthStart = "m365-pre-auth-start",
   m365PreAuth = "m365-pre-auth",
+
+  // MCP Server
+  PromptMCPServer = "prompt-mcp-server",
 }
 
 export enum TelemetryProperty {
@@ -488,6 +491,10 @@ export enum TelemetryProperty {
   CopilotChatQuerySent = "copilot-chat-query-sent",
   TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
   TeamsAgentPreCheckResultSuccess = "teams-agent-pre-check-result-success",
+  // MCP server setup
+  MissingCopilotInstructions = "missing-copilot-instructions",
+  MissingMCPConfig = "missing-mcp-config",
+  UserSelection = "UserSelection",
 }
 
 export enum TelemetryMeasurements {

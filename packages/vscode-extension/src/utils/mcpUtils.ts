@@ -1,10 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as util from "util";
 import * as vscode from "vscode";
 import * as path from "path";
 import fs from "fs-extra";
 import { context } from "../globalVariables";
+import { localize } from "./localizeUtils";
+import { ExtTelemetry } from "../telemetry/extTelemetry";
+import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
 
 /**
  * Setup MCP Server by checking for required files and prompting user to create them if missing
@@ -21,7 +25,7 @@ export async function setupMCPServer(): Promise<void> {
   const copilotInstructionsPath = path.join(workspaceRoot, ".github", "copilot-instructions.md");
   const mcpConfigPath = path.join(workspaceRoot, ".vscode", "mcp.json");
   const missingCopilotInstructions = !fs.existsSync(copilotInstructionsPath);
-  const missingMcpConfig = checkMCPConfigNeedsUpdate(mcpConfigPath);
+  const missingMcpConfig = checkMCPConfigNeedsUpdate();
 
   if (!missingCopilotInstructions && !missingMcpConfig) {
     return;
@@ -43,23 +47,39 @@ export async function setupMCPServer(): Promise<void> {
       ? `${filesToModify[0]} and ${filesToModify[1]}`
       : filesToModify.join(", ");
 
-  const message = `Setup M365 Agents Toolkit MCP server? (This will create or update ${fileList} in your workspace)`;
+  const message = util.format(localize("teamstoolkit.mcpUtils.setupMcpServer.message"), fileList);
 
-  await vscode.window.showInformationMessage(message, "Confirm", "Skip").then((selection) => {
-    if (selection !== "Confirm") {
-      return; // User chose to skip setup
-    }
-
-    if (missingCopilotInstructions) {
-      createCopilotInstructionsFile(workspaceRoot, copilotInstructionsPath);
-    }
-
-    if (missingMcpConfig) {
-      updateMCPConfigFile(workspaceRoot, mcpConfigPath);
-    }
-    const successMessage = "Successfully setup M365 Agents Toolkit MCP server configuration.";
-    void vscode.window.showInformationMessage(successMessage);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.PromptMCPServer, {
+    [TelemetryProperty.MissingCopilotInstructions]: String(missingCopilotInstructions),
+    [TelemetryProperty.MissingMCPConfig]: String(missingMcpConfig),
   });
+  await vscode.window
+    .showInformationMessage(
+      message,
+      localize("teamstoolkit.mcpUtils.setupMcpServer.confirm"),
+      localize("teamstoolkit.mcpUtils.setupMcpServer.skip")
+    )
+    .then((selection) => {
+      if (selection !== localize("teamstoolkit.mcpUtils.setupMcpServer.confirm")) {
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.PromptMCPServer, {
+          [TelemetryProperty.UserSelection]: "skip",
+        });
+        return; // User chose to skip setup
+      }
+
+      if (missingCopilotInstructions) {
+        createCopilotInstructionsFile(workspaceRoot, copilotInstructionsPath);
+      }
+
+      if (missingMcpConfig) {
+        updateMCPConfigFile(workspaceRoot, mcpConfigPath);
+      }
+      const successMessage = localize("teamstoolkit.mcpUtils.setupMcpServer.successMessage");
+      void vscode.window.showInformationMessage(successMessage);
+      ExtTelemetry.sendTelemetryEvent(TelemetryEvent.PromptMCPServer, {
+        [TelemetryProperty.UserSelection]: "confirm",
+      });
+    });
 }
 
 /**
@@ -137,28 +157,25 @@ function updateMCPConfigFile(workspaceRoot: string, mcpConfigPath: string): void
 
     fs.writeFileSync(mcpConfigPath, JSON.stringify(config, null, 2), "utf8");
   }
+
+  // const obj = {
+  //   name: "M365 Agents Toolkit MCP Server",
+  //   command: "npx",
+  //   args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+  // };
+  // const link = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(obj))}`;
+  // void vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(link));
 }
 
 /**
  * Check if MCP config file needs to be updated with proper m365agentstoolkit server configuration
  */
-function checkMCPConfigNeedsUpdate(mcpConfigPath: string): boolean {
+function checkMCPConfigNeedsUpdate(): boolean {
   try {
-    if (!fs.existsSync(mcpConfigPath)) {
-      return true; // Config file doesn't exist, needs update
-    }
-
-    const configContent = fs.readFileSync(mcpConfigPath, "utf8");
-    const config = JSON.parse(configContent);
-
-    // Check if servers object exists
-    if (!config.servers || typeof config.servers !== "object") {
-      return true;
-    }
-
-    // Check if m365agentstoolkit server exists
-    if (JSON.stringify(config.servers).includes("@microsoft/m365agentstoolkit-mcp")) {
-      return false; // Already has m365agentstoolkit server configured
+    const userMCPSettings = vscode.workspace.getConfiguration("mcp");
+    const userServers = userMCPSettings.get("servers");
+    if (userServers && JSON.stringify(userServers).includes("@microsoft/m365agentstoolkit-mcp")) {
+      return false; // User already has m365agentstoolkit server configured
     }
 
     return true;

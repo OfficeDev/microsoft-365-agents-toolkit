@@ -1448,7 +1448,7 @@ async function runBackgroundAsyncTasks(
 
   await recommendACPExtension();
 
-  await setupMCPServer();
+  await Correlator.run(setupMCPServer);
 
   await checkProjectTypeAndSendTelemetry();
 }
