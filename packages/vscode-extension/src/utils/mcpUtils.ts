@@ -104,12 +104,8 @@ function createCopilotInstructionsFile(
   );
   let defaultContent = "";
 
-  try {
-    if (fs.existsSync(templatePath)) {
-      defaultContent = fs.readFileSync(templatePath, "utf8");
-    }
-  } catch (error) {
-    console.warn("Failed to read copilot instructions template:", error);
+  if (fs.existsSync(templatePath)) {
+    defaultContent = fs.readFileSync(templatePath, "utf8");
   }
 
   // Create copilot-instructions.md file with default content
