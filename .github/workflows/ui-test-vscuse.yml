@@ -244,7 +244,7 @@ jobs:
 
   main:
     name: Case-${{ matrix.file }}|${{ matrix.os }}|${{ matrix.node }}|${{ matrix.branch }}
-    needs: discover_test_cases
+    needs: [discover_test_cases, setup]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -279,6 +279,8 @@ jobs:
       
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_ID }}
       
       
       TEAMSFX_DEV_TUNNEL_TEST: true
@@ -475,6 +477,12 @@ jobs:
         working-directory: packages/tests
         run: |
           npm install
+
+      - name: Install teamsfx cli
+        working-directory: packages/tests
+        run: |
+          npm install -g @microsoft/m365agentstoolkit-cli@${{ needs.setup.outputs.npm-tag }}
+          atk --version
 
       - name: M365 Login
         working-directory: packages/tests
