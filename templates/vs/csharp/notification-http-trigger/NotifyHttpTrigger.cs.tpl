@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.TeamsFx.Conversation;
+using {{SafeProjectName}}.Notification;
 
 namespace {{SafeProjectName}}
 {
     public sealed class NotifyHttpTrigger
     {
-        private readonly ConversationBot _conversation;
+        private readonly NotificationBot _notification;
         private readonly ILogger<NotifyHttpTrigger> _log;
 
-        public NotifyHttpTrigger(ConversationBot conversation, ILogger<NotifyHttpTrigger> log)
+        public NotifyHttpTrigger(NotificationBot notification, ILogger<NotifyHttpTrigger> log)
         {
-            _conversation = conversation;
+            _notification = notification;
             _log = log;
         }
 
@@ -32,7 +32,7 @@ namespace {{SafeProjectName}}
             string continuationToken = null;
             do
             {
-                var pagedInstallations = await _conversation.Notification.GetPagedInstallationsAsync(pageSize, continuationToken, req.HttpContext.RequestAborted);
+                var pagedInstallations = await _notification.GetPagedInstallationsAsync(pageSize, continuationToken, req.HttpContext.RequestAborted);
                 continuationToken = pagedInstallations.ContinuationToken;
                 var installations = pagedInstallations.Data;
                 foreach (var installation in installations)

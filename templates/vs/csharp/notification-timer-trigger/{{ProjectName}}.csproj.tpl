@@ -35,10 +35,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="1.*" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="1.*" />
-    <PackageReference Include="Microsoft.TeamsFx" Version="3.0.*-*">
-      <!-- Exclude TeamsFx wwwroot static files which are for frontend only. -->
-      <ExcludeAssets>contentFiles</ExcludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Agents.Extensions.Teams" Version="1.*" />
     <!-- Fix system package downgrade -->
     <PackageReference Include="Microsoft.NETCore.Targets" Version="3.1.0" PrivateAssets="All" />
   </ItemGroup>

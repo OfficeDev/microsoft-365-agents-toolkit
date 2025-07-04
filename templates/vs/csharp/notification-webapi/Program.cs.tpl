@@ -1,7 +1,7 @@
 using {{SafeProjectName}};
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Storage;
-using Microsoft.TeamsFx.Conversation;
+using {{SafeProjectName}}.Notification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,16 +25,9 @@ builder.AddAgentApplicationOptions();
 // Create the Conversation with notification feature enabled.
 builder.Services.AddSingleton(sp =>
 {
-    var options = new ConversationOptions()
-    {
-        Adapter = sp.GetService<CloudAdapter>(),
-        Notification = new NotificationOptions
-        {
-            BotAppId = builder.Configuration["Connections:BotServiceConnection:Settings:ClientId"],
-        },
-    };
-
-    return new ConversationBot(options);
+    var adapter = sp.GetService<CloudAdapter>();
+    var botAppId = builder.Configuration["Connections:BotServiceConnection:Settings:ClientId"];
+    return new NotificationBot(adapter, botAppId, null);
 });
 
 // Add the bot (which is transient)

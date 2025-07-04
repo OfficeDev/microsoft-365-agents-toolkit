@@ -6,8 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.TeamsFx.Conversation;
 using {{SafeProjectName}};
+using {{SafeProjectName}}.Notification;
 
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -35,16 +35,9 @@ builder.AddAgentApplicationOptions();
 // Create the Conversation with notification feature enabled.
 builder.Services.AddSingleton(sp =>
 {
-    var options = new ConversationOptions()
-    {
-        Adapter = sp.GetService<CloudAdapter>(),
-        Notification = new NotificationOptions
-        {
-            BotAppId = builder.Configuration["Connections:BotServiceConnection:Settings:ClientId"],
-        },
-    };
-
-    return new ConversationBot(options);
+    var adapter = sp.GetService<CloudAdapter>();
+    var botAppId = builder.Configuration["Connections:BotServiceConnection:Settings:ClientId"];
+    return new NotificationBot(adapter, botAppId, null);
 });
 
 // Add the bot (which is transient)

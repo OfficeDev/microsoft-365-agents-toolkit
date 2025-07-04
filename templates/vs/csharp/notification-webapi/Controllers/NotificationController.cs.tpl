@@ -1,7 +1,7 @@
 ﻿using {{SafeProjectName}}.Models;
 using AdaptiveCards.Templating;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.TeamsFx.Conversation;
+using {{SafeProjectName}}.Notification;
 using Newtonsoft.Json;
 
 namespace {{SafeProjectName}}.Controllers
@@ -10,12 +10,12 @@ namespace {{SafeProjectName}}.Controllers
     [ApiController]
     public class NotificationController : ControllerBase
     {
-        private readonly ConversationBot _conversation;
+        private readonly NotificationBot _notification;
         private readonly string _adaptiveCardFilePath = Path.Combine(".", "Resources", "NotificationDefault.json");
 
-        public NotificationController(ConversationBot conversation)
+        public NotificationController(NotificationBot notification)
         {
-            this._conversation = conversation;
+            this._notification = notification;
         }
 
         [HttpPost]
@@ -28,7 +28,7 @@ namespace {{SafeProjectName}}.Controllers
             string continuationToken = null;
             do
             {
-                var pagedInstallations = await _conversation.Notification.GetPagedInstallationsAsync(pageSize, continuationToken, cancellationToken);
+                var pagedInstallations = await _notification.GetPagedInstallationsAsync(pageSize, continuationToken, cancellationToken);
                 continuationToken = pagedInstallations.ContinuationToken;
                 var installations = pagedInstallations.Data;
                 foreach (var installation in installations)
