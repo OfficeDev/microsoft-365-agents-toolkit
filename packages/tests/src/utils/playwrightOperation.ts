@@ -2986,6 +2986,7 @@ export async function validateCreatedCard(page: Page, appName: string) {
 
 export async function validateUnfurlCard(page: Page, appName: string) {
   try {
+    await messageExtensionChatWindow(page, Env.collaborator);
     const frame = await page.waitForSelector("div#app");
     console.log("start to validate unfurl an adaptive card");
     const unfurlurl = "https://www.botframework.com/";
