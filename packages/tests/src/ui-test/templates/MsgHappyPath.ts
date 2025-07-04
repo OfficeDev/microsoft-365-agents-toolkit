@@ -135,9 +135,8 @@ export async function msgHappyPathTestForLocalDebug(
         Env.password,
         {
           projectPath: projectPath,
-          teamsAppName: localDebugTestContext.appName,
           env: "local",
-          searchApp: true,
+          noAddApp: true,
           loggedIn: true, // to avoid re-login
         }
       );
