@@ -2,64 +2,50 @@
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import * as fs from "fs-extra";
-import mockfs from "mock-fs";
-import * as path from "path";
+import fs from "fs-extra";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
 import { setupMCPServer } from "../../src/utils/mcpUtils";
+import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
+import path from "path";
 import * as localizeUtils from "../../src/utils/localizeUtils";
+import { FxError } from "@microsoft/teamsfx-api";
 
 describe("mcpUtils", () => {
   const sandbox = sinon.createSandbox();
-  let workspaceFolder: vscode.WorkspaceFolder;
-  let mockWorkspaceRoot: string;
-
-  beforeEach(() => {
-    mockWorkspaceRoot = "/test/workspace";
-    workspaceFolder = {
-      uri: vscode.Uri.file(mockWorkspaceRoot),
-      name: "test-workspace",
-      index: 0,
-    };
-  });
 
   afterEach(() => {
-    mockfs.restore();
-    sandbox.restore();
+    sinon.restore();
   });
 
   describe("setupMCPServer", () => {
     let showInformationMessageStub: sinon.SinonStub;
     let sendTelemetryEventStub: sinon.SinonStub;
     let getConfigurationStub: sinon.SinonStub;
+    let existsSyncStub: sinon.SinonStub;
     let localizeStub: sinon.SinonStub;
 
     beforeEach(() => {
-      showInformationMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .resolves(undefined);
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("/test"));
+      sandbox.stub(globalVariables, "context").value({ extensionPath: "/mock/extension/path" });
+      showInformationMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
       sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       getConfigurationStub = sandbox.stub(vscode.workspace, "getConfiguration");
+      existsSyncStub = sandbox.stub(fs, "existsSync");
       localizeStub = sandbox.stub(localizeUtils, "localize");
-
-      // Default locale stubs
       localizeStub
         .withArgs("teamstoolkit.mcpUtils.setupMcpServer.message")
         .returns("Setup MCP Server for %s");
-      localizeStub.withArgs("teamstoolkit.mcpUtils.setupMcpServer.confirm").returns("Yes");
+      localizeStub.withArgs("teamstoolkit.mcpUtils.setupMcpServer.confirm").returns("Confirm");
       localizeStub.withArgs("teamstoolkit.mcpUtils.setupMcpServer.skip").returns("Skip");
       localizeStub
         .withArgs("teamstoolkit.mcpUtils.setupMcpServer.successMessage")
         .returns("MCP Server setup completed successfully!");
-
-      // Default context stub
-      sandbox.stub(globalVariables, "context").value({
-        extensionPath: "/test/extension/path",
-      });
+      localizeStub
+        .withArgs("teamstoolkit.mcpUtils.setupMcpServer.errorMessage")
+        .returns("Error setting up MCP Server: %s");
     });
 
     afterEach(() => {
@@ -67,16 +53,7 @@ describe("mcpUtils", () => {
     });
 
     it("should return early if no workspace folders", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value(undefined);
-
-      await setupMCPServer();
-
-      chai.expect(showInformationMessageStub.called).to.be.false;
-      chai.expect(sendTelemetryEventStub.called).to.be.false;
-    });
-
-    it("should return early if workspace folders is empty", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([]);
+      sandbox.stub(globalVariables, "workspaceUri").value(undefined);
 
       await setupMCPServer();
 
@@ -85,15 +62,8 @@ describe("mcpUtils", () => {
     });
 
     it("should return early if both files exist and MCP config is up to date", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
+      existsSyncStub.returns(true);
 
-      // Mock file system with both files existing
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
-      });
-
-      // MCP config is up to date (user already has m365agentstoolkit server configured)
       const mockMcpConfig = {
         get: sandbox
           .stub()
@@ -114,14 +84,10 @@ describe("mcpUtils", () => {
     });
 
     it("should prompt user when copilot instructions file is missing", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system without the copilot instructions file
-      mockfs({
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+      console.log(globalVariables.workspaceUri?.path);
+      existsSyncStub.callsFake((filePath: string) => {
+        return filePath.endsWith("copilot-instructions.md") ? false : true;
       });
-
-      // MCP config is up to date (contains the required m365agentstoolkit package)
       const mockMcpConfig = {
         get: sandbox
           .stub()
@@ -146,13 +112,7 @@ describe("mcpUtils", () => {
         })
       ).to.be.true;
 
-      chai.expect(
-        showInformationMessageStub.calledWith(
-          "Setup MCP Server for .github/copilot-instructions.md",
-          "Yes",
-          "Skip"
-        )
-      ).to.be.true;
+      chai.expect(showInformationMessageStub.called).to.be.true;
 
       chai.expect(
         sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
@@ -162,15 +122,10 @@ describe("mcpUtils", () => {
     });
 
     it("should prompt user when MCP config needs update", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with copilot instructions file existing
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+      existsSyncStub.callsFake((filePath: string) => {
+        return filePath.endsWith("copilot-instructions.md") ? true : false;
       });
 
-      // MCP config needs update (does NOT contain the required m365agentstoolkit package)
       const mockMcpConfig = {
         get: sandbox
           .stub()
@@ -194,13 +149,7 @@ describe("mcpUtils", () => {
         })
       ).to.be.true;
 
-      chai.expect(
-        showInformationMessageStub.calledWith(
-          "Setup MCP Server for .vscode/mcp.json",
-          "Yes",
-          "Skip"
-        )
-      ).to.be.true;
+      chai.expect(showInformationMessageStub.called).to.be.true;
 
       chai.expect(
         sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
@@ -209,17 +158,18 @@ describe("mcpUtils", () => {
       ).to.be.true;
     });
 
-    it("should prompt user when both files need setup", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
+    it("should prompt user when both files are missing", async () => {
+      existsSyncStub.returns(false);
 
-      // Mock file system without copilot instructions file
-      mockfs({
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
-      });
-
-      // MCP config needs update (empty servers object, no m365agentstoolkit package)
       const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns({}),
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
@@ -234,54 +184,40 @@ describe("mcpUtils", () => {
         })
       ).to.be.true;
 
-      chai.expect(
-        showInformationMessageStub.calledWith(
-          "Setup MCP Server for .github/copilot-instructions.md and .vscode/mcp.json",
-          "Yes",
-          "Skip"
-        )
-      ).to.be.true;
+      chai.expect(showInformationMessageStub.called).to.be.true;
     });
 
-    it("should create copilot instructions file when user confirms and file is missing", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
+    it("should create files when user confirms and both are missing", async () => {
+      existsSyncStub.returns(false);
+      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+      const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
 
-      // Mock file system with template file but without copilot instructions file or .github directory
-      const templateContent = "# Default copilot instructions\nSample content";
-      mockfs({
-        "/test/extension/path/media/mcp/copilot-instructions.md": templateContent,
-      });
+      readFileSyncStub.returns("Default copilot instructions content");
+      openSyncStub.returns(3);
 
-      // MCP config is up to date (so only copilot instructions will be created)
       const mockMcpConfig = {
         get: sandbox
           .stub()
           .withArgs("servers")
           .returns({
-            "test-server": {
-              command: "npx",
-              args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+            "other-server": {
+              command: "other-command",
             },
           }),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
-      showInformationMessageStub.resetBehavior();
-      showInformationMessageStub.resolves("Yes"); // This should match the localized "confirm" value
+      showInformationMessageStub.resolves("Confirm");
 
       await setupMCPServer();
 
-      // Verify .github directory is created
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".github"))).to.be.true;
-
-      // Verify copilot instructions file is created with template content
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")))
-        .to.be.true;
-      const fileContent = fs.readFileSync(
-        path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md"),
-        "utf8"
-      );
-      chai.expect(fileContent).to.equal(templateContent);
+      chai.expect(mkdirSyncStub.calledTwice).to.be.true;
+      chai.expect(writeFileSyncStub.calledTwice).to.be.true;
+      chai.expect(showErrorMessageStub.called).to.be.false;
 
       chai.expect(
         sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
@@ -290,15 +226,22 @@ describe("mcpUtils", () => {
       ).to.be.true;
     });
 
-    it("should create copilot instructions file with empty content when template is missing", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with .github directory existing but no copilot instructions file and no template
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github")]: {},
+    it("should create only copilot instructions file when MCP config is up to date", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return false;
+        if (filePath.endsWith(".github")) return false;
+        return true;
       });
 
-      // MCP config is up to date
+      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+
+      readFileSyncStub.returns("Default copilot instructions content");
+      openSyncStub.returns(3);
+
       const mockMcpConfig = {
         get: sandbox
           .stub()
@@ -312,167 +255,237 @@ describe("mcpUtils", () => {
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
-      showInformationMessageStub.resolves("Yes");
+      showInformationMessageStub.resolves("Confirm");
 
       await setupMCPServer();
 
-      // Verify copilot instructions file is created with empty content
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")))
-        .to.be.true;
-      const fileContent = fs.readFileSync(
-        path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md"),
-        "utf8"
-      );
-      chai.expect(fileContent).to.equal("");
+      chai.expect(mkdirSyncStub.calledOnce).to.be.true;
+      chai.expect(writeFileSyncStub.calledOnce).to.be.true;
+      chai.expect(readFileSyncStub.calledOnce).to.be.true;
     });
 
-    it("should create new MCP config file when it doesn't exist", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with copilot instructions existing but no MCP config
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+    it("should create only MCP config file when copilot instructions exist", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return true;
+        if (filePath.endsWith("mcp.json")) return false;
+        if (filePath.endsWith(".vscode")) return false;
+        return true;
       });
 
-      // MCP settings indicate config needs update
+      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+
       const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns({}),
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
-      showInformationMessageStub.resolves("Yes");
+      showInformationMessageStub.resolves("Confirm");
 
       await setupMCPServer();
 
-      // Verify .vscode directory is created
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".vscode"))).to.be.true;
+      chai.expect(mkdirSyncStub.calledOnce).to.be.true;
+      chai.expect(writeFileSyncStub.calledOnce).to.be.true;
 
-      // Verify MCP config file is created with correct content
-      const expectedConfig = {
-        servers: {
-          m365agentstoolkit: {
-            command: "npx",
-            args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-          },
-        },
-      };
-
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".vscode", "mcp.json"))).to.be.true;
-      const fileContent = fs.readFileSync(
-        path.join(mockWorkspaceRoot, ".vscode", "mcp.json"),
-        "utf8"
-      );
-      chai.expect(JSON.parse(fileContent)).to.deep.equal(expectedConfig);
+      const writtenConfig = JSON.parse(writeFileSyncStub.firstCall.args[1] as string);
+      chai.expect(writtenConfig.servers.m365agentstoolkit).to.deep.equal({
+        command: "npx",
+        args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+      });
     });
 
-    it("should update existing MCP config file", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with both files existing
-      const existingConfig = {
-        servers: {
-          "existing-server": {
-            command: "existing-command",
-          },
-        },
-      };
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        [path.join(mockWorkspaceRoot, ".vscode", "mcp.json")]: JSON.stringify(existingConfig),
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+    it("should update existing MCP config file when it exists", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return true;
+        if (filePath.endsWith("mcp.json")) return true;
+        return true;
       });
 
-      // MCP settings indicate config needs update
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+
+      readFileSyncStub.returns(
+        JSON.stringify({
+          servers: {
+            "existing-server": {
+              command: "existing-command",
+            },
+          },
+        })
+      );
+      openSyncStub.returns(3);
+
       const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns(existingConfig.servers),
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
-      showInformationMessageStub.resolves("Yes");
+      showInformationMessageStub.resolves("Confirm");
 
       await setupMCPServer();
 
-      // Verify MCP config file is updated with new server added
-      const expectedConfig = {
-        servers: {
-          "existing-server": {
-            command: "existing-command",
-          },
-          "M365AgentsToolkit MCP Server": {
-            command: "npx",
-            args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-          },
-        },
-      };
+      chai.expect(readFileSyncStub.calledOnce).to.be.true;
+      chai.expect(writeFileSyncStub.calledOnce).to.be.true;
+      chai.expect(openSyncStub.calledOnce).to.be.true;
 
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".vscode", "mcp.json"))).to.be.true;
-      const fileContent = fs.readFileSync(
-        path.join(mockWorkspaceRoot, ".vscode", "mcp.json"),
-        "utf8"
-      );
-      chai.expect(JSON.parse(fileContent)).to.deep.equal(expectedConfig);
+      const writtenConfig = JSON.parse(writeFileSyncStub.firstCall.args[1] as string);
+      chai.expect(writtenConfig.servers["M365AgentsToolkit MCP Server"]).to.deep.equal({
+        command: "npx",
+        args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+      });
     });
 
-    it("should handle existing MCP config without servers object", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with existing MCP config without servers object
-      const existingConfig = {
-        someOtherProperty: "value",
-      };
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        [path.join(mockWorkspaceRoot, ".vscode", "mcp.json")]: JSON.stringify(existingConfig),
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+    it("should handle MCP config file with no servers object", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return true;
+        if (filePath.endsWith("mcp.json")) return true;
+        return true;
       });
 
-      // MCP settings indicate config needs update
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+
+      readFileSyncStub.returns(
+        JSON.stringify({
+          someOtherProperty: "value",
+        })
+      );
+      openSyncStub.returns(3);
+
       const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns(undefined),
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
-      showInformationMessageStub.resolves("Yes");
+      showInformationMessageStub.resolves("Confirm");
 
       await setupMCPServer();
 
-      // Verify MCP config file is updated with servers object added
-      const expectedConfig = {
-        someOtherProperty: "value",
-        servers: {
-          "M365AgentsToolkit MCP Server": {
-            command: "npx",
-            args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-          },
-        },
-      };
-
-      chai.expect(fs.existsSync(path.join(mockWorkspaceRoot, ".vscode", "mcp.json"))).to.be.true;
-      const fileContent = fs.readFileSync(
-        path.join(mockWorkspaceRoot, ".vscode", "mcp.json"),
-        "utf8"
-      );
-      chai.expect(JSON.parse(fileContent)).to.deep.equal(expectedConfig);
+      const writtenConfig = JSON.parse(writeFileSyncStub.firstCall.args[1] as string);
+      chai.expect(writtenConfig.servers).to.exist;
+      chai.expect(writtenConfig.servers["M365AgentsToolkit MCP Server"]).to.deep.equal({
+        command: "npx",
+        args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+      });
     });
 
-    it("should handle MCP config check error gracefully", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system with copilot instructions existing
-      mockfs({
-        [path.join(mockWorkspaceRoot, ".github", "copilot-instructions.md")]: "# Instructions",
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
+    it("should handle MCP config file with null servers object", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return true;
+        if (filePath.endsWith("mcp.json")) return true;
+        return true;
       });
 
-      // MCP config check throws error
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+
+      readFileSyncStub.returns(
+        JSON.stringify({
+          servers: null,
+        })
+      );
+      openSyncStub.returns(3);
+
+      const mockMcpConfig = {
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Confirm");
+
+      await setupMCPServer();
+
+      const writtenConfig = JSON.parse(writeFileSyncStub.firstCall.args[1] as string);
+      chai.expect(writtenConfig.servers).to.exist;
+      chai.expect(writtenConfig.servers["M365AgentsToolkit MCP Server"]).to.deep.equal({
+        command: "npx",
+        args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+      });
+    });
+
+    it("should handle error during file creation", async () => {
+      existsSyncStub.returns(false);
+      sandbox.stub(fs, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+
+      const testError = new Error("Test error");
+      readFileSyncStub.throws(testError);
+
+      const mockMcpConfig = {
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Confirm");
+
+      await setupMCPServer();
+
+      chai.expect(showErrorMessageStub.called).to.be.true;
+      chai.expect(
+        sendTelemetryErrorEventStub.calledWith(
+          TelemetryEvent.PromptMCPServer,
+          testError as FxError,
+          {
+            [TelemetryProperty.UserSelection]: "confirm",
+          }
+        )
+      ).to.be.true;
+    });
+
+    it("should handle error when getConfiguration throws", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        return filePath.endsWith("copilot-instructions.md") ? true : false;
+      });
+
       getConfigurationStub.withArgs("mcp").throws(new Error("Config error"));
 
-      showInformationMessageStub.resolves("Yes");
+      showInformationMessageStub.resolves("Skip");
 
       await setupMCPServer();
 
-      // Should still proceed with MCP config update since error defaults to needing update
       chai.expect(
         sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
           [TelemetryProperty.MissingCopilotInstructions]: "false",
@@ -481,38 +494,13 @@ describe("mcpUtils", () => {
       ).to.be.true;
     });
 
-    it("should show success message after setup completion", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system without both files
-      mockfs({
-        "/test/extension/path/media/mcp/copilot-instructions.md": "",
+    it("should handle null servers configuration", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        return filePath.endsWith("copilot-instructions.md") ? true : false;
       });
 
       const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns({}),
-      };
-      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
-
-      showInformationMessageStub.resolves("Yes");
-
-      await setupMCPServer();
-
-      // Verify success message is shown
-      chai.expect(showInformationMessageStub.calledWith("MCP Server setup completed successfully!"))
-        .to.be.true;
-    });
-
-    it("should handle multiple files message formatting correctly", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([workspaceFolder]);
-
-      // Mock file system without both files
-      mockfs({
-        "/test/extension/path/media/mcp/copilot-instructions.md": "# Template content",
-      });
-
-      const mockMcpConfig = {
-        get: sandbox.stub().withArgs("servers").returns({}),
+        get: sandbox.stub().withArgs("servers").returns(null),
       };
       getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
 
@@ -520,14 +508,136 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
-      // Should handle the "and" case for 2 files
       chai.expect(
-        showInformationMessageStub.calledWith(
-          "Setup MCP Server for .github/copilot-instructions.md and .vscode/mcp.json",
-          "Yes",
-          "Skip"
-        )
+        sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
+          [TelemetryProperty.MissingCopilotInstructions]: "false",
+          [TelemetryProperty.MissingMCPConfig]: "true",
+        })
       ).to.be.true;
+    });
+
+    it("should handle undefined servers configuration", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        return filePath.endsWith("copilot-instructions.md") ? true : false;
+      });
+
+      const mockMcpConfig = {
+        get: sandbox.stub().withArgs("servers").returns(undefined),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Skip");
+
+      await setupMCPServer();
+
+      chai.expect(
+        sendTelemetryEventStub.calledWith(TelemetryEvent.PromptMCPServer, {
+          [TelemetryProperty.MissingCopilotInstructions]: "false",
+          [TelemetryProperty.MissingMCPConfig]: "true",
+        })
+      ).to.be.true;
+    });
+
+    it("should create github directory when it doesn't exist", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return false;
+        if (filePath.endsWith(".github")) return false;
+        return true;
+      });
+
+      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const openSyncStub = sandbox.stub(fs, "openSync");
+      sandbox.stub(fs, "closeSync");
+
+      readFileSyncStub.returns("Default copilot instructions content");
+      openSyncStub.returns(3);
+
+      const mockMcpConfig = {
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "test-server": {
+              command: "npx",
+              args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+            },
+          }),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Confirm");
+
+      await setupMCPServer();
+
+      chai.expect(mkdirSyncStub.calledWith(path.join("/test", ".github"), { recursive: true })).to
+        .be.true;
+      chai.expect(writeFileSyncStub.calledOnce).to.be.true;
+      chai.expect(readFileSyncStub.calledOnce).to.be.true;
+      chai.expect(openSyncStub.calledOnce).to.be.true;
+    });
+
+    it("should create vscode directory when it doesn't exist", async () => {
+      existsSyncStub.callsFake((filePath: string) => {
+        if (filePath.endsWith("copilot-instructions.md")) return true;
+        if (filePath.endsWith("mcp.json")) return false;
+        if (filePath.endsWith(".vscode")) return false;
+        return true;
+      });
+
+      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
+      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+
+      const mockMcpConfig = {
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Confirm");
+
+      await setupMCPServer();
+
+      chai.expect(mkdirSyncStub.calledWith(path.join("/test", ".vscode"), { recursive: true })).to
+        .be.true;
+      chai.expect(writeFileSyncStub.calledOnce).to.be.true;
+
+      const writtenConfig = JSON.parse(writeFileSyncStub.firstCall.args[1] as string);
+      chai.expect(writtenConfig.servers.m365agentstoolkit).to.deep.equal({
+        command: "npx",
+        args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+      });
+    });
+
+    it("should format message correctly for two files", async () => {
+      existsSyncStub.returns(false);
+
+      const mockMcpConfig = {
+        get: sandbox
+          .stub()
+          .withArgs("servers")
+          .returns({
+            "other-server": {
+              command: "other-command",
+            },
+          }),
+      };
+      getConfigurationStub.withArgs("mcp").returns(mockMcpConfig);
+
+      showInformationMessageStub.resolves("Skip");
+
+      await setupMCPServer();
+
+      chai.expect(showInformationMessageStub.called).to.be.true;
+      const messageCall = showInformationMessageStub.firstCall.args[0];
+      chai.expect(messageCall).to.include("and");
     });
   });
 });

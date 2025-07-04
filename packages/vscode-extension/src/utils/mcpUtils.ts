@@ -5,21 +5,20 @@ import * as util from "util";
 import * as vscode from "vscode";
 import * as path from "path";
 import fs from "fs-extra";
-import { context } from "../globalVariables";
+import { context, workspaceUri } from "../globalVariables";
 import { localize } from "./localizeUtils";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
+import { FxError } from "@microsoft/teamsfx-api";
 
 /**
  * Setup MCP Server by checking for required files and prompting user to create them if missing
  */
 export async function setupMCPServer(): Promise<void> {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders || workspaceFolders.length === 0) {
-    return;
+  if (!workspaceUri) {
+    return; // No workspace opened
   }
-
-  const workspaceRoot = workspaceFolders[0].uri.fsPath;
+  const workspaceRoot = workspaceUri.path;
 
   // Check which files are missing
   const copilotInstructionsPath = path.join(workspaceRoot, ".github", "copilot-instructions.md");
@@ -67,13 +66,26 @@ export async function setupMCPServer(): Promise<void> {
         return; // User chose to skip setup
       }
 
-      if (missingCopilotInstructions) {
-        createCopilotInstructionsFile(workspaceRoot, copilotInstructionsPath);
+      try {
+        if (missingCopilotInstructions) {
+          createCopilotInstructionsFile(workspaceRoot, copilotInstructionsPath);
+        }
+
+        if (missingMcpConfig) {
+          updateMCPConfigFile(workspaceRoot, mcpConfigPath);
+        }
+      } catch (error) {
+        const errorMessage = util.format(
+          localize("teamstoolkit.mcpUtils.setupMcpServer.errorMessage"),
+          (error as Error).toString()
+        );
+        void vscode.window.showErrorMessage(errorMessage);
+        ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.PromptMCPServer, error as FxError, {
+          [TelemetryProperty.UserSelection]: "confirm",
+        });
+        return; // Exit if there was an error creating files
       }
 
-      if (missingMcpConfig) {
-        updateMCPConfigFile(workspaceRoot, mcpConfigPath);
-      }
       const successMessage = localize("teamstoolkit.mcpUtils.setupMcpServer.successMessage");
       void vscode.window.showInformationMessage(successMessage);
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.PromptMCPServer, {
@@ -90,7 +102,6 @@ function createCopilotInstructionsFile(
   copilotInstructionsPath: string
 ): void {
   const githubDir = path.join(workspaceRoot, ".github");
-
   // Create .github directory if it doesn't exist
   if (!fs.existsSync(githubDir)) {
     fs.mkdirSync(githubDir, { recursive: true });
@@ -102,14 +113,16 @@ function createCopilotInstructionsFile(
     "media/mcp",
     "copilot-instructions.md"
   );
-  let defaultContent = "";
 
-  if (fs.existsSync(templatePath)) {
-    defaultContent = fs.readFileSync(templatePath, "utf8");
-  }
-
+  const defaultContent = fs.readFileSync(templatePath, "utf8");
   // Create copilot-instructions.md file with default content
-  fs.writeFileSync(copilotInstructionsPath, defaultContent, "utf8");
+  const fd = fs.openSync(
+    copilotInstructionsPath,
+    fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_RDWR,
+    0o600
+  );
+  fs.writeFileSync(fd, defaultContent, "utf8");
+  fs.closeSync(fd);
 }
 
 /**
@@ -151,16 +164,10 @@ function updateMCPConfigFile(workspaceRoot: string, mcpConfigPath: string): void
       args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
     };
 
-    fs.writeFileSync(mcpConfigPath, JSON.stringify(config, null, 2), "utf8");
+    const fd = fs.openSync(mcpConfigPath, fs.constants.O_RDWR, 0o600);
+    fs.writeFileSync(fd, JSON.stringify(config, null, 2), "utf8");
+    fs.closeSync(fd);
   }
-
-  // const obj = {
-  //   name: "M365 Agents Toolkit MCP Server",
-  //   command: "npx",
-  //   args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-  // };
-  // const link = `vscode:mcp/install?${encodeURIComponent(JSON.stringify(obj))}`;
-  // void vscode.commands.executeCommand("vscode.open", vscode.Uri.parse(link));
 }
 
 /**

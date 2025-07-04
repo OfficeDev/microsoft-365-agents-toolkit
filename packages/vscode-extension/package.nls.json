@@ -651,5 +651,6 @@
   "teamstoolkit.mcpUtils.setupMcpServer.message": "Setup M365 Agents Toolkit MCP server? (This will create or update %s in your workspace)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "Confirm",
   "teamstoolkit.mcpUtils.setupMcpServer.skip": "Skip",
-  "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "Successfully setup M365 Agents Toolkit MCP server configuration."
+  "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "Successfully setup M365 Agents Toolkit MCP server configuration.",
+  "teamstoolkit.mcpUtils.setupMcpServer.errorMessage": "Failed to setup M365 Agents Toolkit MCP server configuration. Error: %s"
 }
