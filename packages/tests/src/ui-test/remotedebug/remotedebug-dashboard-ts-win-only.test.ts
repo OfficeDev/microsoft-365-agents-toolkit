@@ -10,6 +10,7 @@ import {
   RemoteDebugTestContext,
   provisionProject,
   deployProject,
+  setSkuNameToStandard,
 } from "./remotedebugContext";
 import {
   execCommandIfExist,
@@ -21,6 +22,7 @@ import {
 } from "../../utils/playwrightOperation";
 import { Env } from "../../utils/env";
 import { it } from "../../utils/it";
+import { VSBrowser } from "vscode-extension-tester";
 
 describe("Remote debug Tests", function () {
   this.timeout(Timeout.testAzureCase);
@@ -65,7 +67,10 @@ describe("Remote debug Tests", function () {
       author: "v-ivanchen@microsoft.com",
     },
     async function () {
+      const driver = VSBrowser.instance.driver;
       await createNewProject("dashboard", appName, { lang: Lang.TS });
+      await setSkuNameToStandard(projectPath);
+      await driver.sleep(Timeout.shortTimeWait);
       await provisionProject(appName, projectPath);
       await deployProject(projectPath);
       const teamsAppId = await remoteDebugTestContext.getTeamsAppId(
