@@ -1094,7 +1094,8 @@ export async function createNewProject(
 
   // Input App Name
   console.log("input appName: ", appName);
-  if ((await input.getTitle()) === "Application Name") {
+  const inputTitle = await input.getTitle();
+  if (!inputTitle || inputTitle === "Application Name") {
     await input.setText(appName);
     await driver.sleep(Timeout.input);
     await input.confirm();
