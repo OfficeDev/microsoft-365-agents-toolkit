@@ -95,7 +95,7 @@ describe("Remote debug Tests", function () {
         }
       );
       await driver.sleep(Timeout.longTimeWait);
-      await validateEchoBot(page);
+      await validateEchoBot(page, { botCommand: "Hi" });
     }
   );
 });

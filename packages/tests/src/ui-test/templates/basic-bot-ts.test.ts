@@ -94,7 +94,7 @@ describe("Local Debug Tests", function () {
             }
           );
           await localDebugTestContext.validateLocalStateForBot();
-          await validateEchoBot(page);
+          await validateEchoBot(page, { botCommand: "Hi" });
         }
 
         // cli preview
@@ -116,7 +116,7 @@ describe("Local Debug Tests", function () {
             }
           );
           await localDebugTestContext.validateLocalStateForBot();
-          await validateEchoBot(page);
+          await validateEchoBot(page, { botCommand: "Hi" });
           successFlagForLocal = true;
         }
       } catch (error) {
@@ -187,7 +187,7 @@ describe("Local Debug Tests", function () {
           }
         );
         await driver.sleep(Timeout.longTimeWait);
-        await validateEchoBot(page);
+        await validateEchoBot(page, { botCommand: "Hi" });
         successFlagForRemote = true;
       } catch (error) {
         //Close the folder and cleanup local sample project

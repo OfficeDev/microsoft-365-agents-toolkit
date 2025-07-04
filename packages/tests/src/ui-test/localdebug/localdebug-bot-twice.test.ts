@@ -137,7 +137,7 @@ describe("Local Debug Tests", function () {
         }
       );
       await localDebugTestContext.validateLocalStateForBot();
-      await validateEchoBot(page);
+      await validateEchoBot(page, { botCommand: "Hi" });
     }
   );
 });
