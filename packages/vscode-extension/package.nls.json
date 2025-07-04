@@ -648,9 +648,9 @@
   "teamstoolkit.m365.needSignIn.message": "You need to sign in your Microsoft 365 account.",
   "teamstoolkit.handeler.addAuthConfig.notification": "Microsoft 365 Agents Toolkit has successfully updated your project configuration (teamsapp.yaml and teamsapp.local.yaml) files with added action to support authentication flow. You can proceed to remote provision.",
   "teamstoolkit.handeler.addAuthConfig.notification.provision": "Provision",
-  "teamstoolkit.mcpUtils.setupMcpServer.message": "Setup M365 Agents Toolkit MCP server? (This will create or update %s in your workspace)",
+  "teamstoolkit.mcpUtils.setupMcpServer.message": "Set up M365 Agents Toolkit MCP server? (This will create or update %s in your workspace)",
   "teamstoolkit.mcpUtils.setupMcpServer.confirm": "Confirm",
   "teamstoolkit.mcpUtils.setupMcpServer.skip": "Skip",
-  "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "Successfully setup M365 Agents Toolkit MCP server configuration.",
-  "teamstoolkit.mcpUtils.setupMcpServer.errorMessage": "Failed to setup M365 Agents Toolkit MCP server configuration. Error: %s"
+  "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "M365 Agents Toolkit MCP server configured successfully.",
+  "teamstoolkit.mcpUtils.setupMcpServer.errorMessage": "Failed to configure M365 Agents Toolkit MCP server. Error: %s"
 }
