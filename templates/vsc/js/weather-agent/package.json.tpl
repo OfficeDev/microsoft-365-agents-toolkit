@@ -25,12 +25,11 @@
         "url": "https://github.com"
     },
     "dependencies": {
-        "@azure/openai": "2.0.0",
-        "@langchain/core": "0.3.56",
-        "@langchain/langgraph": "0.2.72",
-        "@langchain/openai": "0.5.10",
-        "@microsoft/agents-hosting": "0.4.1",
-        "express": "5.1.0",
+        "@azure/openai": "^2.0.0",
+        "@langchain/langgraph": "^0.2.66",
+        "@langchain/openai": "^0.5.6",
+        "@microsoft/agents-hosting": "^0.2.14",
+        "express": "^5.0.1"
         "zod": "3.24.4"
     },
     "devDependencies": {
