@@ -31,7 +31,7 @@
         "@langchain/openai": "^0.5.6",
         "@microsoft/agents-hosting": "^0.2.14",
         "express": "^5.0.1",
-        "zod": "3.24.4"
+        "zod": "3.25.67"
     },
     "devDependencies": {
         "@types/express": "^5.0.0",
@@ -41,5 +41,10 @@
         "shx": "^0.3.3",
         "ts-node": "^10.4.0",
         "typescript": "^5.5.4"
+    },
+    "overrides": {
+        "**": {
+            "zod": "3.25.67"
+        }
     }
 }
