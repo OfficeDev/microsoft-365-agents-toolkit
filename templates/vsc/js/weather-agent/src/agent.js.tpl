@@ -9,7 +9,7 @@ const { getWeatherTool } = require("./tools/getWeatherTool");
 
 const weatherAgent = new AgentApplicationBuilder().build();
 
-weatherAgent.conversationUpdate(
+weatherAgent.onConversationUpdate(
   "membersAdded",
   async (context) => {
     await context.sendActivity(
@@ -55,7 +55,7 @@ Respond in JSON format with the following JSON schema, and do not use markdown i
     "content": "{The content of the response, may be plain text, or JSON based adaptive card}"
 }`);
 
-weatherAgent.activity(ActivityTypes.Message, async (context, state) => {
+weatherAgent.onActivity(ActivityTypes.Message, async (context, state) => {
   const llmResponse = await agent.invoke(
     {
       messages: [sysMessage, new HumanMessage(context.activity.text)],
