@@ -1,6 +1,6 @@
 {
     "version": "0.0.0-rc",
-    "localVersion": "5.0.3-rc.1",
+    "localVersion": "5.0.3-rc.2",
     "tagPrefix": "templates@",
     "tagListURL": "https://github.com/OfficeDev/TeamsFx/releases/download/template-tag-list/template-tags.txt",
     "templateDownloadBaseURL": "https://github.com/OfficeDev/TeamsFx/releases/download",
