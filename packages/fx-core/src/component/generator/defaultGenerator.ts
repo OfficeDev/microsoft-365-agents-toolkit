@@ -10,7 +10,6 @@ import {
   IGenerator,
   Inputs,
   ok,
-  Platform,
   Result,
 } from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
@@ -66,7 +65,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       const templatePath = templateInfo.subFolder
         ? path.join(destinationPath, templateInfo.subFolder)
         : destinationPath;
-      await this.scaffolding(context, templateInfo, templatePath, actionContext, inputs);
+      await this.scaffolding(context, inputs, templateInfo, templatePath, actionContext);
     }
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);
@@ -97,10 +96,10 @@ export class DefaultTemplateGenerator implements IGenerator {
 
   private async scaffolding(
     context: Context,
+    inputs: Inputs,
     templateInfo: TemplateInfo,
     destinationPath: string,
-    actionContext?: ActionContext,
-    inputs?: Inputs
+    actionContext?: ActionContext
   ): Promise<void> {
     const name = templateInfo.templateName;
     const language = convertToLangKey(templateInfo.language) ?? commonTemplateName;
@@ -127,7 +126,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       [TelemetryProperty.TemplateName]: templateName,
     });
 
-    const templateMetadata = getAllTemplatesOnPlatform(inputs?.platform || Platform.CLI).find(
+    const templateMetadata = getAllTemplatesOnPlatform(inputs.platform).find(
       (t) => t.name === name
     );
     const folderName =
@@ -140,7 +139,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       language: language,
       destination: destinationPath,
       logProvider: context.logProvider,
-      platform: inputs!.platform,
+      platform: inputs.platform,
       fileNameReplaceFn: (fileName, fileData) =>
         renderTemplateFileName(fileName, fileData, replaceMap)
           .replace(/\\/g, "/")

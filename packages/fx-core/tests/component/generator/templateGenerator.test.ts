@@ -63,7 +63,7 @@ describe("TemplateGenerator", () => {
     scaffoldingSpy = sandbox.spy(DefaultTemplateGenerator.prototype, <any>"scaffolding");
     sandbox.stub(Generator, "generate").resolves();
     inputs = {
-      platform: Platform.VSCode,
+      platform: Platform.VS,
       [QuestionNames.AppName]: randomAppName(),
       [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.JS,
     } as Inputs;
@@ -84,9 +84,9 @@ describe("TemplateGenerator", () => {
 
       assert.isTrue(res?.isOk());
       assert.isTrue(scaffoldingSpy.calledOnce);
-      assert.equal((scaffoldingSpy.args[0][1] as TemplateInfo).templateName, templateName);
+      assert.equal((scaffoldingSpy.args[0][2] as TemplateInfo).templateName, templateName);
       assert.equal(
-        (scaffoldingSpy.args[0][1] as TemplateInfo).language,
+        (scaffoldingSpy.args[0][2] as TemplateInfo).language,
         inputs?.[QuestionNames.ProgrammingLanguage] || ProgrammingLanguage.JS
       );
     });
