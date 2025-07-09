@@ -3515,7 +3515,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Acquiring Microsoft 365 title with the app package...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Acquisition deu titre Microsoft 365 avec le package d’application...]]></Val>
+            <Val><![CDATA[Acquisition des titre Microsoft 365 avec le package d’application...]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Acquiring M365 title with the app package.]]></Val>
