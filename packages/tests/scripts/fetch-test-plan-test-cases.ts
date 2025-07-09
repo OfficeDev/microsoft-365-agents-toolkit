@@ -123,37 +123,81 @@ async function run() {
 
               //if (tags && tags.includes("VSCUSE")) {
               const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
+              const regex =
+                /(<step\s[\s\S]*?<\/step>|<compref id="\d+" ref="\d+">)/gi;
               if (typeof steps === "string") {
-                const stepBlocks = steps.match(/<step[\s\S]*?<\/step>/gi) || [];
+                const stepBlocks = steps.match(regex) || [];
 
-                stepBlocks.forEach((stepBlock, idx) => {
-                  const paramMatch = stepBlock.match(
-                    /<parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i
-                  );
-                  let text = "";
-                  if (paramMatch && paramMatch[1]) {
-                    const html = paramMatch[1]
-                      .replace(/&lt;/g, "<")
-                      .replace(/&gt;/g, ">");
-                    const pMatch =
-                      html.match(/<p>([\s\S]*?)<\/p>/i) ||
-                      html.match(/<P>([\s\S]*?)<\/P>/i);
-                    if (pMatch && pMatch[1]) {
-                      text = pMatch[1].replace(/<[^>]+>/g, "").trim();
+                const getStepDetails = async (
+                  stepBlocks: string[],
+                  outputLines: string[]
+                ) => {
+                  for (const stepBlock of stepBlocks) {
+                    const paramMatch = stepBlock.match(
+                      /<parameterizedString[^>]*>([\s\S]*?)<\/parameterizedString>/i
+                    );
+                    let text = "";
+                    if (paramMatch && paramMatch[1]) {
+                      const html = paramMatch[1]
+                        .replace(/&lt;/g, "<")
+                        .replace(/&gt;/g, ">");
+                      const pMatch =
+                        html.match(/<p>([\s\S]*?)<\/p>/i) ||
+                        html.match(/<P>([\s\S]*?)<\/P>/i);
+                      if (pMatch && pMatch[1]) {
+                        text = pMatch[1].replace(/<[^>]+>/g, "").trim();
+                      }
+                      if (!text) {
+                        const match =
+                          stepBlock.match(/<p>([\s\S]*?)<\/p>/i) ||
+                          stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
+                        if (match && match[1]) {
+                          text = match[1].replace(/<[^>]+>/g, "").trim();
+                        }
+                      }
+                      if (text) {
+                        outputLines.push(text);
+                      }
+                      continue;
+                    }
+
+                    const comprefMatch = stepBlock.match(
+                      /<compref id="\d+" ref="(\d+)">/i
+                    );
+                    if (comprefMatch && comprefMatch[1]) {
+                      const url = `https://msazure.visualstudio.com/_apis/wit/workItems/${comprefMatch[1]}`;
+                      console.log(
+                        `Fetching shared step work item from URL: ${url}`
+                      );
+                      try {
+                        // Use the Azure AD token for authentication
+                        const response = await fetch(url, {
+                          headers: {
+                            Authorization: `Bearer ${token.token}`,
+                            "Content-Type": "application/json",
+                          },
+                        });
+                        if (!response.ok) {
+                          console.error(
+                            `Failed to fetch work item: shared step ${comprefMatch[1]}, status: ${response.status}`
+                          );
+                          return;
+                        }
+                        const workItem = (await response.json()) as WorkItem;
+                        const steps =
+                          workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
+                        const stepBlocksChild = steps.match(regex) || [];
+                        await getStepDetails(stepBlocksChild, outputLines);
+                      } catch (err) {
+                        console.error(
+                          `Error fetching shared step work item ${comprefMatch[1]}:`,
+                          err
+                        );
+                      }
                     }
                   }
-                  if (!text) {
-                    const match =
-                      stepBlock.match(/<p>([\s\S]*?)<\/p>/i) ||
-                      stepBlock.match(/<P>([\s\S]*?)<\/P>/i);
-                    if (match && match[1]) {
-                      text = match[1].replace(/<[^>]+>/g, "").trim();
-                    }
-                  }
-                  if (text) {
-                    outputLines.push(text);
-                  }
-                });
+                };
+                await getStepDetails(stepBlocks, outputLines);
                 const filePath = path.join(outputDir, `${tc.testCase.id}.txt`);
                 fs.writeFileSync(filePath, outputLines.join("\n"), {
                   encoding: "utf8",
