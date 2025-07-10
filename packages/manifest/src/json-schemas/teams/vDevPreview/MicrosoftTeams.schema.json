@@ -497,7 +497,7 @@
                             "properties": {
                                 "scopes": {
                                     "type": "array",
-                                    "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a group chat (groupChat), an experience scoped to an individual user alone (personal) OR within Copilot surfaces. These options are non-exclusive.",
+                                    "description": "Specifies the scopes for which the command list is valid",
                                     "maxItems": 4,
                                     "items": {
                                       "enum": [
@@ -1421,6 +1421,19 @@
                             "bot"
                           ],
                           "description": "The type of the Custom Engine Agent. Currently only type bot is supported."
+                        },
+                        "disclaimer": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "description": "The message shown to users before they interact with this application. ",
+                              "maxLength": 500
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ]
                         }
                       },
                       "required": [
@@ -1815,7 +1828,9 @@
                         "type": "array",
                         "items": {
                           "$ref": "#/definitions/extensionRibbonsArrayFixedControlItem"
-                        }
+                        },
+                        "minItems": 1,
+                        "maxItems": 1
                     },
                     "spamPreProcessingDialog": {
                         "$ref": "#/definitions/extensionRibbonsSpamPreProcessingDialog"
@@ -2661,6 +2676,9 @@
                                 "required": [
                                     "progId"
                                 ]
+                            },
+                            "xllCustomFunctions": {
+                                "$ref": "#/definitions/extensionXllCustomFunctions"
                             }
                         },
                         "minProperties": 1
@@ -2720,9 +2738,6 @@
                             "icon",
                             "highResolutionIcon"
                         ]
-                    },
-                    "xllCustomFunctions": {
-                        "$ref": "#/definitions/extensionXllCustomFunctions"
                     }
                 },
                 "minProperties": 1,
@@ -2997,6 +3012,11 @@
                 "description": "Specifies the custom text that appears in the preprocessing dialog.",
                 "maxLength": 250
               },
+              "spamNeverShowAgainOption": {
+                "type": "boolean",
+                "description": "Indicating if the developer will allow the user to permanently bypass the PreProcessing Dialog for this add-in. \"false\" is the default value if not specified.",
+                "default": "false"
+              },
               "spamReportingOptions": {
                 "type": "object",
                 "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a 1:1 or group chat, or in an experience scoped to an individual user alone. These options are non-exclusive.",
@@ -3014,6 +3034,12 @@
                       "minItems": 1,
                       "maxItems": 5
                     }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [ "radio", "checkbox" ],
+                    "description": "Can be set to \"radio\" or \"checkbox\". This determines if Radio Buttons or checkboxes are used for the options. \"checkbox\" is the default if this value is not specified.",
+                    "default": "checkbox"
                   }
                 },
                 "required": [

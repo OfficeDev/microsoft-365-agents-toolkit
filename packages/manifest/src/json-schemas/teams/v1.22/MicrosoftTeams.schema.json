@@ -10,7 +10,7 @@
     "manifestVersion": {
       "type": "string",
       "description": "The version of the schema this manifest is using. This schema version supports extending Teams apps to other parts of the Microsoft 365 ecosystem. More info at https://aka.ms/extendteamsapps.",
-      "const": "1.21"
+      "const": "1.22"
     },
     "version": {
       "type": "string",
@@ -865,6 +865,35 @@
           "type": "string",
           "description": "Resource url of app for acquiring auth token for SSO.",
           "maxLength": 2048
+        },
+        "nestedAppAuthInfo": {
+          "type": "array",
+          "maxItems": 5,
+          "description": "By including this property, an NAA token based on its contents will be prefetched when the tab is loaded.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "redirectUri": {
+                "type": "string",
+                "description": "Represents the nested app's valid redirect URI (always a base origin)."
+              },
+              "scopes": {
+                "type": "array",
+                "description": "Represents the stringified list of scopes the access token requested requires. Order must match that of the proceeding NAA request in the app.",
+                "maxItems": 20,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "claims": {
+                "type": "string",
+                "description": "An optional JSON formatted object of client capabilities that represents if the resource server is CAE capable. Do not use an empty string for this value. If unsupported, keep the field undefined. If supported, use the following string exactly: '{\"access_token\":{\"xms_cc\":{\"values\":[\"CP1\"]}}}'. More info on client capabilities here: https://learn.microsoft.com/en-us/entra/identity-platform/claims-challenge?tabs=dotnet#how-to-communicate-client-capabilities-to-microsoft-entra-id ",
+                "minLength": 1
+              }
+            },
+            "required": [ "redirectUri", "scopes" ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
@@ -917,12 +946,45 @@
               "templateText": {
                 "type": "string",
                 "maxLength": 128
+              },
+              "allowedIconIds": {
+                "type": "array",
+                "description": "An array containing valid icon IDs per activity type.",
+                "maxItems": 50,
+                "items": {
+                  "type": "string"
+                }
               }
             },
             "required": [
               "type",
               "description",
               "templateText"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "activityIcons": {
+          "type": "array",
+          "description": "Specify the customized icons that your app can post to a users activity feed",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 64,
+                "description": "Represents the unique icon ID."
+              },
+              "iconFile": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "Represents the relative path to the icon image. Image should be size 32x32."
+              }
+            },
+            "required": [
+              "id",
+              "iconFile"
             ],
             "additionalProperties": false
           }
@@ -1164,6 +1226,19 @@
                   "bot"
                 ],
                 "description": "The type of the Custom Engine Agent. Currently only type bot is supported."
+              },
+              "disclaimer": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "The message shown to users before they interact with this application. ",
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "text"
+                ]
               }
             },
             "required": [
@@ -1615,7 +1690,9 @@
             "type": "array",
             "items": {
               "$ref": "#/definitions/extensionRibbonsArrayFixedControlItem"
-            }
+            },
+            "minItems": 1,
+            "maxItems": 1
           },
           "spamPreProcessingDialog": {
             "$ref": "#/definitions/extensionRibbonsSpamPreProcessingDialog"
@@ -2372,6 +2449,11 @@
           "description": "Specifies the custom text that appears in the preprocessing dialog.",
           "maxLength": 250
         },
+        "spamNeverShowAgainOption": {
+          "type": "boolean",
+          "description": "Indicating if the developer will allow the user to permanently bypass the PreProcessing Dialog for this add-in. \"false\" is the default value if not specified.",
+          "default": "false"
+        },
         "spamReportingOptions": {
           "type": "object",
           "description": "Specifies whether the bot offers an experience in the context of a channel in a team, in a 1:1 or group chat, or in an experience scoped to an individual user alone. These options are non-exclusive.",
@@ -2389,6 +2471,12 @@
                 "minItems": 1,
                 "maxItems": 5
               }
+            },
+            "type": {
+              "type": "string",
+              "enum": [ "radio", "checkbox" ],
+              "description": "Can be set to \"radio\" or \"checkbox\". This determines if Radio Buttons or checkboxes are used for the options. \"checkbox\" is the default if this value is not specified.",
+              "default": "checkbox"
             }
           },
           "required": [
