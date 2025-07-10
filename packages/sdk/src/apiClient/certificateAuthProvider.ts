@@ -10,6 +10,7 @@ import { formatString } from "../util/utils";
 
 /**
  * Provider that handles Certificate authentication
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 
 export class CertificateAuthProvider implements AuthProvider {
@@ -20,6 +21,7 @@ export class CertificateAuthProvider implements AuthProvider {
    * @param { SecureContextOptions } certOption - information about the cert used in http requests
    *
    * @throws {@link ErrorCode|InvalidParameter} - when cert option is empty.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(certOption: SecureContextOptions) {
     if (certOption && Object.keys(certOption).length !== 0) {
@@ -41,6 +43,7 @@ export class CertificateAuthProvider implements AuthProvider {
    * @returns Updated axios request config.
    *
    * @throws {@link ErrorCode|InvalidParameter} - when custom httpsAgent in the request has duplicate properties with certOption provided in constructor.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public AddAuthenticationInfo(config: AxiosRequestConfig): Promise<AxiosRequestConfig> {
     if (!config.httpsAgent) {
@@ -73,6 +76,7 @@ export class CertificateAuthProvider implements AuthProvider {
  * @returns Instance of SecureContextOptions
  *
  * @throws {@link ErrorCode|InvalidParameter} - when any parameter is empty
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  */
 export function createPemCertOption(
@@ -113,6 +117,7 @@ export function createPemCertOption(
  * @returns Instance of SecureContextOptions
  *
  * @throws {@link ErrorCode|InvalidParameter} - when any parameter is empty
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  */
 export function createPfxCertOption(
