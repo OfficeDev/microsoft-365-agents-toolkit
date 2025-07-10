@@ -65,9 +65,7 @@ export async function listAPITreeInfo(
   includeFilters?: string[],
   excludeFilters?: string[]
 ): Promise<KiotaTreeResult> {
-  if (process.env.KIOTA_BINARY_PATH) {
-    setKiotaBinaryPath();
-  }
+  setKiotaBinaryPath();
   const treeInfo = await getKiotaTree({
     includeFilters: includeFilters,
     descriptionPath: specPath,
