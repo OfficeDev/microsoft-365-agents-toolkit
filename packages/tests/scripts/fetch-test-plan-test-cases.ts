@@ -186,7 +186,8 @@ async function run() {
                         const workItem = (await response.json()) as WorkItem;
                         const steps =
                           workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
-                        const stepBlocksChild = steps.match(regex) || [];
+                        const stepBlocksChild =
+                          steps.match(stepOrComprefRegex) || [];
                         await getStepDetails(stepBlocksChild, outputLines);
                       } catch (err) {
                         console.error(
