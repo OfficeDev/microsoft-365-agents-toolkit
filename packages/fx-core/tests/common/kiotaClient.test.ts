@@ -16,6 +16,114 @@ describe("kiotaClient", () => {
     sandbox.restore();
   });
 
+  describe("setKiotaBinaryPath", () => {
+    let originalPkg: any;
+
+    beforeEach(() => {
+      originalPkg = (process as any).pkg;
+    });
+
+    afterEach(() => {
+      if (originalPkg !== undefined) {
+        (process as any).pkg = originalPkg;
+      } else {
+        delete (process as any).pkg;
+      }
+      delete process.env.KIOTA_BINARY_PATH;
+    });
+
+    it("should set binary location from KIOTA_BINARY_PATH environment variable", async () => {
+      process.env.KIOTA_BINARY_PATH = "/custom/path/to/kiota";
+      delete (process as any).pkg;
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const searchDescriptionStub = sinon.stub().resolves({});
+
+      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          setKiotaConfig: setKiotaConfigStub,
+          searchDescription: searchDescriptionStub,
+          "@noCallThru": true,
+        },
+      });
+
+      await searchOpenAPISpec("test-query");
+
+      assert(setKiotaConfigStub.calledOnce);
+      assert(setKiotaConfigStub.calledWith({ binaryLocation: "/custom/path/to/kiota" }));
+    });
+
+    it("should set binary location to kiota-bin directory when running inside pkg", async () => {
+      delete process.env.KIOTA_BINARY_PATH;
+      (process as any).pkg = {};
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const searchDescriptionStub = sinon.stub().resolves({});
+
+      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          setKiotaConfig: setKiotaConfigStub,
+          searchDescription: searchDescriptionStub,
+          "@noCallThru": true,
+        },
+        path: {
+          join: sinon.stub().returns("/home/user/kiota-bin"),
+          "@noCallThru": true,
+        },
+        os: {
+          homedir: sinon.stub().returns("/home/user"),
+          "@noCallThru": true,
+        },
+      });
+
+      await searchOpenAPISpec("test-query");
+
+      assert(setKiotaConfigStub.calledOnce);
+      assert(setKiotaConfigStub.calledWith({ binaryLocation: "/home/user/kiota-bin" }));
+    });
+
+    it("should not call setKiotaConfig when not in pkg and no env var set", async () => {
+      delete process.env.KIOTA_BINARY_PATH;
+      delete (process as any).pkg;
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const searchDescriptionStub = sinon.stub().resolves({});
+
+      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          setKiotaConfig: setKiotaConfigStub,
+          searchDescription: searchDescriptionStub,
+          "@noCallThru": true,
+        },
+      });
+
+      await searchOpenAPISpec("test-query");
+
+      assert(setKiotaConfigStub.notCalled);
+    });
+
+    it("should prioritize KIOTA_BINARY_PATH over pkg detection", async () => {
+      process.env.KIOTA_BINARY_PATH = "/env/path/to/kiota";
+      (process as any).pkg = {};
+
+      const setKiotaConfigStub = sinon.stub().resolves();
+      const searchDescriptionStub = sinon.stub().resolves({});
+
+      const { searchOpenAPISpec } = proxyquire("../../src/common/kiotaClient", {
+        "@microsoft/kiota": {
+          setKiotaConfig: setKiotaConfigStub,
+          searchDescription: searchDescriptionStub,
+          "@noCallThru": true,
+        },
+      });
+
+      await searchOpenAPISpec("test-query");
+
+      assert(setKiotaConfigStub.calledOnce);
+      assert(setKiotaConfigStub.calledWith({ binaryLocation: "/env/path/to/kiota" }));
+    });
+  });
+
   it("happy path: searchOpenAPISpec", async () => {
     const mockSearchResult = {
       "api-spec": {
