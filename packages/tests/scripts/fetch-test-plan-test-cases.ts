@@ -181,7 +181,7 @@ async function run() {
                           console.error(
                             `Failed to fetch work item: shared step ${comprefMatch[1]}, status: ${response.status}`
                           );
-                          return;
+                          continue;
                         }
                         const workItem = (await response.json()) as WorkItem;
                         const steps =
