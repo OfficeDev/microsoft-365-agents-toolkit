@@ -123,10 +123,10 @@ async function run() {
 
               //if (tags && tags.includes("VSCUSE")) {
               const steps = workItem.fields?.["Microsoft.VSTS.TCM.Steps"];
-              const regex =
+              const stepOrComprefRegex =
                 /(<step\s[\s\S]*?<\/step>|<compref id="\d+" ref="\d+">)/gi;
               if (typeof steps === "string") {
-                const stepBlocks = steps.match(regex) || [];
+                const stepBlocks = steps.match(stepOrComprefRegex) || [];
 
                 const getStepDetails = async (
                   stepBlocks: string[],
