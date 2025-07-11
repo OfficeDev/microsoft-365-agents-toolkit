@@ -200,6 +200,10 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D21.Convert.toTeamsManifestV1D21,
     TeamsManifestV1D21.Convert.teamsManifestV1D21ToJson,
   ],
+  "1.22": [
+    TeamsManifestV1D22.Convert.toTeamsManifestV1D22,
+    TeamsManifestV1D22.Convert.teamsManifestV1D22ToJson,
+  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
