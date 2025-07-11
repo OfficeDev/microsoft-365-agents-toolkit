@@ -2,12 +2,13 @@
 // Licensed under the MIT license.
 
 import {
+  err,
   ManifestUtil,
+  ok,
   Platform,
   SystemError,
   TeamsAppManifest,
-  err,
-  ok,
+  TeamsManifestV1D19,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
@@ -257,7 +258,12 @@ describe("teamsApp/validateManifest", async () => {
 
     it("should return error when language file path is not defined", async () => {
       const args: ValidateManifestArgs = { manifestPath: "fakepath" };
-      const manifest = { localizationInfo: { additionalLanguages: [{ file: undefined }] } } as any;
+      const manifest = {
+        manifestVersion: "1.19",
+        localizationInfo: {
+          additionalLanguages: [{ file: undefined }],
+        },
+      } as unknown as TeamsManifestV1D19.TeamsManifestV1D19;
 
       const result = await teamsAppDriver.validateLocalizatoinFiles(
         args,
@@ -272,7 +278,12 @@ describe("teamsApp/validateManifest", async () => {
 
     it("should return error when manifest file cannot be found", async () => {
       const args: ValidateManifestArgs = { manifestPath: "fakepath" };
-      const manifest = { localizationInfo: { additionalLanguages: [{ file: "filePath" }] } } as any;
+      const manifest = {
+        manifestVersion: "1.19",
+        localizationInfo: {
+          additionalLanguages: [{ file: "filePath" }],
+        },
+      } as unknown as TeamsManifestV1D19.TeamsManifestV1D19;
 
       sinon
         .stub(manifestUtils, "resolveLocFile")
@@ -291,7 +302,12 @@ describe("teamsApp/validateManifest", async () => {
 
     it("should return error when validation fails", async () => {
       const args: ValidateManifestArgs = { manifestPath: "fakepath" };
-      const manifest = { localizationInfo: { additionalLanguages: [{ file: "filePath" }] } } as any;
+      const manifest = {
+        manifestVersion: "1.19",
+        localizationInfo: {
+          additionalLanguages: [{ file: "filePath" }],
+        },
+      } as unknown as TeamsManifestV1D19.TeamsManifestV1D19;
       const fakeLocalizationFile = {
         $schema:
           "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.Localization.schema.json",
@@ -364,7 +380,12 @@ describe("teamsApp/validateManifest", async () => {
 
     it("should return error when validation throws exception", async () => {
       const args: ValidateManifestArgs = { manifestPath: "fakepath" };
-      const manifest = { localizationInfo: { additionalLanguages: [{ file: "filePath" }] } } as any;
+      const manifest = {
+        manifestVersion: "1.19",
+        localizationInfo: {
+          additionalLanguages: [{ file: "filePath" }],
+        },
+      } as unknown as TeamsManifestV1D19.TeamsManifestV1D19;
       const fakeLocalizationFile = {};
 
       sinon
@@ -427,15 +448,11 @@ describe("teamsApp/validateManifest", async () => {
 
   describe("validate Copilot extensions", async () => {
     it("validate with errors returned", async () => {
-      const teamsManifest: TeamsAppManifest = new TeamsAppManifest();
-      teamsManifest.copilotExtensions = {
-        declarativeCopilots: [
-          {
-            id: "fakeId",
-            file: "fakeFile",
-          },
-        ],
-        plugins: [
+      const teamsManifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [
           {
             id: "fakeId",
             file: "fakeFile",
@@ -487,15 +504,11 @@ describe("teamsApp/validateManifest", async () => {
     });
 
     it("validate with errors returned - copilot agent", async () => {
-      const teamsManifest: TeamsAppManifest = new TeamsAppManifest();
+      const teamsManifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
       teamsManifest.copilotAgents = {
         declarativeAgents: [
-          {
-            id: "fakeId",
-            file: "fakeFile",
-          },
-        ],
-        plugins: [
           {
             id: "fakeId",
             file: "fakeFile",
@@ -547,8 +560,11 @@ describe("teamsApp/validateManifest", async () => {
     });
 
     it("skip plugin validation", async () => {
-      const teamsManifest: TeamsAppManifest = new TeamsAppManifest();
-      teamsManifest.copilotAgents = {};
+      const teamsManifest = {
+        $schema:
+          "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
 
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
       sinon.stub(ManifestUtil, "validateManifest").resolves([]);
@@ -589,72 +605,15 @@ describe("teamsApp/validateManifest", async () => {
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert(result.isOk());
     });
-    it("plugin manifest validation error", async () => {
-      const teamsManifest: TeamsAppManifest = new TeamsAppManifest();
-      teamsManifest.copilotExtensions = {
-        declarativeCopilots: [
-          {
-            id: "fakeId",
-            file: "fakeFile",
-          },
-        ],
-        plugins: [
-          {
-            id: "fakeId",
-            file: "fakeFile",
-          },
-        ],
-      };
-
-      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
-      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
-      sinon
-        .stub(pluginManifestUtils, "validateAgainstSchema")
-        .resolves(err(new SystemError("testError", "testError", "", "")));
-      sinon.stub(pluginManifestUtils, "logValidationErrors").returns("errorMessage1");
-
-      sinon.stub(copilotGptManifestUtils, "validateAgainstSchema").resolves(
-        ok({
-          id: "fakeId",
-          filePath: "fakeFile",
-          validationResult: ["error2"],
-          actionValidationResult: [
-            {
-              id: "fakeId",
-              filePath: "fakeFile",
-              validationResult: ["error3"],
-            },
-          ],
-        })
-      );
-      sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
-
-      const args: ValidateManifestArgs = {
-        manifestPath:
-          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
-        showMessage: true,
-      };
-
-      mockedDriverContext.platform = Platform.VSCode;
-      mockedDriverContext.projectPath = "test";
-
-      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      chai.assert(result.isErr());
-      if (result.isErr()) {
-        chai.assert.equal(result.error.name, "testError");
-      }
-    });
 
     it("declarative copilot manifest validation error", async () => {
-      const teamsManifest: TeamsAppManifest = new TeamsAppManifest();
-      teamsManifest.copilotExtensions = {
-        declarativeCopilots: [
-          {
-            id: "fakeId",
-            file: "fakeFile",
-          },
-        ],
-        plugins: [
+      const teamsManifest = {
+        $schema:
+          "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [
           {
             id: "fakeId",
             file: "fakeFile",

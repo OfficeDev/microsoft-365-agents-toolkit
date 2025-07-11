@@ -395,6 +395,9 @@ export class ManifestUtils {
   ): Promise<Result<TeamsManifest, FxError>> {
     let manifest: TeamsManifest;
     try {
+      if (!(await fs.pathExists(manifestTemplatePath))) {
+        return err(new FileNotFoundError("ManifestUtils", manifestTemplatePath));
+      }
       manifest = await AppManifestUtils.readTeamsManifest(manifestTemplatePath);
     } catch (error) {
       return err(new JSONSyntaxError(manifestTemplatePath, error, "ManifestUtils"));
