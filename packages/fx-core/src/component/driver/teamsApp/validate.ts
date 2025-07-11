@@ -1,37 +1,40 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  Result,
-  FxError,
-  ok,
-  err,
-  Platform,
-  ManifestUtil,
-  Colors,
-  TeamsAppManifest,
-} from "@microsoft/teamsfx-api";
 import { hooks } from "@feathersjs/hooks/lib";
-import { Service } from "typedi";
-import { EOL } from "os";
+import {
+  Colors,
+  err,
+  FxError,
+  ManifestUtil,
+  ok,
+  Platform,
+  Result,
+  TeamsAppManifest,
+  TeamsManifest,
+  TeamsManifestV1D19,
+  TeamsManifestV1D5,
+} from "@microsoft/teamsfx-api";
 import { merge } from "lodash";
-import { StepDriver, ExecutionResult } from "../interface/stepDriver";
-import { DriverContext } from "../interface/commonArgs";
-import { WrapDriverContext } from "../util/wrapUtil";
-import { ValidateManifestArgs } from "./interfaces/ValidateManifestArgs";
-import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
-import { TelemetryPropertyKey } from "./utils/telemetry";
-import { AppStudioResultFactory } from "./results";
-import { AppStudioError } from "./errors";
-import { manifestUtils } from "./utils/ManifestUtils";
-import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
-import { HelpLinks } from "../../../common/constants";
-import { getAbsolutePath } from "../../utils/common";
-import { SummaryConstant } from "../../configManager/constant";
-import { InvalidActionInputError } from "../../../error/common";
+import { EOL } from "os";
 import path from "path";
+import semver from "semver";
+import { Service } from "typedi";
+import { HelpLinks } from "../../../common/constants";
+import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
+import { InvalidActionInputError } from "../../../error/common";
+import { SummaryConstant } from "../../configManager/constant";
+import { getAbsolutePath } from "../../utils/common";
+import { DriverContext } from "../interface/commonArgs";
+import { ExecutionResult, StepDriver } from "../interface/stepDriver";
+import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
+import { WrapDriverContext } from "../util/wrapUtil";
+import { AppStudioError } from "./errors";
+import { ValidateManifestArgs } from "./interfaces/ValidateManifestArgs";
+import { AppStudioResultFactory } from "./results";
 import { copilotGptManifestUtils } from "./utils/CopilotGptManifestUtils";
-import { pluginManifestUtils } from "./utils/PluginManifestUtils";
+import { manifestUtils } from "./utils/ManifestUtils";
+import { TelemetryPropertyKey } from "./utils/telemetry";
 
 const actionName = "teamsApp/validateManifest";
 
@@ -117,88 +120,63 @@ export class ValidateManifestDriver implements StepDriver {
     telemetryProperties[TelemetryPropertyKey.localizationValidationErrors] =
       localizationFilesValidationRes.value.error.map((r: string) => r.replace(/\//g, "")).join(";");
 
-    let declarativeCopilotValidationResult;
-    let pluginValidationResult;
-    let pluginPath = "";
-    if (manifest.copilotExtensions || manifest.copilotAgents) {
-      // plugin
-      const plugins = manifest.copilotExtensions
-        ? manifest.copilotExtensions.plugins
-        : manifest.copilotAgents!.plugins;
-      if (plugins?.length && plugins[0].file) {
-        pluginPath = path.join(path.dirname(manifestPath), plugins[0].file);
+    const manifestVersion = semver.coerce(manifest.manifestVersion);
+    let declarativeAgents: TeamsManifestV1D19.DeclarativeAgentRef[] | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.19.0")) {
+      declarativeAgents = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).copilotAgents
+        ?.declarativeAgents;
+    }
+    // Declarative Copilot
+    let declarativeAgentValidationResult;
+    if (declarativeAgents?.length && declarativeAgents[0].file) {
+      const declarativeCopilotPath = path.join(
+        path.dirname(manifestPath),
+        declarativeAgents[0].file
+      );
 
-        const pluginValidationRes = await pluginManifestUtils.validateAgainstSchema(
-          plugins[0],
-          pluginPath,
-          context
-        );
-        if (pluginValidationRes.isErr()) {
-          return err(pluginValidationRes.error);
-        } else {
-          pluginValidationResult = pluginValidationRes.value;
-          telemetryProperties[TelemetryPropertyKey.pluginValidationErrors] =
-            pluginValidationResult?.validationResult
-              .map((r: string) => r.replace(/\//g, ""))
-              .join(";");
-        }
-      }
+      const declarativeCopilotValidationRes = await copilotGptManifestUtils.validateAgainstSchema(
+        declarativeAgents[0],
+        declarativeCopilotPath,
+        context
+      );
+      if (declarativeCopilotValidationRes.isErr()) {
+        return err(declarativeCopilotValidationRes.error);
+      } else {
+        declarativeAgentValidationResult = declarativeCopilotValidationRes.value;
+        telemetryProperties[TelemetryPropertyKey.gptValidationErrors] =
+          declarativeAgentValidationResult?.validationResult
+            .map((r: string) => r.replace(/\//g, ""))
+            .join(";");
 
-      // Declarative Copilot
-      const declarativeCopilots = manifest.copilotExtensions
-        ? manifest.copilotExtensions.declarativeCopilots
-        : manifest.copilotAgents!.declarativeAgents;
-      if (declarativeCopilots?.length && declarativeCopilots[0].file) {
-        const declarativeCopilotPath = path.join(
-          path.dirname(manifestPath),
-          declarativeCopilots[0].file
-        );
-
-        const declarativeCopilotValidationRes = await copilotGptManifestUtils.validateAgainstSchema(
-          declarativeCopilots[0],
-          declarativeCopilotPath,
-          context
-        );
-        if (declarativeCopilotValidationRes.isErr()) {
-          return err(declarativeCopilotValidationRes.error);
-        } else {
-          declarativeCopilotValidationResult = declarativeCopilotValidationRes.value;
-          telemetryProperties[TelemetryPropertyKey.gptValidationErrors] =
-            declarativeCopilotValidationResult?.validationResult
-              .map((r: string) => r.replace(/\//g, ""))
-              .join(";");
-
-          if (declarativeCopilotValidationResult.actionValidationResult.length > 0) {
-            let errors: string[] = [];
-            for (
-              let index = 0;
-              index < declarativeCopilotValidationResult.actionValidationResult.length;
-              index++
-            ) {
-              errors = errors.concat(
-                declarativeCopilotValidationResult.actionValidationResult[
-                  index
-                ].validationResult.map((r: string) => index.toString() + ":" + r.replace(/\//g, ""))
-              );
-            }
-
-            telemetryProperties[`${TelemetryPropertyKey.gptActionValidationErrors}`] =
-              errors.join(";");
+        if (declarativeAgentValidationResult.actionValidationResult.length > 0) {
+          let errors: string[] = [];
+          for (
+            let index = 0;
+            index < declarativeAgentValidationResult.actionValidationResult.length;
+            index++
+          ) {
+            errors = errors.concat(
+              declarativeAgentValidationResult.actionValidationResult[index].validationResult.map(
+                (r: string) => index.toString() + ":" + r.replace(/\//g, "")
+              )
+            );
           }
+
+          telemetryProperties[`${TelemetryPropertyKey.gptActionValidationErrors}`] =
+            errors.join(";");
         }
       }
     }
 
     const actionErrorCount =
-      declarativeCopilotValidationResult?.actionValidationResult
-        .filter((o) => o.filePath !== pluginPath)
+      declarativeAgentValidationResult?.actionValidationResult
+        .filter((o) => o.filePath !== "")
         .reduce((acc, { validationResult }) => acc + validationResult.length, 0) ?? 0;
 
     const allErrorCount =
       manifestValidationResult.length +
       localizationFilesValidationRes.value.error.length +
-      (declarativeCopilotValidationResult?.validationResult.length ?? 0) +
-      (pluginValidationResult?.validationResult.length ?? 0) +
+      (declarativeAgentValidationResult?.validationResult.length ?? 0) +
       actionErrorCount;
 
     if (allErrorCount > 0) {
@@ -254,20 +232,9 @@ export class ValidateManifestDriver implements StepDriver {
             });
           });
         }
-        if (declarativeCopilotValidationResult) {
+        if (declarativeAgentValidationResult) {
           const validationMessage = copilotGptManifestUtils.logValidationErrors(
-            declarativeCopilotValidationResult,
-            context.platform,
-            pluginPath
-          );
-          if (validationMessage) {
-            outputMessage.push(...(validationMessage as Array<{ content: string; color: Colors }>));
-          }
-        }
-
-        if (pluginValidationResult) {
-          const validationMessage = pluginManifestUtils.logValidationErrors(
-            pluginValidationResult,
+            declarativeAgentValidationResult,
             context.platform
           );
           if (validationMessage) {
@@ -312,20 +279,9 @@ export class ValidateManifestDriver implements StepDriver {
             EOL +
             localizationErrors;
         }
-        if (declarativeCopilotValidationResult) {
+        if (declarativeAgentValidationResult) {
           const validationMessage = copilotGptManifestUtils.logValidationErrors(
-            declarativeCopilotValidationResult,
-            context.platform,
-            pluginPath
-          ) as string;
-          if (validationMessage) {
-            outputMessage += EOL + validationMessage;
-          }
-        }
-
-        if (pluginValidationResult) {
-          const validationMessage = pluginManifestUtils.logValidationErrors(
-            pluginValidationResult,
+            declarativeAgentValidationResult,
             context.platform
           ) as string;
           if (validationMessage) {
@@ -399,19 +355,30 @@ export class ValidateManifestDriver implements StepDriver {
   public async validateLocalizatoinFiles(
     args: ValidateManifestArgs,
     context: WrapDriverContext,
-    manifest: TeamsAppManifest
+    manifest: TeamsManifest
   ): Promise<Result<{ error: string[]; filePath?: string }, FxError>> {
-    if (
-      manifest.localizationInfo?.additionalLanguages?.length == 0 &&
-      !manifest.localizationInfo?.defaultLanguageFile
-    ) {
+    const manifestVersion = semver.coerce(manifest.manifestVersion);
+    let additionalLanguages: TeamsManifestV1D5.AdditionalLanguage[] | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.5.0")) {
+      additionalLanguages = (manifest as TeamsManifestV1D5.TeamsManifestV1D5).localizationInfo
+        ?.additionalLanguages;
+    }
+    let defaultLanguageFile: string | undefined;
+    let defaultLanguageTag: string | undefined;
+    if (manifestVersion && semver.gte(manifestVersion, "1.19.0")) {
+      defaultLanguageTag = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).localizationInfo
+        ?.defaultLanguageTag;
+      defaultLanguageFile = (manifest as TeamsManifestV1D19.TeamsManifestV1D19).localizationInfo
+        ?.defaultLanguageFile;
+    }
+    if (additionalLanguages?.length == 0 && !defaultLanguageFile) {
       return ok({ error: [] });
     }
-    const languageList = manifest.localizationInfo?.additionalLanguages || [];
-    if (manifest.localizationInfo?.defaultLanguageFile) {
+    const languageList = additionalLanguages || [];
+    if (defaultLanguageFile && defaultLanguageTag) {
       languageList.push({
-        languageTag: manifest.localizationInfo.defaultLanguageTag,
-        file: manifest.localizationInfo.defaultLanguageFile,
+        languageTag: defaultLanguageTag,
+        file: defaultLanguageFile,
       });
     }
     for (const language of languageList) {

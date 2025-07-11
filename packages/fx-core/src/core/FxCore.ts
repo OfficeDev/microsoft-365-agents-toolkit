@@ -34,6 +34,7 @@ import {
   Site,
   Stage,
   TeamsAppInputs,
+  TeamsAppManifest,
   Tools,
   UserError,
   err,
@@ -72,6 +73,7 @@ import {
   projectTypeChecker,
 } from "../common/projectTypeChecker";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
+import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
 import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
 import {
@@ -94,6 +96,8 @@ import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHe
 import { buildAadManifest } from "../component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../component/driver/add/addWebPart";
 import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
+import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
+import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
@@ -121,7 +125,6 @@ import { ValidateManifestDriver } from "../component/driver/teamsApp/validate";
 import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateAppPackage";
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
-import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import "../component/feature/sso";
 import { SSO } from "../component/feature/sso";
 import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
@@ -138,6 +141,7 @@ import {
   injectAuthAction,
   listOperations,
 } from "../component/generator/openApiSpec/helper";
+import { TemplateNames } from "../component/generator/templates/templateNames";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { MosServiceEndpoint, MosServiceScope } from "../component/m365/serviceConstant";
@@ -203,9 +207,6 @@ import {
 } from "./middleware/utils/v3MigrationUtils";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
-import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
-import { TemplateNames } from "../component/generator/templates/templateNames";
-import { runForTypeSpecProject } from "../common/tools";
 
 export class FxCore {
   constructor(tools: Tools) {
@@ -1332,7 +1333,7 @@ export class FxCore {
     }
 
     const teamsAppId = manifestRes.value.id;
-    const properties = manifestUtils.parseCommonProperties(manifestRes.value);
+    const properties = manifestUtils.parseCommonProperties(manifestRes.value as TeamsAppManifest);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
     const result = await launchHelper.getLaunchUrl(hub, teamsAppId, properties, true);
