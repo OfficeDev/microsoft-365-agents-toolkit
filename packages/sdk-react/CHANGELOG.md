@@ -29,3 +29,7 @@ Initial release of the SDK for React Hook.
 
 # 3.1.2
 - Update peer dependency `@microsoft/teams-js` version to `^2.19.0`.
+
+
+# 4.0.3
+- Deprecation notice: This package will be deprecated by 2026-07. Users can follow the migration guide to migrate their apps.

@@ -5,7 +5,7 @@ import { tokens } from "@fluentui/react-components";
 
 /**
  * Interface for defining the class names of widget elements
- * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ * @deprecated This package will be deprecated by 2026-07.
  */
 export interface IWidgetClassNames {
   /**
@@ -81,7 +81,7 @@ interface BaseWidgetState {
  * The base component that provides basic functionality to create a widget.
  * @param P the type of props.
  * @param S the type of state.
- * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ * @deprecated This package will be deprecated by 2026-07.
  */
 export class BaseWidget<P, S> extends Component<P, S & BaseWidgetState> {
   /**

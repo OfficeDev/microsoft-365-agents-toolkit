@@ -1,5 +1,7 @@
 # TeamsFx SDK for TypeScript/JavaScript
 
+> This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+
 TeamsFx aims to reduce the developer tasks of leveraging Teams SSO and access to cloud resources down to single-line statements with "zero configuration".
 
 Use the library to:
