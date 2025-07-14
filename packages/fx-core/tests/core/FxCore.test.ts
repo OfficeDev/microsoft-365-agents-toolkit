@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import {
-  AuthType,
   ErrorType,
   ListAPIResult,
   SpecParser,
@@ -24,6 +23,7 @@ import {
   Stage,
   SystemError,
   TeamsAppManifest,
+  TeamsManifest,
   UserError,
   err,
   ok,
@@ -51,6 +51,7 @@ import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
 import { TelemetryEvent } from "../../src/common/telemetry";
+import * as CommonTools from "../../src/common/tools";
 import { MetadataV3, VersionSource, VersionState } from "../../src/common/versionMetadata";
 import {
   DriverDefinition,
@@ -67,6 +68,7 @@ import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
 import * as buildAadManifest from "../../src/component/driver/aad/utility/buildAadManifest";
 import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
+import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
@@ -96,7 +98,6 @@ import { environmentManager } from "../../src/core/environment";
 import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
 import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
 import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
-import * as createQuestions from "../../src/question/create";
 import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
@@ -121,12 +122,11 @@ import {
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
 } from "../../src/question/constants";
+import * as createQuestions from "../../src/question/create";
+import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
-import { TabCapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
-import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
-import * as CommonTools from "../../src/common/tools";
 
 const tools = new MockTools();
 
@@ -2330,7 +2330,7 @@ describe("previewWithManifest", () => {
 
   it("getLaunchUrl error", async () => {
     const appName = await mockV3Project();
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(new TeamsAppManifest()));
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok({} as TeamsManifest));
     sinon.stub(LaunchHelper.prototype, "getLaunchUrl").resolves(err({ foo: "bar" } as any));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
@@ -2351,7 +2351,7 @@ describe("previewWithManifest", () => {
 
   it("happy path", async () => {
     const appName = await mockV3Project();
-    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(new TeamsAppManifest()));
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok({} as TeamsManifest));
     sinon.stub(LaunchHelper.prototype, "getLaunchUrl").resolves(ok("test-url"));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
