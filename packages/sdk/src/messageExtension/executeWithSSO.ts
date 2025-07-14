@@ -84,6 +84,8 @@ function getSignInResponseForMessageExtensionWithAuthConfig(
 /**
  * execution in message extension with SSO token.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} authConfig - User custom the message extension authentication configuration.
  * @param {initiateLoginEndpoint} initiateLoginEndpoint - Login page for Teams to redirect to.
@@ -167,6 +169,8 @@ export async function executionWithTokenAndConfig(
 /**
  * Users execute query in message extension with SSO or access token.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} config - User custom the message extension authentication configuration.
  * @param {initiateLoginEndpoint} initiateLoginEndpoint - Login page for Teams to redirect to.
@@ -207,6 +211,8 @@ export async function handleMessageExtensionQueryWithSSO(
 
 /**
  * Users execute link query in message extension with SSO or access token.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @param {TurnContext} context - The context object for the current turn.
  * @param {OnBehalfOfCredentialAuthConfig} config - User custom the message extension authentication configuration.

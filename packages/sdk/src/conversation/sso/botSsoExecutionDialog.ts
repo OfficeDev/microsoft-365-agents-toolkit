@@ -27,6 +27,7 @@ let COMMAND_ROUTE_DIALOG = "CommandRouteDialog";
 
 /**
  * Sso execution dialog, use to handle sso command
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class BotSsoExecutionDialog extends ComponentDialog {
   private dedupStorage: Storage;
@@ -45,6 +46,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    * @param {@link OnBehalfOfCredentialAuthConfig} authConfig The authentication configuration.
    * @param {string} initiateLoginEndpoint Login URL for Teams to redirect to.
    * @param {string} dialogName custom dialog name
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(
     dedupStorage: Storage,
@@ -82,6 +84,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    * Add TeamsFxBotSsoCommandHandler instance
    * @param handler {@link BotSsoExecutionDialogHandler} callback function
    * @param triggerPatterns The trigger pattern
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void {
     const commandId = this.getCommandHash(triggerPatterns);
@@ -130,6 +133,7 @@ export class BotSsoExecutionDialog extends ComponentDialog {
    *
    * @param context The context object for the current turn.
    * @param accessor The instance of StatePropertyAccessor for dialog system.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public async run(context: TurnContext, accessor: AgentStatePropertyAccessor) {
     const dialogSet = new DialogSet(accessor);

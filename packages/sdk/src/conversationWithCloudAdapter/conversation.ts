@@ -20,6 +20,7 @@ import { DefaultBotSsoExecutionActivityHandler } from "../conversation/sso/defau
  *   - handle command and response.
  *   - send notification to varies targets (e.g., member, group, channel).
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @example
  * For command and response, you can register your commands through the constructor, or use the `registerCommand` and `registerCommands` API to add commands later.
  *
@@ -96,6 +97,7 @@ export class ConversationBot {
   /**
    * Create new instance of the `ConversationBot`.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * It's recommended to create your own adapter and storage for production environment instead of the default one.
    *
@@ -168,6 +170,7 @@ export class ConversationBot {
   /**
    * The request handler to integrate with web request.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param req - An incoming HTTP [Request](xref:botbuilder.Request).
    * @param res - The corresponding HTTP [Response](xref:botbuilder.Response).
    * @param logic - The additional function to handle bot context.

@@ -10,12 +10,16 @@ import { ErrorWithCode, ErrorCode, ErrorMessage } from "../core/errors";
 /**
  * Represent on-behalf-of flow to get user identity, and it is designed to be used in Azure Function or Bot scenarios.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @remarks
  * Can only be used in server side.
  */
 export class OnBehalfOfUserCredential implements TokenCredential {
   /**
    * Constructor of OnBehalfOfUserCredential
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    *
    * @remarks
    * Can Only works in in server side.
@@ -29,6 +33,9 @@ export class OnBehalfOfUserCredential implements TokenCredential {
 
   /**
    * Get access token from credential.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   *
    * @remarks
    * Can only be used in server side.
    */
@@ -43,6 +50,9 @@ export class OnBehalfOfUserCredential implements TokenCredential {
 
   /**
    * Get basic user info from SSO token.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   *
    * @remarks
    * Can only be used in server side.
    */

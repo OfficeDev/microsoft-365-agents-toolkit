@@ -8,6 +8,9 @@ import { formatString } from "../util/utils";
 
 /**
  * Users execute query with SSO or Access Token.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @remarks
  * Only works in in server side.
  */

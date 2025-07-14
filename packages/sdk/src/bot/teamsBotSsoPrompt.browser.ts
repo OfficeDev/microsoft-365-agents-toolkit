@@ -11,6 +11,7 @@ import { OnBehalfOfCredentialAuthConfig } from "../models/configuration";
  *
  * @remarks
  * Only works in in server side.
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface TeamsBotSsoPromptSettings {
   /**
@@ -80,6 +81,7 @@ export interface TeamsBotSsoPromptSettings {
  *      }
  * ]));
  * ```
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class TeamsBotSsoPrompt {
   /**
@@ -90,6 +92,7 @@ export class TeamsBotSsoPrompt {
    *
    * @throws {@link ErrorCode|InvalidParameter} when scopes is not a valid string or string array.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(
     authConfig: OnBehalfOfCredentialAuthConfig,
@@ -116,6 +119,7 @@ export class TeamsBotSsoPrompt {
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
    *
    * @returns A `Promise` representing the asynchronous operation.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public beginDialog(dc: DialogContext): Promise<DialogTurnResult> {
     return Promise.reject(
@@ -141,6 +145,7 @@ export class TeamsBotSsoPrompt {
    *
    * @throws {@link ErrorCode|ChannelNotSupported} when bot channel is not MS Teams.
    * @throws {@link ErrorCode|RuntimeNotSupported} when runtime is browser.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public continueDialog(dc: DialogContext): Promise<DialogTurnResult> {
     return Promise.reject(

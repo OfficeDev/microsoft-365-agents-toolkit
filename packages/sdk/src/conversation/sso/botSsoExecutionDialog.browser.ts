@@ -10,6 +10,7 @@ import { TeamsBotSsoPromptSettings } from "../../bot/teamsBotSsoPrompt.browser";
 
 /*
  * Sso execution dialog, use to handle sso command
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class BotSsoExecutionDialog {
   /**
@@ -17,6 +18,7 @@ export class BotSsoExecutionDialog {
    *
    * @remarks
    * Can Only works in in server side.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   constructor(
     dedupStorage: Storage,
@@ -42,6 +44,7 @@ export class BotSsoExecutionDialog {
    * Add TeamsFxBotSsoCommandHandler instance
    * @param handler {@link BotSsoExecutionDialogHandler} callback function
    * @param triggerPatterns The trigger pattern
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public addCommand(handler: BotSsoExecutionDialogHandler, triggerPatterns: TriggerPatterns): void {
     throw new ErrorWithCode(
@@ -55,6 +58,7 @@ export class BotSsoExecutionDialog {
    *
    * @param context The context object for the current turn.
    * @param accessor The instance of StatePropertyAccessor for dialog system.
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    */
   public run(context: TurnContext, accessor: AgentStatePropertyAccessor) {
     throw new ErrorWithCode(
