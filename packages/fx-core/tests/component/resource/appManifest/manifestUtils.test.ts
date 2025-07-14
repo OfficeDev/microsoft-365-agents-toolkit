@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { InputsWithProjectPath, ok, Platform, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import {
+  AppManifestUtils,
+  InputsWithProjectPath,
+  Platform,
+  TeamsAppManifest,
+  TeamsManifest,
+  TeamsManifestV1D14,
+} from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import fs from "fs-extra";
 import "mocha";
@@ -17,7 +24,7 @@ import { newEnvInfoV3 } from "../../../helpers";
 describe("getManifest V3", () => {
   const sandbox = sinon.createSandbox();
   let inputs: InputsWithProjectPath;
-  let manifest: TeamsAppManifest;
+  let manifest: TeamsManifest;
   const manifestTemplate = `{
       "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.14/MicrosoftTeams.schema.json",
       "manifestVersion": "1.14",
@@ -68,8 +75,8 @@ describe("getManifest V3", () => {
       platform: Platform.VSCode,
       projectPath: ".",
     };
-    manifest = JSON.parse(manifestTemplate) as TeamsAppManifest;
-    sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
+    manifest = TeamsManifestV1D14.Convert.toTeamsManifestV1D14(manifestTemplate);
+    // sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
   });
 
   afterEach(async () => {
@@ -80,15 +87,19 @@ describe("getManifest V3", () => {
     const envInfo = newEnvInfoV3();
     envInfo.envName = "dev";
     manifest.name.short = "${{MY_APP_NAME}}";
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    // sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves(manifest);
     const res = await manifestUtils.getManifestV3("", context);
     chai.assert.isTrue(res.isErr() && res.error instanceof MissingEnvironmentVariablesError);
   });
 
   it("getManifestV3 teams app id resolved", async () => {
-    const manifest = new TeamsAppManifest();
+    // const manifest = new TeamsAppManifest();
     manifest.id = uuid.v4();
-    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    // sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves(manifest);
     const res = await manifestUtils.getManifestV3("", context);
     chai.assert.isTrue(res.isOk());
   });
