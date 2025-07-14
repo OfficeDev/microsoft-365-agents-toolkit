@@ -17,7 +17,11 @@ import * as uuid from "uuid";
 import { createContext, setTools } from "../../../../src/common/globalVars";
 import { generateDriverContext } from "../../../../src/common/utils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { JSONSyntaxError, MissingEnvironmentVariablesError } from "../../../../src/error/common";
+import {
+  FileNotFoundError,
+  JSONSyntaxError,
+  MissingEnvironmentVariablesError,
+} from "../../../../src/error/common";
 import { MockTools } from "../../../core/utils";
 import { newEnvInfoV3 } from "../../../helpers";
 
@@ -76,7 +80,6 @@ describe("getManifest V3", () => {
       projectPath: ".",
     };
     manifest = TeamsManifestV1D14.Convert.toTeamsManifestV1D14(manifestTemplate);
-    // sandbox.stub(manifestUtils, "readAppManifest").resolves(ok(manifest));
   });
 
   afterEach(async () => {
@@ -87,17 +90,33 @@ describe("getManifest V3", () => {
     const envInfo = newEnvInfoV3();
     envInfo.envName = "dev";
     manifest.name.short = "${{MY_APP_NAME}}";
-    // sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves(manifest);
     const res = await manifestUtils.getManifestV3("", context);
     chai.assert.isTrue(res.isErr() && res.error instanceof MissingEnvironmentVariablesError);
   });
 
+  it("getManifestV3 - no manifest file", async () => {
+    const envInfo = newEnvInfoV3();
+    envInfo.envName = "dev";
+    manifest.name.short = "${{MY_APP_NAME}}";
+    sandbox.stub(fs, "pathExists").resolves(false);
+    const res = await manifestUtils.getManifestV3("", context);
+    chai.assert.isTrue(res.isErr() && res.error instanceof FileNotFoundError);
+  });
+
+  it("getManifestV3 - invalid JSON format", async () => {
+    const envInfo = newEnvInfoV3();
+    envInfo.envName = "dev";
+    manifest.name.short = "${{MY_APP_NAME}}";
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(AppManifestUtils, "readTeamsManifest").throws(new Error());
+    const res = await manifestUtils.getManifestV3("", context);
+    chai.assert.isTrue(res.isErr() && res.error instanceof JSONSyntaxError);
+  });
+
   it("getManifestV3 teams app id resolved", async () => {
-    // const manifest = new TeamsAppManifest();
     manifest.id = uuid.v4();
-    // sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(AppManifestUtils, "readTeamsManifest").resolves(manifest);
     const res = await manifestUtils.getManifestV3("", context);
