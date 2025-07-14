@@ -12,6 +12,9 @@ import { useTeams } from "./useTeams";
 import { Theme } from "@fluentui/react-components";
 import { useData } from "./useData";
 
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
 export type TeamsContextWithCredential = {
   /**
    * Instance of TeamsUserCredential.
@@ -50,6 +53,7 @@ export type TeamsContextWithCredential = {
  * @param authConfig - custom configuration to override default ones.
  * @returns TeamsContextWithCredential object
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @public
  */
 export function useTeamsUserCredential(
