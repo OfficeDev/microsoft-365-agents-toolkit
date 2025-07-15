@@ -1431,7 +1431,7 @@ describe("coordinator provision", () => {
     assert.isTrue(res.isOk());
   });
 
-  it("provision failed with check whether m365 tenant matched fail", async () => {
+  it("provision failed with check whether m365 tenant matched fail after user retry", async () => {
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
       provision: {
@@ -1511,6 +1511,175 @@ describe("coordinator provision", () => {
     assert.isTrue(res.isErr());
     if (res.isErr()) {
       assert.equal(res.error.name, "checkM365TenantError");
+    }
+  });
+  it("provision failed with getting m365 tenant id after user retry", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      provision: {
+        name: "configureApp",
+        driverDefs: [
+          {
+            uses: "arm/deploy",
+            with: undefined,
+          },
+          {
+            uses: "teamsApp/create",
+            with: undefined,
+          },
+        ],
+        resolvePlaceholders: () => {
+          return ["AZURE_SUBSCRIPTION_ID", "AZURE_RESOURCE_GROUP_NAME"];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(provisionUtils, "ensureSubscription").resolves(
+      ok({
+        subscriptionId: "mockSubId",
+        tenantId: "mockTenantId",
+        subscriptionName: "mockSubName",
+      })
+    );
+    sandbox.stub(provisionUtils, "ensureResourceGroup").resolves(
+      ok({
+        createNewResourceGroup: true,
+        name: "test-rg",
+        location: "East US",
+      })
+    );
+    sandbox
+      .stub(provisionUtils, "getM365TenantId")
+      .onFirstCall()
+      .resolves(
+        ok({
+          tenantIdInToken: "mockM365Tenant",
+          tenantUserName: "mockM365UserName",
+        })
+      )
+      .onSecondCall()
+      .resolves(err(new UserError("coordinator", "getM365TenantIdError", "msg", "msg")));
+    sandbox.stub(provisionUtils, "askForProvisionConsentV3").resolves(ok(undefined));
+    sandbox
+      .stub(provisionUtils, "ensureM365TenantMatchesV3")
+      .returns(err(new UserError("coordinator", "checkM365TenantError", "msg", "msg")));
+    sandbox.stub(tools.tokenProvider.azureAccountProvider, "getSelectedSubscription").resolves({
+      subscriptionId: "mockSubId",
+      tenantId: "mockTenantId",
+      subscriptionName: "mockSubName",
+    });
+    sandbox.stub(tools.tokenProvider.azureAccountProvider, "setSubscription").resolves();
+    sandbox.stub(tools.tokenProvider.m365TokenProvider, "signout").resolves();
+    sandbox.stub(tools.ui, "selectOption").callsFake(async (config) => {
+      if (config.name === "env") {
+        return ok({ type: "success", result: "dev" });
+      } else {
+        return ok({ type: "success", result: "" });
+      }
+    });
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("Continue"));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.provisionResources(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "getM365TenantIdError");
+    }
+  });
+  it("provision failed with user cancel after m365 tenant id mismatch", async () => {
+    const mockProjectModel: ProjectModel = {
+      version: "1.0.0",
+      provision: {
+        name: "configureApp",
+        driverDefs: [
+          {
+            uses: "arm/deploy",
+            with: undefined,
+          },
+          {
+            uses: "teamsApp/create",
+            with: undefined,
+          },
+        ],
+        resolvePlaceholders: () => {
+          return ["AZURE_SUBSCRIPTION_ID", "AZURE_RESOURCE_GROUP_NAME"];
+        },
+        execute: async (ctx: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+        resolveDriverInstances: mockedResolveDriverInstances,
+      },
+    };
+    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
+    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+    sandbox.stub(provisionUtils, "ensureSubscription").resolves(
+      ok({
+        subscriptionId: "mockSubId",
+        tenantId: "mockTenantId",
+        subscriptionName: "mockSubName",
+      })
+    );
+    sandbox.stub(provisionUtils, "ensureResourceGroup").resolves(
+      ok({
+        createNewResourceGroup: true,
+        name: "test-rg",
+        location: "East US",
+      })
+    );
+    sandbox.stub(provisionUtils, "getM365TenantId").resolves(
+      ok({
+        tenantIdInToken: "mockM365Tenant",
+        tenantUserName: "mockM365UserName",
+      })
+    );
+    sandbox.stub(provisionUtils, "askForProvisionConsentV3").resolves(ok(undefined));
+    sandbox
+      .stub(provisionUtils, "ensureM365TenantMatchesV3")
+      .returns(err(new UserError("coordinator", "checkM365TenantError", "msg", "msg")));
+    sandbox.stub(tools.tokenProvider.azureAccountProvider, "getSelectedSubscription").resolves({
+      subscriptionId: "mockSubId",
+      tenantId: "mockTenantId",
+      subscriptionName: "mockSubName",
+    });
+    sandbox.stub(tools.tokenProvider.azureAccountProvider, "setSubscription").resolves();
+    sandbox.stub(tools.tokenProvider.m365TokenProvider, "signout").resolves();
+    sandbox.stub(tools.ui, "selectOption").callsFake(async (config) => {
+      if (config.name === "env") {
+        return ok({ type: "success", result: "dev" });
+      } else {
+        return ok({ type: "success", result: "" });
+      }
+    });
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("Cancel"));
+    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: ".",
+      ignoreLockByUT: true,
+    };
+    const fxCore = new FxCore(tools);
+    const res = await fxCore.provisionResources(inputs);
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "UserCancel");
     }
   });
   it("provision failed with no subscription permission", async () => {
