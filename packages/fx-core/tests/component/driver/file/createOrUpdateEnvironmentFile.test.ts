@@ -913,5 +913,87 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
 
       chai.assert(result.isOk());
     });
+
+    it("should handle undefined ctx.ui and empty result values", async () => {
+      // Test with undefined ctx.ui
+      const argsWithUndefinedUI = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
+          AZURE_OPENAI_ENDPOINT: "${{ AZURE_OPENAI_ENDPOINT }}",
+        },
+      };
+      const contextWithoutUI = {
+        logProvider: new MockedLogProvider(),
+        projectPath: "/path/to/project",
+        ui: undefined,
+      } as any;
+
+      const resultWithUndefinedUI = await driver.askForOpenAIEnvironmentVariables(
+        contextWithoutUI,
+        argsWithUndefinedUI,
+        envOutput
+      );
+
+      chai.assert(resultWithUndefinedUI.isOk());
+      chai.assert.equal(envOutput.size, 0);
+      chai.assert.equal(
+        argsWithUndefinedUI.envs["AZURE_OPENAI_API_KEY"],
+        "${{ AZURE_OPENAI_API_KEY }}"
+      );
+      chai.assert.equal(
+        argsWithUndefinedUI.envs["AZURE_OPENAI_ENDPOINT"],
+        "${{ AZURE_OPENAI_ENDPOINT }}"
+      );
+
+      // Reset for next test
+      envOutput.clear();
+
+      // Test with empty result value
+      const argsWithEmptyResult = {
+        envs: {
+          AZURE_OPENAI_API_KEY: "${{ AZURE_OPENAI_API_KEY }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").resolves(ok({ result: "" }));
+
+      const resultWithEmptyValue = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        argsWithEmptyResult,
+        envOutput
+      );
+
+      chai.assert(resultWithEmptyValue.isOk());
+      chai.assert.equal(envOutput.size, 0);
+      chai.assert.equal(
+        argsWithEmptyResult.envs["AZURE_OPENAI_API_KEY"],
+        "${{ AZURE_OPENAI_API_KEY }}"
+      );
+    });
+
+    it("should validate AZURE_OPENAI_ENDPOINT input and return error for invalid endpoint format", async () => {
+      const args = {
+        envs: {
+          AZURE_OPENAI_ENDPOINT: "${{ AZURE_OPENAI_ENDPOINT }}",
+        },
+      };
+      sinon.stub(mockedDriverContext.ui!, "inputText").callsFake(async (options) => {
+        const validationResult = (options as any).validation!("ftp://invalid-endpoint"); // Simulate invalid endpoint
+        chai.assert.equal(
+          validationResult,
+          getLocalizedString(
+            "driver.file.createOrUpdateEnvironmentFile.OpenAIDeploymentEndpoint.validation"
+          )
+        );
+        return ok({ result: "ftp://invalid-endpoint" });
+      });
+
+      const result = await driver.askForOpenAIEnvironmentVariables(
+        mockedDriverContext,
+        args,
+        envOutput
+      );
+
+      chai.assert(result.isOk());
+    });
   });
 });
