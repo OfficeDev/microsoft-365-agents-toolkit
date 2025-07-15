@@ -457,7 +457,7 @@ class Coordinator {
 
           const checkM365TenatRes1 = provisionUtils.ensureM365TenantMatchesV3(
             tenantSwitchCheckActions,
-            m365tenantInfo?.tenantIdInToken
+            m365tenantInfo.tenantIdInToken
           );
 
           if (checkM365TenatRes1.isErr()) {
