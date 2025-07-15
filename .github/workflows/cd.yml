@@ -188,7 +188,7 @@ jobs:
 
       - name: Release RC VS templates to GitHub
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
-        uses: mini-bomba/create-github-release@v1.1.3
+        uses: mini-bomba/create-github-release@v1.2.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: "templates-vs@0.0.0-rc"
@@ -208,7 +208,7 @@ jobs:
           echo "VSTAG=templates-vs@$VS_VERSION" >> $GITHUB_OUTPUT
 
       - name: Release stable VS Templates to GitHub
-        uses: mini-bomba/create-github-release@v1.1.3
+        uses: mini-bomba/create-github-release@v1.2.0
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
