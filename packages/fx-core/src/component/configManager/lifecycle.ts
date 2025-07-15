@@ -101,8 +101,15 @@ export function resolveString(
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);
       }
-    } else {
+    } else if (envVar.includes("AZURE") || envVar.includes("OPENAI")) {
       if (envVal) {
+        resolved.push(envVar);
+        newVal = newVal.replace(matches[0], envVal);
+      }
+    } else {
+      if (!envVal) {
+        unresolved.push(envVar);
+      } else {
         resolved.push(envVar);
         newVal = newVal.replace(matches[0], envVal);
       }
