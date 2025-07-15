@@ -20,6 +20,7 @@ import {
   CreateProjectResult,
   CryptoProvider,
   DefaultApiSpecFolderName,
+  DefaultPluginManifestFileName,
   Func,
   FxError,
   IGenerator,
@@ -33,6 +34,7 @@ import {
   SharePointIDs,
   Site,
   Stage,
+  SystemError,
   TeamsAppInputs,
   TeamsAppManifest,
   Tools,
@@ -60,7 +62,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { getLocalizedString } from "../common/localizeUtils";
+import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import {
   getProjectMetadata,
@@ -2999,6 +3001,100 @@ export class FxCore {
     if (res.result.isErr()) {
       return err(res.result.error);
     }
+    return ok(undefined);
+  }
+
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
+    ErrorHandlerMW,
+    QuestionMW("updateActionWithMCP"),
+    ConcurrentLockerMW,
+  ])
+  async updateActionWithMCP(inputs: Inputs): Promise<Result<any, FxError>> {
+    const projectPath = inputs.projectPath;
+    if (!projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+    const aiPluginFilePath = path.join(
+      projectPath,
+      AppPackageFolderName,
+      DefaultPluginManifestFileName
+    );
+    if (!(await fs.pathExists(aiPluginFilePath))) {
+      const error = new SystemError(
+        "MCPForDAPluginManifestNotFound",
+        "PluginManifestNotFound",
+        getDefaultString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath),
+        getLocalizedString("core.MCPForDA.pluginManifestNotFound", aiPluginFilePath)
+      );
+      return err(error);
+    }
+
+    const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
+    const serverName = inputs[QuestionNames.MCPForDAServerName];
+    const mcpTool = inputs[QuestionNames.MCPForDATool];
+
+    // 2. Read ai-plugin.json
+    const aiPluginContent = await fs.readJSON(aiPluginFilePath);
+
+    // For dynamic fetch tools, keep the functions empty and add runtime info
+    if (mcpTool === "dynamic-fetch") {
+      aiPluginContent.functions = [];
+      aiPluginContent.runtimes = [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+            enable_dynamic_discovery: true,
+          },
+        },
+      ];
+    } else {
+      const mcpToolsDetail = inputs[QuestionNames.MCPForDAAvailableTools];
+      const mcpToolsSelected = inputs[QuestionNames.MCPForDAPreFetchTools];
+      const mcpAuth = inputs[QuestionNames.MCPForDAAuth];
+      if (!mcpToolsDetail || !mcpToolsSelected) {
+        const error = new UserError(
+          "MCPForDAPreFetchToolsNotFound",
+          "PreFetchToolsNotFound",
+          getDefaultString("core.MCPForDA.preFetchToolsNotFound"),
+          getLocalizedString("core.MCPForDA.preFetchToolsNotFound")
+        );
+        return err(error);
+      }
+      aiPluginContent.functions = [];
+      aiPluginContent.functions = mcpToolsDetail
+        .filter((tool: any) => mcpToolsSelected.includes(tool.name))
+        .map((tool: any) => {
+          return {
+            name: tool.name,
+            description: tool.description,
+            parameters: {
+              type: tool.inputSchema.type || "object",
+              properties: tool.inputSchema.properties,
+              required: tool.inputSchema.required || [],
+            },
+          };
+        });
+      aiPluginContent.runtimes = [];
+      aiPluginContent.runtimes = [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+            enable_dynamic_discovery: false,
+          },
+          run_for_functions: aiPluginContent.functions.map((func: any) => func.name),
+        },
+      ];
+      if (mcpAuth === "OAuthPluginVault") {
+        aiPluginContent.runtimes[0].auth = {
+          type: "OAuthPluginVault",
+          reference_id: "${{MCP_DA_AUTH_ID}}",
+        };
+      }
+    }
+    await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
     return ok(undefined);
   }
 

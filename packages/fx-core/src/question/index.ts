@@ -31,6 +31,7 @@ import {
 import { scaffoldQuestionForVS } from "./scaffold/vs/createRootNode";
 import { createFromTdpNode } from "./scaffold/vsc/createFromTdpNode";
 import { scaffoldQuestionForVSCode } from "./scaffold/vsc/createRootNode";
+import { updateActionWithMCP } from "./scaffold/vsc/teamsProjectTypeNode";
 export * from "./constants";
 export * from "./create";
 export * from "./inputs";
@@ -115,6 +116,9 @@ export class QuestionNodes {
   }
   removeSharedAccess(): IQTreeNode {
     return removeSharedAccessNode();
+  }
+  updateActionWithMCP(): IQTreeNode {
+    return updateActionWithMCP();
   }
 }
 

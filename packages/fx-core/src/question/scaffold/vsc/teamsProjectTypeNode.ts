@@ -420,3 +420,53 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
     ],
   };
 }
+
+export function updateActionWithMCP(): IQTreeNode {
+  return {
+    data: {
+      type: "singleSelect",
+      name: QuestionNames.MCPForDATool,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.title"),
+      staticOptions: [
+        {
+          id: "pre-fetch-tools",
+          label: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.label"),
+          detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Tool.preFetch.detail"),
+          data: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        },
+        {
+          id: "dynamic-discovery",
+          label: getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.label"
+          ),
+          detail: getLocalizedString(
+            "core.createProjectQuestion.mcpForDa.Tool.dynamicDiscovery.detail"
+          ),
+          data: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        },
+      ],
+    },
+    children: [
+      {
+        condition: { equals: "pre-fetch-tools" },
+        data: {
+          type: "multiSelect",
+          name: QuestionNames.MCPForDAPreFetchTools,
+          title: getLocalizedString("core.createProjectQuestion.mcpForDa.PreFetchTools.title"),
+          staticOptions: [],
+          dynamicOptions: (inputs: Inputs): OptionItem[] => {
+            const availableTools: any[] = inputs[QuestionNames.MCPForDAAvailableTools];
+            const tools = availableTools.map((tool: any) => {
+              return {
+                id: tool.name,
+                label: tool.name,
+                detail: tool.description || "",
+              };
+            });
+            return tools;
+          },
+        },
+      },
+    ],
+  };
+}

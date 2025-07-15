@@ -145,13 +145,13 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
       await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
     }
 
-    if (
-      featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
-      TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
-    ) {
-      const result = await generateForMCPForDA(destinationPath, inputs);
-      return result;
-    }
+    // if (
+    //   featureFlagManager.getBooleanValue(FeatureFlags.MCPForDA) &&
+    //   TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]
+    // ) {
+    //   const result = await generateForMCPForDA(destinationPath, inputs);
+    //   return result;
+    // }
 
     if (
       featureFlagManager.getBooleanValue(FeatureFlags.EmbeddedKnowledgeEnabled) &&

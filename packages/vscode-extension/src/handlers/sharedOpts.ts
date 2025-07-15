@@ -171,6 +171,10 @@ export async function runCommand(
         result = await core.installAppToChannel(inputs);
         break;
       }
+      case Stage.updateActionWithMCP: {
+        result = await core.updateActionWithMCP(inputs);
+        break;
+      }
       default:
         throw new SystemError(
           ExtensionSource,
