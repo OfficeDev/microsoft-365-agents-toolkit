@@ -36,6 +36,7 @@ import {
   InputValidationError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
+  UserCancelError,
   assembleError,
 } from "../../error/common";
 import { LifeCycleUndefinedError } from "../../error/yml";
@@ -442,7 +443,29 @@ class Coordinator {
         m365tenantInfo?.tenantIdInToken
       );
       if (checkM365TenatRes.isErr()) {
-        return err(checkM365TenatRes.error);
+        const msg = getLocalizedString("core.provision.switchAccount");
+        const continueItem = getLocalizedString("core.provision.switchAccount.continue");
+        const userCofirmRes = await ctx.ui?.showMessage("warn", msg, true, continueItem);
+        if (userCofirmRes?.isOk() && userCofirmRes.value === continueItem) {
+          await ctx.m365TokenProvider.signout();
+
+          const tenantInfoInTokenRes1 = await provisionUtils.getM365TenantId(ctx.m365TokenProvider);
+          if (tenantInfoInTokenRes1.isErr()) {
+            return err(tenantInfoInTokenRes1.error);
+          }
+          m365tenantInfo = tenantInfoInTokenRes1.value;
+
+          const checkM365TenatRes1 = provisionUtils.ensureM365TenantMatchesV3(
+            tenantSwitchCheckActions,
+            m365tenantInfo?.tenantIdInToken
+          );
+
+          if (checkM365TenatRes1.isErr()) {
+            return err(checkM365TenatRes1.error);
+          }
+        } else {
+          return err(new UserCancelError("coordinator"));
+        }
       }
     }
 
