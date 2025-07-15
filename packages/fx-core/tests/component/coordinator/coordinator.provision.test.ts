@@ -1489,6 +1489,7 @@ describe("coordinator provision", () => {
       subscriptionName: "mockSubName",
     });
     sandbox.stub(tools.tokenProvider.azureAccountProvider, "setSubscription").resolves();
+    sandbox.stub(tools.tokenProvider.m365TokenProvider, "signout").resolves();
     sandbox.stub(tools.ui, "selectOption").callsFake(async (config) => {
       if (config.name === "env") {
         return ok({ type: "success", result: "dev" });
@@ -1496,6 +1497,7 @@ describe("coordinator provision", () => {
         return ok({ type: "success", result: "" });
       }
     });
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("Continue"));
     sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
     sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
