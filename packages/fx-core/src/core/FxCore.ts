@@ -185,6 +185,7 @@ import {
 import { ValidateTeamsAppInputs } from "../question/inputs/ValidateTeamsAppInputs";
 import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
+import { ShareTargetOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import {
   CollaborationUtil,
@@ -943,8 +944,8 @@ export class FxCore {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const options = inputs[QuestionNames.ShareOption];
-    if (options === QuestionNames.ShareOptionShareApp) {
+    const options = inputs[QuestionNames.ShareScope];
+    if (options === ShareTargetOption.ShareAppWithTenantUsers) {
       inputs.stage = Stage.share;
       const context = createDriverContext(inputs);
       const res = await coordinator.share(context, inputs as InputsWithProjectPath);
@@ -956,8 +957,8 @@ export class FxCore {
         ctx!.envVars = inputs.envVars;
         return err(res.error);
       }
-    } else if (options === QuestionNames.ShareOptionShareToUser) {
-      const emails = (inputs[QuestionNames.ShareToUsers] as string).split(",").map((e) => e.trim());
+    } else if (options === ShareTargetOption.ShareAppWithOwners) {
+      const emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
       if (!emails || emails.length === 0) {
         return err(new MissingRequiredInputError("emails", "FxCore"));
       }

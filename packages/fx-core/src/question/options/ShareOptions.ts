@@ -12,16 +12,16 @@ import { CLICommandOption, CLICommandArgument } from "@microsoft/teamsfx-api";
 
 export const ShareOptions: CLICommandOption[] = [
   {
-    name: "option",
+    name: "scope",
     type: "string",
-    description: "option",
+    description: "Share the app",
     required: true,
-    choices: ["share-app", "share-with-users"],
+    choices: ["tenant", "specific-users", "owners"],
   },
   {
-    name: "users",
+    name: "email",
     type: "string",
-    description: "Enter user emails (separated by commas)",
+    description: "Email address of specific users.",
   },
 ];
 export const ShareArguments: CLICommandArgument[] = [];

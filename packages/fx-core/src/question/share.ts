@@ -1,0 +1,155 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import {
+  IQTreeNode,
+  Inputs,
+  MultiSelectQuestion,
+  OptionItem,
+  SingleSelectQuestion,
+} from "@microsoft/teamsfx-api";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { AppStudioScopes } from "../common/constants";
+import { TOOLS } from "../common/globalVars";
+import { getLocalizedString } from "../common/localizeUtils";
+import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
+import { CollaborationUtil } from "../core/collaborator";
+import { QuestionNames } from "./constants";
+import { inputUserEmailQuestion } from "./other";
+
+export enum ShareTargetOption {
+  ShareAppWithTenantUsers = "tenant",
+  ShareAppWithSpecificUsers = "specific-users",
+  ShareAppWithOwners = "owners",
+}
+
+export function shareNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: shareOptionQuestion(),
+        children: [
+          {
+            condition: (inputs: Inputs) => {
+              return (
+                inputs[QuestionNames.ShareScope] === ShareTargetOption.ShareAppWithOwners ||
+                inputs[QuestionNames.ShareScope] === ShareTargetOption.ShareAppWithSpecificUsers
+              );
+            },
+            data: inputUserEmailQuestion(
+              getLocalizedString("core.shareOptionQuestion.emails.title"),
+              "Email address of specific users.",
+              false
+            ),
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function shareOptionQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ShareScope,
+    title: getLocalizedString("core.shareOptionQuestion.title"),
+    type: "singleSelect",
+    placeholder: getLocalizedString("core.shareOptionQuestion.placeholder"),
+    staticOptions: [
+      ShareOptions.shareWithTenant(),
+      ShareOptions.shareWithUsers(),
+      ShareOptions.shareWithOwners(),
+    ],
+  };
+}
+
+export class ShareOptions {
+  static shareWithTenant(): OptionItem {
+    return {
+      id: ShareTargetOption.ShareAppWithTenantUsers,
+      label: getLocalizedString("core.shareOptionQuestion.option.shareWithTenant"),
+    };
+  }
+
+  static shareWithUsers(): OptionItem {
+    return {
+      id: ShareTargetOption.ShareAppWithSpecificUsers,
+      label: getLocalizedString("core.shareOptionQuestion.option.shareWithUsers"),
+    };
+  }
+
+  static shareWithOwners(): OptionItem {
+    return {
+      id: ShareTargetOption.ShareAppWithOwners,
+      label: getLocalizedString("core.shareOptionQuestion.option.shareWithOwners"),
+    };
+  }
+}
+
+export function removeSharedAccessNode(): IQTreeNode {
+  return {
+    data: {
+      type: "group",
+    },
+    children: [
+      {
+        data: selectUsersToRemoveSharedAccess(),
+      },
+    ],
+  };
+}
+
+export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
+  return {
+    name: QuestionNames.RemoveUsers,
+    title: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    type: "multiSelect",
+    cliDescription: getLocalizedString("core.selectUsersToRemoveShareAccess.title"),
+    staticOptions: [],
+    dynamicOptions: async (inputs: Inputs) => {
+      if (!inputs.projectPath) {
+        throw new Error("Project path is not defined");
+      }
+      const tokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: AppStudioScopes,
+      });
+      if (tokenRes.isErr()) {
+        throw tokenRes.error;
+      }
+      const token = tokenRes.value;
+      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      if (configRes.isErr()) {
+        throw configRes.error;
+      }
+      const teamsAppId = configRes.value[0];
+      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
+      if (!app.userList || app.userList.length === 0) {
+        throw new Error("No owner found in the app");
+      }
+
+      const currentUserInfoRes = await CollaborationUtil.getCurrentUserInfo(
+        TOOLS.tokenProvider.m365TokenProvider
+      );
+      if (currentUserInfoRes.isErr()) {
+        throw currentUserInfoRes.error;
+      }
+      const operatorId = currentUserInfoRes.value.aadId;
+
+      const options: OptionItem[] = [];
+      for (const user of app.userList) {
+        if (user.aadId === operatorId) {
+          continue;
+        }
+        options.push({
+          id: user.userPrincipalName,
+          label: user.displayName,
+          description: user.userPrincipalName,
+        });
+      }
+      return options;
+    },
+    skipValidation: true,
+  };
+}
