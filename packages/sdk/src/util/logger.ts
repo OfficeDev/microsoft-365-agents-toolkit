@@ -3,6 +3,8 @@
 
 /**
  * Interface for customized logger.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export interface Logger {
   /**
@@ -25,11 +27,15 @@ export interface Logger {
 
 /**
  * Log function for customized logging.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export type LogFunction = (level: LogLevel, message: string) => void;
 
 /**
  * Log level.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export enum LogLevel {
   /**
@@ -53,6 +59,8 @@ export enum LogLevel {
 /**
  * Update log level helper.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @param { LogLevel } level - log level in configuration
  */
 export function setLogLevel(level: LogLevel): void {
@@ -62,12 +70,17 @@ export function setLogLevel(level: LogLevel): void {
 /**
  * Get log level.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @returns Log level
  */
 export function getLogLevel(): LogLevel | undefined {
   return internalLogger.level;
 }
 
+/**
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ */
 export class InternalLogger implements Logger {
   public name?: string;
   public level?: LogLevel = undefined;
@@ -133,12 +146,16 @@ export class InternalLogger implements Logger {
 /**
  * Logger instance used internally
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+ *
  * @internal
  */
 export const internalLogger: InternalLogger = new InternalLogger();
 
 /**
  * Set custom logger. Use the output functions if it's set. Priority is higher than setLogFunction.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @param {Logger} logger - custom logger. If it's undefined, custom logger will be cleared.
  *
@@ -158,6 +175,8 @@ export function setLogger(logger?: Logger): void {
 
 /**
  * Set custom log function. Use the function if it's set. Priority is lower than setLogger.
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  *
  * @param {LogFunction} logFunction - custom log function. If it's undefined, custom log function will be cleared.
  *

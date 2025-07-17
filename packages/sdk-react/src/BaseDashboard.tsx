@@ -41,6 +41,7 @@ interface BaseDashboardState {
 
 /**
  * The base component that provides basic functionality to create a dashboard.
+ * @deprecated This package will be deprecated by 2026-07.
  * @typeParam P The type of props.
  * @typeParam S The type of state.
  */

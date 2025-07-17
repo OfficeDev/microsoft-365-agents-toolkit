@@ -16,6 +16,7 @@ import {
 
 /**
  * @internal
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export class CommandResponseMiddleware implements Middleware {
   public readonly commandHandlers: TeamsFxBotCommandHandler[] = [];
@@ -24,6 +25,9 @@ export class CommandResponseMiddleware implements Middleware {
   public ssoActivityHandler: BotSsoExecutionActivityHandler | undefined;
   public hasSsoCommand: boolean;
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   constructor(
     handlers?: TeamsFxBotCommandHandler[],
     ssoHandlers?: TeamsFxBotSsoCommandHandler[],
@@ -48,6 +52,9 @@ export class CommandResponseMiddleware implements Middleware {
     }
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public addSsoCommand(ssoHandler: TeamsFxBotSsoCommandHandler): void {
     this.ssoActivityHandler?.addCommand(
       async (
@@ -66,6 +73,9 @@ export class CommandResponseMiddleware implements Middleware {
     this.hasSsoCommand = true;
   }
 
+  /**
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
+   */
   public async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
     if (context.activity.type === ActivityTypes.Message) {
       // Invoke corresponding command handler for the command response

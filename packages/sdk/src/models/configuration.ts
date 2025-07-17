@@ -3,6 +3,8 @@
 
 /**
  * Authentication configuration for TeamsUserCredential used in browser environment
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export type TeamsUserCredentialAuthConfig = {
   /**
@@ -18,6 +20,8 @@ export type TeamsUserCredentialAuthConfig = {
 
 /**
  * Authentication configuration for OnBehalfOfCredential used in node environment
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export type OnBehalfOfCredentialAuthConfig = {
   /**
@@ -57,5 +61,7 @@ export type OnBehalfOfCredentialAuthConfig = {
 
 /**
  * Authentication configuration for AppCredential used in node environment
+ *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  */
 export type AppCredentialAuthConfig = OnBehalfOfCredentialAuthConfig;

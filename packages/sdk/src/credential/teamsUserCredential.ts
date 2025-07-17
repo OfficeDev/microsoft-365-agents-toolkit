@@ -10,12 +10,15 @@ import { formatString } from "../util/utils";
 /**
  * Represent Teams current user's identity, and it is used within Teams client applications.
  *
+ * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
  * @remarks
  * Can only be used within Teams.
  */
 export class TeamsUserCredential implements TokenCredential {
   /**
    * Constructor of TeamsUserCredential.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * Can only be used within Teams.
    */
@@ -29,6 +32,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Popup login page to get user's access token with specific scopes.
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param {string[]} resources - The optional list of resources for full trust Teams apps.
    *
    * @remarks
@@ -45,6 +49,8 @@ export class TeamsUserCredential implements TokenCredential {
 
   /**
    * Get access token from credential.
+   *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @remarks
    * Can only be used within Teams.
    */
@@ -60,6 +66,7 @@ export class TeamsUserCredential implements TokenCredential {
   /**
    * Get basic user info from SSO token
    *
+   * @deprecated This package will be deprecated by 2026-07. Please use [Microsoft 365 Agents SDK](https://www.npmjs.com/package/@microsoft/agents-hosting) instead.
    * @param {string[]} resources - The optional list of resources for full trust Teams apps.
    *
    * @remarks
