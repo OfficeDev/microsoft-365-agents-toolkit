@@ -352,10 +352,6 @@ describe("getStderrHandler", () => {
 
 describe("defaultShell", () => {
   const sandbox = sinon.createSandbox();
-  before(() => {
-    sinon.restore();
-    sandbox.restore();
-  });
   afterEach(() => {
     sandbox.restore();
   });
@@ -365,18 +361,21 @@ describe("defaultShell", () => {
     assert.equal(result, "/bin/bash");
   });
   it("darwin - /bin/zsh", async () => {
+    sandbox.stub(process, "env").value({});
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").resolves(true);
     const result = await defaultShell();
     assert.equal(result, "/bin/zsh");
   });
   it("darwin - /bin/bash", async () => {
+    sandbox.stub(process, "env").value({});
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(false).onSecondCall().resolves(true);
     const result = await defaultShell();
     assert.equal(result, "/bin/bash");
   });
   it("darwin - undefined", async () => {
+    sandbox.stub(process, "env").value({});
     sandbox.stub(process, "platform").value("darwin");
     sandbox.stub(fs, "pathExists").resolves(false);
     const result = await defaultShell();
@@ -397,6 +396,7 @@ describe("defaultShell", () => {
   });
 
   it("other OS - /bin/sh", async () => {
+    sandbox.stub(process, "env").value({});
     sandbox.stub(process, "platform").value("other");
     sandbox.stub(fs, "pathExists").resolves(true);
     const result = await defaultShell();
@@ -404,6 +404,7 @@ describe("defaultShell", () => {
   });
 
   it("other OS - undefined", async () => {
+    sandbox.stub(process, "env").value({});
     sandbox.stub(process, "platform").value("other");
     sandbox.stub(fs, "pathExists").resolves(false);
     const result = await defaultShell();
